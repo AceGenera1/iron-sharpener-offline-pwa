@@ -3644,7 +3644,7 @@ function showSmallTeachingNoteBox() {
       scriptureBox.classList.remove("focus-mode");
 
 try {
-  const bookFolder = bookSel.value;
+  const bookFolder = bookSel.value.replaceAll(" ", "_");
   const chapterNumber = chapSel.value;
   const startVerse = parseInt(startSel.value, 10);
   const endVerse = parseInt(endSel.value, 10);
