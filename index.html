@@ -3686,13 +3686,13 @@ try {
     end: endSel.value,
     range: rangeSel.value
   }));
-} catch (error) {
+ } catch (error) {
   passage.innerHTML = `
     <p class="verse">Could not load this passage from the local offline Bible files.</p>
     <p class="verse" style="font-size:18px">${error.message}</p>
   `;
 }
-}      
+}
     function shiftRange(direction) {
       const max = verseMax();
       const size = rangeSel.value === "full" ? max : (parseInt(rangeSel.value, 10) || 5);
