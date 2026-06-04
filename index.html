@@ -4030,7 +4030,7 @@ if (crossRefs) {
 
       const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
 
-      bookSel.value = saved?.book || "Hebrews";
+     bookSel.value = saved?.book || "Genesis";
       fillChapters();
 
       chapSel.value = saved?.chapter || "1";
