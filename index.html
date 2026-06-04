@@ -3643,44 +3643,55 @@ function showSmallTeachingNoteBox() {
       passage.innerHTML = '<p class="verse">Loading passage…</p>';
       scriptureBox.classList.remove("focus-mode");
 
-      try {
-        const response = await fetch(`https://bible-api.com/${encodeURIComponent(currentRef())}?translation=web`);
+try {
+  const bookFolder = bookSel.value;
+  const chapterNumber = chapSel.value;
+  const startVerse = parseInt(startSel.value, 10);
+  const endVerse = parseInt(endSel.value, 10);
 
-        if (!response.ok) {
-          throw new Error("Scripture source did not respond.");
-        }
+  const response = await fetch(`bible/web/${bookFolder}/${chapterNumber}.json`);
 
-        const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Local Bible file not found: bible/web/${bookFolder}/${chapterNumber}.json`);
+  }
 
-        if (!data.verses || !data.verses.length) {
-          throw new Error("No verses returned.");
-        }
+  const data = await response.json();
 
-        refTitle.textContent = data.reference.replace(":", " ");
+  if (!data.verses || !data.verses.length) {
+    throw new Error("No verses found in local Bible file.");
+  }
 
-        passage.innerHTML = data.verses.map((verse) => {
-          return `<p class="verse" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${cleanText(verse.text)}</p>`;
-        }).join("");
+  const selectedVerses = data.verses.filter((verse) => {
+    return verse.verse >= startVerse && verse.verse <= endVerse;
+  });
 
-        activateVerses();
-        restoreMarks();
-        loadCurrentNotes();
+  if (!selectedVerses.length) {
+    throw new Error("No verses found for this selected range.");
+  }
 
-        localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify({
-          book: bookSel.value,
-          chapter: chapSel.value,
-          start: startSel.value,
-          end: endSel.value,
-          range: rangeSel.value
-        }));
-      } catch (error) {
-        passage.innerHTML = `
-          <p class="verse">Could not load this passage automatically.</p>
-          <p class="verse" style="font-size:18px">Try a smaller verse range or use the WEB PDF. ${error.message}</p>
-        `;
-      }
-    }
+  refTitle.textContent = `${data.book} ${data.chapter} ${startVerse}-${endVerse}`;
 
+  passage.innerHTML = selectedVerses.map((verse) => {
+    return `<p class="verse" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${cleanText(verse.text)}</p>`;
+  }).join("");
+
+  activateVerses();
+  restoreMarks();
+  loadCurrentNotes();
+
+  localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify({
+    book: bookSel.value,
+    chapter: chapSel.value,
+    start: startSel.value,
+    end: endSel.value,
+    range: rangeSel.value
+  }));
+} catch (error) {
+  passage.innerHTML = `
+    <p class="verse">Could not load this passage from the local offline Bible files.</p>
+    <p class="verse" style="font-size:18px">${error.message}</p>
+  `;
+}
     function shiftRange(direction) {
       const max = verseMax();
       const size = rangeSel.value === "full" ? max : (parseInt(rangeSel.value, 10) || 5);
