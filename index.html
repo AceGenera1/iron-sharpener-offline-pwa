@@ -3650,8 +3650,11 @@ try {
   const endVerse = parseInt(endSel.value, 10);
 
 const paddedChapter = String(chapterNumber).padStart(2, "0");
-const response = await fetch(`bible/web/${bookFolder}/${paddedChapter}.json`);
+const paddedChapter = String(chapterNumber).padStart(2, "0");
 
+const response = await fetch(
+  `bible/web/${bookFolder}/${paddedChapter}.json`
+);
   if (!response.ok) {
     throw new Error(`Local Bible file not found: bible/web/${bookFolder}/${chapterNumber}.json`);
   }
