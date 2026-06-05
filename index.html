@@ -3639,67 +3639,55 @@ function showSmallTeachingNoteBox() {
     }
 
 async function loadPassage() {
-try {
-  const selectedBook = bookSel.value;
- const bookFolder = selectedBook;
-  const chapterNumber = chapSel.value;
-  const paddedChapter = String(chapterNumber).padStart(2, "0");
+  refTitle.textContent = currentRef().replace(":", " ");
+  passage.innerHTML = '<p class="verse">Loading passage…</p>';
+  scriptureBox.classList.remove("focus-mode");
 
-  const response = await fetch(
-    `bible/web/${bookFolder}/${paddedChapter}.json`
-  );
+  try {
+    const selectedBook = bookSel.value;
+    const bookFolder = selectedBook;
+    const chapterNumber = chapSel.value;
+    const startVerse = parseInt(startSel.value, 10);
+    const endVerse = parseInt(endSel.value, 10);
+    const paddedChapter = String(chapterNumber).padStart(2, "0");
 
-try {
-const bookFolder = bookSel.value.replaceAll(" ", "_");
-const chapterNumber = chapSel.value;
-const paddedChapter = String(chapterNumber).padStart(2, "0");
+    const response = await fetch(
+      `bible/web/${bookFolder}/${paddedChapter}.json`
+    );
 
-const response = await fetch(
-  `bible/web/${bookFolder}/${paddedChapter}.json`
-);
-if (!response.ok) {
-  throw new Error(
-    `Local Bible file not found: bible/web/${bookFolder}/${paddedChapter}.json`
-  );
-}
+    if (!response.ok) {
+      throw new Error(`Local Bible file not found: bible/web/${bookFolder}/${paddedChapter}.json`);
+    }
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!data.verses || !data.verses.length) {
-    throw new Error("No verses found in local Bible file.");
+    const selectedVerses = data.verses.filter((verse) => {
+      return verse.verse >= startVerse && verse.verse <= endVerse;
+    });
+
+    refTitle.textContent = `${data.book} ${data.chapter} ${startVerse}-${endVerse}`;
+
+    passage.innerHTML = selectedVerses.map((verse) => {
+      return `<p class="verse" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${cleanText(verse.text)}</p>`;
+    }).join("");
+
+    activateVerses();
+    restoreMarks();
+    loadCurrentNotes();
+
+    localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify({
+      book: bookSel.value,
+      chapter: chapSel.value,
+      start: startSel.value,
+      end: endSel.value,
+      range: rangeSel.value
+    }));
+  } catch (error) {
+    passage.innerHTML = `
+      <p class="verse">Could not load this passage from the local offline Bible files.</p>
+      <p class="verse" style="font-size:18px">${error.message}</p>
+    `;
   }
-
-  const selectedVerses = data.verses.filter((verse) => {
-    return verse.verse >= startVerse && verse.verse <= endVerse;
-  });
-
-  if (!selectedVerses.length) {
-    throw new Error("No verses found for this selected range.");
-  }
-
-  refTitle.textContent = `${data.book} ${data.chapter} ${startVerse}-${endVerse}`;
-
-  passage.innerHTML = selectedVerses.map((verse) => {
-    return `<p class="verse" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${cleanText(verse.text)}</p>`;
-  }).join("");
-
-  activateVerses();
-  restoreMarks();
-  loadCurrentNotes();
-
-  localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify({
-    book: bookSel.value,
-    chapter: chapSel.value,
-    start: startSel.value,
-    end: endSel.value,
-    range: rangeSel.value
-  }));
- } catch (error) {
-  passage.innerHTML = `
-    <p class="verse">Could not load this passage from the local offline Bible files.</p>
-    <p class="verse" style="font-size:18px">${error.message}</p>
-  `;
-}
 }
     function shiftRange(direction) {
       const max = verseMax();
