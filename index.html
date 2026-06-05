@@ -4049,6 +4049,13 @@ if (crossRefs) {
       startSel.value = saved?.start || "1";
       rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
+      if (rangeSel.value === "full") {
+  startSel.value = "1";
+  updateEndFromRange();
+} else {
+  endSel.value = saved?.end || endSel.value || "1";
+}
+
       bookSel.onchange = () => saveThenLoad(() => {
         fillChapters();
         chapSel.value = "1";
@@ -4071,9 +4078,9 @@ if (crossRefs) {
       endSel.onchange = () => saveThenLoad();
 
       rangeSel.onchange = () => saveThenLoad(() => {
-        updateEndFromRange();
-        localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
-      });
+  localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+  updateEndFromRange();
+});
 
       $("loadBtn").onclick = () => {
         saveCurrentNotes();
@@ -4675,5 +4682,14 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => console.log("Iron Sharpener service worker registered"))
+      .catch((error) => console.error("Service worker registration failed:", error));
+  });
+}
+</script>
 </body>
 </html>
