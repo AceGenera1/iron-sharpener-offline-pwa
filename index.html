@@ -3944,7 +3944,7 @@ function goToScriptureReference(ref) {
   fillVerses();
   startSel.value = match[3];
   endSel.value = match[4] || match[3];
-  rangeSel.value = "5";
+  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
 
   $("backToPreviousPassage").style.display = "inline-flex";
 
@@ -4047,7 +4047,7 @@ if (crossRefs) {
         fillChapters();
         chapSel.value = "1";
         fillVerses();
-        rangeSel.value = "5";
+      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
         startSel.value = "1";
         updateEndFromRange();
       });
@@ -4066,6 +4066,7 @@ if (crossRefs) {
 
       rangeSel.onchange = () => saveThenLoad(() => {
         updateEndFromRange();
+        localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
       });
 
       $("loadBtn").onclick = () => {
