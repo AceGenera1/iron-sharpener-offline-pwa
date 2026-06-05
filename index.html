@@ -3455,6 +3455,7 @@ function showSmallTeachingNoteBox() {
     function fillVerses() {
       const max = verseMax();
       const oldStart = parseInt(startSel.value, 10) || 1;
+      const oldEnd = parseInt(endSel.value, 10) || oldStart;
       rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
       startSel.innerHTML = "";
