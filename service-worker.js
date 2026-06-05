@@ -1,10 +1,11 @@
-const CACHE_NAME = "iron-sharpener-offline-v4";
+const CACHE_NAME = "iron-sharpener-offline-v5";
 
 const CORE_ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./assets/iron-sharpener-logo.png"
+  "/iron-sharpener-offline-pwa/",
+  "/iron-sharpener-offline-pwa/index.html",
+  "/iron-sharpener-offline-pwa/manifest.json",
+  "/iron-sharpener-offline-pwa/service-worker.js",
+  "/iron-sharpener-offline-pwa/assets/iron-sharpener-logo.png"
 ];
 
 self.addEventListener("install", (event) => {
