@@ -3455,7 +3455,7 @@ function showSmallTeachingNoteBox() {
     function fillVerses() {
       const max = verseMax();
       const oldStart = parseInt(startSel.value, 10) || 1;
-      const oldEnd = parseInt(endSel.value, 10) || 5;
+      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
       startSel.innerHTML = "";
       endSel.innerHTML = "";
@@ -3638,17 +3638,14 @@ function showSmallTeachingNoteBox() {
       });
     }
 
-    async function loadPassage() {
+    async function  {
       refTitle.textContent = currentRef().replace(":", " ");
       passage.innerHTML = '<p class="verse">Loading passage…</p>';
       scriptureBox.classList.remove("focus-mode");
 
 try {
-  const bookFolder = bookSel.value.replaceAll(" ", "_");
-  const chapterNumber = chapSel.value;
-  const startVerse = parseInt(startSel.value, 10);
-  const endVerse = parseInt(endSel.value, 10);
-
+const bookFolder = bookSel.value.replaceAll(" ", "_");
+const chapterNumber = chapSel.value;
 const paddedChapter = String(chapterNumber).padStart(2, "0");
 
 const response = await fetch(
@@ -3944,7 +3941,7 @@ function goToScriptureReference(ref) {
   fillVerses();
   startSel.value = match[3];
   endSel.value = match[4] || match[3];
-  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
+ rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
   $("backToPreviousPassage").style.display = "inline-flex";
 
@@ -4041,7 +4038,7 @@ if (crossRefs) {
 
       rangeSel.value = saved?.range || "5";
       startSel.value = saved?.start || "1";
-      endSel.value = saved?.end || "5";
+      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
       bookSel.onchange = () => saveThenLoad(() => {
         fillChapters();
@@ -4126,7 +4123,7 @@ if (crossRefs) {
       initTeacherTools();
       setTool("highlight-gold");
       initTeachingPresentationTools();
-      loadPassage();
+      ;
 
       window.addEventListener("beforeunload", saveCurrentNotes);
     }
