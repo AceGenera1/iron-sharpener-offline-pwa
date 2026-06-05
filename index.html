@@ -3641,7 +3641,7 @@ function showSmallTeachingNoteBox() {
 async function loadPassage() {
 try {
   const selectedBook = bookSel.value;
-  const bookFolder = selectedBook.replaceAll(" ", "_");
+ const bookFolder = selectedBook;
   const chapterNumber = chapSel.value;
   const paddedChapter = String(chapterNumber).padStart(2, "0");
 
@@ -3657,7 +3657,11 @@ const paddedChapter = String(chapterNumber).padStart(2, "0");
 const response = await fetch(
   `bible/web/${bookFolder}/${paddedChapter}.json`
 );
- throw new Error(`Local Bible file not found: bible/web/${bookFolder}/${paddedChapter}.json`);
+if (!response.ok) {
+  throw new Error(
+    `Local Bible file not found: bible/web/${bookFolder}/${paddedChapter}.json`
+  );
+}
 
   const data = await response.json();
 
