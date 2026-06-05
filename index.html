@@ -3638,10 +3638,16 @@ function showSmallTeachingNoteBox() {
       });
     }
 
-    async function  {
-      refTitle.textContent = currentRef().replace(":", " ");
-      passage.innerHTML = '<p class="verse">Loading passage…</p>';
-      scriptureBox.classList.remove("focus-mode");
+async function loadPassage() {
+try {
+  const selectedBook = bookSel.value;
+  const bookFolder = selectedBook.replaceAll(" ", "_");
+  const chapterNumber = chapSel.value;
+  const paddedChapter = String(chapterNumber).padStart(2, "0");
+
+  const response = await fetch(
+    `bible/web/${bookFolder}/${paddedChapter}.json`
+  );
 
 try {
 const bookFolder = bookSel.value.replaceAll(" ", "_");
