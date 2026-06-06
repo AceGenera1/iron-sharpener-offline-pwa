@@ -5371,6 +5371,68 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 
+
+  <script>
+(function finalStudyResourcesReopenFix() {
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function openStudyResources(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const panel = get("studyResourcesPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.classList.remove("drag-positioned");
+    panel.style.display = "none";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+
+    panel.offsetHeight;
+
+    panel.style.display = "";
+    panel.style.zIndex = "40000";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  function closeStudyResources(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const panel = get("studyResourcesPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
+
+  document.addEventListener("click", function(event) {
+    const button = event.target.closest("button");
+    if (!button) return;
+
+    if (
+      button.id === "obsShowStudyResources" ||
+      button.id === "openStudyResourcesFromTools"
+    ) {
+      openStudyResources(event);
+    }
+
+    if (button.id === "closeStudyResourcesPanel") {
+      closeStudyResources(event);
+    }
+  }, true);
+})();
+</script>
+
   <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
