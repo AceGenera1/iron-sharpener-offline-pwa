@@ -4381,7 +4381,7 @@ if ($("openEastonsResource")) {
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
-    renderResults("");
+   results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
 
     panel.style.display = "";
     panel.classList.add("open");
