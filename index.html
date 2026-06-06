@@ -3821,6 +3821,13 @@ async function loadPassage() {
         teachingMethodPanel.setAttribute("aria-hidden", "true");
       }
 
+    const crossRefPanel = document.getElementById("obsCrossRefsPanel");
+    if (crossRefPanel && !on) {
+    crossRefPanel.classList.remove("open");
+    crossRefPanel.style.display = "";
+    panel.classList.add("open");
+    }
+
       closeTeacherTools();
     }
 
@@ -4287,7 +4294,10 @@ if ($("closeObsCrossRefs")) {
     event.stopPropagation();
 
     const panel = $("obsCrossRefsPanel");
-    if (panel) panel.classList.remove("open");
+    if (panel) {
+      panel.classList.remove("open");
+      panel.style.display = "";
+    }
   };
 }
 
