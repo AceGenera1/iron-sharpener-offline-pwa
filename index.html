@@ -2024,10 +2024,10 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible dictionary entries.</span>
 </button>
 
-    <button type="button" class="tool-option" disabled>
-      <strong>Smith's Bible Dictionary</strong>
-      <span>Coming later.</span>
-    </button>
+  <button type="button" class="tool-option" id="openSmithsResource">
+  <strong>Smith's Bible Dictionary</strong>
+  <span>Search offline historical Bible dictionary entries.</span>
+</button>
 
     <button type="button" class="tool-option" disabled>
       <strong>Nave's Topical Bible</strong>
@@ -3962,6 +3962,17 @@ if (studyResourcesPanel && !on) {
   }
 }
 
+  async function loadSmithsDictionary() {
+  try {
+    const response = await fetch("bible/resources/dictionaries/smiths.json");
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.warn("Smith's dictionary not found:", error);
+    return {};
+  }
+}
+
     async function loadTSKReferences() {
   const book = bookSel.value;
   const chapter = chapSel.value;
@@ -4371,6 +4382,64 @@ if ($("openEastonsResource")) {
 
       if (!q) {
         results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+              <h4>${dict[term].title}</h4>
+              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+    }
+
+    searchBox.oninput = () => renderResults(searchBox.value);
+
+    panel.style.display = "";
+    panel.classList.add("open");
+  };
+}
+
+if ($("openSmithsResource")) {
+  $("openSmithsResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "smiths";
+    if (title) title.textContent = "Smith's Bible Dictionary";
+
+    const dict = await loadSmithsDictionary();
+    const terms = Object.keys(dict).sort();
+
+    content.innerHTML = `
+      <input id="smithsSearchBox" type="text" placeholder="Search a word like Paul, Jerusalem, Pharisee..." style="margin-bottom:10px;">
+      <div id="smithsResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>
+      </div>
+    `;
+
+    const searchBox = $("smithsSearchBox");
+    const results = $("smithsResults");
+
+    function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>`;
         return;
       }
 
