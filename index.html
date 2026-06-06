@@ -4766,17 +4766,16 @@ document.addEventListener("DOMContentLoaded", function () {
     let startTop = 0;
     let dragging = false;
 
-    handle.addEventListener("mousedown", function (event) {
-  if (
+  handle.addEventListener("mousedown", function (event) {
   const draggableOutsideObs = [
-  "studyResourcesPanel",
-  "obsCrossRefsPanel"
-];
+    "studyResourcesPanel",
+    "obsCrossRefsPanel"
+  ];
 
-if (
-  !document.documentElement.classList.contains("obs") &&
-  !draggableOutsideObs.includes(panelId)
-) return;
+  if (
+    !document.documentElement.classList.contains("obs") &&
+    !draggableOutsideObs.includes(panelId)
+  ) return;
 
       dragging = true;
       const rect = panel.getBoundingClientRect();
