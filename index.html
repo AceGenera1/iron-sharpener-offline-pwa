@@ -4319,37 +4319,17 @@ if ($("closeStudyResourcesPanel")) {
 }
 
 if ($("openTskResource")) {
-  $("openTskResource").onclick = () => {
-    const studyPanel = $("studyResourcesPanel");
-    if (studyPanel) studyPanel.classList.remove("open");
-
-    if ($("obsShowCrossRefs")) $("obsShowCrossRefs").click();
-  };
-}
-
-if ($("obsShowCrossRefs")) {
-  $("obsShowCrossRefs").onclick = async () => {
-    renderCrossReferenceLinks();
-
-    const panel = $("obsCrossRefsPanel");
+  $("openTskResource").onclick = async () => {
+    const crossPanel = $("obsCrossRefsPanel");
     const content = $("obsCrossRefsContent");
-    const crossRefs = $("crossRefs");
     const obsBackBtn = $("obsBackToPreviousPassage");
 
-    if (!panel || !content || !crossRefs) return;
+    if (!crossPanel || !content) return;
 
-    const manualRefs = parseScriptureReferences(crossRefs.value);
     const tskRefs = await loadTSKReferences();
 
     content.innerHTML = `
-      <h4>Manual Cross References</h4>
-      ${
-        manualRefs.length
-          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
-          : `<p style="font:800 14px Arial,sans-serif;">No manual cross references added yet.</p>`
-      }
-
-      <h4>TSK Cross References</h4>
+      <h4>Treasury of Scripture Knowledge</h4>
       ${
         tskRefs.length
           ? tskRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
@@ -4361,6 +4341,47 @@ if ($("obsShowCrossRefs")) {
       btn.onclick = () => {
         goToScriptureReference(btn.dataset.ref);
         if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        crossPanel.style.display = "";
+        crossPanel.classList.add("open");
+      };
+    });
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
+    }
+
+    crossPanel.style.display = "";
+    crossPanel.classList.add("open");
+  };
+}
+
+if ($("obsShowCrossRefs")) {
+  $("obsShowCrossRefs").onclick = () => {
+    renderCrossReferenceLinks();
+
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const crossRefs = $("crossRefs");
+    const obsBackBtn = $("obsBackToPreviousPassage");
+
+    if (!panel || !content || !crossRefs) return;
+
+    const manualRefs = parseScriptureReferences(crossRefs.value);
+
+    content.innerHTML = `
+      <h4>Personal Cross References</h4>
+      ${
+        manualRefs.length
+          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
+      }
+    `;
+
+    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+      btn.onclick = () => {
+        goToScriptureReference(btn.dataset.ref);
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        panel.style.display = "";
         panel.classList.add("open");
       };
     });
@@ -4369,20 +4390,8 @@ if ($("obsShowCrossRefs")) {
       obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
     }
 
+    panel.style.display = "";
     panel.classList.add("open");
-  };
-}
-
-if ($("closeObsCrossRefs")) {
-  $("closeObsCrossRefs").onclick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const panel = $("obsCrossRefsPanel");
-    if (panel) {
-      panel.classList.remove("open");
-      panel.style.display = "";
-    }
   };
 }
 
