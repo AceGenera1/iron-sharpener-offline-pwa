@@ -3808,6 +3808,7 @@ async function loadPassage() {
     activateVerses();
     restoreMarks();
     loadCurrentNotes();
+    refreshActiveResourcePanel();
 
     localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify({
       book: bookSel.value,
@@ -4090,6 +4091,7 @@ if (studyResourcesPanel && !on) {
 }
 
 let previousPassageState = null;
+let activeResourcePanel = "";
 
 function goToScriptureReference(ref) {
   const match = ref.match(/^((?:[1-3]\s*)?[A-Za-z ]+)\s+(\d+):(\d+)(?:-(\d+))?$/i);
@@ -4122,6 +4124,16 @@ function goToScriptureReference(ref) {
   $("backToPreviousPassage").style.display = "inline-flex";
 
   loadPassage();
+}
+
+function refreshActiveResourcePanel() {
+  if (activeResourcePanel === "tsk" && $("obsCrossRefsPanel")?.classList.contains("open")) {
+    if ($("openTskResource")) $("openTskResource").click();
+  }
+
+  if (activeResourcePanel === "personalCrossRefs" && $("obsCrossRefsPanel")?.classList.contains("open")) {
+    if ($("obsShowCrossRefs")) $("obsShowCrossRefs").click();
+  }
 }
 
 function renderCrossReferenceLinks() {
@@ -4320,7 +4332,8 @@ if ($("closeStudyResourcesPanel")) {
 }
 
 if ($("openTskResource")) {
-  $("openTskResource").onclick = async () => {
+$("openTskResource").onclick = async () => {
+activeResourcePanel = "tsk";
 const crossPanel = $("obsCrossRefsPanel");
 const content = $("obsCrossRefsContent");
 const obsBackBtn = $("obsBackToPreviousPassage");
@@ -4361,6 +4374,7 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
 
 if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = () => {
+  activeResourcePanel = "personalCrossRefs";
     renderCrossReferenceLinks();
 
 const panel = $("obsCrossRefsPanel");
