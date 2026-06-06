@@ -1943,17 +1943,17 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
 </aside>
 </main>
 
- <div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
-<div class="floating-crossrefs-header drag-handle"
-data-drag-handle="obsCrossRefsPanel">
-<span>Cross References</span>
-<button id="closeObsCrossRefs"
-class="secondary"
-type="button">
-Close
-</button>
-</div>
-<div id="obsCrossRefsContent"></div>
+<div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
+  <div class="floating-crossrefs-header drag-handle" data-drag-handle="obsCrossRefsPanel">
+    <span>Cross References</span>
+    <button id="closeObsCrossRefs" class="secondary" type="button">Close</button>
+  </div>
+
+  <div id="obsCrossRefsContent"></div>
+
+  <button id="obsBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-top:10px;width:100%;">
+    ← Back to Previous Passage
+  </button>
 </div>
 
 
@@ -4206,13 +4206,14 @@ if (saved?.end) {
   };
 }
 
-  if ($("obsShowCrossRefs")) {
+if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = () => {
     renderCrossReferenceLinks();
 
     const panel = $("obsCrossRefsPanel");
     const content = $("obsCrossRefsContent");
     const crossRefs = $("crossRefs");
+    const obsBackBtn = $("obsBackToPreviousPassage");
 
     if (!panel || !content || !crossRefs) return;
 
@@ -4228,15 +4229,42 @@ if (saved?.end) {
       content.querySelectorAll(".cross-ref-link").forEach((btn) => {
         btn.onclick = () => {
           goToScriptureReference(btn.dataset.ref);
+          if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
           panel.classList.remove("open");
         };
       });
+    }
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
     }
 
     panel.classList.toggle("open");
   };
 }
 
+ if ($("obsBackToPreviousPassage")) {
+  $("obsBackToPreviousPassage").onclick = () => {
+    if (!previousPassageState) return;
+
+    saveCurrentNotes();
+
+    bookSel.value = previousPassageState.book;
+    fillChapters();
+    chapSel.value = previousPassageState.chapter;
+    fillVerses();
+    startSel.value = previousPassageState.start;
+    endSel.value = previousPassageState.end;
+    rangeSel.value = previousPassageState.range;
+
+    previousPassageState = null;
+
+    $("obsBackToPreviousPassage").style.display = "none";
+    if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
+
+    loadPassage();
+  };
+}     
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           const teachingMethodPanel = document.getElementById("teachingMethodPanel");
@@ -4337,6 +4365,22 @@ html.obs body.dark #ironPromptPanel h3 {
   color: var(--bright) !important;
 }
 
+html.obs #obsCrossRefsPanel.open {
+  resize: both;
+  min-width: 300px;
+  min-height: 180px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 110px);
+}
+
+html.obs #obsCrossRefsPanel.open.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+  
 #ironPromptPanel p,
 #ironPromptPanel li {
   font: 700 13px Arial, sans-serif;
@@ -4565,6 +4609,7 @@ document.addEventListener("DOMContentLoaded", function () {
       makeDraggable("teacherToolsPanel");
       makeDraggable("teachingMethodPanel");
       makeDraggable("ironPromptPanel");
+      makeDraggable("obsCrossRefsPanel");
     });
   } else {
     makeDraggable("teacherToolsPanel");
