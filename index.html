@@ -4496,6 +4496,11 @@ if ($("openNavesResource")) {
 
     content.innerHTML = `
       <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
+
+      <button id="navesBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-bottom:10px;width:100%;">
+        ← Back to Previous Passage
+      </button>
+
       <div id="navesResults">
         <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
       </div>
@@ -4503,35 +4508,34 @@ if ($("openNavesResource")) {
 
     const searchBox = $("navesSearchBox");
     const results = $("navesResults");
-
     const navesBackBtn = $("navesBackToPreviousPassage");
 
-if (navesBackBtn) {
-  navesBackBtn.onclick = () => {
-    if (!previousPassageState) return;
+    if (navesBackBtn) {
+      navesBackBtn.onclick = () => {
+        if (!previousPassageState) return;
 
-    saveCurrentNotes();
+        saveCurrentNotes();
 
-    bookSel.value = previousPassageState.book;
-    fillChapters();
-    chapSel.value = previousPassageState.chapter;
-    fillVerses();
-    startSel.value = previousPassageState.start;
-    endSel.value = previousPassageState.end;
-    rangeSel.value = previousPassageState.range;
+        bookSel.value = previousPassageState.book;
+        fillChapters();
+        chapSel.value = previousPassageState.chapter;
+        fillVerses();
+        startSel.value = previousPassageState.start;
+        endSel.value = previousPassageState.end;
+        rangeSel.value = previousPassageState.range;
 
-    previousPassageState = null;
+        previousPassageState = null;
 
-    navesBackBtn.style.display = "none";
-    if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
-    if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
+        navesBackBtn.style.display = "none";
+        if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
+        if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
 
-    loadPassage();
+        loadPassage();
 
-    panel.style.display = "";
-    panel.classList.add("open");
-  };
-}
+        panel.style.display = "";
+        panel.classList.add("open");
+      };
+    }
 
     function renderResults(query) {
       const q = (query || "").toLowerCase().trim();
@@ -4550,33 +4554,31 @@ if (navesBackBtn) {
         .filter(term => term.includes(q))
         .slice(0, 20);
 
-     content.innerHTML = `
-  <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
-
-  <button id="navesBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-bottom:10px;width:100%;">
-    ← Back to Previous Passage
-  </button>
-
-  <div id="navesResults">
-    <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
-  </div>
-`;
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+              <h4>${topics[term].title}</h4>
+              <div>
+                ${(topics[term].references || []).map(ref =>
+                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
+                ).join("")}
+              </div>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
 
       results.querySelectorAll(".cross-ref-link").forEach((btn) => {
         btn.onclick = () => {
-        goToScriptureReference(btn.dataset.ref);
+          goToScriptureReference(btn.dataset.ref);
 
-if (navesBackBtn) {
-  navesBackBtn.style.display = "inline-flex";
-}
+          if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
+          if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "inline-flex";
 
-if ($("obsBackToPreviousPassage")) {
-  $("obsBackToPreviousPassage").style.display = "inline-flex";
-}
-
-panel.style.display = "";
-panel.classList.add("open");
- 
+          panel.style.display = "";
+          panel.classList.add("open");
+        };
+      });
+    }
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
