@@ -1953,10 +1953,9 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
 
   <div id="obsCrossRefsContent"></div>
 
-  <button id="obsBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-top:10px;width:100%;">
-    ← Back to Previous Passage
-  </button>
-</div>
+<button id="obsBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-top:10px;width:100%;" data-hide-for-naves="true">
+  ← Back to Previous Passage
+</button>
 
 
     <div id="teacherToolsPanel" class="teacher-pop" aria-hidden="true">
@@ -4572,7 +4571,7 @@ if ($("openNavesResource")) {
           goToScriptureReference(btn.dataset.ref);
 
           if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
-          if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "inline-flex";
+          if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
 
           panel.style.display = "";
           panel.classList.add("open");
