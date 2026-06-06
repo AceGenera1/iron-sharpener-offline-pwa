@@ -2019,10 +2019,10 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       <span>View offline cross references for the current passage.</span>
     </button>
 
-    <button type="button" class="tool-option" disabled>
-      <strong>Easton's Bible Dictionary</strong>
-      <span>Coming next.</span>
-    </button>
+  <button type="button" class="tool-option" id="openEastonsResource">
+  <strong>Easton's Bible Dictionary</strong>
+  <span>Search offline Bible dictionary entries.</span>
+</button>
 
     <button type="button" class="tool-option" disabled>
       <strong>Smith's Bible Dictionary</strong>
@@ -3951,6 +3951,17 @@ if (studyResourcesPanel && !on) {
       setTimeout(renderCrossReferenceLinks, 0);
     }
 
+    async function loadEastonsDictionary() {
+  try {
+    const response = await fetch("bible/resources/dictionaries/eastons.json");
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.warn("Easton's dictionary not found:", error);
+    return {};
+  }
+}
+
     async function loadTSKReferences() {
   const book = bookSel.value;
   const chapter = chapSel.value;
@@ -4328,6 +4339,52 @@ if ($("closeStudyResourcesPanel")) {
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
     panel.style.display = "";
+  };
+}
+
+if ($("openEastonsResource")) {
+  $("openEastonsResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "eastons";
+    if (title) title.textContent = "Easton's Bible Dictionary";
+
+    const dict = await loadEastonsDictionary();
+    const terms = Object.keys(dict).sort();
+
+    content.innerHTML = `
+      <input id="eastonsSearchBox" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
+      <div id="eastonsResults"></div>
+    `;
+
+    const searchBox = $("eastonsSearchBox");
+    const results = $("eastonsResults");
+
+    function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+              <h4>${dict[term].title}</h4>
+              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+    }
+
+    searchBox.oninput = () => renderResults(searchBox.value);
+    renderResults("");
+
+    panel.style.display = "";
+    panel.classList.add("open");
   };
 }
 
