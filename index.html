@@ -4236,7 +4236,7 @@ if (saved?.end) {
 }
 
 if ($("obsShowCrossRefs")) {
-  $("obsShowCrossRefs").onclick = () => {
+  $("obsShowCrossRefs").onclick = async () => {
     renderCrossReferenceLinks();
 
     const panel = $("obsCrossRefsPanel");
@@ -4246,23 +4246,32 @@ if ($("obsShowCrossRefs")) {
 
     if (!panel || !content || !crossRefs) return;
 
-    const refs = parseScriptureReferences(crossRefs.value);
+    const manualRefs = parseScriptureReferences(crossRefs.value);
+    const tskRefs = await loadTSKReferences();
 
-    if (!refs.length) {
-      content.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No cross references added yet.</p>`;
-    } else {
-      content.innerHTML = refs.map(ref =>
-        `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`
-      ).join("");
+    content.innerHTML = `
+      <h4>Manual Cross References</h4>
+      ${
+        manualRefs.length
+          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No manual cross references added yet.</p>`
+      }
 
-      content.querySelectorAll(".cross-ref-link").forEach((btn) => {
-        btn.onclick = () => {
-          goToScriptureReference(btn.dataset.ref);
-          if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
-          panel.classList.add("open");
-        };
-      });
-    }
+      <h4>TSK Cross References</h4>
+      ${
+        tskRefs.length
+          ? tskRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`
+      }
+    `;
+
+    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+      btn.onclick = () => {
+        goToScriptureReference(btn.dataset.ref);
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        panel.classList.add("open");
+      };
+    });
 
     if (obsBackBtn) {
       obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
