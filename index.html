@@ -4570,6 +4570,14 @@ html.obs #obsCrossRefsPanel.open.drag-positioned {
   transform: none !important;
 }
 
+  #obsCrossRefsPanel.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
 #studyResourcesPanel.drag-positioned {
   left: var(--drag-left) !important;
   top: var(--drag-top) !important;
@@ -4760,9 +4768,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     handle.addEventListener("mousedown", function (event) {
   if (
-  panelId !== "studyResourcesPanel" &&
-  panelId !== "obsCrossRefsPanel" &&
-  !document.documentElement.classList.contains("obs")
+  const draggableOutsideObs = [
+  "studyResourcesPanel",
+  "obsCrossRefsPanel"
+];
+
+if (
+  !document.documentElement.classList.contains("obs") &&
+  !draggableOutsideObs.includes(panelId)
 ) return;
 
       dragging = true;
