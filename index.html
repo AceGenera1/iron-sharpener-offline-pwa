@@ -4046,9 +4046,14 @@ if (crossRefs) {
       chapSel.value = saved?.chapter || "1";
       fillVerses();
 
-      rangeSel.value = saved?.range || "5";
-      startSel.value = saved?.start || "1";
-      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
+   rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
+startSel.value = saved?.start || "1";
+
+if (saved?.end) {
+  endSel.value = saved.end;
+} else {
+  updateEndFromRange();
+}
 
       if (rangeSel.value === "full") {
   startSel.value = "1";
