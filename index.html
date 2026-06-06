@@ -3738,10 +3738,10 @@ async function loadPassage() {
       document.documentElement.classList.toggle("obs", on);
       $("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
 
-      const obsToolBar = document.querySelector(".obs-tool-bar");
-      if (obsToolBar) {
-    obsToolBar.classList.add("collapsed");
-    }
+   const obsToolBar = document.querySelector(".obs-tool-bar");
+  if (obsToolBar && on) {
+  obsToolBar.classList.add("collapsed");
+  }
 
       const ironPanel = document.getElementById("ironPromptPanel");
       if (ironPanel) {
