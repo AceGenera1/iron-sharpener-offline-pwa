@@ -1818,6 +1818,7 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <button id="obsShowTeachingMethod">Teaching Method</button>
   <button id="ironPromptPanelBtn" type="button">I.R.O.N.</button>
   <button id="obsShowCrossRefs">Cross References</button>
+  <button id="obsShowStudyResources" type="button">Study Resources</button>
   <button id="obsClearMarks" class="secondary">Clear</button>
   <button id="obsResetPanels" class="secondary">Reset Panels</button>
   <button id="obsToolsMenuBtn" type="button">⚔ Tools</button>
@@ -1926,6 +1927,45 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       Bring Application Box Back
     </button>
   </div></div>
+
+<div id="studyResourcesPanel" class="teacher-pop" aria-hidden="true">
+  <div class="teacher-pop-head drag-handle" data-drag-handle="studyResourcesPanel">
+    <h3>Study Resources</h3>
+    <button id="closeStudyResourcesPanel" class="teacher-pop-close secondary" type="button">Close</button>
+  </div>
+
+  <div class="tool-options">
+    <button type="button" class="tool-option" id="openTskResource">
+      <strong>Treasury of Scripture Knowledge</strong>
+      <span>View offline cross references for the current passage.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Easton's Bible Dictionary</strong>
+      <span>Coming next.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Smith's Bible Dictionary</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Nave's Topical Bible</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Matthew Henry Commentary</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Jamieson-Fausset-Brown Commentary</strong>
+      <span>Coming later.</span>
+    </button>
+  </div>
+</div>
 
 <div class="panel">
   <div class="panel-title">
@@ -4242,6 +4282,37 @@ if (saved?.end) {
   };
 }
 
+if ($("obsShowStudyResources")) {
+  $("obsShowStudyResources").onclick = () => {
+    const panel = $("studyResourcesPanel");
+    if (!panel) return;
+
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  };
+}
+
+if ($("closeStudyResourcesPanel")) {
+  $("closeStudyResourcesPanel").onclick = () => {
+    const panel = $("studyResourcesPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  };
+}
+
+if ($("openTskResource")) {
+  $("openTskResource").onclick = () => {
+    const studyPanel = $("studyResourcesPanel");
+    if (studyPanel) studyPanel.classList.remove("open");
+
+    if ($("obsShowCrossRefs")) $("obsShowCrossRefs").click();
+  };
+}
+
 if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = async () => {
     renderCrossReferenceLinks();
@@ -4671,12 +4742,14 @@ document.addEventListener("DOMContentLoaded", function () {
       makeDraggable("teachingMethodPanel");
       makeDraggable("ironPromptPanel");
       makeDraggable("obsCrossRefsPanel");
+      makeDraggable("studyResourcesPanel");
     });
   } else {
     makeDraggable("teacherToolsPanel");
     makeDraggable("teachingMethodPanel");
     makeDraggable("ironPromptPanel");
     makeDraggable("obsCrossRefsPanel");
+    makeDraggable("studyResourcesPanel");
   }
 })();
 </script>
