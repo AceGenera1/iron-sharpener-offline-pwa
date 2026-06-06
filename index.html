@@ -4759,7 +4759,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let dragging = false;
 
     handle.addEventListener("mousedown", function (event) {
-    if (panelId !== "studyResourcesPanel" && !document.documentElement.classList.contains("obs")) return;
+  if (
+  panelId !== "studyResourcesPanel" &&
+  panelId !== "obsCrossRefsPanel" &&
+  !document.documentElement.classList.contains("obs")
+) return;
 
       dragging = true;
       const rect = panel.getBoundingClientRect();
