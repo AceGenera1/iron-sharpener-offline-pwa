@@ -2029,10 +2029,10 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline historical Bible dictionary entries.</span>
 </button>
 
-    <button type="button" class="tool-option" disabled>
-      <strong>Nave's Topical Bible</strong>
-      <span>Coming later.</span>
-    </button>
+<button type="button" class="tool-option" id="openNavesResource">
+  <strong>Nave's Topical Bible</strong>
+  <span>Search offline Bible topics and Scripture references.</span>
+</button>
 
     <button type="button" class="tool-option" disabled>
       <strong>Matthew Henry Commentary</strong>
@@ -3973,6 +3973,17 @@ if (studyResourcesPanel && !on) {
   }
 }
 
+async function loadNavesTopics() {
+  try {
+    const response = await fetch("bible/resources/topics/naves.json");
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.warn("Nave's Topical Bible not found:", error);
+    return {};
+  }
+}
+
     async function loadTSKReferences() {
   const book = bookSel.value;
   const chapter = chapSel.value;
@@ -4460,6 +4471,76 @@ if ($("openSmithsResource")) {
             </div>
           `).join("")
         : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+    }
+
+    searchBox.oninput = () => renderResults(searchBox.value);
+
+    panel.style.display = "";
+    panel.classList.add("open");
+  };
+}
+
+if ($("openNavesResource")) {
+  $("openNavesResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "naves";
+    if (title) title.textContent = "Nave's Topical Bible";
+
+    const topics = await loadNavesTopics();
+    const terms = Object.keys(topics).sort();
+
+    content.innerHTML = `
+      <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
+      <div id="navesResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
+      </div>
+    `;
+
+    const searchBox = $("navesSearchBox");
+    const results = $("navesResults");
+
+    function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+              <h4>${topics[term].title}</h4>
+              <div>
+                ${(topics[term].references || []).map(ref =>
+                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
+                ).join("")}
+              </div>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+      results.querySelectorAll(".cross-ref-link").forEach((btn) => {
+        btn.onclick = () => {
+          goToScriptureReference(btn.dataset.ref);
+          panel.style.display = "";
+          panel.classList.add("open");
+        };
+      });
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
