@@ -4364,14 +4364,25 @@ if ($("openEastonsResource")) {
     const searchBox = $("eastonsSearchBox");
     const results = $("eastonsResults");
 
-    function renderResults(query) {
-      const q = (query || "").toLowerCase().trim();
-      const matches = terms
-        .filter(term => term.includes(q))
-        .slice(0, 20);
+ `function renderResults(query) {
+  const q = (query || "").toLowerCase().trim();
 
-      results.innerHTML = matches.length
-        ? matches.map(term => `
+  if (!q) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
+    return;
+  }
+
+  if (q.length < 3) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+    return;
+  }
+
+  const matches = terms
+    .filter(term => term.includes(q))
+    .slice(0, 20);
+
+  results.innerHTML = matches.length
+    ? matches.map(term => `
             <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
               <h4>${dict[term].title}</h4>
               <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
