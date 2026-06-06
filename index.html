@@ -866,9 +866,10 @@ body.dark #obsCrossRefsPanel{
   cursor:move;
 }
 
-#obsCrossRefsContent a{
-  display:block;
-  margin-bottom:8px;
+#obsCrossRefsContent .cross-ref-link {
+  width: 100%;
+  margin-bottom: 8px;
+  justify-content: center;
 }
 
     .tool-option {
@@ -4207,24 +4208,34 @@ if (saved?.end) {
   };
 }
 
-      if ($("obsShowCrossRefs")) {
+  if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = () => {
-  const panel = $("obsCrossRefsPanel");
-const content = $("obsCrossRefsContent");
-const links = $("crossRefLinks");
+    renderCrossReferenceLinks();
 
-if(panel && content && links){
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const crossRefs = $("crossRefs");
 
-  content.innerHTML = links.innerHTML;
+    if (!panel || !content || !crossRefs) return;
 
-  panel.classList.toggle("open");
-}
-  };
-}
+    const refs = parseScriptureReferences(crossRefs.value);
 
-if ($("closeObsCrossRefs")) {
-  $("closeObsCrossRefs").onclick = () => {
-    $("obsCrossRefsPanel").classList.remove("open");
+    if (!refs.length) {
+      content.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No cross references added yet.</p>`;
+    } else {
+      content.innerHTML = refs.map(ref =>
+        `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`
+      ).join("");
+
+      content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+        btn.onclick = () => {
+          goToScriptureReference(btn.dataset.ref);
+          panel.classList.remove("open");
+        };
+      });
+    }
+
+    panel.classList.toggle("open");
   };
 }
 
