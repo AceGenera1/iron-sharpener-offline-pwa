@@ -4348,7 +4348,11 @@ function openStudyResourcesPanel() {
 }
 
 if ($("obsShowStudyResources")) {
-  $("obsShowStudyResources").onclick = openStudyResourcesPanel;
+  $("obsShowStudyResources").onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openStudyResourcesPanel();
+  };
 }
 
 if ($("openStudyResourcesFromTools")) {
@@ -4356,7 +4360,10 @@ if ($("openStudyResourcesFromTools")) {
 }
 
 if ($("closeStudyResourcesPanel")) {
-  $("closeStudyResourcesPanel").onclick = () => {
+  $("closeStudyResourcesPanel").onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const panel = $("studyResourcesPanel");
     if (!panel) return;
 
