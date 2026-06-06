@@ -5373,6 +5373,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   <script>
+<script>
 (function finalStudyResourcesReopenFix() {
   function get(id) {
     return document.getElementById(id);
@@ -5387,8 +5388,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const panel = get("studyResourcesPanel");
     if (!panel) return;
 
-    panel.classList.remove("open");
-    panel.classList.remove("drag-positioned");
+    panel.classList.remove("open", "drag-positioned");
     panel.style.display = "none";
     panel.style.removeProperty("--drag-left");
     panel.style.removeProperty("--drag-top");
@@ -5415,6 +5415,23 @@ document.addEventListener("DOMContentLoaded", function () {
     panel.style.display = "";
   }
 
+  function afterResourceOpens() {
+    const studyPanel = get("studyResourcesPanel");
+    const resourcePanel = get("obsCrossRefsPanel");
+
+    if (studyPanel) {
+      studyPanel.classList.remove("open");
+      studyPanel.setAttribute("aria-hidden", "true");
+      studyPanel.style.display = "";
+    }
+
+    if (resourcePanel) {
+      resourcePanel.style.display = "";
+      resourcePanel.style.zIndex = "41000";
+      resourcePanel.classList.add("open");
+    }
+  }
+
   document.addEventListener("click", function(event) {
     const button = event.target.closest("button");
     if (!button) return;
@@ -5424,23 +5441,25 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "openStudyResourcesFromTools"
     ) {
       openStudyResources(event);
+      return;
     }
 
     if (button.id === "closeStudyResourcesPanel") {
       closeStudyResources(event);
+      return;
+    }
+
+    if (
+      button.id === "openTskResource" ||
+      button.id === "openEastonsResource" ||
+      button.id === "openSmithsResource" ||
+      button.id === "openNavesResource"
+    ) {
+      setTimeout(afterResourceOpens, 0);
     }
   }, true);
 })();
 </script>
-
-  <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js")
-      .then(() => console.log("Iron Sharpener service worker registered"))
-      .catch((error) => console.error("Service worker registration failed:", error));
-  });
-}
 </script>
 </body>
 </html>
