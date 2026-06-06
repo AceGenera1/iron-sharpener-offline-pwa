@@ -4219,7 +4219,31 @@ if ($("obsShowCrossRefs")) {
 
     const refs = parseScriptureReferences(crossRefs.value);
 
-    if ($("closeObsCrossRefs")) {
+    if (!refs.length) {
+      content.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No cross references added yet.</p>`;
+    } else {
+      content.innerHTML = refs.map(ref =>
+        `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`
+      ).join("");
+
+      content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+        btn.onclick = () => {
+          goToScriptureReference(btn.dataset.ref);
+          if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+          panel.classList.add("open");
+        };
+      });
+    }
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
+    }
+
+    panel.classList.add("open");
+  };
+}
+
+if ($("closeObsCrossRefs")) {
   $("closeObsCrossRefs").onclick = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -4229,29 +4253,7 @@ if ($("obsShowCrossRefs")) {
   };
 }
 
-    if (!refs.length) {
-      content.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No cross references added yet.</p>`;
-    } else {
-      content.innerHTML = refs.map(ref =>
-        `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`
-      ).join("");
-
-      content.querySelectorAll(".cross-ref-link").forEach((btn) => {
-      btn.onclick = () => {
-  goToScriptureReference(btn.dataset.ref);
-  if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
-  panel.classList.add("open");
-};
-
-    if (obsBackBtn) {
-      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
-    }
-
-    panel.classList.toggle("open");
-  };
-}
-
- if ($("obsBackToPreviousPassage")) {
+if ($("obsBackToPreviousPassage")) {
   $("obsBackToPreviousPassage").onclick = () => {
     if (!previousPassageState) return;
 
@@ -4272,10 +4274,10 @@ if ($("obsShowCrossRefs")) {
 
     loadPassage();
 
-const panel = $("obsCrossRefsPanel");
-if (panel) panel.classList.add("open");
+    const panel = $("obsCrossRefsPanel");
+    if (panel) panel.classList.add("open");
   };
-}     
+}
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           const teachingMethodPanel = document.getElementById("teachingMethodPanel");
