@@ -4222,6 +4222,12 @@ if(panel && content && links){
   };
 }
 
+if ($("closeObsCrossRefs")) {
+  $("closeObsCrossRefs").onclick = () => {
+    $("obsCrossRefsPanel").classList.remove("open");
+  };
+}
+
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           const teachingMethodPanel = document.getElementById("teachingMethodPanel");
