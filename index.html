@@ -4271,6 +4271,9 @@ if ($("obsShowCrossRefs")) {
     if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
 
     loadPassage();
+
+const panel = $("obsCrossRefsPanel");
+if (panel) panel.classList.add("open");
   };
 }     
       document.addEventListener("keydown", (event) => {
