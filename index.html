@@ -1928,50 +1928,6 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
     </button>
   </div></div>
 
-<div id="studyResourcesPanel" class="teacher-pop" aria-hidden="true">
-  <div class="teacher-pop-head drag-handle" data-drag-handle="studyResourcesPanel">
-    <h3>Study Resources</h3>
-    <button id="closeStudyResourcesPanel" class="teacher-pop-close secondary" type="button">Close</button>
-  </div>
-
-  <div class="tool-options">
-    <button type="button" class="tool-option" id="openTskResource">
-      <strong>Treasury of Scripture Knowledge</strong>
-      <span>View offline cross references for the current passage.</span>
-    </button>
-
-    <button type="button" class="tool-option helper-option" id="openStudyResourcesFromTools">
-  <strong>Study Resources</strong>
-  <span>Open offline study tools like TSK, dictionaries, topical Bible, and commentaries.</span>
-</button>
-
-    <button type="button" class="tool-option" disabled>
-      <strong>Easton's Bible Dictionary</strong>
-      <span>Coming next.</span>
-    </button>
-
-    <button type="button" class="tool-option" disabled>
-      <strong>Smith's Bible Dictionary</strong>
-      <span>Coming later.</span>
-    </button>
-
-    <button type="button" class="tool-option" disabled>
-      <strong>Nave's Topical Bible</strong>
-      <span>Coming later.</span>
-    </button>
-
-    <button type="button" class="tool-option" disabled>
-      <strong>Matthew Henry Commentary</strong>
-      <span>Coming later.</span>
-    </button>
-
-    <button type="button" class="tool-option" disabled>
-      <strong>Jamieson-Fausset-Brown Commentary</strong>
-      <span>Coming later.</span>
-    </button>
-  </div>
-</div>
-
 <div class="panel">
   <div class="panel-title">
     <h3>Clip / Timestamp Notes</h3>
@@ -2040,12 +1996,54 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
         </button>
       </div>
 
+  <button type="button" class="tool-option helper-option" id="openStudyResourcesFromTools">
+  <strong>Study Resources</strong>
+  <span>Open offline study tools like TSK, dictionaries, topical Bible, and commentaries.</span>
+</button>
+
       <div class="teacher-pop-note">
         Choose a tool, then click a verse to apply it. For highlight colors, underline, circle, or box, you can also select a word or phrase first, then click inside that verse to mark only the selected text.
       </div>
     </div>
 
+<div id="studyResourcesPanel" class="teacher-pop" aria-hidden="true">
+  <div class="teacher-pop-head drag-handle" data-drag-handle="studyResourcesPanel">
+    <h3>Study Resources</h3>
+    <button id="closeStudyResourcesPanel" class="teacher-pop-close secondary" type="button">Close</button>
+  </div>
 
+  <div class="tool-options">
+    <button type="button" class="tool-option" id="openTskResource">
+      <strong>Treasury of Scripture Knowledge</strong>
+      <span>View offline cross references for the current passage.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Easton's Bible Dictionary</strong>
+      <span>Coming next.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Smith's Bible Dictionary</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Nave's Topical Bible</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Matthew Henry Commentary</strong>
+      <span>Coming later.</span>
+    </button>
+
+    <button type="button" class="tool-option" disabled>
+      <strong>Jamieson-Fausset-Brown Commentary</strong>
+      <span>Coming later.</span>
+    </button>
+  </div>
+</div>
     <div id="teachingMethodPanel" class="teaching-method-panel" aria-hidden="true" style="display:none;">
       <div class="floating-panel-head drag-handle" data-drag-handle="teachingMethodPanel">
         <h3>Teaching Method</h3>
@@ -3866,12 +3864,17 @@ async function loadPassage() {
         teachingMethodPanel.setAttribute("aria-hidden", "true");
       }
 
-    const crossRefPanel = document.getElementById("obsCrossRefsPanel");
-    if (crossRefPanel && !on) {
-    crossRefPanel.classList.remove("open");
-    crossRefPanel.style.display = "";
-    panel.classList.add("open");
-    }
+const crossRefPanel = document.getElementById("obsCrossRefsPanel");
+if (crossRefPanel && !on) {
+  crossRefPanel.classList.remove("open");
+  crossRefPanel.style.display = "";
+}
+
+const studyResourcesPanel = document.getElementById("studyResourcesPanel");
+if (studyResourcesPanel && !on) {
+  studyResourcesPanel.classList.remove("open");
+  studyResourcesPanel.style.display = "";
+}
 
       closeTeacherTools();
     }
@@ -4523,6 +4526,14 @@ html.obs #obsCrossRefsPanel.open.drag-positioned {
   bottom: auto !important;
   transform: none !important;
 }
+
+#studyResourcesPanel.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
   
 #ironPromptPanel p,
 #ironPromptPanel li {
@@ -4705,7 +4716,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let dragging = false;
 
     handle.addEventListener("mousedown", function (event) {
-      if (!document.documentElement.classList.contains("obs")) return;
+    if (panelId !== "studyResourcesPanel" && !document.documentElement.classList.contains("obs")) return;
 
       dragging = true;
       const rect = panel.getBoundingClientRect();
