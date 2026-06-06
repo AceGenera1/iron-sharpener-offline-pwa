@@ -826,7 +826,7 @@ html.obs #obsToolsMenuBtn {
   display:none;
 }
 
-html.obs #obsCrossRefsPanel.open{
+#obsCrossRefsPanel.open{
   display:block;
 
   position:fixed;
@@ -1946,8 +1946,8 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
 
 <div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
   <div class="floating-crossrefs-header drag-handle" data-drag-handle="obsCrossRefsPanel">
-    <span>Cross References</span>
-    <button id="closeObsCrossRefs" class="secondary" type="button">Close</button>
+  <span id="obsCrossRefsTitle">Cross References</span>
+  <button id="closeObsCrossRefs" class="secondary" type="button">Close</button>
   </div>
 
   <div id="obsCrossRefsContent"></div>
@@ -4320,9 +4320,12 @@ if ($("closeStudyResourcesPanel")) {
 
 if ($("openTskResource")) {
   $("openTskResource").onclick = async () => {
-    const crossPanel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const obsBackBtn = $("obsBackToPreviousPassage");
+const crossPanel = $("obsCrossRefsPanel");
+const content = $("obsCrossRefsContent");
+const obsBackBtn = $("obsBackToPreviousPassage");
+const title = $("obsCrossRefsTitle");
+
+if (title) title.textContent = "Treasury of Scripture Knowledge";
 
     if (!crossPanel || !content) return;
 
@@ -4359,10 +4362,13 @@ if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = () => {
     renderCrossReferenceLinks();
 
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const crossRefs = $("crossRefs");
-    const obsBackBtn = $("obsBackToPreviousPassage");
+const panel = $("obsCrossRefsPanel");
+const content = $("obsCrossRefsContent");
+const crossRefs = $("crossRefs");
+const obsBackBtn = $("obsBackToPreviousPassage");
+const title = $("obsCrossRefsTitle");
+
+if (title) title.textContent = "Personal Cross References";
 
     if (!panel || !content || !crossRefs) return;
 
@@ -4392,6 +4398,19 @@ if ($("obsShowCrossRefs")) {
 
     panel.style.display = "";
     panel.classList.add("open");
+  };
+}
+
+if ($("closeObsCrossRefs")) {
+  $("closeObsCrossRefs").onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const panel = $("obsCrossRefsPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.style.display = "";
   };
 }
 
