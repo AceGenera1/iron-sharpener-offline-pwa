@@ -1892,22 +1892,6 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   </div>
 </div>
 
-<div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
-  <div class="floating-crossrefs-header drag-handle"
-       data-drag-handle="obsCrossRefsPanel">
-
-    <span>Cross References</span>
-
-    <button id="closeObsCrossRefs"
-            class="secondary"
-            type="button">
-      Close
-    </button>
-  </div>
-
-  <div id="obsCrossRefsContent"></div>
-</div>
-
 <div class="panel">
   <div class="panel-title">
     <h3>Cross References</h3>
@@ -1958,6 +1942,20 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
 
 </aside>
 </main>
+
+ <div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
+<div class="floating-crossrefs-header drag-handle"
+data-drag-handle="obsCrossRefsPanel">
+<span>Cross References</span>
+<button id="closeObsCrossRefs"
+class="secondary"
+type="button">
+Close
+</button>
+</div>
+<div id="obsCrossRefsContent"></div>
+</div>
+
 
     <div id="teacherToolsPanel" class="teacher-pop" aria-hidden="true">
       <div class="teacher-pop-head drag-handle" data-drag-handle="teacherToolsPanel">
@@ -4572,6 +4570,7 @@ document.addEventListener("DOMContentLoaded", function () {
     makeDraggable("teacherToolsPanel");
     makeDraggable("teachingMethodPanel");
     makeDraggable("ironPromptPanel");
+    makeDraggable("obsCrossRefsPanel");
   }
 })();
 </script>
