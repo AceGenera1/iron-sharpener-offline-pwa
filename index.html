@@ -822,6 +822,55 @@ html.obs #obsToolsMenuBtn {
       gap: 10px;
     }
 
+    #obsCrossRefsPanel{
+  display:none;
+}
+
+html.obs #obsCrossRefsPanel.open{
+  display:block;
+
+  position:fixed;
+  right:20px;
+  bottom:90px;
+
+  width:340px;
+  max-height:60vh;
+
+  overflow-y:auto;
+
+  z-index:10000;
+
+  border:2px solid var(--gold);
+  border-radius:14px;
+
+  padding:12px;
+
+  box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+
+body:not(.dark) #obsCrossRefsPanel{
+  background:#fffdf7;
+  color:#061526;
+}
+
+body.dark #obsCrossRefsPanel{
+  background:#13233F;
+  color:#fff;
+}
+
+.floating-crossrefs-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  cursor:move;
+}
+
+#obsCrossRefsContent a{
+  display:block;
+  margin-bottom:8px;
+}
+
     .tool-option {
       width: 100%;
       border: 1px solid rgba(215,168,79,.58);
@@ -1840,6 +1889,22 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   Bring Note Box Back
 </button>
   </div>
+</div>
+
+<div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
+  <div class="floating-crossrefs-header drag-handle"
+       data-drag-handle="obsCrossRefsPanel">
+
+    <span>Cross References</span>
+
+    <button id="closeObsCrossRefs"
+            class="secondary"
+            type="button">
+      Close
+    </button>
+  </div>
+
+  <div id="obsCrossRefsContent"></div>
 </div>
 
 <div class="panel">
@@ -4144,7 +4209,16 @@ if (saved?.end) {
 
       if ($("obsShowCrossRefs")) {
   $("obsShowCrossRefs").onclick = () => {
-    alert("Cross References panel coming next.");
+  const panel = $("obsCrossRefsPanel");
+const content = $("obsCrossRefsContent");
+const links = $("crossRefLinks");
+
+if(panel && content && links){
+
+  content.innerHTML = links.innerHTML;
+
+  panel.classList.toggle("open");
+}
   };
 }
 
