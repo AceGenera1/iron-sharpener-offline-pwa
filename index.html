@@ -3894,6 +3894,35 @@ async function loadPassage() {
       setTimeout(renderCrossReferenceLinks, 0);
     }
 
+    async function loadTSKReferences() {
+  const book = bookSel.value;
+  const chapter = chapSel.value;
+  const start = parseInt(startSel.value, 10);
+  const end = parseInt(endSel.value, 10);
+
+  try {
+    const response = await fetch(`bible/resources/tsk/${book}.json`);
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    const refs = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${book} ${chapter}:${v}`;
+
+      if (Array.isArray(data[key])) {
+        data[key].forEach(ref => refs.push(ref));
+      }
+    }
+
+    return [...new Set(refs)];
+  } catch (error) {
+    console.warn("TSK references not found:", error);
+    return [];
+  }
+}
+
     function saveField(id) {
       const field = $(id);
       if (!field) return;
