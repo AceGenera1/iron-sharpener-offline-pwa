@@ -4364,7 +4364,7 @@ if ($("openEastonsResource")) {
     const searchBox = $("eastonsSearchBox");
     const results = $("eastonsResults");
 
- `function renderResults(query) {
+function renderResults(query) {
   const q = (query || "").toLowerCase().trim();
 
   if (!q) {
@@ -4383,13 +4383,6 @@ if ($("openEastonsResource")) {
 
   results.innerHTML = matches.length
     ? matches.map(term => `
-            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-              <h4>${dict[term].title}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-    }
 
     searchBox.oninput = () => renderResults(searchBox.value);
    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
