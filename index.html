@@ -1940,6 +1940,11 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       <span>View offline cross references for the current passage.</span>
     </button>
 
+    <button type="button" class="tool-option helper-option" id="openStudyResourcesFromTools">
+  <strong>Study Resources</strong>
+  <span>Open offline study tools like TSK, dictionaries, topical Bible, and commentaries.</span>
+</button>
+
     <button type="button" class="tool-option" disabled>
       <strong>Easton's Bible Dictionary</strong>
       <span>Coming next.</span>
@@ -4282,15 +4287,21 @@ if (saved?.end) {
   };
 }
 
-if ($("obsShowStudyResources")) {
-  $("obsShowStudyResources").onclick = () => {
-    const panel = $("studyResourcesPanel");
-    if (!panel) return;
+function openStudyResourcesPanel() {
+  const panel = $("studyResourcesPanel");
+  if (!panel) return;
 
-    panel.style.display = "";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-  };
+  panel.style.display = "";
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden", "false");
+}
+
+if ($("obsShowStudyResources")) {
+  $("obsShowStudyResources").onclick = openStudyResourcesPanel;
+}
+
+if ($("openStudyResourcesFromTools")) {
+  $("openStudyResourcesFromTools").onclick = openStudyResourcesPanel;
 }
 
 if ($("closeStudyResourcesPanel")) {
