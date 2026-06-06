@@ -822,6 +822,10 @@ html.obs #obsToolsMenuBtn {
       gap: 10px;
     }
 
+    #studyResourcesPanel.open {
+  z-index: 10200 !important;
+}
+
 #obsCrossRefsPanel{
   display:none;
   z-index: 10150;
@@ -4345,6 +4349,8 @@ function openStudyResourcesPanel() {
   panel.style.display = "";
   panel.classList.add("open");
   panel.setAttribute("aria-hidden", "false");
+
+  panel.style.zIndex = "10200";
 }
 
 if ($("obsShowStudyResources")) {
