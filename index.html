@@ -4358,34 +4358,42 @@ if ($("openEastonsResource")) {
 
     content.innerHTML = `
       <input id="eastonsSearchBox" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
-      <div id="eastonsResults"></div>
+      <div id="eastonsResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>
+      </div>
     `;
 
     const searchBox = $("eastonsSearchBox");
     const results = $("eastonsResults");
 
-function renderResults(query) {
-  const q = (query || "").toLowerCase().trim();
+    function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
 
-  if (!q) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
-    return;
-  }
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
+        return;
+      }
 
-  if (q.length < 3) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-    return;
-  }
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
 
-  const matches = terms
-    .filter(term => term.includes(q))
-    .slice(0, 20);
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
 
-  results.innerHTML = matches.length
-    ? matches.map(term => `
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+              <h4>${dict[term].title}</h4>
+              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+    }
 
     searchBox.oninput = () => renderResults(searchBox.value);
-   results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
 
     panel.style.display = "";
     panel.classList.add("open");
