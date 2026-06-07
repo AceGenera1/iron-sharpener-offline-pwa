@@ -5553,6 +5553,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 <script>
+<script>
 (function finalStudyResourcesReopenFix() {
   function get(id) {
     return document.getElementById(id);
@@ -5566,13 +5567,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const panel = get("studyResourcesPanel");
     if (!panel) return;
-
-    panel.classList.remove("open", "drag-positioned");
-    panel.style.display = "none";
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-
-    panel.offsetHeight;
 
     panel.style.display = "";
     panel.style.zIndex = "40000";
@@ -5595,19 +5589,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function afterResourceOpens() {
-    const studyPanel = get("studyResourcesPanel");
     const resourcePanel = get("obsCrossRefsPanel");
-
-    if (studyPanel) {
-      studyPanel.classList.remove("open");
-      studyPanel.setAttribute("aria-hidden", "true");
-      studyPanel.style.display = "";
-    }
 
     if (resourcePanel) {
       resourcePanel.style.display = "";
       resourcePanel.style.zIndex = "41000";
       resourcePanel.classList.add("open");
+      resourcePanel.setAttribute("aria-hidden", "false");
+    }
+
+    const studyPanel = get("studyResourcesPanel");
+    if (studyPanel) {
+      studyPanel.style.display = "";
+      studyPanel.style.zIndex = "40000";
+      studyPanel.classList.add("open");
+      studyPanel.setAttribute("aria-hidden", "false");
     }
   }
 
