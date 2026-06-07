@@ -5634,6 +5634,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const studyPanel = get("studyResourcesPanel");
     if (!studyPanel) return;
 
+    studyPanel.classList.remove("drag-positioned");
+    studyPanel.style.removeProperty("--drag-left");
+    studyPanel.style.removeProperty("--drag-top");
     studyPanel.style.display = "";
     studyPanel.style.setProperty("z-index", "40000", "important");
     studyPanel.classList.add("open");
@@ -5675,24 +5678,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = event.target.closest("button");
     if (!button) return;
 
-      if (
-  button.id === "obsShowStudyResources" ||
-  button.id === "openStudyResourcesFromTools"
-) {
-  event.preventDefault();
-  event.stopPropagation();
-  bringStudyResourcesForward();
-
-  const studyPanel = get("studyResourcesPanel");
-  if (studyPanel) {
-    studyPanel.style.display = "";
-    studyPanel.style.setProperty("z-index", "40000", "important");
-    studyPanel.classList.add("open");
-    studyPanel.setAttribute("aria-hidden", "false");
-  }
-
-  return;
-}
+    if (
+      button.id === "obsShowStudyResources" ||
+      button.id === "openStudyResourcesFromTools"
+    ) {
       event.preventDefault();
       event.stopPropagation();
       bringStudyResourcesForward();
