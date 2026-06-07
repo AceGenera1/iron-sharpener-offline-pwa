@@ -4181,15 +4181,20 @@ function goToScriptureReference(ref) {
 }
 
 function refreshActiveResourcePanel() {
-  if (activeResourcePanel === "tsk" && $("obsCrossRefsPanel")?.classList.contains("open")) {
+  const panelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
+
+  if (!panelIsOpen) return;
+
+  if (activeResourcePanel === "tsk") {
     if ($("openTskResource")) $("openTskResource").click();
-    if (activeResourcePanel === "commentary" && $("obsCrossRefsPanel")?.classList.contains("open")) {
-  if ($("openCommentariesResource")) $("openCommentariesResource").click();
-}
   }
 
-  if (activeResourcePanel === "personalCrossRefs" && $("obsCrossRefsPanel")?.classList.contains("open")) {
+  if (activeResourcePanel === "personalCrossRefs") {
     if ($("obsShowCrossRefs")) $("obsShowCrossRefs").click();
+  }
+
+  if (activeResourcePanel === "commentary") {
+    if ($("openCommentariesResource")) $("openCommentariesResource").click();
   }
 }
 
@@ -4770,8 +4775,9 @@ if ($("closeObsCrossRefs")) {
     const panel = $("obsCrossRefsPanel");
     if (!panel) return;
 
-    panel.classList.remove("open");
-    panel.style.display = "";
+panel.classList.remove("open");
+panel.style.display = "";
+activeResourcePanel = "";
   };
 }
 
