@@ -4742,8 +4742,9 @@ if ($("openEastonsResource")) {
     activeResourcePanel = "eastons";
     if (title) title.textContent = "Easton's Bible Dictionary";
 
-    const dict = await loadEastonsDictionary();
-    const terms = Object.keys(dict).sort();
+     let dict = {};
+    let terms = [];
+    let loadedLetter = "";
 
     content.innerHTML = `
       <input id="eastonsSearchBox" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
@@ -4755,8 +4756,9 @@ if ($("openEastonsResource")) {
     const searchBox = $("eastonsSearchBox");
     const results = $("eastonsResults");
 
-    function renderResults(query) {
+    async function renderResults(query) {
       const q = (query || "").toLowerCase().trim();
+      const letter = q.charAt(0).toUpperCase();
 
       if (!q) {
         results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
@@ -4788,6 +4790,12 @@ if ($("openEastonsResource")) {
   };
 }
 
+    if (letter && letter !== loadedLetter) {
+  loadedLetter = letter;
+  dict = await loadEastonsDictionary(letter);
+  terms = Object.keys(dict).sort();
+}
+
 if ($("openSmithsResource")) {
   $("openSmithsResource").onclick = async () => {
     const panel = $("obsCrossRefsPanel");
@@ -4799,8 +4807,9 @@ if ($("openSmithsResource")) {
     activeResourcePanel = "smiths";
     if (title) title.textContent = "Smith's Bible Dictionary";
 
-    const dict = await loadSmithsDictionary();
-    const terms = Object.keys(dict).sort();
+     let dict = {};
+    let terms = [];
+    let loadedLetter = "";
 
     content.innerHTML = `
       <input id="smithsSearchBox" type="text" placeholder="Search a word like Paul, Jerusalem, Pharisee..." style="margin-bottom:10px;">
@@ -4812,8 +4821,9 @@ if ($("openSmithsResource")) {
     const searchBox = $("smithsSearchBox");
     const results = $("smithsResults");
 
-    function renderResults(query) {
+    async function renderResults(query) {
       const q = (query || "").toLowerCase().trim();
+      const letter = q.charAt(0).toUpperCase();
 
       if (!q) {
         results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>`;
@@ -4825,7 +4835,7 @@ if ($("openSmithsResource")) {
         return;
       }
 
-      const matches = terms
+       const matches = terms
         .filter(term => term.includes(q))
         .slice(0, 20);
 
@@ -4843,6 +4853,12 @@ if ($("openSmithsResource")) {
 
   openFloatingResourcePanel(panel);
   };
+}
+
+    if (letter && letter !== loadedLetter) {
+  loadedLetter = letter;
+  dict = await loadSmithsDictionary(letter);
+  terms = Object.keys(dict).sort();
 }
 
 if ($("openNavesResource")) {
