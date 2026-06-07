@@ -5675,10 +5675,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = event.target.closest("button");
     if (!button) return;
 
-    if (
-      button.id === "obsShowStudyResources" ||
-      button.id === "openStudyResourcesFromTools"
-    ) {
+      if (
+  button.id === "obsShowStudyResources" ||
+  button.id === "openStudyResourcesFromTools"
+) {
+  event.preventDefault();
+  event.stopPropagation();
+  bringStudyResourcesForward();
+
+  const studyPanel = get("studyResourcesPanel");
+  if (studyPanel) {
+    studyPanel.style.display = "";
+    studyPanel.style.setProperty("z-index", "40000", "important");
+    studyPanel.classList.add("open");
+    studyPanel.setAttribute("aria-hidden", "false");
+  }
+
+  return;
+}
       event.preventDefault();
       event.stopPropagation();
       bringStudyResourcesForward();
