@@ -1966,6 +1966,48 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   </button>
 </div>
 
+    <div
+  id="obsNavigatorPanel"
+  class="floating-panel"
+  aria-hidden="true"
+>
+  <div class="panel-header">
+    <span>Scripture Navigator</span>
+
+    <button
+      type="button"
+      id="closeObsNavigator"
+      class="icon-btn"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="panel-body">
+
+    <label>Book</label>
+    <select id="obsBookSelect"></select>
+
+    <label>Chapter</label>
+    <select id="obsChapterSelect"></select>
+
+    <label>Start Verse</label>
+    <select id="obsStartVerseSelect"></select>
+
+    <label>End Verse</label>
+    <select id="obsEndVerseSelect"></select>
+
+    <button
+      type="button"
+      id="obsLoadPassage"
+      class="primary-btn"
+    >
+      Load Passage
+    </button>
+
+  </div>
+</div>
+
     <div id="teacherToolsPanel" class="teacher-pop" aria-hidden="true">
       <div class="teacher-pop-head drag-handle" data-drag-handle="teacherToolsPanel">
         <h3>Teacher Tools</h3>
@@ -3460,7 +3502,8 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       return (books.find((book) => book[0] === bookSel.value) || books[0])[1];
     }
 
-
+syncObsNavigator();
+    
     function showApplicationPresentation() {
       const note = cleanText($("applicationNotes")?.value || "");
       if (!note) return;
@@ -4320,6 +4363,27 @@ if (crossRefs) {
   };
 }
 
+    if ($("obsShowNavigator")) {
+  $("obsShowNavigator").onclick = () => {
+    const panel = $("obsNavigatorPanel");
+
+    if (!panel) return;
+
+    openFloatingResourcePanel(panel);
+  };
+}
+
+    if ($("closeObsNavigator")) {
+  $("closeObsNavigator").onclick = () => {
+    const panel = $("obsNavigatorPanel");
+
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  };
+}
+
     function init() {
       fillBooks();
 
@@ -4410,6 +4474,20 @@ if (saved?.end) {
   };
 }
 
+function syncObsNavigator() {
+  const obsBook = $("obsBookSelect");
+  const obsChap = $("obsChapterSelect");
+  const obsStart = $("obsStartVerseSelect");
+  const obsEnd = $("obsEndVerseSelect");
+
+  if (!obsBook) return;
+
+  obsBook.innerHTML = bookSel.innerHTML;
+  obsChap.innerHTML = chapSel.innerHTML;
+  obsStart.innerHTML = startSel.innerHTML;
+  obsEnd.innerHTML = endSel.innerHTML;
+}
+      
 function closeStudyResourcesPanelSoft() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
