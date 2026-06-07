@@ -5238,46 +5238,6 @@ if ($("obsBackToPreviousPassage")) {
     if (panel) panel.classList.add("open");
   };
 }
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          const teachingMethodPanel = document.getElementById("teachingMethodPanel");
-          if (teachingMethodPanel) {
-            teachingMethodPanel.classList.remove("open");
-            teachingMethodPanel.style.display = "none";
-            teachingMethodPanel.setAttribute("aria-hidden", "true");
-          }
-
-          const ironPanel = document.getElementById("ironPromptPanel");
-          if (ironPanel) {
-            ironPanel.classList.remove("open");
-            ironPanel.style.display = "none";
-            ironPanel.setAttribute("aria-hidden", "true");
-          }
-
-const obsToolBar = document.querySelector(".obs-tool-bar");
-if (obsToolBar) {
-  obsToolBar.classList.add("collapsed");
-}
-
-          closeTeacherTools();
-          setObsMode(false);
-        }
-      });
-
-      restoreThemeMode();
-      loadCurrentNotes();
-      initTooltips();
-      initTeacherTools();
-      setTool("highlight-gold");
-      initTeachingPresentationTools();
-      ;
-    
-      initTeachingPresentationTools();
-      setupObsNavigator();
-      syncObsNavigator();
-      loadPassage();
-      window.addEventListener("beforeunload", saveCurrentNotes);
-    }
 
     init();
   </script>
