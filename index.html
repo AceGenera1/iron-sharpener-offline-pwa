@@ -4580,6 +4580,49 @@ if ($("openNavesResource")) {
       };
     }
 
+    if ($("openCommentariesResource")) {
+  $("openCommentariesResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "commentary";
+    if (title) title.textContent = "Commentaries";
+
+    const commentary = await loadMatthewHenryCommentary();
+    const currentBook = bookSel.value;
+    const currentChapter = chapSel.value;
+    const start = parseInt(startSel.value, 10);
+    const end = parseInt(endSel.value, 10);
+
+    const matches = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${currentBook} ${currentChapter}:${v}`;
+      if (commentary[key]) matches.push(commentary[key]);
+    }
+
+    content.innerHTML = `
+      <h4>Matthew Henry Commentary</h4>
+      ${
+        matches.length
+          ? matches.map(item => `
+              <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+                <h4>${item.title}</h4>
+                <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p>
+              </div>
+            `).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
+      }
+    `;
+
+    panel.style.display = "";
+    panel.classList.add("open");
+  };
+}
+
     function renderResults(query) {
       const q = (query || "").toLowerCase().trim();
 
