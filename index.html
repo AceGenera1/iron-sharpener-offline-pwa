@@ -4243,10 +4243,10 @@ async function loadNavesTopics() {
   }
 }
 
-    async function loadJfbCommentary() {
+    async function loadJfbCommentary(bookName) {
   try {
     const response = await fetch(
-      "bible/resources/commentaries/jfb.json"
+      `bible/resources/commentaries/jfb/${bookName}.json`
     );
 
     if (!response.ok) return {};
@@ -5014,7 +5014,7 @@ if ($("openJfbResource")) {
     activeResourcePanel = "jfb";
     if (title) title.textContent = "Jamieson-Fausset-Brown Commentary";
 
-    const commentary = await loadJfbCommentary();
+   const commentary = await loadJfbCommentary(bookSel.value);
     const currentBook = bookSel.value;
     const currentChapter = chapSel.value;
     const start = parseInt(startSel.value, 10);
