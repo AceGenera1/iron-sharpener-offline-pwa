@@ -4010,6 +4010,21 @@ async function loadNavesTopics() {
   }
 }
 
+    async function loadJfbCommentary() {
+  try {
+    const response = await fetch(
+      "bible/resources/commentaries/jfb.json"
+    );
+
+    if (!response.ok) return {};
+
+    return await response.json();
+  } catch (error) {
+    console.warn("JFB commentary not found:", error);
+    return {};
+  }
+}
+
     async function loadBookIntroductions() {
   try {
     const response = await fetch(
