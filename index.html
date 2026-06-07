@@ -4235,11 +4235,13 @@ function refreshActiveResourcePanel() {
 
   if (activeResourcePanel === "bookOverview") {
     if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
-    if (activeResourcePanel === "jfb") {
-  if ($("openJfbResource")) $("openJfbResource").click();
+  }
+
+  if (activeResourcePanel === "jfb") {
+    if ($("openJfbResource")) $("openJfbResource").click();
   }
 }
-
+    
 function renderCrossReferenceLinks() {
   const crossRefs = $("crossRefs");
   if (!crossRefs) return;
@@ -5621,8 +5623,7 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 
-
-<script>
+  
 <script>
 (function finalStudyResourcesReopenFix() {
   function get(id) {
@@ -5695,7 +5696,6 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "openSmithsResource" ||
       button.id === "openNavesResource" ||
       button.id === "openCommentariesResource" ||
-      button.id === "openBookOverviewResource"
       button.id === "openBookOverviewResource" ||
       button.id === "openJfbResource"
     ) {
