@@ -4113,6 +4113,15 @@ if (studyResourcesPanel && !on) {
   studyResourcesPanel.style.display = "";
 }
 
+const obsNavigatorPanel = document.getElementById("obsNavigatorPanel");
+if (obsNavigatorPanel && !on) {
+  obsNavigatorPanel.classList.remove("open", "drag-positioned");
+  obsNavigatorPanel.setAttribute("aria-hidden", "true");
+  obsNavigatorPanel.style.display = "";
+  obsNavigatorPanel.style.removeProperty("--drag-left");
+  obsNavigatorPanel.style.removeProperty("--drag-top");
+}
+
       closeTeacherTools();
     }
 
