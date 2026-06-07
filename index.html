@@ -4524,113 +4524,136 @@ if (crossRefs) {
 }
 }
 
-  function init() {
+ function init() {
   if ($("backToPreviousPassage")) {
-    if (!previousPassageState) return;
+    $("backToPreviousPassage").onclick = () => {
+      if (!previousPassageState) return;
 
-    saveCurrentNotes();
+      saveCurrentNotes();
 
-    bookSel.value = previousPassageState.book;
-    fillChapters();
-    chapSel.value = previousPassageState.chapter;
-    fillVerses();
-    startSel.value = previousPassageState.start;
-    endSel.value = previousPassageState.end;
-    rangeSel.value = previousPassageState.range;
-
-    $("backToPreviousPassage").style.display = "none";
-    loadPassage();
-  };
-}
-
-    initTeachingPresentationTools();
-      fillBooks();
-
-      const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
-
-     bookSel.value = saved?.book || "Genesis";
+      bookSel.value = previousPassageState.book;
       fillChapters();
-
-      chapSel.value = saved?.chapter || "1";
+      chapSel.value = previousPassageState.chapter;
       fillVerses();
+      startSel.value = previousPassageState.start;
+      endSel.value = previousPassageState.end;
+      rangeSel.value = previousPassageState.range;
 
-   rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
-startSel.value = saved?.start || "1";
+      previousPassageState = null;
 
-if (saved?.end) {
-  endSel.value = saved.end;
-} else {
-  updateEndFromRange();
-}
+      $("backToPreviousPassage").style.display = "none";
+      loadPassage();
+    };
+  }
+
+  initTeachingPresentationTools();
+  fillBooks();
+
+  const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
+
+  bookSel.value = saved?.book || "Genesis";
+  fillChapters();
+
+  chapSel.value = saved?.chapter || "1";
+  fillVerses();
+
+  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
+  startSel.value = saved?.start || "1";
+
+  if (saved?.end) {
+    endSel.value = saved.end;
+  } else {
+    updateEndFromRange();
+  }
 
   if (rangeSel.value === "full") {
-  startSel.value = "1";
-  updateEndFromRange();
-} else {
-  endSel.value = saved?.end || endSel.value || "1";
-}
+    startSel.value = "1";
+    updateEndFromRange();
+  } else {
+    endSel.value = saved?.end || endSel.value || "1";
+  }
 
-      bookSel.onchange = () => saveThenLoad(() => {
-        fillChapters();
-        chapSel.value = "1";
-        fillVerses();
-      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
-        startSel.value = "1";
-        updateEndFromRange();
-      });
+  bookSel.onchange = () => saveThenLoad(() => {
+    fillChapters();
+    chapSel.value = "1";
+    fillVerses();
+    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
+    startSel.value = "1";
+    updateEndFromRange();
+  });
 
-      chapSel.onchange = () => saveThenLoad(() => {
-        fillVerses();
-        startSel.value = "1";
-        updateEndFromRange();
-      });
+  chapSel.onchange = () => saveThenLoad(() => {
+    fillVerses();
+    startSel.value = "1";
+    updateEndFromRange();
+  });
 
-      startSel.onchange = () => saveThenLoad(() => {
-        updateEndFromRange();
-      });
+  startSel.onchange = () => saveThenLoad(() => {
+    updateEndFromRange();
+  });
 
-      endSel.onchange = () => saveThenLoad();
+  endSel.onchange = () => saveThenLoad();
 
-      rangeSel.onchange = () => saveThenLoad(() => {
-  localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
-  updateEndFromRange();
-});
+  rangeSel.onchange = () => saveThenLoad(() => {
+    localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+    updateEndFromRange();
+  });
 
-      $("loadBtn").onclick = () => {
-        saveCurrentNotes();
-        loadPassage();
-      };
-      $("prevBtn").onclick = () => shiftRange(-1);
-      $("nextBtn").onclick = () => shiftRange(1);
-      $("themeBtn").onclick = () => setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
-      $("obsBtn").onclick = () => setObsMode(!document.documentElement.classList.contains("obs"));
-      $("fsBtn").onclick = () => {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
-        } else {
-          document.exitFullscreen();
-        }
-      };
-
-      if ($("highlightTool")) $("highlightTool").onclick = () => setTool("highlight-gold");
-      if ($("pointerTool")) $("pointerTool").onclick = () => setTool("pointer");
-      if ($("focusTool")) $("focusTool").onclick = () => setTool("focus");
-      if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
-      if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
-
-      if ($("obsHighlightTool")) $("obsHighlightTool").onclick = () => setTool("highlight-gold");
-      if ($("obsPointerTool")) $("obsPointerTool").onclick = () => setTool("pointer");
-      if ($("obsFocusTool")) $("obsFocusTool").onclick = () => setTool("focus");
-      if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
-      if ($("obsResetPanels")) $("obsResetPanels").onclick = () => {
-        if (window.resetIronSharpenerFloatingPanels) window.resetIronSharpenerFloatingPanels();
-      };
-
-      if ($("obsToolsMenuBtn")) {
-  $("obsToolsMenuBtn").onclick = () => {
-    const bar = document.querySelector(".obs-tool-bar");
-    if (bar) bar.classList.toggle("collapsed");
+  $("loadBtn").onclick = () => {
+    saveCurrentNotes();
+    loadPassage();
   };
+
+  $("prevBtn").onclick = () => shiftRange(-1);
+  $("nextBtn").onclick = () => shiftRange(1);
+  $("themeBtn").onclick = () => setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
+  $("obsBtn").onclick = () => setObsMode(!document.documentElement.classList.contains("obs"));
+
+  $("fsBtn").onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
+  if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
+  if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
+
+  if ($("obsResetPanels")) {
+    $("obsResetPanels").onclick = () => {
+      if (window.resetIronSharpenerFloatingPanels) window.resetIronSharpenerFloatingPanels();
+    };
+  }
+
+  if ($("obsToolsMenuBtn")) {
+    $("obsToolsMenuBtn").onclick = () => {
+      const bar = document.querySelector(".obs-tool-bar");
+      if (bar) bar.classList.toggle("collapsed");
+    };
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      const obsToolBar = document.querySelector(".obs-tool-bar");
+      if (obsToolBar) obsToolBar.classList.add("collapsed");
+
+      closeTeacherTools();
+      setObsMode(false);
+    }
+  });
+
+  restoreThemeMode();
+  loadCurrentNotes();
+  initTooltips();
+  initTeacherTools();
+  setTool("highlight-gold");
+  setupObsNavigator();
+  syncObsNavigator();
+  loadPassage();
+
+  window.addEventListener("beforeunload", saveCurrentNotes);
 }
       
 function closeStudyResourcesPanelSoft() {
