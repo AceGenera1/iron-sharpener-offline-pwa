@@ -2040,10 +2040,9 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible topics and Scripture references.</span>
 </button>
 
-    <button type="button" class="tool-option" disabled>
-      <strong>Matthew Henry Commentary</strong>
-      <span>Coming later.</span>
-    </button>
+  <button type="button" class="tool-option" id="openCommentariesResource">
+   <strong>Commentaries</strong>
+<span>Open Bible commentaries by passage.</span>
 
     <button type="button" class="tool-option" disabled>
       <strong>Jamieson-Fausset-Brown Commentary</strong>
@@ -3986,6 +3985,21 @@ async function loadNavesTopics() {
     return await response.json();
   } catch (error) {
     console.warn("Nave's Topical Bible not found:", error);
+    return {};
+  }
+}
+
+  async function loadMatthewHenryCommentary() {
+  try {
+    const response = await fetch(
+      "bible/resources/commentaries/matthew_henry.json"
+    );
+
+    if (!response.ok) return {};
+
+    return await response.json();
+  } catch (error) {
+    console.warn("Matthew Henry commentary not found:", error);
     return {};
   }
 }
