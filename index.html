@@ -4523,8 +4523,9 @@ if (crossRefs) {
   renderCrossReferenceLinks();
 }
 }
-    if ($("backToPreviousPassage")) {
-  $("backToPreviousPassage").onclick = () => {
+
+  function init() {
+  if ($("backToPreviousPassage")) {
     if (!previousPassageState) return;
 
     saveCurrentNotes();
@@ -4630,20 +4631,6 @@ if (saved?.end) {
     const bar = document.querySelector(".obs-tool-bar");
     if (bar) bar.classList.toggle("collapsed");
   };
-}
-
-function syncObsNavigator() {
-  const obsBook = $("obsBookSelect");
-  const obsChap = $("obsChapterSelect");
-  const obsStart = $("obsStartVerseSelect");
-  const obsEnd = $("obsEndVerseSelect");
-
-  if (!obsBook) return;
-
-  obsBook.innerHTML = bookSel.innerHTML;
-  obsChap.innerHTML = chapSel.innerHTML;
-  obsStart.innerHTML = startSel.innerHTML;
-  obsEnd.innerHTML = endSel.innerHTML;
 }
       
 function closeStudyResourcesPanelSoft() {
@@ -5613,6 +5600,7 @@ document.addEventListener("DOMContentLoaded", function () {
       makeDraggable("ironPromptPanel");
       makeDraggable("obsCrossRefsPanel");
       makeDraggable("studyResourcesPanel");
+      makeDraggable("obsNavigatorPanel");
     });
   } else {
     makeDraggable("teacherToolsPanel");
@@ -5620,6 +5608,7 @@ document.addEventListener("DOMContentLoaded", function () {
     makeDraggable("ironPromptPanel");
     makeDraggable("obsCrossRefsPanel");
     makeDraggable("studyResourcesPanel");
+    makeDraggable("obsNavigatorPanel");
   }
 })();
 </script>
