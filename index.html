@@ -2040,11 +2040,12 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible topics and Scripture references.</span>
 </button>
 
-  <button type="button" class="tool-option" id="openCommentariesResource">
-   <strong>Commentaries</strong>
-<span>Open Bible commentaries by passage.</span>
+<button type="button" class="tool-option" id="openCommentariesResource">
+  <strong>Commentaries</strong>
+  <span>Open Bible commentaries by passage.</span>
+</button>
 
-    <button type="button" class="tool-option" disabled>
+<button type="button" class="tool-option" disabled>
       <strong>Jamieson-Fausset-Brown Commentary</strong>
       <span>Coming later.</span>
     </button>
@@ -4580,49 +4581,6 @@ if ($("openNavesResource")) {
       };
     }
 
-    if ($("openCommentariesResource")) {
-  $("openCommentariesResource").onclick = async () => {
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const title = $("obsCrossRefsTitle");
-
-    if (!panel || !content) return;
-
-    activeResourcePanel = "commentary";
-    if (title) title.textContent = "Commentaries";
-
-    const commentary = await loadMatthewHenryCommentary();
-    const currentBook = bookSel.value;
-    const currentChapter = chapSel.value;
-    const start = parseInt(startSel.value, 10);
-    const end = parseInt(endSel.value, 10);
-
-    const matches = [];
-
-    for (let v = start; v <= end; v++) {
-      const key = `${currentBook} ${currentChapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
-
-    content.innerHTML = `
-      <h4>Matthew Henry Commentary</h4>
-      ${
-        matches.length
-          ? matches.map(item => `
-              <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-                <h4>${item.title}</h4>
-                <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p>
-              </div>
-            `).join("")
-          : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
-      }
-    `;
-
-    panel.style.display = "";
-    panel.classList.add("open");
-  };
-}
-
     function renderResults(query) {
       const q = (query || "").toLowerCase().trim();
 
@@ -4667,6 +4625,49 @@ if ($("openNavesResource")) {
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
+
+    panel.style.display = "";
+    panel.classList.add("open");
+  };
+}
+
+    if ($("openCommentariesResource")) {
+  $("openCommentariesResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "commentary";
+    if (title) title.textContent = "Commentaries";
+
+    const commentary = await loadMatthewHenryCommentary();
+    const currentBook = bookSel.value;
+    const currentChapter = chapSel.value;
+    const start = parseInt(startSel.value, 10);
+    const end = parseInt(endSel.value, 10);
+
+    const matches = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${currentBook} ${currentChapter}:${v}`;
+      if (commentary[key]) matches.push(commentary[key]);
+    }
+
+    content.innerHTML = `
+      <h4>Matthew Henry Commentary</h4>
+      ${
+        matches.length
+          ? matches.map(item => `
+              <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+                <h4>${item.title}</h4>
+                <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p>
+              </div>
+            `).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
+      }
+    `;
 
     panel.style.display = "";
     panel.classList.add("open");
@@ -5429,7 +5430,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 
-  <script>
 <script>
 (function finalStudyResourcesReopenFix() {
   function get(id) {
@@ -5510,13 +5510,13 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "openTskResource" ||
       button.id === "openEastonsResource" ||
       button.id === "openSmithsResource" ||
-      button.id === "openNavesResource"
+      button.id === "openNavesResource" ||
+      button.id === "openCommentariesResource"
     ) {
       setTimeout(afterResourceOpens, 0);
     }
   }, true);
 })();
-</script>
 </script>
 </body>
 </html>
