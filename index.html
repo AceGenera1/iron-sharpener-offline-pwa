@@ -4401,6 +4401,21 @@ function closeStudyResourcesPanelSoft() {
   panel.style.removeProperty("--drag-top");
 }
 
+function openFloatingResourcePanel(panel) {
+  if (!panel) return;
+
+  panel.classList.remove("open", "drag-positioned");
+  panel.style.display = "none";
+  panel.style.removeProperty("--drag-left");
+  panel.style.removeProperty("--drag-top");
+
+  panel.offsetHeight;
+
+  panel.style.display = "";
+  panel.style.setProperty("z-index", "50000", "important");
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden", "false");
+}
 function openStudyResourcesPanel() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
@@ -4493,8 +4508,7 @@ if ($("openEastonsResource")) {
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
-    panel.style.display = "";
-    panel.classList.add("open");
+  openFloatingResourcePanel(panel);
   };
 }
 
@@ -4551,8 +4565,7 @@ if ($("openSmithsResource")) {
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
-    panel.style.display = "";
-    panel.classList.add("open");
+  openFloatingResourcePanel(panel);
   };
 }
 
@@ -4608,8 +4621,7 @@ if ($("openNavesResource")) {
 
         loadPassage();
 
-        panel.style.display = "";
-        panel.classList.add("open");
+       openFloatingResourcePanel(panel);
       };
     }
 
@@ -4650,8 +4662,7 @@ if ($("openNavesResource")) {
           if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
           if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
 
-          panel.style.display = "";
-          panel.classList.add("open");
+        openFloatingResourcePanel(panel);
         };
       });
     }
@@ -4831,8 +4842,7 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
       obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
     }
 
-    crossPanel.style.display = "";
-    crossPanel.classList.add("open");
+   openFloatingResourcePanel(crossPanel);
   };
 }
 
