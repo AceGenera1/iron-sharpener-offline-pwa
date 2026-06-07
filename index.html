@@ -4969,28 +4969,37 @@ const terms = topicFiles.sort();
 
 results.innerHTML = loadedTopics.length
   ? loadedTopics.map(topic => `
-      <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-        <h4>${topic.title}</h4>
+      <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+        <h4 style="margin-bottom:10px;">${topic.title}</h4>
 
         ${
           (topic.references || []).length
-            ? `<div>
+            ? `
+              <details open style="margin-bottom:10px;">
+                <summary style="cursor:pointer;font:900 14px Arial,sans-serif;margin-bottom:8px;">
+                  Main References (${topic.references.length})
+                </summary>
                 ${(topic.references || []).map(ref =>
-                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
+                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
                 ).join("")}
-              </div>`
+              </details>
+            `
             : ""
         }
 
         ${
           topic.subtopics
             ? Object.keys(topic.subtopics).map(subtopic => `
-                <div style="margin-top:12px;">
-                  <h5 style="margin:8px 0;font:900 14px Arial,sans-serif;">${subtopic}</h5>
-                  ${(topic.subtopics[subtopic] || []).map(ref =>
-                    `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
-                  ).join("")}
-                </div>
+                <details style="margin-top:8px;">
+                  <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
+                    ${subtopic} (${(topic.subtopics[subtopic] || []).length})
+                  </summary>
+                  <div style="margin-top:8px;">
+                    ${(topic.subtopics[subtopic] || []).map(ref =>
+                      `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                    ).join("")}
+                  </div>
+                </details>
               `).join("")
             : ""
         }
