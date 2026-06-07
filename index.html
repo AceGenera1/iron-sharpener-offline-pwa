@@ -4677,8 +4677,17 @@ if ($("openNavesResource")) {
       }
     `;
 
-    panel.style.display = "";
-    panel.classList.add("open");
+panel.classList.remove("open", "drag-positioned");
+panel.style.display = "none";
+panel.style.removeProperty("--drag-left");
+panel.style.removeProperty("--drag-top");
+
+panel.offsetHeight;
+
+panel.style.display = "";
+panel.style.zIndex = "41000";
+panel.classList.add("open");
+panel.setAttribute("aria-hidden", "false");
   };
 }
 
