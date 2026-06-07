@@ -4217,14 +4217,14 @@ if (obsNavigatorPanel && !on) {
   }
 }
 
-async function loadNavesTopics() {
+async function loadNavesTopic(topicFile) {
   try {
-    const response = await fetch("bible/resources/topics/naves.json");
-    if (!response.ok) return {};
+    const response = await fetch(`bible/resources/topics/${topicFile}.json`);
+    if (!response.ok) return null;
     return await response.json();
   } catch (error) {
-    console.warn("Nave's Topical Bible not found:", error);
-    return {};
+    console.warn("Nave's topic not found:", error);
+    return null;
   }
 }
 
@@ -4872,8 +4872,24 @@ if ($("openNavesResource")) {
     activeResourcePanel = "naves";
     if (title) title.textContent = "Nave's Topical Bible";
 
-    const topics = await loadNavesTopics();
-    const terms = Object.keys(topics).sort();
+const topicFiles = [
+  "baptism",
+  "christ",
+  "church",
+  "communion",
+  "cross",
+  "deliverance",
+  "discipleship",
+  "evangelism",
+  "faith",
+  "fasting",
+  "fear-of-the-lord",
+  "forgiveness",
+  "gospel",
+  "grace"
+];
+
+const terms = topicFiles.sort();
 
     content.innerHTML = `
       <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
@@ -4917,47 +4933,59 @@ if ($("openNavesResource")) {
       };
     }
 
-    function renderResults(query) {
-      const q = (query || "").toLowerCase().trim();
+    async function renderResults(query) {
+  const q = (query || "").toLowerCase().trim();
 
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
-        return;
-      }
+  if (!q) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
+    return;
+  }
 
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
+  if (q.length < 3) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+    return;
+  }
 
-      const matches = terms
-        .filter(term => term.includes(q))
-        .slice(0, 20);
+  const matches = terms
+    .filter(term => term.includes(q))
+    .slice(0, 20);
 
-      results.innerHTML = matches.length
-        ? matches.map(term => `
-            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-              <h4>${topics[term].title}</h4>
-              <div>
-                ${(topics[term].references || []).map(ref =>
-                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
-                ).join("")}
-              </div>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+  if (!matches.length) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+    return;
+  }
 
-      results.querySelectorAll(".cross-ref-link").forEach((btn) => {
-        btn.onclick = () => {
-          goToScriptureReference(btn.dataset.ref);
+  const loadedTopics = [];
 
-          if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
-          if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
+  for (const topicFile of matches) {
+    const topic = await loadNavesTopic(topicFile);
+    if (topic) loadedTopics.push(topic);
+  }
 
-        openFloatingResourcePanel(panel);
-        };
-      });
-    }
+  results.innerHTML = loadedTopics.length
+    ? loadedTopics.map(topic => `
+        <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
+          <h4>${topic.title}</h4>
+          <div>
+            ${(topic.references || []).map(ref =>
+              `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:8px;">${ref}</button>`
+            ).join("")}
+          </div>
+        </div>
+      `).join("")
+    : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+  results.querySelectorAll(".cross-ref-link").forEach((btn) => {
+    btn.onclick = () => {
+      goToScriptureReference(btn.dataset.ref);
+
+      if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
+      if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
+
+      openFloatingResourcePanel(panel);
+    };
+  });
+}
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
