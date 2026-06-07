@@ -2040,6 +2040,11 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible topics and Scripture references.</span>
 </button>
 
+<button type="button" class="tool-option" id="openCommentariesResource">
+  <strong>Commentaries</strong>
+  <span>Open Bible commentaries by passage.</span>
+</button>
+
 <button type="button" class="tool-option" id="openBookOverviewResource">
   <strong>Book Overview</strong>
   <span>View author, setting, themes, Christ focus, and outline.</span>
@@ -4195,9 +4200,8 @@ function goToScriptureReference(ref) {
   loadPassage();
 }
 
-if (activeResourcePanel === "bookOverview") {
-  if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
-}
+function refreshActiveResourcePanel() {
+  const panelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
 
   if (!panelIsOpen) return;
 
@@ -4211,6 +4215,10 @@ if (activeResourcePanel === "bookOverview") {
 
   if (activeResourcePanel === "commentary") {
     if ($("openCommentariesResource")) $("openCommentariesResource").click();
+  }
+
+  if (activeResourcePanel === "bookOverview") {
+    if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
   }
 }
 
