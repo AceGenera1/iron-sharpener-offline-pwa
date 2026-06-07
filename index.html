@@ -2040,11 +2040,11 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible topics and Scripture references.</span>
 </button>
 
-<button type="button" class="tool-option" id="openCommentariesResource">
-  <strong>Commentaries</strong>
-  <span>Open Bible commentaries by passage.</span>
+<button type="button" class="tool-option" id="openBookOverviewResource">
+  <strong>Book Overview</strong>
+  <span>View author, setting, themes, Christ focus, and outline.</span>
 </button>
-
+    
 <button type="button" class="tool-option" disabled>
       <strong>Jamieson-Fausset-Brown Commentary</strong>
       <span>Coming later.</span>
@@ -4195,8 +4195,9 @@ function goToScriptureReference(ref) {
   loadPassage();
 }
 
-function refreshActiveResourcePanel() {
-  const panelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
+if (activeResourcePanel === "bookOverview") {
+  if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
+}
 
   if (!panelIsOpen) return;
 
@@ -4706,6 +4707,86 @@ panel.setAttribute("aria-hidden", "false");
   };
 }
 
+
+if ($("openBookOverviewResource")) {
+  $("openBookOverviewResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "bookOverview";
+    if (title) title.textContent = "Book Overview";
+
+    const introductions = await loadBookIntroductions();
+    const currentBook = bookSel.value;
+    const overview = introductions[currentBook];
+
+    content.innerHTML = overview
+      ? `
+        <h4>${overview.title}</h4>
+
+        <div style="margin-bottom:12px;">
+          <strong>Author</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.author}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Date</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.date}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Audience</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.audience}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Historical Setting</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.historicalSetting}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Major Themes</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.themes || []).map(theme => `<li>${theme}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Key Verse</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.keyVerse}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Christ Focus</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.christFocus}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Outline</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.outline || []).map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+      `
+      : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
+
+    panel.classList.remove("open", "drag-positioned");
+    panel.style.display = "none";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+
+    panel.offsetHeight;
+
+    panel.style.display = "";
+    panel.style.zIndex = "41000";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  };
+}
+      
 if ($("openTskResource")) {
 $("openTskResource").onclick = async () => {
 activeResourcePanel = "tsk";
@@ -5544,7 +5625,8 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "openEastonsResource" ||
       button.id === "openSmithsResource" ||
       button.id === "openNavesResource" ||
-      button.id === "openCommentariesResource"
+      button.id === "openCommentariesResource" ||
+      button.id === "openBookOverviewResource"
     ) {
       setTimeout(afterResourceOpens, 0);
     }
