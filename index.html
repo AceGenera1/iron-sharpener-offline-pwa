@@ -1755,6 +1755,7 @@ body.dark .presentation-card-inner {
       border-left-color: #f8d987 !important;
     }
 
+html.obs .obs-tool-bar #obsShowNavigator,
 html.obs .obs-tool-bar #obsOpenTeacherTools,
 html.obs .obs-tool-bar #obsShowTeachingNote,
 html.obs .obs-tool-bar #obsShowApplicationNote,
@@ -1966,46 +1967,30 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   </button>
 </div>
 
-    <div
-  id="obsNavigatorPanel"
-  class="floating-panel"
-  aria-hidden="true"
->
-  <div class="panel-header">
-    <span>Scripture Navigator</span>
-
-    <button
-      type="button"
-      id="closeObsNavigator"
-      class="icon-btn"
-    >
-      ✕
-    </button>
+<div id="obsNavigatorPanel" class="teacher-pop" aria-hidden="true">
+  <div class="teacher-pop-head drag-handle" data-drag-handle="obsNavigatorPanel">
+    <h3>Scripture Navigator</h3>
+    <button id="closeObsNavigator" class="teacher-pop-close secondary" type="button">Close</button>
   </div>
 
-  <div class="panel-body">
+  <label>Book</label>
+  <select id="obsBookSelect"></select>
 
-    <label>Book</label>
-    <select id="obsBookSelect"></select>
+  <label>Chapter</label>
+  <select id="obsChapterSelect"></select>
 
-    <label>Chapter</label>
-    <select id="obsChapterSelect"></select>
+  <label>Start Verse</label>
+  <select id="obsStartVerseSelect"></select>
 
-    <label>Start Verse</label>
-    <select id="obsStartVerseSelect"></select>
+  <label>End Verse</label>
+  <select id="obsEndVerseSelect"></select>
 
-    <label>End Verse</label>
-    <select id="obsEndVerseSelect"></select>
+  <label>Section Size</label>
+  <select id="obsRangeSizeSelect"></select>
 
-    <button
-      type="button"
-      id="obsLoadPassage"
-      class="primary-btn"
-    >
-      Load Passage
-    </button>
-
-  </div>
+  <button type="button" id="obsLoadPassage" style="width:100%;margin-top:12px;">
+    Load Passage
+  </button>
 </div>
 
     <div id="teacherToolsPanel" class="teacher-pop" aria-hidden="true">
@@ -3501,8 +3486,6 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
     function chaptersForBook() {
       return (books.find((book) => book[0] === bookSel.value) || books[0])[1];
     }
-
-syncObsNavigator();
     
     function showApplicationPresentation() {
       const note = cleanText($("applicationNotes")?.value || "");
@@ -3679,6 +3662,202 @@ function showSmallTeachingNoteBox() {
       const size = parseInt(rangeSel.value, 10) || 5;
       endSel.value = Math.min(max, startVerse + size - 1);
     }
+
+    function fillObsNumberSelect(select, max, selectedValue) {
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  for (let i = 1; i <= max; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = i;
+    select.appendChild(option);
+  }
+
+  select.value = Math.min(parseInt(selectedValue, 10) || 1, max);
+}
+
+function obsVerseMax() {
+  const obsBook = $("obsBookSelect");
+  const obsChap = $("obsChapterSelect");
+
+  if (!obsBook || !obsChap) return verseMax();
+
+  const chapterIndex = parseInt(obsChap.value, 10) - 1;
+  const counts = verseCounts[obsBook.value];
+
+  return counts ? counts[chapterIndex] : 80;
+}
+
+function syncObsNavigator() {
+  const obsBook = $("obsBookSelect");
+  const obsChap = $("obsChapterSelect");
+  const obsStart = $("obsStartVerseSelect");
+  const obsEnd = $("obsEndVerseSelect");
+  const obsRange = $("obsRangeSizeSelect");
+
+  if (!obsBook || !obsChap || !obsStart || !obsEnd || !obsRange) return;
+
+  obsBook.innerHTML = bookSel.innerHTML;
+  obsBook.value = bookSel.value;
+
+  obsChap.innerHTML = chapSel.innerHTML;
+  obsChap.value = chapSel.value;
+
+  obsStart.innerHTML = startSel.innerHTML;
+  obsStart.value = startSel.value;
+
+  obsEnd.innerHTML = endSel.innerHTML;
+  obsEnd.value = endSel.value;
+
+  obsRange.innerHTML = rangeSel.innerHTML;
+  obsRange.value = rangeSel.value;
+}
+
+function rebuildObsChapters() {
+  const obsBook = $("obsBookSelect");
+  const obsChap = $("obsChapterSelect");
+
+  if (!obsBook || !obsChap) return;
+
+  const found = books.find(book => book[0] === obsBook.value);
+  const chapterCount = found ? found[1] : 1;
+
+  obsChap.innerHTML = "";
+
+  for (let i = 1; i <= chapterCount; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = i;
+    obsChap.appendChild(option);
+  }
+
+  obsChap.value = "1";
+  rebuildObsVerses();
+}
+
+function rebuildObsVerses() {
+  const obsStart = $("obsStartVerseSelect");
+  const obsEnd = $("obsEndVerseSelect");
+
+  const max = obsVerseMax();
+
+  fillObsNumberSelect(obsStart, max, "1");
+  fillObsNumberSelect(obsEnd, max, "1");
+
+  updateObsEndFromRange();
+}
+
+function updateObsEndFromRange() {
+  const obsStart = $("obsStartVerseSelect");
+  const obsEnd = $("obsEndVerseSelect");
+  const obsRange = $("obsRangeSizeSelect");
+
+  if (!obsStart || !obsEnd || !obsRange) return;
+
+  const max = obsVerseMax();
+  const startVerse = parseInt(obsStart.value, 10) || 1;
+
+  if (obsRange.value === "full") {
+    obsStart.value = "1";
+    obsEnd.value = max;
+    return;
+  }
+
+  const size = parseInt(obsRange.value, 10) || 5;
+  obsEnd.value = Math.min(max, startVerse + size - 1);
+}
+
+function openObsNavigatorPanel(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const panel = $("obsNavigatorPanel");
+  if (!panel) return;
+
+  syncObsNavigator();
+
+  panel.classList.remove("drag-positioned");
+  panel.style.removeProperty("--drag-left");
+  panel.style.removeProperty("--drag-top");
+  panel.style.display = "";
+  panel.style.setProperty("z-index", "50000", "important");
+  panel.classList.add("open");
+  panel.setAttribute("aria-hidden", "false");
+}
+
+function closeObsNavigatorPanel(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const panel = $("obsNavigatorPanel");
+  if (!panel) return;
+
+  panel.classList.remove("open");
+  panel.setAttribute("aria-hidden", "true");
+  panel.style.display = "";
+}
+
+function loadPassageFromObsNavigator() {
+  const obsBook = $("obsBookSelect");
+  const obsChap = $("obsChapterSelect");
+  const obsStart = $("obsStartVerseSelect");
+  const obsEnd = $("obsEndVerseSelect");
+  const obsRange = $("obsRangeSizeSelect");
+
+  if (!obsBook || !obsChap || !obsStart || !obsEnd || !obsRange) return;
+
+  saveCurrentNotes();
+
+  bookSel.value = obsBook.value;
+  fillChapters();
+
+  chapSel.value = obsChap.value;
+  fillVerses();
+
+  rangeSel.value = obsRange.value;
+  localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+
+  startSel.value = obsStart.value;
+  endSel.value = obsEnd.value;
+
+  loadPassage();
+}
+
+function setupObsNavigator() {
+  if ($("obsShowNavigator")) {
+    $("obsShowNavigator").onclick = openObsNavigatorPanel;
+  }
+
+  if ($("closeObsNavigator")) {
+    $("closeObsNavigator").onclick = closeObsNavigatorPanel;
+  }
+
+  if ($("obsBookSelect")) {
+    $("obsBookSelect").onchange = rebuildObsChapters;
+  }
+
+  if ($("obsChapterSelect")) {
+    $("obsChapterSelect").onchange = rebuildObsVerses;
+  }
+
+  if ($("obsStartVerseSelect")) {
+    $("obsStartVerseSelect").onchange = updateObsEndFromRange;
+  }
+
+  if ($("obsRangeSizeSelect")) {
+    $("obsRangeSizeSelect").onchange = updateObsEndFromRange;
+  }
+
+  if ($("obsLoadPassage")) {
+    $("obsLoadPassage").onclick = loadPassageFromObsNavigator;
+  }
+}
 
     function currentRef() {
       return `${bookSel.value} ${chapSel.value}:${startSel.value}-${endSel.value}`;
@@ -4363,28 +4542,7 @@ if (crossRefs) {
   };
 }
 
-    if ($("obsShowNavigator")) {
-  $("obsShowNavigator").onclick = () => {
-    const panel = $("obsNavigatorPanel");
-
-    if (!panel) return;
-
-    openFloatingResourcePanel(panel);
-  };
-}
-
-    if ($("closeObsNavigator")) {
-  $("closeObsNavigator").onclick = () => {
-    const panel = $("obsNavigatorPanel");
-
-    if (!panel) return;
-
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-  };
-}
-
-    function init() {
+    initTeachingPresentationTools();
       fillBooks();
 
       const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
@@ -5105,6 +5263,8 @@ if (obsToolBar) {
       ;
     
       initTeachingPresentationTools();
+      setupObsNavigator();
+      syncObsNavigator();
       loadPassage();
       window.addEventListener("beforeunload", saveCurrentNotes);
     }
