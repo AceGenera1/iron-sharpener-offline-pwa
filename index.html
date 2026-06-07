@@ -4183,6 +4183,9 @@ function goToScriptureReference(ref) {
 function refreshActiveResourcePanel() {
   if (activeResourcePanel === "tsk" && $("obsCrossRefsPanel")?.classList.contains("open")) {
     if ($("openTskResource")) $("openTskResource").click();
+    if (activeResourcePanel === "commentary" && $("obsCrossRefsPanel")?.classList.contains("open")) {
+  if ($("openCommentariesResource")) $("openCommentariesResource").click();
+}
   }
 
   if (activeResourcePanel === "personalCrossRefs" && $("obsCrossRefsPanel")?.classList.contains("open")) {
