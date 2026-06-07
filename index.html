@@ -4195,9 +4195,9 @@ if (obsNavigatorPanel && !on) {
       setTimeout(renderCrossReferenceLinks, 0);
     }
 
-    async function loadEastonsDictionary() {
+ async function loadEastonsDictionary(letter) {
   try {
-    const response = await fetch("bible/resources/dictionaries/eastons.json");
+    const response = await fetch(`bible/resources/eastons/${letter}.json`);
     if (!response.ok) return {};
     return await response.json();
   } catch (error) {
@@ -4206,9 +4206,9 @@ if (obsNavigatorPanel && !on) {
   }
 }
 
-  async function loadSmithsDictionary() {
+ async function loadSmithsDictionary(letter) {
   try {
-    const response = await fetch("bible/resources/dictionaries/smiths.json");
+    const response = await fetch(`bible/resources/smiths/${letter}.json`);
     if (!response.ok) return {};
     return await response.json();
   } catch (error) {
