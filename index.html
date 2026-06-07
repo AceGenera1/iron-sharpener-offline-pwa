@@ -4228,10 +4228,10 @@ async function loadNavesTopics() {
   }
 }
 
-  async function loadMatthewHenryCommentary() {
+async function loadMatthewHenryCommentary(bookName) {
   try {
     const response = await fetch(
-      "bible/resources/commentaries/matthew_henry.json"
+      `bible/resources/commentaries/matthew-henry/${bookName}.json`
     );
 
     if (!response.ok) return {};
@@ -4961,7 +4961,7 @@ if ($("openNavesResource")) {
     activeResourcePanel = "commentary";
     if (title) title.textContent = "Commentaries";
 
-    const commentary = await loadMatthewHenryCommentary();
+    const commentary = await loadMatthewHenryCommentary(bookSel.value);
     const currentBook = bookSel.value;
     const currentChapter = chapSel.value;
     const start = parseInt(startSel.value, 10);
