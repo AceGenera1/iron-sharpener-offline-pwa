@@ -4770,6 +4770,12 @@ if ($("openEastonsResource")) {
         return;
       }
 
+      if (letter && letter !== loadedLetter) {
+  loadedLetter = letter;
+  dict = await loadEastonsDictionary(letter);
+  terms = Object.keys(dict).sort();
+}
+
       const matches = terms
         .filter(term => term.includes(q))
         .slice(0, 20);
@@ -4788,12 +4794,6 @@ if ($("openEastonsResource")) {
 
   openFloatingResourcePanel(panel);
   };
-}
-
-    if (letter && letter !== loadedLetter) {
-  loadedLetter = letter;
-  dict = await loadEastonsDictionary(letter);
-  terms = Object.keys(dict).sort();
 }
 
 if ($("openSmithsResource")) {
@@ -4835,6 +4835,12 @@ if ($("openSmithsResource")) {
         return;
       }
 
+      if (letter && letter !== loadedLetter) {
+      loadedLetter = letter;
+      dict = await loadSmithsDictionary(letter);
+      terms = Object.keys(dict).sort();
+    }
+
        const matches = terms
         .filter(term => term.includes(q))
         .slice(0, 20);
@@ -4853,12 +4859,6 @@ if ($("openSmithsResource")) {
 
   openFloatingResourcePanel(panel);
   };
-}
-
-    if (letter && letter !== loadedLetter) {
-  loadedLetter = letter;
-  dict = await loadSmithsDictionary(letter);
-  terms = Object.keys(dict).sort();
 }
 
 if ($("openNavesResource")) {
