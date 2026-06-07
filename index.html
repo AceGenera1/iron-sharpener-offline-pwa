@@ -5559,19 +5559,31 @@ document.addEventListener("DOMContentLoaded", function () {
     return document.getElementById(id);
   }
 
-  function openStudyResources(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+  function bringStudyResourcesForward() {
+    const studyPanel = get("studyResourcesPanel");
+    if (!studyPanel) return;
 
-    const panel = get("studyResourcesPanel");
-    if (!panel) return;
+    studyPanel.style.display = "";
+    studyPanel.style.setProperty("z-index", "40000", "important");
+    studyPanel.classList.add("open");
+    studyPanel.setAttribute("aria-hidden", "false");
+  }
 
-    panel.style.display = "";
-    panel.style.zIndex = "40000";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
+  function bringResourceForward() {
+    const resourcePanel = get("obsCrossRefsPanel");
+    if (!resourcePanel) return;
+
+    resourcePanel.classList.remove("open", "drag-positioned");
+    resourcePanel.style.display = "none";
+    resourcePanel.style.removeProperty("--drag-left");
+    resourcePanel.style.removeProperty("--drag-top");
+
+    resourcePanel.offsetHeight;
+
+    resourcePanel.style.display = "";
+    resourcePanel.style.setProperty("z-index", "50000", "important");
+    resourcePanel.classList.add("open");
+    resourcePanel.setAttribute("aria-hidden", "false");
   }
 
   function closeStudyResources(event) {
@@ -5580,31 +5592,12 @@ document.addEventListener("DOMContentLoaded", function () {
       event.stopPropagation();
     }
 
-    const panel = get("studyResourcesPanel");
-    if (!panel) return;
-
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "";
-  }
-
-  function afterResourceOpens() {
-    const resourcePanel = get("obsCrossRefsPanel");
-
-    if (resourcePanel) {
-      resourcePanel.style.display = "";
-      resourcePanel.style.zIndex = "41000";
-      resourcePanel.classList.add("open");
-      resourcePanel.setAttribute("aria-hidden", "false");
-    }
-
     const studyPanel = get("studyResourcesPanel");
-    if (studyPanel) {
-      studyPanel.style.display = "";
-      studyPanel.style.zIndex = "40000";
-      studyPanel.classList.add("open");
-      studyPanel.setAttribute("aria-hidden", "false");
-    }
+    if (!studyPanel) return;
+
+    studyPanel.classList.remove("open");
+    studyPanel.setAttribute("aria-hidden", "true");
+    studyPanel.style.display = "";
   }
 
   document.addEventListener("click", function(event) {
@@ -5615,7 +5608,9 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "obsShowStudyResources" ||
       button.id === "openStudyResourcesFromTools"
     ) {
-      openStudyResources(event);
+      event.preventDefault();
+      event.stopPropagation();
+      bringStudyResourcesForward();
       return;
     }
 
@@ -5632,7 +5627,10 @@ document.addEventListener("DOMContentLoaded", function () {
       button.id === "openCommentariesResource" ||
       button.id === "openBookOverviewResource"
     ) {
-      setTimeout(afterResourceOpens, 0);
+      setTimeout(function() {
+        bringStudyResourcesForward();
+        bringResourceForward();
+      }, 0);
     }
   }, true);
 })();
