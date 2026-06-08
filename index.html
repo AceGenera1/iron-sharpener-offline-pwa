@@ -5687,6 +5687,145 @@ body.dark #ironPromptPanel.open {
   color: #fff3cd !important;
 }
 
+  /* Study Experience Phase 1 — Universal Panel Readability */
+
+:root {
+  --study-light-bg: #FAF6EE;
+  --study-light-card: #FFFDF7;
+  --study-light-text: #2B394F;
+
+  --study-dark-bg: #182235;
+  --study-dark-card: #202C42;
+  --study-dark-text: #F5F3EE;
+
+  --study-accent: #D7A84F;
+  --study-accent-soft: #F8D987;
+}
+
+/* All floating panels */
+.teacher-pop,
+#obsCrossRefsPanel,
+#teachingMethodPanel.open,
+#ironPromptPanel.open {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+/* Light mode panel backgrounds */
+body:not(.dark) .teacher-pop,
+body:not(.dark) #obsCrossRefsPanel,
+body:not(.dark) #teachingMethodPanel.open,
+body:not(.dark) #ironPromptPanel.open {
+  background: linear-gradient(180deg, var(--study-light-card), var(--study-light-bg)) !important;
+  color: var(--study-light-text) !important;
+}
+
+/* Dark mode panel backgrounds */
+body.dark .teacher-pop,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open {
+  background: linear-gradient(180deg, var(--study-dark-card), var(--study-dark-bg)) !important;
+  color: var(--study-dark-text) !important;
+}
+
+/* Panel body text */
+#obsCrossRefsContent p,
+#obsCrossRefsContent li,
+#obsCrossRefsContent div,
+#obsCrossRefsContent details,
+#teachingMethodPanel p,
+#teachingMethodPanel li,
+#ironPromptPanel p,
+#ironPromptPanel li,
+.teacher-pop p,
+.teacher-pop li,
+.teacher-pop span {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+/* Panel headings */
+#obsCrossRefsContent h4,
+.teacher-pop h3,
+.teacher-pop-head h3,
+.floating-panel-head h3,
+#teachingMethodPanel h3,
+#ironPromptPanel h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+  letter-spacing: .4px !important;
+}
+
+/* Section labels and summaries */
+#obsCrossRefsContent strong,
+#obsCrossRefsContent summary,
+#teachingMethodPanel strong,
+#ironPromptPanel strong {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.55 !important;
+  font-weight: 800 !important;
+}
+
+/* Inputs inside panels */
+.teacher-pop input,
+.teacher-pop textarea,
+.teacher-pop select,
+#obsCrossRefsPanel input,
+#obsCrossRefsPanel textarea,
+#obsCrossRefsPanel select {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+}
+
+/* Light mode text */
+body:not(.dark) #obsCrossRefsContent,
+body:not(.dark) #obsCrossRefsContent p,
+body:not(.dark) #obsCrossRefsContent li,
+body:not(.dark) #obsCrossRefsContent div,
+body:not(.dark) #obsCrossRefsContent summary,
+body:not(.dark) .teacher-pop,
+body:not(.dark) #teachingMethodPanel,
+body:not(.dark) #ironPromptPanel {
+  color: var(--study-light-text) !important;
+}
+
+/* Dark mode text */
+body.dark #obsCrossRefsContent,
+body.dark #obsCrossRefsContent p,
+body.dark #obsCrossRefsContent li,
+body.dark #obsCrossRefsContent div,
+body.dark #obsCrossRefsContent summary,
+body.dark .teacher-pop,
+body.dark #teachingMethodPanel,
+body.dark #ironPromptPanel {
+  color: var(--study-dark-text) !important;
+  text-shadow: none !important;
+}
+
+/* Softer headings */
+body:not(.dark) #obsCrossRefsContent h4,
+body:not(.dark) .teacher-pop-head h3,
+body:not(.dark) .floating-panel-head h3 {
+  color: #7A4C06 !important;
+}
+
+body.dark #obsCrossRefsContent h4,
+body.dark .teacher-pop-head h3,
+body.dark .floating-panel-head h3 {
+  color: var(--study-accent-soft) !important;
+  text-shadow: none !important;
+}
+
 </style>
 
 
