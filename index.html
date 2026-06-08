@@ -4330,92 +4330,100 @@ async function loadDoctrineTopic(topicFile) {
 }
 
     async function openDoctrineResource() {
+  const panel = $("obsCrossRefsPanel");
+  const content = $("obsCrossRefsContent");
+  const title = $("obsCrossRefsTitle");
+
+  if (!panel || !content) return;
+
+  activeResourcePanel = "doctrine";
+  if (title) title.textContent = "Biblical Doctrine";
+
   const topics = await loadDoctrineIndex();
 
-  const panel = document.createElement("div");
+  content.innerHTML = `
+    <input id="doctrineSearchBox" type="text" placeholder="Search doctrine topics like salvation, sin, church..." style="margin-bottom:10px;">
 
-  panel.innerHTML = `
-    <div style="padding:16px;">
-      <h3>Biblical Doctrine</h3>
-
-      <input
-        id="doctrineSearch"
-        type="text"
-        placeholder="Search doctrine topics..."
-        style="width:100%;margin-bottom:12px;padding:10px;"
-      >
-
-      <div id="doctrineResults"></div>
+    <div id="doctrineResults">
+      <p style="font:800 14px Arial,sans-serif;">Type a doctrine topic above.</p>
     </div>
   `;
 
-  openFloatingResourcePanel(panel);
+  const searchBox = $("doctrineSearchBox");
+  const results = $("doctrineResults");
 
-  const searchBox = panel.querySelector("#doctrineSearch");
-  const results = panel.querySelector("#doctrineResults");
-
-  searchBox.oninput = async () => {
-    const q = searchBox.value.toLowerCase().trim();
+  async function renderDoctrineResults(query) {
+    const q = (query || "").toLowerCase().trim();
 
     if (!q) {
-      results.innerHTML = "";
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a doctrine topic above.</p>`;
       return;
     }
 
-    const matches = topics.filter(topic =>
-      topic.toLowerCase().includes(q)
-    );
+    const matches = topics
+      .filter(topic => topic.toLowerCase().includes(q))
+      .slice(0, 20);
+
+    if (!matches.length) {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No doctrine topic found.</p>`;
+      return;
+    }
 
     results.innerHTML = matches.map(topic => `
-      <button
-        class="doctrine-topic-btn"
-        data-topic="${topic}"
-        style="width:100%;margin-bottom:8px;"
-      >
+      <button type="button" class="doctrine-topic-btn" data-topic="${topic}" style="width:100%;margin-bottom:8px;">
         ${topic}
       </button>
     `).join("");
 
-    results.querySelectorAll(".doctrine-topic-btn")
-      .forEach(btn => {
-        btn.onclick = async () => {
-          const doctrine = await loadDoctrineTopic(
-            btn.dataset.topic
-          );
+    results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
+      btn.onclick = async () => {
+        const doctrine = await loadDoctrineTopic(btn.dataset.topic);
+        openDoctrineTopic(doctrine, panel, content, title);
+      };
+    });
+  }
 
-          openDoctrineTopic(doctrine);
-        };
-      });
-  };
+  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
+
+  openFloatingResourcePanel(panel);
 }
 
-    function openDoctrineTopic(doctrine) {
+function openDoctrineTopic(doctrine, panel, content, title) {
+  if (!doctrine || !panel || !content) return;
 
-  if (!doctrine) return;
+  if (title) title.textContent = doctrine.title || "Biblical Doctrine";
 
-  const panel = document.createElement("div");
+  content.innerHTML = `
+    <button id="backToDoctrineSearch" class="secondary" type="button" style="width:100%;margin-bottom:10px;">
+      ← Back to Biblical Doctrine Search
+    </button>
 
-  panel.innerHTML = `
-    <div style="padding:16px;">
-      <h2>${doctrine.title}</h2>
+    <h4>${doctrine.title || "Biblical Doctrine"}</h4>
 
-      <p>
-        <em>${doctrine.source || ""}</em>
-      </p>
+    <p style="font:700 13px Arial,sans-serif;line-height:1.45;">
+      <em>${doctrine.source || "Louis Berkhof, Systematic Theology"}</em>
+    </p>
 
-      ${(doctrine.sections || []).map(section => `
-        <details open style="margin-bottom:12px;">
-          <summary>
-            <strong>${section.heading}</strong>
-          </summary>
-
-          <div style="margin-top:8px;">
-            ${section.content}
-          </div>
-        </details>
-      `).join("")}
-    </div>
+    ${
+      (doctrine.sections || []).length
+        ? doctrine.sections.map(section => `
+            <details open style="margin-bottom:12px;">
+              <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
+                ${section.heading || "Section"}
+              </summary>
+              <div style="margin-top:8px;font:700 14px Arial,sans-serif;line-height:1.5;">
+                ${section.content || ""}
+              </div>
+            </details>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
+    }
   `;
+
+  const backBtn = $("backToDoctrineSearch");
+  if (backBtn) {
+    backBtn.onclick = openDoctrineResource;
+  }
 
   openFloatingResourcePanel(panel);
 }
