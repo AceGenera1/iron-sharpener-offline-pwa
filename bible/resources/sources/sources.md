@@ -1,134 +1,219 @@
-# Iron Sharpener Resource Sources
+# Easton's Bible Dictionary
 
----
+Source Repository:
+https://ccel.org/ccel/easton/ebd2/ebd2
 
-## Matthew Henry Commentary
+Work:
+Easton's Bible Dictionary
 
-Source:
-https://ccel.org/...
+Author:
+Matthew George Easton
 
-Public Domain:
-Verified
+Status:
+Public Domain
 
-Imported:
-No
+Source Verified:
+Yes
 
-Reviewed:
-No
-
-Notes:
-Original text only.
-
----
-
-## Jamieson-Fausset-Brown Commentary
-
-Source:
-https://ccel.org/...
-
-Public Domain:
-Verified
+Content Reviewed:
+Yes
 
 Imported:
 No
 
-Reviewed:
-No
+Purpose:
+Original source material used to populate:
+
+bible/resources/eastons/
 
 Notes:
-Original text only.
+Preserve original wording during import.
 
----
+# Smith's Bible Dictionary
 
-## Easton's Bible Dictionary
+Source Repository:
+https://ccel.org/ccel/smith_w/bibledict/bibledict
 
-Source:
-https://ccel.org/...
+Work:
+Smith's Bible Dictionary
 
-Public Domain:
-Verified
+Author:
+William Smith
+
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
 
 Imported:
 No
 
-Reviewed:
-No
+Purpose:
+Original source material used to populate:
+
+bible/resources/smiths/
 
 Notes:
-Original text only.
+Preserve original wording during import.
 
----
+# Nave's Topical Bible
 
-## Smith's Bible Dictionary
+Source Repository:
+https://ccel.org/ccel/nave/bible/bible
 
-Source:
-https://ccel.org/...
+Work:
+Nave's Topical Bible
 
-Public Domain:
-Verified
+Author:
+Orville James Nave
+
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
 
 Imported:
 No
 
-Reviewed:
-No
+Purpose:
+Original source material used to populate:
+
+bible/resources/topics/
 
 Notes:
-Original text only.
+Preserve original topic names, subtopics, and Scripture references.
 
----
+# Matthew Henry Commentary
 
-## Treasury of Scripture Knowledge
+Source Repository:
+https://ccel.org/ccel/henry/mhc/mhc.i.html
 
-Source:
-https://ccel.org/...
+Work:
+Matthew Henry Complete Commentary on the Whole Bible
 
-Public Domain:
-Verified
+Author:
+Matthew Henry
+
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
 
 Imported:
 No
 
-Reviewed:
-No
+Purpose:
+Original source material used to populate:
+
+bible/resources/commentaries/matthew-henry/
 
 Notes:
-Original references only.
+Preserve original commentary wording during import.
 
----
+# Jamieson-Fausset-Brown Commentary
 
-## Nave's Topical Bible
+Source Repository:
+https://ccel.org/ccel/jamieson/jfb/jfb
 
-Source:
-https://ccel.org/...
+Work:
+Jamieson-Fausset-Brown Commentary
 
-Public Domain:
-Verified
+Authors:
+Robert Jamieson
+A. R. Fausset
+David Brown
+
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
 
 Imported:
-Partial
-
-Reviewed:
 No
 
+Purpose:
+Original source material used to populate:
+
+bible/resources/commentaries/jfb/
+
 Notes:
-Topic-by-topic import.
+Preserve original commentary wording during import.
 
----
+# Treasury of Scripture Knowledge
 
-## Book Overviews
+Source Repository:
+https://archive.org/details/treasuryofscript0000rato/page/n5/mode/2up
 
-Sources:
-Easton's, Smith's, ATS Bible Dictionary, Public Domain Introductions
+Work:
+Treasury of Scripture Knowledge
 
-Public Domain:
-Verified
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
 
 Imported:
-Partial
-
-Reviewed:
 No
 
+Purpose:
+Original source material used to populate:
+
+bible/resources/tsk/
+
 Notes:
-Historical facts only. Christ-centered presentation.
+Preserve original cross-reference data during import.
+
+# Biblical Doctrine
+
+Source Repository:
+https://ccel.org/ccel/berkhof/systematictheology/systematictheology.vi.ii.html
+
+Work:
+Systematic Theology
+
+Author:
+Louis Berkhof
+
+Tool Display Name:
+Biblical Doctrine
+
+Status:
+Public Domain
+
+Source Verified:
+Yes
+
+Content Reviewed:
+Yes
+
+Imported:
+No
+
+Purpose:
+Original source material used to populate:
+
+bible/resources/doctrine/
+
+Notes:
+This is a doctrine/theology resource and should remain clearly identified as secondary to Scripture.
+Preserve original wording during import.
