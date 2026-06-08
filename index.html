@@ -4392,33 +4392,56 @@ function openDoctrineTopic(doctrine, panel, content, title) {
   if (!doctrine || !panel || !content) return;
 
   if (title) title.textContent = doctrine.title || "Biblical Doctrine";
-
   content.innerHTML = `
-    <button id="backToDoctrineSearch" class="secondary" type="button" style="width:100%;margin-bottom:10px;">
-      ← Back to Biblical Doctrine Search
-    </button>
+  <button id="backToDoctrineSearch" class="secondary" type="button" style="width:100%;margin-bottom:10px;">
+    ← Back to Biblical Doctrine Search
+  </button>
 
-    <h4>${doctrine.title || "Biblical Doctrine"}</h4>
+  <h4>${doctrine.title || "Biblical Doctrine"}</h4>
 
-    <p style="font:700 13px Arial,sans-serif;line-height:1.45;">
-      <em>${doctrine.source || "Louis Berkhof, Systematic Theology"}</em>
-    </p>
+  <p style="font:700 13px Arial,sans-serif;line-height:1.45;">
+    <em>${doctrine.source || "Iron Sharpener Biblical Doctrine Library"}</em>
+  </p>
 
-    ${
-      (doctrine.sections || []).length
-        ? doctrine.sections.map(section => `
-            <details open style="margin-bottom:12px;">
-              <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
-                ${section.heading || "Section"}
-              </summary>
-              <div style="margin-top:8px;font:700 14px Arial,sans-serif;line-height:1.5;">
-                ${section.content || ""}
-              </div>
-            </details>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
-    }
-  `;
+  ${doctrine.definition ? `
+    <h4>Definition</h4>
+    <p>${doctrine.definition}</p>
+  ` : ""}
+
+  ${doctrine.summary ? `
+    <h4>Summary</h4>
+    <p>${doctrine.summary}</p>
+  ` : ""}
+
+  ${(doctrine.keyScriptures || []).length ? `
+    <h4>Key Scriptures</h4>
+    <ul>
+      ${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}
+    </ul>
+  ` : ""}
+
+  ${(doctrine.studySections || doctrine.sections || []).length
+    ? (doctrine.studySections || doctrine.sections).map(section => `
+        <details open style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
+            ${section.heading || "Section"}
+          </summary>
+          <div style="margin-top:8px;font:700 14px Arial,sans-serif;line-height:1.5;">
+            ${section.content || ""}
+          </div>
+        </details>
+      `).join("")
+    : `<p style="font:800 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
+  }
+
+  ${(doctrine.relatedTopics || []).length ? `
+    <h4>Related Topics</h4>
+    <ul>
+      ${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}
+    </ul>
+  ` : ""}
+`;
+
 
   const backBtn = $("backToDoctrineSearch");
   if (backBtn) {
