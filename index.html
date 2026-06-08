@@ -4398,8 +4398,7 @@ function openDoctrineTopic(doctrine, panel, content, title) {
   </button>
 
   <h4>${doctrine.title || "Biblical Doctrine"}</h4>
-
-  <p style="font:700 13px Arial,sans-serif;line-height:1.45;">
+  <p style="font:700 14px Arial,sans-serif;line-height:1.45;">
     <em>${doctrine.source || "Iron Sharpener Biblical Doctrine Library"}</em>
   </p>
 
@@ -4437,7 +4436,7 @@ function openDoctrineTopic(doctrine, panel, content, title) {
           </div>
         </details>
       `).join("")
-    : `<p style="font:800 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
+    : `<p style="font:700 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
   }
 
   ${(doctrine.sources || []).length ? `
