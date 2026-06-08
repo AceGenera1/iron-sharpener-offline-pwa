@@ -5690,13 +5690,13 @@ body.dark #ironPromptPanel.open {
   /* Study Experience Phase 1 — Universal Panel Readability */
 
 :root {
-  --study-light-bg: #FAF6EE;
-  --study-light-card: #FFFDF7;
+  --study-light-bg: #F4EFE3;
+  --study-light-card: #FBF7EE;
   --study-light-text: #2B394F;
 
-  --study-dark-bg: #182235;
-  --study-dark-card: #202C42;
-  --study-dark-text: #F5F3EE;
+  --study-dark-bg: #294843;
+  --study-dark-card: #355A54;
+  --study-dark-text: #F7F3EA;
 
   --study-accent: #D7A84F;
   --study-accent-soft: #F8D987;
@@ -5713,22 +5713,31 @@ body.dark #ironPromptPanel.open {
   font-weight: 600 !important;
 }
 
-/* Light mode panel backgrounds */
-body:not(.dark) .teacher-pop,
-body:not(.dark) #obsCrossRefsPanel,
-body:not(.dark) #teachingMethodPanel.open,
-body:not(.dark) #ironPromptPanel.open {
-  background: linear-gradient(180deg, var(--study-light-card), var(--study-light-bg)) !important;
-  color: var(--study-light-text) !important;
+/* Smoky Mountain readability refinement */
+
+  body.dark .tool-option {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(248, 217, 135, 0.42) !important;
+  box-shadow: none !important;
 }
 
-/* Dark mode panel backgrounds */
+body.dark .tool-option:hover,
+body.dark .tool-option.active-choice {
+  background: rgba(248, 217, 135, 0.10) !important;
+  border-color: rgba(248, 217, 135, 0.62) !important;
+  box-shadow: none !important;
+}
+
+body.dark .tool-option strong,
+body.dark .tool-option span {
+  text-shadow: none !important;
+}
+
 body.dark .teacher-pop,
 body.dark #obsCrossRefsPanel,
 body.dark #teachingMethodPanel.open,
 body.dark #ironPromptPanel.open {
-  background: linear-gradient(180deg, var(--study-dark-card), var(--study-dark-bg)) !important;
-  color: var(--study-dark-text) !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.32) !important;
 }
 
 /* Panel body text */
