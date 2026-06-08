@@ -2006,7 +2006,7 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
         <button type="button" class="tool-option" data-tool="highlight-green"><strong><i class="swatch green"></i> Green Highlight</strong><span>Growth, obedience, application, discipleship, and next steps. Select words first to highlight only that phrase.</span></button>
         <button type="button" class="tool-option" data-tool="highlight-red"><strong><i class="swatch red"></i> Red Highlight</strong><span>Warnings, sin, repentance, urgency, or serious commands. Select words first to highlight only that phrase.</span></button>
         <button type="button" class="tool-option" data-tool="highlight-purple"><strong><i class="swatch purple"></i> Purple Highlight</strong><span>Christ-centered themes, kingdom language, worship, authority, and glory. Select words first to highlight only that phrase.</span></button>
-<button type="button" class="tool-option" data-tool="highlight-amber"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
+        <button type="button" class="tool-option" data-tool="highlight-amber"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
       </div>
 
       <div class="tool-section-title">Teaching Marks</div>
@@ -2066,6 +2066,11 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
 <button type="button" class="tool-option" id="openNavesResource">
   <strong>Nave's Topical Bible</strong>
   <span>Search offline Bible topics and Scripture references.</span>
+</button>
+
+<button type="button" class="tool-option" id="openDoctrineResource">
+  <strong>Biblical Doctrine</strong>
+  <span>Open doctrine topics from Louis Berkhof's Systematic Theology.</span>
 </button>
 
 <button type="button" class="tool-option" id="openCommentariesResource">
@@ -4302,6 +4307,28 @@ async function loadMatthewHenryCommentary(bookName) {
   }
 }
 
+    async function loadDoctrineIndex() {
+  try {
+    const response = await fetch("bible/resources/doctrine/index.json");
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.warn("Doctrine index not found:", error);
+    return [];
+  }
+}
+
+async function loadDoctrineTopic(topicFile) {
+  try {
+    const response = await fetch(`bible/resources/doctrine/${topicFile}.json`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.warn("Doctrine topic not found:", error);
+    return null;
+  }
+}
+
     function saveField(id) {
       const field = $(id);
       if (!field) return;
@@ -4472,6 +4499,17 @@ function refreshActiveResourcePanel() {
   if (activeResourcePanel === "jfb") {
     if ($("openJfbResource")) $("openJfbResource").click();
   }
+}
+
+if ($("openDoctrineResource")) {
+  $("openDoctrineResource").onclick = async () => {
+    const topics = await loadDoctrineIndex();
+
+    alert(
+      "Biblical Doctrine Loaded\n\n" +
+      topics.join(", ")
+    );
+  };
 }
     
 function renderCrossReferenceLinks() {
