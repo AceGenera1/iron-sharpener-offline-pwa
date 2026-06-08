@@ -4413,6 +4413,12 @@ function openDoctrineTopic(doctrine, panel, content, title) {
     <p>${doctrine.summary}</p>
   ` : ""}
 
+    ${doctrine.christFocus ? `
+  <h4>Christ Focus</h4>
+  <p>${doctrine.christFocus}</p>
+` : ""}
+  
+
   ${(doctrine.keyScriptures || []).length ? `
     <h4>Key Scriptures</h4>
     <ul>
@@ -4433,6 +4439,13 @@ function openDoctrineTopic(doctrine, panel, content, title) {
       `).join("")
     : `<p style="font:800 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
   }
+
+  ${(doctrine.sources || []).length ? `
+  <h4>Sources</h4>
+  <ul>
+    ${doctrine.sources.map(source => `<li>${source}</li>`).join("")}
+  </ul>
+` : ""}
 
   ${(doctrine.relatedTopics || []).length ? `
     <h4>Related Topics</h4>
