@@ -2016,6 +2016,7 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
         <button type="button" class="tool-option" data-tool="circle"><strong>Circle</strong><span>Select a word, phrase, or even a single letter first to circle only that text, or click a verse to circle the whole verse.</span></button>
         <button type="button" class="tool-option" data-tool="box"><strong>Box</strong><span>Select a word or group of words first to box in only that text, or click a verse to box the whole verse.</span></button>
         <button type="button" class="tool-option" data-tool="focus"><strong>Focus</strong><span>Click one or multiple verses to spotlight them together while dimming the rest of the passage.</span></button>
+        <button type="button" class="tool-option" data-tool="copy-verse"><strong>Copy Verse</strong><span>Click one verse to copy only that verse with its reference and WEB translation note.</span></button>
         <button type="button" class="tool-option" data-tool="erase"><strong>Erase Verse Marks</strong><span>Click a marked verse to remove highlights, pointer, underline, circle, box, focus, and selected-word marks.</span></button>
       </div>
 
@@ -3940,6 +3941,10 @@ function setupObsNavigator() {
     }
 
     function useActiveTool(verse) {
+        if (activeTool === "copy-verse") {
+    copySingleVerse(verse);
+    return;
+  }
       const highlightClasses = ["highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber"];
 
       if (activeTool.startsWith("highlight-")) {
@@ -4488,6 +4493,7 @@ function openDoctrineTopic(doctrine, panel, content, title) {
         box: "Box",
         focus: "Focus",
         erase: "Erase Verse Marks"
+        copy-verse: "Copy Verse",
       };
 
       document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
@@ -4518,6 +4524,27 @@ function openDoctrineTopic(doctrine, panel, content, title) {
         setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
       }
     }
+
+    function getVersePlainText(verse) {
+  if (!verse) return "";
+
+  const clone = verse.cloneNode(true);
+
+  clone.querySelectorAll(".vnum").forEach(el => el.remove());
+
+  return cleanText(clone.textContent || "");
+}
+
+function copySingleVerse(verse) {
+  if (!verse) return;
+
+  const verseNumber = verse.dataset.v;
+  const verseText = getVersePlainText(verse);
+  const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
+  const copiedText = `${reference} — ${verseText} (WEB)`;
+
+  navigator.clipboard.writeText(copiedText);
+}
 
     function initTooltips() {
       document.querySelectorAll(".info-wrap").forEach((item) => {
