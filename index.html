@@ -4383,7 +4383,7 @@ async function loadDoctrineTopic(topicFile) {
     results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
       btn.onclick = async () => {
         const doctrine = await loadDoctrineTopic(btn.dataset.topic);
-        openDoctrineTopic(doctrine, panel, content, title);
+        openDoctrineTopicInNewPanel(doctrine);
       };
     });
   }
@@ -5536,6 +5536,59 @@ if ($("obsBackToPreviousPassage")) {
   };
 }
 
+    function openDoctrineTopicInNewPanel(doctrine) {
+  if (!doctrine) return;
+
+  const panel = document.createElement("div");
+  panel.className = "teacher-pop open doctrine-article-panel drag-positioned";
+  panel.style.left = "80px";
+  panel.style.top = "120px";
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+  panel.style.zIndex = Date.now();
+
+  panel.innerHTML = `
+    <div class="teacher-pop-head drag-handle">
+      <h3>${doctrine.title || "Biblical Doctrine"}</h3>
+      <button class="teacher-pop-close secondary" type="button">Close</button>
+    </div>
+
+    <div class="doctrine-panel-body">
+      ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
+      ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
+      ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
+
+      ${(doctrine.keyScriptures || []).length ? `
+        <h4>Key Scriptures</h4>
+        <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
+      ` : ""}
+
+      ${(doctrine.studySections || doctrine.sections || []).map(section => `
+        <details open style="margin-bottom:12px;">
+          <summary>${section.heading || "Section"}</summary>
+          <div>${section.content || ""}</div>
+        </details>
+      `).join("")}
+
+      ${(doctrine.sources || []).length ? `
+        <h4>Sources</h4>
+        <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
+      ` : ""}
+
+      ${(doctrine.relatedTopics || []).length ? `
+        <h4>Related Topics</h4>
+        <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
+      ` : ""}
+    </div>
+  `;
+
+  document.body.appendChild(panel);
+
+  panel.querySelector(".teacher-pop-close").onclick = () => panel.remove();
+
+  makeFloatingElementDraggable(panel, panel.querySelector(".drag-handle"));
+}
+
     init();
   </script>
 
@@ -6352,6 +6405,42 @@ document.addEventListener("DOMContentLoaded", function () {
     makeDraggable("obsToolBar");
   }
 })();
+
+  function makeFloatingElementDraggable(panel, handle) {
+  if (!panel || !handle) return;
+
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+  let dragging = false;
+
+  handle.addEventListener("mousedown", function(event) {
+    dragging = true;
+
+    const rect = panel.getBoundingClientRect();
+    startX = event.clientX;
+    startY = event.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+
+    event.preventDefault();
+  });
+
+  document.addEventListener("mousemove", function(event) {
+    if (!dragging) return;
+
+    const nextLeft = Math.max(8, Math.min(window.innerWidth - 160, startLeft + event.clientX - startX));
+    const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
+
+    panel.style.left = nextLeft + "px";
+    panel.style.top = nextTop + "px";
+  });
+
+  document.addEventListener("mouseup", function() {
+    dragging = false;
+  });
+}
 </script>
 
 
