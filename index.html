@@ -5056,10 +5056,11 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
   btn.onclick = () => {
     const item = dict[btn.dataset.term];
 
-    openResourceInstancePanel(
-      item.title || "Easton's Bible Dictionary",
-      `<h4>${item.title}</h4><p>${item.content}</p>`
-    );
+  openResourceInstancePanel(
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
+  "Easton's Bible Dictionary"
+  );  
   };
 });
 
@@ -5132,10 +5133,11 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
   btn.onclick = () => {
     const item = dict[btn.dataset.term];
 
-    openResourceInstancePanel(
-      item.title || "Easton's Bible Dictionary",
-      `<h4>${item.title}</h4><p>${item.content}</p>`
-    );
+   openResourceInstancePanel(
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
+  "Smith's Bible Dictionary"
+);
   };
 });
     
@@ -5264,9 +5266,12 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
   btn.onclick = () => {
     const topic = loadedTopics[index];
 
-    openResourceInstancePanel(
-      topic.title || "Nave's Topical Bible",
-      `
+  openResourceInstancePanel(
+  topic.title || "Topic",
+  `...existing Nave's content...`,
+  "Nave's Topical Bible"
+);
+      
         <h4>${topic.title}</h4>
 
         ${(topic.references || []).length ? `
@@ -5599,7 +5604,7 @@ if ($("obsBackToPreviousPassage")) {
   };
 }
 
-  function openResourceInstancePanel(title, html) {
+function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
   const panel = document.createElement("div");
   panel.className = "resource-instance-panel";
   panel.style.left = "80px";
@@ -5610,7 +5615,7 @@ if ($("obsBackToPreviousPassage")) {
 
   panel.innerHTML = `
     <div class="teacher-pop-head drag-handle">
-      <h3>${title || "Study Resource"}</h3>
+     <div><div class="resource-source-label">${sourceLabel}</div><h3>${title || "Study Resource"}</h3></div>
       <button class="teacher-pop-close secondary" type="button">Close</button>
     </div>
     <div class="resource-panel-body">
@@ -5637,8 +5642,11 @@ function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
 
   openResourceInstancePanel(
-    doctrine.title || "Biblical Doctrine",
-    `
+  doctrine.title || "Biblical Doctrine",
+  `...existing doctrine content...`,
+  "Biblical Doctrine"
+);
+    
       ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
       ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
       ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
@@ -6503,6 +6511,17 @@ html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn {
   font-weight: 700;
 }
 
+.resource-source-label {
+  font: 900 12px "Segoe UI", Arial, sans-serif;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: #F8D987;
+  margin-bottom: 3px;
+}
+
+body:not(.dark) .resource-source-label {
+  color: #7A4C06;
+}
 </style>
 
 
