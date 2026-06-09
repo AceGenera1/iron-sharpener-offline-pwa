@@ -6479,6 +6479,12 @@ document.addEventListener("DOMContentLoaded", function () {
     let dragging = false;
 
     handle.addEventListener("mousedown", function (event) {
+      if (
+  panelId !== "obsToolBar" &&
+  event.target.closest("button, input, textarea, select, a, summary")
+) {
+  return;
+}
       dragging = true;
 
       if (panelId === "obsToolBar") window.obsToolsWasDragged = false;
@@ -6546,6 +6552,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let dragging = false;
 
     handle.addEventListener("mousedown", function(event) {
+      if (event.target.closest("button, input, textarea, select, a, summary")) {
+  return;
+}
       dragging = true;
       const rect = panel.getBoundingClientRect();
 
@@ -6810,9 +6819,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   });
 })();
-</script>
-  
-
 </script>
 </body>
 </html>
