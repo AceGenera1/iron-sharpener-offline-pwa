@@ -6249,6 +6249,22 @@ html.obs #obsToolBar.drag-positioned {
   transform: none !important;
 }
 
+html.obs #obsToolBar.drag-positioned.open-up {
+  left: var(--drag-left) !important;
+  bottom: calc(100vh - var(--drag-top) - 56px) !important;
+  top: auto !important;
+  right: auto !important;
+  flex-direction: column !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-down {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  bottom: auto !important;
+  right: auto !important;
+  flex-direction: column-reverse !important;
+}
+
   /* Universal multi-open resource panels */
 
 .resource-instance-panel {
@@ -6430,8 +6446,8 @@ document.addEventListener("DOMContentLoaded", function () {
       panel.style.setProperty("--drag-left", nextLeft + "px");
       panel.style.setProperty("--drag-top", nextTop + "px");
       if (panelId === "obsToolBar") {
-  const bottomSpace = window.innerHeight - nextTop;
-  panel.style.setProperty("--drag-bottom-space", bottomSpace + "px");
+  panel.classList.toggle("open-down", nextTop < window.innerHeight * 0.45);
+  panel.classList.toggle("open-up", nextTop >= window.innerHeight * 0.45);
 }
     });
 
@@ -6842,6 +6858,27 @@ window.makeFloatingElementDraggable = makeFloatingElementDraggable;
     }
   }, true);
 })();
+
+  document.addEventListener("copy", function(event) {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) return;
+
+  const anchor = selection.anchorNode?.nodeType === 1
+    ? selection.anchorNode
+    : selection.anchorNode?.parentElement;
+
+  const insidePanel = anchor?.closest(
+    ".teacher-pop, #obsCrossRefsPanel, #teachingMethodPanel, #ironPromptPanel, .resource-instance-panel"
+  );
+
+  if (!insidePanel) return;
+
+  const plainText = selection.toString().replace(/\s+/g, " ").trim();
+  if (!plainText) return;
+
+  event.preventDefault();
+  event.clipboardData.setData("text/plain", plainText);
+});
 </script>
 </body>
 </html>
