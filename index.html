@@ -6243,22 +6243,22 @@ body.dark .info-icon {
   box-shadow: none !important;
 }
 
-html.obs #obsToolBar.drag-positioned.open-up {
+html.obs #obsToolBar.drag-positioned {
   left: var(--drag-left) !important;
-  top: auto !important;
-  bottom: calc(100vh - var(--drag-top) - var(--obs-tools-button-height, 46px)) !important;
+  top: var(--drag-top) !important;
   right: auto !important;
+  bottom: auto !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-up {
   flex-direction: column !important;
+  transform: translateY(calc(-100% + var(--obs-tools-button-height, 46px))) !important;
 }
 
 html.obs #obsToolBar.drag-positioned.open-down {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  bottom: auto !important;
-  right: auto !important;
   flex-direction: column-reverse !important;
+  transform: none !important;
 }
-
   /* Universal multi-open resource panels */
 
 .resource-instance-panel {
@@ -6408,8 +6408,8 @@ document.addEventListener("DOMContentLoaded", function () {
       panel.style.setProperty("--obs-tools-button-height", handleRect.height + "px");
     }
 
-      panel.style.setProperty("--drag-left", rect.left + "px");
-      panel.style.setProperty("--drag-top", rect.top + "px");
+     panel.style.setProperty("--drag-left", handleRect.left + "px");
+      panel.style.setProperty("--drag-top", handleRect.top + "px");
       panel.classList.add("drag-positioned");
 
       event.preventDefault();
