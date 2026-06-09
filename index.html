@@ -1817,9 +1817,9 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       </aside>
     </header>
 
-    <div class="ribbon">Prepared in prayer &nbsp; ✦ &nbsp; Taught with clarity &nbsp; ✦ &nbsp; Shared for discipleship</div>
-
-   <div class="obs-tool-bar" aria-label="OBS teaching tools">
+    
+  <div class="ribbon">Prepared in prayer &nbsp; ✦ &nbsp; Taught with clarity &nbsp; ✦ &nbsp; Shared for discipleship</div>
+ <div id="obsToolBar" class="obs-tool-bar drag-handle" data-drag-handle="obsToolBar" aria-label="OBS teaching tools">
   <button id="obsShowNavigator" type="button">Scripture Navigator</button>
   <button id="obsOpenTeacherTools">Teacher Tools</button>
   <button id="obsShowTeachingNote">Teaching Note</button>
@@ -5942,6 +5942,71 @@ body.dark #teacherToolsPanel .tool-option strong {
   font-weight: 800 !important;
   color: #FFF4D2 !important;
 }
+
+/* Study Experience Phase 5 — Final readability cleanup */
+
+/* Tone down Teaching Method and I.R.O.N. internal boldness */
+#teachingMethodPanel p,
+#teachingMethodPanel li,
+#ironPromptPanel p,
+#ironPromptPanel li {
+  font-weight: 600 !important;
+  line-height: 1.68 !important;
+  text-shadow: none !important;
+}
+
+#teachingMethodPanel strong,
+#ironPromptPanel strong {
+  font-weight: 750 !important;
+}
+
+/* Nave / TSK scripture reference buttons: remove old navy */
+body.dark .cross-ref-link,
+body.dark #obsCrossRefsContent .cross-ref-link {
+  background: rgba(255,255,255,.075) !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.64) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body:not(.dark) .cross-ref-link,
+body:not(.dark) #obsCrossRefsContent .cross-ref-link {
+  background: rgba(255,255,255,.72) !important;
+  color: #07172B !important;
+  border-color: rgba(183,116,16,.48) !important;
+  box-shadow: none !important;
+}
+
+/* OBS tools button: remove navy shell / make it match */
+html.obs .obs-tool-bar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html.obs .obs-tool-bar #obsToolsMenuBtn {
+  background: linear-gradient(#f8d987, #d99f31) !important;
+  color: #061526 !important;
+  border: 2px solid #d7a84f !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+}
+
+/* Soften all gold buttons slightly */
+button {
+  box-shadow: 0 6px 14px rgba(0,0,0,.16) !important;
+}
+
+/* Fix black box behind divider diamond */
+body.dark .divider::after {
+  background: #294843 !important;
+  color: #F8D987 !important;
+}
+
+body:not(.dark) .divider::after {
+  background: #F4EFE3 !important;
+  color: #D7A84F !important;
+}
 /* Panel body text */
 #obsCrossRefsContent p,
 #obsCrossRefsContent li,
@@ -6129,6 +6194,7 @@ document.addEventListener("DOMContentLoaded", function () {
   "teacherToolsPanel",
   "teachingMethodPanel",
   "ironPromptPanel"
+    "obsToolBar"
 ];
 
   if (
@@ -6184,6 +6250,7 @@ document.addEventListener("DOMContentLoaded", function () {
       makeDraggable("obsCrossRefsPanel");
       makeDraggable("studyResourcesPanel");
       makeDraggable("obsNavigatorPanel");
+      makeDraggable("obsToolBar");
     });
   } else {
     makeDraggable("teacherToolsPanel");
@@ -6192,6 +6259,7 @@ document.addEventListener("DOMContentLoaded", function () {
     makeDraggable("obsCrossRefsPanel");
     makeDraggable("studyResourcesPanel");
     makeDraggable("obsNavigatorPanel");
+    makeDraggable("obsToolBar");
   }
 })();
 </script>
