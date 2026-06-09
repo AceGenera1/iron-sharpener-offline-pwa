@@ -6222,14 +6222,6 @@ body.dark .floating-panel-head h3 {
   text-shadow: none !important;
 }
 
-html.obs #obsToolBar.drag-positioned {
-  left: var(--drag-left) !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: calc(100vh - var(--drag-top) - 54px) !important;
-  transform: none !important;
-}
-
 html.obs #obsToolBar {
   flex-direction: column !important;
   justify-content: flex-end !important;
@@ -6251,13 +6243,20 @@ body.dark .info-icon {
   box-shadow: none !important;
 }
 
-/* OBS Tools menu always opens upward when moved */
 html.obs #obsToolBar.drag-positioned {
   left: var(--drag-left) !important;
-  bottom: calc(100vh - var(--drag-top) - 56px) !important;
-  top: auto !important;
+  top: var(--drag-top) !important;
   right: auto !important;
+  bottom: auto !important;
   transform: none !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-up {
+  flex-direction: column !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-down {
+  flex-direction: column-reverse !important;
 }
 
 html.obs #obsToolBar.drag-positioned.open-up {
