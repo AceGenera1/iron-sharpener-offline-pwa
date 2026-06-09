@@ -4539,12 +4539,6 @@ function openDoctrineTopic(doctrine, panel, content, title) {
         button.classList.toggle("active-choice", button.dataset.tool === toolName);
       });
 
-      const label = $("activeToolLabel");
-      if (label) {
-        label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
-      }
-    }
-
     const selectionLabel = $("currentSelectionLabel");
     if (selectionLabel) {
   selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
