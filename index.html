@@ -4802,12 +4802,21 @@ if (crossRefs) {
     };
   }
 
-  if ($("obsToolsMenuBtn")) {
-    $("obsToolsMenuBtn").onclick = () => {
-      const bar = document.querySelector(".obs-tool-bar");
-      if (bar) bar.classList.toggle("collapsed");
-    };
-  }
+  let obsToolsWasDragged = false;
+
+if ($("obsToolsMenuBtn")) {
+  $("obsToolsMenuBtn").addEventListener("click", (event) => {
+    if (obsToolsWasDragged) {
+      event.preventDefault();
+      event.stopPropagation();
+      obsToolsWasDragged = false;
+      return;
+    }
+
+    const bar = document.querySelector(".obs-tool-bar");
+    if (bar) bar.classList.toggle("collapsed");
+  });
+}
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -6118,6 +6127,22 @@ html.obs #obsToolBar.drag-positioned {
   transform: none !important;
 }
 
+/* Smoky Mountain tooltip cleanup */
+body.dark .tooltip {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+  border: 2px solid rgba(248,217,135,.72) !important;
+  box-shadow: 0 18px 34px rgba(0,0,0,.34) !important;
+  text-shadow: none !important;
+}
+
+body.dark .info-icon {
+  background: linear-gradient(#f8d987, #d7a84f) !important;
+  color: #061526 !important;
+  border: 2px solid rgba(248,217,135,.85) !important;
+  box-shadow: none !important;
+}
+
 </style>
 
 
@@ -6233,6 +6258,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("mousemove", function (event) {
       if (!dragging) return;
+      if (panelId === "obsToolBar") {
+      obsToolsWasDragged = true;
+    }
 
       const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
       const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
