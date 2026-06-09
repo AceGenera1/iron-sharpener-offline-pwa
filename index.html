@@ -4381,12 +4381,10 @@ async function loadDoctrineTopic(topicFile) {
     `).join("");
 
     results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
-      btn.onclick = async () => {
-        const doctrine = await loadDoctrineTopic(btn.dataset.topic);
-        openDoctrineTopicInNewPanel(doctrine);
-      };
-    });
-  }
+    btn.onclick = async () => {
+  const doctrine = await loadDoctrineTopic(btn.dataset.topic);
+  openDoctrineTopicInNewPanel(doctrine);
+};
 
   searchBox.oninput = () => renderDoctrineResults(searchBox.value);
 
@@ -6212,10 +6210,15 @@ body.dark .floating-panel-head h3 {
 
 html.obs #obsToolBar.drag-positioned {
   left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
+  top: auto !important;
   right: auto !important;
-  bottom: auto !important;
+  bottom: calc(100vh - var(--drag-top) - 54px) !important;
   transform: none !important;
+}
+
+html.obs #obsToolBar {
+  flex-direction: column !important;
+  justify-content: flex-end !important;
 }
 
 /* Smoky Mountain tooltip cleanup */
@@ -6755,15 +6758,18 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (
-      button.id === "openTskResource" ||
-      button.id === "openEastonsResource" ||
-      button.id === "openSmithsResource" ||
-      button.id === "openNavesResource" ||
-      button.id === "openCommentariesResource" ||
-      button.id === "openBookOverviewResource" ||
-      button.id === "openJfbResource"
-    ) {
+  if (
+  button.id === "openTskResource" ||
+  button.id === "openEastonsResource" ||
+  button.id === "openSmithsResource" ||
+  button.id === "openNavesResource" ||
+  button.id === "openDoctrineResource" ||
+  button.id === "openCommentariesResource" ||
+  button.id === "openBookOverviewResource" ||
+  button.id === "openJfbResource"
+)
+    
+    {
       setTimeout(function() {
         bringStudyResourcesForward();
         bringResourceForward();
