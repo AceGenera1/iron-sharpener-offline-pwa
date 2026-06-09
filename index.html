@@ -7,7 +7,7 @@
   <link rel="manifest" href="./manifest.json">
   <style>
 
-    :root {
+    :root 
       --navy: #061526;
       --deep: #020913;
       --gold: #d7a84f;
@@ -5590,6 +5590,70 @@ if ($("obsBackToPreviousPassage")) {
   makeFloatingElementDraggable(panel, panel.querySelector(".drag-handle"));
 }
 
+  function openResourceInstancePanel(title, html) {
+  const panel = document.createElement("div");
+  panel.className = "resource-instance-panel";
+  panel.style.left = "80px";
+  panel.style.top = "120px";
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+  panel.style.zIndex = Date.now();
+
+  panel.innerHTML = `
+    <div class="teacher-pop-head drag-handle">
+      <h3>${title || "Study Resource"}</h3>
+      <button class="teacher-pop-close secondary" type="button">Close</button>
+    </div>
+    <div class="resource-panel-body">
+      ${html || "<p>No content found.</p>"}
+    </div>
+  `;
+
+  document.body.appendChild(panel);
+
+  panel.querySelector(".teacher-pop-close").onclick = () => panel.remove();
+
+  window.makeFloatingElementDraggable(
+    panel,
+    panel.querySelector(".drag-handle")
+  );
+}
+
+
+function openDoctrineTopicInNewPanel(doctrine) {
+  if (!doctrine) return;
+
+  openResourceInstancePanel(
+    doctrine.title || "Biblical Doctrine",
+    `
+      ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
+      ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
+      ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
+
+      ${(doctrine.keyScriptures || []).length ? `
+        <h4>Key Scriptures</h4>
+        <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
+      ` : ""}
+
+      ${(doctrine.studySections || doctrine.sections || []).map(section => `
+        <details open style="margin-bottom:12px;">
+          <summary>${section.heading || "Section"}</summary>
+          <div>${section.content || ""}</div>
+        </details>
+      `).join("")}
+
+      ${(doctrine.sources || []).length ? `
+        <h4>Sources</h4>
+        <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
+      ` : ""}
+
+      ${(doctrine.relatedTopics || []).length ? `
+        <h4>Related Topics</h4>
+        <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
+      ` : ""}
+    `
+  );
+}
     init();
   </script>
 
