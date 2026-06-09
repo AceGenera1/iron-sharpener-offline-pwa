@@ -6331,6 +6331,39 @@ html.obs .resource-instance-panel {
   color: #F8D987 !important;
 }
 
+
+/* Final footer + navigation button theme cleanup */
+
+body.dark .footer {
+  background: linear-gradient(180deg, #294843, #203D39) !important;
+  color: #F7F3EA !important;
+  border-top: 2px solid var(--gold) !important;
+}
+
+body.dark .footer strong {
+  color: #F7F3EA !important;
+}
+
+body.dark .footer .sep {
+  background: var(--gold) !important;
+}
+
+body.dark #prevBtn,
+body.dark #nextBtn {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+  border: 1.8px solid var(--gold) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #prevBtn,
+body:not(.dark) #nextBtn {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+  border: 1.8px solid var(--gold) !important;
+  box-shadow: none !important;
+}
+
 </style>
 
 
@@ -6463,6 +6496,12 @@ document.addEventListener("DOMContentLoaded", function () {
       dragging = false;
     });
   }
+
+  document.addEventListener("mouseup", function () {
+  setTimeout(() => {
+    dragging = false;
+  }, 0);
+});
 
   window.resetIronSharpenerFloatingPanels = function () {
     ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
