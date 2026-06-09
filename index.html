@@ -5580,7 +5580,11 @@ if ($("obsBackToPreviousPassage")) {
 
   document.body.appendChild(panel);
 
-  panel.querySelector(".teacher-pop-close").onclick = () => panel.remove();
+  panel.querySelector(".teacher-pop-close").onclick = (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  panel.remove();
+};
 
   window.makeFloatingElementDraggable(
     panel,
@@ -6364,6 +6368,16 @@ body:not(.dark) #nextBtn {
   box-shadow: none !important;
 }
 
+body:not(.dark) .resource-instance-panel h3,
+body:not(.dark) .resource-instance-panel h4 {
+  color: #7A4C06 !important;
+}
+
+body.dark .resource-instance-panel h3,
+body.dark .resource-instance-panel h4 {
+  color: #F8D987 !important;
+}
+
 </style>
 
 
@@ -6496,12 +6510,6 @@ document.addEventListener("DOMContentLoaded", function () {
       dragging = false;
     });
   }
-
-  document.addEventListener("mouseup", function () {
-  setTimeout(() => {
-    dragging = false;
-  }, 0);
-});
 
   window.resetIronSharpenerFloatingPanels = function () {
     ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
