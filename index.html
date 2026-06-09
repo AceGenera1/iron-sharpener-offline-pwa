@@ -5341,17 +5341,7 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
       }
     `;
 
-panel.classList.remove("open", "drag-positioned");
-panel.style.display = "none";
-panel.style.removeProperty("--drag-left");
-panel.style.removeProperty("--drag-top");
-
-panel.offsetHeight;
-
-panel.style.display = "";
-panel.style.zIndex = "41000";
-panel.classList.add("open");
-panel.setAttribute("aria-hidden", "false");
+  openFloatingResourcePanel(panel);
   };
 }
 
@@ -5462,17 +5452,7 @@ if ($("openBookOverviewResource")) {
       `
       : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
 
-    panel.classList.remove("open", "drag-positioned");
-    panel.style.display = "none";
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-
-    panel.offsetHeight;
-
-    panel.style.display = "";
-    panel.style.zIndex = "41000";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
+  openFloatingResourcePanel(panel);
   };
 }
       
