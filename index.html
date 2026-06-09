@@ -2017,6 +2017,11 @@ body:not(.dark) #showApplicationNote:hover {
         <button id="closeTeacherTools" class="teacher-pop-close secondary" type="button">Close</button>
       </div>
 
+      <div class="teacher-tools-status-card">
+        <strong>Teacher Tools Active</strong>
+        <span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
+      </div>
+
       <div class="tool-section-title">Highlight Colors</div>
       <div class="tool-options tool-colors">
         <button type="button" class="tool-option" data-tool="highlight-gold"><strong><i class="swatch gold"></i> Gold Highlight</strong><span>Main points, key verses, repeated truths, or the central idea. Select words first to highlight only that phrase.</span></button>
@@ -4639,7 +4644,6 @@ setTimeout(() => {
       document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
         button.onclick = () => {
           setTool(button.dataset.tool);
-          closeTeacherTools();
         };
       });
     }
@@ -5057,8 +5061,9 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
     const item = dict[btn.dataset.term];
 
     openResourceInstancePanel(
-      item.title || "Easton's Bible Dictionary",
-      `<h4>${item.title}</h4><p>${item.content}</p>`
+      item.title || "Entry",
+      `<h4>${item.title}</h4><p>${item.content}</p>`,
+      "Easton's Bible Dictionary"
     );
   };
 });
@@ -5133,8 +5138,9 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
     const item = dict[btn.dataset.term];
 
     openResourceInstancePanel(
-      item.title || "Easton's Bible Dictionary",
-      `<h4>${item.title}</h4><p>${item.content}</p>`
+      item.title || "Entry",
+      `<h4>${item.title}</h4><p>${item.content}</p>`,
+      "Smith's Bible Dictionary"
     );
   };
 });
@@ -5450,7 +5456,9 @@ if ($("openBookOverviewResource")) {
 
 openResourceInstancePanel(
   overview?.title || `${currentBook} Overview`,
-  content.innerHTML
+  content.innerHTML,
+  "Book Overview"
+);
   };
 }
       
@@ -5495,8 +5503,6 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
     content.innerHTML,
     "Treasury of Scripture Knowledge"
   );
-
-openFloatingResourcePanel(crossPanel);
   };
 }
 
@@ -5583,19 +5589,21 @@ if ($("obsBackToPreviousPassage")) {
     if (panel) panel.classList.add("open");
   };
 }
-
-  function openResourceInstancePanel(title, html) {
+function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
   const panel = document.createElement("div");
   panel.className = "resource-instance-panel";
   panel.style.left = "80px";
   panel.style.top = "120px";
   panel.style.right = "auto";
   panel.style.bottom = "auto";
-  panel.style.zIndex = Date.now();
+  panel.style.zIndex = String(Date.now());
 
   panel.innerHTML = `
     <div class="teacher-pop-head drag-handle">
-      <h3>${title || "Study Resource"}</h3>
+      <div>
+        <div class="resource-source-label">${sourceLabel}</div>
+        <h3>${title || "Study Resource"}</h3>
+      </div>
       <button class="teacher-pop-close secondary" type="button">Close</button>
     </div>
     <div class="resource-panel-body">
@@ -5606,15 +5614,25 @@ if ($("obsBackToPreviousPassage")) {
   document.body.appendChild(panel);
 
   panel.querySelector(".teacher-pop-close").onclick = (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  panel.remove();
-};
+    event.preventDefault();
+    event.stopPropagation();
+    panel.remove();
+  };
 
-  window.makeFloatingElementDraggable(
-    panel,
-    panel.querySelector(".drag-handle")
-  );
+  panel.addEventListener("click", (event) => {
+    const refButton = event.target.closest(".cross-ref-link");
+    if (!refButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
+  });
+
+  if (window.makeFloatingElementDraggable) {
+    window.makeFloatingElementDraggable(
+      panel,
+      panel.querySelector(".drag-handle")
+    );
+  }
 }
 
 
@@ -6447,6 +6465,33 @@ body:not(.dark) .resource-instance-panel button.cross-ref-link:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 
+
+
+/* Final stable labels + teacher tool status */
+.teacher-tools-status-card {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1.8px solid var(--gold);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #8A5A13, #6F4307);
+  color: #FFF8EA;
+  box-shadow: 0 8px 18px rgba(0,0,0,.16);
+}
+.teacher-tools-status-card strong,
+.teacher-tools-status-card span { display:block; font-family:"Segoe UI", Arial, sans-serif; }
+.teacher-tools-status-card strong { font-size:16px; font-weight:900; }
+.teacher-tools-status-card span { margin-top:4px; font-size:14px; font-weight:700; }
+.resource-source-label {
+  font: 900 12px "Segoe UI", Arial, sans-serif;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: #F8D987;
+  margin-bottom: 3px;
+}
+body:not(.dark) .resource-source-label { color:#7A4C06; }
 </style>
 
 
