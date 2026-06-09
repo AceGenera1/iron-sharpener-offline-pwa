@@ -5260,7 +5260,7 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
         <h4>${topic.title}</h4>
 
         ${(topic.references || []).length ? `
-          <details open style="margin-bottom:10px;">
+          <details style="margin-bottom:10px;">
             <summary>Main References (${topic.references.length})</summary>
             ${(topic.references || []).map(ref =>
               `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
