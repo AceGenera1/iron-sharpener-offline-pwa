@@ -4088,6 +4088,24 @@ async function loadPassage() {
       loadPassage();
     }
 
+  function updateObsToolBarDirection() {
+  const bar = document.getElementById("obsToolBar");
+  const btn = document.getElementById("obsToolsMenuBtn");
+  if (!bar || !btn) return;
+
+  const rect = btn.getBoundingClientRect();
+
+  bar.style.setProperty("--drag-left", rect.left + "px");
+  bar.style.setProperty("--drag-top", rect.top + "px");
+  bar.style.setProperty("--obs-tools-button-height", rect.height + "px");
+
+  bar.classList.add("drag-positioned");
+
+  const shouldOpenDown = rect.top < window.innerHeight * 0.45;
+  bar.classList.toggle("open-down", shouldOpenDown);
+  bar.classList.toggle("open-up", !shouldOpenDown);
+}
+
     function setObsMode(on) {
       document.documentElement.classList.toggle("obs", on);
       $("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
@@ -4095,6 +4113,7 @@ async function loadPassage() {
    const obsToolBar = document.querySelector(".obs-tool-bar");
   if (obsToolBar && on) {
   obsToolBar.classList.add("collapsed");
+  setTimeout(updateObsToolBarDirection, 50);
   }
 
       const ironPanel = document.getElementById("ironPromptPanel");
@@ -4852,9 +4871,11 @@ if ($("obsToolsMenuBtn")) {
       return;
     }
 
-    const bar = document.querySelector(".obs-tool-bar");
-    if (bar) bar.classList.toggle("collapsed");
-  });
+  const bar = document.querySelector(".obs-tool-bar");
+
+if (bar) {
+  updateObsToolBarDirection();
+  bar.classList.toggle("collapsed");
 }
 
   document.addEventListener("keydown", (event) => {
