@@ -1891,8 +1891,7 @@ body:not(.dark) #showApplicationNote:hover {
           <div class="panel-title"><h3>Teacher Tools</h3><span class="info-wrap" tabindex="0"><span class="info-icon">i</span><span class="tooltip">Open the Teacher Tools panel to choose how you want to mark the passage. These tools help with visual teaching, personal study, Bible study groups, OBS recordings, and Scripture explanation.</span></span></div>
           <div class="teacher-tools-box">
             <button id="openTeacherTools">Open Teacher Tools</button>
-           <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
-          <div id="currentSelectionLabel" class="active-tool-label">Current Selection: None</div>
+            <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
             <div class="tool-grid">
               <button id="clearMarks" class="secondary">Clear Marks</button>
               <button id="copyPassage" class="secondary">Copy Passage</button>
@@ -2017,11 +2016,6 @@ body:not(.dark) #showApplicationNote:hover {
         <h3>Teacher Tools</h3>
         <button id="closeTeacherTools" class="teacher-pop-close secondary" type="button">Close</button>
       </div>
-
-  <div class="teacher-tools-status-card">
-  <strong>Teacher Tools Active</strong>
-  <span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
-</div>
 
       <div class="tool-section-title">Highlight Colors</div>
       <div class="tool-options tool-colors">
@@ -4536,30 +4530,31 @@ function openDoctrineTopic(doctrine, panel, content, title) {
         circle: "Circle",
         box: "Box",
         focus: "Focus",
-      erase: "Erase Verse Marks",
-      "copy-verse": "Copy Verse",
+        erase: "Erase Verse Marks",
+        "copy-verse": "Copy Verse"
       };
 
       document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
         button.classList.toggle("active-choice", button.dataset.tool === toolName);
       });
 
-const selectionLabel = $("currentSelectionLabel");
-if (selectionLabel) {
-  selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
-}
+      const selectionLabel = $("currentSelectionLabel");
+      if (selectionLabel) {
+        selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
+      }
 
-const label = $("activeToolLabel");
-if (label) {
-  label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
-}
-}
-const teacherStatus = $("teacherToolsStatusText");
-if (teacherStatus) {
-  teacherStatus.textContent = `Current Selection: ${labels[toolName] || toolName}`;
-}
+      const label = $("activeToolLabel");
+      if (label) {
+        label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
+      }
 
-      function clearMarks() {
+      const teacherStatus = $("teacherToolsStatusText");
+      if (teacherStatus) {
+        teacherStatus.textContent = `Current Selection: ${labels[toolName] || toolName}`;
+      }
+    }
+
+    function clearMarks() {
       scriptureBox.classList.remove("focus-mode");
       document.querySelectorAll(".verse").forEach((verse) => {
         verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "pointed", "focused", "underlined", "circled", "boxed");
@@ -4641,14 +4636,15 @@ setTimeout(() => {
       if ($("obsOpenTeacherTools")) $("obsOpenTeacherTools").onclick = openTeacherTools;
       if ($("closeTeacherTools")) $("closeTeacherTools").onclick = closeTeacherTools;
 
-document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
-  button.onclick = () => {
-    setTool(button.dataset.tool);
-  };
-});
-}
+      document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
+        button.onclick = () => {
+          setTool(button.dataset.tool);
+          closeTeacherTools();
+        };
+      });
+    }
 
-function saveThenLoad(updateFn) {
+    function saveThenLoad(updateFn) {
       saveCurrentNotes();
       if (typeof updateFn === "function") updateFn();
       loadPassage();
@@ -5060,11 +5056,10 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
   btn.onclick = () => {
     const item = dict[btn.dataset.term];
 
-  openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-  "Easton's Bible Dictionary"
-  );  
+    openResourceInstancePanel(
+      item.title || "Easton's Bible Dictionary",
+      `<h4>${item.title}</h4><p>${item.content}</p>`
+    );
   };
 });
 
@@ -5137,11 +5132,10 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
   btn.onclick = () => {
     const item = dict[btn.dataset.term];
 
-   openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-  "Smith's Bible Dictionary"
-);
+    openResourceInstancePanel(
+      item.title || "Easton's Bible Dictionary",
+      `<h4>${item.title}</h4><p>${item.content}</p>`
+    );
   };
 });
     
@@ -5163,29 +5157,29 @@ if ($("openNavesResource")) {
     activeResourcePanel = "naves";
     if (title) title.textContent = "Nave's Topical Bible";
 
-const topicFiles = [
-  "baptism",
-  "christ",
-  "church",
-  "communion",
-  "cross",
-  "deliverance",
-  "discipleship",
-  "evangelism",
-  "faith",
-  "fasting",
-  "fear-of-the-lord",
-  "forgiveness",
-  "gospel",
-  "grace",
-  "holy-spirit",
-  "prayer",
-  "repentance",
-  "salvation",
-  "worship"
-];
+    const topicFiles = [
+      "baptism",
+      "christ",
+      "church",
+      "communion",
+      "cross",
+      "deliverance",
+      "discipleship",
+      "evangelism",
+      "faith",
+      "fasting",
+      "fear-of-the-lord",
+      "forgiveness",
+      "gospel",
+      "grace",
+      "holy-spirit",
+      "prayer",
+      "repentance",
+      "salvation",
+      "worship"
+    ];
 
-const terms = topicFiles.sort();
+    const terms = topicFiles.sort();
 
     content.innerHTML = `
       <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
@@ -5224,97 +5218,86 @@ const terms = topicFiles.sort();
         if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
 
         loadPassage();
-
-       openFloatingResourcePanel(panel);
+        openFloatingResourcePanel(panel);
       };
     }
 
     async function renderResults(query) {
-  const q = (query || "").toLowerCase().trim();
+      const q = (query || "").toLowerCase().trim();
 
-  if (!q) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
-    return;
-  }
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
+        return;
+      }
 
-  if (q.length < 3) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-    return;
-  }
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
 
-  const matches = terms
-    .filter(term => term.includes(q))
-    .slice(0, 20);
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
 
-  if (!matches.length) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
-    return;
-  }
+      if (!matches.length) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+        return;
+      }
 
-  const loadedTopics = [];
+      const loadedTopics = [];
 
-  for (const topicFile of matches) {
-    const topic = await loadNavesTopic(topicFile);
-    if (topic) loadedTopics.push(topic);
-  }
+      for (const topicFile of matches) {
+        const topic = await loadNavesTopic(topicFile);
+        if (topic) loadedTopics.push(topic);
+      }
 
-results.innerHTML = loadedTopics.length
-  ? loadedTopics.map(topic => `
-      <button type="button" class="naves-topic-btn" data-topic="${topic.file || topic.slug || topic.title}" style="width:100%;margin-bottom:8px;">
-        ${topic.title}
-      </button>
-    `).join("")
-  : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+      results.innerHTML = loadedTopics.length
+        ? loadedTopics.map((topic, index) => `
+            <button type="button" class="naves-topic-btn" data-index="${index}" style="width:100%;margin-bottom:8px;">
+              ${topic.title}
+            </button>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
 
-results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
-  btn.onclick = () => {
-    const topic = loadedTopics[index];
+      results.querySelectorAll(".naves-topic-btn").forEach((btn) => {
+        btn.onclick = () => {
+          const topic = loadedTopics[parseInt(btn.dataset.index, 10)];
+          if (!topic) return;
 
-  openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-   "Nave's Topical Bible"
-);
-      
-        <h4>${topic.title}</h4>
+          const topicHtml = `
+            <h4>${topic.title}</h4>
 
-        ${(topic.references || []).length ? `
-          <details style="margin-bottom:10px;">
-            <summary>Main References (${topic.references.length})</summary>
-            ${(topic.references || []).map(ref =>
-              `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
-            ).join("")}
-          </details>
-        ` : ""}
-
-        ${topic.subtopics
-          ? Object.keys(topic.subtopics).map(subtopic => `
-              <details style="margin-top:8px;">
-                <summary>${subtopic} (${(topic.subtopics[subtopic] || []).length})</summary>
-                <div style="margin-top:8px;">
-                  ${(topic.subtopics[subtopic] || []).map(ref =>
-                    `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
-                  ).join("")}
-                </div>
+            ${(topic.references || []).length ? `
+              <details style="margin-bottom:10px;">
+                <summary>Main References (${topic.references.length})</summary>
+                ${(topic.references || []).map(ref =>
+                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                ).join("")}
               </details>
-            `).join("")
-          : ""}
-      `
-    );
-  };
-});
+            ` : ""}
 
-  results.querySelectorAll(".cross-ref-link").forEach((btn) => {
-    btn.onclick = () => {
-      goToScriptureReference(btn.dataset.ref);
+            ${topic.subtopics
+              ? Object.keys(topic.subtopics).map(subtopic => `
+                  <details style="margin-top:8px;">
+                    <summary>${subtopic} (${(topic.subtopics[subtopic] || []).length})</summary>
+                    <div style="margin-top:8px;">
+                      ${(topic.subtopics[subtopic] || []).map(ref =>
+                        `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                      ).join("")}
+                    </div>
+                  </details>
+                `).join("")
+              : ""}
+          `;
 
-      if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
-      if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
-
-      openFloatingResourcePanel(panel);
-    };
-  });
-}
+          openResourceInstancePanel(
+            topic.title || "Topic",
+            topicHtml,
+            "Nave's Topical Bible"
+          );
+        };
+      });
+    }
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
@@ -5324,14 +5307,7 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
 
     if ($("openCommentariesResource")) {
   $("openCommentariesResource").onclick = async () => {
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const title = $("obsCrossRefsTitle");
-
-    if (!panel || !content) return;
-
     activeResourcePanel = "commentary";
-    if (title) title.textContent = "Commentaries";
 
     const commentary = await loadMatthewHenryCommentary(bookSel.value);
     const currentBook = bookSel.value;
@@ -5346,7 +5322,7 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
       if (commentary[key]) matches.push(commentary[key]);
     }
 
-    content.innerHTML = `
+    const commentaryHtml = `
       <h4>Matthew Henry Commentary</h4>
       ${
         matches.length
@@ -5360,23 +5336,20 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
       }
     `;
 
-  openFloatingResourcePanel(panel);
+    openResourceInstancePanel(
+      `Matthew Henry Commentary — ${currentRef()}`,
+      commentaryHtml,
+      "Matthew Henry Commentary"
+    );
   };
 }
 
 
 if ($("openJfbResource")) {
   $("openJfbResource").onclick = async () => {
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const title = $("obsCrossRefsTitle");
-
-    if (!panel || !content) return;
-
     activeResourcePanel = "jfb";
-    if (title) title.textContent = "Jamieson-Fausset-Brown Commentary";
 
-   const commentary = await loadJfbCommentary(bookSel.value);
+    const commentary = await loadJfbCommentary(bookSel.value);
     const currentBook = bookSel.value;
     const currentChapter = chapSel.value;
     const start = parseInt(startSel.value, 10);
@@ -5389,7 +5362,7 @@ if ($("openJfbResource")) {
       if (commentary[key]) matches.push(commentary[key]);
     }
 
-    content.innerHTML = `
+    const jfbHtml = `
       <h4>Jamieson-Fausset-Brown Commentary</h4>
       ${
         matches.length
@@ -5403,7 +5376,11 @@ if ($("openJfbResource")) {
       }
     `;
 
-    openFloatingResourcePanel(panel);
+    openResourceInstancePanel(
+      `JFB Commentary — ${currentRef()}`,
+      jfbHtml,
+      "Jamieson-Fausset-Brown Commentary"
+    );
   };
 }
 
@@ -5471,12 +5448,9 @@ if ($("openBookOverviewResource")) {
       `
       : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
 
-  openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-  "Jamieson-Fausset-Brown Commentary"
-);
-
+openResourceInstancePanel(
+  overview?.title || `${currentBook} Overview`,
+  content.innerHTML
   };
 }
       
@@ -5517,11 +5491,11 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
     }
 
   openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-  "Treasury of Scripture Knowledge"
-);
-  
+    `Treasury of Scripture Knowledge — ${currentRef()}`,
+    content.innerHTML,
+    "Treasury of Scripture Knowledge"
+  );
+
 openFloatingResourcePanel(crossPanel);
   };
 }
@@ -5610,7 +5584,7 @@ if ($("obsBackToPreviousPassage")) {
   };
 }
 
-function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
+  function openResourceInstancePanel(title, html) {
   const panel = document.createElement("div");
   panel.className = "resource-instance-panel";
   panel.style.left = "80px";
@@ -5621,10 +5595,7 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 
   panel.innerHTML = `
     <div class="teacher-pop-head drag-handle">
-      <div>
-        <div class="resource-source-label">${sourceLabel}</div>
-        <h3>${title || "Study Resource"}</h3>
-      </div>
+      <h3>${title || "Study Resource"}</h3>
       <button class="teacher-pop-close secondary" type="button">Close</button>
     </div>
     <div class="resource-panel-body">
@@ -5635,10 +5606,10 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
   document.body.appendChild(panel);
 
   panel.querySelector(".teacher-pop-close").onclick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    panel.remove();
-  };
+  event.preventDefault();
+  event.stopPropagation();
+  panel.remove();
+};
 
   window.makeFloatingElementDraggable(
     panel,
@@ -5650,38 +5621,38 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
 
-openResourceInstancePanel(
-  item.title || "Entry",
-  `<h4>${item.title}</h4><p>${item.content}</p>`,
-  "Biblical Doctrine"
-);
-  
-      ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
-      ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
-      ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
+  const doctrineHtml = `
+    ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
+    ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
+    ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
 
-      ${(doctrine.keyScriptures || []).length ? `
-        <h4>Key Scriptures</h4>
-        <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
-      ` : ""}
+    ${(doctrine.keyScriptures || []).length ? `
+      <h4>Key Scriptures</h4>
+      <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
+    ` : ""}
 
-      ${(doctrine.studySections || doctrine.sections || []).map(section => `
-        <details open style="margin-bottom:12px;">
-          <summary>${section.heading || "Section"}</summary>
-          <div>${section.content || ""}</div>
-        </details>
-      `).join("")}
+    ${(doctrine.studySections || doctrine.sections || []).map(section => `
+      <details open style="margin-bottom:12px;">
+        <summary>${section.heading || "Section"}</summary>
+        <div>${section.content || ""}</div>
+      </details>
+    `).join("")}
 
-      ${(doctrine.sources || []).length ? `
-        <h4>Sources</h4>
-        <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
-      ` : ""}
+    ${(doctrine.sources || []).length ? `
+      <h4>Sources</h4>
+      <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
+    ` : ""}
 
-      ${(doctrine.relatedTopics || []).length ? `
-        <h4>Related Topics</h4>
-        <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
-      ` : ""}
-    `
+    ${(doctrine.relatedTopics || []).length ? `
+      <h4>Related Topics</h4>
+      <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
+    ` : ""}
+  `;
+
+  openResourceInstancePanel(
+    doctrine.title || "Biblical Doctrine",
+    doctrineHtml,
+    "Biblical Doctrine"
   );
 }
     init();
@@ -6476,61 +6447,6 @@ body:not(.dark) .resource-instance-panel button.cross-ref-link:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 
-html.obs body:not(.dark) .obs-tool-bar #obsShowNavigator,
-html.obs body:not(.dark) .obs-tool-bar #obsOpenTeacherTools,
-html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingNote,
-html.obs body:not(.dark) .obs-tool-bar #obsShowApplicationNote,
-html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingMethod,
-html.obs body:not(.dark) .obs-tool-bar #ironPromptPanelBtn,
-html.obs body:not(.dark) .obs-tool-bar #obsShowCrossRefs,
-html.obs body:not(.dark) .obs-tool-bar #obsShowStudyResources,
-html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn {
-  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-}
-
-.teacher-tools-status-card {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  margin-bottom: 14px;
-  padding: 12px 14px;
-  border: 1.8px solid var(--gold);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #8A5A13, #6F4307);
-  color: #FFF8EA;
-  box-shadow: 0 8px 18px rgba(0,0,0,.16);
-}
-
-.teacher-tools-status-card strong,
-.teacher-tools-status-card span {
-  display: block;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
-.teacher-tools-status-card strong {
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.teacher-tools-status-card span {
-  margin-top: 4px;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.resource-source-label {
-  font: 900 12px "Segoe UI", Arial, sans-serif;
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
-  color: #F8D987;
-  margin-bottom: 3px;
-}
-
-body:not(.dark) .resource-source-label {
-  color: #7A4C06;
-}
 </style>
 
 
