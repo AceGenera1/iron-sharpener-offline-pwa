@@ -823,7 +823,7 @@ html.obs #obsToolsMenuBtn {
     }
 
     #studyResourcesPanel.open {
-  z-index: 10200 !important;
+  z-index: 50000 !important;
 }
 
 #obsCrossRefsPanel{
@@ -4942,7 +4942,7 @@ function openFloatingResourcePanel(panel) {
   panel.offsetHeight;
 
   panel.style.display = "";
-  panel.style.setProperty("z-index", "50000", "important");
+  panel.style.setProperty("z-index", "61000", "important");
   panel.classList.add("open");
   panel.setAttribute("aria-hidden", "false");
 }
@@ -6430,6 +6430,21 @@ body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn {
 
 body:not(.dark) #doctrineResults .doctrine-topic-btn:hover,
 body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+  body:not(.dark) #navesResults .naves-topic-btn,
+body:not(.dark) #obsCrossRefsContent .naves-topic-btn,
+body:not(.dark) .dictionary-result-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #navesResults .naves-topic-btn:hover,
+body:not(.dark) #obsCrossRefsContent .naves-topic-btn:hover,
+body:not(.dark) .dictionary-result-btn:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 
