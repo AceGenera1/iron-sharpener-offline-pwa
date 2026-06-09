@@ -4129,9 +4129,44 @@ async function loadPassage() {
       loadPassage();
     }
 
+    function closeAllFloatingPanelsForModeChange() {
+  [
+    "teacherToolsPanel",
+    "studyResourcesPanel",
+    "obsCrossRefsPanel",
+    "obsNavigatorPanel",
+    "teachingMethodPanel",
+    "ironPromptPanel"
+  ].forEach(id => {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+
+    panel.classList.remove("open", "drag-positioned", "open-up", "open-down");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+  });
+
+  document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+    panel.remove();
+  });
+
+  const obsToolBar = document.getElementById("obsToolBar");
+  if (obsToolBar) {
+    obsToolBar.classList.add("collapsed");
+    obsToolBar.classList.remove("drag-positioned", "open-up", "open-down");
+    obsToolBar.style.removeProperty("--drag-left");
+    obsToolBar.style.removeProperty("--drag-top");
+  }
+
+  activeResourcePanel = "";
+}
+
 
 function setObsMode(on) {
 document.documentElement.classList.toggle("obs", on);
+closeAllFloatingPanelsForModeChange();
 $("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
    const obsToolBar = document.querySelector(".obs-tool-bar");
   if (obsToolBar && on) {
@@ -4906,8 +4941,16 @@ if ($("obsToolsMenuBtn")) {
   const bar = document.querySelector(".obs-tool-bar");
 
 if (bar) {
-  updateObsToolBarDirection();
-  bar.classList.toggle("collapsed");
+  const isOpening = bar.classList.contains("collapsed");
+
+  if (isOpening) {
+    updateObsToolBarDirection();
+    requestAnimationFrame(() => {
+      bar.classList.remove("collapsed");
+    });
+  } else {
+    bar.classList.add("collapsed");
+  }
 }
   });
 }
