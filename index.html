@@ -4539,12 +4539,18 @@ function openDoctrineTopic(doctrine, panel, content, title) {
         button.classList.toggle("active-choice", button.dataset.tool === toolName);
       });
 
-    const selectionLabel = $("currentSelectionLabel");
-    if (selectionLabel) {
+const selectionLabel = $("currentSelectionLabel");
+if (selectionLabel) {
   selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
 }
 
-    function clearMarks() {
+const label = $("activeToolLabel");
+if (label) {
+  label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
+}
+}
+
+      function clearMarks() {
       scriptureBox.classList.remove("focus-mode");
       document.querySelectorAll(".verse").forEach((verse) => {
         verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "pointed", "focused", "underlined", "circled", "boxed");
@@ -4626,13 +4632,14 @@ setTimeout(() => {
       if ($("obsOpenTeacherTools")) $("obsOpenTeacherTools").onclick = openTeacherTools;
       if ($("closeTeacherTools")) $("closeTeacherTools").onclick = closeTeacherTools;
 
-  document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
+document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
   button.onclick = () => {
-  setTool(button.dataset.tool);
+    setTool(button.dataset.tool);
   };
 });
+}
 
-    function saveThenLoad(updateFn) {
+function saveThenLoad(updateFn) {
       saveCurrentNotes();
       if (typeof updateFn === "function") updateFn();
       loadPassage();
