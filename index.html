@@ -2018,6 +2018,11 @@ body:not(.dark) #showApplicationNote:hover {
         <button id="closeTeacherTools" class="teacher-pop-close secondary" type="button">Close</button>
       </div>
 
+  <div class="teacher-tools-status-card">
+  <strong>Teacher Tools Active</strong>
+  <span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
+</div>
+
       <div class="tool-section-title">Highlight Colors</div>
       <div class="tool-options tool-colors">
         <button type="button" class="tool-option" data-tool="highlight-gold"><strong><i class="swatch gold"></i> Gold Highlight</strong><span>Main points, key verses, repeated truths, or the central idea. Select words first to highlight only that phrase.</span></button>
@@ -6466,6 +6471,36 @@ html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn {
   background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
   color: #FFF8EA !important;
   border: 1.8px solid #7A4C06 !important;
+}
+
+.teacher-tools-status-card {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1.8px solid var(--gold);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #8A5A13, #6F4307);
+  color: #FFF8EA;
+  box-shadow: 0 8px 18px rgba(0,0,0,.16);
+}
+
+.teacher-tools-status-card strong,
+.teacher-tools-status-card span {
+  display: block;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.teacher-tools-status-card strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.teacher-tools-status-card span {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 </style>
