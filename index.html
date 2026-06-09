@@ -5540,8 +5540,8 @@ if ($("obsBackToPreviousPassage")) {
   if (!doctrine) return;
 
   const panel = document.createElement("div");
-  panel.className = "teacher-pop open doctrine-article-panel drag-positioned";
-  panel.style.left = "80px";
+  panel.className = "resource-instance-panel doctrine-article-panel";
+  panelstyle.left = "80px";
   panel.style.top = "120px";
   panel.style.right = "auto";
   panel.style.bottom = "auto";
@@ -6364,6 +6364,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       panel.style.setProperty("--drag-left", nextLeft + "px");
       panel.style.setProperty("--drag-top", nextTop + "px");
+      if (panelId === "obsToolBar") {
+  const bottomSpace = window.innerHeight - nextTop;
+  panel.style.setProperty("--drag-bottom-space", bottomSpace + "px");
+}
     });
 
     document.addEventListener("mouseup", function () {
@@ -6767,6 +6771,66 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, true);
 })();
+
+  /* OBS Tools menu always opens upward when moved */
+
+html.obs #obsToolBar.drag-positioned {
+  left: var(--drag-left) !important;
+  bottom: calc(100vh - var(--drag-top) - 56px) !important;
+  top: auto !important;
+  right: auto !important;
+  transform: none !important;
+}
+
+  /* Universal multi-open resource panels */
+
+.resource-instance-panel {
+  display: block !important;
+  position: fixed !important;
+  width: min(520px, calc(100vw - 32px));
+  max-height: 75vh;
+  overflow-y: auto;
+  resize: both;
+  min-width: 320px;
+  min-height: 220px;
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 16px;
+  z-index: 60000;
+}
+
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+}
+
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+}
+
+html.obs .resource-instance-panel {
+  position: fixed !important;
+  transform: none !important;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+}
+
+.resource-instance-panel p,
+.resource-instance-panel li,
+.resource-instance-panel div,
+.resource-instance-panel summary {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+.resource-instance-panel h3,
+.resource-instance-panel h4 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  color: #F8D987 !important;
+}
 </script>
 </body>
 </html>
