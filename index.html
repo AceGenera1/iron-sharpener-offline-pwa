@@ -4380,14 +4380,14 @@ async function loadDoctrineTopic(topicFile) {
       </button>
     `).join("");
 
-    results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
-    btn.onclick = async () => {
-  const doctrine = await loadDoctrineTopic(btn.dataset.topic);
-  openDoctrineTopicInNewPanel(doctrine);
+  results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
+  btn.onclick = async () => {
+    const doctrine = await loadDoctrineTopic(btn.dataset.topic);
+    openDoctrineTopicInNewPanel(doctrine);
   };
 });
 
-  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
+searchBox.oninput = () => renderDoctrineResults(searchBox.value);
 
   openFloatingResourcePanel(panel);
 }
@@ -6240,7 +6240,7 @@ body.dark .info-icon {
 
   /* OBS Tools menu always opens upward when moved */
 
-html.obs #obsToolBar.drag-positioned {
+
   left: var(--drag-left) !important;
   bottom: calc(100vh - var(--drag-top) - 56px) !important;
   top: auto !important;
@@ -6472,7 +6472,6 @@ document.addEventListener("DOMContentLoaded", function () {
     makeDraggable("obsNavigatorPanel");
     makeDraggable("obsToolBar");
   }
-})();
 
   function makeFloatingElementDraggable(panel, handle) {
   if (!panel || !handle) return;
