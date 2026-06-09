@@ -6243,20 +6243,20 @@ body.dark .info-icon {
   box-shadow: none !important;
 }
 
-html.obs #obsToolBar.drag-positioned {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-
 html.obs #obsToolBar.drag-positioned.open-up {
-  flex-direction: column-reverse !important;
+  left: var(--drag-left) !important;
+  top: auto !important;
+  bottom: calc(100vh - var(--drag-top) - var(--obs-tools-button-height, 46px)) !important;
+  right: auto !important;
+  flex-direction: column !important;
 }
 
 html.obs #obsToolBar.drag-positioned.open-down {
-  flex-direction: column !important;
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  bottom: auto !important;
+  right: auto !important;
+  flex-direction: column-reverse !important;
 }
 
   /* Universal multi-open resource panels */
@@ -6397,10 +6397,16 @@ document.addEventListener("DOMContentLoaded", function () {
       if (panelId === "obsToolBar") window.obsToolsWasDragged = false;
 
       const rect = panel.getBoundingClientRect();
+      const handleRect = handle.getBoundingClientRect();
+
       startX = event.clientX;
       startY = event.clientY;
       startLeft = rect.left;
-      startTop = rect.top;
+      startTop = panelId === "obsToolBar" ? handleRect.top : rect.top;
+
+      if (panelId === "obsToolBar") {
+      panel.style.setProperty("--obs-tools-button-height", handleRect.height + "px");
+    }
 
       panel.style.setProperty("--drag-left", rect.left + "px");
       panel.style.setProperty("--drag-top", rect.top + "px");
