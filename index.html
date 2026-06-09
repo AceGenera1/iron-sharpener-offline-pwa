@@ -1791,6 +1791,24 @@ html.obs .obs-tool-bar #obsShowStudyResources {
 body:not(.dark) #applicationPresentationCard { background: rgba(255, 248, 234, .64) !important; }
 body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !important; }
 
+
+body:not(.dark) #loadBtn,
+body:not(.dark) #openTeacherTools,
+body:not(.dark) #showTeachingNote,
+body:not(.dark) #showApplicationNote {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #loadBtn:hover,
+body:not(.dark) #openTeacherTools:hover,
+body:not(.dark) #showTeachingNote:hover,
+body:not(.dark) #showApplicationNote:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
 </style>
 </head>
 <body>
@@ -6560,53 +6578,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 <script>
-(function fixTeacherToolsReopenBug() {
-  function bindTeacherButtons() {
-    const openBtn = document.getElementById("openTeacherTools");
-    const obsOpenBtn = document.getElementById("obsOpenTeacherTools");
-    const closeBtn = document.getElementById("closeTeacherTools");
-    const panel = document.getElementById("teacherToolsPanel");
-
-    function forceOpen(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if (!panel) return;
-      panel.classList.remove("drag-positioned");
-      panel.style.removeProperty("--drag-left");
-      panel.style.removeProperty("--drag-top");
-      panel.style.display = "";
-      panel.classList.add("open");
-      panel.setAttribute("aria-hidden", "false");
-    }
-
-    function forceClose(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if (!panel) return;
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-      panel.style.display = "";
-    }
-
-    if (openBtn) openBtn.onclick = forceOpen;
-    if (obsOpenBtn) obsOpenBtn.onclick = forceOpen;
-    if (closeBtn) closeBtn.onclick = forceClose;
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindTeacherButtons);
-  } else {
-    bindTeacherButtons();
-  }
-})();
-</script>
-
-
-<script>
 (function restoredDailyTeachingHelpPanels() {
   function get(id) {
     return document.getElementById(id);
@@ -6795,117 +6766,53 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 })();
 </script>
-
-  
 <script>
-(function finalStudyResourcesReopenFix() {
+(function cleanPanelOpenCloseHandlers() {
   function get(id) {
     return document.getElementById(id);
   }
 
-  function bringStudyResourcesForward() {
-    const studyPanel = get("studyResourcesPanel");
-    if (!studyPanel) return;
-
-    studyPanel.classList.remove("drag-positioned");
-    studyPanel.style.removeProperty("--drag-left");
-    studyPanel.style.removeProperty("--drag-top");
-    studyPanel.style.display = "";
-    studyPanel.style.setProperty("z-index", "40000", "important");
-    studyPanel.classList.add("open");
-    studyPanel.setAttribute("aria-hidden", "false");
+  function openPanel(id) {
+    const panel = get(id);
+    if (!panel) return;
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
   }
 
-  function bringResourceForward() {
-    const resourcePanel = get("obsCrossRefsPanel");
-    if (!resourcePanel) return;
-
-    resourcePanel.classList.remove("open", "drag-positioned");
-    resourcePanel.style.display = "none";
-    resourcePanel.style.removeProperty("--drag-left");
-    resourcePanel.style.removeProperty("--drag-top");
-
-    resourcePanel.offsetHeight;
-
-    resourcePanel.style.display = "";
-    resourcePanel.style.setProperty("z-index", "50000", "important");
-    resourcePanel.classList.add("open");
-    resourcePanel.setAttribute("aria-hidden", "false");
+  function closePanel(id) {
+    const panel = get(id);
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
   }
 
-  function closeStudyResources(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+  const bindings = [
+    ["openTeacherTools", "teacherToolsPanel", "open"],
+    ["obsOpenTeacherTools", "teacherToolsPanel", "open"],
+    ["closeTeacherTools", "teacherToolsPanel", "close"],
+    ["obsShowStudyResources", "studyResourcesPanel", "open"],
+    ["openStudyResourcesFromTools", "studyResourcesPanel", "open"],
+    ["closeStudyResourcesPanel", "studyResourcesPanel", "close"]
+  ];
 
-    const studyPanel = get("studyResourcesPanel");
-    if (!studyPanel) return;
-
-    studyPanel.classList.remove("open");
-    studyPanel.setAttribute("aria-hidden", "true");
-    studyPanel.style.display = "";
-  }
-
-  document.addEventListener("click", function(event) {
-    const button = event.target.closest("button");
+  bindings.forEach(([buttonId, panelId, action]) => {
+    const button = get(buttonId);
     if (!button) return;
 
-    if (
-      button.id === "obsShowStudyResources" ||
-      button.id === "openStudyResourcesFromTools"
-    ) {
+    button.onclick = function(event) {
       event.preventDefault();
       event.stopPropagation();
-      bringStudyResourcesForward();
-      return;
-    }
 
-    if (button.id === "closeStudyResourcesPanel") {
-      closeStudyResources(event);
-      return;
-    }
-
-  if (
-  button.id === "openTskResource" ||
-  button.id === "openEastonsResource" ||
-  button.id === "openSmithsResource" ||
-  button.id === "openNavesResource" ||
-  button.id === "openDoctrineResource" ||
-  button.id === "openCommentariesResource" ||
-  button.id === "openBookOverviewResource" ||
-  button.id === "openJfbResource"
-)
-    
-    {
-      setTimeout(function() {
-        bringStudyResourcesForward();
-        bringResourceForward();
-      }, 0);
-    }
-  }, true);
+      if (action === "open") openPanel(panelId);
+      if (action === "close") closePanel(panelId);
+    };
+  });
 })();
+</script>
+  
 
-  document.addEventListener("copy", function(event) {
-  const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) return;
-
-  const anchor = selection.anchorNode?.nodeType === 1
-    ? selection.anchorNode
-    : selection.anchorNode?.parentElement;
-
-  const insidePanel = anchor?.closest(
-    ".teacher-pop, #obsCrossRefsPanel, #teachingMethodPanel, #ironPromptPanel, .resource-instance-panel"
-  );
-
-  if (!insidePanel) return;
-
-  const plainText = selection.toString().replace(/\s+/g, " ").trim();
-  if (!plainText) return;
-
-  event.preventDefault();
-  event.clipboardData.setData("text/plain", plainText);
-});
 </script>
 </body>
 </html>
