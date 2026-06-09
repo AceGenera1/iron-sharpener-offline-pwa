@@ -1830,7 +1830,7 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <button id="obsShowStudyResources" type="button">Study Resources</button>
   <button id="obsClearMarks" class="secondary">Clear</button>
   <button id="obsResetPanels" class="secondary">Reset Panels</button>
-  <button id="obsToolsMenuBtn" type="button">⚔ Tools</button>
+  <button id="obsToolsMenuBtn" class="drag-handle" data-drag-handle="obsToolBar" type="button">⚔ Tools</button>
 </div>
 
     <section class="controls">
@@ -6110,6 +6110,14 @@ body.dark .floating-panel-head h3 {
   text-shadow: none !important;
 }
 
+html.obs #obsToolBar.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
 </style>
 
 
@@ -6201,9 +6209,11 @@ document.addEventListener("DOMContentLoaded", function () {
   "obsCrossRefsPanel",
   "teacherToolsPanel",
   "teachingMethodPanel",
-  "ironPromptPanel"
-    "obsToolBar"
+  "ironPromptPanel",
+  "obsToolBar",
+  "obsNavigatorPanel"
 ];
+
 
   if (
     !document.documentElement.classList.contains("obs") &&
