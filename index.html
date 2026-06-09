@@ -1891,7 +1891,8 @@ body:not(.dark) #showApplicationNote:hover {
           <div class="panel-title"><h3>Teacher Tools</h3><span class="info-wrap" tabindex="0"><span class="info-icon">i</span><span class="tooltip">Open the Teacher Tools panel to choose how you want to mark the passage. These tools help with visual teaching, personal study, Bible study groups, OBS recordings, and Scripture explanation.</span></span></div>
           <div class="teacher-tools-box">
             <button id="openTeacherTools">Open Teacher Tools</button>
-            <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
+           <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
+          <div id="currentSelectionLabel" class="active-tool-label">Current Selection: None</div>
             <div class="tool-grid">
               <button id="clearMarks" class="secondary">Clear Marks</button>
               <button id="copyPassage" class="secondary">Copy Passage</button>
@@ -4544,6 +4545,11 @@ function openDoctrineTopic(doctrine, panel, content, title) {
       }
     }
 
+    const selectionLabel = $("currentSelectionLabel");
+    if (selectionLabel) {
+  selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
+}
+
     function clearMarks() {
       scriptureBox.classList.remove("focus-mode");
       document.querySelectorAll(".verse").forEach((verse) => {
@@ -4626,13 +4632,11 @@ setTimeout(() => {
       if ($("obsOpenTeacherTools")) $("obsOpenTeacherTools").onclick = openTeacherTools;
       if ($("closeTeacherTools")) $("closeTeacherTools").onclick = closeTeacherTools;
 
-      document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
-        button.onclick = () => {
-          setTool(button.dataset.tool);
-          closeTeacherTools();
-        };
-      });
-    }
+  document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
+  button.onclick = () => {
+  setTool(button.dataset.tool);
+  };
+});
 
     function saveThenLoad(updateFn) {
       saveCurrentNotes();
@@ -6447,6 +6451,20 @@ body:not(.dark) .resource-instance-panel button.cross-ref-link {
 body:not(.dark) .resource-instance-panel .cross-ref-link:hover,
 body:not(.dark) .resource-instance-panel button.cross-ref-link:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+html.obs body:not(.dark) .obs-tool-bar #obsShowNavigator,
+html.obs body:not(.dark) .obs-tool-bar #obsOpenTeacherTools,
+html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingNote,
+html.obs body:not(.dark) .obs-tool-bar #obsShowApplicationNote,
+html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingMethod,
+html.obs body:not(.dark) .obs-tool-bar #ironPromptPanelBtn,
+html.obs body:not(.dark) .obs-tool-bar #obsShowCrossRefs,
+html.obs body:not(.dark) .obs-tool-bar #obsShowStudyResources,
+html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
 }
 
 </style>
