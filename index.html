@@ -5740,6 +5740,131 @@ body.dark #ironPromptPanel.open {
   box-shadow: 0 18px 42px rgba(0,0,0,.32) !important;
 }
 
+  /* Study Experience Phase 2 — Full App Smoky Mountain Theme */
+
+/* Cream / parchment full app */
+body:not(.dark) {
+  --paper: #F4EFE3;
+  --ink: #2B394F;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(215,168,79,.16), transparent 28%),
+    linear-gradient(145deg, #E8DDC8, #F4EFE3 48%, #DED2B9) !important;
+}
+
+body:not(.dark) .shell,
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, #F4EFE3, #EDE3D0) !important;
+  color: #2B394F !important;
+}
+
+body:not(.dark) .controls,
+body:not(.dark) .ribbon,
+body:not(.dark) .scripture,
+body:not(.dark) .panel,
+body:not(.dark) select,
+body:not(.dark) textarea,
+body:not(.dark) input {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+}
+
+/* Smoky Mountain full app dark mode */
+body.dark {
+  --paper: #294843;
+  --ink: #F7F3EA;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(248,217,135,.12), transparent 28%),
+    linear-gradient(145deg, #172B29, #294843 52%, #203D39) !important;
+}
+
+body.dark .shell,
+body.dark .layout {
+  background: linear-gradient(180deg, #294843, #203D39) !important;
+  color: #F7F3EA !important;
+}
+
+body.dark .controls,
+body.dark .ribbon,
+body.dark .scripture,
+body.dark .panel,
+body.dark select,
+body.dark textarea,
+body.dark input {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+}
+
+/* Main scripture reading text */
+body:not(.dark) .verse,
+body:not(.dark) .ref,
+body:not(.dark) label,
+body:not(.dark) .panel h3,
+body:not(.dark) .panel-title h3 {
+  color: #2B394F !important;
+}
+
+body.dark .verse,
+body.dark .ref,
+body.dark label,
+body.dark .panel h3,
+body.dark .panel-title h3 {
+  color: #F7F3EA !important;
+  text-shadow: none !important;
+}
+
+/* Softer source/accent text */
+body:not(.dark) .source {
+  color: #8A5A13 !important;
+}
+
+body.dark .source {
+  color: #F8D987 !important;
+  text-shadow: none !important;
+}
+
+/* Reduce glare and reflection across cards */
+body.dark .panel,
+body.dark .scripture,
+body.dark .teacher-pop,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open {
+  box-shadow: 0 14px 34px rgba(0,0,0,.26) !important;
+  text-shadow: none !important;
+}
+
+/* Tool cards in full dark theme */
+body.dark .tool-option {
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(248,217,135,.42) !important;
+  box-shadow: none !important;
+}
+
+body.dark .tool-option:hover,
+body.dark .tool-option.active-choice {
+  background: rgba(248,217,135,.10) !important;
+  border-color: rgba(248,217,135,.62) !important;
+  box-shadow: none !important;
+}
+
+/* Light mode tool cards */
+body:not(.dark) .tool-option {
+  background: rgba(255,255,255,.52) !important;
+  border-color: rgba(215,168,79,.45) !important;
+  box-shadow: none !important;
+}
+
+/* Inputs and dropdowns */
+body.dark select option {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+}
+
+body:not(.dark) select option {
+  background: #F4EFE3 !important;
+  color: #2B394F !important;
+}
+
 /* Panel body text */
 #obsCrossRefsContent p,
 #obsCrossRefsContent li,
