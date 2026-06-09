@@ -5034,21 +5034,23 @@ if ($("openEastonsResource")) {
         .filter(term => term.includes(q))
         .slice(0, 20);
 
-      results.innerHTML = matches.length
-        ? matches.map(term => `
-            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-              <h4>${dict[term].title}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-    }
+results.innerHTML = matches.length
+  ? matches.map(term => `
+      <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
+        ${dict[term].title}
+      </button>
+    `).join("")
+  : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
 
-    searchBox.oninput = () => renderResults(searchBox.value);
-
-  openFloatingResourcePanel(panel);
+results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+  btn.onclick = () => {
+    const item = dict[btn.dataset.term];
+    openResourceInstancePanel(
+      item.title || "Easton's Bible Dictionary",
+      `<h4>${item.title}</h4><p>${item.content}</p>`
+    );
   };
-}
+});
 
 if ($("openSmithsResource")) {
   $("openSmithsResource").onclick = async () => {
@@ -5099,21 +5101,23 @@ if ($("openSmithsResource")) {
         .filter(term => term.includes(q))
         .slice(0, 20);
 
-      results.innerHTML = matches.length
-        ? matches.map(term => `
-            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-              <h4>${dict[term].title}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-    }
+results.innerHTML = matches.length
+  ? matches.map(term => `
+      <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
+        ${dict[term].title}
+      </button>
+    `).join("")
+  : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
 
-    searchBox.oninput = () => renderResults(searchBox.value);
-
-  openFloatingResourcePanel(panel);
+results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+  btn.onclick = () => {
+    const item = dict[btn.dataset.term];
+    openResourceInstancePanel(
+      item.title || "Smith's Bible Dictionary",
+      `<h4>${item.title}</h4><p>${item.content}</p>`
+    );
   };
-}
+});
 
 if ($("openNavesResource")) {
   $("openNavesResource").onclick = async () => {
@@ -5268,7 +5272,7 @@ results.innerHTML = loadedTopics.length
       if (navesBackBtn) navesBackBtn.style.display = "inline-flex";
       if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
 
-      openFloatingResourcePanel(panel);
+     openResourceInstancePanel("Title Here", content.innerHTML);
     };
   });
 }
@@ -5318,17 +5322,7 @@ results.innerHTML = loadedTopics.length
       }
     `;
 
-panel.classList.remove("open", "drag-positioned");
-panel.style.display = "none";
-panel.style.removeProperty("--drag-left");
-panel.style.removeProperty("--drag-top");
-
-panel.offsetHeight;
-
-panel.style.display = "";
-panel.style.zIndex = "41000";
-panel.classList.add("open");
-panel.setAttribute("aria-hidden", "false");
+  openResourceInstancePanel("Title Here", content.innerHTML);
   };
 }
 
@@ -5371,7 +5365,7 @@ if ($("openJfbResource")) {
       }
     `;
 
-    openFloatingResourcePanel(panel);
+    openResourceInstancePanel("Title Here", content.innerHTML);
   };
 }
 
@@ -5439,19 +5433,10 @@ if ($("openBookOverviewResource")) {
       `
       : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
 
-    panel.classList.remove("open", "drag-positioned");
-    panel.style.display = "none";
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-
-    panel.offsetHeight;
-
-    panel.style.display = "";
-    panel.style.zIndex = "41000";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-  };
-}
+openResourceInstancePanel(
+  overview?.title || `${currentBook} Overview`,
+  content.innerHTML
+);
       
 if ($("openTskResource")) {
 $("openTskResource").onclick = async () => {
@@ -5489,7 +5474,7 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
       obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
     }
 
-   openFloatingResourcePanel(crossPanel);
+   openResourceInstancePanel("Title Here", content.innerHTML);
   };
 }
 
