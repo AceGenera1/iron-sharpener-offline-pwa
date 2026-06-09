@@ -5492,7 +5492,12 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
       obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
     }
 
-   openFloatingResourcePanel(crossPanel);
+  openResourceInstancePanel(
+  `Treasury of Scripture Knowledge — ${currentRef()}`,
+  content.innerHTML
+);
+
+openFloatingResourcePanel(crossPanel);
   };
 }
 
