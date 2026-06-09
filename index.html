@@ -6431,15 +6431,24 @@ document.addEventListener("DOMContentLoaded", function () {
       if (panelId === "obsToolBar") {
   window.obsToolsWasDragged = false;
 }
-    const rect = panel.getBoundingClientRect();
-      startX = event.clientX;
-      startY = event.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
 
-      panel.classList.add("drag-positioned");
-      event.preventDefault();
-    });
+const rect = panel.getBoundingClientRect();
+
+startX = event.clientX;
+startY = event.clientY;
+startLeft = rect.left;
+startTop = rect.top;
+
+if (panelId === "obsToolBar") {
+  panel.style.setProperty("--drag-left", rect.left + "px");
+  panel.style.setProperty("--drag-top", rect.top + "px");
+
+  panel.classList.toggle("open-down", rect.top < window.innerHeight * 0.45);
+  panel.classList.toggle("open-up", rect.top >= window.innerHeight * 0.45);
+}
+
+panel.classList.add("drag-positioned");
+event.preventDefault();
 
     document.addEventListener("mousemove", function (event) {
       if (!dragging) return;
