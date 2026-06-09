@@ -6388,70 +6388,47 @@ document.addEventListener("DOMContentLoaded", function () {
     const handle = document.querySelector('[data-drag-handle="' + panelId + '"]');
     if (!handle) return;
 
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
     let dragging = false;
 
-  handle.addEventListener("mousedown", function (event) {
-  const draggableOutsideObs = [
-  "studyResourcesPanel",
-  "obsCrossRefsPanel",
-  "teacherToolsPanel",
-  "teachingMethodPanel",
-  "ironPromptPanel",
-  "obsToolBar",
-  "obsNavigatorPanel"
-];
-
-
-  if (
-    !document.documentElement.classList.contains("obs") &&
-    !draggableOutsideObs.includes(panelId)
-  ) return;
-
+    handle.addEventListener("mousedown", function (event) {
       dragging = true;
-      if (panelId === "obsToolBar") {
-  window.obsToolsWasDragged = false;
-}
 
-const rect = panel.getBoundingClientRect();
+      if (panelId === "obsToolBar") window.obsToolsWasDragged = false;
 
-startX = event.clientX;
-startY = event.clientY;
-startLeft = rect.left;
-startTop = rect.top;
+      const rect = panel.getBoundingClientRect();
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
 
-if (panelId === "obsToolBar") {
-  panel.style.setProperty("--drag-left", rect.left + "px");
-  panel.style.setProperty("--drag-top", rect.top + "px");
+      panel.style.setProperty("--drag-left", rect.left + "px");
+      panel.style.setProperty("--drag-top", rect.top + "px");
+      panel.classList.add("drag-positioned");
 
-  panel.classList.toggle("open-down", rect.top < window.innerHeight * 0.45);
-  panel.classList.toggle("open-up", rect.top >= window.innerHeight * 0.45);
-}
-
-panel.classList.add("drag-positioned");
-event.preventDefault();
+      event.preventDefault();
+      event.stopPropagation();
+    });
 
     document.addEventListener("mousemove", function (event) {
       if (!dragging) return;
-      if (
-  panelId === "obsToolBar" &&
-  (Math.abs(event.clientX - startX) > 4 || Math.abs(event.clientY - startY) > 4)
-) {
-  window.obsToolsWasDragged = true;
-}
+
+      if (panelId === "obsToolBar") {
+        window.obsToolsWasDragged =
+          Math.abs(event.clientX - startX) > 4 ||
+          Math.abs(event.clientY - startY) > 4;
+      }
 
       const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
       const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
 
       panel.style.setProperty("--drag-left", nextLeft + "px");
       panel.style.setProperty("--drag-top", nextTop + "px");
+
       if (panelId === "obsToolBar") {
-  panel.classList.toggle("open-down", nextTop < window.innerHeight * 0.45);
-  panel.classList.toggle("open-up", nextTop >= window.innerHeight * 0.45);
-}
+        panel.classList.toggle("open-down", nextTop < window.innerHeight * 0.45);
+        panel.classList.toggle("open-up", nextTop >= window.innerHeight * 0.45);
+      }
     });
 
     document.addEventListener("mouseup", function () {
@@ -6459,78 +6436,50 @@ event.preventDefault();
     });
   }
 
-  function resetDragPosition(panelId) {
-    const panel = document.getElementById(panelId);
-    if (!panel) return;
-    panel.classList.remove("drag-positioned");
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-  }
-
   window.resetIronSharpenerFloatingPanels = function () {
-    resetDragPosition("teacherToolsPanel");
-    resetDragPosition("teachingMethodPanel");
-    resetDragPosition("ironPromptPanel");
+    ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
+      const panel = document.getElementById(id);
+      if (!panel) return;
+      panel.classList.remove("drag-positioned", "open-up", "open-down");
+      panel.style.removeProperty("--drag-left");
+      panel.style.removeProperty("--drag-top");
+    });
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
-      makeDraggable("teacherToolsPanel");
-      makeDraggable("teachingMethodPanel");
-      makeDraggable("ironPromptPanel");
-      makeDraggable("obsCrossRefsPanel");
-      makeDraggable("studyResourcesPanel");
-      makeDraggable("obsNavigatorPanel");
-      makeDraggable("obsToolBar");
+  function makeFloatingElementDraggable(panel, handle) {
+    if (!panel || !handle) return;
+
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    let dragging = false;
+
+    handle.addEventListener("mousedown", function(event) {
+      dragging = true;
+      const rect = panel.getBoundingClientRect();
+
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      event.preventDefault();
     });
-  } else {
-    makeDraggable("teacherToolsPanel");
-    makeDraggable("teachingMethodPanel");
-    makeDraggable("ironPromptPanel");
-    makeDraggable("obsCrossRefsPanel");
-    makeDraggable("studyResourcesPanel");
-    makeDraggable("obsNavigatorPanel");
-    makeDraggable("obsToolBar");
+
+    document.addEventListener("mousemove", function(event) {
+      if (!dragging) return;
+
+      panel.style.left = Math.max(8, startLeft + event.clientX - startX) + "px";
+      panel.style.top = Math.max(8, startTop + event.clientY - startY) + "px";
+    });
+
+    document.addEventListener("mouseup", function() {
+      dragging = false;
+    });
   }
 
-  function makeFloatingElementDraggable(panel, handle) {
-  if (!panel || !handle) return;
+  window.makeFloatingElementDraggable = makeFloatingElementDraggable;
 
-  let startX = 0;
-  let startY = 0;
-  let startLeft = 0;
-  let startTop = 0;
-  let dragging = false;
-
-  handle.addEventListener("mousedown", function(event) {
-    dragging = true;
-
-    const rect = panel.getBoundingClientRect();
-    startX = event.clientX;
-    startY = event.clientY;
-    startLeft = rect.left;
-    startTop = rect.top;
-
-    event.preventDefault();
-  });
-
-  document.addEventListener("mousemove", function(event) {
-    if (!dragging) return;
-
-    const nextLeft = Math.max(8, Math.min(window.innerWidth - 160, startLeft + event.clientX - startX));
-    const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
-
-    panel.style.left = nextLeft + "px";
-    panel.style.top = nextTop + "px";
-  });
-
-  document.addEventListener("mouseup", function() {
-  dragging = false;
-});
-}
-
-window.makeFloatingElementDraggable = makeFloatingElementDraggable;
-
+  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"]
+    .forEach(makeDraggable);
 })();
 </script>
 
