@@ -4877,8 +4877,9 @@ if (bar) {
   updateObsToolBarDirection();
   bar.classList.toggle("collapsed");
 }
-
-  document.addEventListener("keydown", (event) => {
+  });
+}
+ document.addEventListener("keydown", (event) => {   
     if (event.key === "Escape") {
       const obsToolBar = document.querySelector(".obs-tool-bar");
       if (obsToolBar) obsToolBar.classList.add("collapsed");
