@@ -4554,6 +4554,10 @@ if (label) {
   label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
 }
 }
+const teacherStatus = $("teacherToolsStatusText");
+if (teacherStatus) {
+  teacherStatus.textContent = `Current Selection: ${labels[toolName] || toolName}`;
+}
 
       function clearMarks() {
       scriptureBox.classList.remove("focus-mode");
@@ -5267,9 +5271,9 @@ results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
     const topic = loadedTopics[index];
 
   openResourceInstancePanel(
-  topic.title || "Topic",
-  `...existing Nave's content...`,
-  "Nave's Topical Bible"
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
+   "Nave's Topical Bible"
 );
       
         <h4>${topic.title}</h4>
@@ -5468,8 +5472,9 @@ if ($("openBookOverviewResource")) {
       : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
 
   openResourceInstancePanel(
-  overview?.title || `${currentBook} Overview`,
-  content.innerHTML
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
+  "Jamieson-Fausset-Brown Commentary"
 );
 
   };
@@ -5512,10 +5517,11 @@ if (title) title.textContent = "Treasury of Scripture Knowledge";
     }
 
   openResourceInstancePanel(
-  `Treasury of Scripture Knowledge — ${currentRef()}`,
-  content.innerHTML
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
+  "Treasury of Scripture Knowledge"
 );
-
+  
 openFloatingResourcePanel(crossPanel);
   };
 }
@@ -5615,7 +5621,10 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 
   panel.innerHTML = `
     <div class="teacher-pop-head drag-handle">
-     <div><div class="resource-source-label">${sourceLabel}</div><h3>${title || "Study Resource"}</h3></div>
+      <div>
+        <div class="resource-source-label">${sourceLabel}</div>
+        <h3>${title || "Study Resource"}</h3>
+      </div>
       <button class="teacher-pop-close secondary" type="button">Close</button>
     </div>
     <div class="resource-panel-body">
@@ -5626,10 +5635,10 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
   document.body.appendChild(panel);
 
   panel.querySelector(".teacher-pop-close").onclick = (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  panel.remove();
-};
+    event.preventDefault();
+    event.stopPropagation();
+    panel.remove();
+  };
 
   window.makeFloatingElementDraggable(
     panel,
@@ -5641,12 +5650,12 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
 
-  openResourceInstancePanel(
-  doctrine.title || "Biblical Doctrine",
-  `...existing doctrine content...`,
+openResourceInstancePanel(
+  item.title || "Entry",
+  `<h4>${item.title}</h4><p>${item.content}</p>`,
   "Biblical Doctrine"
 );
-    
+  
       ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
       ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
       ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
