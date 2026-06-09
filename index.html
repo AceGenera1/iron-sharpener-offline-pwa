@@ -5452,13 +5452,10 @@ if ($("openBookOverviewResource")) {
       `
       : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
 
-  openResourceInstancePanel(
+openResourceInstancePanel(
   overview?.title || `${currentBook} Overview`,
   content.innerHTML
 );
-
-openFloatingResourcePanel(panel);
-  };
 }
       
 if ($("openTskResource")) {
