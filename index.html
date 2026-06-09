@@ -4802,14 +4802,18 @@ if (crossRefs) {
     };
   }
 
-  let obsToolsWasDragged = false;
+ window.obsToolsWasDragged = false;
 
 if ($("obsToolsMenuBtn")) {
   $("obsToolsMenuBtn").addEventListener("click", (event) => {
-    if (obsToolsWasDragged) {
+    if (window.obsToolsWasDragged) {
       event.preventDefault();
       event.stopPropagation();
-      obsToolsWasDragged = false;
+
+      setTimeout(() => {
+        window.obsToolsWasDragged = false;
+      }, 0);
+
       return;
     }
 
@@ -6246,7 +6250,10 @@ document.addEventListener("DOMContentLoaded", function () {
   ) return;
 
       dragging = true;
-      const rect = panel.getBoundingClientRect();
+      if (panelId === "obsToolBar") {
+  window.obsToolsWasDragged = false;
+}
+    const rect = panel.getBoundingClientRect();
       startX = event.clientX;
       startY = event.clientY;
       startLeft = rect.left;
@@ -6258,9 +6265,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("mousemove", function (event) {
       if (!dragging) return;
-      if (panelId === "obsToolBar") {
-      obsToolsWasDragged = true;
-    }
+      if (
+  panelId === "obsToolBar" &&
+  (Math.abs(event.clientX - startX) > 4 || Math.abs(event.clientY - startY) > 4)
+) {
+  window.obsToolsWasDragged = true;
+}
 
       const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
       const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
