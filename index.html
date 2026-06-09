@@ -4544,7 +4544,6 @@ function copySingleVerse(verse) {
   const copiedText = `${reference} — ${verseText} (WEB)`;
 
   navigator.clipboard.writeText(copiedText);
-  verse.classList.add("highlighted", "highlight-gold");
 
 const label = $("activeToolLabel");
 if (label) label.textContent = `Copied: ${reference} (WEB)`;
