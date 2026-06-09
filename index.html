@@ -5244,43 +5244,46 @@ const terms = topicFiles.sort();
 
 results.innerHTML = loadedTopics.length
   ? loadedTopics.map(topic => `
-      <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-        <h4 style="margin-bottom:10px;">${topic.title}</h4>
-
-        ${
-          (topic.references || []).length
-            ? `
-              <details open style="margin-bottom:10px;">
-                <summary style="cursor:pointer;font:900 14px Arial,sans-serif;margin-bottom:8px;">
-                  Main References (${topic.references.length})
-                </summary>
-                ${(topic.references || []).map(ref =>
-                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
-                ).join("")}
-              </details>
-            `
-            : ""
-        }
-
-        ${
-          topic.subtopics
-            ? Object.keys(topic.subtopics).map(subtopic => `
-                <details style="margin-top:8px;">
-                  <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
-                    ${subtopic} (${(topic.subtopics[subtopic] || []).length})
-                  </summary>
-                  <div style="margin-top:8px;">
-                    ${(topic.subtopics[subtopic] || []).map(ref =>
-                      `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
-                    ).join("")}
-                  </div>
-                </details>
-              `).join("")
-            : ""
-        }
-      </div>
+      <button type="button" class="naves-topic-btn" data-topic="${topic.file || topic.slug || topic.title}" style="width:100%;margin-bottom:8px;">
+        ${topic.title}
+      </button>
     `).join("")
   : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+results.querySelectorAll(".naves-topic-btn").forEach((btn, index) => {
+  btn.onclick = () => {
+    const topic = loadedTopics[index];
+
+    openResourceInstancePanel(
+      topic.title || "Nave's Topical Bible",
+      `
+        <h4>${topic.title}</h4>
+
+        ${(topic.references || []).length ? `
+          <details open style="margin-bottom:10px;">
+            <summary>Main References (${topic.references.length})</summary>
+            ${(topic.references || []).map(ref =>
+              `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+            ).join("")}
+          </details>
+        ` : ""}
+
+        ${topic.subtopics
+          ? Object.keys(topic.subtopics).map(subtopic => `
+              <details style="margin-top:8px;">
+                <summary>${subtopic} (${(topic.subtopics[subtopic] || []).length})</summary>
+                <div style="margin-top:8px;">
+                  ${(topic.subtopics[subtopic] || []).map(ref =>
+                    `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                  ).join("")}
+                </div>
+              </details>
+            `).join("")
+          : ""}
+      `
+    );
+  };
+});
 
   results.querySelectorAll(".cross-ref-link").forEach((btn) => {
     btn.onclick = () => {
