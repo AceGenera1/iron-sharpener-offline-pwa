@@ -5110,15 +5110,24 @@ if ($("openSmithsResource")) {
         .filter(term => term.includes(q))
         .slice(0, 20);
 
-      results.innerHTML = matches.length
-        ? matches.map(term => `
-            <div style="margin-bottom:12px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:10px;">
-              <h4>${dict[term].title}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${dict[term].content}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-    }
+  results.innerHTML = matches.length
+  ? matches.map(term => `
+      <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
+        ${dict[term].title}
+      </button>
+    `).join("")
+  : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+
+results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+  btn.onclick = () => {
+    const item = dict[btn.dataset.term];
+
+    openResourceInstancePanel(
+      item.title || "Easton's Bible Dictionary",
+      `<h4>${item.title}</h4><p>${item.content}</p>`
+    );
+  };
+});
 
     searchBox.oninput = () => renderResults(searchBox.value);
 
