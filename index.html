@@ -7,8 +7,8 @@
   <link rel="manifest" href="./manifest.json">
   <style>
 
-    :root {
-      --navy: #061526;
+   :root {
+  --navy: #061526;
       --deep: #020913;
       --gold: #d7a84f;
       --bright: #f4c76c;
@@ -823,7 +823,7 @@ html.obs #obsToolsMenuBtn {
     }
 
     #studyResourcesPanel.open {
-  z-index: 10200 !important;
+  z-index: 50000 !important;
 }
 
 #obsCrossRefsPanel{
@@ -1791,6 +1791,24 @@ html.obs .obs-tool-bar #obsShowStudyResources {
 body:not(.dark) #applicationPresentationCard { background: rgba(255, 248, 234, .64) !important; }
 body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !important; }
 
+
+body:not(.dark) #loadBtn,
+body:not(.dark) #openTeacherTools,
+body:not(.dark) #showTeachingNote,
+body:not(.dark) #showApplicationNote {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #loadBtn:hover,
+body:not(.dark) #openTeacherTools:hover,
+body:not(.dark) #showTeachingNote:hover,
+body:not(.dark) #showApplicationNote:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
 </style>
 </head>
 <body>
@@ -1817,9 +1835,9 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       </aside>
     </header>
 
-    <div class="ribbon">Prepared in prayer &nbsp; ✦ &nbsp; Taught with clarity &nbsp; ✦ &nbsp; Shared for discipleship</div>
-
-   <div class="obs-tool-bar" aria-label="OBS teaching tools">
+    
+  <div class="ribbon">Prepared in prayer &nbsp; ✦ &nbsp; Taught with clarity &nbsp; ✦ &nbsp; Shared for discipleship</div>
+<div id="obsToolBar" class="obs-tool-bar" aria-label="OBS teaching tools">
   <button id="obsShowNavigator" type="button">Scripture Navigator</button>
   <button id="obsOpenTeacherTools">Teacher Tools</button>
   <button id="obsShowTeachingNote">Teaching Note</button>
@@ -1999,6 +2017,11 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
         <button id="closeTeacherTools" class="teacher-pop-close secondary" type="button">Close</button>
       </div>
 
+      <div class="teacher-tools-status-card">
+        <strong>Teacher Tools Active</strong>
+        <span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
+      </div>
+
       <div class="tool-section-title">Highlight Colors</div>
       <div class="tool-options tool-colors">
         <button type="button" class="tool-option" data-tool="highlight-gold"><strong><i class="swatch gold"></i> Gold Highlight</strong><span>Main points, key verses, repeated truths, or the central idea. Select words first to highlight only that phrase.</span></button>
@@ -2006,7 +2029,7 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
         <button type="button" class="tool-option" data-tool="highlight-green"><strong><i class="swatch green"></i> Green Highlight</strong><span>Growth, obedience, application, discipleship, and next steps. Select words first to highlight only that phrase.</span></button>
         <button type="button" class="tool-option" data-tool="highlight-red"><strong><i class="swatch red"></i> Red Highlight</strong><span>Warnings, sin, repentance, urgency, or serious commands. Select words first to highlight only that phrase.</span></button>
         <button type="button" class="tool-option" data-tool="highlight-purple"><strong><i class="swatch purple"></i> Purple Highlight</strong><span>Christ-centered themes, kingdom language, worship, authority, and glory. Select words first to highlight only that phrase.</span></button>
-<button type="button" class="tool-option" data-tool="highlight-amber"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
+        <button type="button" class="tool-option" data-tool="highlight-amber"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
       </div>
 
       <div class="tool-section-title">Teaching Marks</div>
@@ -2069,9 +2092,14 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
   <span>Search offline Bible topics and Scripture references.</span>
 </button>
 
+<button type="button" class="tool-option" id="openDoctrineResource">
+  <strong>Biblical Doctrine</strong>
+  <span>Open doctrine topics from Louis Berkhof's Systematic Theology.</span>
+</button>
+
 <button type="button" class="tool-option" id="openCommentariesResource">
-  <strong>Matthew Henry Commentary</strong>
-  <span>Open Matthew Henry commentary by passage.</span>
+  <strong>Commentaries</strong>
+  <span>Open Bible commentaries by passage.</span>
 </button>
 
 <button type="button" class="tool-option" id="openBookOverviewResource">
@@ -3501,6 +3529,24 @@ body.dark #applicationPresentationCard { background: rgba(0, 0, 0, .52) !importa
       $("applicationPresentationCard").setAttribute("aria-hidden", "true");
     }
 
+    function updateObsToolBarDirection() {
+  const bar = document.getElementById("obsToolBar");
+  const btn = document.getElementById("obsToolsMenuBtn");
+  if (!bar || !btn) return;
+
+  const rect = btn.getBoundingClientRect();
+
+  bar.style.setProperty("--drag-left", rect.left + "px");
+  bar.style.setProperty("--drag-top", rect.top + "px");
+  bar.style.setProperty("--obs-tools-button-height", rect.height + "px");
+
+  bar.classList.add("drag-positioned");
+
+  const shouldOpenDown = rect.top < window.innerHeight * 0.45;
+  bar.classList.toggle("open-down", shouldOpenDown);
+  bar.classList.toggle("open-up", !shouldOpenDown);
+}
+
     function hideSmallTeachingNoteBox() {
   const panel = $("teachingNotes")?.closest(".panel");
   if (!panel) return;
@@ -3936,6 +3982,10 @@ function setupObsNavigator() {
     }
 
     function useActiveTool(verse) {
+        if (activeTool === "copy-verse") {
+    copySingleVerse(verse);
+    return;
+  }
       const highlightClasses = ["highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber"];
 
       if (activeTool.startsWith("highlight-")) {
@@ -4079,13 +4129,16 @@ async function loadPassage() {
       loadPassage();
     }
 
-    function setObsMode(on) {
-      document.documentElement.classList.toggle("obs", on);
-      $("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
 
+function setObsMode(on) {
+document.documentElement.classList.toggle("obs", on);
+$("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
    const obsToolBar = document.querySelector(".obs-tool-bar");
   if (obsToolBar && on) {
-  obsToolBar.classList.add("collapsed");
+    obsToolBar.classList.add("collapsed");
+    obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
+    const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
+    if (obsToolsBtn) obsToolsBtn.textContent = "⚔ Tools";
   }
 
       const ironPanel = document.getElementById("ironPromptPanel");
@@ -4112,6 +4165,15 @@ const studyResourcesPanel = document.getElementById("studyResourcesPanel");
 if (studyResourcesPanel && !on) {
   studyResourcesPanel.classList.remove("open");
   studyResourcesPanel.style.display = "";
+}
+
+const obsNavigatorPanel = document.getElementById("obsNavigatorPanel");
+if (obsNavigatorPanel && !on) {
+  obsNavigatorPanel.classList.remove("open", "drag-positioned");
+  obsNavigatorPanel.setAttribute("aria-hidden", "true");
+  obsNavigatorPanel.style.display = "";
+  obsNavigatorPanel.style.removeProperty("--drag-left");
+  obsNavigatorPanel.style.removeProperty("--drag-top");
 }
 
       closeTeacherTools();
@@ -4187,9 +4249,9 @@ if (studyResourcesPanel && !on) {
       setTimeout(renderCrossReferenceLinks, 0);
     }
 
-    async function loadEastonsDictionary() {
+ async function loadEastonsDictionary(letter) {
   try {
-    const response = await fetch("bible/resources/dictionaries/eastons.json");
+    const response = await fetch(`bible/resources/eastons/${letter}.json`);
     if (!response.ok) return {};
     return await response.json();
   } catch (error) {
@@ -4198,9 +4260,9 @@ if (studyResourcesPanel && !on) {
   }
 }
 
-  async function loadSmithsDictionary() {
+ async function loadSmithsDictionary(letter) {
   try {
-    const response = await fetch("bible/resources/dictionaries/smiths.json");
+    const response = await fetch(`bible/resources/smiths/${letter}.json`);
     if (!response.ok) return {};
     return await response.json();
   } catch (error) {
@@ -4209,21 +4271,21 @@ if (studyResourcesPanel && !on) {
   }
 }
 
-async function loadNavesTopics() {
+async function loadNavesTopic(topicFile) {
   try {
-    const response = await fetch("bible/resources/topics/naves.json");
-    if (!response.ok) return {};
+    const response = await fetch(`bible/resources/topics/${topicFile}.json`);
+    if (!response.ok) return null;
     return await response.json();
   } catch (error) {
-    console.warn("Nave's Topical Bible not found:", error);
-    return {};
+    console.warn("Nave's topic not found:", error);
+    return null;
   }
 }
 
-  async function loadMatthewHenryCommentary() {
+async function loadMatthewHenryCommentary(bookName) {
   try {
     const response = await fetch(
-      "bible/resources/commentaries/matthew_henry.json"
+      `bible/resources/commentaries/matthew-henry/${bookName}.json`
     );
 
     if (!response.ok) return {};
@@ -4235,10 +4297,10 @@ async function loadNavesTopics() {
   }
 }
 
-    async function loadJfbCommentary() {
+    async function loadJfbCommentary(bookName) {
   try {
     const response = await fetch(
-      "bible/resources/commentaries/jfb.json"
+      `bible/resources/commentaries/jfb/${bookName}.json`
     );
 
     if (!response.ok) return {};
@@ -4250,18 +4312,18 @@ async function loadNavesTopics() {
   }
 }
 
-    async function loadBookIntroductions() {
+    async function loadBookOverview(bookName) {
   try {
     const response = await fetch(
-      "bible/resources/book-introductions/book_introductions.json"
+      `bible/resources/book-overviews/${bookName}.json`
     );
 
-    if (!response.ok) return {};
+    if (!response.ok) return null;
 
     return await response.json();
   } catch (error) {
-    console.warn("Book introductions not found:", error);
-    return {};
+    console.warn("Book overview not found:", error);
+    return null;
   }
 }
 
@@ -4294,6 +4356,163 @@ async function loadNavesTopics() {
   }
 }
 
+    async function loadDoctrineIndex() {
+  try {
+    const response = await fetch("bible/resources/doctrine/index.json");
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.warn("Doctrine index not found:", error);
+    return [];
+  }
+}
+
+async function loadDoctrineTopic(topicFile) {
+  try {
+    const response = await fetch(`bible/resources/doctrine/${topicFile}.json`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.warn("Doctrine topic not found:", error);
+    return null;
+  }
+}
+
+    async function openDoctrineResource() {
+  const panel = $("obsCrossRefsPanel");
+  const content = $("obsCrossRefsContent");
+  const title = $("obsCrossRefsTitle");
+
+  if (!panel || !content) return;
+
+  activeResourcePanel = "doctrine";
+  if (title) title.textContent = "Biblical Doctrine";
+
+  const topics = await loadDoctrineIndex();
+
+  content.innerHTML = `
+    <input id="doctrineSearchBox" type="text" placeholder="Search doctrine topics like salvation, sin, church..." style="margin-bottom:10px;">
+
+    <div id="doctrineResults">
+      <p style="font:800 14px Arial,sans-serif;">Type a doctrine topic above.</p>
+    </div>
+  `;
+
+  const searchBox = $("doctrineSearchBox");
+  const results = $("doctrineResults");
+
+  async function renderDoctrineResults(query) {
+    const q = (query || "").toLowerCase().trim();
+
+    if (!q) {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a doctrine topic above.</p>`;
+      return;
+    }
+
+    const matches = topics
+      .filter(topic => topic.toLowerCase().includes(q))
+      .slice(0, 20);
+
+    if (!matches.length) {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No doctrine topic found.</p>`;
+      return;
+    }
+
+    results.innerHTML = matches.map(topic => `
+      <button type="button" class="doctrine-topic-btn" data-topic="${topic}" style="width:100%;margin-bottom:8px;">
+        ${topic}
+      </button>
+    `).join("");
+
+  results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
+  btn.onclick = async () => {
+    const doctrine = await loadDoctrineTopic(btn.dataset.topic);
+    openDoctrineTopicInNewPanel(doctrine);
+  };
+});
+
+  }
+
+  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
+
+  openFloatingResourcePanel(panel);
+}
+
+function openDoctrineTopic(doctrine, panel, content, title) {
+  if (!doctrine || !panel || !content) return;
+
+  if (title) title.textContent = doctrine.title || "Biblical Doctrine";
+  content.innerHTML = `
+  <button id="backToDoctrineSearch" class="secondary" type="button" style="width:100%;margin-bottom:10px;">
+    ← Back to Biblical Doctrine Search
+  </button>
+
+  <h4>${doctrine.title || "Biblical Doctrine"}</h4>
+  <p style="font:700 14px Arial,sans-serif;line-height:1.45;">
+    <em>${doctrine.source || "Iron Sharpener Biblical Doctrine Library"}</em>
+  </p>
+
+  ${doctrine.definition ? `
+    <h4>Definition</h4>
+    <p>${doctrine.definition}</p>
+  ` : ""}
+
+  ${doctrine.summary ? `
+    <h4>Summary</h4>
+    <p>${doctrine.summary}</p>
+  ` : ""}
+
+    ${doctrine.christFocus ? `
+  <h4>Christ Focus</h4>
+  <p>${doctrine.christFocus}</p>
+` : ""}
+  
+
+  ${(doctrine.keyScriptures || []).length ? `
+    <h4>Key Scriptures</h4>
+    <ul>
+      ${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}
+    </ul>
+  ` : ""}
+
+  ${(doctrine.studySections || doctrine.sections || []).length
+    ? (doctrine.studySections || doctrine.sections).map(section => `
+        <details open style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
+            ${section.heading || "Section"}
+          </summary>
+          <div style="margin-top:8px;font:700 14px Arial,sans-serif;line-height:1.5;">
+            ${section.content || ""}
+          </div>
+        </details>
+      `).join("")
+    : `<p style="font:700 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
+  }
+
+  ${(doctrine.sources || []).length ? `
+  <h4>Sources</h4>
+  <ul>
+    ${doctrine.sources.map(source => `<li>${source}</li>`).join("")}
+  </ul>
+` : ""}
+
+  ${(doctrine.relatedTopics || []).length ? `
+    <h4>Related Topics</h4>
+    <ul>
+      ${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}
+    </ul>
+  ` : ""}
+`;
+
+
+  const backBtn = $("backToDoctrineSearch");
+  if (backBtn) {
+    backBtn.onclick = openDoctrineResource;
+  }
+
+  openFloatingResourcePanel(panel);
+}
+
     function saveField(id) {
       const field = $(id);
       if (!field) return;
@@ -4318,16 +4537,27 @@ async function loadNavesTopics() {
         circle: "Circle",
         box: "Box",
         focus: "Focus",
-        erase: "Erase Verse Marks"
+        erase: "Erase Verse Marks",
+        "copy-verse": "Copy Verse"
       };
 
       document.querySelectorAll(".tool-option[data-tool]").forEach((button) => {
         button.classList.toggle("active-choice", button.dataset.tool === toolName);
       });
 
+      const selectionLabel = $("currentSelectionLabel");
+      if (selectionLabel) {
+        selectionLabel.textContent = `Current Selection: ${labels[toolName] || toolName}`;
+      }
+
       const label = $("activeToolLabel");
       if (label) {
         label.textContent = `Active Tool: ${labels[toolName] || toolName}`;
+      }
+
+      const teacherStatus = $("teacherToolsStatusText");
+      if (teacherStatus) {
+        teacherStatus.textContent = `Current Selection: ${labels[toolName] || toolName}`;
       }
     }
 
@@ -4349,6 +4579,34 @@ async function loadNavesTopics() {
         setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
       }
     }
+
+    function getVersePlainText(verse) {
+  if (!verse) return "";
+
+  const clone = verse.cloneNode(true);
+
+  clone.querySelectorAll(".vnum").forEach(el => el.remove());
+
+  return cleanText(clone.textContent || "");
+}
+
+function copySingleVerse(verse) {
+  if (!verse) return;
+
+  const verseNumber = verse.dataset.v;
+  const verseText = getVersePlainText(verse);
+  const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
+  const copiedText = `${reference} — ${verseText} (WEB)`;
+
+  navigator.clipboard.writeText(copiedText);
+
+const label = $("activeToolLabel");
+if (label) label.textContent = `Copied: ${reference} (WEB)`;
+
+setTimeout(() => {
+  if (label) label.textContent = "Active Tool: Copy Verse";
+}, 1400);
+}
 
     function initTooltips() {
       document.querySelectorAll(".info-wrap").forEach((item) => {
@@ -4464,6 +4722,11 @@ function refreshActiveResourcePanel() {
     if ($("openJfbResource")) $("openJfbResource").click();
   }
 }
+
+if ($("openDoctrineResource")) {
+  $("openDoctrineResource").onclick =
+    openDoctrineResource;
+}
     
 function renderCrossReferenceLinks() {
   const crossRefs = $("crossRefs");
@@ -4523,135 +4786,165 @@ if (crossRefs) {
   renderCrossReferenceLinks();
 }
 }
-    if ($("backToPreviousPassage")) {
-  $("backToPreviousPassage").onclick = () => {
-    if (!previousPassageState) return;
 
-    saveCurrentNotes();
+ function init() {
+  if ($("backToPreviousPassage")) {
+    $("backToPreviousPassage").onclick = () => {
+      if (!previousPassageState) return;
 
-    bookSel.value = previousPassageState.book;
-    fillChapters();
-    chapSel.value = previousPassageState.chapter;
-    fillVerses();
-    startSel.value = previousPassageState.start;
-    endSel.value = previousPassageState.end;
-    rangeSel.value = previousPassageState.range;
+      saveCurrentNotes();
 
-    $("backToPreviousPassage").style.display = "none";
-    loadPassage();
-  };
-}
-
-    initTeachingPresentationTools();
-      fillBooks();
-
-      const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
-
-     bookSel.value = saved?.book || "Genesis";
+      bookSel.value = previousPassageState.book;
       fillChapters();
-
-      chapSel.value = saved?.chapter || "1";
+      chapSel.value = previousPassageState.chapter;
       fillVerses();
+      startSel.value = previousPassageState.start;
+      endSel.value = previousPassageState.end;
+      rangeSel.value = previousPassageState.range;
 
-   rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
-startSel.value = saved?.start || "1";
+      previousPassageState = null;
 
-if (saved?.end) {
-  endSel.value = saved.end;
-} else {
-  updateEndFromRange();
-}
+      $("backToPreviousPassage").style.display = "none";
+      loadPassage();
+    };
+  }
+
+  initTeachingPresentationTools();
+  fillBooks();
+
+  const saved = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
+
+  bookSel.value = saved?.book || "Genesis";
+  fillChapters();
+
+  chapSel.value = saved?.chapter || "1";
+  fillVerses();
+
+  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
+  startSel.value = saved?.start || "1";
+
+  if (saved?.end) {
+    endSel.value = saved.end;
+  } else {
+    updateEndFromRange();
+  }
 
   if (rangeSel.value === "full") {
-  startSel.value = "1";
-  updateEndFromRange();
-} else {
-  endSel.value = saved?.end || endSel.value || "1";
-}
+    startSel.value = "1";
+    updateEndFromRange();
+  } else {
+    endSel.value = saved?.end || endSel.value || "1";
+  }
 
-      bookSel.onchange = () => saveThenLoad(() => {
-        fillChapters();
-        chapSel.value = "1";
-        fillVerses();
-      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
-        startSel.value = "1";
-        updateEndFromRange();
-      });
+  bookSel.onchange = () => saveThenLoad(() => {
+    fillChapters();
+    chapSel.value = "1";
+    fillVerses();
+    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
+    startSel.value = "1";
+    updateEndFromRange();
+  });
 
-      chapSel.onchange = () => saveThenLoad(() => {
-        fillVerses();
-        startSel.value = "1";
-        updateEndFromRange();
-      });
+  chapSel.onchange = () => saveThenLoad(() => {
+    fillVerses();
+    startSel.value = "1";
+    updateEndFromRange();
+  });
 
-      startSel.onchange = () => saveThenLoad(() => {
-        updateEndFromRange();
-      });
+  startSel.onchange = () => saveThenLoad(() => {
+    updateEndFromRange();
+  });
 
-      endSel.onchange = () => saveThenLoad();
+  endSel.onchange = () => saveThenLoad();
 
-      rangeSel.onchange = () => saveThenLoad(() => {
-  localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
-  updateEndFromRange();
-});
+  rangeSel.onchange = () => saveThenLoad(() => {
+    localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+    updateEndFromRange();
+  });
 
-      $("loadBtn").onclick = () => {
-        saveCurrentNotes();
-        loadPassage();
-      };
-      $("prevBtn").onclick = () => shiftRange(-1);
-      $("nextBtn").onclick = () => shiftRange(1);
-      $("themeBtn").onclick = () => setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
-      $("obsBtn").onclick = () => setObsMode(!document.documentElement.classList.contains("obs"));
-      $("fsBtn").onclick = () => {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
-        } else {
-          document.exitFullscreen();
-        }
-      };
-
-      if ($("highlightTool")) $("highlightTool").onclick = () => setTool("highlight-gold");
-      if ($("pointerTool")) $("pointerTool").onclick = () => setTool("pointer");
-      if ($("focusTool")) $("focusTool").onclick = () => setTool("focus");
-      if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
-      if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
-
-      if ($("obsHighlightTool")) $("obsHighlightTool").onclick = () => setTool("highlight-gold");
-      if ($("obsPointerTool")) $("obsPointerTool").onclick = () => setTool("pointer");
-      if ($("obsFocusTool")) $("obsFocusTool").onclick = () => setTool("focus");
-      if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
-      if ($("obsResetPanels")) $("obsResetPanels").onclick = () => {
-        if (window.resetIronSharpenerFloatingPanels) window.resetIronSharpenerFloatingPanels();
-      };
-
-      if ($("obsToolsMenuBtn")) {
-  $("obsToolsMenuBtn").onclick = () => {
-    const bar = document.querySelector(".obs-tool-bar");
-    if (bar) bar.classList.toggle("collapsed");
+  $("loadBtn").onclick = () => {
+    saveCurrentNotes();
+    loadPassage();
   };
+
+  $("prevBtn").onclick = () => shiftRange(-1);
+  $("nextBtn").onclick = () => shiftRange(1);
+  $("themeBtn").onclick = () => setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
+  $("obsBtn").onclick = () => setObsMode(!document.documentElement.classList.contains("obs"));
+
+  $("fsBtn").onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
+  if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
+  if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
+
+  if ($("obsResetPanels")) {
+    $("obsResetPanels").onclick = () => {
+      if (window.resetIronSharpenerFloatingPanels) window.resetIronSharpenerFloatingPanels();
+    };
+  }
+
+ window.obsToolsWasDragged = false;
+
+if ($("obsToolsMenuBtn")) {
+  $("obsToolsMenuBtn").addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const bar = document.getElementById("obsToolBar");
+    const btn = document.getElementById("obsToolsMenuBtn");
+    if (!bar || !btn) return;
+
+    bar.classList.toggle("drawer-open");
+
+    if (bar.classList.contains("drawer-open")) {
+      bar.classList.remove("collapsed");
+      btn.textContent = "✕ Close Tools";
+    } else {
+      bar.classList.add("collapsed");
+      btn.textContent = "⚔ Tools";
+    }
+  });
 }
+ document.addEventListener("keydown", (event) => {   
+    if (event.key === "Escape") {
+      const obsToolBar = document.querySelector(".obs-tool-bar");
+      if (obsToolBar) {
+        obsToolBar.classList.add("collapsed");
+        obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
+      }
+      const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
+      if (obsToolsBtn) obsToolsBtn.textContent = "⚔ Tools";
 
-function syncObsNavigator() {
-  const obsBook = $("obsBookSelect");
-  const obsChap = $("obsChapterSelect");
-  const obsStart = $("obsStartVerseSelect");
-  const obsEnd = $("obsEndVerseSelect");
+      closeTeacherTools();
+      setObsMode(false);
+    }
+  });
 
-  if (!obsBook) return;
+  restoreThemeMode();
+  loadCurrentNotes();
+  initTooltips();
+  initTeacherTools();
+  setTool("highlight-gold");
+  setupObsNavigator();
+  syncObsNavigator();
+  loadPassage();
 
-  obsBook.innerHTML = bookSel.innerHTML;
-  obsChap.innerHTML = chapSel.innerHTML;
-  obsStart.innerHTML = startSel.innerHTML;
-  obsEnd.innerHTML = endSel.innerHTML;
+  window.addEventListener("beforeunload", saveCurrentNotes);
 }
       
-
 function closeStudyResourcesPanelSoft() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
 
-  panel.classList.remove("open", "drag-positioned");
+  panel.classList.remove("open");
+  panel.classList.remove("drag-positioned");
   panel.setAttribute("aria-hidden", "true");
   panel.style.display = "";
   panel.style.removeProperty("--drag-left");
@@ -4673,27 +4966,25 @@ function openFloatingResourcePanel(panel) {
   panel.classList.add("open");
   panel.setAttribute("aria-hidden", "false");
 }
-
-function openStudyResourcesPanel(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
+function openStudyResourcesPanel() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
 
-  panel.classList.remove("drag-positioned");
+  panel.classList.remove("open");
   panel.style.display = "";
-  panel.style.removeProperty("--drag-left");
-  panel.style.removeProperty("--drag-top");
+  panel.offsetHeight;
+
   panel.classList.add("open");
   panel.setAttribute("aria-hidden", "false");
-  panel.style.setProperty("z-index", "50000", "important");
+  panel.style.zIndex = "10200";
 }
 
 if ($("obsShowStudyResources")) {
-  $("obsShowStudyResources").onclick = openStudyResourcesPanel;
+  $("obsShowStudyResources").onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openStudyResourcesPanel();
+  };
 }
 
 if ($("openStudyResourcesFromTools")) {
@@ -4704,10 +4995,608 @@ if ($("closeStudyResourcesPanel")) {
   $("closeStudyResourcesPanel").onclick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    closeStudyResourcesPanelSoft();
+
+    const panel = $("studyResourcesPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
   };
 }
 
+if ($("openEastonsResource")) {
+  $("openEastonsResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "eastons";
+    if (title) title.textContent = "Easton's Bible Dictionary";
+
+     let dict = {};
+    let terms = [];
+    let loadedLetter = "";
+
+    content.innerHTML = `
+      <input id="eastonsSearchBox" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
+      <div id="eastonsResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>
+      </div>
+    `;
+
+    const searchBox = $("eastonsSearchBox");
+    const results = $("eastonsResults");
+
+    async function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+      const letter = q.charAt(0).toUpperCase();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      if (letter && letter !== loadedLetter) {
+  loadedLetter = letter;
+  dict = await loadEastonsDictionary(letter);
+  terms = Object.keys(dict).sort();
+}
+
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+results.innerHTML = matches.length
+  ? matches.map(term => `
+      <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
+        ${dict[term].title}
+      </button>
+    `).join("")
+  : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+
+results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+  btn.onclick = () => {
+    const item = dict[btn.dataset.term];
+
+    openResourceInstancePanel(
+      item.title || "Entry",
+      `<h4>${item.title}</h4><p>${item.content}</p>`,
+      "Easton's Bible Dictionary"
+    );
+  };
+});
+
+ }
+
+    searchBox.oninput = () => renderResults(searchBox.value);
+
+    openFloatingResourcePanel(panel);
+  };
+}
+
+if ($("openSmithsResource")) {
+  $("openSmithsResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "smiths";
+    if (title) title.textContent = "Smith's Bible Dictionary";
+
+     let dict = {};
+    let terms = [];
+    let loadedLetter = "";
+
+    content.innerHTML = `
+      <input id="smithsSearchBox" type="text" placeholder="Search a word like Paul, Jerusalem, Pharisee..." style="margin-bottom:10px;">
+      <div id="smithsResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>
+      </div>
+    `;
+
+    const searchBox = $("smithsSearchBox");
+    const results = $("smithsResults");
+
+    async function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+      const letter = q.charAt(0).toUpperCase();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      if (letter && letter !== loadedLetter) {
+      loadedLetter = letter;
+      dict = await loadSmithsDictionary(letter);
+      terms = Object.keys(dict).sort();
+    }
+
+       const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+  results.innerHTML = matches.length
+  ? matches.map(term => `
+      <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
+        ${dict[term].title}
+      </button>
+    `).join("")
+  : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+
+results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+  btn.onclick = () => {
+    const item = dict[btn.dataset.term];
+
+    openResourceInstancePanel(
+      item.title || "Entry",
+      `<h4>${item.title}</h4><p>${item.content}</p>`,
+      "Smith's Bible Dictionary"
+    );
+  };
+});
+    
+    }
+    searchBox.oninput = () => renderResults(searchBox.value);
+
+  openFloatingResourcePanel(panel);
+  };
+}
+
+if ($("openNavesResource")) {
+  $("openNavesResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "naves";
+    if (title) title.textContent = "Nave's Topical Bible";
+
+    const topicFiles = [
+      "baptism",
+      "christ",
+      "church",
+      "communion",
+      "cross",
+      "deliverance",
+      "discipleship",
+      "evangelism",
+      "faith",
+      "fasting",
+      "fear-of-the-lord",
+      "forgiveness",
+      "gospel",
+      "grace",
+      "holy-spirit",
+      "prayer",
+      "repentance",
+      "salvation",
+      "worship"
+    ];
+
+    const terms = topicFiles.sort();
+
+    content.innerHTML = `
+      <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
+
+      <button id="navesBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-bottom:10px;width:100%;">
+        ← Back to Previous Passage
+      </button>
+
+      <div id="navesResults">
+        <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
+      </div>
+    `;
+
+    const searchBox = $("navesSearchBox");
+    const results = $("navesResults");
+    const navesBackBtn = $("navesBackToPreviousPassage");
+
+    if (navesBackBtn) {
+      navesBackBtn.onclick = () => {
+        if (!previousPassageState) return;
+
+        saveCurrentNotes();
+
+        bookSel.value = previousPassageState.book;
+        fillChapters();
+        chapSel.value = previousPassageState.chapter;
+        fillVerses();
+        startSel.value = previousPassageState.start;
+        endSel.value = previousPassageState.end;
+        rangeSel.value = previousPassageState.range;
+
+        previousPassageState = null;
+
+        navesBackBtn.style.display = "none";
+        if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
+        if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
+
+        loadPassage();
+        openFloatingResourcePanel(panel);
+      };
+    }
+
+    async function renderResults(query) {
+      const q = (query || "").toLowerCase().trim();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      const matches = terms
+        .filter(term => term.includes(q))
+        .slice(0, 20);
+
+      if (!matches.length) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+        return;
+      }
+
+      const loadedTopics = [];
+
+      for (const topicFile of matches) {
+        const topic = await loadNavesTopic(topicFile);
+        if (topic) loadedTopics.push(topic);
+      }
+
+      results.innerHTML = loadedTopics.length
+        ? loadedTopics.map((topic, index) => `
+            <button type="button" class="naves-topic-btn" data-index="${index}" style="width:100%;margin-bottom:8px;">
+              ${topic.title}
+            </button>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+      results.querySelectorAll(".naves-topic-btn").forEach((btn) => {
+        btn.onclick = () => {
+          const topic = loadedTopics[parseInt(btn.dataset.index, 10)];
+          if (!topic) return;
+
+          const topicHtml = `
+            <h4>${topic.title}</h4>
+
+            ${(topic.references || []).length ? `
+              <details style="margin-bottom:10px;">
+                <summary>Main References (${topic.references.length})</summary>
+                ${(topic.references || []).map(ref =>
+                  `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                ).join("")}
+              </details>
+            ` : ""}
+
+            ${topic.subtopics
+              ? Object.keys(topic.subtopics).map(subtopic => `
+                  <details style="margin-top:8px;">
+                    <summary>${subtopic} (${(topic.subtopics[subtopic] || []).length})</summary>
+                    <div style="margin-top:8px;">
+                      ${(topic.subtopics[subtopic] || []).map(ref =>
+                        `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`
+                      ).join("")}
+                    </div>
+                  </details>
+                `).join("")
+              : ""}
+          `;
+
+          openResourceInstancePanel(
+            topic.title || "Topic",
+            topicHtml,
+            "Nave's Topical Bible"
+          );
+        };
+      });
+    }
+
+    searchBox.oninput = () => renderResults(searchBox.value);
+
+    openFloatingResourcePanel(panel);
+  };
+}
+
+    if ($("openCommentariesResource")) {
+  $("openCommentariesResource").onclick = async () => {
+    activeResourcePanel = "commentary";
+
+    const commentary = await loadMatthewHenryCommentary(bookSel.value);
+    const currentBook = bookSel.value;
+    const currentChapter = chapSel.value;
+    const start = parseInt(startSel.value, 10);
+    const end = parseInt(endSel.value, 10);
+
+    const matches = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${currentBook} ${currentChapter}:${v}`;
+      if (commentary[key]) matches.push(commentary[key]);
+    }
+
+    const commentaryHtml = `
+      <h4>Matthew Henry Commentary</h4>
+      ${
+        matches.length
+          ? matches.map(item => `
+              <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+                <h4>${item.title}</h4>
+                <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p>
+              </div>
+            `).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
+      }
+    `;
+
+    openResourceInstancePanel(
+      `Matthew Henry Commentary — ${currentRef()}`,
+      commentaryHtml,
+      "Matthew Henry Commentary"
+    );
+  };
+}
+
+
+if ($("openJfbResource")) {
+  $("openJfbResource").onclick = async () => {
+    activeResourcePanel = "jfb";
+
+    const commentary = await loadJfbCommentary(bookSel.value);
+    const currentBook = bookSel.value;
+    const currentChapter = chapSel.value;
+    const start = parseInt(startSel.value, 10);
+    const end = parseInt(endSel.value, 10);
+
+    const matches = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${currentBook} ${currentChapter}:${v}`;
+      if (commentary[key]) matches.push(commentary[key]);
+    }
+
+    const jfbHtml = `
+      <h4>Jamieson-Fausset-Brown Commentary</h4>
+      ${
+        matches.length
+          ? matches.map(item => `
+              <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+                <h4>${item.title}</h4>
+                <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p>
+              </div>
+            `).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`
+      }
+    `;
+
+    openResourceInstancePanel(
+      `JFB Commentary — ${currentRef()}`,
+      jfbHtml,
+      "Jamieson-Fausset-Brown Commentary"
+    );
+  };
+}
+
+if ($("openBookOverviewResource")) {
+  $("openBookOverviewResource").onclick = async () => {
+    const panel = $("obsCrossRefsPanel");
+    const content = $("obsCrossRefsContent");
+    const title = $("obsCrossRefsTitle");
+
+    if (!panel || !content) return;
+
+    activeResourcePanel = "bookOverview";
+    if (title) title.textContent = "Book Overview";
+
+    const currentBook = bookSel.value;
+    const overview = await loadBookOverview(currentBook);
+
+    content.innerHTML = overview
+      ? `
+        <h4>${overview.title}</h4>
+
+        <div style="margin-bottom:12px;">
+          <strong>Author</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.author}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Date</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.date}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Audience</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.audience}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Historical Setting</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.historicalSetting}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Major Themes</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.themes || []).map(theme => `<li>${theme}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Key Verse</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.keyVerse}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Christ Focus</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.christFocus}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Outline</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.outline || []).map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+      `
+      : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
+
+openResourceInstancePanel(
+  overview?.title || `${currentBook} Overview`,
+  content.innerHTML,
+  "Book Overview"
+);
+  };
+}
+      
+if ($("openTskResource")) {
+$("openTskResource").onclick = async () => {
+activeResourcePanel = "tsk";
+const crossPanel = $("obsCrossRefsPanel");
+const content = $("obsCrossRefsContent");
+const obsBackBtn = $("obsBackToPreviousPassage");
+const title = $("obsCrossRefsTitle");
+
+if (title) title.textContent = "Treasury of Scripture Knowledge";
+
+    if (!crossPanel || !content) return;
+
+    const tskRefs = await loadTSKReferences();
+
+    content.innerHTML = `
+      <h4>Treasury of Scripture Knowledge</h4>
+      ${
+        tskRefs.length
+          ? tskRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`
+      }
+    `;
+
+    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+      btn.onclick = () => {
+        goToScriptureReference(btn.dataset.ref);
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        crossPanel.style.display = "";
+        crossPanel.classList.add("open");
+      };
+    });
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
+    }
+
+  openResourceInstancePanel(
+    `Treasury of Scripture Knowledge — ${currentRef()}`,
+    content.innerHTML,
+    "Treasury of Scripture Knowledge"
+  );
+
+openFloatingResourcePanel(crossPanel);
+  };
+}
+
+if ($("obsShowCrossRefs")) {
+  $("obsShowCrossRefs").onclick = () => {
+  activeResourcePanel = "personalCrossRefs";
+    renderCrossReferenceLinks();
+
+const panel = $("obsCrossRefsPanel");
+const content = $("obsCrossRefsContent");
+const crossRefs = $("crossRefs");
+const obsBackBtn = $("obsBackToPreviousPassage");
+const title = $("obsCrossRefsTitle");
+
+if (title) title.textContent = "Personal Cross References";
+
+    if (!panel || !content || !crossRefs) return;
+
+    const manualRefs = parseScriptureReferences(crossRefs.value);
+
+    content.innerHTML = `
+      <h4>Personal Cross References</h4>
+      ${
+        manualRefs.length
+          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
+      }
+    `;
+
+    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+      btn.onclick = () => {
+        goToScriptureReference(btn.dataset.ref);
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        panel.style.display = "";
+        panel.classList.add("open");
+      };
+    });
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
+    }
+
+    panel.style.display = "";
+    panel.classList.add("open");
+  };
+}
+
+if ($("closeObsCrossRefs")) {
+  $("closeObsCrossRefs").onclick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const panel = $("obsCrossRefsPanel");
+    if (!panel) return;
+
+panel.classList.remove("open");
+panel.style.display = "";
+activeResourcePanel = "";
+  };
+}
+
+if ($("obsBackToPreviousPassage")) {
+  $("obsBackToPreviousPassage").onclick = () => {
+    if (!previousPassageState) return;
+
+    saveCurrentNotes();
+
+    bookSel.value = previousPassageState.book;
+    fillChapters();
+    chapSel.value = previousPassageState.chapter;
+    fillVerses();
+    startSel.value = previousPassageState.start;
+    endSel.value = previousPassageState.end;
+    rangeSel.value = previousPassageState.range;
+
+    previousPassageState = null;
+
+    $("obsBackToPreviousPassage").style.display = "none";
+    if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
+
+    loadPassage();
+
+    const panel = $("obsCrossRefsPanel");
+    if (panel) panel.classList.add("open");
+  };
+}
 function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
   const panel = document.createElement("div");
   panel.className = "resource-instance-panel";
@@ -4741,360 +5630,57 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
   panel.addEventListener("click", (event) => {
     const refButton = event.target.closest(".cross-ref-link");
     if (!refButton) return;
-
     event.preventDefault();
     event.stopPropagation();
     goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
   });
 
   if (window.makeFloatingElementDraggable) {
-    window.makeFloatingElementDraggable(panel, panel.querySelector(".drag-handle"));
+    window.makeFloatingElementDraggable(
+      panel,
+      panel.querySelector(".drag-handle")
+    );
   }
 }
 
-function bindDictionaryResource(buttonId, resourceName, loader) {
-  const button = $(buttonId);
-  if (!button) return;
-
-  button.onclick = async () => {
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const title = $("obsCrossRefsTitle");
-    if (!panel || !content) return;
-
-    activeResourcePanel = buttonId;
-    if (title) title.textContent = resourceName;
-
-    let dict = {};
-    let terms = [];
-    let loadedLetter = "";
-
-    const inputId = `${buttonId}SearchBox`;
-    const resultsId = `${buttonId}Results`;
-
-    content.innerHTML = `
-      <input id="${inputId}" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
-      <div id="${resultsId}">
-        <p style="font:800 14px Arial,sans-serif;">Type a word above to search ${resourceName}.</p>
-      </div>
-    `;
-
-    const searchBox = $(inputId);
-    const results = $(resultsId);
-
-    async function renderResults(query) {
-      const q = (query || "").toLowerCase().trim();
-      const letter = q.charAt(0).toUpperCase();
-
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search ${resourceName}.</p>`;
-        return;
-      }
-
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
-
-      if (letter && letter !== loadedLetter) {
-        loadedLetter = letter;
-        dict = await loader(letter);
-        terms = Object.keys(dict || {}).sort();
-      }
-
-      const matches = terms.filter(term => term.includes(q)).slice(0, 20);
-
-      results.innerHTML = matches.length
-        ? matches.map(term => `
-            <button type="button" class="dictionary-result-btn" data-term="${term}" style="width:100%;margin-bottom:8px;">
-              ${dict[term].title || term}
-            </button>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-
-      results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
-        btn.onclick = () => {
-          const item = dict[btn.dataset.term];
-          if (!item) return;
-
-          openResourceInstancePanel(
-            item.title || "Entry",
-            `<h4>${item.title || "Entry"}</h4><p>${item.content || ""}</p>`,
-            resourceName
-          );
-        };
-      });
-    }
-
-    if (searchBox) searchBox.oninput = () => renderResults(searchBox.value);
-    openFloatingResourcePanel(panel);
-  };
-}
-
-bindDictionaryResource("openEastonsResource", "Easton's Bible Dictionary", loadEastonsDictionary);
-bindDictionaryResource("openSmithsResource", "Smith's Bible Dictionary", loadSmithsDictionary);
-
-if ($("openNavesResource")) {
-  $("openNavesResource").onclick = async () => {
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const title = $("obsCrossRefsTitle");
-    if (!panel || !content) return;
-
-    activeResourcePanel = "naves";
-    if (title) title.textContent = "Nave's Topical Bible";
-
-    const topicFiles = [
-      "baptism", "christ", "church", "communion", "cross", "deliverance",
-      "discipleship", "evangelism", "faith", "fasting", "fear-of-the-lord",
-      "forgiveness", "gospel", "grace", "holy-spirit", "prayer",
-      "repentance", "salvation", "worship"
-    ].sort();
-
-    content.innerHTML = `
-      <input id="navesSearchBox" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
-      <button id="navesBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-bottom:10px;width:100%;">
-        ← Back to Previous Passage
-      </button>
-      <div id="navesResults">
-        <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
-      </div>
-    `;
-
-    const searchBox = $("navesSearchBox");
-    const results = $("navesResults");
-    const navesBackBtn = $("navesBackToPreviousPassage");
-
-    if (navesBackBtn) {
-      navesBackBtn.onclick = () => {
-        if (!previousPassageState) return;
-        saveCurrentNotes();
-        bookSel.value = previousPassageState.book;
-        fillChapters();
-        chapSel.value = previousPassageState.chapter;
-        fillVerses();
-        startSel.value = previousPassageState.start;
-        endSel.value = previousPassageState.end;
-        rangeSel.value = previousPassageState.range;
-        previousPassageState = null;
-        navesBackBtn.style.display = "none";
-        if ($("obsBackToPreviousPassage")) $("obsBackToPreviousPassage").style.display = "none";
-        if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
-        loadPassage();
-        openFloatingResourcePanel(panel);
-      };
-    }
-
-    async function renderResults(query) {
-      const q = (query || "").toLowerCase().trim();
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
-        return;
-      }
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
-      const matches = topicFiles.filter(term => term.includes(q)).slice(0, 20);
-      if (!matches.length) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
-        return;
-      }
-      const loadedTopics = [];
-      for (const topicFile of matches) {
-        const topic = await loadNavesTopic(topicFile);
-        if (topic) loadedTopics.push(topic);
-      }
-      results.innerHTML = loadedTopics.length
-        ? loadedTopics.map((topic, index) => `
-            <button type="button" class="naves-topic-btn" data-index="${index}" style="width:100%;margin-bottom:8px;">
-              ${topic.title}
-            </button>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
-      results.querySelectorAll(".naves-topic-btn").forEach(btn => {
-        btn.onclick = () => {
-          const topic = loadedTopics[parseInt(btn.dataset.index, 10)];
-          if (!topic) return;
-          const topicHtml = `
-            <h4>${topic.title}</h4>
-            ${(topic.references || []).length ? `
-              <details style="margin-bottom:10px;">
-                <summary>Main References (${topic.references.length})</summary>
-                <div style="margin-top:8px;">
-                  ${(topic.references || []).map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`).join("")}
-                </div>
-              </details>` : ""}
-            ${topic.subtopics ? Object.keys(topic.subtopics).map(subtopic => `
-              <details style="margin-top:8px;">
-                <summary>${subtopic} (${(topic.subtopics[subtopic] || []).length})</summary>
-                <div style="margin-top:8px;">
-                  ${(topic.subtopics[subtopic] || []).map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`).join("")}
-                </div>
-              </details>`).join("") : ""}
-          `;
-          openResourceInstancePanel(topic.title || "Topic", topicHtml, "Nave's Topical Bible");
-        };
-      });
-    }
-
-    if (searchBox) searchBox.oninput = () => renderResults(searchBox.value);
-    openFloatingResourcePanel(panel);
-  };
-}
-
-if ($("openCommentariesResource")) {
-  $("openCommentariesResource").onclick = async () => {
-    activeResourcePanel = "commentary";
-    const commentary = await loadMatthewHenryCommentary(bookSel.value);
-    const currentBook = bookSel.value;
-    const currentChapter = chapSel.value;
-    const start = parseInt(startSel.value, 10);
-    const end = parseInt(endSel.value, 10);
-    const matches = [];
-    for (let v = start; v <= end; v++) {
-      const key = `${currentBook} ${currentChapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
-    const html = `<h4>Matthew Henry Commentary</h4>${
-      matches.length
-        ? matches.map(item => `<div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;"><h4>${item.title}</h4><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p></div>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
-    }`;
-    openResourceInstancePanel(`Matthew Henry Commentary — ${currentRef()}`, html, "Matthew Henry Commentary");
-  };
-}
-
-if ($("openJfbResource")) {
-  $("openJfbResource").onclick = async () => {
-    activeResourcePanel = "jfb";
-    const commentary = await loadJfbCommentary(bookSel.value);
-    const currentBook = bookSel.value;
-    const currentChapter = chapSel.value;
-    const start = parseInt(startSel.value, 10);
-    const end = parseInt(endSel.value, 10);
-    const matches = [];
-    for (let v = start; v <= end; v++) {
-      const key = `${currentBook} ${currentChapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
-    const html = `<h4>Jamieson-Fausset-Brown Commentary</h4>${
-      matches.length
-        ? matches.map(item => `<div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;"><h4>${item.title}</h4><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content}</p></div>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`
-    }`;
-    openResourceInstancePanel(`JFB Commentary — ${currentRef()}`, html, "Jamieson-Fausset-Brown Commentary");
-  };
-}
-
-if ($("openBookOverviewResource")) {
-  $("openBookOverviewResource").onclick = async () => {
-    activeResourcePanel = "bookOverview";
-    const currentBook = bookSel.value;
-    const overview = await loadBookOverview(currentBook);
-    const html = overview
-      ? `<h4>${overview.title}</h4>
-        <div style="margin-bottom:12px;"><strong>Author</strong><p>${overview.author || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Date</strong><p>${overview.date || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Audience</strong><p>${overview.audience || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Historical Setting</strong><p>${overview.historicalSetting || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Major Themes</strong><ul>${(overview.themes || []).map(theme => `<li>${theme}</li>`).join("")}</ul></div>
-        <div style="margin-bottom:12px;"><strong>Key Verse</strong><p>${overview.keyVerse || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Christ Focus</strong><p>${overview.christFocus || ""}</p></div>
-        <div style="margin-bottom:12px;"><strong>Outline</strong><ul>${(overview.outline || []).map(item => `<li>${item}</li>`).join("")}</ul></div>`
-      : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
-    openResourceInstancePanel(overview?.title || `${currentBook} Overview`, html, "Book Overview");
-  };
-}
-
-if ($("openTskResource")) {
-  $("openTskResource").onclick = async () => {
-    activeResourcePanel = "tsk";
-    const tskRefs = await loadTSKReferences();
-    const html = `<h4>Treasury of Scripture Knowledge</h4>${
-      tskRefs.length
-        ? tskRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`
-    }`;
-    openResourceInstancePanel(`Treasury of Scripture Knowledge — ${currentRef()}`, html, "Treasury of Scripture Knowledge");
-  };
-}
-
-if ($("obsShowCrossRefs")) {
-  $("obsShowCrossRefs").onclick = () => {
-    activeResourcePanel = "personalCrossRefs";
-    renderCrossReferenceLinks();
-    const panel = $("obsCrossRefsPanel");
-    const content = $("obsCrossRefsContent");
-    const crossRefs = $("crossRefs");
-    const obsBackBtn = $("obsBackToPreviousPassage");
-    const title = $("obsCrossRefsTitle");
-    if (title) title.textContent = "Personal Cross References";
-    if (!panel || !content || !crossRefs) return;
-    const manualRefs = parseScriptureReferences(crossRefs.value);
-    content.innerHTML = `<h4>Personal Cross References</h4>${
-      manualRefs.length
-        ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}" style="width:100%;margin-bottom:7px;">${ref}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
-    }`;
-    content.querySelectorAll(".cross-ref-link").forEach(btn => {
-      btn.onclick = () => {
-        goToScriptureReference(btn.dataset.ref);
-        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
-        openFloatingResourcePanel(panel);
-      };
-    });
-    if (obsBackBtn) obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
-    openFloatingResourcePanel(panel);
-  };
-}
-
-if ($("closeObsCrossRefs")) {
-  $("closeObsCrossRefs").onclick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const panel = $("obsCrossRefsPanel");
-    if (!panel) return;
-    panel.classList.remove("open");
-    panel.style.display = "";
-    activeResourcePanel = "";
-  };
-}
-
-if ($("obsBackToPreviousPassage")) {
-  $("obsBackToPreviousPassage").onclick = () => {
-    if (!previousPassageState) return;
-    saveCurrentNotes();
-    bookSel.value = previousPassageState.book;
-    fillChapters();
-    chapSel.value = previousPassageState.chapter;
-    fillVerses();
-    startSel.value = previousPassageState.start;
-    endSel.value = previousPassageState.end;
-    rangeSel.value = previousPassageState.range;
-    previousPassageState = null;
-    $("obsBackToPreviousPassage").style.display = "none";
-    if ($("backToPreviousPassage")) $("backToPreviousPassage").style.display = "none";
-    loadPassage();
-    const panel = $("obsCrossRefsPanel");
-    if (panel) openFloatingResourcePanel(panel);
-  };
-}
 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
+
   const doctrineHtml = `
     ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
     ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
     ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
-    ${(doctrine.keyScriptures || []).length ? `<h4>Key Scriptures</h4><ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>` : ""}
-    ${(doctrine.studySections || doctrine.sections || []).map(section => `<details open style="margin-bottom:12px;"><summary>${section.heading || "Section"}</summary><div>${section.content || ""}</div></details>`).join("")}
-    ${(doctrine.sources || []).length ? `<h4>Sources</h4><ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>` : ""}
-    ${(doctrine.relatedTopics || []).length ? `<h4>Related Topics</h4><ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>` : ""}
-  `;
-  openResourceInstancePanel(doctrine.title || "Biblical Doctrine", doctrineHtml, "Biblical Doctrine");
-}
 
+    ${(doctrine.keyScriptures || []).length ? `
+      <h4>Key Scriptures</h4>
+      <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
+    ` : ""}
+
+    ${(doctrine.studySections || doctrine.sections || []).map(section => `
+      <details open style="margin-bottom:12px;">
+        <summary>${section.heading || "Section"}</summary>
+        <div>${section.content || ""}</div>
+      </details>
+    `).join("")}
+
+    ${(doctrine.sources || []).length ? `
+      <h4>Sources</h4>
+      <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
+    ` : ""}
+
+    ${(doctrine.relatedTopics || []).length ? `
+      <h4>Related Topics</h4>
+      <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
+    ` : ""}
+  `;
+
+  openResourceInstancePanel(
+    doctrine.title || "Biblical Doctrine",
+    doctrineHtml,
+    "Biblical Doctrine"
+  );
+}
     init();
   </script>
 
@@ -5293,8 +5879,603 @@ body.dark #ironPromptPanel.open {
   color: #fff3cd !important;
 }
 
+  /* Study Experience Phase 1 — Universal Panel Readability */
 
-/* Stable OBS drawer replacement */
+:root {
+  --study-light-bg: #F4EFE3;
+  --study-light-card: #FBF7EE;
+  --study-light-text: #2B394F;
+
+  --study-dark-bg: #294843;
+  --study-dark-card: #355A54;
+  --study-dark-text: #F7F3EA;
+
+  --study-accent: #D7A84F;
+  --study-accent-soft: #F8D987;
+}
+
+/* All floating panels */
+.teacher-pop,
+#obsCrossRefsPanel,
+#teachingMethodPanel.open,
+#ironPromptPanel.open {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+/* Smoky Mountain readability refinement */
+
+  body.dark .tool-option {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(248, 217, 135, 0.42) !important;
+  box-shadow: none !important;
+}
+
+body.dark .tool-option:hover,
+body.dark .tool-option.active-choice {
+  background: rgba(248, 217, 135, 0.10) !important;
+  border-color: rgba(248, 217, 135, 0.62) !important;
+  box-shadow: none !important;
+}
+
+body.dark .tool-option strong,
+body.dark .tool-option span {
+  text-shadow: none !important;
+}
+
+body.dark .teacher-pop,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open {
+  box-shadow: 0 18px 42px rgba(0,0,0,.32) !important;
+}
+
+  /* Study Experience Phase 2 — Full App Smoky Mountain Theme */
+
+/* Cream / parchment full app */
+body:not(.dark) {
+  --paper: #F4EFE3;
+  --ink: #2B394F;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(215,168,79,.16), transparent 28%),
+    linear-gradient(145deg, #E8DDC8, #F4EFE3 48%, #DED2B9) !important;
+}
+
+body:not(.dark) .shell,
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, #F4EFE3, #EDE3D0) !important;
+  color: #2B394F !important;
+}
+
+body:not(.dark) .controls,
+body:not(.dark) .ribbon,
+body:not(.dark) .scripture,
+body:not(.dark) .panel,
+body:not(.dark) select,
+body:not(.dark) textarea,
+body:not(.dark) input {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+}
+
+/* Smoky Mountain full app dark mode */
+body.dark {
+  --paper: #294843;
+  --ink: #F7F3EA;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(248,217,135,.12), transparent 28%),
+    linear-gradient(145deg, #172B29, #294843 52%, #203D39) !important;
+}
+
+body.dark .shell,
+body.dark .layout {
+  background: linear-gradient(180deg, #294843, #203D39) !important;
+  color: #F7F3EA !important;
+}
+
+body.dark .controls,
+body.dark .ribbon,
+body.dark .scripture,
+body.dark .panel,
+body.dark select,
+body.dark textarea,
+body.dark input {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+}
+
+/* Main scripture reading text */
+body:not(.dark) .verse,
+body:not(.dark) .ref,
+body:not(.dark) label,
+body:not(.dark) .panel h3,
+body:not(.dark) .panel-title h3 {
+  color: #2B394F !important;
+}
+
+body.dark .verse,
+body.dark .ref,
+body.dark label,
+body.dark .panel h3,
+body.dark .panel-title h3 {
+  color: #F7F3EA !important;
+  text-shadow: none !important;
+}
+
+/* Softer source/accent text */
+body:not(.dark) .source {
+  color: #8A5A13 !important;
+}
+
+body.dark .source {
+  color: #F8D987 !important;
+  text-shadow: none !important;
+}
+
+/* Reduce glare and reflection across cards */
+body.dark .panel,
+body.dark .scripture,
+body.dark .teacher-pop,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open {
+  box-shadow: 0 14px 34px rgba(0,0,0,.26) !important;
+  text-shadow: none !important;
+}
+
+/* Tool cards in full dark theme */
+body.dark .tool-option {
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(248,217,135,.42) !important;
+  box-shadow: none !important;
+}
+
+body.dark .tool-option:hover,
+body.dark .tool-option.active-choice {
+  background: rgba(248,217,135,.10) !important;
+  border-color: rgba(248,217,135,.62) !important;
+  box-shadow: none !important;
+}
+
+/* Light mode tool cards */
+body:not(.dark) .tool-option {
+  background: rgba(255,255,255,.52) !important;
+  border-color: rgba(215,168,79,.45) !important;
+  box-shadow: none !important;
+}
+
+/* Inputs and dropdowns */
+body.dark select option {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+}
+
+body:not(.dark) select option {
+  background: #F4EFE3 !important;
+  color: #2B394F !important;
+}
+
+
+/* Study Experience Phase 3 — Force panel colors into Smoky Mountain theme */
+
+/* Dark mode: remove old navy panel override */
+body.dark .teacher-pop,
+body.dark #studyResourcesPanel,
+body.dark #teacherToolsPanel,
+body.dark #obsNavigatorPanel,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.72) !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.30) !important;
+}
+
+/* Dark mode tool cards */
+body.dark .teacher-pop .tool-option,
+body.dark #studyResourcesPanel .tool-option,
+body.dark #teacherToolsPanel .tool-option {
+  background: rgba(255,255,255,.055) !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.46) !important;
+  box-shadow: none !important;
+}
+
+/* Dark mode tool-card text */
+body.dark .teacher-pop .tool-option strong,
+body.dark .teacher-pop .tool-option span,
+body.dark #studyResourcesPanel .tool-option strong,
+body.dark #studyResourcesPanel .tool-option span,
+body.dark #teacherToolsPanel .tool-option strong,
+body.dark #teacherToolsPanel .tool-option span {
+  color: #F7F3EA !important;
+  text-shadow: none !important;
+}
+
+/* Cream mode: stronger readable text inside tool cards */
+body:not(.dark) .teacher-pop .tool-option strong,
+body:not(.dark) #studyResourcesPanel .tool-option strong,
+body:not(.dark) #teacherToolsPanel .tool-option strong {
+  color: #07172B !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) .teacher-pop .tool-option span,
+body:not(.dark) #studyResourcesPanel .tool-option span,
+body:not(.dark) #teacherToolsPanel .tool-option span {
+  color: #1D2E46 !important;
+  font-weight: 750 !important;
+}
+
+/* Cream mode card contrast */
+body:not(.dark) .teacher-pop .tool-option,
+body:not(.dark) #studyResourcesPanel .tool-option,
+body:not(.dark) #teacherToolsPanel .tool-option {
+  background: rgba(255,255,255,.64) !important;
+  border-color: rgba(183,116,16,.42) !important;
+}
+
+/* Study Experience Phase 4 — Softer dark tool-card descriptions */
+
+body.dark .teacher-pop .tool-option span,
+body.dark #studyResourcesPanel .tool-option span,
+body.dark #teacherToolsPanel .tool-option span {
+  font-weight: 650 !important;
+  color: #EFE8D8 !important;
+  line-height: 1.55 !important;
+}
+
+body.dark .teacher-pop .tool-option strong,
+body.dark #studyResourcesPanel .tool-option strong,
+body.dark #teacherToolsPanel .tool-option strong {
+  font-weight: 800 !important;
+  color: #FFF4D2 !important;
+}
+
+/* Study Experience Phase 5 — Final readability cleanup */
+
+/* Tone down Teaching Method and I.R.O.N. internal boldness */
+#teachingMethodPanel p,
+#teachingMethodPanel li,
+#ironPromptPanel p,
+#ironPromptPanel li {
+  font-weight: 600 !important;
+  line-height: 1.68 !important;
+  text-shadow: none !important;
+}
+
+#teachingMethodPanel strong,
+#ironPromptPanel strong {
+  font-weight: 750 !important;
+}
+
+/* Nave / TSK scripture reference buttons: remove old navy */
+body.dark .cross-ref-link,
+body.dark #obsCrossRefsContent .cross-ref-link {
+  background: rgba(255,255,255,.075) !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.64) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body:not(.dark) .cross-ref-link,
+body:not(.dark) #obsCrossRefsContent .cross-ref-link {
+  background: rgba(255,255,255,.72) !important;
+  color: #07172B !important;
+  border-color: rgba(183,116,16,.48) !important;
+  box-shadow: none !important;
+}
+
+/* OBS tools button: remove navy shell / make it match */
+html.obs .obs-tool-bar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html.obs .obs-tool-bar #obsToolsMenuBtn {
+  background: linear-gradient(#f8d987, #d99f31) !important;
+  color: #061526 !important;
+  border: 2px solid #d7a84f !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+}
+
+/* Soften all gold buttons slightly */
+button {
+  box-shadow: 0 6px 14px rgba(0,0,0,.16) !important;
+}
+
+/* Fix black box behind divider diamond */
+body.dark .divider::after {
+  background: #294843 !important;
+  color: #F8D987 !important;
+}
+
+body:not(.dark) .divider::after {
+  background: #F4EFE3 !important;
+  color: #D7A84F !important;
+}
+
+/* Final divider diamond cleanup */
+.divider::after,
+body.dark .divider::after,
+body:not(.dark) .divider::after {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+/* Panel body text */
+#obsCrossRefsContent p,
+#obsCrossRefsContent li,
+#obsCrossRefsContent div,
+#obsCrossRefsContent details,
+#teachingMethodPanel p,
+#teachingMethodPanel li,
+#ironPromptPanel p,
+#ironPromptPanel li,
+.teacher-pop p,
+.teacher-pop li,
+.teacher-pop span {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+/* Panel headings */
+#obsCrossRefsContent h4,
+.teacher-pop h3,
+.teacher-pop-head h3,
+.floating-panel-head h3,
+#teachingMethodPanel h3,
+#ironPromptPanel h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+  letter-spacing: .4px !important;
+}
+
+/* Section labels and summaries */
+#obsCrossRefsContent strong,
+#obsCrossRefsContent summary,
+#teachingMethodPanel strong,
+#ironPromptPanel strong {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.55 !important;
+  font-weight: 800 !important;
+}
+
+/* Inputs inside panels */
+.teacher-pop input,
+.teacher-pop textarea,
+.teacher-pop select,
+#obsCrossRefsPanel input,
+#obsCrossRefsPanel textarea,
+#obsCrossRefsPanel select {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+}
+
+/* Light mode text */
+body:not(.dark) #obsCrossRefsContent,
+body:not(.dark) #obsCrossRefsContent p,
+body:not(.dark) #obsCrossRefsContent li,
+body:not(.dark) #obsCrossRefsContent div,
+body:not(.dark) #obsCrossRefsContent summary,
+body:not(.dark) .teacher-pop,
+body:not(.dark) #teachingMethodPanel,
+body:not(.dark) #ironPromptPanel {
+  color: var(--study-light-text) !important;
+}
+
+/* Dark mode text */
+body.dark #obsCrossRefsContent,
+body.dark #obsCrossRefsContent p,
+body.dark #obsCrossRefsContent li,
+body.dark #obsCrossRefsContent div,
+body.dark #obsCrossRefsContent summary,
+body.dark .teacher-pop,
+body.dark #teachingMethodPanel,
+body.dark #ironPromptPanel {
+  color: var(--study-dark-text) !important;
+  text-shadow: none !important;
+}
+
+/* Softer headings */
+body:not(.dark) #obsCrossRefsContent h4,
+body:not(.dark) .teacher-pop-head h3,
+body:not(.dark) .floating-panel-head h3 {
+  color: #7A4C06 !important;
+}
+
+body.dark #obsCrossRefsContent h4,
+body.dark .teacher-pop-head h3,
+body.dark .floating-panel-head h3 {
+  color: var(--study-accent-soft) !important;
+  text-shadow: none !important;
+}
+
+html.obs #obsToolBar {
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+}
+
+/* Smoky Mountain tooltip cleanup */
+body.dark .tooltip {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+  border: 2px solid rgba(248,217,135,.72) !important;
+  box-shadow: 0 18px 34px rgba(0,0,0,.34) !important;
+  text-shadow: none !important;
+}
+
+body.dark .info-icon {
+  background: linear-gradient(#f8d987, #d7a84f) !important;
+  color: #061526 !important;
+  border: 2px solid rgba(248,217,135,.85) !important;
+  box-shadow: none !important;
+}
+
+html.obs #obsToolBar.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-up {
+  flex-direction: column !important;
+  transform: translateY(calc(-100% + var(--obs-tools-button-height, 46px))) !important;
+}
+
+html.obs #obsToolBar.drag-positioned.open-down {
+  flex-direction: column-reverse !important;
+  transform: none !important;
+}
+  /* Universal multi-open resource panels */
+
+.resource-instance-panel {
+  display: block !important;
+  position: fixed !important;
+  width: min(520px, calc(100vw - 32px));
+  max-height: 75vh;
+  overflow-y: auto;
+  resize: both;
+  min-width: 320px;
+  min-height: 220px;
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 16px;
+  z-index: 60000;
+}
+
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+}
+
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+}
+
+html.obs .resource-instance-panel {
+  position: fixed !important;
+  transform: none !important;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+}
+
+.resource-instance-panel p,
+.resource-instance-panel li,
+.resource-instance-panel div,
+.resource-instance-panel summary {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+  font-weight: 600 !important;
+}
+
+.resource-instance-panel h3,
+.resource-instance-panel h4 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  color: #F8D987 !important;
+}
+
+
+/* Final footer + navigation button theme cleanup */
+
+body.dark .footer {
+  background: linear-gradient(180deg, #294843, #203D39) !important;
+  color: #F7F3EA !important;
+  border-top: 2px solid var(--gold) !important;
+}
+
+body.dark .footer strong {
+  color: #F7F3EA !important;
+}
+
+body.dark .footer .sep {
+  background: var(--gold) !important;
+}
+
+body.dark #prevBtn,
+body.dark #nextBtn {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
+  border: 1.8px solid var(--gold) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #prevBtn,
+body:not(.dark) #nextBtn {
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
+  border: 1.8px solid var(--gold) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) .resource-instance-panel h3,
+body:not(.dark) .resource-instance-panel h4 {
+  color: #7A4C06 !important;
+}
+
+body.dark .resource-instance-panel h3,
+body.dark .resource-instance-panel h4 {
+  color: #F8D987 !important;
+}
+
+body:not(.dark) #doctrineResults .doctrine-topic-btn,
+body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #doctrineResults .doctrine-topic-btn:hover,
+body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+  body:not(.dark) #navesResults .naves-topic-btn,
+body:not(.dark) #obsCrossRefsContent .naves-topic-btn,
+body:not(.dark) .dictionary-result-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #navesResults .naves-topic-btn:hover,
+body:not(.dark) #obsCrossRefsContent .naves-topic-btn:hover,
+body:not(.dark) .dictionary-result-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+body:not(.dark) .resource-instance-panel .cross-ref-link,
+body:not(.dark) .resource-instance-panel button.cross-ref-link {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) .resource-instance-panel .cross-ref-link:hover,
+body:not(.dark) .resource-instance-panel button.cross-ref-link:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+
+
+/* OBS Focus stable drawer override - no draggable toolbar */
 html.obs #obsToolBar {
   position: fixed !important;
   left: 16px !important;
@@ -5313,10 +6494,15 @@ html.obs #obsToolBar {
   box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
   transform: translateX(-260px) !important;
   transition: transform .22s ease !important;
+  resize: none !important;
 }
 
 html.obs #obsToolBar.drawer-open {
   transform: translateX(0) !important;
+}
+
+html.obs #obsToolBar button {
+  width: 100% !important;
 }
 
 html.obs #obsToolsMenuBtn {
@@ -5325,6 +6511,11 @@ html.obs #obsToolsMenuBtn {
   bottom: 16px !important;
   width: auto !important;
   z-index: 10000 !important;
+  display: inline-flex !important;
+  background: linear-gradient(#f8d987, #d99f31) !important;
+  color: #061526 !important;
+  border: 2px solid #d7a84f !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
 }
 
 html.obs #obsToolBar.drawer-open #obsToolsMenuBtn {
@@ -5336,6 +6527,9 @@ html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
   display: none !important;
 }
 
+html.obs #obsToolBar:not(.drawer-open) button:not(#obsToolsMenuBtn) {
+  display: none !important;
+}
 </style>
 
 
@@ -5415,38 +6609,59 @@ document.addEventListener("DOMContentLoaded", function () {
     const handle = document.querySelector('[data-drag-handle="' + panelId + '"]');
     if (!handle) return;
 
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
     let dragging = false;
 
     handle.addEventListener("mousedown", function (event) {
-      if (event.target.closest("button, input, textarea, select, a, summary")) {
-        return;
-      }
-
+      if (
+  panelId !== "obsToolBar" &&
+  event.target.closest("button, input, textarea, select, a, summary")
+) {
+  return;
+}
       dragging = true;
 
+      if (panelId === "obsToolBar") window.obsToolsWasDragged = false;
+
       const rect = panel.getBoundingClientRect();
+      const handleRect = handle.getBoundingClientRect();
+
       startX = event.clientX;
       startY = event.clientY;
       startLeft = rect.left;
-      startTop = rect.top;
+      startTop = panelId === "obsToolBar" ? handleRect.top : rect.top;
 
+      if (panelId === "obsToolBar") {
+      panel.style.setProperty("--obs-tools-button-height", handleRect.height + "px");
+    }
+
+     panel.style.setProperty("--drag-left", handleRect.left + "px");
+      panel.style.setProperty("--drag-top", handleRect.top + "px");
       panel.classList.add("drag-positioned");
+
       event.preventDefault();
       event.stopPropagation();
     });
 
     document.addEventListener("mousemove", function (event) {
       if (!dragging) return;
+
+      if (panelId === "obsToolBar") {
+        window.obsToolsWasDragged =
+          Math.abs(event.clientX - startX) > 4 ||
+          Math.abs(event.clientY - startY) > 4;
+      }
 
       const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
       const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
 
       panel.style.setProperty("--drag-left", nextLeft + "px");
       panel.style.setProperty("--drag-top", nextTop + "px");
+
+      if (panelId === "obsToolBar") {
+        panel.classList.toggle("open-down", nextTop < window.innerHeight * 0.45);
+        panel.classList.toggle("open-up", nextTop >= window.innerHeight * 0.45);
+      }
     });
 
     document.addEventListener("mouseup", function () {
@@ -5454,127 +6669,53 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function resetDragPosition(panelId) {
-    const panel = document.getElementById(panelId);
-    if (!panel) return;
-
-    panel.classList.remove("drag-positioned");
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-  }
-
   window.resetIronSharpenerFloatingPanels = function () {
-    [
-      "teacherToolsPanel",
-      "teachingMethodPanel",
-      "ironPromptPanel",
-      "obsCrossRefsPanel",
-      "studyResourcesPanel",
-      "obsNavigatorPanel"
-    ].forEach(resetDragPosition);
+    ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"].forEach(id => {
+      const panel = document.getElementById(id);
+      if (!panel) return;
+      panel.classList.remove("drag-positioned", "open-up", "open-down");
+      panel.style.removeProperty("--drag-left");
+      panel.style.removeProperty("--drag-top");
+    });
   };
 
-  window.makeFloatingElementDraggable = function (panel, handle) {
+  function makeFloatingElementDraggable(panel, handle) {
     if (!panel || !handle) return;
 
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
     let dragging = false;
 
-    handle.addEventListener("mousedown", function (event) {
+    handle.addEventListener("mousedown", function(event) {
       if (event.target.closest("button, input, textarea, select, a, summary")) {
-        return;
-      }
-
+  return;
+}
       dragging = true;
-
       const rect = panel.getBoundingClientRect();
+
       startX = event.clientX;
       startY = event.clientY;
       startLeft = rect.left;
       startTop = rect.top;
 
       event.preventDefault();
-      event.stopPropagation();
     });
 
-    document.addEventListener("mousemove", function (event) {
+    document.addEventListener("mousemove", function(event) {
       if (!dragging) return;
 
       panel.style.left = Math.max(8, startLeft + event.clientX - startX) + "px";
       panel.style.top = Math.max(8, startTop + event.clientY - startY) + "px";
     });
 
-    document.addEventListener("mouseup", function () {
+    document.addEventListener("mouseup", function() {
       dragging = false;
     });
-  };
-
-  function setupDraggables() {
-    [
-      "teacherToolsPanel",
-      "teachingMethodPanel",
-      "ironPromptPanel",
-      "obsCrossRefsPanel",
-      "studyResourcesPanel",
-      "obsNavigatorPanel"
-    ].forEach(makeDraggable);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setupDraggables);
-  } else {
-    setupDraggables();
-  }
-})();
-</script>
+  window.makeFloatingElementDraggable = makeFloatingElementDraggable;
 
-
-<script>
-(function fixTeacherToolsReopenBug() {
-  function bindTeacherButtons() {
-    const openBtn = document.getElementById("openTeacherTools");
-    const obsOpenBtn = document.getElementById("obsOpenTeacherTools");
-    const closeBtn = document.getElementById("closeTeacherTools");
-    const panel = document.getElementById("teacherToolsPanel");
-
-    function forceOpen(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if (!panel) return;
-      panel.classList.remove("drag-positioned");
-      panel.style.removeProperty("--drag-left");
-      panel.style.removeProperty("--drag-top");
-      panel.style.display = "";
-      panel.classList.add("open");
-      panel.setAttribute("aria-hidden", "false");
-    }
-
-    function forceClose(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if (!panel) return;
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-      panel.style.display = "";
-    }
-
-    if (openBtn) openBtn.onclick = forceOpen;
-    if (obsOpenBtn) obsOpenBtn.onclick = forceOpen;
-    if (closeBtn) closeBtn.onclick = forceClose;
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindTeacherButtons);
-  } else {
-    bindTeacherButtons();
-  }
+  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"]
+    .forEach(makeDraggable);
 })();
 </script>
 
@@ -5768,92 +6909,49 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 })();
 </script>
-
-  
 <script>
-(function finalStudyResourcesReopenFix() {
+(function cleanPanelOpenCloseHandlers() {
   function get(id) {
     return document.getElementById(id);
   }
 
-  function bringStudyResourcesForward() {
-    const studyPanel = get("studyResourcesPanel");
-    if (!studyPanel) return;
-
-    studyPanel.classList.remove("drag-positioned");
-    studyPanel.style.removeProperty("--drag-left");
-    studyPanel.style.removeProperty("--drag-top");
-    studyPanel.style.display = "";
-    studyPanel.style.setProperty("z-index", "40000", "important");
-    studyPanel.classList.add("open");
-    studyPanel.setAttribute("aria-hidden", "false");
+  function openPanel(id) {
+    const panel = get(id);
+    if (!panel) return;
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
   }
 
-  function bringResourceForward() {
-    const resourcePanel = get("obsCrossRefsPanel");
-    if (!resourcePanel) return;
-
-    resourcePanel.classList.remove("open", "drag-positioned");
-    resourcePanel.style.display = "none";
-    resourcePanel.style.removeProperty("--drag-left");
-    resourcePanel.style.removeProperty("--drag-top");
-
-    resourcePanel.offsetHeight;
-
-    resourcePanel.style.display = "";
-    resourcePanel.style.setProperty("z-index", "50000", "important");
-    resourcePanel.classList.add("open");
-    resourcePanel.setAttribute("aria-hidden", "false");
+  function closePanel(id) {
+    const panel = get(id);
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
   }
 
-  function closeStudyResources(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
+  const bindings = [
+    ["openTeacherTools", "teacherToolsPanel", "open"],
+    ["obsOpenTeacherTools", "teacherToolsPanel", "open"],
+    ["closeTeacherTools", "teacherToolsPanel", "close"],
+    ["obsShowStudyResources", "studyResourcesPanel", "open"],
+    ["openStudyResourcesFromTools", "studyResourcesPanel", "open"],
+    ["closeStudyResourcesPanel", "studyResourcesPanel", "close"]
+  ];
 
-    const studyPanel = get("studyResourcesPanel");
-    if (!studyPanel) return;
-
-    studyPanel.classList.remove("open");
-    studyPanel.setAttribute("aria-hidden", "true");
-    studyPanel.style.display = "";
-  }
-
-  document.addEventListener("click", function(event) {
-    const button = event.target.closest("button");
+  bindings.forEach(([buttonId, panelId, action]) => {
+    const button = get(buttonId);
     if (!button) return;
 
-    if (
-      button.id === "obsShowStudyResources" ||
-      button.id === "openStudyResourcesFromTools"
-    ) {
+    button.onclick = function(event) {
       event.preventDefault();
       event.stopPropagation();
-      bringStudyResourcesForward();
-      return;
-    }
 
-    if (button.id === "closeStudyResourcesPanel") {
-      closeStudyResources(event);
-      return;
-    }
-
-    if (
-      button.id === "openTskResource" ||
-      button.id === "openEastonsResource" ||
-      button.id === "openSmithsResource" ||
-      button.id === "openNavesResource" ||
-      button.id === "openCommentariesResource" ||
-      button.id === "openBookOverviewResource" ||
-      button.id === "openJfbResource"
-    ) {
-      setTimeout(function() {
-        bringStudyResourcesForward();
-        bringResourceForward();
-      }, 0);
-    }
-  }, true);
+      if (action === "open") openPanel(panelId);
+      if (action === "close") closePanel(panelId);
+    };
+  });
 })();
 </script>
 </body>
