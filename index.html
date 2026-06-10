@@ -4636,17 +4636,6 @@ setTimeout(() => {
 }
 
     function initTooltips() {
-      document.querySelectorAll(".info-wrap").forEach((item) => {
-        item.addEventListener("click", (event) => {
-          event.stopPropagation();
-          document.querySelectorAll(".info-wrap").forEach((other) => {
-            if (other !== item) other.classList.remove("open");
-          });
-          item.classList.toggle("open");
-        });
-      });
-
-    function initTooltips() {
   document.querySelectorAll(".info-wrap").forEach((item) => {
     item.addEventListener("click", (event) => {
       event.stopPropagation();
