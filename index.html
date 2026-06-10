@@ -4646,10 +4646,13 @@ setTimeout(() => {
         });
       });
 
-      document.addEventListener("click", () => {
-        document.querySelectorAll(".info-wrap").forEach((item) => item.classList.remove("open"));
-      });
-    }
+    document.addEventListener("mouseup", function () {
+  if (dragging && panelId === "obsToolBar" && window.obsToolsWasDragged) {
+    updateObsToolBarDirection();
+  }
+
+  dragging = false;
+});
 
     function openTeacherTools() {
       const panel = $("teacherToolsPanel");
@@ -4921,33 +4924,21 @@ if (crossRefs) {
 
 if ($("obsToolsMenuBtn")) {
   $("obsToolsMenuBtn").addEventListener("click", (event) => {
-    if (window.obsToolsWasDragged) {
-      event.preventDefault();
-      event.stopPropagation();
-
-  setTimeout(() => {
-  window.obsToolsWasDragged = false;
-}, 120);
-
-      return;
-    }
-
     const bar = document.querySelector(".obs-tool-bar");
     if (!bar) return;
 
-    const isCollapsed = bar.classList.contains("collapsed");
-
-    if (isCollapsed) {
-      bar.classList.remove("collapsed");
-
-      requestAnimationFrame(() => {
-        updateObsToolBarDirection();
-      });
-    } else {
-      bar.classList.add("collapsed");
+    if (window.obsToolsWasDragged) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.obsToolsWasDragged = false;
+      return;
     }
+
+    updateObsToolBarDirection();
+    bar.classList.toggle("collapsed");
   });
 }
+   
  document.addEventListener("keydown", (event) => {   
     if (event.key === "Escape") {
       const obsToolBar = document.querySelector(".obs-tool-bar");
@@ -6669,9 +6660,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  if (panelId === "obsToolBar") {
-    panel.classList.add("drag-positioned");
-  }
+if (panelId === "obsToolBar") {
+  window.obsToolsWasDragged = true;
+  panel.classList.add("drag-positioned");
+}
 
   const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
   const nextTop = Math.max(8, Math.min(window.innerHeight - 120, startTop + event.clientY - startY));
