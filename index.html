@@ -6382,11 +6382,11 @@ html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
 }
 
 html.obs #obsToolBar.open-up {
-  flex-direction: column-reverse !important;
+  flex-direction: column !important;
 }
 
 html.obs #obsToolBar.open-down {
-  flex-direction: column !important;
+  flex-direction: column-reverse !important;
 }
   /* Universal multi-open resource panels */
 
@@ -6654,10 +6654,6 @@ document.addEventListener("DOMContentLoaded", function () {
       panel.style.setProperty("--obs-tools-button-height", handleRect.height + "px");
     }
 
-     panel.style.setProperty("--drag-left", handleRect.left + "px");
-      panel.style.setProperty("--drag-top", handleRect.top + "px");
-      panel.classList.add("drag-positioned");
-
       event.preventDefault();
       event.stopPropagation();
     });
@@ -6674,7 +6670,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (panelId === "obsToolBar") {
-    window.obsToolsWasDragged = true;
+    panel.classList.add("drag-positioned");
   }
 
   const nextLeft = Math.max(8, Math.min(window.innerWidth - 120, startLeft + event.clientX - startX));
