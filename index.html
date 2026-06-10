@@ -4152,11 +4152,11 @@ if (obsToolBar) {
   obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
 }
 
-const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
 if (obsToolsBtn) {
   obsToolsBtn.textContent = "⚔ Tools";
 }
 
+}
 
 function setObsMode(on) {
 document.documentElement.classList.toggle("obs", on);
@@ -6718,7 +6718,7 @@ window.resetIronSharpenerFloatingPanels = function () {
 
   window.makeFloatingElementDraggable = makeFloatingElementDraggable;
 
-  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"]
+  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"]
     .forEach(makeDraggable);
 })();
 </script>
