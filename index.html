@@ -3529,16 +3529,16 @@ body:not(.dark) #showApplicationNote:hover {
       $("applicationPresentationCard").setAttribute("aria-hidden", "true");
     }
 
-function updateObsToolBarDirection() {
+    function updateObsToolBarDirection() {
   const bar = document.getElementById("obsToolBar");
   const btn = document.getElementById("obsToolsMenuBtn");
   if (!bar || !btn) return;
 
   const rect = btn.getBoundingClientRect();
-  const shouldOpenDown = rect.top < window.innerHeight * 0.45;
+  const shouldOpenUp = rect.top > window.innerHeight * 0.45;
 
-  bar.classList.toggle("open-down", shouldOpenDown);
-  bar.classList.toggle("open-up", !shouldOpenDown);
+  bar.classList.toggle("open-up", shouldOpenUp);
+  bar.classList.toggle("open-down", !shouldOpenUp);
 }
 
     function hideSmallTeachingNoteBox() {
@@ -6669,8 +6669,8 @@ if (panelId === "obsToolBar") {
   panel.style.setProperty("--drag-top", nextTop + "px");
 
   if (panelId === "obsToolBar") {
-    panel.classList.toggle("open-down", nextTop < window.innerHeight * 0.45);
-    panel.classList.toggle("open-up", nextTop >= window.innerHeight * 0.45);
+panel.classList.toggle("open-up", nextTop > window.innerHeight * 0.45);
+panel.classList.toggle("open-down", nextTop <= window.innerHeight * 0.45);
   }
 });
 
