@@ -6486,19 +6486,24 @@ html.obs #obsToolBar {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
-  width: 220px !important;
-  padding: 10px !important;
+  width: auto !important;
+  max-width: 240px !important;
+  padding: 0 !important;
   border-radius: 16px !important;
-  background: rgba(20, 35, 32, .96) !important;
-  border: 2px solid var(--gold) !important;
-  box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
-  transform: translateX(-260px) !important;
-  transition: transform .22s ease !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
   resize: none !important;
 }
 
 html.obs #obsToolBar.drawer-open {
-  transform: translateX(0) !important;
+  width: 220px !important;
+  padding: 10px !important;
+  background: rgba(20, 35, 32, .96) !important;
+  border: 2px solid var(--gold) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
 }
 
 html.obs #obsToolBar button {
@@ -6506,9 +6511,7 @@ html.obs #obsToolBar button {
 }
 
 html.obs #obsToolsMenuBtn {
-  position: fixed !important;
-  left: 16px !important;
-  bottom: 16px !important;
+  position: static !important;
   width: auto !important;
   z-index: 10000 !important;
   display: inline-flex !important;
@@ -6519,14 +6522,10 @@ html.obs #obsToolsMenuBtn {
 }
 
 html.obs #obsToolBar.drawer-open #obsToolsMenuBtn {
-  position: static !important;
   width: 100% !important;
 }
 
-html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
-  display: none !important;
-}
-
+html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn),
 html.obs #obsToolBar:not(.drawer-open) button:not(#obsToolsMenuBtn) {
   display: none !important;
 }
