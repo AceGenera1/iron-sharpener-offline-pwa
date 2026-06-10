@@ -4152,10 +4152,9 @@ if (obsToolBar) {
   obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
 }
 
+const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
 if (obsToolsBtn) {
   obsToolsBtn.textContent = "⚔ Tools";
-}
-
 }
 
 function setObsMode(on) {
@@ -5642,8 +5641,13 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 }
 
 
-function openDoctrineTopicInNewPanel(doctrine) {
-  if (!doctrine) return;
+  function openDoctrineTopicInNewPanel(doctrine) {
+...
+}
+
+}
+
+init();
 
   const doctrineHtml = `
     ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
