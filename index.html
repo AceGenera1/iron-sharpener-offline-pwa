@@ -6685,16 +6685,14 @@ document.addEventListener("mouseup", function () {
 }
   
 window.resetIronSharpenerFloatingPanels = function () {
-
-  window.resetIronSharpenerFloatingPanels = function () {
-    ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
-      const panel = document.getElementById(id);
-      if (!panel) return;
-      panel.classList.remove("drag-positioned", "open-up", "open-down");
-      panel.style.removeProperty("--drag-left");
-      panel.style.removeProperty("--drag-top");
-    });
-  };
+  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+    panel.classList.remove("drag-positioned", "open-up", "open-down");
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+  });
+};
 
   function makeFloatingElementDraggable(panel, handle) {
     if (!panel || !handle) return;
