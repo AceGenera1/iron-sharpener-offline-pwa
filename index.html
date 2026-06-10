@@ -4938,20 +4938,20 @@ if ($("obsToolsMenuBtn")) {
       return;
     }
 
-  const bar = document.querySelector(".obs-tool-bar");
+    const bar = document.querySelector(".obs-tool-bar");
+    if (!bar) return;
 
-if (bar) {
-  const isOpening = bar.classList.contains("collapsed");
+    const isCollapsed = bar.classList.contains("collapsed");
 
-  if (isOpening) {
-    updateObsToolBarDirection();
-    requestAnimationFrame(() => {
+    if (isCollapsed) {
       bar.classList.remove("collapsed");
-    });
-  } else {
-    bar.classList.add("collapsed");
-  }
-}
+
+      requestAnimationFrame(() => {
+        updateObsToolBarDirection();
+      });
+    } else {
+      bar.classList.add("collapsed");
+    }
   });
 }
  document.addEventListener("keydown", (event) => {   
