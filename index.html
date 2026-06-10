@@ -3529,20 +3529,14 @@ body:not(.dark) #showApplicationNote:hover {
       $("applicationPresentationCard").setAttribute("aria-hidden", "true");
     }
 
-    function updateObsToolBarDirection() {
+function updateObsToolBarDirection() {
   const bar = document.getElementById("obsToolBar");
   const btn = document.getElementById("obsToolsMenuBtn");
   if (!bar || !btn) return;
 
   const rect = btn.getBoundingClientRect();
-
-  bar.style.setProperty("--drag-left", rect.left + "px");
-  bar.style.setProperty("--drag-top", rect.top + "px");
-  bar.style.setProperty("--obs-tools-button-height", rect.height + "px");
-
-  bar.classList.add("drag-positioned");
-
   const shouldOpenDown = rect.top < window.innerHeight * 0.45;
+
   bar.classList.toggle("open-down", shouldOpenDown);
   bar.classList.toggle("open-up", !shouldOpenDown);
 }
@@ -6358,16 +6352,36 @@ body.dark .info-icon {
   box-shadow: none !important;
 }
 
-html.obs #obsToolBar.drag-positioned.open-up,
-html.obs #obsToolBar.drag-positioned.open-down {
-  transform: none !important;
-}
-
 html.obs #obsToolBar {
+  position: fixed !important;
+  left: 18px;
+  bottom: 18px;
+  top: auto;
+  right: auto;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+
+html.obs #obsToolBar.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  bottom: auto !important;
+  right: auto !important;
   transform: none !important;
 }
 
-  html.obs #obsToolBar.open-up {
+html.obs #obsToolBar button {
+  width: 170px;
+}
+
+html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
+  display: none !important;
+}
+
+html.obs #obsToolBar.open-up {
   flex-direction: column-reverse !important;
 }
 
@@ -6669,10 +6683,14 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    document.addEventListener("mouseup", function () {
-      dragging = false;
-    });
+   document.addEventListener("mouseup", function () {
+  if (dragging && panelId === "obsToolBar") {
+    updateObsToolBarDirection();
   }
+
+  dragging = false;
+});
+}
 
   window.resetIronSharpenerFloatingPanels = function () {
     ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
