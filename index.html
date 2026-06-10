@@ -4365,15 +4365,39 @@ async function loadMatthewHenryCommentary(bookName) {
   }
 }
 
-    async function loadDoctrineIndex() {
-  try {
-    const response = await fetch("bible/resources/doctrine/index.json");
-    if (!response.ok) return [];
-    return await response.json();
-  } catch (error) {
-    console.warn("Doctrine index not found:", error);
-    return [];
+ async function loadDoctrineIndex() {
+  const indexFiles = [
+    "index.json",
+    "index-2a-additions.json",
+    "index-2b-2c-3-additions.json",
+    "index-4-5-6-additions.json",
+    "index-7-8-additions.json",
+    "index-9-10-additions.json",
+    "index-11-12-additions.json"
+  ];
+
+  const allTopics = [];
+
+  for (const file of indexFiles) {
+    try {
+      const response = await fetch(`bible/resources/doctrine/${file}`);
+
+      if (!response.ok) {
+        console.warn("Doctrine index not found:", file);
+        continue;
+      }
+
+      const topics = await response.json();
+
+      if (Array.isArray(topics)) {
+        allTopics.push(...topics);
+      }
+    } catch (error) {
+      console.warn("Doctrine index load error:", file, error);
+    }
   }
+
+  return [...new Set(allTopics)].sort();
 }
 
 async function loadDoctrineTopic(topicFile) {
