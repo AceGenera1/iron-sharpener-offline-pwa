@@ -4925,9 +4925,9 @@ if ($("obsToolsMenuBtn")) {
       event.preventDefault();
       event.stopPropagation();
 
-      setTimeout(() => {
-        window.obsToolsWasDragged = false;
-      }, 0);
+  setTimeout(() => {
+  window.obsToolsWasDragged = false;
+}, 120);
 
       return;
     }
@@ -6685,14 +6685,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-document.addEventListener("mouseup", function () {
+document.addEventListener("mouseup", function (event) {
   if (dragging && panelId === "obsToolBar" && window.obsToolsWasDragged) {
+    event.preventDefault();
+    event.stopPropagation();
+
     updateObsToolBarDirection();
+
+    setTimeout(() => {
+      window.obsToolsWasDragged = false;
+    }, 80);
   }
 
   dragging = false;
 });
-}
 
   window.resetIronSharpenerFloatingPanels = function () {
     ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
