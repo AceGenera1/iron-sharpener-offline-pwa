@@ -3529,7 +3529,7 @@ body:not(.dark) #showApplicationNote:hover {
       $("applicationPresentationCard").setAttribute("aria-hidden", "true");
     }
 
-    function updateObsToolBarDirection() {
+  function updateObsToolBarDirection() {
   const bar = document.getElementById("obsToolBar");
   const btn = document.getElementById("obsToolsMenuBtn");
   if (!bar || !btn) return;
@@ -4922,8 +4922,7 @@ if (crossRefs) {
 if ($("obsToolsMenuBtn")) {
   $("obsToolsMenuBtn").addEventListener("click", (event) => {
     const bar = document.getElementById("obsToolBar");
-    const btn = document.getElementById("obsToolsMenuBtn");
-    if (!bar || !btn) return;
+    if (!bar) return;
 
     if (window.obsToolsWasDragged) {
       event.preventDefault();
@@ -4932,41 +4931,11 @@ if ($("obsToolsMenuBtn")) {
       return;
     }
 
-    const isOpening = bar.classList.contains("collapsed");
-    const btnRect = btn.getBoundingClientRect();
-
-    if (isOpening) {
-      const shouldOpenUp = btnRect.top > window.innerHeight * 0.45;
-
-      bar.classList.remove("collapsed");
-      bar.classList.add("drag-positioned");
-
-      requestAnimationFrame(() => {
-        const fullHeight = bar.getBoundingClientRect().height;
-        const btnHeight = btn.getBoundingClientRect().height;
-
-        bar.style.setProperty("--drag-left", btnRect.left + "px");
-
-        if (shouldOpenUp) {
-          bar.style.setProperty("--drag-top", (btnRect.top - fullHeight + btnHeight) + "px");
-          bar.classList.add("open-up");
-          bar.classList.remove("open-down");
-        } else {
-          bar.style.setProperty("--drag-top", btnRect.top + "px");
-          bar.classList.add("open-down");
-          bar.classList.remove("open-up");
-        }
-      });
-    } else {
-      const btnNow = btn.getBoundingClientRect();
-
-      bar.classList.add("collapsed");
-      bar.style.setProperty("--drag-left", btnNow.left + "px");
-      bar.style.setProperty("--drag-top", btnNow.top + "px");
-    }
+    updateObsToolBarDirection();
+    bar.classList.toggle("collapsed");
   });
 }
-      
+   
 function closeStudyResourcesPanelSoft() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
@@ -6379,11 +6348,11 @@ html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
 }
 
 html.obs #obsToolBar.open-up {
-  flex-direction: column !important;
+  flex-direction: column-reverse !important;
 }
 
 html.obs #obsToolBar.open-down {
-  flex-direction: column-reverse !important;
+  flex-direction: column !important;
 }
   /* Universal multi-open resource panels */
 
