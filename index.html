@@ -4130,54 +4130,27 @@ async function loadPassage() {
     }
 
 
-function setObsMode(on) {
-document.documentElement.classList.toggle("obs", on);
-$("obsBtn").textContent = on ? "Leave Focus" : "OBS Focus";
-   const obsToolBar = document.querySelector(".obs-tool-bar");
-  if (obsToolBar && on) {
+  function setObsMode(on) {
+  closeAllFloatingPanelsForModeChange();
+
+  document.documentElement.classList.toggle("obs", on);
+
+  closeAllFloatingPanelsForModeChange();
+
+  const obsBtn = $("obsBtn");
+  if (obsBtn) obsBtn.textContent = on ? "Leave Focus" : "OBS Focus";
+
+  const obsToolBar = document.getElementById("obsToolBar");
+  if (obsToolBar) {
     obsToolBar.classList.add("collapsed");
     obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
-    const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
-    if (obsToolsBtn) obsToolsBtn.textContent = "⚔ Tools";
   }
 
-      const ironPanel = document.getElementById("ironPromptPanel");
-      if (ironPanel) {
-        ironPanel.classList.remove("open");
-        ironPanel.style.display = "none";
-        ironPanel.setAttribute("aria-hidden", "true");
-      }
-
-      const teachingMethodPanel = document.getElementById("teachingMethodPanel");
-      if (teachingMethodPanel) {
-        teachingMethodPanel.classList.remove("open");
-        teachingMethodPanel.style.display = "none";
-        teachingMethodPanel.setAttribute("aria-hidden", "true");
-      }
-
-const crossRefPanel = document.getElementById("obsCrossRefsPanel");
-if (crossRefPanel && !on) {
-  crossRefPanel.classList.remove("open");
-  crossRefPanel.style.display = "";
+  const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
+  if (obsToolsBtn) {
+    obsToolsBtn.textContent = "⚔ Tools";
+  }
 }
-
-const studyResourcesPanel = document.getElementById("studyResourcesPanel");
-if (studyResourcesPanel && !on) {
-  studyResourcesPanel.classList.remove("open");
-  studyResourcesPanel.style.display = "";
-}
-
-const obsNavigatorPanel = document.getElementById("obsNavigatorPanel");
-if (obsNavigatorPanel && !on) {
-  obsNavigatorPanel.classList.remove("open", "drag-positioned");
-  obsNavigatorPanel.setAttribute("aria-hidden", "true");
-  obsNavigatorPanel.style.display = "";
-  obsNavigatorPanel.style.removeProperty("--drag-left");
-  obsNavigatorPanel.style.removeProperty("--drag-top");
-}
-
-      closeTeacherTools();
-    }
 
     function setThemeMode(mode) {
       const isDark = mode === "dark";
@@ -6528,6 +6501,20 @@ html.obs #obsToolBar.drawer-open #obsToolsMenuBtn {
 html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn),
 html.obs #obsToolBar:not(.drawer-open) button:not(#obsToolsMenuBtn) {
   display: none !important;
+}
+
+/* OBS cream-mode Tools drawer button color */
+html.obs body:not(.dark) #obsToolsMenuBtn,
+html.obs body:not(.dark) #obsToolBar button {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+
+html.obs body:not(.dark) #obsToolsMenuBtn:hover,
+html.obs body:not(.dark) #obsToolBar button:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 </style>
 
