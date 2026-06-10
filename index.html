@@ -6358,21 +6358,21 @@ body.dark .info-icon {
   box-shadow: none !important;
 }
 
-html.obs #obsToolBar.drag-positioned {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  right: auto !important;
-  bottom: auto !important;
-}
-
-html.obs #obsToolBar.drag-positioned.open-up {
-  flex-direction: column !important;
-  transform: translateY(calc(-100% + var(--obs-tools-button-height, 46px))) !important;
-}
-
+html.obs #obsToolBar.drag-positioned.open-up,
 html.obs #obsToolBar.drag-positioned.open-down {
-  flex-direction: column-reverse !important;
   transform: none !important;
+}
+
+html.obs #obsToolBar {
+  transform: none !important;
+}
+
+  html.obs #obsToolBar.open-up {
+  flex-direction: column-reverse !important;
+}
+
+html.obs #obsToolBar.open-down {
+  flex-direction: column !important;
 }
   /* Universal multi-open resource panels */
 
