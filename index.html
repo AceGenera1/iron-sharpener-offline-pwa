@@ -6674,20 +6674,17 @@ if (panelId === "obsToolBar") {
   }
 });
 
-document.addEventListener("mouseup", function (event) {
+document.addEventListener("mouseup", function () {
   if (dragging && panelId === "obsToolBar" && window.obsToolsWasDragged) {
-    event.preventDefault();
-    event.stopPropagation();
-
     updateObsToolBarDirection();
-
-    setTimeout(() => {
-      window.obsToolsWasDragged = false;
-    }, 80);
   }
 
   dragging = false;
 });
+
+}
+  
+window.resetIronSharpenerFloatingPanels = function () {
 
   window.resetIronSharpenerFloatingPanels = function () {
     ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
