@@ -4129,6 +4129,42 @@ async function loadPassage() {
       loadPassage();
     }
 
+    function closeAllFloatingPanelsForModeChange() {
+  [
+    "teacherToolsPanel",
+    "studyResourcesPanel",
+    "obsCrossRefsPanel",
+    "obsNavigatorPanel",
+    "teachingMethodPanel",
+    "ironPromptPanel"
+  ].forEach(id => {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+
+    panel.classList.remove("open", "drag-positioned", "open-up", "open-down");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+  });
+
+  document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+    panel.remove();
+  });
+
+  const obsToolBar = document.getElementById("obsToolBar");
+  if (obsToolBar) {
+    obsToolBar.classList.add("collapsed");
+    obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
+  }
+
+  const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
+  if (obsToolsBtn) {
+    obsToolsBtn.textContent = "⚔ Tools";
+  }
+
+  activeResourcePanel = "";
+}
 
   function setObsMode(on) {
   closeAllFloatingPanelsForModeChange();
@@ -6524,30 +6560,44 @@ html.obs body:not(.dark) #obsToolBar button:hover {
     <h3>I.R.O.N. Study Prompts</h3>
     <button id="closeIronPromptPanel" class="teacher-pop-close secondary" type="button">Close</button>
   </div>
-  <p><strong>I — Inspect the Scripture</strong><br>Read carefully and understand the passage in context.</p>
-  <p><strong>R — Reflect Prayerfully</strong><br>Slow down, meditate on the Word, and listen humbly before the Lord.</p>
-  <p><strong>O — Observe God’s Truth</strong><br>What does this reveal about God, Christ, sin, faith, obedience, or grace?</p>
-  <p><strong>N — Next Steps in Obedience</strong><br>How is the Holy Spirit leading you to respond through faith, repentance, action, encouragement, or obedience?</p>
-  <div class="iron-mini-prayer">Ask the Lord for wisdom, discernment, and a willing heart to obey His Word.</div>
+
+  <p><strong>I — Identify the Truth</strong><br>
+  What does this passage clearly teach about God, Christ, salvation, faith, obedience, or Christian living?</p>
+
+  <p><strong>R — Reflect on the Meaning</strong><br>
+  Why would the original audience have needed this message? What is the Holy Spirit emphasizing here?</p>
+
+  <p><strong>O — Observe the Details</strong><br>
+  Are there repeated words, commands, warnings, promises, contrasts, examples, or connections to other Scripture?</p>
+
+  <p><strong>N — Next Faithful Step</strong><br>
+  Based on this passage, what should I believe, repent of, obey, trust, remember, or do today?</p>
+
+  <div class="iron-mini-prayer">
+    Lord Jesus, help me rightly understand Your Word and faithfully respond to what You are showing me.
+  </div>
 
   <div class="iron-panel-divider"></div>
 
   <h3>Prayerful Response</h3>
   <p><strong>Ask the Lord:</strong></p>
-  <p>• What are You teaching me through this passage?<br>
-  • Is there something I need to repent of, surrender, believe, obey, or share?<br>
-  • How should this change the way I live today?</p>
-  <div class="iron-mini-prayer">Lord Jesus, help me not only hear Your Word, but walk in obedience to it.</div>
+  <p>• What truth do You want me to see clearly?<br>
+  • What do I need to believe, surrender, repent of, obey, or share?<br>
+  • How should this passage shape my heart, my words, and my steps today?</p>
+
+  <div class="iron-mini-prayer">
+    Holy Spirit, give me wisdom, humility, discernment, and obedience through the Word of God.
+  </div>
 
   <div class="iron-panel-divider"></div>
 
   <h3>Study Reminder</h3>
   <ul class="iron-study-list">
-    <li>Read slowly and carefully.</li>
-    <li>Stay rooted in the context of Scripture.</li>
+    <li>Read the passage slowly and prayerfully.</li>
+    <li>Stay rooted in the surrounding context.</li>
     <li>Let Scripture interpret Scripture.</li>
-    <li>Pray for wisdom, discernment, and humility.</li>
-    <li>Listen for the guidance of the Holy Spirit through God’s Word.</li>
+    <li>Look for Christ, the Gospel, commands, warnings, promises, and application.</li>
+    <li>Move from understanding to faithful obedience.</li>
   </ul>
 </div>
 
