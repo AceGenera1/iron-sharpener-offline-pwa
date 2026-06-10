@@ -4157,6 +4157,8 @@ if (obsToolsBtn) {
   obsToolsBtn.textContent = "⚔ Tools";
 }
 
+}
+
 function setObsMode(on) {
 document.documentElement.classList.toggle("obs", on);
 closeAllFloatingPanelsForModeChange();
@@ -5641,11 +5643,8 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
 }
 
 
-  function openDoctrineTopicInNewPanel(doctrine) {
-...
-}
-
-init();
+function openDoctrineTopicInNewPanel(doctrine) {
+  if (!doctrine) return;
 
   const doctrineHtml = `
     ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
@@ -5681,7 +5680,8 @@ init();
     "Biblical Doctrine"
   );
 }
-    init();
+
+init();
   </script>
 
 
