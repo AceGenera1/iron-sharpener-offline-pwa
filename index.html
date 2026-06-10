@@ -4146,15 +4146,15 @@ async function loadPassage() {
     panel.remove();
   });
 
-  const obsToolBar = document.getElementById("obsToolBar");
-  if (obsToolBar) {
-    obsToolBar.classList.add("collapsed");
-    obsToolBar.classList.remove("drag-positioned", "open-up", "open-down");
-    obsToolBar.style.removeProperty("--drag-left");
-    obsToolBar.style.removeProperty("--drag-top");
-  }
+const obsToolBar = document.getElementById("obsToolBar");
+if (obsToolBar) {
+  obsToolBar.classList.add("collapsed");
+  obsToolBar.classList.remove("drawer-open", "drag-positioned", "open-up", "open-down");
+}
 
-  activeResourcePanel = "";
+const obsToolsBtn = document.getElementById("obsToolsMenuBtn");
+if (obsToolsBtn) {
+  obsToolsBtn.textContent = "⚔ Tools";
 }
 
 
@@ -4921,18 +4921,21 @@ if (crossRefs) {
 
 if ($("obsToolsMenuBtn")) {
   $("obsToolsMenuBtn").addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const bar = document.getElementById("obsToolBar");
     if (!bar) return;
 
-    if (window.obsToolsWasDragged) {
-      event.preventDefault();
-      event.stopPropagation();
-      window.obsToolsWasDragged = false;
-      return;
-    }
+    bar.classList.toggle("drawer-open");
 
-    updateObsToolBarDirection();
-    bar.classList.toggle("collapsed");
+    if (bar.classList.contains("drawer-open")) {
+      bar.classList.remove("collapsed");
+      $("obsToolsMenuBtn").textContent = "✕ Close Tools";
+    } else {
+      bar.classList.add("collapsed");
+      $("obsToolsMenuBtn").textContent = "⚔ Tools";
+    }
   });
 }
    
@@ -6320,39 +6323,47 @@ body.dark .info-icon {
 
 html.obs #obsToolBar {
   position: fixed !important;
-  left: 18px;
-  bottom: 18px;
-  top: auto;
-  right: auto;
-  transform: none !important;
+  left: 16px !important;
+  bottom: 16px !important;
+  top: auto !important;
+  right: auto !important;
+  z-index: 9999 !important;
   display: flex !important;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 9999;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 220px !important;
+  padding: 10px !important;
+  border-radius: 16px !important;
+  background: rgba(20, 35, 32, .96) !important;
+  border: 2px solid var(--gold) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
+  transform: translateX(-260px) !important;
+  transition: transform .22s ease !important;
 }
 
-html.obs #obsToolBar.drag-positioned {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  bottom: auto !important;
-  right: auto !important;
-  transform: none !important;
+html.obs #obsToolBar.drawer-open {
+  transform: translateX(0) !important;
 }
 
 html.obs #obsToolBar button {
-  width: 170px;
+  width: 100% !important;
+}
+
+html.obs #obsToolsMenuBtn {
+  position: fixed !important;
+  left: 16px !important;
+  bottom: 16px !important;
+  width: auto !important;
+  z-index: 10000 !important;
+}
+
+html.obs #obsToolBar.drawer-open #obsToolsMenuBtn {
+  position: static !important;
+  width: 100% !important;
 }
 
 html.obs #obsToolBar.collapsed button:not(#obsToolsMenuBtn) {
   display: none !important;
-}
-
-html.obs #obsToolBar.open-up {
-  flex-direction: column-reverse !important;
-}
-
-html.obs #obsToolBar.open-down {
-  flex-direction: column !important;
 }
   /* Universal multi-open resource panels */
 
@@ -6663,7 +6674,7 @@ document.addEventListener("mouseup", function () {
 }
   
 window.resetIronSharpenerFloatingPanels = function () {
-  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel", "obsToolBar"].forEach(id => {
+  ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"].forEach(id => {
     const panel = document.getElementById(id);
     if (!panel) return;
     panel.classList.remove("drag-positioned", "open-up", "open-down");
