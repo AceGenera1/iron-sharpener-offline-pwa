@@ -6579,6 +6579,32 @@ html.obs body:not(.dark) #obsToolBar button:hover {
   font-weight: 500 !important;
   text-shadow: none !important;
 }
+
+  /* Dark/green mode only: soften I.R.O.N. Study Prompt readability */
+body.dark #ironPromptPanel,
+body.dark #ironPromptPanel.open,
+html.obs body.dark #ironPromptPanel.open {
+  text-shadow: none !important;
+}
+
+body.dark #ironPromptPanel p,
+body.dark #ironPromptPanel li,
+body.dark #ironPromptPanel strong,
+body.dark #ironPromptPanel .iron-mini-prayer {
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+}
+
+body.dark #ironPromptPanel h3 {
+  font-weight: 700 !important;
+  text-shadow: none !important;
+}
+
+body.dark #ironPromptPanel .iron-mini-prayer {
+  font-style: italic !important;
+  line-height: 1.45 !important;
+}
 </style>
 
 
