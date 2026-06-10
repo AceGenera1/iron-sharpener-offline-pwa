@@ -6647,7 +6647,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       startX = event.clientX;
       startY = event.clientY;
-      startLeft = rect.left;
+      startLeft = panelId === "obsToolBar" ? handleRect.left : rect.left;
       startTop = panelId === "obsToolBar" ? handleRect.top : rect.top;
 
       if (panelId === "obsToolBar") {
