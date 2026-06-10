@@ -4921,8 +4921,9 @@ if (crossRefs) {
 
 if ($("obsToolsMenuBtn")) {
   $("obsToolsMenuBtn").addEventListener("click", (event) => {
-    const bar = document.querySelector(".obs-tool-bar");
-    if (!bar) return;
+    const bar = document.getElementById("obsToolBar");
+    const btn = document.getElementById("obsToolsMenuBtn");
+    if (!bar || !btn) return;
 
     if (window.obsToolsWasDragged) {
       event.preventDefault();
@@ -4931,31 +4932,39 @@ if ($("obsToolsMenuBtn")) {
       return;
     }
 
-    updateObsToolBarDirection();
-    bar.classList.toggle("collapsed");
-  });
-}
-   
- document.addEventListener("keydown", (event) => {   
-    if (event.key === "Escape") {
-      const obsToolBar = document.querySelector(".obs-tool-bar");
-      if (obsToolBar) obsToolBar.classList.add("collapsed");
+    const isOpening = bar.classList.contains("collapsed");
+    const btnRect = btn.getBoundingClientRect();
 
-      closeTeacherTools();
-      setObsMode(false);
+    if (isOpening) {
+      const shouldOpenUp = btnRect.top > window.innerHeight * 0.45;
+
+      bar.classList.remove("collapsed");
+      bar.classList.add("drag-positioned");
+
+      requestAnimationFrame(() => {
+        const fullHeight = bar.getBoundingClientRect().height;
+        const btnHeight = btn.getBoundingClientRect().height;
+
+        bar.style.setProperty("--drag-left", btnRect.left + "px");
+
+        if (shouldOpenUp) {
+          bar.style.setProperty("--drag-top", (btnRect.top - fullHeight + btnHeight) + "px");
+          bar.classList.add("open-up");
+          bar.classList.remove("open-down");
+        } else {
+          bar.style.setProperty("--drag-top", btnRect.top + "px");
+          bar.classList.add("open-down");
+          bar.classList.remove("open-up");
+        }
+      });
+    } else {
+      const btnNow = btn.getBoundingClientRect();
+
+      bar.classList.add("collapsed");
+      bar.style.setProperty("--drag-left", btnNow.left + "px");
+      bar.style.setProperty("--drag-top", btnNow.top + "px");
     }
   });
-
-  restoreThemeMode();
-  loadCurrentNotes();
-  initTooltips();
-  initTeacherTools();
-  setTool("highlight-gold");
-  setupObsNavigator();
-  syncObsNavigator();
-  loadPassage();
-
-  window.addEventListener("beforeunload", saveCurrentNotes);
 }
       
 function closeStudyResourcesPanelSoft() {
