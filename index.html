@@ -3706,6 +3706,32 @@ function showSmallTeachingNoteBox() {
         return;
       }
 
+function openDoctrineScriptureReference(ref) {
+  if (!ref) return;
+
+  previousPassageState = {
+    book: bookSel.value,
+    chapter: chapSel.value,
+    start: startSel.value,
+    end: endSel.value,
+    range: rangeSel.value
+  };
+
+  goToScriptureReference(ref);
+
+  if ($("obsBackToPreviousPassage")) {
+    $("obsBackToPreviousPassage").style.display = "none";
+  }
+
+  if ($("backToPreviousPassage")) {
+    $("backToPreviousPassage").style.display = "inline-flex";
+  }
+
+  if ($("navesBackToPreviousPassage")) {
+    $("navesBackToPreviousPassage").style.display = "inline-flex";
+  }
+}
+
       const size = parseInt(rangeSel.value, 10) || 5;
       endSel.value = Math.min(max, startVerse + size - 1);
     }
