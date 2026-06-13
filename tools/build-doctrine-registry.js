@@ -23,13 +23,110 @@ function makeDoctrineTitle(value) {
     .trim();
 }
 
-function hasScriptureLinks(doctrine) {
-  if (!Array.isArray(doctrine.keyScriptures)) return true;
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
 
-  return doctrine.keyScriptures.every(ref => {
-    if (typeof ref === "string") return true;
-    return ref.reference && (ref.url || ref.link);
+function isNonEmptyArray(value) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+function validateKeyScriptures(doctrine) {
+  const errors = [];
+
+  if (!Array.isArray(doctrine.keyScriptures) || doctrine.keyScriptures.length === 0) {
+    errors.push("Missing or empty keyScriptures array.");
+    return errors;
+  }
+
+  doctrine.keyScriptures.forEach((ref, index) => {
+    if (typeof ref === "string") {
+      if (!ref.trim()) {
+        errors.push(`keyScriptures[${index}] is empty.`);
+      }
+      return;
+    }
+
+    if (typeof ref !== "object" || ref === null) {
+      errors.push(`keyScriptures[${index}] must be a string or object.`);
+      return;
+    }
+
+    if (!isNonEmptyString(ref.reference)) {
+      errors.push(`keyScriptures[${index}] missing reference.`);
+    }
   });
+
+  return errors;
+}
+
+function validateStudySections(doctrine) {
+  const errors = [];
+  const sections = doctrine.studySections || doctrine.sections;
+
+  if (!Array.isArray(sections) || sections.length === 0) {
+    errors.push("Missing or empty studySections/sections array.");
+    return errors;
+  }
+
+  sections.forEach((section, index) => {
+    if (!section || typeof section !== "object") {
+      errors.push(`studySections[${index}] must be an object.`);
+      return;
+    }
+
+    if (!isNonEmptyString(section.heading)) {
+      errors.push(`studySections[${index}] missing heading.`);
+    }
+
+    if (!isNonEmptyString(section.content)) {
+      errors.push(`studySections[${index}] missing content.`);
+    }
+  });
+
+  return errors;
+}
+
+function validateDoctrine(doctrine) {
+  const errors = [];
+  const warnings = [];
+
+  if (!isNonEmptyString(doctrine.title)) {
+    errors.push("Missing title.");
+  }
+
+  if (!isNonEmptyString(doctrine.definition)) {
+    errors.push("Missing definition.");
+  }
+
+  if (!isNonEmptyString(doctrine.summary)) {
+    errors.push("Missing summary.");
+  }
+
+  if (!isNonEmptyString(doctrine.christFocus)) {
+    errors.push("Missing christFocus.");
+  }
+
+  errors.push(...validateKeyScriptures(doctrine));
+  errors.push(...validateStudySections(doctrine));
+
+  if (!Array.isArray(doctrine.sources)) {
+    errors.push("Missing sources array.");
+  }
+
+  if (!Array.isArray(doctrine.relatedTopics)) {
+    errors.push("Missing relatedTopics array.");
+  }
+
+  if (Array.isArray(doctrine.sources) && doctrine.sources.length === 0) {
+    warnings.push("sources array is empty.");
+  }
+
+  if (Array.isArray(doctrine.relatedTopics) && doctrine.relatedTopics.length === 0) {
+    warnings.push("relatedTopics array is empty.");
+  }
+
+  return { errors, warnings };
 }
 
 const files = fs.readdirSync(doctrineDir)
@@ -68,21 +165,26 @@ for (const file of files) {
       continue;
     }
 
-    seenIds.add(id);
+    const validation = validateDoctrine(doctrine);
 
-    if (!doctrine.title) {
-      report.warnings.push({
+    if (validation.errors.length) {
+      report.rejected.push({
         file,
         id,
-        warning: "Missing title. Generated title from filename."
+        title,
+        errors: validation.errors
       });
+      continue;
     }
 
-    if (!hasScriptureLinks(doctrine)) {
+    seenIds.add(id);
+
+    if (validation.warnings.length) {
       report.warnings.push({
         file,
         id,
-        warning: "One or more keyScriptures entries are missing url/link."
+        title,
+        warnings: validation.warnings
       });
     }
 
@@ -107,8 +209,13 @@ registry.sort((a, b) => a.title.localeCompare(b.title));
 fs.writeFileSync(outputFile, JSON.stringify(registry, null, 2));
 fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 
-console.log("Doctrine registry built.");
+console.log("Doctrine registry built with framework validation.");
 console.log(`Accepted: ${report.accepted.length}`);
 console.log(`Warnings: ${report.warnings.length}`);
 console.log(`Rejected: ${report.rejected.length}`);
 console.log(`Duplicates: ${report.duplicates.length}`);
+
+if (report.rejected.length || report.duplicates.length) {
+  console.error("Doctrine validation failed. See doctrine-registry-report.json.");
+  process.exit(1);
+}
