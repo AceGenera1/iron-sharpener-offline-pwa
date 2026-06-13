@@ -4580,25 +4580,26 @@ async function openDoctrineResource() {
   </button>
 `).join("");
 
-  results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
-  btn.onclick = async () => {
-    const doctrine = await loadDoctrineTopic(btn.dataset.file.replace(/\.json$/i, ""));
+      results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
+      btn.onclick = async () => {
+        const doctrine = await loadDoctrineTopic(btn.dataset.file.replace(/\.json$/i, ""));
 
-    if (!doctrine) {
-      alert(`Doctrine topic could not be loaded: ${btn.textContent.trim()}`);
-      return;
-    }
+        if (!doctrine) {
+          alert(`Doctrine topic could not be loaded: ${btn.textContent.trim()}`);
+          return;
+        }
 
-    openDoctrineTopicInNewPanel(doctrine);
-  };
-});
+        openDoctrineTopicInNewPanel(doctrine);
+      };
+    });
+  }
 
   searchBox.oninput = () => renderDoctrineResults(searchBox.value);
 
   openFloatingResourcePanel(panel);
 }
-
-    function openDoctrineTopicInNewPanel(doctrine) {
+    
+  function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
 
   const sections = doctrine.studySections || doctrine.sections || [];
@@ -5765,44 +5766,6 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
   }
 }
 
-
-function openDoctrineTopicInNewPanel(doctrine) {
-  if (!doctrine) return;
-
-  const doctrineHtml = `
-    ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
-    ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
-    ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
-
-    ${(doctrine.keyScriptures || []).length ? `
-      <h4>Key Scriptures</h4>
-      <ul>${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}</ul>
-    ` : ""}
-
-    ${(doctrine.studySections || doctrine.sections || []).map(section => `
-      <details open style="margin-bottom:12px;">
-        <summary>${section.heading || "Section"}</summary>
-        <div>${section.content || ""}</div>
-      </details>
-    `).join("")}
-
-    ${(doctrine.sources || []).length ? `
-      <h4>Sources</h4>
-      <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
-    ` : ""}
-
-    ${(doctrine.relatedTopics || []).length ? `
-      <h4>Related Topics</h4>
-      <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
-    ` : ""}
-  `;
-
-  openResourceInstancePanel(
-    doctrine.title || "Biblical Doctrine",
-    doctrineHtml,
-    "Biblical Doctrine"
-  );
-}
     init();
   </script>
 
