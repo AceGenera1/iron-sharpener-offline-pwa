@@ -4656,51 +4656,7 @@ async function openDoctrineResource() {
   openFloatingResourcePanel(panel);
 }
 
-  function renderDoctrineResults(query) {
-    const q = (query || "").toLowerCase().trim();
 
-    if (!q) {
-      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or choose a category.</p>`;
-      return;
-    }
-
-    const matches = registry
-      .filter(item => {
-        const titleMatch = String(item.title || "").toLowerCase().includes(q);
-        const idMatch = String(item.id || "").toLowerCase().includes(q);
-        const categoryMatch = String(item.category || "").toLowerCase().includes(q);
-
-        const tagMatch =
-          Array.isArray(item.tags) &&
-          item.tags.some(tag => String(tag).toLowerCase().includes(q));
-
-        const searchTermMatch =
-          Array.isArray(item.searchTerms) &&
-          item.searchTerms.some(term => String(term).toLowerCase().includes(q));
-
-        return titleMatch || idMatch || categoryMatch || tagMatch || searchTermMatch;
-      })
-      .slice(0, 30);
-
-    renderDoctrineButtons(matches);
-  }
-
-  document.querySelectorAll(".doctrine-category-btn").forEach(btn => {
-    btn.onclick = () => {
-      const category = btn.dataset.category;
-
-      const items = registry
-        .filter(item => (item.category || "Uncategorized") === category)
-        .sort((a, b) => a.title.localeCompare(b.title));
-
-      renderDoctrineButtons(items);
-    };
-  });
-
-  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
-
-  openFloatingResourcePanel(panel);
-}
 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
