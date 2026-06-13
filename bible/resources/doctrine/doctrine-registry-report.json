@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-13T09:14:43.134Z",
+  "generatedAt": "2026-06-13T09:25:21.794Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 283,
-    "accepted": 267,
-    "warnings": 267,
-    "rejected": 16,
+    "scanned": 286,
+    "accepted": 269,
+    "warnings": 259,
+    "rejected": 17,
     "duplicates": 0,
     "aliasesLoaded": 189,
     "resolvedAliases": 181,
@@ -962,6 +962,12 @@
       "category": "Christian Living"
     },
     {
+      "file": "obedience-to-the-word.json",
+      "id": "obedience-to-the-word",
+      "title": "Obedience to the Word",
+      "category": "Scripture"
+    },
+    {
       "file": "obedience.json",
       "id": "obedience",
       "title": "Obedience",
@@ -1224,6 +1230,12 @@
       "id": "satan",
       "title": "Satan",
       "category": "Spiritual Warfare"
+    },
+    {
+      "file": "scripture-and-discipleship.json",
+      "id": "scripture-and-discipleship",
+      "title": "Scripture and Discipleship",
+      "category": "Scripture"
     },
     {
       "file": "scripture-and-tradition.json",
@@ -1719,14 +1731,6 @@
       ]
     },
     {
-      "file": "authority-of-scripture.json",
-      "id": "authority-of-scripture",
-      "title": "Authority of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
-      ]
-    },
-    {
       "file": "baptism-of-the-holy-spirit.json",
       "id": "baptism-of-the-holy-spirit",
       "title": "Baptism of the Holy Spirit",
@@ -1800,14 +1804,6 @@
       ]
     },
     {
-      "file": "canon-of-scripture.json",
-      "id": "canon-of-scripture",
-      "title": "Canon of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
-      ]
-    },
-    {
       "file": "caring-for-the-vulnerable.json",
       "id": "caring-for-the-vulnerable",
       "title": "Caring for the Vulnerable",
@@ -1854,14 +1850,6 @@
       "warnings": [
         "Missing category. Builder will infer category: \"Church\".",
         "relatedTopics array is empty."
-      ]
-    },
-    {
-      "file": "clarity-of-scripture.json",
-      "id": "clarity-of-scripture",
-      "title": "Clarity of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
       ]
     },
     {
@@ -2605,14 +2593,6 @@
       ]
     },
     {
-      "file": "illumination-of-scripture.json",
-      "id": "illumination-of-scripture",
-      "title": "Illumination of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
-      ]
-    },
-    {
       "file": "image-of-god.json",
       "id": "image-of-god",
       "title": "Image Of God",
@@ -2649,14 +2629,6 @@
       "file": "inerrancy-of-scripture.json",
       "id": "inerrancy-of-scripture",
       "title": "Inerrancy of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
-      ]
-    },
-    {
-      "file": "inspiration-of-scripture.json",
-      "id": "inspiration-of-scripture",
-      "title": "Inspiration of Scripture",
       "warnings": [
         "Missing category. Builder will infer category: \"Scripture\"."
       ]
@@ -2812,14 +2784,6 @@
       "title": "Christ the Mediator",
       "warnings": [
         "Missing category. Builder will infer category: \"Christ\"."
-      ]
-    },
-    {
-      "file": "meditating-on-scripture.json",
-      "id": "meditating-on-scripture",
-      "title": "Meditating on Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
       ]
     },
     {
@@ -3467,14 +3431,6 @@
       ]
     },
     {
-      "file": "studying-scripture.json",
-      "id": "studying-scripture",
-      "title": "Studying Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
-      ]
-    },
-    {
       "file": "suffering-and-gods-purpose.json",
       "id": "suffering-and-gods-purpose",
       "title": "Suffering and God's Purpose",
@@ -3489,14 +3445,6 @@
       "warnings": [
         "Missing category. Builder will infer category: \"Restoration & Suffering\".",
         "relatedTopics array is empty."
-      ]
-    },
-    {
-      "file": "sufficiency-of-scripture.json",
-      "id": "sufficiency-of-scripture",
-      "title": "Sufficiency of Scripture",
-      "warnings": [
-        "Missing category. Builder will infer category: \"Scripture\"."
       ]
     },
     {
@@ -3806,6 +3754,21 @@
   ],
   "rejected": [
     {
+      "file": "_batch_manifest.json",
+      "id": "batch-manifest",
+      "title": "_batch_manifest",
+      "errors": [
+        "Missing title.",
+        "Missing definition.",
+        "Missing summary.",
+        "Missing christFocus.",
+        "Missing or empty keyScriptures array.",
+        "Missing or empty studySections/sections array.",
+        "Missing sources array.",
+        "Missing relatedTopics array."
+      ]
+    },
+    {
       "file": "calling.json",
       "id": "calling",
       "title": "Calling",
@@ -4077,8 +4040,8 @@
       "alias": "Application",
       "aliasId": "application",
       "target": "obedience",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "baptism",
+      "resolvedToTitle": "Baptism"
     },
     {
       "alias": "Assurance",
@@ -4147,8 +4110,8 @@
       "alias": "Biblical Meditation",
       "aliasId": "biblical-meditation",
       "target": "meditating-on-scripture",
-      "resolvedToId": "meditating-on-scripture",
-      "resolvedToTitle": "Meditating on Scripture"
+      "resolvedToId": "illumination-of-scripture",
+      "resolvedToTitle": "Illumination of Scripture"
     },
     {
       "alias": "Biblical Teaching",
@@ -4693,8 +4656,8 @@
       "alias": "Good Works",
       "aliasId": "good-works",
       "target": "obedience",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "baptism",
+      "resolvedToTitle": "Baptism"
     },
     {
       "alias": "Gospel",
@@ -4875,15 +4838,15 @@
       "alias": "Meditating on Scripture",
       "aliasId": "meditating-on-scripture",
       "target": "meditating-on-scripture",
-      "resolvedToId": "meditating-on-scripture",
-      "resolvedToTitle": "Meditating on Scripture"
+      "resolvedToId": "illumination-of-scripture",
+      "resolvedToTitle": "Illumination of Scripture"
     },
     {
       "alias": "Meditation on Scripture",
       "aliasId": "meditation-on-scripture",
       "target": "meditating-on-scripture",
-      "resolvedToId": "meditating-on-scripture",
-      "resolvedToTitle": "Meditating on Scripture"
+      "resolvedToId": "illumination-of-scripture",
+      "resolvedToTitle": "Illumination of Scripture"
     },
     {
       "alias": "Mercy",
@@ -4917,8 +4880,8 @@
       "alias": "Obedience",
       "aliasId": "obedience",
       "target": "obedience",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "baptism",
+      "resolvedToTitle": "Baptism"
     },
     {
       "alias": "Prayer",
@@ -5370,7 +5333,7 @@
     "Restoration & Suffering": 9,
     "God": 49,
     "Christ": 28,
-    "Scripture": 14,
+    "Scripture": 16,
     "Holy Spirit": 28,
     "Church": 8,
     "Spiritual Warfare": 4,

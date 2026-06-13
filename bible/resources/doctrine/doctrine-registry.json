@@ -715,7 +715,12 @@
       "Great Commission",
       "Union with Christ",
       "The Church",
-      "Obedience"
+      "Obedience",
+      "Application",
+      "application",
+      "Good Works",
+      "good-works",
+      "obedience"
     ]
   },
   {
@@ -4588,28 +4593,35 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Authority",
+      "Bible",
+      "Word of God",
+      "Doctrine"
+    ],
     "searchTerms": [
       "authority-of-scripture",
       "Authority of Scripture",
       "Scripture",
-      "Inspiration of Scripture",
-      "Truthfulness of Scripture",
-      "Sufficiency of Scripture",
-      "Studying Scripture",
-      "Obedience",
-      "Discernment",
-      "Application",
-      "application",
+      "Authority",
       "Bible",
+      "Word of God",
+      "Doctrine",
+      "Inspiration of Scripture",
+      "Sufficiency of Scripture",
+      "Clarity of Scripture",
+      "Canon of Scripture",
+      "Obedience to the Word",
+      "Studying Scripture",
+      "Authority of the Bible",
+      "Biblical authority",
+      "Scripture authority",
       "bible",
       "Bible Reading",
       "bible-reading",
       "Bible Study",
       "bible-study",
-      "Good Works",
-      "good-works",
-      "obedience",
       "Reading Scripture",
       "reading-scripture",
       "studying-scripture",
@@ -4623,7 +4635,6 @@
       "truth",
       "Word",
       "word",
-      "Word of God",
       "word-of-god"
     ]
   },
@@ -4634,15 +4645,30 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Canon",
+      "Bible",
+      "Doctrine",
+      "Word of God"
+    ],
     "searchTerms": [
       "canon-of-scripture",
       "Canon of Scripture",
       "Scripture",
-      "Authority of Scripture",
+      "Canon",
+      "Bible",
+      "Doctrine",
+      "Word of God",
       "Inspiration of Scripture",
-      "Preservation of Scripture",
-      "Scripture and Tradition"
+      "Authority of Scripture",
+      "Sufficiency of Scripture",
+      "Studying Scripture",
+      "Scripture and Discipleship",
+      "Biblical canon",
+      "Books of the Bible",
+      "Bible canon",
+      "Canonical Scripture"
     ]
   },
   {
@@ -4652,16 +4678,30 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Clarity",
+      "Understanding",
+      "Bible",
+      "Teaching"
+    ],
     "searchTerms": [
       "clarity-of-scripture",
       "Clarity of Scripture",
       "Scripture",
+      "Clarity",
+      "Understanding",
+      "Bible",
+      "Teaching",
       "Authority of Scripture",
+      "Sufficiency of Scripture",
+      "Illumination of Scripture",
       "Studying Scripture",
-      "Holy Spirit",
-      "Wisdom",
-      "Discernment"
+      "Scripture and Discipleship",
+      "Perspicuity of Scripture",
+      "Scripture is clear",
+      "Understand the Bible",
+      "Bible clarity"
     ]
   },
   {
@@ -4671,15 +4711,35 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Illumination",
+      "Holy Spirit",
+      "Understanding",
+      "Prayer"
+    ],
     "searchTerms": [
       "illumination-of-scripture",
       "Illumination of Scripture",
       "Scripture",
+      "Illumination",
       "Holy Spirit",
+      "Understanding",
+      "Prayer",
+      "Meditating on Scripture",
+      "Studying Scripture",
       "Clarity of Scripture",
-      "Interpretation of Scripture",
-      "Sanctification"
+      "Inspiration of Scripture",
+      "Obedience to the Word",
+      "Holy Spirit illumination",
+      "Understand Scripture",
+      "Spirit helps understand",
+      "Open my eyes",
+      "Biblical Meditation",
+      "biblical-meditation",
+      "meditating-on-scripture",
+      "Meditation on Scripture",
+      "meditation-on-scripture"
     ]
   },
   {
@@ -4707,17 +4767,30 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Inspiration",
+      "Bible",
+      "Word of God",
+      "Holy Spirit"
+    ],
     "searchTerms": [
       "inspiration-of-scripture",
       "Inspiration of Scripture",
       "Scripture",
-      "Authority of Scripture",
-      "Truthfulness of Scripture",
-      "Preservation of Scripture",
+      "Inspiration",
+      "Bible",
+      "Word of God",
       "Holy Spirit",
+      "Authority of Scripture",
+      "Canon of Scripture",
+      "Sufficiency of Scripture",
+      "Illumination of Scripture",
       "Studying Scripture",
-      "Revelation of God"
+      "God-breathed Scripture",
+      "Inspired Scripture",
+      "Bible inspiration",
+      "God breathed"
     ]
   },
   {
@@ -4745,20 +4818,63 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Meditation",
+      "Prayer",
+      "Word of God",
+      "Spiritual growth"
+    ],
     "searchTerms": [
       "meditating-on-scripture",
       "Meditating on Scripture",
       "Scripture",
-      "Studying Scripture",
+      "Meditation",
       "Prayer",
-      "Wisdom",
-      "Obedience",
-      "Walking in the Spirit",
+      "Word of God",
+      "Spiritual growth",
+      "Studying Scripture",
+      "Illumination of Scripture",
+      "Obedience to the Word",
+      "Sufficiency of Scripture",
+      "Scripture and Discipleship",
       "Biblical Meditation",
-      "biblical-meditation",
       "Meditation on Scripture",
-      "meditation-on-scripture"
+      "Scripture meditation",
+      "Meditate on the Word"
+    ]
+  },
+  {
+    "id": "obedience-to-the-word",
+    "title": "Obedience to the Word",
+    "file": "obedience-to-the-word.json",
+    "frameworkVersion": "1.0",
+    "validated": true,
+    "category": "Scripture",
+    "tags": [
+      "Scripture",
+      "Obedience",
+      "Discipleship",
+      "Holiness",
+      "Application"
+    ],
+    "searchTerms": [
+      "obedience-to-the-word",
+      "Obedience to the Word",
+      "Scripture",
+      "Obedience",
+      "Discipleship",
+      "Holiness",
+      "Application",
+      "Studying Scripture",
+      "Meditating on Scripture",
+      "Authority of Scripture",
+      "Scripture and Discipleship",
+      "Sufficiency of Scripture",
+      "Obey Scripture",
+      "Doers of the Word",
+      "Apply Scripture",
+      "Faithful obedience"
     ]
   },
   {
@@ -4778,6 +4894,40 @@
       "Authority of Scripture",
       "Bible Translation",
       "Studying Scripture"
+    ]
+  },
+  {
+    "id": "scripture-and-discipleship",
+    "title": "Scripture and Discipleship",
+    "file": "scripture-and-discipleship.json",
+    "frameworkVersion": "1.0",
+    "validated": true,
+    "category": "Scripture",
+    "tags": [
+      "Scripture",
+      "Discipleship",
+      "Teaching",
+      "Christian living",
+      "Training"
+    ],
+    "searchTerms": [
+      "scripture-and-discipleship",
+      "Scripture and Discipleship",
+      "Scripture",
+      "Discipleship",
+      "Teaching",
+      "Christian living",
+      "Training",
+      "Studying Scripture",
+      "Meditating on Scripture",
+      "Obedience to the Word",
+      "Sufficiency of Scripture",
+      "Clarity of Scripture",
+      "Authority of Scripture",
+      "Bible discipleship",
+      "Word and discipleship",
+      "Teaching Scripture",
+      "Making disciples"
     ]
   },
   {
@@ -4805,16 +4955,33 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Bible study",
+      "Word of God",
+      "Discipleship",
+      "Doctrine"
+    ],
     "searchTerms": [
       "studying-scripture",
       "Studying Scripture",
       "Scripture",
-      "Meditating on Scripture",
-      "Wisdom",
+      "Bible study",
+      "Word of God",
       "Discipleship",
+      "Doctrine",
+      "Meditating on Scripture",
       "Authority of Scripture",
-      "Obedience"
+      "Sufficiency of Scripture",
+      "Clarity of Scripture",
+      "Illumination of Scripture",
+      "Obedience to the Word",
+      "Scripture and Discipleship",
+      "Bible Study",
+      "Bible Reading",
+      "The Word of God",
+      "Scripture study",
+      "Study the Bible"
     ]
   },
   {
@@ -4824,17 +4991,31 @@
     "frameworkVersion": "1.0",
     "validated": true,
     "category": "Scripture",
-    "tags": [],
+    "tags": [
+      "Scripture",
+      "Sufficiency",
+      "Bible",
+      "Doctrine",
+      "Word of God"
+    ],
     "searchTerms": [
       "sufficiency-of-scripture",
       "Sufficiency of Scripture",
       "Scripture",
+      "Sufficiency",
+      "Bible",
+      "Doctrine",
+      "Word of God",
       "Authority of Scripture",
       "Inspiration of Scripture",
-      "Truthfulness of Scripture",
-      "Wisdom",
-      "Discipleship",
-      "Studying Scripture"
+      "Clarity of Scripture",
+      "Studying Scripture",
+      "Obedience to the Word",
+      "Scripture and Discipleship",
+      "Scripture is sufficient",
+      "Bible sufficiency",
+      "Sufficient Word",
+      "All that is needed"
     ]
   },
   {
