@@ -145,6 +145,23 @@ const report = {
 
 const seenIds = new Set();
 
+function inferDoctrineCategory(id, title) {
+  const text = `${id} ${title}`.toLowerCase();
+
+  if (text.includes("scripture") || text.includes("word")) return "Scripture";
+  if (text.includes("god") || text.includes("trinity")) return "God";
+  if (text.includes("christ") || text.includes("jesus") || text.includes("gospel")) return "Christ";
+  if (text.includes("holy-spirit") || text.includes("spirit")) return "Holy Spirit";
+  if (text.includes("salvation") || text.includes("grace") || text.includes("redemption") || text.includes("justification")) return "Salvation";
+  if (text.includes("church") || text.includes("elders") || text.includes("deacons")) return "Church";
+  if (text.includes("prayer")) return "Prayer";
+  if (text.includes("satan") || text.includes("devil") || text.includes("demons") || text.includes("warfare")) return "Spiritual Warfare";
+  if (text.includes("heaven") || text.includes("hell") || text.includes("judgment") || text.includes("second-coming") || text.includes("last-things")) return "Last Things";
+  if (text.includes("addiction") || text.includes("recovery") || text.includes("suffering") || text.includes("grief") || text.includes("disability")) return "Restoration & Suffering";
+
+  return "Christian Living";
+}
+
 for (const file of files) {
   const fullPath = path.join(doctrineDir, file);
 
@@ -194,14 +211,14 @@ for (const file of files) {
   file,
   frameworkVersion: doctrine.frameworkVersion || "1.0",
   validated: true,
-  category: doctrine.category || "Uncategorized",
+ category: doctrine.category || inferDoctrineCategory(id, title),
   tags: Array.isArray(doctrine.tags) ? doctrine.tags : [],
   searchTerms: Array.isArray(doctrine.searchTerms)
     ? doctrine.searchTerms
     : [
         id,
         title,
-        doctrine.category || "",
+       doctrine.category || inferDoctrineCategory(id, title),
         ...(Array.isArray(doctrine.tags) ? doctrine.tags : [])
       ].filter(Boolean)
 });
