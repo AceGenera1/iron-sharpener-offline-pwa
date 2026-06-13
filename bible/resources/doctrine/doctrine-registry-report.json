@@ -1,13 +1,16 @@
 {
-  "generatedAt": "2026-06-13T09:06:16.020Z",
+  "generatedAt": "2026-06-13T09:14:43.134Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 284,
+    "scanned": 283,
     "accepted": 267,
     "warnings": 267,
-    "rejected": 17,
+    "rejected": 16,
     "duplicates": 0,
-    "unresolvedRelatedTopics": 106
+    "aliasesLoaded": 189,
+    "resolvedAliases": 181,
+    "unresolvedAliases": 8,
+    "unresolvedRelatedTopics": 0
   },
   "accepted": [
     {
@@ -3887,21 +3890,6 @@
       ]
     },
     {
-      "file": "doctrine-aliases.json",
-      "id": "doctrine-aliases",
-      "title": "Doctrine Aliases",
-      "errors": [
-        "Missing title.",
-        "Missing definition.",
-        "Missing summary.",
-        "Missing christFocus.",
-        "Missing or empty keyScriptures array.",
-        "Missing or empty studySections/sections array.",
-        "Missing sources array.",
-        "Missing relatedTopics array."
-      ]
-    },
-    {
       "file": "effectual-calling.json",
       "id": "effectual-calling",
       "title": "Effectual Calling",
@@ -4043,856 +4031,1340 @@
     }
   ],
   "duplicates": [],
-  "unresolvedRelatedTopics": [
-    {
-      "file": "adoption.json",
-      "id": "adoption",
-      "title": "Adoption",
-      "relatedTopic": "God as Father",
-      "normalizedTopic": "god-as-father",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+  "aliases": {
+    "file": "doctrine-aliases.json",
+    "loaded": true,
+    "count": 189,
+    "warnings": []
+  },
+  "resolvedAliases": [
+    {
+      "alias": "Abba Father",
+      "aliasId": "abba-father",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Adopted by God",
+      "aliasId": "adopted-by-god",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Adoption as Sons",
+      "aliasId": "adoption-as-sons",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Angels",
+      "aliasId": "angels",
+      "target": "angels",
+      "resolvedToId": "angels",
+      "resolvedToTitle": "Angels"
+    },
+    {
+      "alias": "Angelology",
+      "aliasId": "angelology",
+      "target": "angels",
+      "resolvedToId": "angels",
+      "resolvedToTitle": "Angels"
+    },
+    {
+      "alias": "Application",
+      "aliasId": "application",
+      "target": "obedience",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Assurance",
+      "aliasId": "assurance",
+      "target": "assurance",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Assurance of Salvation",
+      "aliasId": "assurance-of-salvation",
+      "target": "assurance",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Authority of Christ",
+      "aliasId": "authority-of-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
+    },
+    {
+      "alias": "Authority of Scripture",
+      "aliasId": "authority-of-scripture",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Baptism",
+      "aliasId": "baptism",
+      "target": "baptism",
+      "resolvedToId": "baptism",
+      "resolvedToTitle": "Baptism"
+    },
+    {
+      "alias": "Believers",
+      "aliasId": "believers",
+      "target": "salvation",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
+    },
+    {
+      "alias": "Bible",
+      "aliasId": "bible",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Bible Reading",
+      "aliasId": "bible-reading",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Bible Study",
+      "aliasId": "bible-study",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Biblical Meditation",
+      "aliasId": "biblical-meditation",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
+    },
+    {
+      "alias": "Biblical Teaching",
+      "aliasId": "biblical-teaching",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
+    },
+    {
+      "alias": "Body",
+      "aliasId": "body",
+      "target": "body-of-christ",
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
+    },
+    {
+      "alias": "Body of Christ",
+      "aliasId": "body-of-christ",
+      "target": "body-of-christ",
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
+    },
+    {
+      "alias": "Bride of Christ",
+      "aliasId": "bride-of-christ",
+      "target": "church",
+      "resolvedToId": "church-discipline",
+      "resolvedToTitle": "Church Discipline"
+    },
+    {
+      "alias": "Brotherly Love",
+      "aliasId": "brotherly-love",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Brotherhood",
+      "aliasId": "brotherhood",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Brotherhood and Sisterhood",
+      "aliasId": "brotherhood-and-sisterhood",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Calling",
+      "aliasId": "calling",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
+    },
+    {
+      "alias": "Charity",
+      "aliasId": "charity",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Children",
+      "aliasId": "children",
+      "target": "children",
+      "resolvedToId": "children",
+      "resolvedToTitle": "Children"
+    },
+    {
+      "alias": "Children of God",
+      "aliasId": "children-of-god",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Christ",
+      "aliasId": "christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
+    },
+    {
+      "alias": "Christ as King",
+      "aliasId": "christ-as-king",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ Crucified",
+      "aliasId": "christ-crucified",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Christ Enthroned",
+      "aliasId": "christ-enthroned",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ our Advocate",
+      "aliasId": "christ-our-advocate",
+      "target": "intercession-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ our Hope",
+      "aliasId": "christ-our-hope",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Christ our Mediator",
+      "aliasId": "christ-our-mediator",
+      "target": "intercession-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ our Redeemer",
+      "aliasId": "christ-our-redeemer",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Christ our Substitute",
+      "aliasId": "christ-our-substitute",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Christ's Ascension",
+      "aliasId": "christ-s-ascension",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ's Cross",
+      "aliasId": "christ-s-cross",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Christ's Deity",
+      "aliasId": "christ-s-deity",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
+    },
+    {
+      "alias": "Christ's Intercession",
+      "aliasId": "christ-s-intercession",
+      "target": "intercession-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Christ's Resurrection",
+      "aliasId": "christ-s-resurrection",
+      "target": "resurrection-of-christ",
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
+    },
+    {
+      "alias": "Christian Fellowship",
+      "aliasId": "christian-fellowship",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Christian Hope",
+      "aliasId": "christian-hope",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Christian Life",
+      "aliasId": "christian-life",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
+    },
+    {
+      "alias": "Christian Living",
+      "aliasId": "christian-living",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
+    },
+    {
+      "alias": "Church",
+      "aliasId": "church",
+      "target": "church",
+      "resolvedToId": "church-discipline",
+      "resolvedToTitle": "Church Discipline"
+    },
+    {
+      "alias": "Church Leadership",
+      "aliasId": "church-leadership",
+      "target": "elders",
+      "resolvedToId": "elders",
+      "resolvedToTitle": "Elders"
+    },
+    {
+      "alias": "Comfort",
+      "aliasId": "comfort",
+      "target": "hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Common Grace",
+      "aliasId": "common-grace",
+      "target": "grace",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Compassion",
+      "aliasId": "compassion",
+      "target": "compassion",
+      "resolvedToId": "caring-for-the-vulnerable",
+      "resolvedToTitle": "Caring for the Vulnerable"
+    },
+    {
+      "alias": "Contentment",
+      "aliasId": "contentment",
+      "target": "contentment",
+      "resolvedToId": "contentment",
+      "resolvedToTitle": "Contentment"
+    },
+    {
+      "alias": "Covenant",
+      "aliasId": "covenant",
+      "target": "gospel",
+      "resolvedToId": "conviction-of-sin",
+      "resolvedToTitle": "Conviction of Sin"
+    },
+    {
+      "alias": "Covenant of Grace",
+      "aliasId": "covenant-of-grace",
+      "target": "grace",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Cross",
+      "aliasId": "cross",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Cross of Christ",
+      "aliasId": "cross-of-christ",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Deacons",
+      "aliasId": "deacons",
+      "target": "deacons",
+      "resolvedToId": "deacons",
+      "resolvedToTitle": "Deacons"
+    },
+    {
+      "alias": "Death of Christ",
+      "aliasId": "death-of-christ",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
+    },
+    {
+      "alias": "Deity",
+      "aliasId": "deity",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
+    },
+    {
+      "alias": "Deity of Christ",
+      "aliasId": "deity-of-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
+    },
+    {
+      "alias": "Deliverance",
+      "aliasId": "deliverance",
+      "target": "salvation",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
+    },
+    {
+      "alias": "Demons",
+      "aliasId": "demons",
+      "target": "spiritual-warfare",
+      "resolvedToId": "demons",
+      "resolvedToTitle": "Demons"
+    },
+    {
+      "alias": "Devil",
+      "aliasId": "devil",
+      "target": "spiritual-warfare",
+      "resolvedToId": "demons",
+      "resolvedToTitle": "Demons"
+    },
+    {
+      "alias": "Disability",
+      "aliasId": "disability",
+      "target": "suffering",
+      "resolvedToId": "endurance",
+      "resolvedToTitle": "Endurance"
+    },
+    {
+      "alias": "Discipleship",
+      "aliasId": "discipleship",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
+    },
+    {
+      "alias": "Divine Fatherhood",
+      "aliasId": "divine-fatherhood",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Divine Grace",
+      "aliasId": "divine-grace",
+      "target": "grace",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Divine Providence",
+      "aliasId": "divine-providence",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
+    },
+    {
+      "alias": "Elders",
+      "aliasId": "elders",
+      "target": "elders",
+      "resolvedToId": "elders",
+      "resolvedToTitle": "Elders"
+    },
+    {
+      "alias": "End Times",
+      "aliasId": "end-times",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Eschatology",
+      "aliasId": "eschatology",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Eternal Life",
+      "aliasId": "eternal-life",
+      "target": "eternal-life",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
+    },
+    {
+      "alias": "Evangelism",
+      "aliasId": "evangelism",
+      "target": "evangelism",
+      "resolvedToId": "evangelism",
+      "resolvedToTitle": "Evangelism"
+    },
+    {
+      "alias": "Exaltation of Christ",
+      "aliasId": "exaltation-of-christ",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
+    },
+    {
+      "alias": "Faith",
+      "aliasId": "faith",
+      "target": "faith",
+      "resolvedToId": "assurance",
+      "resolvedToTitle": "Assurance"
+    },
+    {
+      "alias": "Faith in Christ",
+      "aliasId": "faith-in-christ",
+      "target": "faith",
+      "resolvedToId": "assurance",
+      "resolvedToTitle": "Assurance"
+    },
+    {
+      "alias": "Family of God",
+      "aliasId": "family-of-god",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Father",
+      "aliasId": "father",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Fatherhood of God",
+      "aliasId": "fatherhood-of-god",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "Fear of God",
+      "aliasId": "fear-of-god",
+      "target": "fear-of-the-lord",
+      "resolvedToId": "fear-of-the-lord",
+      "resolvedToTitle": "The Fear of the Lord"
+    },
+    {
+      "alias": "Fear of the Lord",
+      "aliasId": "fear-of-the-lord",
+      "target": "fear-of-the-lord",
+      "resolvedToId": "fear-of-the-lord",
+      "resolvedToTitle": "The Fear of the Lord"
+    },
+    {
+      "alias": "Forgiveness",
+      "aliasId": "forgiveness",
+      "target": "forgiveness",
+      "resolvedToId": "conflict-resolution",
+      "resolvedToTitle": "Conflict Resolution"
+    },
+    {
+      "alias": "Fellowship",
+      "aliasId": "fellowship",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
+    },
+    {
+      "alias": "Glorification",
+      "aliasId": "glorification",
+      "target": "glorification",
+      "resolvedToId": "future-glory",
+      "resolvedToTitle": "Future Glory"
+    },
+    {
+      "alias": "God",
+      "aliasId": "god",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "ascension-of-christ.json",
-      "id": "ascension-of-christ",
-      "title": "The Ascension of Christ",
-      "relatedTopic": "Kingdom",
-      "normalizedTopic": "kingdom",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "God as Father",
+      "aliasId": "god-as-father",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "God the Father",
+      "aliasId": "god-the-father",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "God's Children",
+      "aliasId": "god-s-children",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "God's Family",
+      "aliasId": "god-s-family",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
+    },
+    {
+      "alias": "God's Grace",
+      "aliasId": "god-s-grace",
+      "target": "grace",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
     },
-    {
-      "file": "atonement-of-christ.json",
-      "id": "atonement-of-christ",
-      "title": "The Atonement of Christ",
-      "relatedTopic": "Cross of Christ",
-      "normalizedTopic": "cross-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "God's Kingdom",
+      "aliasId": "god-s-kingdom",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "blessed-hope.json",
-      "id": "blessed-hope",
-      "title": "Blessed Hope",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "God's Mercy",
+      "aliasId": "god-s-mercy",
+      "target": "compassion",
+      "resolvedToId": "caring-for-the-vulnerable",
+      "resolvedToTitle": "Caring for the Vulnerable"
     },
-    {
-      "file": "body-of-christ.json",
-      "id": "body-of-christ",
-      "title": "The Body of Christ",
-      "relatedTopic": "Service",
-      "normalizedTopic": "service",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "God's Providence",
+      "aliasId": "god-s-providence",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "brotherhood-and-sisterhood.json",
-      "id": "brotherhood-and-sisterhood",
-      "title": "Brotherhood and Sisterhood",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "God's Sovereignty",
+      "aliasId": "god-s-sovereignty",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "children.json",
-      "id": "children",
-      "title": "Children",
-      "relatedTopic": "Teaching",
-      "normalizedTopic": "teaching",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Good Works",
+      "aliasId": "good-works",
+      "target": "obedience",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "compassion.json",
-      "id": "compassion",
-      "title": "Compassion",
-      "relatedTopic": "Service",
-      "normalizedTopic": "service",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Gospel",
+      "aliasId": "gospel",
+      "target": "gospel",
+      "resolvedToId": "conviction-of-sin",
+      "resolvedToTitle": "Conviction of Sin"
     },
-    {
-      "file": "contentment.json",
-      "id": "contentment",
-      "title": "Contentment",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Grace",
+      "aliasId": "grace",
+      "target": "grace",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
     },
-    {
-      "file": "deacons.json",
-      "id": "deacons",
-      "title": "Deacons",
-      "relatedTopic": "Service",
-      "normalizedTopic": "service",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Grief",
+      "aliasId": "grief",
+      "target": "suffering",
+      "resolvedToId": "endurance",
+      "resolvedToTitle": "Endurance"
     },
-    {
-      "file": "deacons.json",
-      "id": "deacons",
-      "title": "Deacons",
-      "relatedTopic": "Mercy",
-      "normalizedTopic": "mercy",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Heaven",
+      "aliasId": "heaven",
+      "target": "heaven",
+      "resolvedToId": "comfort-in-death",
+      "resolvedToTitle": "Comfort in Death"
     },
-    {
-      "file": "deity-of-christ.json",
-      "id": "deity-of-christ",
-      "title": "The Deity of Christ",
-      "relatedTopic": "Incarnation",
-      "normalizedTopic": "incarnation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Hell",
+      "aliasId": "hell",
+      "target": "hell",
+      "resolvedToId": "eternal-separation",
+      "resolvedToTitle": "Eternal Separation"
     },
-    {
-      "file": "discernment.json",
-      "id": "discernment",
-      "title": "Discernment",
-      "relatedTopic": "False Teaching",
-      "normalizedTopic": "false-teaching",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Holiness",
+      "aliasId": "holiness",
+      "target": "sanctification",
+      "resolvedToId": "addiction-and-freedom",
+      "resolvedToTitle": "Addiction and Freedom"
     },
-    {
-      "file": "endurance.json",
-      "id": "endurance",
-      "title": "Endurance",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Holy Living",
+      "aliasId": "holy-living",
+      "target": "sanctification",
+      "resolvedToId": "addiction-and-freedom",
+      "resolvedToTitle": "Addiction and Freedom"
     },
-    {
-      "file": "eternal-kingdom.json",
-      "id": "eternal-kingdom",
-      "title": "Eternal Kingdom",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Holy Spirit",
+      "aliasId": "holy-spirit",
+      "target": "holy-spirit",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "eternal-kingdom.json",
-      "id": "eternal-kingdom",
-      "title": "Eternal Kingdom",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Hope",
+      "aliasId": "hope",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "eternal-life.json",
-      "id": "eternal-life",
-      "title": "Eternal Life",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Humility",
+      "aliasId": "humility",
+      "target": "humility",
+      "resolvedToId": "humility",
+      "resolvedToTitle": "Humility"
     },
-    {
-      "file": "eternity-of-god.json",
-      "id": "eternity-of-god",
-      "title": "The Eternity of God",
-      "relatedTopic": "Life Everlasting",
-      "normalizedTopic": "life-everlasting",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Incarnation",
+      "aliasId": "incarnation",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "eternity-of-god.json",
-      "id": "eternity-of-god",
-      "title": "The Eternity of God",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Intercession",
+      "aliasId": "intercession",
+      "target": "intercession-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "eternity-of-god.json",
-      "id": "eternity-of-god",
-      "title": "The Eternity of God",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Intercession of Christ",
+      "aliasId": "intercession-of-christ",
+      "target": "intercession-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "faithfulness-of-god.json",
-      "id": "faithfulness-of-god",
-      "title": "The Faithfulness of God",
-      "relatedTopic": "Promises of God",
-      "normalizedTopic": "promises-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Jesus",
+      "aliasId": "jesus",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "faithfulness-of-god.json",
-      "id": "faithfulness-of-god",
-      "title": "The Faithfulness of God",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Jesus Christ",
+      "aliasId": "jesus-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "family-of-god.json",
-      "id": "family-of-god",
-      "title": "The Family of God",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Judgment",
+      "aliasId": "judgment",
+      "target": "judgment",
+      "resolvedToId": "justice-of-god",
+      "resolvedToTitle": "The Justice of God"
     },
-    {
-      "file": "family.json",
-      "id": "family",
-      "title": "Family",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Justification",
+      "aliasId": "justification",
+      "target": "justification",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "fear-and-anxiety.json",
-      "id": "fear-and-anxiety",
-      "title": "Fear and Anxiety",
-      "relatedTopic": "Peace",
-      "normalizedTopic": "peace",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "King Jesus",
+      "aliasId": "king-jesus",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "fellowship.json",
-      "id": "fellowship",
-      "title": "Fellowship",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Kingdom",
+      "aliasId": "kingdom",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "fruit-of-the-spirit.json",
-      "id": "fruit-of-the-spirit",
-      "title": "Fruit of the Spirit",
-      "relatedTopic": "Christlikeness",
-      "normalizedTopic": "christlikeness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Kingdom of God",
+      "aliasId": "kingdom-of-god",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "glorification.json",
-      "id": "glorification",
-      "title": "Glorification",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Law and Gospel",
+      "aliasId": "law-and-gospel",
+      "target": "gospel",
+      "resolvedToId": "conviction-of-sin",
+      "resolvedToTitle": "Conviction of Sin"
     },
-    {
-      "file": "glorification.json",
-      "id": "glorification",
-      "title": "Glorification",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Lord Jesus",
+      "aliasId": "lord-jesus",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "glorified-bodies.json",
-      "id": "glorified-bodies",
-      "title": "Glorified Bodies",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Lordship",
+      "aliasId": "lordship",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "glorified-bodies.json",
-      "id": "glorified-bodies",
-      "title": "Glorified Bodies",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Lordship of Christ",
+      "aliasId": "lordship-of-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "glory-of-god.json",
-      "id": "glory-of-god",
-      "title": "The Glory of God",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Love",
+      "aliasId": "love",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
     },
-    {
-      "file": "god-as-creator.json",
-      "id": "god-as-creator",
-      "title": "God as Creator",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Meditating on Scripture",
+      "aliasId": "meditating-on-scripture",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
     },
-    {
-      "file": "god-as-king.json",
-      "id": "god-as-king",
-      "title": "God as King",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Meditation on Scripture",
+      "aliasId": "meditation-on-scripture",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
     },
-    {
-      "file": "god-as-shepherd.json",
-      "id": "god-as-shepherd",
-      "title": "God as Shepherd",
-      "relatedTopic": "Care of God",
-      "normalizedTopic": "care-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Mercy",
+      "aliasId": "mercy",
+      "target": "compassion",
+      "resolvedToId": "caring-for-the-vulnerable",
+      "resolvedToTitle": "Caring for the Vulnerable"
     },
-    {
-      "file": "god-as-shepherd.json",
-      "id": "god-as-shepherd",
-      "title": "God as Shepherd",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Messiah",
+      "aliasId": "messiah",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "god-as-sustainer.json",
-      "id": "god-as-sustainer",
-      "title": "God as Sustainer",
-      "relatedTopic": "Thankfulness",
-      "normalizedTopic": "thankfulness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Ministry",
+      "aliasId": "ministry",
+      "target": "service",
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "The Body of Christ"
     },
-    {
-      "file": "gods-purpose-for-suffering.json",
-      "id": "gods-purpose-for-suffering",
-      "title": "God's Purpose for Suffering",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Mission",
+      "aliasId": "mission",
+      "target": "evangelism",
+      "resolvedToId": "evangelism",
+      "resolvedToTitle": "Evangelism"
     },
-    {
-      "file": "gods-purpose-for-suffering.json",
-      "id": "gods-purpose-for-suffering",
-      "title": "God's Purpose for Suffering",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Obedience",
+      "aliasId": "obedience",
+      "target": "obedience",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "goodness-of-god.json",
-      "id": "goodness-of-god",
-      "title": "The Goodness of God",
-      "relatedTopic": "Thankfulness",
-      "normalizedTopic": "thankfulness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Prayer",
+      "aliasId": "prayer",
+      "target": "prayer",
+      "resolvedToId": "fear-and-anxiety",
+      "resolvedToTitle": "Fear and Anxiety"
     },
-    {
-      "file": "healing.json",
-      "id": "healing",
-      "title": "Healing",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Providence",
+      "aliasId": "providence",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "heaven.json",
-      "id": "heaven",
-      "title": "Heaven",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Reading Scripture",
+      "aliasId": "reading-scripture",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "humanity-of-christ.json",
-      "id": "humanity-of-christ",
-      "title": "The Humanity of Christ",
-      "relatedTopic": "Incarnation",
-      "normalizedTopic": "incarnation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Recovery",
+      "aliasId": "recovery",
+      "target": "restoration",
+      "resolvedToId": "church-discipline",
+      "resolvedToTitle": "Church Discipline"
     },
-    {
-      "file": "humanity-of-christ.json",
-      "id": "humanity-of-christ",
-      "title": "The Humanity of Christ",
-      "relatedTopic": "Mediator",
-      "normalizedTopic": "mediator",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Redeemer",
+      "aliasId": "redeemer",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "humiliation-and-exaltation-of-christ.json",
-      "id": "humiliation-and-exaltation-of-christ",
-      "title": "The Humiliation and Exaltation of Christ",
-      "relatedTopic": "Cross of Christ",
-      "normalizedTopic": "cross-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Redemption",
+      "aliasId": "redemption",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "humility.json",
-      "id": "humility",
-      "title": "Humility",
-      "relatedTopic": "Christlikeness",
-      "normalizedTopic": "christlikeness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Regeneration",
+      "aliasId": "regeneration",
+      "target": "regeneration",
+      "resolvedToId": "conversion",
+      "resolvedToTitle": "Conversion"
     },
-    {
-      "file": "husband-and-wife.json",
-      "id": "husband-and-wife",
-      "title": "Husband and Wife",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Repentance",
+      "aliasId": "repentance",
+      "target": "repentance",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
     },
-    {
-      "file": "husband-and-wife.json",
-      "id": "husband-and-wife",
-      "title": "Husband and Wife",
-      "relatedTopic": "Servanthood",
-      "normalizedTopic": "servanthood",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Resurrection",
+      "aliasId": "resurrection",
+      "target": "resurrection-of-christ",
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
     },
-    {
-      "file": "immutability-of-god.json",
-      "id": "immutability-of-god",
-      "title": "The Immutability of God",
-      "relatedTopic": "Promises of God",
-      "normalizedTopic": "promises-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Resurrection of Christ",
+      "aliasId": "resurrection-of-christ",
+      "target": "resurrection-of-christ",
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
     },
-    {
-      "file": "incarnation-of-christ.json",
-      "id": "incarnation-of-christ",
-      "title": "The Incarnation of Christ",
-      "relatedTopic": "Virgin Birth",
-      "normalizedTopic": "virgin-birth",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Restoration",
+      "aliasId": "restoration",
+      "target": "restoration",
+      "resolvedToId": "church-discipline",
+      "resolvedToTitle": "Church Discipline"
     },
-    {
-      "file": "inerrancy-of-scripture.json",
-      "id": "inerrancy-of-scripture",
-      "title": "Inerrancy of Scripture",
-      "relatedTopic": "Truthfulness of God",
-      "normalizedTopic": "truthfulness-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Salvation",
+      "aliasId": "salvation",
+      "target": "salvation",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "inspiration-of-scripture.json",
-      "id": "inspiration-of-scripture",
-      "title": "Inspiration of Scripture",
-      "relatedTopic": "Revelation of God",
-      "normalizedTopic": "revelation-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Sanctification",
+      "aliasId": "sanctification",
+      "target": "sanctification",
+      "resolvedToId": "addiction-and-freedom",
+      "resolvedToTitle": "Addiction and Freedom"
     },
-    {
-      "file": "inspiration.json",
-      "id": "inspiration",
-      "title": "Inspiration",
-      "relatedTopic": "scripture",
-      "normalizedTopic": "scripture",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Satan",
+      "aliasId": "satan",
+      "target": "spiritual-warfare",
+      "resolvedToId": "demons",
+      "resolvedToTitle": "Demons"
     },
-    {
-      "file": "intercession-of-christ.json",
-      "id": "intercession-of-christ",
-      "title": "The Intercession of Christ",
-      "relatedTopic": "Priesthood of Christ",
-      "normalizedTopic": "priesthood-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Service",
+      "aliasId": "service",
+      "target": "deacons",
+      "resolvedToId": "deacons",
+      "resolvedToTitle": "Deacons"
     },
-    {
-      "file": "interpretation-of-scripture.json",
-      "id": "interpretation-of-scripture",
-      "title": "Interpretation of Scripture",
-      "relatedTopic": "Teaching Ministry",
-      "normalizedTopic": "teaching-ministry",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Serving",
+      "aliasId": "serving",
+      "target": "deacons",
+      "resolvedToId": "deacons",
+      "resolvedToTitle": "Deacons"
     },
-    {
-      "file": "jealousy-of-god.json",
-      "id": "jealousy-of-god",
-      "title": "The Jealousy of God",
-      "relatedTopic": "Idolatry",
-      "normalizedTopic": "idolatry",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Serving One Another",
+      "aliasId": "serving-one-another",
+      "target": "deacons",
+      "resolvedToId": "deacons",
+      "resolvedToTitle": "Deacons"
     },
-    {
-      "file": "justice-of-god.json",
-      "id": "justice-of-god",
-      "title": "The Justice of God",
-      "relatedTopic": "Judgment",
-      "normalizedTopic": "judgment",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Sin",
+      "aliasId": "sin",
+      "target": "repentance",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
     },
-    {
-      "file": "knowing-god.json",
-      "id": "knowing-god",
-      "title": "Knowing God",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Sisterhood",
+      "aliasId": "sisterhood",
+      "target": "brotherhood-and-sisterhood",
+      "resolvedToId": "brotherhood-and-sisterhood",
+      "resolvedToTitle": "Brotherhood and Sisterhood"
     },
-    {
-      "file": "living-as-light.json",
-      "id": "living-as-light",
-      "title": "Living as Light",
-      "relatedTopic": "Holiness",
-      "normalizedTopic": "holiness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Son of God",
+      "aliasId": "son-of-god",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "living-as-salt.json",
-      "id": "living-as-salt",
-      "title": "Living as Salt",
-      "relatedTopic": "Holiness",
-      "normalizedTopic": "holiness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Sonship",
+      "aliasId": "sonship",
+      "target": "adoption",
+      "resolvedToId": "adoption",
+      "resolvedToTitle": "Adoption"
     },
-    {
-      "file": "lordship-of-christ.json",
-      "id": "lordship-of-christ",
-      "title": "The Lordship of Christ",
-      "relatedTopic": "Kingship of Christ",
-      "normalizedTopic": "kingship-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Sovereignty",
+      "aliasId": "sovereignty",
+      "target": "providence",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "lordship-of-christ.json",
-      "id": "lordship-of-christ",
-      "title": "The Lordship of Christ",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Spiritual Gifts",
+      "aliasId": "spiritual-gifts",
+      "target": "holy-spirit",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "majesty-of-god.json",
-      "id": "majesty-of-god",
-      "title": "The Majesty of God",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Spiritual Warfare",
+      "aliasId": "spiritual-warfare",
+      "target": "spiritual-warfare",
+      "resolvedToId": "demons",
+      "resolvedToTitle": "Demons"
     },
-    {
-      "file": "marriage.json",
-      "id": "marriage",
-      "title": "Marriage",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Studying Scripture",
+      "aliasId": "studying-scripture",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "marriage.json",
-      "id": "marriage",
-      "title": "Marriage",
-      "relatedTopic": "Covenant",
-      "normalizedTopic": "covenant",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Suffering",
+      "aliasId": "suffering",
+      "target": "suffering",
+      "resolvedToId": "endurance",
+      "resolvedToTitle": "Endurance"
     },
-    {
-      "file": "mediator-christ.json",
-      "id": "mediator-christ",
-      "title": "Christ the Mediator",
-      "relatedTopic": "Priesthood of Christ",
-      "normalizedTopic": "priesthood-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Teaching",
+      "aliasId": "teaching",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
     },
-    {
-      "file": "names-of-god.json",
-      "id": "names-of-god",
-      "title": "The Names of God",
-      "relatedTopic": "God as Father",
-      "normalizedTopic": "god-as-father",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Teaching Scripture",
+      "aliasId": "teaching-scripture",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "new-birth.json",
-      "id": "new-birth",
-      "title": "New Birth",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Ascension",
+      "aliasId": "the-ascension",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "new-heaven-and-new-earth.json",
-      "id": "new-heaven-and-new-earth",
-      "title": "New Heaven and New Earth",
-      "relatedTopic": "New Creation",
-      "normalizedTopic": "new-creation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Ascension of Christ",
+      "aliasId": "the-ascension-of-christ",
+      "target": "ascension-of-christ",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "offices-of-christ.json",
-      "id": "offices-of-christ",
-      "title": "The Offices of Christ",
-      "relatedTopic": "Prophet",
-      "normalizedTopic": "prophet",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Atonement",
+      "aliasId": "the-atonement",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "offices-of-christ.json",
-      "id": "offices-of-christ",
-      "title": "The Offices of Christ",
-      "relatedTopic": "Priesthood of Christ",
-      "normalizedTopic": "priesthood-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Atonement of Christ",
+      "aliasId": "the-atonement-of-christ",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "offices-of-christ.json",
-      "id": "offices-of-christ",
-      "title": "The Offices of Christ",
-      "relatedTopic": "Kingship of Christ",
-      "normalizedTopic": "kingship-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Blessed Hope",
+      "aliasId": "the-blessed-hope",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "offices-of-christ.json",
-      "id": "offices-of-christ",
-      "title": "The Offices of Christ",
-      "relatedTopic": "Mediator",
-      "normalizedTopic": "mediator",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Body of Christ",
+      "aliasId": "the-body-of-christ",
+      "target": "body-of-christ",
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
     },
-    {
-      "file": "omnipresence-of-god.json",
-      "id": "omnipresence-of-god",
-      "title": "The Omnipresence of God",
-      "relatedTopic": "Comfort",
-      "normalizedTopic": "comfort",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Church",
+      "aliasId": "the-church",
+      "target": "church",
+      "resolvedToId": "church-discipline",
+      "resolvedToTitle": "Church Discipline"
     },
-    {
-      "file": "omniscience-of-god.json",
-      "id": "omniscience-of-god",
-      "title": "The Omniscience of God",
-      "relatedTopic": "Judgment",
-      "normalizedTopic": "judgment",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Cross",
+      "aliasId": "the-cross",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "parenting.json",
-      "id": "parenting",
-      "title": "Parenting",
-      "relatedTopic": "Teaching",
-      "normalizedTopic": "teaching",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Cross of Christ",
+      "aliasId": "the-cross-of-christ",
+      "target": "atonement-of-christ",
+      "resolvedToId": "atonement-of-christ",
+      "resolvedToTitle": "The Atonement of Christ"
     },
-    {
-      "file": "parenting.json",
-      "id": "parenting",
-      "title": "Parenting",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Deity of Christ",
+      "aliasId": "the-deity-of-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "peacemaking.json",
-      "id": "peacemaking",
-      "title": "Peacemaking",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Gospel",
+      "aliasId": "the-gospel",
+      "target": "gospel",
+      "resolvedToId": "conviction-of-sin",
+      "resolvedToTitle": "Conviction of Sin"
     },
-    {
-      "file": "perseverance.json",
-      "id": "perseverance",
-      "title": "Perseverance",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Holy Spirit",
+      "aliasId": "the-holy-spirit",
+      "target": "holy-spirit",
+      "resolvedToId": "ascension-of-christ",
+      "resolvedToTitle": "The Ascension of Christ"
     },
-    {
-      "file": "persevering-through-disability.json",
-      "id": "persevering-through-disability",
-      "title": "Persevering Through Disability",
-      "relatedTopic": "Purpose",
-      "normalizedTopic": "purpose",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Kingdom",
+      "aliasId": "the-kingdom",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "preservation-of-scripture.json",
-      "id": "preservation-of-scripture",
-      "title": "Preservation of Scripture",
-      "relatedTopic": "Bible Translation",
-      "normalizedTopic": "bible-translation",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Kingdom of God",
+      "aliasId": "the-kingdom-of-god",
+      "target": "blessed-hope",
+      "resolvedToId": "blessed-hope",
+      "resolvedToTitle": "Blessed Hope"
     },
-    {
-      "file": "purpose-in-christ.json",
-      "id": "purpose-in-christ",
-      "title": "Purpose in Christ",
-      "relatedTopic": "Calling",
-      "normalizedTopic": "calling",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Lord Jesus Christ",
+      "aliasId": "the-lord-jesus-christ",
+      "target": "deity-of-christ",
+      "resolvedToId": "deity-of-christ",
+      "resolvedToTitle": "The Deity of Christ"
     },
-    {
-      "file": "readiness.json",
-      "id": "readiness",
-      "title": "Readiness",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Resurrection",
+      "aliasId": "the-resurrection",
+      "target": "resurrection-of-christ",
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
     },
-    {
-      "file": "resurrection-of-christ.json",
-      "id": "resurrection-of-christ",
-      "title": "The Resurrection of Christ",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Resurrection of Christ",
+      "aliasId": "the-resurrection-of-christ",
+      "target": "resurrection-of-christ",
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
     },
-    {
-      "file": "resurrection-of-christ.json",
-      "id": "resurrection-of-christ",
-      "title": "The Resurrection of Christ",
-      "relatedTopic": "Life Everlasting",
-      "normalizedTopic": "life-everlasting",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Word",
+      "aliasId": "the-word",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "revelation.json",
-      "id": "revelation",
-      "title": "Revelation",
-      "relatedTopic": "christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "The Word of God",
+      "aliasId": "the-word-of-god",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "serving-one-another.json",
-      "id": "serving-one-another",
-      "title": "Serving One Another",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Trinity",
+      "aliasId": "trinity",
+      "target": "trinity",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "sinlessness-of-christ.json",
-      "id": "sinlessness-of-christ",
-      "title": "The Sinlessness of Christ",
-      "relatedTopic": "Obedience of Christ",
-      "normalizedTopic": "obedience-of-christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Triune God",
+      "aliasId": "triune-god",
+      "target": "trinity",
+      "resolvedToId": "attributes-of-god",
+      "resolvedToTitle": "Attributes of God"
     },
-    {
-      "file": "sinlessness-of-christ.json",
-      "id": "sinlessness-of-christ",
-      "title": "The Sinlessness of Christ",
-      "relatedTopic": "Righteousness",
-      "normalizedTopic": "righteousness",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Truth",
+      "aliasId": "truth",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "sovereignty-of-god.json",
-      "id": "sovereignty-of-god",
-      "title": "The Sovereignty of God",
-      "relatedTopic": "Kingdom of God",
-      "normalizedTopic": "kingdom-of-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Vocation",
+      "aliasId": "vocation",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
     },
-    {
-      "file": "spiritual-gifts-in-the-church.json",
-      "id": "spiritual-gifts-in-the-church",
-      "title": "Spiritual Gifts in the Church",
-      "relatedTopic": "Service",
-      "normalizedTopic": "service",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Walking with God",
+      "aliasId": "walking-with-god",
+      "target": "discipleship",
+      "resolvedToId": "accountability",
+      "resolvedToTitle": "Accountability"
     },
-    {
-      "file": "suffering-and-gods-purpose.json",
-      "id": "suffering-and-gods-purpose",
-      "title": "Suffering and God's Purpose",
-      "relatedTopic": "God's Providence",
-      "normalizedTopic": "god-s-providence",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Word",
+      "aliasId": "word",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "suffering-and-gods-purpose.json",
-      "id": "suffering-and-gods-purpose",
-      "title": "Suffering and God's Purpose",
-      "relatedTopic": "Comforting Others",
-      "normalizedTopic": "comforting-others",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Word of God",
+      "aliasId": "word-of-god",
+      "target": "studying-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
     },
-    {
-      "file": "teaching-ministry-of-the-spirit.json",
-      "id": "teaching-ministry-of-the-spirit",
-      "title": "Teaching Ministry of the Spirit",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "trinity.json",
-      "id": "trinity",
-      "title": "The Trinity",
-      "relatedTopic": "God the Father",
-      "normalizedTopic": "god-the-father",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "unity-of-the-church.json",
-      "id": "unity-of-the-church",
-      "title": "Unity of the Church",
-      "relatedTopic": "Love",
-      "normalizedTopic": "love",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "unity-of-the-godhead.json",
-      "id": "unity-of-the-godhead",
-      "title": "The Unity of the Godhead",
-      "relatedTopic": "God the Father",
-      "normalizedTopic": "god-the-father",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "victory-over-death.json",
-      "id": "victory-over-death",
-      "title": "Victory Over Death",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "virgin-birth-of-christ.json",
-      "id": "virgin-birth-of-christ",
-      "title": "The Virgin Birth of Christ",
-      "relatedTopic": "Promise",
-      "normalizedTopic": "promise",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "waiting-on-god.json",
-      "id": "waiting-on-god",
-      "title": "Waiting on God",
-      "relatedTopic": "Hope",
-      "normalizedTopic": "hope",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "waiting-on-god.json",
-      "id": "waiting-on-god",
-      "title": "Waiting on God",
-      "relatedTopic": "God's Providence",
-      "normalizedTopic": "god-s-providence",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "walking-through-suffering.json",
-      "id": "walking-through-suffering",
-      "title": "Walking Through Suffering",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "wisdom-of-god.json",
-      "id": "wisdom-of-god",
-      "title": "The Wisdom of God",
-      "relatedTopic": "Guidance",
-      "normalizedTopic": "guidance",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "wisdom-of-god.json",
-      "id": "wisdom-of-god",
-      "title": "The Wisdom of God",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "worshiping-god.json",
-      "id": "worshiping-god",
-      "title": "Worshiping God",
-      "relatedTopic": "Christ",
-      "normalizedTopic": "christ",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "file": "wrath-of-god.json",
-      "id": "wrath-of-god",
-      "title": "The Wrath of God",
-      "relatedTopic": "Judgment",
-      "normalizedTopic": "judgment",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+    {
+      "alias": "Worship",
+      "aliasId": "worship",
+      "target": "worship",
+      "resolvedToId": "the-church",
+      "resolvedToTitle": "The Church"
     }
   ],
+  "unresolvedAliases": [
+    {
+      "alias": "Christ's Return",
+      "aliasId": "christ-s-return",
+      "target": "second-coming-of-christ",
+      "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Communion",
+      "aliasId": "communion",
+      "target": "communion",
+      "targetId": "communion",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Election",
+      "aliasId": "election",
+      "target": "election",
+      "targetId": "election",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Fasting",
+      "aliasId": "fasting",
+      "target": "fasting",
+      "targetId": "fasting",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Return of Christ",
+      "aliasId": "return-of-christ",
+      "target": "second-coming-of-christ",
+      "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Second Coming",
+      "aliasId": "second-coming",
+      "target": "second-coming-of-christ",
+      "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Second Coming of Christ",
+      "aliasId": "second-coming-of-christ",
+      "target": "second-coming-of-christ",
+      "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "The Second Coming",
+      "aliasId": "the-second-coming",
+      "target": "second-coming-of-christ",
+      "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    }
+  ],
+  "unresolvedRelatedTopics": [],
   "categories": {
     "Christian Living": 116,
     "Restoration & Suffering": 9,
