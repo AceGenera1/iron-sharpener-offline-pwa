@@ -4514,70 +4514,64 @@ async function loadDoctrineTopic(topicFile) {
   return null;
 }
 
+const DOCTRINE_REGISTRY_VERSION = "2026-06-13-cat04-281";
+
 async function loadDoctrineRegistry() {
   try {
-    const response = await fetch("bible/resources/doctrine/doctrine-registry.json");
-
-    if (!response.ok) {
-      console.warn("Doctrine registry not found.");
-      return [];
+    if (
+      Array.isArray(window.__doctrineRegistryCache) &&
+      window.__doctrineRegistryCacheVersion === DOCTRINE_REGISTRY_VERSION
+    ) {
+      return window.__doctrineRegistryCache;
     }
 
-    const registry = await response.json();
+    const registryPaths = [
+      "bible/resources/doctrine/doctrine-registry.json",
+      "./bible/resources/doctrine/doctrine-registry.json",
+      "/bible/resources/doctrine/doctrine-registry.json"
+    ];
 
-    if (!Array.isArray(registry)) {
-      console.warn("Doctrine registry is not an array.");
-      return [];
+    let lastError = null;
+
+    for (const path of registryPaths) {
+      try {
+        const url = new URL(path, document.baseURI || window.location.href);
+        url.searchParams.set("v", DOCTRINE_REGISTRY_VERSION);
+
+        const response = await fetch(url.toString(), {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          lastError = new Error(`Doctrine registry not found at ${url.toString()} — ${response.status}`);
+          continue;
+        }
+
+        const registry = await response.json();
+
+        if (!Array.isArray(registry)) {
+          lastError = new Error(`Doctrine registry is not an array at ${url.toString()}`);
+          continue;
+        }
+
+        console.log(`Doctrine registry loaded: ${registry.length} topics`, url.toString());
+
+        window.__doctrineRegistryCache = registry;
+        window.__doctrineRegistryCacheVersion = DOCTRINE_REGISTRY_VERSION;
+
+        return registry;
+      } catch (error) {
+        lastError = error;
+      }
     }
 
-    return registry;
+    console.warn("Doctrine registry load failed:", lastError);
+    return [];
   } catch (error) {
     console.warn("Doctrine registry load error:", error);
     return [];
   }
 }
-
-async function openDoctrineResource() {
-  const panel = $("obsCrossRefsPanel");
-  const content = $("obsCrossRefsContent");
-  const title = $("obsCrossRefsTitle");
-
-  if (!panel || !content) return;
-
-  activeResourcePanel = "doctrine";
-  if (title) title.textContent = "Biblical Doctrine";
-
-  const registry = await loadDoctrineRegistry();
-
-  const categories = [...new Set(
-    registry.map(item => item.category || "Uncategorized")
-  )].sort();
-
-  content.innerHTML = `
-    <input id="doctrineSearchBox" type="text" placeholder="Search doctrine topics like salvation, scripture, prayer..." style="margin-bottom:10px;">
-
-    <details id="doctrineCategoryBrowser" style="margin-bottom:12px;">
-      <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-        Browse by Category
-      </summary>
-
-      <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
-        ${categories.map(category => `
-          <button type="button" class="doctrine-category-btn" data-category="${category}" style="width:100%;">
-            ${category}
-          </button>
-        `).join("")}
-      </div>
-    </details>
-
-    <div id="doctrineResults">
-      <p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>
-    </div>
-  `;
-
-  const searchBox = $("doctrineSearchBox");
-  const results = $("doctrineResults");
-  const categoryBrowser = $("doctrineCategoryBrowser");
 
   function renderDoctrineHomeMessage() {
     results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
