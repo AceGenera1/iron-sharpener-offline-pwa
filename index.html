@@ -4595,66 +4595,8 @@ async function openDoctrineResource() {
     `;
   }
 
-  function findDoctrineMatches(query) {
-    const q = (query || "").toLowerCase().trim();
-
-    if (!q) return [];
-
-    return registry
-      .filter(item => {
-        const titleMatch = String(item.title || "").toLowerCase().includes(q);
-        const idMatch = String(item.id || "").toLowerCase().includes(q);
-        const categoryMatch = String(item.category || "").toLowerCase().includes(q);
-
-        const tagMatch =
-          Array.isArray(item.tags) &&
-          item.tags.some(tag => String(tag).toLowerCase().includes(q));
-
-        const searchTermMatch =
-          Array.isArray(item.searchTerms) &&
-          item.searchTerms.some(term => String(term).toLowerCase().includes(q));
-
-        return titleMatch || idMatch || categoryMatch || tagMatch || searchTermMatch;
-      })
-      .slice(0, 30);
-  }
-
-  content.onclick = async (event) => {
-    const categoryBtn = event.target.closest(".doctrine-category-btn");
-    const topicBtn = event.target.closest(".doctrine-topic-btn");
-
-    if (categoryBtn) {
-      const category = categoryBtn.dataset.category;
-
-      const items = registry
-        .filter(item => (item.category || "Uncategorized") === category)
-        .sort((a, b) => a.title.localeCompare(b.title));
-
-      if (categoryBrowser) categoryBrowser.open = false;
-
-      renderDoctrineButtons(items, category);
-      return;
-    }
-
-    if (topicBtn) {
-      const doctrine = await loadDoctrineTopic(topicBtn.dataset.file.replace(/\.json$/i, ""));
-
-      if (!doctrine) {
-        alert(`Doctrine topic could not be loaded: ${topicBtn.textContent.trim()}`);
-        return;
-      }
-
-      openDoctrineTopicInNewPanel(doctrine);
-    }
-  };
-
-  openFloatingResourcePanel(panel);
+    openFloatingResourcePanel(panel);
 }
-
-searchBox.oninput = () => {
-  const matches = findDoctrineMatches(searchBox.value);
-  renderDoctrineButtons(matches, "Search Results");
-};
 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
