@@ -4516,9 +4516,7 @@ async function loadDoctrineTopic(topicFile) {
 
 async function loadDoctrineRegistry() {
   try {
-    const response = await fetch("bible/resources/doctrine/doctrine-registry.json?v=2026-06-13-cat04-281", {
-      cache: "reload"
-    });
+    const response = await fetch("bible/resources/doctrine/doctrine-registry.json");
 
     if (!response.ok) {
       console.warn("Doctrine registry not found.");
@@ -4531,8 +4529,6 @@ async function loadDoctrineRegistry() {
       console.warn("Doctrine registry is not an array.");
       return [];
     }
-
-    console.log("Doctrine registry loaded:", registry.length, "topics");
 
     return registry;
   } catch (error) {
