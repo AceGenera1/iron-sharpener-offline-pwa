@@ -205,8 +205,7 @@ for (const file of files) {
         ...(Array.isArray(doctrine.tags) ? doctrine.tags : [])
       ].filter(Boolean)
 });
-}
-}
+  }
 
 registry.sort((a, b) => a.title.localeCompare(b.title));
 
