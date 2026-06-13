@@ -188,20 +188,24 @@ for (const file of files) {
       });
     }
 
-    registry.push({
-      id,
-      title,
-      file
-    });
-
-    report.accepted.push({ file, id, title });
-
-  } catch (error) {
-    report.rejected.push({
-      file,
-      reason: error.message
-    });
-  }
+ registry.push({
+  id,
+  title,
+  file,
+  frameworkVersion: doctrine.frameworkVersion || "1.0",
+  validated: true,
+  category: doctrine.category || "Uncategorized",
+  tags: Array.isArray(doctrine.tags) ? doctrine.tags : [],
+  searchTerms: Array.isArray(doctrine.searchTerms)
+    ? doctrine.searchTerms
+    : [
+        id,
+        title,
+        doctrine.category || "",
+        ...(Array.isArray(doctrine.tags) ? doctrine.tags : [])
+      ].filter(Boolean)
+});
+}
 }
 
 registry.sort((a, b) => a.title.localeCompare(b.title));
