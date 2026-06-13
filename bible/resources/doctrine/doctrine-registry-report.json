@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-13T08:26:57.219Z",
+  "generatedAt": "2026-06-13T09:06:16.020Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 283,
+    "scanned": 284,
     "accepted": 267,
     "warnings": 267,
-    "rejected": 16,
+    "rejected": 17,
     "duplicates": 0,
     "unresolvedRelatedTopics": 106
   },
@@ -3877,6 +3877,21 @@
       "id": "decrees-of-god",
       "title": "Decrees of God",
       "errors": [
+        "Missing definition.",
+        "Missing summary.",
+        "Missing christFocus.",
+        "Missing or empty keyScriptures array.",
+        "Missing or empty studySections/sections array.",
+        "Missing sources array.",
+        "Missing relatedTopics array."
+      ]
+    },
+    {
+      "file": "doctrine-aliases.json",
+      "id": "doctrine-aliases",
+      "title": "Doctrine Aliases",
+      "errors": [
+        "Missing title.",
         "Missing definition.",
         "Missing summary.",
         "Missing christFocus.",
