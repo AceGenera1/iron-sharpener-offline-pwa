@@ -1,20 +1,307 @@
 {
-  "generatedAt": "2026-06-13T10:24:42.526Z",
+  "generatedAt": "2026-06-13T10:26:19.466Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 0,
-    "accepted": 0,
+    "scanned": 46,
+    "accepted": 45,
     "warnings": 0,
-    "rejected": 0,
+    "rejected": 1,
     "duplicates": 0,
     "aliasesLoaded": 232,
-    "resolvedAliases": 0,
-    "unresolvedAliases": 232,
+    "resolvedAliases": 35,
+    "unresolvedAliases": 197,
     "unresolvedRelatedTopics": 0
   },
-  "accepted": [],
+  "accepted": [
+    {
+      "file": "authority-of-scripture.json",
+      "id": "authority-of-scripture",
+      "title": "Authority of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "canon-of-scripture.json",
+      "id": "canon-of-scripture",
+      "title": "Canon of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "clarity-of-scripture.json",
+      "id": "clarity-of-scripture",
+      "title": "Clarity of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "comfort-of-scripture.json",
+      "id": "comfort-of-scripture",
+      "title": "Comfort of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "commands-of-god.json",
+      "id": "commands-of-god",
+      "title": "Commands of God",
+      "category": "Scripture"
+    },
+    {
+      "file": "context-of-scripture.json",
+      "id": "context-of-scripture",
+      "title": "Context of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "hearing-the-word.json",
+      "id": "hearing-the-word",
+      "title": "Hearing the Word",
+      "category": "Scripture"
+    },
+    {
+      "file": "illumination-of-scripture.json",
+      "id": "illumination-of-scripture",
+      "title": "Illumination of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "inspiration-of-scripture.json",
+      "id": "inspiration-of-scripture",
+      "title": "Inspiration of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "interpretation-of-scripture.json",
+      "id": "interpretation-of-scripture",
+      "title": "Interpretation of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "meditating-on-scripture.json",
+      "id": "meditating-on-scripture",
+      "title": "Meditating on Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "memorizing-scripture.json",
+      "id": "memorizing-scripture",
+      "title": "Memorizing Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "obedience-to-the-word.json",
+      "id": "obedience-to-the-word",
+      "title": "Obedience to the Word",
+      "category": "Scripture"
+    },
+    {
+      "file": "preservation-of-scripture.json",
+      "id": "preservation-of-scripture",
+      "title": "Preservation of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "progressive-revelation.json",
+      "id": "progressive-revelation",
+      "title": "Progressive Revelation",
+      "category": "Scripture"
+    },
+    {
+      "file": "promises-of-god.json",
+      "id": "promises-of-god",
+      "title": "Promises of God",
+      "category": "Scripture"
+    },
+    {
+      "file": "reading-the-word.json",
+      "id": "reading-the-word",
+      "title": "Reading the Word",
+      "category": "Scripture"
+    },
+    {
+      "file": "rightly-handling-the-word.json",
+      "id": "rightly-handling-the-word",
+      "title": "Rightly Handling the Word",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-christ.json",
+      "id": "scripture-and-christ",
+      "title": "Scripture and Christ",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-culture.json",
+      "id": "scripture-and-culture",
+      "title": "Scripture and Culture",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-discernment.json",
+      "id": "scripture-and-discernment",
+      "title": "Scripture and Discernment",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-discipleship.json",
+      "id": "scripture-and-discipleship",
+      "title": "Scripture and Discipleship",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-evangelism.json",
+      "id": "scripture-and-evangelism",
+      "title": "Scripture and Evangelism",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-false-teaching.json",
+      "id": "scripture-and-false-teaching",
+      "title": "Scripture and False Teaching",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-hope.json",
+      "id": "scripture-and-hope",
+      "title": "Scripture and Hope",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-obedience.json",
+      "id": "scripture-and-obedience",
+      "title": "Scripture and Obedience",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-prayer.json",
+      "id": "scripture-and-prayer",
+      "title": "Scripture and Prayer",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-preaching.json",
+      "id": "scripture-and-preaching",
+      "title": "Scripture and Preaching",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-restoration.json",
+      "id": "scripture-and-restoration",
+      "title": "Scripture and Restoration",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-sanctification.json",
+      "id": "scripture-and-sanctification",
+      "title": "Scripture and Sanctification",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-spiritual-warfare.json",
+      "id": "scripture-and-spiritual-warfare",
+      "title": "Scripture and Spiritual Warfare",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-suffering.json",
+      "id": "scripture-and-suffering",
+      "title": "Scripture and Suffering",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-teaching.json",
+      "id": "scripture-and-teaching",
+      "title": "Scripture and Teaching",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-the-church.json",
+      "id": "scripture-and-the-church",
+      "title": "Scripture and the Church",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-the-gospel.json",
+      "id": "scripture-and-the-gospel",
+      "title": "Scripture and the Gospel",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-the-holy-spirit.json",
+      "id": "scripture-and-the-holy-spirit",
+      "title": "Scripture and the Holy Spirit",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-tradition.json",
+      "id": "scripture-and-tradition",
+      "title": "Scripture and Tradition",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-wisdom.json",
+      "id": "scripture-and-wisdom",
+      "title": "Scripture and Wisdom",
+      "category": "Scripture"
+    },
+    {
+      "file": "scripture-and-worship.json",
+      "id": "scripture-and-worship",
+      "title": "Scripture and Worship",
+      "category": "Scripture"
+    },
+    {
+      "file": "studying-scripture.json",
+      "id": "studying-scripture",
+      "title": "Studying Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "sufficiency-of-scripture.json",
+      "id": "sufficiency-of-scripture",
+      "title": "Sufficiency of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "truthfulness-of-scripture.json",
+      "id": "truthfulness-of-scripture",
+      "title": "Truthfulness of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "unity-of-scripture.json",
+      "id": "unity-of-scripture",
+      "title": "Unity of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "warnings-of-scripture.json",
+      "id": "warnings-of-scripture",
+      "title": "Warnings of Scripture",
+      "category": "Scripture"
+    },
+    {
+      "file": "whole-counsel-of-god.json",
+      "id": "whole-counsel-of-god",
+      "title": "Whole Counsel of God",
+      "category": "Scripture"
+    }
+  ],
   "warnings": [],
-  "rejected": [],
+  "rejected": [
+    {
+      "file": "_category_01_manifest.json",
+      "id": "category-01-manifest",
+      "title": "_category_01_manifest",
+      "errors": [
+        "Missing title.",
+        "Missing definition.",
+        "Missing summary.",
+        "Missing christFocus.",
+        "Missing or empty keyScriptures array.",
+        "Missing or empty studySections/sections array.",
+        "Missing sources array.",
+        "Missing relatedTopics array."
+      ]
+    }
+  ],
   "duplicates": [],
   "aliases": {
     "file": "doctrine-aliases.json",
@@ -22,7 +309,253 @@
     "count": 232,
     "warnings": []
   },
-  "resolvedAliases": [],
+  "resolvedAliases": [
+    {
+      "alias": "Application",
+      "aliasId": "application",
+      "target": "obedience",
+      "resolvedToId": "commands-of-god",
+      "resolvedToTitle": "Commands of God"
+    },
+    {
+      "alias": "Authority of Scripture",
+      "aliasId": "authority-of-scripture",
+      "target": "authority-of-scripture",
+      "resolvedToId": "authority-of-scripture",
+      "resolvedToTitle": "Authority of Scripture"
+    },
+    {
+      "alias": "Bible",
+      "aliasId": "bible",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Bible Reading",
+      "aliasId": "bible-reading",
+      "target": "reading-the-word",
+      "resolvedToId": "reading-the-word",
+      "resolvedToTitle": "Reading the Word"
+    },
+    {
+      "alias": "Bible Study",
+      "aliasId": "bible-study",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Biblical Meditation",
+      "aliasId": "biblical-meditation",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
+    },
+    {
+      "alias": "Biblical Teaching",
+      "aliasId": "biblical-teaching",
+      "target": "scripture-and-teaching",
+      "resolvedToId": "scripture-and-teaching",
+      "resolvedToTitle": "Scripture and Teaching"
+    },
+    {
+      "alias": "Calling",
+      "aliasId": "calling",
+      "target": "discipleship",
+      "resolvedToId": "scripture-and-discipleship",
+      "resolvedToTitle": "Scripture and Discipleship"
+    },
+    {
+      "alias": "Canon",
+      "aliasId": "canon",
+      "target": "canon-of-scripture",
+      "resolvedToId": "canon-of-scripture",
+      "resolvedToTitle": "Canon of Scripture"
+    },
+    {
+      "alias": "Canon of Scripture",
+      "aliasId": "canon-of-scripture",
+      "target": "canon-of-scripture",
+      "resolvedToId": "canon-of-scripture",
+      "resolvedToTitle": "Canon of Scripture"
+    },
+    {
+      "alias": "Christian Life",
+      "aliasId": "christian-life",
+      "target": "discipleship",
+      "resolvedToId": "scripture-and-discipleship",
+      "resolvedToTitle": "Scripture and Discipleship"
+    },
+    {
+      "alias": "Christian Living",
+      "aliasId": "christian-living",
+      "target": "discipleship",
+      "resolvedToId": "scripture-and-discipleship",
+      "resolvedToTitle": "Scripture and Discipleship"
+    },
+    {
+      "alias": "Commands of God",
+      "aliasId": "commands-of-god",
+      "target": "commands-of-god",
+      "resolvedToId": "commands-of-god",
+      "resolvedToTitle": "Commands of God"
+    },
+    {
+      "alias": "Discipleship",
+      "aliasId": "discipleship",
+      "target": "discipleship",
+      "resolvedToId": "scripture-and-discipleship",
+      "resolvedToTitle": "Scripture and Discipleship"
+    },
+    {
+      "alias": "Fasting",
+      "aliasId": "fasting",
+      "target": "prayer",
+      "resolvedToId": "scripture-and-prayer",
+      "resolvedToTitle": "Scripture and Prayer"
+    },
+    {
+      "alias": "Good Works",
+      "aliasId": "good-works",
+      "target": "obedience",
+      "resolvedToId": "commands-of-god",
+      "resolvedToTitle": "Commands of God"
+    },
+    {
+      "alias": "Humility",
+      "aliasId": "humility",
+      "target": "obedience",
+      "resolvedToId": "commands-of-god",
+      "resolvedToTitle": "Commands of God"
+    },
+    {
+      "alias": "Meditating on Scripture",
+      "aliasId": "meditating-on-scripture",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
+    },
+    {
+      "alias": "Meditation on Scripture",
+      "aliasId": "meditation-on-scripture",
+      "target": "meditating-on-scripture",
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
+    },
+    {
+      "alias": "Obedience",
+      "aliasId": "obedience",
+      "target": "obedience",
+      "resolvedToId": "commands-of-god",
+      "resolvedToTitle": "Commands of God"
+    },
+    {
+      "alias": "Obedience to the Word",
+      "aliasId": "obedience-to-the-word",
+      "target": "obedience-to-the-word",
+      "resolvedToId": "obedience-to-the-word",
+      "resolvedToTitle": "Obedience to the Word"
+    },
+    {
+      "alias": "Prayer",
+      "aliasId": "prayer",
+      "target": "prayer",
+      "resolvedToId": "scripture-and-prayer",
+      "resolvedToTitle": "Scripture and Prayer"
+    },
+    {
+      "alias": "Preservation of Scripture",
+      "aliasId": "preservation-of-scripture",
+      "target": "preservation-of-scripture",
+      "resolvedToId": "preservation-of-scripture",
+      "resolvedToTitle": "Preservation of Scripture"
+    },
+    {
+      "alias": "Reading Scripture",
+      "aliasId": "reading-scripture",
+      "target": "reading-the-word",
+      "resolvedToId": "reading-the-word",
+      "resolvedToTitle": "Reading the Word"
+    },
+    {
+      "alias": "Studying Scripture",
+      "aliasId": "studying-scripture",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Teaching",
+      "aliasId": "teaching",
+      "target": "scripture-and-teaching",
+      "resolvedToId": "scripture-and-teaching",
+      "resolvedToTitle": "Scripture and Teaching"
+    },
+    {
+      "alias": "Teaching Scripture",
+      "aliasId": "teaching-scripture",
+      "target": "scripture-and-teaching",
+      "resolvedToId": "scripture-and-teaching",
+      "resolvedToTitle": "Scripture and Teaching"
+    },
+    {
+      "alias": "The Word",
+      "aliasId": "the-word",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "The Word of God",
+      "aliasId": "the-word-of-god",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Truth",
+      "aliasId": "truth",
+      "target": "truthfulness-of-scripture",
+      "resolvedToId": "truthfulness-of-scripture",
+      "resolvedToTitle": "Truthfulness of Scripture"
+    },
+    {
+      "alias": "Truthfulness of Scripture",
+      "aliasId": "truthfulness-of-scripture",
+      "target": "truthfulness-of-scripture",
+      "resolvedToId": "truthfulness-of-scripture",
+      "resolvedToTitle": "Truthfulness of Scripture"
+    },
+    {
+      "alias": "Walking with God",
+      "aliasId": "walking-with-god",
+      "target": "discipleship",
+      "resolvedToId": "scripture-and-discipleship",
+      "resolvedToTitle": "Scripture and Discipleship"
+    },
+    {
+      "alias": "Warnings of Scripture",
+      "aliasId": "warnings-of-scripture",
+      "target": "warnings-of-scripture",
+      "resolvedToId": "warnings-of-scripture",
+      "resolvedToTitle": "Warnings of Scripture"
+    },
+    {
+      "alias": "Word",
+      "aliasId": "word",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Word of God",
+      "aliasId": "word-of-god",
+      "target": "studying-scripture",
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
+    }
+  ],
   "unresolvedAliases": [
     {
       "alias": "Abba Father",
@@ -60,13 +593,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Application",
-      "aliasId": "application",
-      "target": "obedience",
-      "targetId": "obedience",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Assurance",
       "aliasId": "assurance",
       "target": "assurance",
@@ -88,13 +614,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Authority of Scripture",
-      "aliasId": "authority-of-scripture",
-      "target": "authority-of-scripture",
-      "targetId": "authority-of-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Baptism",
       "aliasId": "baptism",
       "target": "baptism",
@@ -106,41 +625,6 @@
       "aliasId": "believers",
       "target": "salvation",
       "targetId": "salvation",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Bible",
-      "aliasId": "bible",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Bible Reading",
-      "aliasId": "bible-reading",
-      "target": "reading-the-word",
-      "targetId": "reading-the-word",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Bible Study",
-      "aliasId": "bible-study",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Biblical Meditation",
-      "aliasId": "biblical-meditation",
-      "target": "meditating-on-scripture",
-      "targetId": "meditating-on-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Biblical Teaching",
-      "aliasId": "biblical-teaching",
-      "target": "scripture-and-teaching",
-      "targetId": "scripture-and-teaching",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -190,27 +674,6 @@
       "aliasId": "brotherhood-and-sisterhood-in-christ",
       "target": "brotherhood-and-sisterhood-in-christ",
       "targetId": "brotherhood-and-sisterhood-in-christ",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Calling",
-      "aliasId": "calling",
-      "target": "discipleship",
-      "targetId": "discipleship",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Canon",
-      "aliasId": "canon",
-      "target": "canon-of-scripture",
-      "targetId": "canon-of-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Canon of Scripture",
-      "aliasId": "canon-of-scripture",
-      "target": "canon-of-scripture",
-      "targetId": "canon-of-scripture",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -354,20 +817,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Christian Life",
-      "aliasId": "christian-life",
-      "target": "discipleship",
-      "targetId": "discipleship",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Christian Living",
-      "aliasId": "christian-living",
-      "target": "discipleship",
-      "targetId": "discipleship",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Church",
       "aliasId": "church",
       "target": "the-church",
@@ -393,13 +842,6 @@
       "aliasId": "comfort",
       "target": "comfort-in-grief",
       "targetId": "comfort-in-grief",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Commands of God",
-      "aliasId": "commands-of-god",
-      "target": "commands-of-god",
-      "targetId": "commands-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -536,13 +978,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Discipleship",
-      "aliasId": "discipleship",
-      "target": "discipleship",
-      "targetId": "discipleship",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Divine Fatherhood",
       "aliasId": "divine-fatherhood",
       "target": "adoption",
@@ -638,13 +1073,6 @@
       "aliasId": "family-of-god",
       "target": "adoption",
       "targetId": "adoption",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Fasting",
-      "aliasId": "fasting",
-      "target": "prayer",
-      "targetId": "prayer",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -802,13 +1230,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Good Works",
-      "aliasId": "good-works",
-      "target": "obedience",
-      "targetId": "obedience",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Gospel",
       "aliasId": "gospel",
       "target": "gospel",
@@ -904,13 +1325,6 @@
       "aliasId": "humanity-of-christ",
       "target": "humanity-and-incarnation-of-christ",
       "targetId": "humanity-and-incarnation-of-christ",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Humility",
-      "aliasId": "humility",
-      "target": "obedience",
-      "targetId": "obedience",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1054,20 +1468,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Meditating on Scripture",
-      "aliasId": "meditating-on-scripture",
-      "target": "meditating-on-scripture",
-      "targetId": "meditating-on-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Meditation on Scripture",
-      "aliasId": "meditation-on-scripture",
-      "target": "meditating-on-scripture",
-      "targetId": "meditating-on-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Mercy",
       "aliasId": "mercy",
       "target": "comfort-in-grief",
@@ -1103,20 +1503,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Obedience",
-      "aliasId": "obedience",
-      "target": "obedience",
-      "targetId": "obedience",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Obedience to the Word",
-      "aliasId": "obedience-to-the-word",
-      "target": "obedience-to-the-word",
-      "targetId": "obedience-to-the-word",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Ordinances",
       "aliasId": "ordinances",
       "target": "church-ordinances",
@@ -1145,31 +1531,10 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Prayer",
-      "aliasId": "prayer",
-      "target": "prayer",
-      "targetId": "prayer",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Preservation of Scripture",
-      "aliasId": "preservation-of-scripture",
-      "target": "preservation-of-scripture",
-      "targetId": "preservation-of-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Providence",
       "aliasId": "providence",
       "target": "sovereignty-and-providence-of-god",
       "targetId": "sovereignty-and-providence-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Reading Scripture",
-      "aliasId": "reading-scripture",
-      "target": "reading-the-word",
-      "targetId": "reading-the-word",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1376,31 +1741,10 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Studying Scripture",
-      "aliasId": "studying-scripture",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Suffering",
       "aliasId": "suffering",
       "target": "suffering-and-gods-purpose",
       "targetId": "suffering-and-gods-purpose",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Teaching",
-      "aliasId": "teaching",
-      "target": "scripture-and-teaching",
-      "targetId": "scripture-and-teaching",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Teaching Scripture",
-      "aliasId": "teaching-scripture",
-      "target": "scripture-and-teaching",
-      "targetId": "scripture-and-teaching",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1544,20 +1888,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "The Word",
-      "aliasId": "the-word",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "The Word of God",
-      "aliasId": "the-word-of-god",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Trinity",
       "aliasId": "trinity",
       "target": "trinity",
@@ -1569,20 +1899,6 @@
       "aliasId": "triune-god",
       "target": "trinity",
       "targetId": "trinity",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Truth",
-      "aliasId": "truth",
-      "target": "truthfulness-of-scripture",
-      "targetId": "truthfulness-of-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Truthfulness of Scripture",
-      "aliasId": "truthfulness-of-scripture",
-      "target": "truthfulness-of-scripture",
-      "targetId": "truthfulness-of-scripture",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1600,13 +1916,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Walking with God",
-      "aliasId": "walking-with-god",
-      "target": "discipleship",
-      "targetId": "discipleship",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Waiting on God",
       "aliasId": "waiting-on-god",
       "target": "waiting-on-god",
@@ -1614,31 +1923,10 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Warnings of Scripture",
-      "aliasId": "warnings-of-scripture",
-      "target": "warnings-of-scripture",
-      "targetId": "warnings-of-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Wisdom",
       "aliasId": "wisdom",
       "target": "wisdom",
       "targetId": "wisdom",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Word",
-      "aliasId": "word",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Word of God",
-      "aliasId": "word-of-god",
-      "target": "studying-scripture",
-      "targetId": "studying-scripture",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1650,5 +1938,7 @@
     }
   ],
   "unresolvedRelatedTopics": [],
-  "categories": {}
+  "categories": {
+    "Scripture": 45
+  }
 }
