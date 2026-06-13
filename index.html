@@ -4648,13 +4648,14 @@ ${(doctrine.relatedTopics || []).length ? `
     `).join("")}
   </div>
 ` : ""}
-
+`;
   openResourceInstancePanel(
     doctrine.title || "Biblical Doctrine",
     doctrineHtml,
     "Biblical Doctrine"
   );
-}
+
+  }
 
 setTimeout(() => {
   document.querySelectorAll(".doctrine-related-topic-btn")
