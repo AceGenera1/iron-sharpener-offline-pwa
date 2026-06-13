@@ -4609,7 +4609,111 @@ async function openDoctrineResource() {
     `;
   }
 
-    
+  function findDoctrineMatches(query) {
+    const q = (query || "").toLowerCase().trim();
+    if (!q) return [];
+
+    return registry
+      .filter(item => {
+        const searchable = [
+          item.title,
+          item.id,
+          item.category,
+          ...(Array.isArray(item.tags) ? item.tags : []),
+          ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+        ].join(" ").toLowerCase();
+
+        return searchable.includes(q);
+      })
+      .slice(0, 30);
+  }
+
+  function runDoctrineSearch() {
+    const value = searchBox ? searchBox.value : "";
+
+    if (!value.trim()) {
+      renderDoctrineHomeMessage();
+      return;
+    }
+
+    if (categoryBrowser) categoryBrowser.open = false;
+    renderDoctrineButtons(findDoctrineMatches(value), "Search Results");
+  }
+
+  if (searchBox) {
+    searchBox.oninput = runDoctrineSearch;
+    searchBox.onkeyup = runDoctrineSearch;
+    searchBox.onchange = runDoctrineSearch;
+  }
+
+  content.onclick = async (event) => {
+    const backBtn = event.target.closest("#backToDoctrineCategories");
+    const categoryBtn = event.target.closest(".doctrine-category-btn");
+    const topicBtn = event.target.closest(".doctrine-topic-btn");
+
+    if (backBtn) {
+      if (searchBox) searchBox.value = "";
+      if (categoryBrowser) categoryBrowser.open = true;
+      renderDoctrineHomeMessage();
+      return;
+    }
+
+    if (categoryBtn) {
+      const category = categoryBtn.dataset.category;
+
+      const items = registry
+        .filter(item => (item.category || "Uncategorized") === category)
+        .sort((a, b) => a.title.localeCompare(b.title));
+
+      if (categoryBrowser) categoryBrowser.open = false;
+      renderDoctrineButtons(items, category);
+      return;
+    }
+
+    if (topicBtn) {
+      const doctrine = await loadDoctrineTopic(topicBtn.dataset.file.replace(/\.json$/i, ""));
+
+      if (!doctrine) {
+        alert(`Doctrine topic could not be loaded: ${topicBtn.textContent.trim()}`);
+        return;
+      }
+
+      openDoctrineTopicInNewPanel(doctrine);
+    }
+  };
+
+  openFloatingResourcePanel(panel);
+}
+
+async function openRelatedDoctrineTopic(topicName) {
+  const registry = await loadDoctrineRegistry();
+  const wantedTitle = String(topicName || "").trim().toLowerCase();
+  const wantedId = makeDoctrineId(topicName);
+
+  const match = registry.find(item =>
+    String(item.title || "").trim().toLowerCase() === wantedTitle ||
+    String(item.id || "").trim().toLowerCase() === wantedId ||
+    (
+      Array.isArray(item.searchTerms) &&
+      item.searchTerms.some(term => String(term).trim().toLowerCase() === wantedTitle)
+    )
+  );
+
+  if (!match) {
+    alert(`Doctrine topic not found: ${topicName}`);
+    return;
+  }
+
+  const doctrine = await loadDoctrineTopic(match.file.replace(/\.json$/i, ""));
+
+  if (!doctrine) {
+    alert(`Unable to load doctrine: ${topicName}`);
+    return;
+  }
+
+  openDoctrineTopicInNewPanel(doctrine);
+}
+
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
 
@@ -4634,62 +4738,42 @@ function openDoctrineTopicInNewPanel(doctrine) {
       <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
     ` : ""}
 
-${(doctrine.relatedTopics || []).length ? `
-  <h4>Related Topics</h4>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;">
-    ${doctrine.relatedTopics.map(topic => `
-      <button
-        type="button"
-        class="doctrine-related-topic-btn"
-        data-topic="${topic}"
-        style="margin-bottom:6px;">
-        ${topic}
-      </button>
-    `).join("")}
-  </div>
-` : ""}
-`;
+    ${(doctrine.relatedTopics || []).length ? `
+      <h4>Related Topics</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${doctrine.relatedTopics.map(topic => `
+          <button
+            type="button"
+            class="doctrine-related-topic-btn"
+            data-topic="${String(topic).replace(/"/g, "&quot;")}"
+            style="margin-bottom:6px;">
+            ${topic}
+          </button>
+        `).join("")}
+      </div>
+    ` : ""}
+  `;
+
   openResourceInstancePanel(
     doctrine.title || "Biblical Doctrine",
     doctrineHtml,
     "Biblical Doctrine"
   );
+}
 
-  }
+if (!window.__doctrineRelatedTopicHandlerBound) {
+  window.__doctrineRelatedTopicHandlerBound = true;
 
-setTimeout(() => {
-  document.querySelectorAll(".doctrine-related-topic-btn")
-    .forEach(btn => {
+  document.addEventListener("click", async (event) => {
+    const relatedBtn = event.target.closest(".doctrine-related-topic-btn");
+    if (!relatedBtn) return;
 
-      btn.onclick = async () => {
-        const topicName = btn.dataset.topic;
+    event.preventDefault();
+    event.stopPropagation();
 
-        const registry = await loadDoctrineRegistry();
-
-        const match = registry.find(item =>
-          String(item.title || "").toLowerCase() ===
-          String(topicName || "").toLowerCase()
-        );
-
-        if (!match) {
-          alert(`Doctrine topic not found: ${topicName}`);
-          return;
-        }
-
-        const doctrine = await loadDoctrineTopic(
-          match.file.replace(/\.json$/i, "")
-        );
-
-        if (!doctrine) {
-          alert(`Unable to load doctrine: ${topicName}`);
-          return;
-        }
-
-        openDoctrineTopicInNewPanel(doctrine);
-      };
-
-    });
-}, 50);
+    await openRelatedDoctrineTopic(relatedBtn.dataset.topic);
+  });
+}
 
     function saveField(id) {
       const field = $(id);
