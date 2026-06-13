@@ -12,16 +12,17 @@ const aliasesFileName = "doctrine-aliases.json";
 
 const canonicalCategories = [
   "Scripture",
-  "God",
-  "Christ",
+  "God / Theology Proper",
+  "Jesus Christ",
   "Holy Spirit",
   "Salvation",
-  "Church",
-  "Prayer",
-  "Spiritual Warfare",
-  "Last Things",
-  "Restoration & Suffering",
-  "Christian Living"
+  "The Church",
+  "Christian Life",
+  "Humanity and Sin",
+  "Last Things / Eschatology",
+  "Angels and the Spiritual Realm",
+  "Biblical Relationships",
+  "Suffering, Recovery, Restoration, and Hope"
 ];
 
 function makeDoctrineId(value) {
