@@ -4709,11 +4709,20 @@ function openDoctrineTopicInNewPanel(doctrine) {
       <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
     ` : ""}
 
-    ${(doctrine.relatedTopics || []).length ? `
-      <h4>Related Topics</h4>
-      <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
-    ` : ""}
-  `;
+${(doctrine.relatedTopics || []).length ? `
+  <h4>Related Topics</h4>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    ${doctrine.relatedTopics.map(topic => `
+      <button
+        type="button"
+        class="doctrine-related-topic-btn"
+        data-topic="${topic}"
+        style="margin-bottom:6px;">
+        ${topic}
+      </button>
+    `).join("")}
+  </div>
+` : ""}
 
   openResourceInstancePanel(
     doctrine.title || "Biblical Doctrine",
@@ -4721,6 +4730,40 @@ function openDoctrineTopicInNewPanel(doctrine) {
     "Biblical Doctrine"
   );
 }
+
+setTimeout(() => {
+  document.querySelectorAll(".doctrine-related-topic-btn")
+    .forEach(btn => {
+
+      btn.onclick = async () => {
+        const topicName = btn.dataset.topic;
+
+        const registry = await loadDoctrineRegistry();
+
+        const match = registry.find(item =>
+          String(item.title || "").toLowerCase() ===
+          String(topicName || "").toLowerCase()
+        );
+
+        if (!match) {
+          alert(`Doctrine topic not found: ${topicName}`);
+          return;
+        }
+
+        const doctrine = await loadDoctrineTopic(
+          match.file.replace(/\.json$/i, "")
+        );
+
+        if (!doctrine) {
+          alert(`Unable to load doctrine: ${topicName}`);
+          return;
+        }
+
+        openDoctrineTopicInNewPanel(doctrine);
+      };
+
+    });
+}, 50);
 
     function saveField(id) {
       const field = $(id);
