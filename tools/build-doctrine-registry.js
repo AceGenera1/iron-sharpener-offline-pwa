@@ -5,6 +5,23 @@ const doctrineDir = path.join(__dirname, "..", "bible", "resources", "doctrine")
 const outputFile = path.join(doctrineDir, "doctrine-registry.json");
 const reportFile = path.join(doctrineDir, "doctrine-registry-report.json");
 
+const registryFileName = "doctrine-registry.json";
+const reportFileName = "doctrine-registry-report.json";
+
+const canonicalCategories = [
+  "Scripture",
+  "God",
+  "Christ",
+  "Holy Spirit",
+  "Salvation",
+  "Church",
+  "Prayer",
+  "Spiritual Warfare",
+  "Last Things",
+  "Restoration & Suffering",
+  "Christian Living"
+];
+
 function makeDoctrineId(value) {
   return String(value || "")
     .trim()
@@ -27,37 +44,76 @@ function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function isNonEmptyArray(value) {
-  return Array.isArray(value) && value.length > 0;
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) return [];
+
+  return [...new Set(
+    value
+      .map(item => String(item || "").trim())
+      .filter(Boolean)
+  )];
+}
+
+function inferDoctrineCategory(id, title) {
+  const text = `${id} ${title}`.toLowerCase();
+
+  if (text.includes("scripture") || text.includes("word")) return "Scripture";
+  if (text.includes("god") || text.includes("trinity")) return "God";
+  if (text.includes("christ") || text.includes("jesus") || text.includes("gospel")) return "Christ";
+  if (text.includes("holy-spirit") || text.includes("spirit")) return "Holy Spirit";
+  if (text.includes("salvation") || text.includes("grace") || text.includes("redemption") || text.includes("justification")) return "Salvation";
+  if (text.includes("church") || text.includes("elders") || text.includes("deacons")) return "Church";
+  if (text.includes("prayer")) return "Prayer";
+  if (text.includes("satan") || text.includes("devil") || text.includes("demon") || text.includes("warfare")) return "Spiritual Warfare";
+  if (text.includes("heaven") || text.includes("hell") || text.includes("judgment") || text.includes("second-coming") || text.includes("last-things")) return "Last Things";
+  if (text.includes("addiction") || text.includes("recovery") || text.includes("suffering") || text.includes("grief") || text.includes("disability")) return "Restoration & Suffering";
+
+  return "Christian Living";
+}
+
+function getDoctrineCategory(doctrine, id, title) {
+  const category = isNonEmptyString(doctrine.category)
+    ? doctrine.category.trim()
+    : inferDoctrineCategory(id, title);
+
+  return canonicalCategories.includes(category) ? category : category;
 }
 
 function validateKeyScriptures(doctrine) {
   const errors = [];
+  const warnings = [];
 
   if (!Array.isArray(doctrine.keyScriptures) || doctrine.keyScriptures.length === 0) {
     errors.push("Missing or empty keyScriptures array.");
-    return errors;
+    return { errors, warnings };
   }
 
   doctrine.keyScriptures.forEach((ref, index) => {
+    let reference = "";
+
     if (typeof ref === "string") {
-      if (!ref.trim()) {
+      reference = ref.trim();
+
+      if (!reference) {
         errors.push(`keyScriptures[${index}] is empty.`);
       }
-      return;
-    }
+    } else if (typeof ref === "object" && ref !== null) {
+      reference = String(ref.reference || "").trim();
 
-    if (typeof ref !== "object" || ref === null) {
+      if (!reference) {
+        errors.push(`keyScriptures[${index}] missing reference.`);
+      }
+    } else {
       errors.push(`keyScriptures[${index}] must be a string or object.`);
       return;
     }
 
-    if (!isNonEmptyString(ref.reference)) {
-      errors.push(`keyScriptures[${index}] missing reference.`);
+    if (reference && !/\b\d+:\d+/.test(reference)) {
+      warnings.push(`keyScriptures[${index}] may not look like a Scripture reference: "${reference}".`);
     }
   });
 
-  return errors;
+  return { errors, warnings };
 }
 
 function validateStudySections(doctrine) {
@@ -87,7 +143,63 @@ function validateStudySections(doctrine) {
   return errors;
 }
 
-function validateDoctrine(doctrine) {
+function validateSources(doctrine) {
+  const errors = [];
+  const warnings = [];
+
+  if (!Array.isArray(doctrine.sources)) {
+    errors.push("Missing sources array.");
+    return { errors, warnings };
+  }
+
+  if (doctrine.sources.length === 0) {
+    warnings.push("sources array is empty.");
+  }
+
+  doctrine.sources.forEach((source, index) => {
+    if (typeof source === "string") {
+      if (!source.trim()) {
+        warnings.push(`sources[${index}] is empty.`);
+      }
+      return;
+    }
+
+    if (typeof source === "object" && source !== null) {
+      if (!isNonEmptyString(source.title) && !isNonEmptyString(source.name)) {
+        warnings.push(`sources[${index}] object should include title or name.`);
+      }
+      return;
+    }
+
+    warnings.push(`sources[${index}] should be a string or object.`);
+  });
+
+  return { errors, warnings };
+}
+
+function validateRelatedTopics(doctrine) {
+  const errors = [];
+  const warnings = [];
+
+  if (!Array.isArray(doctrine.relatedTopics)) {
+    errors.push("Missing relatedTopics array.");
+    return { errors, warnings };
+  }
+
+  if (doctrine.relatedTopics.length === 0) {
+    warnings.push("relatedTopics array is empty.");
+  }
+
+  doctrine.relatedTopics.forEach((topic, index) => {
+    if (!isNonEmptyString(topic)) {
+      errors.push(`relatedTopics[${index}] must be a non-empty string.`);
+    }
+  });
+
+  return { errors, warnings };
+}
+
+function validateDoctrine(doctrine, file, id, title) {
   const errors = [];
   const warnings = [];
 
@@ -107,60 +219,70 @@ function validateDoctrine(doctrine) {
     errors.push("Missing christFocus.");
   }
 
-  errors.push(...validateKeyScriptures(doctrine));
+  if (!isNonEmptyString(doctrine.category)) {
+    warnings.push(`Missing category. Builder will infer category: "${inferDoctrineCategory(id, title)}".`);
+  }
+
+  if (isNonEmptyString(doctrine.category) && !canonicalCategories.includes(doctrine.category.trim())) {
+    warnings.push(`Category "${doctrine.category}" is not in the canonical category list.`);
+  }
+
+  const fileId = makeDoctrineId(file);
+  if (doctrine.id && makeDoctrineId(doctrine.id) !== fileId) {
+    warnings.push(`Doctrine id "${doctrine.id}" does not match filename id "${fileId}".`);
+  }
+
+  const scriptureValidation = validateKeyScriptures(doctrine);
+  errors.push(...scriptureValidation.errors);
+  warnings.push(...scriptureValidation.warnings);
+
   errors.push(...validateStudySections(doctrine));
 
-  if (!Array.isArray(doctrine.sources)) {
-    errors.push("Missing sources array.");
-  }
+  const sourceValidation = validateSources(doctrine);
+  errors.push(...sourceValidation.errors);
+  warnings.push(...sourceValidation.warnings);
 
-  if (!Array.isArray(doctrine.relatedTopics)) {
-    errors.push("Missing relatedTopics array.");
-  }
-
-  if (Array.isArray(doctrine.sources) && doctrine.sources.length === 0) {
-    warnings.push("sources array is empty.");
-  }
-
-  if (Array.isArray(doctrine.relatedTopics) && doctrine.relatedTopics.length === 0) {
-    warnings.push("relatedTopics array is empty.");
-  }
+  const relatedValidation = validateRelatedTopics(doctrine);
+  errors.push(...relatedValidation.errors);
+  warnings.push(...relatedValidation.warnings);
 
   return { errors, warnings };
 }
 
+function shouldSkipFile(file) {
+  if (!file.endsWith(".json")) return true;
+  if (file.startsWith("index")) return true;
+  if (file === registryFileName) return true;
+  if (file === reportFileName) return true;
+  return false;
+}
+
 const files = fs.readdirSync(doctrineDir)
-  .filter(file => file.endsWith(".json"))
-  .filter(file => !file.startsWith("index"))
-  .filter(file => file !== "doctrine-registry.json")
-  .filter(file => file !== "doctrine-registry-report.json");
+  .filter(file => !shouldSkipFile(file))
+  .sort();
 
 const registry = [];
+const acceptedDoctrines = [];
+
 const report = {
+  generatedAt: new Date().toISOString(),
+  frameworkVersion: "1.0",
+  totals: {
+    scanned: files.length,
+    accepted: 0,
+    warnings: 0,
+    rejected: 0,
+    duplicates: 0
+  },
   accepted: [],
   warnings: [],
   rejected: [],
-  duplicates: []
+  duplicates: [],
+  unresolvedRelatedTopics: [],
+  categories: {}
 };
 
-const seenIds = new Set();
-
-function inferDoctrineCategory(id, title) {
-  const text = `${id} ${title}`.toLowerCase();
-
-  if (text.includes("scripture") || text.includes("word")) return "Scripture";
-  if (text.includes("god") || text.includes("trinity")) return "God";
-  if (text.includes("christ") || text.includes("jesus") || text.includes("gospel")) return "Christ";
-  if (text.includes("holy-spirit") || text.includes("spirit")) return "Holy Spirit";
-  if (text.includes("salvation") || text.includes("grace") || text.includes("redemption") || text.includes("justification")) return "Salvation";
-  if (text.includes("church") || text.includes("elders") || text.includes("deacons")) return "Church";
-  if (text.includes("prayer")) return "Prayer";
-  if (text.includes("satan") || text.includes("devil") || text.includes("demons") || text.includes("warfare")) return "Spiritual Warfare";
-  if (text.includes("heaven") || text.includes("hell") || text.includes("judgment") || text.includes("second-coming") || text.includes("last-things")) return "Last Things";
-  if (text.includes("addiction") || text.includes("recovery") || text.includes("suffering") || text.includes("grief") || text.includes("disability")) return "Restoration & Suffering";
-
-  return "Christian Living";
-}
+const seenIds = new Map();
 
 for (const file of files) {
   const fullPath = path.join(doctrineDir, file);
@@ -171,18 +293,27 @@ for (const file of files) {
 
     const id = makeDoctrineId(doctrine.id || file);
     const title = doctrine.title || makeDoctrineTitle(file);
+    const category = getDoctrineCategory(doctrine, id, title);
 
     if (!id) {
-      report.rejected.push({ file, reason: "Missing doctrine id." });
+      report.rejected.push({
+        file,
+        reason: "Missing doctrine id."
+      });
       continue;
     }
 
     if (seenIds.has(id)) {
-      report.duplicates.push({ file, id, title });
+      report.duplicates.push({
+        file,
+        id,
+        title,
+        conflictsWith: seenIds.get(id)
+      });
       continue;
     }
 
-    const validation = validateDoctrine(doctrine);
+    const validation = validateDoctrine(doctrine, file, id, title);
 
     if (validation.errors.length) {
       report.rejected.push({
@@ -194,7 +325,52 @@ for (const file of files) {
       continue;
     }
 
-    seenIds.add(id);
+    seenIds.set(id, file);
+
+    const tags = normalizeStringArray(doctrine.tags);
+    const relatedTopics = normalizeStringArray(doctrine.relatedTopics);
+
+    const searchTerms = normalizeStringArray([
+      id,
+      title,
+      category,
+      ...tags,
+      ...relatedTopics,
+      ...(Array.isArray(doctrine.searchTerms) ? doctrine.searchTerms : [])
+    ]);
+
+    const registryItem = {
+      id,
+      title,
+      file,
+      frameworkVersion: doctrine.frameworkVersion || "1.0",
+      validated: true,
+      category,
+      tags,
+      searchTerms
+    };
+
+    registry.push(registryItem);
+
+    acceptedDoctrines.push({
+      file,
+      id,
+      title,
+      category,
+      doctrine
+    });
+
+    report.accepted.push({
+      file,
+      id,
+      title,
+      category
+    });
+
+    if (!report.categories[category]) {
+      report.categories[category] = 0;
+    }
+    report.categories[category] += 1;
 
     if (validation.warnings.length) {
       report.warnings.push({
@@ -204,27 +380,6 @@ for (const file of files) {
         warnings: validation.warnings
       });
     }
-
- registry.push({
-  id,
-  title,
-  file,
-  frameworkVersion: doctrine.frameworkVersion || "1.0",
-  validated: true,
- category: doctrine.category || inferDoctrineCategory(id, title),
-  tags: Array.isArray(doctrine.tags) ? doctrine.tags : [],
-  searchTerms: Array.isArray(doctrine.searchTerms)
-    ? doctrine.searchTerms
-    : [
-        id,
-        title,
-       doctrine.category || inferDoctrineCategory(id, title),
-        ...(Array.isArray(doctrine.tags) ? doctrine.tags : [])
-      ].filter(Boolean)
-});
-
-    report.accepted.push({ file, id, title });
-
   } catch (error) {
     report.rejected.push({
       file,
@@ -233,17 +388,62 @@ for (const file of files) {
   }
 }
 
-registry.sort((a, b) => a.title.localeCompare(b.title));
+const acceptedAliases = new Set();
+
+acceptedDoctrines.forEach(item => {
+  acceptedAliases.add(makeDoctrineId(item.id));
+  acceptedAliases.add(makeDoctrineId(item.title));
+  acceptedAliases.add(makeDoctrineId(item.file));
+
+  if (Array.isArray(item.doctrine.searchTerms)) {
+    item.doctrine.searchTerms.forEach(term => {
+      acceptedAliases.add(makeDoctrineId(term));
+    });
+  }
+});
+
+acceptedDoctrines.forEach(item => {
+  const relatedTopics = normalizeStringArray(item.doctrine.relatedTopics);
+
+  relatedTopics.forEach(topic => {
+    const topicId = makeDoctrineId(topic);
+
+    if (!acceptedAliases.has(topicId)) {
+      report.unresolvedRelatedTopics.push({
+        file: item.file,
+        id: item.id,
+        title: item.title,
+        relatedTopic: topic,
+        normalizedTopic: topicId,
+        message: "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
+      });
+    }
+  });
+});
+
+registry.sort((a, b) => {
+  const categoryCompare = a.category.localeCompare(b.category);
+  if (categoryCompare !== 0) return categoryCompare;
+  return a.title.localeCompare(b.title);
+});
+
+report.totals.accepted = report.accepted.length;
+report.totals.warnings = report.warnings.length;
+report.totals.rejected = report.rejected.length;
+report.totals.duplicates = report.duplicates.length;
+report.totals.unresolvedRelatedTopics = report.unresolvedRelatedTopics.length;
 
 fs.writeFileSync(outputFile, JSON.stringify(registry, null, 2));
 fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 
-console.log("Doctrine registry built with framework validation.");
-console.log(`Accepted: ${report.accepted.length}`);
-console.log(`Warnings: ${report.warnings.length}`);
-console.log(`Rejected: ${report.rejected.length}`);
-console.log(`Duplicates: ${report.duplicates.length}`);
+console.log("Doctrine registry built with locked framework validation.");
+console.log(`Scanned: ${report.totals.scanned}`);
+console.log(`Accepted: ${report.totals.accepted}`);
+console.log(`Warnings: ${report.totals.warnings}`);
+console.log(`Rejected: ${report.totals.rejected}`);
+console.log(`Duplicates: ${report.totals.duplicates}`);
+console.log(`Unresolved related topics: ${report.totals.unresolvedRelatedTopics}`);
 
-if (report.rejected.length || report.duplicates.length) {
+if (report.rejected.length || report.duplicates.length || report.unresolvedRelatedTopics.length) {
   console.warn("Doctrine validation issues detected. See doctrine-registry-report.json.");
 }
