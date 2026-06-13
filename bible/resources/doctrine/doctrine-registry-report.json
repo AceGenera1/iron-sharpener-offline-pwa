@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-13T11:40:53.670Z",
+  "generatedAt": "2026-06-13T11:47:44.173Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 9,
-    "accepted": 8,
-    "warnings": 0,
-    "rejected": 1,
+    "scanned": 16,
+    "accepted": 14,
+    "warnings": 6,
+    "rejected": 2,
     "duplicates": 0,
     "aliasesLoaded": 232,
-    "resolvedAliases": 14,
-    "unresolvedAliases": 218,
-    "unresolvedRelatedTopics": 12
+    "resolvedAliases": 27,
+    "unresolvedAliases": 205,
+    "unresolvedRelatedTopics": 20
   },
   "accepted": [
     {
@@ -26,10 +26,34 @@
       "category": "Scripture"
     },
     {
+      "file": "existence-of-god.json",
+      "id": "existence-of-god",
+      "title": "Existence of God",
+      "category": "God / Theology Proper"
+    },
+    {
+      "file": "glory-of-god.json",
+      "id": "glory-of-god",
+      "title": "Glory of God",
+      "category": "God / Theology Proper"
+    },
+    {
+      "file": "holiness-of-god.json",
+      "id": "holiness-of-god",
+      "title": "Holiness of God",
+      "category": "God / Theology Proper"
+    },
+    {
       "file": "inspiration-of-scripture.json",
       "id": "inspiration-of-scripture",
       "title": "Inspiration of Scripture",
       "category": "Scripture"
+    },
+    {
+      "file": "love-of-god.json",
+      "id": "love-of-god",
+      "title": "Love of God",
+      "category": "God / Theology Proper"
     },
     {
       "file": "meditating-on-scripture.json",
@@ -44,6 +68,12 @@
       "category": "Scripture"
     },
     {
+      "file": "sovereignty-and-providence-of-god.json",
+      "id": "sovereignty-and-providence-of-god",
+      "title": "Sovereignty and Providence of God",
+      "category": "God / Theology Proper"
+    },
+    {
       "file": "studying-scripture.json",
       "id": "studying-scripture",
       "title": "Studying Scripture",
@@ -56,18 +86,88 @@
       "category": "Scripture"
     },
     {
+      "file": "trinity.json",
+      "id": "trinity",
+      "title": "Trinity",
+      "category": "God / Theology Proper"
+    },
+    {
       "file": "truthfulness-of-scripture.json",
       "id": "truthfulness-of-scripture",
       "title": "Truthfulness of Scripture",
       "category": "Scripture"
     }
   ],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "existence-of-god.json",
+      "id": "existence-of-god",
+      "title": "Existence of God",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    },
+    {
+      "file": "glory-of-god.json",
+      "id": "glory-of-god",
+      "title": "Glory of God",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    },
+    {
+      "file": "holiness-of-god.json",
+      "id": "holiness-of-god",
+      "title": "Holiness of God",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    },
+    {
+      "file": "love-of-god.json",
+      "id": "love-of-god",
+      "title": "Love of God",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    },
+    {
+      "file": "sovereignty-and-providence-of-god.json",
+      "id": "sovereignty-and-providence-of-god",
+      "title": "Sovereignty and Providence of God",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    },
+    {
+      "file": "trinity.json",
+      "id": "trinity",
+      "title": "Trinity",
+      "warnings": [
+        "Category \"God / Theology Proper\" is not in the canonical category list."
+      ]
+    }
+  ],
   "rejected": [
     {
       "file": "_category_01_scripture_manifest.json",
       "id": "category-01-scripture-manifest",
       "title": "_category_01_scripture_manifest",
+      "errors": [
+        "Missing title.",
+        "Missing definition.",
+        "Missing summary.",
+        "Missing christFocus.",
+        "Missing or empty keyScriptures array.",
+        "Missing or empty studySections/sections array.",
+        "Missing sources array.",
+        "Missing relatedTopics array."
+      ]
+    },
+    {
+      "file": "_category_02_god_manifest.json",
+      "id": "category-02-god-manifest",
+      "title": "_category_02_god_manifest",
       "errors": [
         "Missing title.",
         "Missing definition.",
@@ -117,6 +217,69 @@
       "resolvedToTitle": "Meditating on Scripture"
     },
     {
+      "alias": "Divine Providence",
+      "aliasId": "divine-providence",
+      "target": "sovereignty-and-providence-of-god",
+      "resolvedToId": "sovereignty-and-providence-of-god",
+      "resolvedToTitle": "Sovereignty and Providence of God"
+    },
+    {
+      "alias": "God",
+      "aliasId": "god",
+      "target": "existence-of-god",
+      "resolvedToId": "existence-of-god",
+      "resolvedToTitle": "Existence of God"
+    },
+    {
+      "alias": "God the Father",
+      "aliasId": "god-the-father",
+      "target": "trinity",
+      "resolvedToId": "trinity",
+      "resolvedToTitle": "Trinity"
+    },
+    {
+      "alias": "God's Holiness",
+      "aliasId": "god-s-holiness",
+      "target": "holiness-of-god",
+      "resolvedToId": "holiness-of-god",
+      "resolvedToTitle": "Holiness of God"
+    },
+    {
+      "alias": "God's Love",
+      "aliasId": "god-s-love",
+      "target": "love-of-god",
+      "resolvedToId": "love-of-god",
+      "resolvedToTitle": "Love of God"
+    },
+    {
+      "alias": "God's Providence",
+      "aliasId": "god-s-providence",
+      "target": "sovereignty-and-providence-of-god",
+      "resolvedToId": "sovereignty-and-providence-of-god",
+      "resolvedToTitle": "Sovereignty and Providence of God"
+    },
+    {
+      "alias": "God's Sovereignty",
+      "aliasId": "god-s-sovereignty",
+      "target": "sovereignty-and-providence-of-god",
+      "resolvedToId": "sovereignty-and-providence-of-god",
+      "resolvedToTitle": "Sovereignty and Providence of God"
+    },
+    {
+      "alias": "Holiness of God",
+      "aliasId": "holiness-of-god",
+      "target": "holiness-of-god",
+      "resolvedToId": "holiness-of-god",
+      "resolvedToTitle": "Holiness of God"
+    },
+    {
+      "alias": "Love",
+      "aliasId": "love",
+      "target": "love-of-god",
+      "resolvedToId": "love-of-god",
+      "resolvedToTitle": "Love of God"
+    },
+    {
       "alias": "Meditating on Scripture",
       "aliasId": "meditating-on-scripture",
       "target": "meditating-on-scripture",
@@ -138,6 +301,20 @@
       "resolvedToTitle": "Preservation of Scripture"
     },
     {
+      "alias": "Providence",
+      "aliasId": "providence",
+      "target": "sovereignty-and-providence-of-god",
+      "resolvedToId": "sovereignty-and-providence-of-god",
+      "resolvedToTitle": "Sovereignty and Providence of God"
+    },
+    {
+      "alias": "Sovereignty",
+      "aliasId": "sovereignty",
+      "target": "sovereignty-and-providence-of-god",
+      "resolvedToId": "sovereignty-and-providence-of-god",
+      "resolvedToTitle": "Sovereignty and Providence of God"
+    },
+    {
       "alias": "Studying Scripture",
       "aliasId": "studying-scripture",
       "target": "studying-scripture",
@@ -157,6 +334,20 @@
       "target": "studying-scripture",
       "resolvedToId": "studying-scripture",
       "resolvedToTitle": "Studying Scripture"
+    },
+    {
+      "alias": "Trinity",
+      "aliasId": "trinity",
+      "target": "trinity",
+      "resolvedToId": "trinity",
+      "resolvedToTitle": "Trinity"
+    },
+    {
+      "alias": "Triune God",
+      "aliasId": "triune-god",
+      "target": "trinity",
+      "resolvedToId": "trinity",
+      "resolvedToTitle": "Trinity"
     },
     {
       "alias": "Truth",
@@ -693,13 +884,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Divine Providence",
-      "aliasId": "divine-providence",
-      "target": "sovereignty-and-providence-of-god",
-      "targetId": "sovereignty-and-providence-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Election",
       "aliasId": "election",
       "target": "grace",
@@ -847,24 +1031,10 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "God",
-      "aliasId": "god",
-      "target": "existence-of-god",
-      "targetId": "existence-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "God as Father",
       "aliasId": "god-as-father",
       "target": "adoption",
       "targetId": "adoption",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "God the Father",
-      "aliasId": "god-the-father",
-      "target": "trinity",
-      "targetId": "trinity",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -889,24 +1059,10 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "God's Holiness",
-      "aliasId": "god-s-holiness",
-      "target": "holiness-of-god",
-      "targetId": "holiness-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "God's Kingdom",
       "aliasId": "god-s-kingdom",
       "target": "new-heavens-and-new-earth",
       "targetId": "new-heavens-and-new-earth",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "God's Love",
-      "aliasId": "god-s-love",
-      "target": "love-of-god",
-      "targetId": "love-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -921,20 +1077,6 @@
       "aliasId": "god-s-protection",
       "target": "gods-protection-and-christs-victory-over-evil",
       "targetId": "gods-protection-and-christs-victory-over-evil",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "God's Providence",
-      "aliasId": "god-s-providence",
-      "target": "sovereignty-and-providence-of-god",
-      "targetId": "sovereignty-and-providence-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "God's Sovereignty",
-      "aliasId": "god-s-sovereignty",
-      "target": "sovereignty-and-providence-of-god",
-      "targetId": "sovereignty-and-providence-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -991,13 +1133,6 @@
       "aliasId": "holiness",
       "target": "sanctification",
       "targetId": "sanctification",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Holiness of God",
-      "aliasId": "holiness-of-god",
-      "target": "holiness-of-god",
-      "targetId": "holiness-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1176,13 +1311,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Love",
-      "aliasId": "love",
-      "target": "love-of-god",
-      "targetId": "love-of-god",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Marriage",
       "aliasId": "marriage",
       "target": "marriage",
@@ -1271,13 +1399,6 @@
       "aliasId": "prayer",
       "target": "prayer",
       "targetId": "prayer",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Providence",
-      "aliasId": "providence",
-      "target": "sovereignty-and-providence-of-god",
-      "targetId": "sovereignty-and-providence-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1453,13 +1574,6 @@
       "aliasId": "sonship",
       "target": "adoption",
       "targetId": "adoption",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Sovereignty",
-      "aliasId": "sovereignty",
-      "target": "sovereignty-and-providence-of-god",
-      "targetId": "sovereignty-and-providence-of-god",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -1652,20 +1766,6 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
-      "alias": "Trinity",
-      "aliasId": "trinity",
-      "target": "trinity",
-      "targetId": "trinity",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
-      "alias": "Triune God",
-      "aliasId": "triune-god",
-      "target": "trinity",
-      "targetId": "trinity",
-      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
-    },
-    {
       "alias": "Vocation",
       "aliasId": "vocation",
       "target": "stewardship",
@@ -1749,11 +1849,43 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "glory-of-god.json",
+      "id": "glory-of-god",
+      "title": "Glory of God",
+      "relatedTopic": "Worship",
+      "normalizedTopic": "worship",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "holiness-of-god.json",
+      "id": "holiness-of-god",
+      "title": "Holiness of God",
+      "relatedTopic": "Sanctification",
+      "normalizedTopic": "sanctification",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "inspiration-of-scripture.json",
       "id": "inspiration-of-scripture",
       "title": "Inspiration of Scripture",
       "relatedTopic": "Illumination of Scripture",
       "normalizedTopic": "illumination-of-scripture",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "love-of-god.json",
+      "id": "love-of-god",
+      "title": "Love of God",
+      "relatedTopic": "Grace",
+      "normalizedTopic": "grace",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "love-of-god.json",
+      "id": "love-of-god",
+      "title": "Love of God",
+      "relatedTopic": "Adoption",
+      "normalizedTopic": "adoption",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -1781,6 +1913,14 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "sovereignty-and-providence-of-god.json",
+      "id": "sovereignty-and-providence-of-god",
+      "title": "Sovereignty and Providence of God",
+      "relatedTopic": "Hope for the Broken",
+      "normalizedTopic": "hope-for-the-broken",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "studying-scripture.json",
       "id": "studying-scripture",
       "title": "Studying Scripture",
@@ -1805,6 +1945,30 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "trinity.json",
+      "id": "trinity",
+      "title": "Trinity",
+      "relatedTopic": "Deity of Christ",
+      "normalizedTopic": "deity-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "trinity.json",
+      "id": "trinity",
+      "title": "Trinity",
+      "relatedTopic": "Personhood of the Holy Spirit",
+      "normalizedTopic": "personhood-of-the-holy-spirit",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "trinity.json",
+      "id": "trinity",
+      "title": "Trinity",
+      "relatedTopic": "Deity of the Holy Spirit",
+      "normalizedTopic": "deity-of-the-holy-spirit",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "truthfulness-of-scripture.json",
       "id": "truthfulness-of-scripture",
       "title": "Truthfulness of Scripture",
@@ -1814,6 +1978,7 @@
     }
   ],
   "categories": {
-    "Scripture": 8
+    "Scripture": 8,
+    "God / Theology Proper": 6
   }
 }
