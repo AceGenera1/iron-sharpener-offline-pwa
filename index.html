@@ -4641,10 +4641,11 @@ async function openDoctrineResource() {
   }
 
   if (searchBox) {
-    searchBox.oninput = runDoctrineSearch;
-    searchBox.onkeyup = runDoctrineSearch;
-    searchBox.onchange = runDoctrineSearch;
-  }
+  searchBox.oninput = runDoctrineSearch;
+  searchBox.onkeyup = (event) => {
+    if (event.key === "Enter") runDoctrineSearch();
+  };
+}
 
   content.onclick = async (event) => {
     const backBtn = event.target.closest("#backToDoctrineCategories");
