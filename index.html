@@ -4690,14 +4690,28 @@ async function openRelatedDoctrineTopic(topicName) {
   const wantedTitle = String(topicName || "").trim().toLowerCase();
   const wantedId = makeDoctrineId(topicName);
 
-  const match = registry.find(item =>
-    String(item.title || "").trim().toLowerCase() === wantedTitle ||
-    String(item.id || "").trim().toLowerCase() === wantedId ||
-    (
-      Array.isArray(item.searchTerms) &&
-      item.searchTerms.some(term => String(term).trim().toLowerCase() === wantedTitle)
-    )
+  let match = registry.find(item =>
+    String(item.title || "").trim().toLowerCase() === wantedTitle
   );
+
+  if (!match) {
+    match = registry.find(item =>
+      makeDoctrineId(item.id) === wantedId
+    );
+  }
+
+  if (!match) {
+    match = registry.find(item =>
+      makeDoctrineId(item.file) === wantedId
+    );
+  }
+
+  if (!match) {
+    match = registry.find(item =>
+      Array.isArray(item.searchTerms) &&
+      item.searchTerms.some(term => makeDoctrineId(term) === wantedId)
+    );
+  }
 
   if (!match) {
     alert(`Doctrine topic not found: ${topicName}`);
