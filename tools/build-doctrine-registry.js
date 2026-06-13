@@ -4,9 +4,11 @@ const path = require("path");
 const doctrineDir = path.join(__dirname, "..", "bible", "resources", "doctrine");
 const outputFile = path.join(doctrineDir, "doctrine-registry.json");
 const reportFile = path.join(doctrineDir, "doctrine-registry-report.json");
+const aliasesFile = path.join(doctrineDir, "doctrine-aliases.json");
 
 const registryFileName = "doctrine-registry.json";
 const reportFileName = "doctrine-registry-report.json";
+const aliasesFileName = "doctrine-aliases.json";
 
 const canonicalCategories = [
   "Scripture",
@@ -254,7 +256,75 @@ function shouldSkipFile(file) {
   if (file.startsWith("index")) return true;
   if (file === registryFileName) return true;
   if (file === reportFileName) return true;
+  if (file === aliasesFileName) return true;
   return false;
+}
+
+function loadDoctrineAliases() {
+  const aliases = {};
+  const warnings = [];
+
+  if (!fs.existsSync(aliasesFile)) {
+    return {
+      loaded: false,
+      aliases,
+      warnings: ["doctrine-aliases.json was not found."]
+    };
+  }
+
+  try {
+    const raw = JSON.parse(fs.readFileSync(aliasesFile, "utf8"));
+
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      return {
+        loaded: true,
+        aliases,
+        warnings: ["doctrine-aliases.json must contain a plain JSON object."]
+      };
+    }
+
+    Object.entries(raw).forEach(([aliasName, targetValue]) => {
+      const aliasLabel = String(aliasName || "").trim();
+      const targetLabel = String(targetValue || "").trim();
+
+      if (!aliasLabel || !targetLabel) {
+        warnings.push(`Invalid alias entry: "${aliasName}" -> "${targetValue}".`);
+        return;
+      }
+
+      aliases[makeDoctrineId(aliasLabel)] = {
+        alias: aliasLabel,
+        aliasId: makeDoctrineId(aliasLabel),
+        target: targetLabel,
+        targetId: makeDoctrineId(targetLabel)
+      };
+    });
+
+    return {
+      loaded: true,
+      aliases,
+      warnings
+    };
+  } catch (error) {
+    return {
+      loaded: true,
+      aliases,
+      warnings: [`Could not parse doctrine-aliases.json: ${error.message}`]
+    };
+  }
+}
+
+function findRegistryItemByTarget(registry, targetValue) {
+  const targetId = makeDoctrineId(targetValue);
+
+  return registry.find(item => {
+    if (makeDoctrineId(item.id) === targetId) return true;
+    if (makeDoctrineId(item.title) === targetId) return true;
+    if (makeDoctrineId(item.file) === targetId) return true;
+
+    return Array.isArray(item.searchTerms) &&
+      item.searchTerms.some(term => makeDoctrineId(term) === targetId);
+  });
 }
 
 const files = fs.readdirSync(doctrineDir)
@@ -272,12 +342,24 @@ const report = {
     accepted: 0,
     warnings: 0,
     rejected: 0,
-    duplicates: 0
+    duplicates: 0,
+    aliasesLoaded: 0,
+    resolvedAliases: 0,
+    unresolvedAliases: 0,
+    unresolvedRelatedTopics: 0
   },
   accepted: [],
   warnings: [],
   rejected: [],
   duplicates: [],
+  aliases: {
+    file: aliasesFileName,
+    loaded: false,
+    count: 0,
+    warnings: []
+  },
+  resolvedAliases: [],
+  unresolvedAliases: [],
   unresolvedRelatedTopics: [],
   categories: {}
 };
@@ -390,17 +472,76 @@ for (const file of files) {
 
 const acceptedAliases = new Set();
 
-acceptedDoctrines.forEach(item => {
-  acceptedAliases.add(makeDoctrineId(item.id));
-  acceptedAliases.add(makeDoctrineId(item.title));
-  acceptedAliases.add(makeDoctrineId(item.file));
+function rebuildAcceptedAliases() {
+  acceptedAliases.clear();
 
-  if (Array.isArray(item.doctrine.searchTerms)) {
-    item.doctrine.searchTerms.forEach(term => {
-      acceptedAliases.add(makeDoctrineId(term));
+  acceptedDoctrines.forEach(item => {
+    acceptedAliases.add(makeDoctrineId(item.id));
+    acceptedAliases.add(makeDoctrineId(item.title));
+    acceptedAliases.add(makeDoctrineId(item.file));
+
+    if (Array.isArray(item.doctrine.searchTerms)) {
+      item.doctrine.searchTerms.forEach(term => {
+        acceptedAliases.add(makeDoctrineId(term));
+      });
+    }
+  });
+
+  registry.forEach(item => {
+    acceptedAliases.add(makeDoctrineId(item.id));
+    acceptedAliases.add(makeDoctrineId(item.title));
+    acceptedAliases.add(makeDoctrineId(item.file));
+
+    if (Array.isArray(item.searchTerms)) {
+      item.searchTerms.forEach(term => {
+        acceptedAliases.add(makeDoctrineId(term));
+      });
+    }
+  });
+}
+
+rebuildAcceptedAliases();
+
+const aliasLoad = loadDoctrineAliases();
+const doctrineAliases = aliasLoad.aliases;
+const resolvedAliasIds = new Set();
+
+report.aliases.loaded = aliasLoad.loaded;
+report.aliases.count = Object.keys(doctrineAliases).length;
+report.aliases.warnings = aliasLoad.warnings;
+
+Object.values(doctrineAliases).forEach(aliasEntry => {
+  const targetItem = findRegistryItemByTarget(registry, aliasEntry.target);
+
+  if (!targetItem) {
+    report.unresolvedAliases.push({
+      alias: aliasEntry.alias,
+      aliasId: aliasEntry.aliasId,
+      target: aliasEntry.target,
+      targetId: aliasEntry.targetId,
+      message: "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     });
+    return;
   }
+
+  targetItem.searchTerms = normalizeStringArray([
+    ...(Array.isArray(targetItem.searchTerms) ? targetItem.searchTerms : []),
+    aliasEntry.alias,
+    aliasEntry.aliasId
+  ]);
+
+  resolvedAliasIds.add(aliasEntry.aliasId);
+
+  report.resolvedAliases.push({
+    alias: aliasEntry.alias,
+    aliasId: aliasEntry.aliasId,
+    target: aliasEntry.target,
+    resolvedToId: targetItem.id,
+    resolvedToTitle: targetItem.title
+  });
 });
+
+rebuildAcceptedAliases();
 
 acceptedDoctrines.forEach(item => {
   const relatedTopics = normalizeStringArray(item.doctrine.relatedTopics);
@@ -408,16 +549,18 @@ acceptedDoctrines.forEach(item => {
   relatedTopics.forEach(topic => {
     const topicId = makeDoctrineId(topic);
 
-    if (!acceptedAliases.has(topicId)) {
-      report.unresolvedRelatedTopics.push({
-        file: item.file,
-        id: item.id,
-        title: item.title,
-        relatedTopic: topic,
-        normalizedTopic: topicId,
-        message: "Related topic does not match any accepted doctrine id, title, filename, or searchTerm."
-      });
+    if (acceptedAliases.has(topicId) || resolvedAliasIds.has(topicId)) {
+      return;
     }
+
+    report.unresolvedRelatedTopics.push({
+      file: item.file,
+      id: item.id,
+      title: item.title,
+      relatedTopic: topic,
+      normalizedTopic: topicId,
+      message: "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    });
   });
 });
 
@@ -431,6 +574,9 @@ report.totals.accepted = report.accepted.length;
 report.totals.warnings = report.warnings.length;
 report.totals.rejected = report.rejected.length;
 report.totals.duplicates = report.duplicates.length;
+report.totals.aliasesLoaded = report.aliases.count;
+report.totals.resolvedAliases = report.resolvedAliases.length;
+report.totals.unresolvedAliases = report.unresolvedAliases.length;
 report.totals.unresolvedRelatedTopics = report.unresolvedRelatedTopics.length;
 
 fs.writeFileSync(outputFile, JSON.stringify(registry, null, 2));
@@ -442,8 +588,16 @@ console.log(`Accepted: ${report.totals.accepted}`);
 console.log(`Warnings: ${report.totals.warnings}`);
 console.log(`Rejected: ${report.totals.rejected}`);
 console.log(`Duplicates: ${report.totals.duplicates}`);
+console.log(`Aliases loaded: ${report.totals.aliasesLoaded}`);
+console.log(`Resolved aliases: ${report.totals.resolvedAliases}`);
+console.log(`Unresolved aliases: ${report.totals.unresolvedAliases}`);
 console.log(`Unresolved related topics: ${report.totals.unresolvedRelatedTopics}`);
 
-if (report.rejected.length || report.duplicates.length || report.unresolvedRelatedTopics.length) {
+if (
+  report.rejected.length ||
+  report.duplicates.length ||
+  report.unresolvedAliases.length ||
+  report.unresolvedRelatedTopics.length
+) {
   console.warn("Doctrine validation issues detected. See doctrine-registry-report.json.");
 }
