@@ -4515,6 +4515,8 @@ async function loadDoctrineTopic(topicFile) {
 }
 
 const DOCTRINE_REGISTRY_VERSION = "2026-06-13-cat04-281";
+const DOCTRINE_REGISTRY_URL =
+  "https://iron.restoreddailyministries.org/bible/resources/doctrine/doctrine-registry.json";
 
 async function loadDoctrineRegistry() {
   try {
@@ -4525,54 +4527,34 @@ async function loadDoctrineRegistry() {
       return window.__doctrineRegistryCache;
     }
 
-    const registryPaths = [
-      "bible/resources/doctrine/doctrine-registry.json",
-      "./bible/resources/doctrine/doctrine-registry.json",
-      "/bible/resources/doctrine/doctrine-registry.json"
-    ];
+    const response = await fetch(`${DOCTRINE_REGISTRY_URL}?v=${DOCTRINE_REGISTRY_VERSION}`, {
+      cache: "no-store"
+    });
 
-    let lastError = null;
-
-    for (const path of registryPaths) {
-      try {
-        const url = new URL(path, document.baseURI || window.location.href);
-        url.searchParams.set("v", DOCTRINE_REGISTRY_VERSION);
-
-        const response = await fetch(url.toString(), {
-          cache: "no-store"
-        });
-
-        if (!response.ok) {
-          lastError = new Error(`Doctrine registry not found at ${url.toString()} — ${response.status}`);
-          continue;
-        }
-
-        const registry = await response.json();
-
-        if (!Array.isArray(registry)) {
-          lastError = new Error(`Doctrine registry is not an array at ${url.toString()}`);
-          continue;
-        }
-
-        console.log(`Doctrine registry loaded: ${registry.length} topics`, url.toString());
-
-        window.__doctrineRegistryCache = registry;
-        window.__doctrineRegistryCacheVersion = DOCTRINE_REGISTRY_VERSION;
-
-        return registry;
-      } catch (error) {
-        lastError = error;
-      }
+    if (!response.ok) {
+      console.warn("Doctrine registry not found:", response.status);
+      return [];
     }
 
-    console.warn("Doctrine registry load failed:", lastError);
-    return [];
+    const registry = await response.json();
+
+    if (!Array.isArray(registry)) {
+      console.warn("Doctrine registry is not an array.");
+      return [];
+    }
+
+    console.log(`Doctrine registry loaded: ${registry.length} topics`);
+
+    window.__doctrineRegistryCache = registry;
+    window.__doctrineRegistryCacheVersion = DOCTRINE_REGISTRY_VERSION;
+
+    return registry;
   } catch (error) {
     console.warn("Doctrine registry load error:", error);
     return [];
   }
 }
-
+    
   function renderDoctrineHomeMessage() {
     results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
   }
