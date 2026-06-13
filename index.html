@@ -4597,6 +4597,89 @@ async function openDoctrineResource() {
 
   function findDoctrineMatches(query) {
     const q = (query || "").toLowerCase().trim();
+    if (!q) return [];
+
+    return registry
+      .filter(item => {
+        const searchable = [
+          item.title,
+          item.id,
+          item.category,
+          ...(Array.isArray(item.tags) ? item.tags : []),
+          ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+        ].join(" ").toLowerCase();
+
+        return searchable.includes(q);
+      })
+      .slice(0, 30);
+  }
+
+  function runDoctrineSearch() {
+    const value = searchBox ? searchBox.value : "";
+
+    if (!value.trim()) {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
+      return;
+    }
+
+    renderDoctrineButtons(findDoctrineMatches(value), "Search Results");
+  }
+
+  if (searchBox) {
+    searchBox.oninput = runDoctrineSearch;
+    searchBox.onkeyup = runDoctrineSearch;
+    searchBox.onchange = runDoctrineSearch;
+  }
+
+  content.onclick = async (event) => {
+    const categoryBtn = event.target.closest(".doctrine-category-btn");
+    const topicBtn = event.target.closest(".doctrine-topic-btn");
+
+    if (categoryBtn) {
+      const category = categoryBtn.dataset.category;
+
+      const items = registry
+        .filter(item => (item.category || "Uncategorized") === category)
+        .sort((a, b) => a.title.localeCompare(b.title));
+
+      if (categoryBrowser) categoryBrowser.open = false;
+      renderDoctrineButtons(items, category);
+      return;
+    }
+
+    if (topicBtn) {
+      const doctrine = await loadDoctrineTopic(topicBtn.dataset.file.replace(/\.json$/i, ""));
+
+      if (!doctrine) {
+        alert(`Doctrine topic could not be loaded: ${topicBtn.textContent.trim()}`);
+        return;
+      }
+
+      openDoctrineTopicInNewPanel(doctrine);
+    }
+  };
+
+  openFloatingResourcePanel(panel);
+}
+    
+  function renderDoctrineButtons(items, headingText = "") {
+    if (!items.length) {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">No doctrine topic found.</p>`;
+      return;
+    }
+
+    results.innerHTML = `
+      ${headingText ? `<h4>${headingText}</h4>` : ""}
+      ${items.map(item => `
+        <button type="button" class="doctrine-topic-btn" data-file="${item.file}" style="width:100%;margin-bottom:8px;">
+          ${item.title}
+        </button>
+      `).join("")}
+    `;
+  }
+
+  function findDoctrineMatches(query) {
+    const q = (query || "").toLowerCase().trim();
 
     if (!q) return [];
 
@@ -4651,23 +4734,10 @@ async function openDoctrineResource() {
   openFloatingResourcePanel(panel);
 }
 
-function runDoctrineSearch() {
-  const value = searchBox ? searchBox.value : "";
-  const matches = findDoctrineMatches(value);
-
-  if (!value.trim()) {
-    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
-    return;
-  }
-
+searchBox.oninput = () => {
+  const matches = findDoctrineMatches(searchBox.value);
   renderDoctrineButtons(matches, "Search Results");
-}
-
-if (searchBox) {
-  searchBox.addEventListener("input", runDoctrineSearch);
-  searchBox.addEventListener("keyup", runDoctrineSearch);
-  searchBox.addEventListener("change", runDoctrineSearch);
-}
+};
 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
