@@ -4391,6 +4391,15 @@ async function loadMatthewHenryCommentary(bookName) {
   }
 }
 
+    function makeDoctrineId(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
  async function loadDoctrineIndex() {
   const indexFiles = [
     "index.json",
@@ -4427,14 +4436,32 @@ async function loadMatthewHenryCommentary(bookName) {
 }
 
 async function loadDoctrineTopic(topicFile) {
-  try {
-    const response = await fetch(`bible/resources/doctrine/${topicFile}.json`);
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (error) {
-    console.warn("Doctrine topic not found:", error);
-    return null;
+  const doctrineId = makeDoctrineId(topicFile);
+
+  const possibleFiles = [
+    topicFile,
+    doctrineId
+  ];
+
+  for (const file of possibleFiles) {
+    try {
+      const response = await fetch(`bible/resources/doctrine/${file}.json`);
+      if (!response.ok) continue;
+
+      const doctrine = await response.json();
+
+      return {
+        ...doctrine,
+        id: doctrine.id || doctrineId,
+        title: doctrine.title || topicFile
+      };
+    } catch (error) {
+      console.warn("Doctrine topic load error:", file, error);
+    }
   }
+
+  console.warn("Doctrine topic not found:", topicFile, doctrineId);
+  return null;
 }
 
     async function openDoctrineResource() {
@@ -4484,18 +4511,16 @@ async function loadDoctrineTopic(topicFile) {
     `).join("");
 
   results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
-  btn.onclick = async () => {
-    const doctrine = await loadDoctrineTopic(btn.dataset.topic);
-    openDoctrineTopicInNewPanel(doctrine);
-  };
-});
+ btn.onclick = async () => {
+  const doctrine = await loadDoctrineTopic(btn.dataset.topic);
 
+  if (!doctrine) {
+    alert(`Doctrine topic could not be loaded: ${btn.dataset.topic}`);
+    return;
   }
 
-  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
-
-  openFloatingResourcePanel(panel);
-}
+  openDoctrineTopicInNewPanel(doctrine);
+};
 
 function openDoctrineTopic(doctrine, panel, content, title) {
   if (!doctrine || !panel || !content) return;
@@ -4530,9 +4555,27 @@ function openDoctrineTopic(doctrine, panel, content, title) {
   ${(doctrine.keyScriptures || []).length ? `
     <h4>Key Scriptures</h4>
     <ul>
-      ${doctrine.keyScriptures.map(ref => `<li>${ref}</li>`).join("")}
-    </ul>
-  ` : ""}
+    ${(doctrine.keyScriptures || []).length ? `
+  <h4>Key Scriptures</h4>
+  <ul>
+    ${doctrine.keyScriptures.map(ref => {
+      if (typeof ref === "string") {
+        return `<li>${ref}</li>`;
+      }
+
+      const reference = ref.reference || "";
+      const text = ref.text || "";
+      const url = ref.url || ref.link || "";
+
+      return `
+        <li>
+          ${url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>` : reference}
+          ${text ? `<br><span>${text}</span>` : ""}
+        </li>
+      `;
+    }).join("")}
+  </ul>
+` : ""}
 
   ${(doctrine.studySections || doctrine.sections || []).length
     ? (doctrine.studySections || doctrine.sections).map(section => `
