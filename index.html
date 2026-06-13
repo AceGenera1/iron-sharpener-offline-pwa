@@ -4411,31 +4411,37 @@ function makeDoctrineId(value) {
 function renderDoctrineScriptures(keyScriptures) {
   if (!Array.isArray(keyScriptures) || !keyScriptures.length) return "";
 
+  function cleanReference(value) {
+    return String(value || "")
+      .replace(/<\/?[^>]+>/g, "")
+      .replace(/["'>]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   return `
     <h4>Key Scriptures</h4>
     <ul>
       ${keyScriptures.map(ref => {
         if (typeof ref === "string") {
+          const reference = cleanReference(ref);
           return `
             <li>
-              <button type="button" class="cross-ref-link" data-ref="${ref}">
-                ${ref}
+              <button type="button" class="cross-ref-link" data-ref="${reference}">
+                ${reference}
               </button>
             </li>
           `;
         }
 
-        const reference = ref.reference || "";
+        const reference = cleanReference(ref.reference || "");
         const text = ref.text || "";
-        const url = ref.url || ref.link || "";
 
         return `
           <li>
-            ${
-              url
-                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>`
-                : `<button type="button" class="cross-ref-link" data-ref="${reference}">${reference}</button>`
-            }
+            <button type="button" class="cross-ref-link" data-ref="${reference}">
+              ${reference}
+            </button>
             ${text ? `<br><span>${text}</span>` : ""}
           </li>
         `;
