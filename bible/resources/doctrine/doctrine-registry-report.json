@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-13T09:25:21.794Z",
+  "generatedAt": "2026-06-13T09:31:45.268Z",
   "frameworkVersion": "1.0",
   "totals": {
     "scanned": 286,
@@ -8,9 +8,9 @@
     "rejected": 17,
     "duplicates": 0,
     "aliasesLoaded": 189,
-    "resolvedAliases": 181,
-    "unresolvedAliases": 8,
-    "unresolvedRelatedTopics": 0
+    "resolvedAliases": 178,
+    "unresolvedAliases": 11,
+    "unresolvedRelatedTopics": 41
   },
   "accepted": [
     {
@@ -4040,22 +4040,22 @@
       "alias": "Application",
       "aliasId": "application",
       "target": "obedience",
-      "resolvedToId": "baptism",
-      "resolvedToTitle": "Baptism"
+      "resolvedToId": "obedience-to-the-word",
+      "resolvedToTitle": "Obedience to the Word"
     },
     {
       "alias": "Assurance",
       "aliasId": "assurance",
       "target": "assurance",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "assurance",
+      "resolvedToTitle": "Assurance"
     },
     {
       "alias": "Assurance of Salvation",
       "aliasId": "assurance-of-salvation",
       "target": "assurance",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "assurance",
+      "resolvedToTitle": "Assurance"
     },
     {
       "alias": "Authority of Christ",
@@ -4068,8 +4068,8 @@
       "alias": "Authority of Scripture",
       "aliasId": "authority-of-scripture",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Baptism",
@@ -4082,57 +4082,57 @@
       "alias": "Believers",
       "aliasId": "believers",
       "target": "salvation",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Bible",
       "aliasId": "bible",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Bible Reading",
       "aliasId": "bible-reading",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Bible Study",
       "aliasId": "bible-study",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Biblical Meditation",
       "aliasId": "biblical-meditation",
       "target": "meditating-on-scripture",
-      "resolvedToId": "illumination-of-scripture",
-      "resolvedToTitle": "Illumination of Scripture"
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
     },
     {
       "alias": "Biblical Teaching",
       "aliasId": "biblical-teaching",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Body",
       "aliasId": "body",
       "target": "body-of-christ",
-      "resolvedToId": "baptism-of-the-holy-spirit",
-      "resolvedToTitle": "Baptism of the Holy Spirit"
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "The Body of Christ"
     },
     {
       "alias": "Body of Christ",
       "aliasId": "body-of-christ",
       "target": "body-of-christ",
-      "resolvedToId": "baptism-of-the-holy-spirit",
-      "resolvedToTitle": "Baptism of the Holy Spirit"
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "The Body of Christ"
     },
     {
       "alias": "Bride of Christ",
@@ -4166,8 +4166,8 @@
       "alias": "Calling",
       "aliasId": "calling",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Charity",
@@ -4222,8 +4222,8 @@
       "alias": "Christ our Advocate",
       "aliasId": "christ-our-advocate",
       "target": "intercession-of-christ",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "intercession-of-christ",
+      "resolvedToTitle": "The Intercession of Christ"
     },
     {
       "alias": "Christ our Hope",
@@ -4236,8 +4236,8 @@
       "alias": "Christ our Mediator",
       "aliasId": "christ-our-mediator",
       "target": "intercession-of-christ",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "intercession-of-christ",
+      "resolvedToTitle": "The Intercession of Christ"
     },
     {
       "alias": "Christ our Redeemer",
@@ -4278,15 +4278,15 @@
       "alias": "Christ's Intercession",
       "aliasId": "christ-s-intercession",
       "target": "intercession-of-christ",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "intercession-of-christ",
+      "resolvedToTitle": "The Intercession of Christ"
     },
     {
       "alias": "Christ's Resurrection",
       "aliasId": "christ-s-resurrection",
       "target": "resurrection-of-christ",
-      "resolvedToId": "glorification",
-      "resolvedToTitle": "Glorification"
+      "resolvedToId": "resurrection-of-christ",
+      "resolvedToTitle": "The Resurrection of Christ"
     },
     {
       "alias": "Christian Fellowship",
@@ -4306,15 +4306,15 @@
       "alias": "Christian Life",
       "aliasId": "christian-life",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Christian Living",
       "aliasId": "christian-living",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Church",
@@ -4331,25 +4331,18 @@
       "resolvedToTitle": "Elders"
     },
     {
-      "alias": "Comfort",
-      "aliasId": "comfort",
-      "target": "hope",
-      "resolvedToId": "blessed-hope",
-      "resolvedToTitle": "Blessed Hope"
-    },
-    {
       "alias": "Common Grace",
       "aliasId": "common-grace",
       "target": "grace",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Compassion",
       "aliasId": "compassion",
       "target": "compassion",
-      "resolvedToId": "caring-for-the-vulnerable",
-      "resolvedToTitle": "Caring for the Vulnerable"
+      "resolvedToId": "compassion",
+      "resolvedToTitle": "Compassion"
     },
     {
       "alias": "Contentment",
@@ -4362,15 +4355,15 @@
       "alias": "Covenant",
       "aliasId": "covenant",
       "target": "gospel",
-      "resolvedToId": "conviction-of-sin",
-      "resolvedToTitle": "Conviction of Sin"
+      "resolvedToId": "gospel",
+      "resolvedToTitle": "The Gospel"
     },
     {
       "alias": "Covenant of Grace",
       "aliasId": "covenant-of-grace",
       "target": "grace",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Cross",
@@ -4418,8 +4411,8 @@
       "alias": "Deliverance",
       "aliasId": "deliverance",
       "target": "salvation",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Demons",
@@ -4439,15 +4432,15 @@
       "alias": "Disability",
       "aliasId": "disability",
       "target": "suffering",
-      "resolvedToId": "endurance",
-      "resolvedToTitle": "Endurance"
+      "resolvedToId": "suffering",
+      "resolvedToTitle": "Suffering"
     },
     {
       "alias": "Discipleship",
       "aliasId": "discipleship",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Divine Fatherhood",
@@ -4460,15 +4453,15 @@
       "alias": "Divine Grace",
       "aliasId": "divine-grace",
       "target": "grace",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Divine Providence",
       "aliasId": "divine-providence",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "Elders",
@@ -4495,8 +4488,8 @@
       "alias": "Eternal Life",
       "aliasId": "eternal-life",
       "target": "eternal-life",
-      "resolvedToId": "blessed-hope",
-      "resolvedToTitle": "Blessed Hope"
+      "resolvedToId": "eternal-life",
+      "resolvedToTitle": "Eternal Life"
     },
     {
       "alias": "Evangelism",
@@ -4516,15 +4509,15 @@
       "alias": "Faith",
       "aliasId": "faith",
       "target": "faith",
-      "resolvedToId": "assurance",
-      "resolvedToTitle": "Assurance"
+      "resolvedToId": "faith",
+      "resolvedToTitle": "Faith"
     },
     {
       "alias": "Faith in Christ",
       "aliasId": "faith-in-christ",
       "target": "faith",
-      "resolvedToId": "assurance",
-      "resolvedToTitle": "Assurance"
+      "resolvedToId": "faith",
+      "resolvedToTitle": "Faith"
     },
     {
       "alias": "Family of God",
@@ -4565,8 +4558,8 @@
       "alias": "Forgiveness",
       "aliasId": "forgiveness",
       "target": "forgiveness",
-      "resolvedToId": "conflict-resolution",
-      "resolvedToTitle": "Conflict Resolution"
+      "resolvedToId": "forgiveness",
+      "resolvedToTitle": "Forgiveness"
     },
     {
       "alias": "Fellowship",
@@ -4579,15 +4572,15 @@
       "alias": "Glorification",
       "aliasId": "glorification",
       "target": "glorification",
-      "resolvedToId": "future-glory",
-      "resolvedToTitle": "Future Glory"
+      "resolvedToId": "glorification",
+      "resolvedToTitle": "Glorification"
     },
     {
       "alias": "God",
       "aliasId": "god",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "God as Father",
@@ -4621,8 +4614,8 @@
       "alias": "God's Grace",
       "aliasId": "god-s-grace",
       "target": "grace",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "God's Kingdom",
@@ -4635,85 +4628,85 @@
       "alias": "God's Mercy",
       "aliasId": "god-s-mercy",
       "target": "compassion",
-      "resolvedToId": "caring-for-the-vulnerable",
-      "resolvedToTitle": "Caring for the Vulnerable"
+      "resolvedToId": "compassion",
+      "resolvedToTitle": "Compassion"
     },
     {
       "alias": "God's Providence",
       "aliasId": "god-s-providence",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "God's Sovereignty",
       "aliasId": "god-s-sovereignty",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "Good Works",
       "aliasId": "good-works",
       "target": "obedience",
-      "resolvedToId": "baptism",
-      "resolvedToTitle": "Baptism"
+      "resolvedToId": "obedience-to-the-word",
+      "resolvedToTitle": "Obedience to the Word"
     },
     {
       "alias": "Gospel",
       "aliasId": "gospel",
       "target": "gospel",
-      "resolvedToId": "conviction-of-sin",
-      "resolvedToTitle": "Conviction of Sin"
+      "resolvedToId": "gospel",
+      "resolvedToTitle": "The Gospel"
     },
     {
       "alias": "Grace",
       "aliasId": "grace",
       "target": "grace",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Grief",
       "aliasId": "grief",
       "target": "suffering",
-      "resolvedToId": "endurance",
-      "resolvedToTitle": "Endurance"
+      "resolvedToId": "suffering",
+      "resolvedToTitle": "Suffering"
     },
     {
       "alias": "Heaven",
       "aliasId": "heaven",
       "target": "heaven",
-      "resolvedToId": "comfort-in-death",
-      "resolvedToTitle": "Comfort in Death"
+      "resolvedToId": "heaven",
+      "resolvedToTitle": "Heaven"
     },
     {
       "alias": "Hell",
       "aliasId": "hell",
       "target": "hell",
-      "resolvedToId": "eternal-separation",
-      "resolvedToTitle": "Eternal Separation"
+      "resolvedToId": "hell",
+      "resolvedToTitle": "Hell"
     },
     {
       "alias": "Holiness",
       "aliasId": "holiness",
       "target": "sanctification",
-      "resolvedToId": "addiction-and-freedom",
-      "resolvedToTitle": "Addiction and Freedom"
+      "resolvedToId": "sanctification",
+      "resolvedToTitle": "Sanctification"
     },
     {
       "alias": "Holy Living",
       "aliasId": "holy-living",
       "target": "sanctification",
-      "resolvedToId": "addiction-and-freedom",
-      "resolvedToTitle": "Addiction and Freedom"
+      "resolvedToId": "sanctification",
+      "resolvedToTitle": "Sanctification"
     },
     {
       "alias": "Holy Spirit",
       "aliasId": "holy-spirit",
       "target": "holy-spirit",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
     },
     {
       "alias": "Hope",
@@ -4740,15 +4733,15 @@
       "alias": "Intercession",
       "aliasId": "intercession",
       "target": "intercession-of-christ",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "intercession-of-christ",
+      "resolvedToTitle": "The Intercession of Christ"
     },
     {
       "alias": "Intercession of Christ",
       "aliasId": "intercession-of-christ",
       "target": "intercession-of-christ",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "intercession-of-christ",
+      "resolvedToTitle": "The Intercession of Christ"
     },
     {
       "alias": "Jesus",
@@ -4765,18 +4758,11 @@
       "resolvedToTitle": "The Deity of Christ"
     },
     {
-      "alias": "Judgment",
-      "aliasId": "judgment",
-      "target": "judgment",
-      "resolvedToId": "justice-of-god",
-      "resolvedToTitle": "The Justice of God"
-    },
-    {
       "alias": "Justification",
       "aliasId": "justification",
       "target": "justification",
-      "resolvedToId": "atonement-of-christ",
-      "resolvedToTitle": "The Atonement of Christ"
+      "resolvedToId": "justification",
+      "resolvedToTitle": "Justification"
     },
     {
       "alias": "King Jesus",
@@ -4803,8 +4789,8 @@
       "alias": "Law and Gospel",
       "aliasId": "law-and-gospel",
       "target": "gospel",
-      "resolvedToId": "conviction-of-sin",
-      "resolvedToTitle": "Conviction of Sin"
+      "resolvedToId": "gospel",
+      "resolvedToTitle": "The Gospel"
     },
     {
       "alias": "Lord Jesus",
@@ -4838,22 +4824,22 @@
       "alias": "Meditating on Scripture",
       "aliasId": "meditating-on-scripture",
       "target": "meditating-on-scripture",
-      "resolvedToId": "illumination-of-scripture",
-      "resolvedToTitle": "Illumination of Scripture"
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
     },
     {
       "alias": "Meditation on Scripture",
       "aliasId": "meditation-on-scripture",
       "target": "meditating-on-scripture",
-      "resolvedToId": "illumination-of-scripture",
-      "resolvedToTitle": "Illumination of Scripture"
+      "resolvedToId": "meditating-on-scripture",
+      "resolvedToTitle": "Meditating on Scripture"
     },
     {
       "alias": "Mercy",
       "aliasId": "mercy",
       "target": "compassion",
-      "resolvedToId": "caring-for-the-vulnerable",
-      "resolvedToTitle": "Caring for the Vulnerable"
+      "resolvedToId": "compassion",
+      "resolvedToTitle": "Compassion"
     },
     {
       "alias": "Messiah",
@@ -4861,13 +4847,6 @@
       "target": "deity-of-christ",
       "resolvedToId": "deity-of-christ",
       "resolvedToTitle": "The Deity of Christ"
-    },
-    {
-      "alias": "Ministry",
-      "aliasId": "ministry",
-      "target": "service",
-      "resolvedToId": "body-of-christ",
-      "resolvedToTitle": "The Body of Christ"
     },
     {
       "alias": "Mission",
@@ -4880,36 +4859,36 @@
       "alias": "Obedience",
       "aliasId": "obedience",
       "target": "obedience",
-      "resolvedToId": "baptism",
-      "resolvedToTitle": "Baptism"
+      "resolvedToId": "obedience-to-the-word",
+      "resolvedToTitle": "Obedience to the Word"
     },
     {
       "alias": "Prayer",
       "aliasId": "prayer",
       "target": "prayer",
-      "resolvedToId": "fear-and-anxiety",
-      "resolvedToTitle": "Fear and Anxiety"
+      "resolvedToId": "illumination-of-scripture",
+      "resolvedToTitle": "Illumination of Scripture"
     },
     {
       "alias": "Providence",
       "aliasId": "providence",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "Reading Scripture",
       "aliasId": "reading-scripture",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Recovery",
       "aliasId": "recovery",
       "target": "restoration",
-      "resolvedToId": "church-discipline",
-      "resolvedToTitle": "Church Discipline"
+      "resolvedToId": "restoration",
+      "resolvedToTitle": "Restoration"
     },
     {
       "alias": "Redeemer",
@@ -4929,50 +4908,50 @@
       "alias": "Regeneration",
       "aliasId": "regeneration",
       "target": "regeneration",
-      "resolvedToId": "conversion",
-      "resolvedToTitle": "Conversion"
+      "resolvedToId": "regeneration",
+      "resolvedToTitle": "Regeneration"
     },
     {
       "alias": "Repentance",
       "aliasId": "repentance",
       "target": "repentance",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "repentance",
+      "resolvedToTitle": "Repentance"
     },
     {
       "alias": "Resurrection",
       "aliasId": "resurrection",
       "target": "resurrection-of-christ",
-      "resolvedToId": "glorification",
-      "resolvedToTitle": "Glorification"
+      "resolvedToId": "resurrection-of-christ",
+      "resolvedToTitle": "The Resurrection of Christ"
     },
     {
       "alias": "Resurrection of Christ",
       "aliasId": "resurrection-of-christ",
       "target": "resurrection-of-christ",
-      "resolvedToId": "glorification",
-      "resolvedToTitle": "Glorification"
+      "resolvedToId": "resurrection-of-christ",
+      "resolvedToTitle": "The Resurrection of Christ"
     },
     {
       "alias": "Restoration",
       "aliasId": "restoration",
       "target": "restoration",
-      "resolvedToId": "church-discipline",
-      "resolvedToTitle": "Church Discipline"
+      "resolvedToId": "restoration",
+      "resolvedToTitle": "Restoration"
     },
     {
       "alias": "Salvation",
       "aliasId": "salvation",
       "target": "salvation",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "grace",
+      "resolvedToTitle": "Grace"
     },
     {
       "alias": "Sanctification",
       "aliasId": "sanctification",
       "target": "sanctification",
-      "resolvedToId": "addiction-and-freedom",
-      "resolvedToTitle": "Addiction and Freedom"
+      "resolvedToId": "sanctification",
+      "resolvedToTitle": "Sanctification"
     },
     {
       "alias": "Satan",
@@ -5006,8 +4985,8 @@
       "alias": "Sin",
       "aliasId": "sin",
       "target": "repentance",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "repentance",
+      "resolvedToTitle": "Repentance"
     },
     {
       "alias": "Sisterhood",
@@ -5034,15 +5013,15 @@
       "alias": "Sovereignty",
       "aliasId": "sovereignty",
       "target": "providence",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "providence",
+      "resolvedToTitle": "Providence"
     },
     {
       "alias": "Spiritual Gifts",
       "aliasId": "spiritual-gifts",
       "target": "holy-spirit",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
     },
     {
       "alias": "Spiritual Warfare",
@@ -5055,29 +5034,29 @@
       "alias": "Studying Scripture",
       "aliasId": "studying-scripture",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Suffering",
       "aliasId": "suffering",
       "target": "suffering",
-      "resolvedToId": "endurance",
-      "resolvedToTitle": "Endurance"
+      "resolvedToId": "suffering",
+      "resolvedToTitle": "Suffering"
     },
     {
       "alias": "Teaching",
       "aliasId": "teaching",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Teaching Scripture",
       "aliasId": "teaching-scripture",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "The Ascension",
@@ -5118,8 +5097,8 @@
       "alias": "The Body of Christ",
       "aliasId": "the-body-of-christ",
       "target": "body-of-christ",
-      "resolvedToId": "baptism-of-the-holy-spirit",
-      "resolvedToTitle": "Baptism of the Holy Spirit"
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "The Body of Christ"
     },
     {
       "alias": "The Church",
@@ -5153,15 +5132,15 @@
       "alias": "The Gospel",
       "aliasId": "the-gospel",
       "target": "gospel",
-      "resolvedToId": "conviction-of-sin",
-      "resolvedToTitle": "Conviction of Sin"
+      "resolvedToId": "gospel",
+      "resolvedToTitle": "The Gospel"
     },
     {
       "alias": "The Holy Spirit",
       "aliasId": "the-holy-spirit",
       "target": "holy-spirit",
-      "resolvedToId": "ascension-of-christ",
-      "resolvedToTitle": "The Ascension of Christ"
+      "resolvedToId": "baptism-of-the-holy-spirit",
+      "resolvedToTitle": "Baptism of the Holy Spirit"
     },
     {
       "alias": "The Kingdom",
@@ -5188,85 +5167,85 @@
       "alias": "The Resurrection",
       "aliasId": "the-resurrection",
       "target": "resurrection-of-christ",
-      "resolvedToId": "glorification",
-      "resolvedToTitle": "Glorification"
+      "resolvedToId": "resurrection-of-christ",
+      "resolvedToTitle": "The Resurrection of Christ"
     },
     {
       "alias": "The Resurrection of Christ",
       "aliasId": "the-resurrection-of-christ",
       "target": "resurrection-of-christ",
-      "resolvedToId": "glorification",
-      "resolvedToTitle": "Glorification"
+      "resolvedToId": "resurrection-of-christ",
+      "resolvedToTitle": "The Resurrection of Christ"
     },
     {
       "alias": "The Word",
       "aliasId": "the-word",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "The Word of God",
       "aliasId": "the-word-of-god",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Trinity",
       "aliasId": "trinity",
       "target": "trinity",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "trinity",
+      "resolvedToTitle": "The Trinity"
     },
     {
       "alias": "Triune God",
       "aliasId": "triune-god",
       "target": "trinity",
-      "resolvedToId": "attributes-of-god",
-      "resolvedToTitle": "Attributes of God"
+      "resolvedToId": "trinity",
+      "resolvedToTitle": "The Trinity"
     },
     {
       "alias": "Truth",
       "aliasId": "truth",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Vocation",
       "aliasId": "vocation",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Walking with God",
       "aliasId": "walking-with-god",
       "target": "discipleship",
-      "resolvedToId": "accountability",
-      "resolvedToTitle": "Accountability"
+      "resolvedToId": "discipleship",
+      "resolvedToTitle": "Discipleship"
     },
     {
       "alias": "Word",
       "aliasId": "word",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Word of God",
       "aliasId": "word-of-god",
       "target": "studying-scripture",
-      "resolvedToId": "authority-of-scripture",
-      "resolvedToTitle": "Authority of Scripture"
+      "resolvedToId": "studying-scripture",
+      "resolvedToTitle": "Studying Scripture"
     },
     {
       "alias": "Worship",
       "aliasId": "worship",
       "target": "worship",
-      "resolvedToId": "the-church",
-      "resolvedToTitle": "The Church"
+      "resolvedToId": "worship",
+      "resolvedToTitle": "Worship"
     }
   ],
   "unresolvedAliases": [
@@ -5275,6 +5254,13 @@
       "aliasId": "christ-s-return",
       "target": "second-coming-of-christ",
       "targetId": "second-coming-of-christ",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Comfort",
+      "aliasId": "comfort",
+      "target": "hope",
+      "targetId": "hope",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -5296,6 +5282,20 @@
       "aliasId": "fasting",
       "target": "fasting",
       "targetId": "fasting",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Judgment",
+      "aliasId": "judgment",
+      "target": "judgment",
+      "targetId": "judgment",
+      "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
+    },
+    {
+      "alias": "Ministry",
+      "aliasId": "ministry",
+      "target": "service",
+      "targetId": "service",
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     },
     {
@@ -5327,7 +5327,336 @@
       "message": "Alias target does not match any accepted doctrine id, title, filename, or searchTerm."
     }
   ],
-  "unresolvedRelatedTopics": [],
+  "unresolvedRelatedTopics": [
+    {
+      "file": "discernment.json",
+      "id": "discernment",
+      "title": "Discernment",
+      "relatedTopic": "False Teaching",
+      "normalizedTopic": "false-teaching",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "eternal-kingdom.json",
+      "id": "eternal-kingdom",
+      "title": "Eternal Kingdom",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "eternity-of-god.json",
+      "id": "eternity-of-god",
+      "title": "The Eternity of God",
+      "relatedTopic": "Life Everlasting",
+      "normalizedTopic": "life-everlasting",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "faithfulness-of-god.json",
+      "id": "faithfulness-of-god",
+      "title": "The Faithfulness of God",
+      "relatedTopic": "Promises of God",
+      "normalizedTopic": "promises-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "fear-and-anxiety.json",
+      "id": "fear-and-anxiety",
+      "title": "Fear and Anxiety",
+      "relatedTopic": "Peace",
+      "normalizedTopic": "peace",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "fruit-of-the-spirit.json",
+      "id": "fruit-of-the-spirit",
+      "title": "Fruit of the Spirit",
+      "relatedTopic": "Christlikeness",
+      "normalizedTopic": "christlikeness",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "glorification.json",
+      "id": "glorification",
+      "title": "Glorification",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "glorified-bodies.json",
+      "id": "glorified-bodies",
+      "title": "Glorified Bodies",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "god-as-shepherd.json",
+      "id": "god-as-shepherd",
+      "title": "God as Shepherd",
+      "relatedTopic": "Care of God",
+      "normalizedTopic": "care-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "god-as-sustainer.json",
+      "id": "god-as-sustainer",
+      "title": "God as Sustainer",
+      "relatedTopic": "Thankfulness",
+      "normalizedTopic": "thankfulness",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "goodness-of-god.json",
+      "id": "goodness-of-god",
+      "title": "The Goodness of God",
+      "relatedTopic": "Thankfulness",
+      "normalizedTopic": "thankfulness",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "healing.json",
+      "id": "healing",
+      "title": "Healing",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "humanity-of-christ.json",
+      "id": "humanity-of-christ",
+      "title": "The Humanity of Christ",
+      "relatedTopic": "Mediator",
+      "normalizedTopic": "mediator",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "humility.json",
+      "id": "humility",
+      "title": "Humility",
+      "relatedTopic": "Christlikeness",
+      "normalizedTopic": "christlikeness",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "husband-and-wife.json",
+      "id": "husband-and-wife",
+      "title": "Husband and Wife",
+      "relatedTopic": "Servanthood",
+      "normalizedTopic": "servanthood",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "immutability-of-god.json",
+      "id": "immutability-of-god",
+      "title": "The Immutability of God",
+      "relatedTopic": "Promises of God",
+      "normalizedTopic": "promises-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "incarnation-of-christ.json",
+      "id": "incarnation-of-christ",
+      "title": "The Incarnation of Christ",
+      "relatedTopic": "Virgin Birth",
+      "normalizedTopic": "virgin-birth",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "inerrancy-of-scripture.json",
+      "id": "inerrancy-of-scripture",
+      "title": "Inerrancy of Scripture",
+      "relatedTopic": "Truthfulness of God",
+      "normalizedTopic": "truthfulness-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "intercession-of-christ.json",
+      "id": "intercession-of-christ",
+      "title": "The Intercession of Christ",
+      "relatedTopic": "Priesthood of Christ",
+      "normalizedTopic": "priesthood-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "interpretation-of-scripture.json",
+      "id": "interpretation-of-scripture",
+      "title": "Interpretation of Scripture",
+      "relatedTopic": "Teaching Ministry",
+      "normalizedTopic": "teaching-ministry",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "jealousy-of-god.json",
+      "id": "jealousy-of-god",
+      "title": "The Jealousy of God",
+      "relatedTopic": "Idolatry",
+      "normalizedTopic": "idolatry",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "justice-of-god.json",
+      "id": "justice-of-god",
+      "title": "The Justice of God",
+      "relatedTopic": "Judgment",
+      "normalizedTopic": "judgment",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "lordship-of-christ.json",
+      "id": "lordship-of-christ",
+      "title": "The Lordship of Christ",
+      "relatedTopic": "Kingship of Christ",
+      "normalizedTopic": "kingship-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "mediator-christ.json",
+      "id": "mediator-christ",
+      "title": "Christ the Mediator",
+      "relatedTopic": "Priesthood of Christ",
+      "normalizedTopic": "priesthood-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "new-birth.json",
+      "id": "new-birth",
+      "title": "New Birth",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "new-heaven-and-new-earth.json",
+      "id": "new-heaven-and-new-earth",
+      "title": "New Heaven and New Earth",
+      "relatedTopic": "New Creation",
+      "normalizedTopic": "new-creation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "offices-of-christ.json",
+      "id": "offices-of-christ",
+      "title": "The Offices of Christ",
+      "relatedTopic": "Prophet",
+      "normalizedTopic": "prophet",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "offices-of-christ.json",
+      "id": "offices-of-christ",
+      "title": "The Offices of Christ",
+      "relatedTopic": "Priesthood of Christ",
+      "normalizedTopic": "priesthood-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "offices-of-christ.json",
+      "id": "offices-of-christ",
+      "title": "The Offices of Christ",
+      "relatedTopic": "Kingship of Christ",
+      "normalizedTopic": "kingship-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "offices-of-christ.json",
+      "id": "offices-of-christ",
+      "title": "The Offices of Christ",
+      "relatedTopic": "Mediator",
+      "normalizedTopic": "mediator",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "omnipresence-of-god.json",
+      "id": "omnipresence-of-god",
+      "title": "The Omnipresence of God",
+      "relatedTopic": "Comfort",
+      "normalizedTopic": "comfort",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "omniscience-of-god.json",
+      "id": "omniscience-of-god",
+      "title": "The Omniscience of God",
+      "relatedTopic": "Judgment",
+      "normalizedTopic": "judgment",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "persevering-through-disability.json",
+      "id": "persevering-through-disability",
+      "title": "Persevering Through Disability",
+      "relatedTopic": "Purpose",
+      "normalizedTopic": "purpose",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "preservation-of-scripture.json",
+      "id": "preservation-of-scripture",
+      "title": "Preservation of Scripture",
+      "relatedTopic": "Bible Translation",
+      "normalizedTopic": "bible-translation",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "resurrection-of-christ.json",
+      "id": "resurrection-of-christ",
+      "title": "The Resurrection of Christ",
+      "relatedTopic": "Life Everlasting",
+      "normalizedTopic": "life-everlasting",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "sinlessness-of-christ.json",
+      "id": "sinlessness-of-christ",
+      "title": "The Sinlessness of Christ",
+      "relatedTopic": "Obedience of Christ",
+      "normalizedTopic": "obedience-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "sinlessness-of-christ.json",
+      "id": "sinlessness-of-christ",
+      "title": "The Sinlessness of Christ",
+      "relatedTopic": "Righteousness",
+      "normalizedTopic": "righteousness",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "suffering-and-gods-purpose.json",
+      "id": "suffering-and-gods-purpose",
+      "title": "Suffering and God's Purpose",
+      "relatedTopic": "Comforting Others",
+      "normalizedTopic": "comforting-others",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "virgin-birth-of-christ.json",
+      "id": "virgin-birth-of-christ",
+      "title": "The Virgin Birth of Christ",
+      "relatedTopic": "Promise",
+      "normalizedTopic": "promise",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "wisdom-of-god.json",
+      "id": "wisdom-of-god",
+      "title": "The Wisdom of God",
+      "relatedTopic": "Guidance",
+      "normalizedTopic": "guidance",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "wrath-of-god.json",
+      "id": "wrath-of-god",
+      "title": "The Wrath of God",
+      "relatedTopic": "Judgment",
+      "normalizedTopic": "judgment",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    }
+  ],
   "categories": {
     "Christian Living": 116,
     "Restoration & Suffering": 9,
