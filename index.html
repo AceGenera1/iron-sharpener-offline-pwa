@@ -4400,6 +4400,14 @@ function makeDoctrineId(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+  function makeDoctrineTitle(value) {
+  return String(value || "")
+    .replace(/\.json$/i, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, char => char.toUpperCase())
+    .trim();
+}
+
 function renderDoctrineScriptures(keyScriptures) {
   if (!Array.isArray(keyScriptures) || !keyScriptures.length) return "";
 
@@ -4408,7 +4416,13 @@ function renderDoctrineScriptures(keyScriptures) {
     <ul>
       ${keyScriptures.map(ref => {
         if (typeof ref === "string") {
-          return `<li>${ref}</li>`;
+          return `
+            <li>
+              <button type="button" class="cross-ref-link" data-ref="${ref}">
+                ${ref}
+              </button>
+            </li>
+          `;
         }
 
         const reference = ref.reference || "";
@@ -4417,7 +4431,11 @@ function renderDoctrineScriptures(keyScriptures) {
 
         return `
           <li>
-            ${url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>` : reference}
+            ${
+              url
+                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>`
+                : `<button type="button" class="cross-ref-link" data-ref="${reference}">${reference}</button>`
+            }
             ${text ? `<br><span>${text}</span>` : ""}
           </li>
         `;
@@ -4479,7 +4497,7 @@ async function loadDoctrineTopic(topicFile) {
       return {
         ...doctrine,
         id: doctrine.id || doctrineId,
-        title: doctrine.title || topicFile
+       title: doctrine.title || makeDoctrineTitle(topicFile)
       };
     } catch (error) {
       console.warn("Doctrine topic load error:", file, error);
