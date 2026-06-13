@@ -4391,7 +4391,7 @@ async function loadMatthewHenryCommentary(bookName) {
   }
 }
 
-    function makeDoctrineId(value) {
+function makeDoctrineId(value) {
   return String(value || "")
     .trim()
     .toLowerCase()
@@ -4400,7 +4400,33 @@ async function loadMatthewHenryCommentary(bookName) {
     .replace(/^-+|-+$/g, "");
 }
 
- async function loadDoctrineIndex() {
+function renderDoctrineScriptures(keyScriptures) {
+  if (!Array.isArray(keyScriptures) || !keyScriptures.length) return "";
+
+  return `
+    <h4>Key Scriptures</h4>
+    <ul>
+      ${keyScriptures.map(ref => {
+        if (typeof ref === "string") {
+          return `<li>${ref}</li>`;
+        }
+
+        const reference = ref.reference || "";
+        const text = ref.text || "";
+        const url = ref.url || ref.link || "";
+
+        return `
+          <li>
+            ${url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>` : reference}
+            ${text ? `<br><span>${text}</span>` : ""}
+          </li>
+        `;
+      }).join("")}
+    </ul>
+  `;
+}
+
+async function loadDoctrineIndex() {
   const indexFiles = [
     "index.json",
     "index-2a-additions.json",
@@ -4464,7 +4490,7 @@ async function loadDoctrineTopic(topicFile) {
   return null;
 }
 
-    async function openDoctrineResource() {
+async function openDoctrineResource() {
   const panel = $("obsCrossRefsPanel");
   const content = $("obsCrossRefsContent");
   const title = $("obsCrossRefsTitle");
@@ -4496,7 +4522,7 @@ async function loadDoctrineTopic(topicFile) {
     }
 
     const matches = topics
-      .filter(topic => topic.toLowerCase().includes(q))
+      .filter(topic => String(topic).toLowerCase().includes(q))
       .slice(0, 20);
 
     if (!matches.length) {
@@ -4510,109 +4536,60 @@ async function loadDoctrineTopic(topicFile) {
       </button>
     `).join("");
 
-  results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
- btn.onclick = async () => {
-  const doctrine = await loadDoctrineTopic(btn.dataset.topic);
+    results.querySelectorAll(".doctrine-topic-btn").forEach(btn => {
+      btn.onclick = async () => {
+        const doctrine = await loadDoctrineTopic(btn.dataset.topic);
 
-  if (!doctrine) {
-    alert(`Doctrine topic could not be loaded: ${btn.dataset.topic}`);
-    return;
+        if (!doctrine) {
+          alert(`Doctrine topic could not be loaded: ${btn.dataset.topic}`);
+          return;
+        }
+
+        openDoctrineTopicInNewPanel(doctrine);
+      };
+    });
   }
 
-  openDoctrineTopicInNewPanel(doctrine);
-};
-
-function openDoctrineTopic(doctrine, panel, content, title) {
-  if (!doctrine || !panel || !content) return;
-
-  if (title) title.textContent = doctrine.title || "Biblical Doctrine";
-  content.innerHTML = `
-  <button id="backToDoctrineSearch" class="secondary" type="button" style="width:100%;margin-bottom:10px;">
-    ← Back to Biblical Doctrine Search
-  </button>
-
-  <h4>${doctrine.title || "Biblical Doctrine"}</h4>
-  <p style="font:700 14px Arial,sans-serif;line-height:1.45;">
-    <em>${doctrine.source || "Iron Sharpener Biblical Doctrine Library"}</em>
-  </p>
-
-  ${doctrine.definition ? `
-    <h4>Definition</h4>
-    <p>${doctrine.definition}</p>
-  ` : ""}
-
-  ${doctrine.summary ? `
-    <h4>Summary</h4>
-    <p>${doctrine.summary}</p>
-  ` : ""}
-
-    ${doctrine.christFocus ? `
-  <h4>Christ Focus</h4>
-  <p>${doctrine.christFocus}</p>
-` : ""}
-  
-
-  ${(doctrine.keyScriptures || []).length ? `
-    <h4>Key Scriptures</h4>
-    <ul>
-    ${(doctrine.keyScriptures || []).length ? `
-  <h4>Key Scriptures</h4>
-  <ul>
-    ${doctrine.keyScriptures.map(ref => {
-      if (typeof ref === "string") {
-        return `<li>${ref}</li>`;
-      }
-
-      const reference = ref.reference || "";
-      const text = ref.text || "";
-      const url = ref.url || ref.link || "";
-
-      return `
-        <li>
-          ${url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${reference}</a>` : reference}
-          ${text ? `<br><span>${text}</span>` : ""}
-        </li>
-      `;
-    }).join("")}
-  </ul>
-` : ""}
-
-  ${(doctrine.studySections || doctrine.sections || []).length
-    ? (doctrine.studySections || doctrine.sections).map(section => `
-        <details open style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">
-            ${section.heading || "Section"}
-          </summary>
-          <div style="margin-top:8px;font:700 14px Arial,sans-serif;line-height:1.5;">
-            ${section.content || ""}
-          </div>
-        </details>
-      `).join("")
-    : `<p style="font:700 14px Arial,sans-serif;">No doctrine content found for this topic yet.</p>`
-  }
-
-  ${(doctrine.sources || []).length ? `
-  <h4>Sources</h4>
-  <ul>
-    ${doctrine.sources.map(source => `<li>${source}</li>`).join("")}
-  </ul>
-` : ""}
-
-  ${(doctrine.relatedTopics || []).length ? `
-    <h4>Related Topics</h4>
-    <ul>
-      ${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}
-    </ul>
-  ` : ""}
-`;
-
-
-  const backBtn = $("backToDoctrineSearch");
-  if (backBtn) {
-    backBtn.onclick = openDoctrineResource;
-  }
+  searchBox.oninput = () => renderDoctrineResults(searchBox.value);
 
   openFloatingResourcePanel(panel);
+}
+
+    function openDoctrineTopicInNewPanel(doctrine) {
+  if (!doctrine) return;
+
+  const sections = doctrine.studySections || doctrine.sections || [];
+
+  const doctrineHtml = `
+    ${doctrine.definition ? `<h4>Definition</h4><p>${doctrine.definition}</p>` : ""}
+    ${doctrine.summary ? `<h4>Summary</h4><p>${doctrine.summary}</p>` : ""}
+    ${doctrine.christFocus ? `<h4>Christ Focus</h4><p>${doctrine.christFocus}</p>` : ""}
+
+    ${renderDoctrineScriptures(doctrine.keyScriptures)}
+
+    ${sections.length ? sections.map(section => `
+      <details open style="margin-bottom:12px;">
+        <summary>${section.heading || "Section"}</summary>
+        <div>${section.content || ""}</div>
+      </details>
+    `).join("") : `<p>No doctrine content found for this topic yet.</p>`}
+
+    ${(doctrine.sources || []).length ? `
+      <h4>Sources</h4>
+      <ul>${doctrine.sources.map(source => `<li>${source}</li>`).join("")}</ul>
+    ` : ""}
+
+    ${(doctrine.relatedTopics || []).length ? `
+      <h4>Related Topics</h4>
+      <ul>${doctrine.relatedTopics.map(topic => `<li>${topic}</li>`).join("")}</ul>
+    ` : ""}
+  `;
+
+  openResourceInstancePanel(
+    doctrine.title || "Biblical Doctrine",
+    doctrineHtml,
+    "Biblical Doctrine"
+  );
 }
 
     function saveField(id) {
