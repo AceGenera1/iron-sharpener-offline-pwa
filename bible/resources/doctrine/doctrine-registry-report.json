@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-13T11:47:44.173Z",
+  "generatedAt": "2026-06-13T11:57:54.366Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 16,
+    "scanned": 14,
     "accepted": 14,
     "warnings": 6,
-    "rejected": 2,
+    "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 232,
     "resolvedAliases": 27,
@@ -148,38 +148,7 @@
       ]
     }
   ],
-  "rejected": [
-    {
-      "file": "_category_01_scripture_manifest.json",
-      "id": "category-01-scripture-manifest",
-      "title": "_category_01_scripture_manifest",
-      "errors": [
-        "Missing title.",
-        "Missing definition.",
-        "Missing summary.",
-        "Missing christFocus.",
-        "Missing or empty keyScriptures array.",
-        "Missing or empty studySections/sections array.",
-        "Missing sources array.",
-        "Missing relatedTopics array."
-      ]
-    },
-    {
-      "file": "_category_02_god_manifest.json",
-      "id": "category-02-god-manifest",
-      "title": "_category_02_god_manifest",
-      "errors": [
-        "Missing title.",
-        "Missing definition.",
-        "Missing summary.",
-        "Missing christFocus.",
-        "Missing or empty keyScriptures array.",
-        "Missing or empty studySections/sections array.",
-        "Missing sources array.",
-        "Missing relatedTopics array."
-      ]
-    }
-  ],
+  "rejected": [],
   "duplicates": [],
   "aliases": {
     "file": "doctrine-aliases.json",
