@@ -4516,43 +4516,25 @@ async function loadDoctrineTopic(topicFile) {
 
 async function loadDoctrineRegistry() {
   try {
-    const doctrineRegistryVersion = "2026-06-13-cat04-281";
+    const response = await fetch("bible/resources/doctrine/doctrine-registry.json?v=2026-06-13-cat04-281", {
+      cache: "reload"
+    });
 
-    const registryPaths = [
-      "/bible/resources/doctrine/doctrine-registry.json",
-      "bible/resources/doctrine/doctrine-registry.json",
-      "./bible/resources/doctrine/doctrine-registry.json"
-    ];
-
-    for (const registryPath of registryPaths) {
-      try {
-        const url = new URL(registryPath, window.location.origin);
-        url.searchParams.set("v", doctrineRegistryVersion);
-
-        const response = await fetch(url.toString(), {
-          cache: "no-store"
-        });
-
-        if (!response.ok) {
-          continue;
-        }
-
-        const registry = await response.json();
-
-        if (!Array.isArray(registry)) {
-          continue;
-        }
-
-        console.log("Doctrine registry loaded:", registry.length, "topics");
-
-        return registry;
-      } catch (innerError) {
-        console.warn("Doctrine registry path failed:", registryPath, innerError);
-      }
+    if (!response.ok) {
+      console.warn("Doctrine registry not found.");
+      return [];
     }
 
-    console.warn("Doctrine registry not found from any path.");
-    return [];
+    const registry = await response.json();
+
+    if (!Array.isArray(registry)) {
+      console.warn("Doctrine registry is not an array.");
+      return [];
+    }
+
+    console.log("Doctrine registry loaded:", registry.length, "topics");
+
+    return registry;
   } catch (error) {
     console.warn("Doctrine registry load error:", error);
     return [];
