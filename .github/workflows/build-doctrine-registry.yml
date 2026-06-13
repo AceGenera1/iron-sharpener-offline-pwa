@@ -1,0 +1,33 @@
+name: Build Doctrine Registry
+
+on:
+  push:
+    paths:
+      - "bible/resources/doctrine/**"
+      - "tools/build-doctrine-registry.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-doctrine-registry:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build doctrine registry
+        run: node tools/build-doctrine-registry.js
+
+      - name: Commit updated doctrine registry
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Build doctrine registry"
+          file_pattern: bible/resources/doctrine/doctrine-registry.json bible/resources/doctrine/doctrine-registry-report.json
