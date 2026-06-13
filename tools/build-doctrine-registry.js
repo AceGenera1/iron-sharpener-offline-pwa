@@ -206,6 +206,16 @@ for (const file of files) {
       ].filter(Boolean)
 });
 
+    report.accepted.push({ file, id, title });
+
+  } catch (error) {
+    report.rejected.push({
+      file,
+      reason: error.message
+    });
+  }
+}
+
 registry.sort((a, b) => a.title.localeCompare(b.title));
 
 fs.writeFileSync(outputFile, JSON.stringify(registry, null, 2));
