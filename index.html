@@ -4619,11 +4619,6 @@ async function openDoctrineResource() {
       .slice(0, 30);
   }
 
-  searchBox.oninput = () => {
-    const matches = findDoctrineMatches(searchBox.value);
-    renderDoctrineButtons(matches, "Search Results");
-  };
-
   content.onclick = async (event) => {
     const categoryBtn = event.target.closest(".doctrine-category-btn");
     const topicBtn = event.target.closest(".doctrine-topic-btn");
@@ -4656,7 +4651,23 @@ async function openDoctrineResource() {
   openFloatingResourcePanel(panel);
 }
 
+function runDoctrineSearch() {
+  const value = searchBox ? searchBox.value : "";
+  const matches = findDoctrineMatches(value);
 
+  if (!value.trim()) {
+    results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
+    return;
+  }
+
+  renderDoctrineButtons(matches, "Search Results");
+}
+
+if (searchBox) {
+  searchBox.addEventListener("input", runDoctrineSearch);
+  searchBox.addEventListener("keyup", runDoctrineSearch);
+  searchBox.addEventListener("change", runDoctrineSearch);
+}
 
 function openDoctrineTopicInNewPanel(doctrine) {
   if (!doctrine) return;
