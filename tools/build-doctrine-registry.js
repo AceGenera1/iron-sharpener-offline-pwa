@@ -412,14 +412,13 @@ for (const file of files) {
     const tags = normalizeStringArray(doctrine.tags);
     const relatedTopics = normalizeStringArray(doctrine.relatedTopics);
 
-    const searchTerms = normalizeStringArray([
-      id,
-      title,
-      category,
-      ...tags,
-      ...relatedTopics,
-      ...(Array.isArray(doctrine.searchTerms) ? doctrine.searchTerms : [])
-    ]);
+ const searchTerms = normalizeStringArray([
+  id,
+  title,
+  category,
+  ...tags,
+  ...(Array.isArray(doctrine.searchTerms) ? doctrine.searchTerms : [])
+]);
 
     const registryItem = {
       id,
