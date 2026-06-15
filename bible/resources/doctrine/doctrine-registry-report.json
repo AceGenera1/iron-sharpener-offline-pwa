@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-15T19:01:30.943Z",
+  "generatedAt": "2026-06-15T19:30:31.361Z",
   "frameworkVersion": "1.0",
   "totals": {
     "scanned": 516,
     "accepted": 516,
-    "warnings": 450,
+    "warnings": 451,
     "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 232,
     "resolvedAliases": 216,
     "unresolvedAliases": 16,
-    "unresolvedRelatedTopics": 134
+    "unresolvedRelatedTopics": 135
   },
   "accepted": [
     {
@@ -1529,7 +1529,7 @@
       "file": "mercy-of-god.json",
       "id": "mercy-of-god",
       "title": "Mercy of God",
-      "category": "Suffering, Recovery, Restoration, and Hope"
+      "category": "God / Theology Proper"
     },
     {
       "file": "messiah.json",
@@ -4779,6 +4779,14 @@
       "file": "memorizing-scripture.json",
       "id": "memorizing-scripture",
       "title": "Memorizing Scripture",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "mercy-of-god.json",
+      "id": "mercy-of-god",
+      "title": "Mercy of God",
       "warnings": [
         "sources array is empty."
       ]
@@ -8846,6 +8854,14 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "mercy-of-god.json",
+      "id": "mercy-of-god",
+      "title": "Mercy of God",
+      "relatedTopic": "Grace of God",
+      "normalizedTopic": "grace-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "moral-inability.json",
       "id": "moral-inability",
       "title": "Moral Inability",
@@ -9426,13 +9442,13 @@
     "Christian Life": 53,
     "Biblical Relationships": 18,
     "Humanity and Sin": 47,
-    "Suffering, Recovery, Restoration, and Hope": 20,
+    "Suffering, Recovery, Restoration, and Hope": 19,
     "Holy Spirit": 45,
     "Salvation": 49,
     "Jesus Christ": 45,
     "Angels and the Spiritual Realm": 52,
     "Last Things / Eschatology": 47,
-    "God / Theology Proper": 45,
+    "God / Theology Proper": 46,
     "Scripture": 45,
     "The Church": 50
   }
