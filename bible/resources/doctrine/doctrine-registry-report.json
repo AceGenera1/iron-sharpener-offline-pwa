@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-14T19:49:44.620Z",
+  "generatedAt": "2026-06-15T17:35:42.932Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 488,
-    "accepted": 488,
-    "warnings": 180,
+    "scanned": 495,
+    "accepted": 495,
+    "warnings": 247,
     "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 232,
     "resolvedAliases": 218,
     "unresolvedAliases": 14,
-    "unresolvedRelatedTopics": 48
+    "unresolvedRelatedTopics": 61
   },
   "accepted": [
     {
@@ -476,6 +476,12 @@
       "category": "Holy Spirit"
     },
     {
+      "file": "compassion-and-mercy.json",
+      "id": "compassion-and-mercy",
+      "title": "Compassion and Mercy",
+      "category": "Christian Life"
+    },
+    {
       "file": "compassion-of-christ.json",
       "id": "compassion-of-christ",
       "title": "Compassion of Christ",
@@ -842,6 +848,12 @@
       "category": "Suffering, Recovery, Restoration, and Hope"
     },
     {
+      "file": "fellowship-of-believers.json",
+      "id": "fellowship-of-believers",
+      "title": "Fellowship of Believers",
+      "category": "The Church"
+    },
+    {
       "file": "fellowship.json",
       "id": "fellowship",
       "title": "Fellowship",
@@ -986,6 +998,12 @@
       "category": "Salvation"
     },
     {
+      "file": "grace-in-salvation.json",
+      "id": "grace-in-salvation",
+      "title": "Grace in Salvation",
+      "category": "Salvation"
+    },
+    {
       "file": "grace.json",
       "id": "grace",
       "title": "Grace",
@@ -1092,6 +1110,12 @@
       "id": "hope-for-the-broken",
       "title": "Hope for the Broken",
       "category": "Suffering, Recovery, Restoration, and Hope"
+    },
+    {
+      "file": "hope-in-daily-life.json",
+      "id": "hope-in-daily-life",
+      "title": "Hope in Daily Life",
+      "category": "Christian Life"
     },
     {
       "file": "hope-in-suffering.json",
@@ -1298,6 +1322,12 @@
       "category": "God / Theology Proper"
     },
     {
+      "file": "justification-by-faith.json",
+      "id": "justification-by-faith",
+      "title": "Justification by Faith",
+      "category": "Salvation"
+    },
+    {
       "file": "justification.json",
       "id": "justification",
       "title": "Justification",
@@ -1340,6 +1370,12 @@
       "category": "Angels and the Spiritual Realm"
     },
     {
+      "file": "living-by-faith.json",
+      "id": "living-by-faith",
+      "title": "Living by Faith",
+      "category": "Christian Life"
+    },
+    {
       "file": "living-in-light-of-eternity.json",
       "id": "living-in-light-of-eternity",
       "title": "Living in Light of Eternity",
@@ -1356,6 +1392,12 @@
       "id": "loneliness",
       "title": "Loneliness",
       "category": "Suffering, Recovery, Restoration, and Hope"
+    },
+    {
+      "file": "lord-s-supper.json",
+      "id": "lord-s-supper",
+      "title": "Lord’s Supper",
+      "category": "The Church"
     },
     {
       "file": "lords-supper.json",
@@ -2944,9 +2986,25 @@
   ],
   "warnings": [
     {
+      "file": "abiding-in-christ.json",
+      "id": "abiding-in-christ",
+      "title": "Abiding in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "adoption-and-the-spirit.json",
       "id": "adoption-and-the-spirit",
       "title": "Adoption and the Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "adoption.json",
+      "id": "adoption",
+      "title": "Adoption",
       "warnings": [
         "sources array is empty."
       ]
@@ -2984,6 +3042,14 @@
       ]
     },
     {
+      "file": "assurance-of-salvation.json",
+      "id": "assurance-of-salvation",
+      "title": "Assurance of Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "atonement.json",
       "id": "atonement",
       "title": "Atonement",
@@ -3016,6 +3082,38 @@
       ]
     },
     {
+      "file": "baptism.json",
+      "id": "baptism",
+      "title": "Baptism",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "bearing-fruit.json",
+      "id": "bearing-fruit",
+      "title": "Bearing Fruit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "biblical-hospitality-in-the-church.json",
+      "id": "biblical-hospitality-in-the-church",
+      "title": "Biblical Hospitality in the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "biblical-meditation.json",
+      "id": "biblical-meditation",
+      "title": "Biblical Meditation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "blasphemy-against-the-holy-spirit.json",
       "id": "blasphemy-against-the-holy-spirit",
       "title": "Blasphemy Against the Holy Spirit",
@@ -3032,6 +3130,30 @@
       ]
     },
     {
+      "file": "body-of-christ.json",
+      "id": "body-of-christ",
+      "title": "Body of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "bride-of-christ.json",
+      "id": "bride-of-christ",
+      "title": "Bride of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "calling.json",
+      "id": "calling",
+      "title": "Calling",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "canon-of-scripture.json",
       "id": "canon-of-scripture",
       "title": "Canon of Scripture",
@@ -3040,9 +3162,129 @@
       ]
     },
     {
+      "file": "care-for-widows-and-the-vulnerable.json",
+      "id": "care-for-widows-and-the-vulnerable",
+      "title": "Care for Widows and the Vulnerable",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "christ-the-last-adam.json",
       "id": "christ-the-last-adam",
       "title": "Christ the Last Adam",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "christian-love.json",
+      "id": "christian-love",
+      "title": "Christian Love",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "christlike-service.json",
+      "id": "christlike-service",
+      "title": "Christlike Service",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-accountability.json",
+      "id": "church-accountability",
+      "title": "Church Accountability",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-and-the-poor.json",
+      "id": "church-and-the-poor",
+      "title": "Church and the Poor",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-discipline-and-restoration.json",
+      "id": "church-discipline-and-restoration",
+      "title": "Church Discipline and Restoration",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-gathering.json",
+      "id": "church-gathering",
+      "title": "Church Gathering",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-holiness.json",
+      "id": "church-holiness",
+      "title": "Church Holiness",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-leadership.json",
+      "id": "church-leadership",
+      "title": "Church Leadership",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-mission.json",
+      "id": "church-mission",
+      "title": "Church Mission",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-ordinances.json",
+      "id": "church-ordinances",
+      "title": "Church Ordinances",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-planting.json",
+      "id": "church-planting",
+      "title": "Church Planting",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-service-and-ministry.json",
+      "id": "church-service-and-ministry",
+      "title": "Church Service and Ministry",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-unity.json",
+      "id": "church-unity",
+      "title": "Church Unity",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "church-worship.json",
+      "id": "church-worship",
+      "title": "Church Worship",
       "warnings": [
         "sources array is empty."
       ]
@@ -3080,9 +3322,25 @@
       ]
     },
     {
+      "file": "communion-of-saints.json",
+      "id": "communion-of-saints",
+      "title": "Communion of Saints",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "communion-of-the-holy-spirit.json",
       "id": "communion-of-the-holy-spirit",
       "title": "Communion of the Holy Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "compassion-and-mercy.json",
+      "id": "compassion-and-mercy",
+      "title": "Compassion and Mercy",
       "warnings": [
         "sources array is empty."
       ]
@@ -3096,6 +3354,30 @@
       ]
     },
     {
+      "file": "confession-of-christ.json",
+      "id": "confession-of-christ",
+      "title": "Confession of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "congregational-care.json",
+      "id": "congregational-care",
+      "title": "Congregational Care",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "contentment.json",
+      "id": "contentment",
+      "title": "Contentment",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "context-of-scripture.json",
       "id": "context-of-scripture",
       "title": "Context of Scripture",
@@ -3104,9 +3386,25 @@
       ]
     },
     {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "conviction-of-sin.json",
       "id": "conviction-of-sin",
       "title": "Conviction of Sin",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "courage-and-boldness.json",
+      "id": "courage-and-boldness",
+      "title": "Courage and Boldness",
       "warnings": [
         "sources array is empty."
       ]
@@ -3123,6 +3421,14 @@
       "file": "crucifixion-of-christ.json",
       "id": "crucifixion-of-christ",
       "title": "Crucifixion of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "deacons.json",
+      "id": "deacons",
+      "title": "Deacons",
       "warnings": [
         "sources array is empty."
       ]
@@ -3152,6 +3458,22 @@
       ]
     },
     {
+      "file": "deliverance-from-sin-s-dominion.json",
+      "id": "deliverance-from-sin-s-dominion",
+      "title": "Deliverance from Sin's Dominion",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "denying-self.json",
+      "id": "denying-self",
+      "title": "Denying Self",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "discernment-and-the-spirit.json",
       "id": "discernment-and-the-spirit",
       "title": "Discernment and the Spirit",
@@ -3160,9 +3482,49 @@
       ]
     },
     {
+      "file": "discipleship.json",
+      "id": "discipleship",
+      "title": "Discipleship",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "effectual-calling.json",
+      "id": "effectual-calling",
+      "title": "Effectual Calling",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "elders.json",
+      "id": "elders",
+      "title": "Elders",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "election.json",
+      "id": "election",
+      "title": "Election",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "empowerment-for-service.json",
       "id": "empowerment-for-service",
       "title": "Empowerment for Service",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "equipping-the-saints.json",
+      "id": "equipping-the-saints",
+      "title": "Equipping the Saints",
       "warnings": [
         "sources array is empty."
       ]
@@ -3179,6 +3541,14 @@
       "file": "eternality-of-god.json",
       "id": "eternality-of-god",
       "title": "Eternality of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "evangelism.json",
+      "id": "evangelism",
+      "title": "Evangelism",
       "warnings": [
         "sources array is empty."
       ]
@@ -3208,6 +3578,22 @@
       ]
     },
     {
+      "file": "faithfulness.json",
+      "id": "faithfulness",
+      "title": "Faithfulness",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "fasting.json",
+      "id": "fasting",
+      "title": "Fasting",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "fatherhood-of-god.json",
       "id": "fatherhood-of-god",
       "title": "Fatherhood of God",
@@ -3219,6 +3605,38 @@
       "file": "fatherly-discipline-of-god.json",
       "id": "fatherly-discipline-of-god",
       "title": "Fatherly Discipline of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "fellowship-of-believers.json",
+      "id": "fellowship-of-believers",
+      "title": "Fellowship of Believers",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "forgiveness-of-sins.json",
+      "id": "forgiveness-of-sins",
+      "title": "Forgiveness of Sins",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "forgiving-others.json",
+      "id": "forgiving-others",
+      "title": "Forgiving Others",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "freedom-in-christ.json",
+      "id": "freedom-in-christ",
+      "title": "Freedom in Christ",
       "warnings": [
         "sources array is empty."
       ]
@@ -3248,6 +3666,30 @@
       ]
     },
     {
+      "file": "generosity.json",
+      "id": "generosity",
+      "title": "Generosity",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "giving-in-the-church.json",
+      "id": "giving-in-the-church",
+      "title": "Giving in the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "glorification.json",
+      "id": "glorification",
+      "title": "Glorification",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "glory-of-christ.json",
       "id": "glory-of-christ",
       "title": "Glory of Christ",
@@ -3264,9 +3706,41 @@
       ]
     },
     {
+      "file": "godly-speech.json",
+      "id": "godly-speech",
+      "title": "Godly Speech",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "good-works-and-salvation.json",
+      "id": "good-works-and-salvation",
+      "title": "Good Works and Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "goodness-of-god.json",
       "id": "goodness-of-god",
       "title": "Goodness of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "gospel.json",
+      "id": "gospel",
+      "title": "Gospel",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "grace-in-salvation.json",
+      "id": "grace-in-salvation",
+      "title": "Grace in Salvation",
       "warnings": [
         "sources array is empty."
       ]
@@ -3344,6 +3818,38 @@
       ]
     },
     {
+      "file": "hope-in-daily-life.json",
+      "id": "hope-in-daily-life",
+      "title": "Hope in Daily Life",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "hope-of-salvation.json",
+      "id": "hope-of-salvation",
+      "title": "Hope of Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "hospitality-as-christian-witness.json",
+      "id": "hospitality-as-christian-witness",
+      "title": "Hospitality as Christian Witness",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "household-of-god.json",
+      "id": "household-of-god",
+      "title": "Household of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "humanity-and-incarnation-of-christ.json",
       "id": "humanity-and-incarnation-of-christ",
       "title": "Humanity and Incarnation of Christ",
@@ -3355,6 +3861,14 @@
       "file": "humiliation-of-christ.json",
       "id": "humiliation-of-christ",
       "title": "Humiliation of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "humility.json",
+      "id": "humility",
+      "title": "Humility",
       "warnings": [
         "sources array is empty."
       ]
@@ -3384,6 +3898,14 @@
       ]
     },
     {
+      "file": "imputed-righteousness.json",
+      "id": "imputed-righteousness",
+      "title": "Imputed Righteousness",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "incomprehensibility-of-god.json",
       "id": "incomprehensibility-of-god",
       "title": "Incomprehensibility of God",
@@ -3403,6 +3925,14 @@
       "file": "inspiration-of-scripture.json",
       "id": "inspiration-of-scripture",
       "title": "Inspiration of Scripture",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "integrity.json",
+      "id": "integrity",
+      "title": "Integrity",
       "warnings": [
         "sources array is empty."
       ]
@@ -3448,9 +3978,33 @@
       ]
     },
     {
+      "file": "joy-in-the-lord.json",
+      "id": "joy-in-the-lord",
+      "title": "Joy in the Lord",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "judicial-pardon.json",
+      "id": "judicial-pardon",
+      "title": "Judicial Pardon",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "justice-of-god.json",
       "id": "justice-of-god",
       "title": "Justice of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "justification-by-faith.json",
+      "id": "justification-by-faith",
+      "title": "Justification by Faith",
       "warnings": [
         "sources array is empty."
       ]
@@ -3483,6 +4037,30 @@
       "file": "leading-of-the-holy-spirit.json",
       "id": "leading-of-the-holy-spirit",
       "title": "Leading of the Holy Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "living-by-faith.json",
+      "id": "living-by-faith",
+      "title": "Living by Faith",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "local-church.json",
+      "id": "local-church",
+      "title": "Local Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "lord-s-supper.json",
+      "id": "lord-s-supper",
+      "title": "Lord’s Supper",
       "warnings": [
         "sources array is empty."
       ]
@@ -4516,15 +5094,15 @@
       "alias": "Body",
       "aliasId": "body",
       "target": "body-of-christ",
-      "resolvedToId": "baptism",
-      "resolvedToTitle": "Baptism"
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "Body of Christ"
     },
     {
       "alias": "Body of Christ",
       "aliasId": "body-of-christ",
       "target": "body-of-christ",
-      "resolvedToId": "baptism",
-      "resolvedToTitle": "Baptism"
+      "resolvedToId": "body-of-christ",
+      "resolvedToTitle": "Body of Christ"
     },
     {
       "alias": "Bride of Christ",
@@ -4761,8 +5339,8 @@
       "alias": "Covenant",
       "aliasId": "covenant",
       "target": "gospel",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "advocacy-of-christ",
+      "resolvedToTitle": "Advocacy of Christ"
     },
     {
       "alias": "Covenant of Grace",
@@ -5118,8 +5696,8 @@
       "alias": "Gospel",
       "aliasId": "gospel",
       "target": "gospel",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "advocacy-of-christ",
+      "resolvedToTitle": "Advocacy of Christ"
     },
     {
       "alias": "Grace",
@@ -5300,8 +5878,8 @@
       "alias": "Law and Gospel",
       "aliasId": "law-and-gospel",
       "target": "gospel",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "advocacy-of-christ",
+      "resolvedToTitle": "Advocacy of Christ"
     },
     {
       "alias": "Lord Jesus",
@@ -5762,8 +6340,8 @@
       "alias": "The Gospel",
       "aliasId": "the-gospel",
       "target": "gospel",
-      "resolvedToId": "adoption",
-      "resolvedToTitle": "Adoption"
+      "resolvedToId": "advocacy-of-christ",
+      "resolvedToTitle": "Advocacy of Christ"
     },
     {
       "alias": "The Holy Spirit",
@@ -6030,6 +6608,14 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "adoption.json",
+      "id": "adoption",
+      "title": "Adoption",
+      "relatedTopic": "The Fatherhood of God",
+      "normalizedTopic": "the-fatherhood-of-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "angels-and-judgment.json",
       "id": "angels-and-judgment",
       "title": "Angels and Judgment",
@@ -6046,11 +6632,27 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "assurance-of-salvation.json",
+      "id": "assurance-of-salvation",
+      "title": "Assurance of Salvation",
+      "relatedTopic": "Promise of Eternal Life",
+      "normalizedTopic": "promise-of-eternal-life",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "baptism-of-the-holy-spirit.json",
       "id": "baptism-of-the-holy-spirit",
       "title": "Baptism of the Holy Spirit",
       "relatedTopic": "Pentecost",
       "normalizedTopic": "pentecost",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism.json",
+      "id": "baptism",
+      "title": "Baptism",
+      "relatedTopic": "Church Membership",
+      "normalizedTopic": "church-membership",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6070,6 +6672,22 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "church-ordinances.json",
+      "id": "church-ordinances",
+      "title": "Church Ordinances",
+      "relatedTopic": "New Covenant",
+      "normalizedTopic": "new-covenant",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "compassion-and-mercy.json",
+      "id": "compassion-and-mercy",
+      "title": "Compassion and Mercy",
+      "relatedTopic": "Serving the Weak",
+      "normalizedTopic": "serving-the-weak",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "compassion.json",
       "id": "compassion",
       "title": "Compassion",
@@ -6083,6 +6701,22 @@
       "title": "Compassion",
       "relatedTopic": "Love Your Neighbor",
       "normalizedTopic": "love-your-neighbor",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "contentment.json",
+      "id": "contentment",
+      "title": "Contentment",
+      "relatedTopic": "Trusting God",
+      "normalizedTopic": "trusting-god",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "contentment.json",
+      "id": "contentment",
+      "title": "Contentment",
+      "relatedTopic": "Suffering Faithfully",
+      "normalizedTopic": "suffering-faithfully",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6126,6 +6760,14 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "evangelism.json",
+      "id": "evangelism",
+      "title": "Evangelism",
+      "relatedTopic": "Great Commission",
+      "normalizedTopic": "great-commission",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "fallen-angels.json",
       "id": "fallen-angels",
       "title": "Fallen Angels",
@@ -6134,11 +6776,43 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "fasting.json",
+      "id": "fasting",
+      "title": "Fasting",
+      "relatedTopic": "Spiritual Disciplines",
+      "normalizedTopic": "spiritual-disciplines",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "fellowship-of-believers.json",
+      "id": "fellowship-of-believers",
+      "title": "Fellowship of Believers",
+      "relatedTopic": "Mutual Encouragement",
+      "normalizedTopic": "mutual-encouragement",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "glorification.json",
+      "id": "glorification",
+      "title": "Glorification",
+      "relatedTopic": "Promise of Eternal Life",
+      "normalizedTopic": "promise-of-eternal-life",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "god-dwelling-with-his-people.json",
       "id": "god-dwelling-with-his-people",
       "title": "God Dwelling With His People",
       "relatedTopic": "New Jerusalem",
       "normalizedTopic": "new-jerusalem",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "gospel.json",
+      "id": "gospel",
+      "title": "Gospel",
+      "relatedTopic": "Saving Faith",
+      "normalizedTopic": "saving-faith",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6187,6 +6861,14 @@
       "title": "Limits of Satan’s Power",
       "relatedTopic": "Final Defeat of Satan",
       "normalizedTopic": "final-defeat-of-satan",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "lord-s-supper.json",
+      "id": "lord-s-supper",
+      "title": "Lord’s Supper",
+      "relatedTopic": "New Covenant",
+      "normalizedTopic": "new-covenant",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6407,17 +7089,17 @@
     }
   ],
   "categories": {
-    "Christian Life": 45,
+    "Christian Life": 48,
     "Biblical Relationships": 18,
     "Humanity and Sin": 45,
     "Suffering, Recovery, Restoration, and Hope": 20,
     "Holy Spirit": 45,
-    "Salvation": 45,
+    "Salvation": 47,
     "Jesus Christ": 45,
     "Angels and the Spiritual Realm": 45,
     "Last Things / Eschatology": 45,
     "God / Theology Proper": 45,
     "Scripture": 45,
-    "The Church": 45
+    "The Church": 47
   }
 }
