@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-15T17:35:42.932Z",
+  "generatedAt": "2026-06-15T17:37:03.847Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 495,
-    "accepted": 495,
-    "warnings": 247,
+    "scanned": 507,
+    "accepted": 507,
+    "warnings": 315,
     "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 232,
     "resolvedAliases": 218,
     "unresolvedAliases": 14,
-    "unresolvedRelatedTopics": 61
+    "unresolvedRelatedTopics": 57
   },
   "accepted": [
     {
@@ -1520,6 +1520,12 @@
       "category": "Holy Spirit"
     },
     {
+      "file": "mutual-encouragement.json",
+      "id": "mutual-encouragement",
+      "title": "Mutual Encouragement",
+      "category": "The Church"
+    },
+    {
       "file": "names-of-god.json",
       "id": "names-of-god",
       "title": "Names of God",
@@ -1916,6 +1922,12 @@
       "category": "Salvation"
     },
     {
+      "file": "repentant-living.json",
+      "id": "repentant-living",
+      "title": "Repentant Living",
+      "category": "Christian Life"
+    },
+    {
       "file": "rescue-from-wrath.json",
       "id": "rescue-from-wrath",
       "title": "Rescue from Wrath",
@@ -1932,6 +1944,12 @@
       "id": "restoration-after-failure",
       "title": "Restoration After Failure",
       "category": "Suffering, Recovery, Restoration, and Hope"
+    },
+    {
+      "file": "restoration-in-the-church.json",
+      "id": "restoration-in-the-church",
+      "title": "Restoration in the Church",
+      "category": "The Church"
     },
     {
       "file": "restoration-of-the-fallen.json",
@@ -1994,6 +2012,12 @@
       "category": "Salvation"
     },
     {
+      "file": "salvation-in-christ-alone.json",
+      "id": "salvation-in-christ-alone",
+      "title": "Salvation in Christ Alone",
+      "category": "Salvation"
+    },
+    {
       "file": "salvation-through-faith-alone.json",
       "id": "salvation-through-faith-alone",
       "title": "Salvation through Faith Alone",
@@ -2040,6 +2064,12 @@
       "id": "satan",
       "title": "Satan",
       "category": "Angels and the Spiritual Realm"
+    },
+    {
+      "file": "saving-faith.json",
+      "id": "saving-faith",
+      "title": "Saving Faith",
+      "category": "Salvation"
     },
     {
       "file": "scripture-and-christ.json",
@@ -2234,6 +2264,18 @@
       "category": "Biblical Relationships"
     },
     {
+      "file": "serving-the-weak.json",
+      "id": "serving-the-weak",
+      "title": "Serving the Weak",
+      "category": "Christian Life"
+    },
+    {
+      "file": "sexual-purity.json",
+      "id": "sexual-purity",
+      "title": "Sexual Purity",
+      "category": "Christian Life"
+    },
+    {
       "file": "shame-and-the-gospel.json",
       "id": "shame-and-the-gospel",
       "title": "Shame and the Gospel",
@@ -2396,10 +2438,22 @@
       "category": "Humanity and Sin"
     },
     {
+      "file": "spiritual-disciplines.json",
+      "id": "spiritual-disciplines",
+      "title": "Spiritual Disciplines",
+      "category": "Christian Life"
+    },
+    {
       "file": "spiritual-gifts-and-ministry-of-the-holy-spirit.json",
       "id": "spiritual-gifts-and-ministry-of-the-holy-spirit",
       "title": "Spiritual Gifts and Ministry of the Holy Spirit",
       "category": "Holy Spirit"
+    },
+    {
+      "file": "spiritual-gifts-in-the-church.json",
+      "id": "spiritual-gifts-in-the-church",
+      "title": "Spiritual Gifts in the Church",
+      "category": "The Church"
     },
     {
       "file": "spiritual-gifts.json",
@@ -2424,6 +2478,12 @@
       "id": "spiritual-realm-and-god-s-sovereignty",
       "title": "Spiritual Realm and God’s Sovereignty",
       "category": "Angels and the Spiritual Realm"
+    },
+    {
+      "file": "spiritual-warfare-in-daily-life.json",
+      "id": "spiritual-warfare-in-daily-life",
+      "title": "Spiritual Warfare in Daily Life",
+      "category": "Christian Life"
     },
     {
       "file": "spiritual-warfare.json",
@@ -2472,6 +2532,12 @@
       "id": "suffering-and-gods-purpose",
       "title": "Suffering and God's Purpose",
       "category": "Suffering, Recovery, Restoration, and Hope"
+    },
+    {
+      "file": "suffering-faithfully.json",
+      "id": "suffering-faithfully",
+      "title": "Suffering Faithfully",
+      "category": "Christian Life"
     },
     {
       "file": "suffering-of-christ.json",
@@ -2952,6 +3018,12 @@
       "id": "word-made-flesh",
       "title": "Word Made Flesh",
       "category": "Jesus Christ"
+    },
+    {
+      "file": "work-and-calling.json",
+      "id": "work-and-calling",
+      "title": "Work and Calling",
+      "category": "Christian Life"
     },
     {
       "file": "work-of-the-holy-spirit.json",
@@ -4114,6 +4186,14 @@
       ]
     },
     {
+      "file": "membership-in-the-church.json",
+      "id": "membership-in-the-church",
+      "title": "Membership in the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "memorizing-scripture.json",
       "id": "memorizing-scripture",
       "title": "Memorizing Scripture",
@@ -4146,6 +4226,14 @@
       ]
     },
     {
+      "file": "mutual-encouragement.json",
+      "id": "mutual-encouragement",
+      "title": "Mutual Encouragement",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "names-of-god.json",
       "id": "names-of-god",
       "title": "Names of God",
@@ -4170,9 +4258,33 @@
       ]
     },
     {
+      "file": "new-life-in-christ.json",
+      "id": "new-life-in-christ",
+      "title": "New Life in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "obedience-and-salvation.json",
+      "id": "obedience-and-salvation",
+      "title": "Obedience and Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "obedience-of-christ.json",
       "id": "obedience-of-christ",
       "title": "Obedience of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "obedience.json",
+      "id": "obedience",
+      "title": "Obedience",
       "warnings": [
         "sources array is empty."
       ]
@@ -4202,9 +4314,65 @@
       ]
     },
     {
+      "file": "pastoral-shepherding.json",
+      "id": "pastoral-shepherding",
+      "title": "Pastoral Shepherding",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "patience-of-god.json",
       "id": "patience-of-god",
       "title": "Patience of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "patience.json",
+      "id": "patience",
+      "title": "Patience",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "peace-in-christ.json",
+      "id": "peace-in-christ",
+      "title": "Peace in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "peace-with-god.json",
+      "id": "peace-with-god",
+      "title": "Peace with God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "people-of-god.json",
+      "id": "people-of-god",
+      "title": "People of God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "perseverance.json",
+      "id": "perseverance",
+      "title": "Perseverance",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "persevering-grace.json",
+      "id": "persevering-grace",
+      "title": "Persevering Grace",
       "warnings": [
         "sources array is empty."
       ]
@@ -4234,6 +4402,30 @@
       ]
     },
     {
+      "file": "prayer-in-the-church.json",
+      "id": "prayer-in-the-church",
+      "title": "Prayer in the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "prayer.json",
+      "id": "prayer",
+      "title": "Prayer",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "preaching-of-the-word.json",
+      "id": "preaching-of-the-word",
+      "title": "Preaching of the Word",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "preexistence-of-christ.json",
       "id": "preexistence-of-christ",
       "title": "Preexistence of Christ",
@@ -4253,6 +4445,14 @@
       "file": "preservation-of-scripture.json",
       "id": "preservation-of-scripture",
       "title": "Preservation of Scripture",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "priesthood-of-believers.json",
+      "id": "priesthood-of-believers",
+      "title": "Priesthood of Believers",
       "warnings": [
         "sources array is empty."
       ]
@@ -4282,9 +4482,25 @@
       ]
     },
     {
+      "file": "propitiation.json",
+      "id": "propitiation",
+      "title": "Propitiation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "providence-over-suffering.json",
       "id": "providence-over-suffering",
       "title": "Providence Over Suffering",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "putting-off-and-putting-on.json",
+      "id": "putting-off-and-putting-on",
+      "title": "Putting Off and Putting On",
       "warnings": [
         "sources array is empty."
       ]
@@ -4306,6 +4522,14 @@
       ]
     },
     {
+      "file": "receiving-christ.json",
+      "id": "receiving-christ",
+      "title": "Receiving Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "reconciliation-through-christ.json",
       "id": "reconciliation-through-christ",
       "title": "Reconciliation Through Christ",
@@ -4314,9 +4538,33 @@
       ]
     },
     {
+      "file": "reconciliation-with-god.json",
+      "id": "reconciliation-with-god",
+      "title": "Reconciliation with God",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "redemption-in-christ.json",
       "id": "redemption-in-christ",
       "title": "Redemption in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "redemption.json",
+      "id": "redemption",
+      "title": "Redemption",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "regeneration.json",
+      "id": "regeneration",
+      "title": "Regeneration",
       "warnings": [
         "sources array is empty."
       ]
@@ -4333,6 +4581,54 @@
       "file": "renewal-of-the-mind-by-the-spirit.json",
       "id": "renewal-of-the-mind-by-the-spirit",
       "title": "Renewal of the Mind by the Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "renewing-the-mind.json",
+      "id": "renewing-the-mind",
+      "title": "Renewing the Mind",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "repentance-unto-life.json",
+      "id": "repentance-unto-life",
+      "title": "Repentance unto Life",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "repentant-living.json",
+      "id": "repentant-living",
+      "title": "Repentant Living",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "rescue-from-wrath.json",
+      "id": "rescue-from-wrath",
+      "title": "Rescue from Wrath",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "rest-in-christ.json",
+      "id": "rest-in-christ",
+      "title": "Rest in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "restoration-in-the-church.json",
+      "id": "restoration-in-the-church",
+      "title": "Restoration in the Church",
       "warnings": [
         "sources array is empty."
       ]
@@ -4378,9 +4674,49 @@
       ]
     },
     {
+      "file": "salvation-by-grace-alone.json",
+      "id": "salvation-by-grace-alone",
+      "title": "Salvation by Grace Alone",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "salvation-in-christ-alone.json",
+      "id": "salvation-in-christ-alone",
+      "title": "Salvation in Christ Alone",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "salvation-through-faith-alone.json",
+      "id": "salvation-through-faith-alone",
+      "title": "Salvation through Faith Alone",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "sanctification.json",
+      "id": "sanctification",
+      "title": "Sanctification",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "sanctifying-work-of-the-spirit.json",
       "id": "sanctifying-work-of-the-spirit",
       "title": "Sanctifying Work of the Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "saving-faith.json",
+      "id": "saving-faith",
+      "title": "Saving Faith",
       "warnings": [
         "sources array is empty."
       ]
@@ -4570,6 +4906,22 @@
       ]
     },
     {
+      "file": "security-in-christ.json",
+      "id": "security-in-christ",
+      "title": "Security in Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "self-control.json",
+      "id": "self-control",
+      "title": "Self-Control",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "self-existence-of-god.json",
       "id": "self-existence-of-god",
       "title": "Self-Existence of God",
@@ -4578,9 +4930,41 @@
       ]
     },
     {
+      "file": "sending-and-missions.json",
+      "id": "sending-and-missions",
+      "title": "Sending and Missions",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "servant-leadership.json",
+      "id": "servant-leadership",
+      "title": "Servant Leadership",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "servanthood-of-christ.json",
       "id": "servanthood-of-christ",
       "title": "Servanthood of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "serving-the-weak.json",
+      "id": "serving-the-weak",
+      "title": "Serving the Weak",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "sexual-purity.json",
+      "id": "sexual-purity",
+      "title": "Sexual Purity",
       "warnings": [
         "sources array is empty."
       ]
@@ -4629,6 +5013,14 @@
       "file": "son-of-man.json",
       "id": "son-of-man",
       "title": "Son of Man",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "sonship-in-christ.json",
+      "id": "sonship-in-christ",
+      "title": "Sonship in Christ",
       "warnings": [
         "sources array is empty."
       ]
@@ -4706,9 +5098,33 @@
       ]
     },
     {
+      "file": "spiritual-disciplines.json",
+      "id": "spiritual-disciplines",
+      "title": "Spiritual Disciplines",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "spiritual-gifts-and-ministry-of-the-holy-spirit.json",
       "id": "spiritual-gifts-and-ministry-of-the-holy-spirit",
       "title": "Spiritual Gifts and Ministry of the Holy Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "spiritual-gifts-in-the-church.json",
+      "id": "spiritual-gifts-in-the-church",
+      "title": "Spiritual Gifts in the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "spiritual-warfare-in-daily-life.json",
+      "id": "spiritual-warfare-in-daily-life",
+      "title": "Spiritual Warfare in Daily Life",
       "warnings": [
         "sources array is empty."
       ]
@@ -4722,6 +5138,14 @@
       ]
     },
     {
+      "file": "stewardship.json",
+      "id": "stewardship",
+      "title": "Stewardship",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "studying-scripture.json",
       "id": "studying-scripture",
       "title": "Studying Scripture",
@@ -4730,9 +5154,25 @@
       ]
     },
     {
+      "file": "substitutionary-atonement.json",
+      "id": "substitutionary-atonement",
+      "title": "Substitutionary Atonement",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "substitutionary-death-of-christ.json",
       "id": "substitutionary-death-of-christ",
       "title": "Substitutionary Death of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "suffering-faithfully.json",
+      "id": "suffering-faithfully",
+      "title": "Suffering Faithfully",
       "warnings": [
         "sources array is empty."
       ]
@@ -4762,6 +5202,22 @@
       ]
     },
     {
+      "file": "taking-up-the-cross.json",
+      "id": "taking-up-the-cross",
+      "title": "Taking Up the Cross",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "teaching-ministry-of-the-church.json",
+      "id": "teaching-ministry-of-the-church",
+      "title": "Teaching Ministry of the Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "teaching-of-christ.json",
       "id": "teaching-of-christ",
       "title": "Teaching of Christ",
@@ -4781,6 +5237,94 @@
       "file": "temptation-of-christ.json",
       "id": "temptation-of-christ",
       "title": "Temptation of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "thanksgiving.json",
+      "id": "thanksgiving",
+      "title": "Thanksgiving",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-book-of-life.json",
+      "id": "the-book-of-life",
+      "title": "The Book of Life",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-church.json",
+      "id": "the-church",
+      "title": "The Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-covenant-of-grace.json",
+      "id": "the-covenant-of-grace",
+      "title": "The Covenant of Grace",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-gift-of-salvation.json",
+      "id": "the-gift-of-salvation",
+      "title": "The Gift of Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-great-commission.json",
+      "id": "the-great-commission",
+      "title": "The Great Commission",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-keys-of-the-kingdom.json",
+      "id": "the-keys-of-the-kingdom",
+      "title": "The Keys of the Kingdom",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-lord-s-day.json",
+      "id": "the-lord-s-day",
+      "title": "The Lord's Day",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-new-covenant.json",
+      "id": "the-new-covenant",
+      "title": "The New Covenant",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-order-of-salvation.json",
+      "id": "the-order-of-salvation",
+      "title": "The Order of Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-promise-of-eternal-life.json",
+      "id": "the-promise-of-eternal-life",
+      "title": "The Promise of Eternal Life",
       "warnings": [
         "sources array is empty."
       ]
@@ -4813,6 +5357,14 @@
       "file": "the-spirit-and-the-word.json",
       "id": "the-spirit-and-the-word",
       "title": "The Spirit and the Word",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "the-washing-of-regeneration.json",
+      "id": "the-washing-of-regeneration",
+      "title": "The Washing of Regeneration",
       "warnings": [
         "sources array is empty."
       ]
@@ -4858,9 +5410,25 @@
       ]
     },
     {
+      "file": "union-with-christ-in-salvation.json",
+      "id": "union-with-christ-in-salvation",
+      "title": "Union with Christ in Salvation",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "union-with-christ.json",
       "id": "union-with-christ",
       "title": "Union with Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "unity-in-diversity.json",
+      "id": "unity-in-diversity",
+      "title": "Unity in Diversity",
       "warnings": [
         "sources array is empty."
       ]
@@ -4882,6 +5450,14 @@
       ]
     },
     {
+      "file": "universal-church.json",
+      "id": "universal-church",
+      "title": "Universal Church",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "victory-of-christ.json",
       "id": "victory-of-christ",
       "title": "Victory of Christ",
@@ -4898,9 +5474,25 @@
       ]
     },
     {
+      "file": "walking-in-the-spirit.json",
+      "id": "walking-in-the-spirit",
+      "title": "Walking in the Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "warnings-of-scripture.json",
       "id": "warnings-of-scripture",
       "title": "Warnings of Scripture",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "watchfulness.json",
+      "id": "watchfulness",
+      "title": "Watchfulness",
       "warnings": [
         "sources array is empty."
       ]
@@ -4930,6 +5522,14 @@
       ]
     },
     {
+      "file": "wisdom.json",
+      "id": "wisdom",
+      "title": "Wisdom",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "witness-of-the-holy-spirit.json",
       "id": "witness-of-the-holy-spirit",
       "title": "Witness of the Holy Spirit",
@@ -4946,9 +5546,25 @@
       ]
     },
     {
+      "file": "work-and-calling.json",
+      "id": "work-and-calling",
+      "title": "Work and Calling",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
       "file": "work-of-the-holy-spirit.json",
       "id": "work-of-the-holy-spirit",
       "title": "Work of the Holy Spirit",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "worship.json",
+      "id": "worship",
+      "title": "Worship",
       "warnings": [
         "sources array is empty."
       ]
@@ -6680,14 +7296,6 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
-      "file": "compassion-and-mercy.json",
-      "id": "compassion-and-mercy",
-      "title": "Compassion and Mercy",
-      "relatedTopic": "Serving the Weak",
-      "normalizedTopic": "serving-the-weak",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
       "file": "compassion.json",
       "id": "compassion",
       "title": "Compassion",
@@ -6709,14 +7317,6 @@
       "title": "Contentment",
       "relatedTopic": "Trusting God",
       "normalizedTopic": "trusting-god",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
-      "file": "contentment.json",
-      "id": "contentment",
-      "title": "Contentment",
-      "relatedTopic": "Suffering Faithfully",
-      "normalizedTopic": "suffering-faithfully",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6776,22 +7376,6 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
-      "file": "fasting.json",
-      "id": "fasting",
-      "title": "Fasting",
-      "relatedTopic": "Spiritual Disciplines",
-      "normalizedTopic": "spiritual-disciplines",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
-      "file": "fellowship-of-believers.json",
-      "id": "fellowship-of-believers",
-      "title": "Fellowship of Believers",
-      "relatedTopic": "Mutual Encouragement",
-      "normalizedTopic": "mutual-encouragement",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
       "file": "glorification.json",
       "id": "glorification",
       "title": "Glorification",
@@ -6805,14 +7389,6 @@
       "title": "God Dwelling With His People",
       "relatedTopic": "New Jerusalem",
       "normalizedTopic": "new-jerusalem",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
-      "file": "gospel.json",
-      "id": "gospel",
-      "title": "Gospel",
-      "relatedTopic": "Saving Faith",
-      "normalizedTopic": "saving-faith",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -6893,6 +7469,14 @@
       "title": "New Beginnings",
       "relatedTopic": "Identity Beyond Failure",
       "normalizedTopic": "identity-beyond-failure",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "prayer.json",
+      "id": "prayer",
+      "title": "Prayer",
+      "relatedTopic": "Dependence on God",
+      "normalizedTopic": "dependence-on-god",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -7089,17 +7673,17 @@
     }
   ],
   "categories": {
-    "Christian Life": 48,
+    "Christian Life": 55,
     "Biblical Relationships": 18,
     "Humanity and Sin": 45,
     "Suffering, Recovery, Restoration, and Hope": 20,
     "Holy Spirit": 45,
-    "Salvation": 47,
+    "Salvation": 49,
     "Jesus Christ": 45,
     "Angels and the Spiritual Realm": 45,
     "Last Things / Eschatology": 45,
     "God / Theology Proper": 45,
     "Scripture": 45,
-    "The Church": 47
+    "The Church": 50
   }
 }
