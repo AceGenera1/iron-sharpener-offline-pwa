@@ -1,6 +1,6 @@
 {
   "frameworkVersion": "2.0",
-  "displayVersion": "3.0-no-visible-summary-or-sources",
+  "displayVersion": "3.1-source-locked-no-visible-summary-or-sources",
   "id": "reign-of-christ",
   "title": "Reign of Christ",
   "category": "Jesus Christ",
@@ -67,5 +67,24 @@
     "Hope",
     "Atonement",
     "Resurrection"
-  ]
+  ],
+  "sourcePolicy": {
+    "policyName": "Iron Sharpener Approved Public-Domain Source Framework",
+    "scriptureAuthority": "Scripture is the final and controlling authority.",
+    "approvedSourcesOnly": [
+      "Scripture",
+      "Treasury of Scripture Knowledge",
+      "Easton's Bible Dictionary",
+      "Smith's Bible Dictionary",
+      "Nave's Topical Bible",
+      "Matthew Henry Commentary",
+      "Jamieson-Fausset-Brown Commentary",
+      "Berkhof Systematic Theology"
+    ],
+    "noModernCopyrightedSources": true,
+    "noVisibleSourcesOnCard": true,
+    "noVisibleSummaryOnCard": true,
+    "writingMode": "Original Restored Daily / Iron Sharpener wording shaped only by the approved public-domain source framework; no copied commentary, sermon, article, modern study Bible, or denominational resource prose."
+  },
+  "summaryDisplay": false
 }
