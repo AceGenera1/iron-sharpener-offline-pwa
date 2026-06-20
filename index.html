@@ -3724,8 +3724,6 @@ function showSmallTeachingNoteBox() {
     function loadMarksForCurrentChapter() {
       let merged = blankMarks();
       const prefix = legacyMarksPrefix();
-      const chapterKey = chapterMarksKey();
-      const legacyKeysToRemove = [];
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -3733,21 +3731,15 @@ function showSmallTeachingNoteBox() {
 
         try {
           merged = mergeMarks(merged, JSON.parse(localStorage.getItem(key) || "{}"));
-          if (key !== chapterKey) legacyKeysToRemove.push(key);
         } catch (error) {
           console.warn("Could not read saved marks:", key, error);
         }
       }
 
       try {
-        merged = mergeMarks(merged, JSON.parse(localStorage.getItem(chapterKey) || "{}"));
+        merged = mergeMarks(merged, JSON.parse(localStorage.getItem(chapterMarksKey()) || "{}"));
       } catch (error) {
         console.warn("Could not read chapter marks:", error);
-      }
-
-      if (legacyKeysToRemove.length) {
-        localStorage.setItem(chapterKey, JSON.stringify(merged));
-        legacyKeysToRemove.forEach((key) => localStorage.removeItem(key));
       }
 
       return merged;
@@ -4117,7 +4109,7 @@ function setupObsNavigator() {
     }
 
     function preserveNoteText(text) {
-      return (text || "").replace(/\r\n/g, "\n").trim();
+      return String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
     }
 
     function escapeHtml(value) {
@@ -7781,7 +7773,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function cleanApplicationText(text) {
-    return (text || "").replace(/\r\n/g, "\n").trim();
+    return String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   }
 
   function showApplicationPresentationFinal(event) {
