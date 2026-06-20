@@ -7473,5 +7473,102 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
+
+
+<!-- Iron Sharpener Patch 1: Mobile screen-fit/background only. PC panels untouched. -->
+<style id="iron-mobile-screen-fit-patch-1">
+/*
+  PATCH 1 SCOPE:
+  - Mobile/tablet/touch screen-fit and background only.
+  - No panel open/close logic.
+  - No study-resource logic.
+  - No desktop/PC drag/resize behavior touched.
+*/
+@media (hover: none) and (pointer: coarse), (max-width: 820px) {
+  :root {
+    --east-tn-forest-deep: #203D39;
+    --east-tn-forest: #294843;
+    --east-tn-forest-soft: #355A54;
+    --east-tn-cream: #F7F3EA;
+    --east-tn-warm-paper: #F4EFE3;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+    min-height: 100svh;
+    min-height: 100dvh;
+    overflow-x: hidden !important;
+    background: linear-gradient(180deg, var(--east-tn-forest-soft) 0%, var(--east-tn-forest) 54%, var(--east-tn-forest-deep) 100%) !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    background-color: var(--east-tn-forest) !important;
+  }
+
+  /* Let any empty mobile space show forest green instead of white/blue. */
+  .shell {
+    min-height: 100svh;
+    min-height: 100dvh;
+    background: transparent !important;
+  }
+
+  body:not(.dark) .layout,
+  body:not(.dark) .scripture,
+  body:not(.dark) .panel {
+    background-color: var(--east-tn-warm-paper);
+  }
+
+  body.dark,
+  body.dark .shell {
+    background: linear-gradient(180deg, var(--east-tn-forest-soft) 0%, var(--east-tn-forest) 56%, var(--east-tn-forest-deep) 100%) !important;
+  }
+
+  body.dark .layout {
+    background: linear-gradient(180deg, var(--east-tn-forest) 0%, var(--east-tn-forest-deep) 100%) !important;
+  }
+
+  /* Keep the main content tall enough to reach the mobile viewport without creating a white footer gap. */
+  .layout {
+    min-height: calc(100svh - 1px);
+    min-height: calc(100dvh - 1px);
+  }
+
+  /* Mobile OBS gets the same screen-fit treatment, but nothing here changes panel behavior. */
+  html.obs,
+  html.obs body {
+    width: 100%;
+    min-height: 100svh;
+    min-height: 100dvh;
+    background: linear-gradient(180deg, var(--east-tn-forest-soft) 0%, var(--east-tn-forest) 56%, var(--east-tn-forest-deep) 100%) !important;
+  }
+
+  html.obs .shell {
+    min-height: 100svh;
+    min-height: 100dvh;
+    background: transparent !important;
+  }
+
+  html.obs .layout {
+    min-height: calc(100svh - 195px) !important;
+    min-height: calc(100dvh - 195px) !important;
+    background: var(--east-tn-warm-paper) !important;
+  }
+
+  html.obs body.dark .layout {
+    background: linear-gradient(180deg, var(--east-tn-forest) 0%, var(--east-tn-forest-deep) 100%) !important;
+  }
+
+  html.obs .scripture {
+    min-height: calc(100svh - 195px) !important;
+    min-height: calc(100dvh - 195px) !important;
+  }
+}
+</style>
+
 </body>
 </html>
