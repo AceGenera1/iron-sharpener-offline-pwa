@@ -8730,6 +8730,46 @@ html.obs body.dark #ironPromptPanel .iron-mini-prayer {
   color: #FFF0BF !important;
   border-color: rgba(248,217,135,.70) !important;
 }
+
+
+/* Patch 2E: I.R.O.N. panel OBS dark-mode text weight cleanup
+   Scope: only the I.R.O.N. Study Prompts panel while in OBS Focus + dark mode.
+   Purpose: make PC match the softer mobile lettering without changing other panels. */
+html.obs body.dark #ironPromptPanel,
+html.obs body.dark #ironPromptPanel.open {
+  color: #F7F3EA !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  font-synthesis-weight: none !important;
+}
+
+html.obs body.dark #ironPromptPanel p,
+html.obs body.dark #ironPromptPanel li,
+html.obs body.dark #ironPromptPanel .iron-study-list,
+html.obs body.dark #ironPromptPanel .iron-study-list li,
+html.obs body.dark #ironPromptPanel .iron-mini-prayer {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 400 !important;
+  line-height: 1.62 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+  color: #F7F3EA !important;
+}
+
+html.obs body.dark #ironPromptPanel strong {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+  color: #FFF3CD !important;
+}
+
+html.obs body.dark #ironPromptPanel h3 {
+  font-weight: 700 !important;
+  letter-spacing: .08em !important;
+  text-shadow: none !important;
+  color: #F8D987 !important;
+}
 </style>
 
 </body>
