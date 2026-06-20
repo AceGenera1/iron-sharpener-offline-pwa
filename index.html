@@ -11116,5 +11116,63 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 })();
 </script>
 
+
+<!-- Patch 6C — iPad/tablet footer bottom canvas cleanup
+     Scope: tablet-sized touch screens only.
+     Purpose: when iPad/Safari reaches the bottom of the page, the area
+     below the footer should visually continue the footer instead of showing
+     the cream page canvas. Does not affect iPhone, PC, panels, notes,
+     navigation, cross references, or study resources. -->
+<style id="patch-6c-ipad-footer-bottom-fit-style">
+@media (min-width: 651px) and (max-width: 1180px) and (pointer: coarse) {
+  html:not(.obs),
+  html:not(.obs) body {
+    background-color: #203D39 !important;
+  }
+
+  html:not(.obs) body:not(.dark) {
+    background:
+      linear-gradient(
+        180deg,
+        #fff9ec 0%,
+        #fff2d5 calc(100% - 260px),
+        #203D39 calc(100% - 260px),
+        #203D39 100%
+      ) !important;
+  }
+
+  html:not(.obs) body.dark {
+    background:
+      linear-gradient(
+        180deg,
+        #203D39 0%,
+        #1D3835 100%
+      ) !important;
+  }
+
+  html:not(.obs) .shell {
+    background: transparent !important;
+  }
+
+  html:not(.obs) .footer {
+    position: relative !important;
+    margin-bottom: 0 !important;
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+    background: linear-gradient(180deg, #294843, #203D39) !important;
+  }
+
+  html:not(.obs) .footer::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 260px;
+    background: #203D39;
+    pointer-events: none;
+  }
+}
+</style>
+
 </body>
 </html>
