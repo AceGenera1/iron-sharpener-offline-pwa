@@ -9981,5 +9981,496 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 })();
 </script>
 
+
+
+<!-- Patch 5C — Cross References reopen fix + universal presentation card drag/resize
+     Scope: fixes OBS Cross References reopening after close; makes Teaching Note and Application & Prayer cards movable/resizable in regular mode and OBS mode. -->
+<style id="patch-5c-presentation-crossrefs-control-style">
+  /* Robust OBS Cross References sizing and behavior after close/reopen */
+  html.obs #obsCrossRefsPanel.open,
+  #obsCrossRefsPanel.open {
+    display: block !important;
+    position: fixed !important;
+    width: min(430px, calc(100vw - 36px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: min(62vh, calc(100vh - 150px)) !important;
+    min-width: 300px !important;
+    min-height: 190px !important;
+    overflow: auto !important;
+    resize: both !important;
+    z-index: 85000 !important;
+  }
+
+  html.obs #obsCrossRefsPanel.open:not(.drag-positioned):not(.rd-drag-positioned) {
+    right: 24px !important;
+    top: 112px !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+
+  #obsCrossRefsPanel.open.drag-positioned,
+  #obsCrossRefsPanel.open.rd-drag-positioned {
+    left: var(--rd-left, var(--drag-left)) !important;
+    top: var(--rd-top, var(--drag-top)) !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+
+  #obsCrossRefsPanel .floating-crossrefs-header {
+    cursor: move !important;
+    touch-action: none !important;
+    user-select: none !important;
+  }
+
+  #obsCrossRefsContent .obs-crossrefs-full-note {
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    font: 500 clamp(14px, 1.55vw, 17px)/1.58 "Segoe UI", Arial, sans-serif !important;
+    padding: 10px 12px !important;
+    margin: 0 0 12px !important;
+    border: 1px solid rgba(215,168,79,.45) !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,.055) !important;
+  }
+
+  body:not(.dark) #obsCrossRefsContent .obs-crossrefs-full-note {
+    background: rgba(255,250,240,.72) !important;
+    color: #10213c !important;
+  }
+
+  body.dark #obsCrossRefsContent .obs-crossrefs-full-note {
+    background: rgba(255,255,255,.055) !important;
+    color: #fff7df !important;
+  }
+
+  /* Teaching Note + Application & Prayer presentation cards are movable/resizable everywhere */
+  #teachingPresentationCard.open,
+  #applicationPresentationCard.open {
+    align-items: initial !important;
+    justify-content: initial !important;
+    pointer-events: none !important;
+  }
+
+  #teachingPresentationCard.open .presentation-card-inner,
+  #applicationPresentationCard.open .presentation-card-inner {
+    pointer-events: auto !important;
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(760px, calc(100vw - 42px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: min(72vh, calc(100vh - 88px)) !important;
+    min-width: 320px !important;
+    min-height: 210px !important;
+    resize: both !important;
+    overflow: auto !important;
+    text-align: left !important;
+    padding: 30px 34px !important;
+  }
+
+  #teachingPresentationCard.open .presentation-card-inner.rd-drag-positioned,
+  #applicationPresentationCard.open .presentation-card-inner.rd-drag-positioned {
+    left: var(--rd-left, var(--drag-left)) !important;
+    top: var(--rd-top, var(--drag-top)) !important;
+    transform: none !important;
+  }
+
+  #teachingPresentationCard .presentation-card-inner h2,
+  #applicationPresentationCard .presentation-card-inner h2 {
+    cursor: move !important;
+    touch-action: none !important;
+    user-select: none !important;
+    text-align: left !important;
+  }
+
+  #presentationCardText,
+  #applicationPresentationText {
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    text-align: left !important;
+    max-width: none !important;
+    margin: 0 !important;
+    font-size: clamp(18px, 2.1vw, 28px) !important;
+    line-height: 1.46 !important;
+  }
+
+  .rd-universal-resize-handle,
+  .rd-touch-resize-handle.rd-universal-resize-handle {
+    position: absolute !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-right: 4px solid rgba(248,217,135,.82) !important;
+    border-bottom: 4px solid rgba(248,217,135,.82) !important;
+    border-radius: 4px !important;
+    cursor: nwse-resize !important;
+    touch-action: none !important;
+    z-index: 20 !important;
+    opacity: .9 !important;
+  }
+
+  @media (max-width: 650px) {
+    html.obs #obsCrossRefsPanel.open:not(.drag-positioned):not(.rd-drag-positioned),
+    #obsCrossRefsPanel.open:not(.drag-positioned):not(.rd-drag-positioned) {
+      top: 94px !important;
+      right: 12px !important;
+      width: min(360px, calc(100vw - 24px)) !important;
+      max-height: min(58vh, calc(100vh - 128px)) !important;
+      min-width: 270px !important;
+    }
+
+    #teachingPresentationCard.open .presentation-card-inner,
+    #applicationPresentationCard.open .presentation-card-inner {
+      width: min(360px, calc(100vw - 24px)) !important;
+      max-height: min(66vh, calc(100vh - 110px)) !important;
+      min-width: 270px !important;
+      padding: 24px 22px !important;
+    }
+
+    #presentationCardText,
+    #applicationPresentationText {
+      font-size: 19px !important;
+      line-height: 1.43 !important;
+    }
+  }
+</style>
+
+<script id="patch-5c-presentation-crossrefs-control-script">
+(function patchFiveCPresentationAndCrossRefsControl() {
+  const get = (id) => document.getElementById(id);
+  let nextFloatingZ = 90000;
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function preserveText(value) {
+    return String(value == null ? "" : value)
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/[ \t]+$/gm, "")
+      .replace(/\n{4,}/g, "\n\n\n");
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function bringForward(panel) {
+    if (!panel) return;
+    nextFloatingZ += 1;
+    panel.style.zIndex = String(nextFloatingZ);
+  }
+
+  function isOpenElement(panel) {
+    if (!panel) return false;
+    return panel.classList.contains("open") || !!panel.closest(".open");
+  }
+
+  function ensureResizeHandle(panel) {
+    if (!panel) return null;
+    let handle = panel.querySelector(":scope > .rd-touch-resize-handle") || panel.querySelector(":scope > .rd-universal-resize-handle");
+    if (!handle) {
+      handle = document.createElement("div");
+      panel.appendChild(handle);
+    }
+    handle.classList.add("rd-universal-resize-handle");
+    handle.setAttribute("aria-hidden", "true");
+    return handle;
+  }
+
+  function keepInsideViewport(panel) {
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    const margin = 8;
+    const minVisible = Math.min(140, Math.max(80, rect.width * 0.35));
+    const maxLeft = Math.max(margin, window.innerWidth - minVisible);
+    const maxTop = Math.max(margin, window.innerHeight - 80);
+    const nextLeft = clamp(rect.left, margin, maxLeft);
+    const nextTop = clamp(rect.top, margin, maxTop);
+
+    panel.style.setProperty("--rd-left", nextLeft + "px");
+    panel.style.setProperty("--rd-top", nextTop + "px");
+    panel.style.setProperty("--drag-left", nextLeft + "px");
+    panel.style.setProperty("--drag-top", nextTop + "px");
+    panel.classList.add("drag-positioned", "rd-drag-positioned");
+  }
+
+  function installUniversalDrag(panel, handle) {
+    if (!panel || !handle || panel.dataset.rdUniversalDragReady === "1") return;
+    panel.dataset.rdUniversalDragReady = "1";
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    handle.addEventListener("pointerdown", function(event) {
+      if (event.target.closest("button, input, textarea, select, a, summary")) return;
+      const rect = panel.getBoundingClientRect();
+      dragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      panel.style.setProperty("--rd-left", startLeft + "px");
+      panel.style.setProperty("--rd-top", startTop + "px");
+      panel.style.setProperty("--drag-left", startLeft + "px");
+      panel.style.setProperty("--drag-top", startTop + "px");
+      panel.classList.add("drag-positioned", "rd-drag-positioned");
+      bringForward(panel);
+
+      try { handle.setPointerCapture(event.pointerId); } catch (error) {}
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    handle.addEventListener("pointermove", function(event) {
+      if (!dragging) return;
+      const rect = panel.getBoundingClientRect();
+      const minVisible = Math.min(140, Math.max(80, rect.width * 0.35));
+      const nextLeft = clamp(startLeft + event.clientX - startX, 8, Math.max(8, window.innerWidth - minVisible));
+      const nextTop = clamp(startTop + event.clientY - startY, 8, Math.max(8, window.innerHeight - 80));
+
+      panel.style.setProperty("--rd-left", nextLeft + "px");
+      panel.style.setProperty("--rd-top", nextTop + "px");
+      panel.style.setProperty("--drag-left", nextLeft + "px");
+      panel.style.setProperty("--drag-top", nextTop + "px");
+
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    function stopDrag(event) {
+      if (!dragging) return;
+      dragging = false;
+      keepInsideViewport(panel);
+      try { handle.releasePointerCapture(event.pointerId); } catch (error) {}
+    }
+
+    handle.addEventListener("pointerup", stopDrag);
+    handle.addEventListener("pointercancel", stopDrag);
+  }
+
+  function installUniversalResize(panel) {
+    if (!panel || panel.dataset.rdUniversalResizeReady === "1") return;
+    const handle = ensureResizeHandle(panel);
+    if (!handle) return;
+    panel.dataset.rdUniversalResizeReady = "1";
+
+    let resizing = false;
+    let startX = 0;
+    let startY = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+
+    handle.addEventListener("pointerdown", function(event) {
+      const rect = panel.getBoundingClientRect();
+      resizing = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      startWidth = rect.width;
+      startHeight = rect.height;
+      panel.style.width = rect.width + "px";
+      panel.style.height = rect.height + "px";
+      keepInsideViewport(panel);
+      bringForward(panel);
+
+      try { handle.setPointerCapture(event.pointerId); } catch (error) {}
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    handle.addEventListener("pointermove", function(event) {
+      if (!resizing) return;
+      const rect = panel.getBoundingClientRect();
+      const isPhone = window.innerWidth <= 650;
+      const minWidth = isPhone ? 270 : 300;
+      const minHeight = isPhone ? 180 : 190;
+      const maxWidth = Math.max(minWidth, window.innerWidth - rect.left - 12);
+      const maxHeight = Math.max(minHeight, window.innerHeight - rect.top - 12);
+
+      panel.style.width = clamp(startWidth + event.clientX - startX, minWidth, maxWidth) + "px";
+      panel.style.height = clamp(startHeight + event.clientY - startY, minHeight, maxHeight) + "px";
+
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    function stopResize(event) {
+      if (!resizing) return;
+      resizing = false;
+      keepInsideViewport(panel);
+      try { handle.releasePointerCapture(event.pointerId); } catch (error) {}
+    }
+
+    handle.addEventListener("pointerup", stopResize);
+    handle.addEventListener("pointercancel", stopResize);
+  }
+
+  function preparePanelControl(panel, handle) {
+    if (!panel) return;
+    installUniversalDrag(panel, handle);
+    installUniversalResize(panel);
+  }
+
+  function preparePresentationCards() {
+    const teachingCard = get("teachingPresentationCard");
+    const teachingInner = teachingCard ? teachingCard.querySelector(".presentation-card-inner") : null;
+    const teachingTitle = get("presentationCardTitle") || (teachingInner ? teachingInner.querySelector("h2") : null);
+    preparePanelControl(teachingInner, teachingTitle);
+
+    const appCard = get("applicationPresentationCard");
+    const appInner = appCard ? appCard.querySelector(".presentation-card-inner") : null;
+    const appTitle = appInner ? appInner.querySelector("h2") : null;
+    preparePanelControl(appInner, appTitle);
+  }
+
+  function prepareCrossRefsPanel() {
+    const panel = get("obsCrossRefsPanel");
+    if (!panel) return;
+    const handle = panel.querySelector(".floating-crossrefs-header") || panel.querySelector(".drag-handle");
+    preparePanelControl(panel, handle);
+  }
+
+  function parseRefsFromText(text) {
+    try {
+      if (typeof parseScriptureReferences === "function") return parseScriptureReferences(text) || [];
+    } catch (error) {}
+    return [];
+  }
+
+  function renderCrossRefsPanel(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    const panel = get("obsCrossRefsPanel");
+    const content = get("obsCrossRefsContent");
+    const crossRefs = get("crossRefs");
+    const title = get("obsCrossRefsTitle");
+    const obsBackBtn = get("obsBackToPreviousPassage");
+    if (!panel || !content || !crossRefs) return;
+
+    prepareCrossRefsPanel();
+    if (title) title.textContent = "Personal Cross References";
+
+    const rawText = preserveText(crossRefs.value);
+    const refs = parseRefsFromText(rawText);
+
+    if (!rawText.trim()) {
+      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No personal cross references added yet.</p>`;
+    } else {
+      content.innerHTML = `
+        <div class="obs-crossrefs-full-note">${escapeHtml(rawText)}</div>
+        ${refs.length ? `
+          <div class="obs-crossrefs-ref-buttons" aria-label="Detected Scripture references">
+            ${refs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join("")}
+          </div>` : ""}
+      `;
+    }
+
+    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
+      btn.addEventListener("click", function(btnEvent) {
+        btnEvent.preventDefault();
+        btnEvent.stopPropagation();
+        try {
+          if (typeof goToScriptureReference === "function") goToScriptureReference(btn.dataset.ref);
+        } catch (error) {}
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        panel.style.display = "block";
+        panel.classList.add("open");
+        panel.setAttribute("aria-hidden", "false");
+        bringForward(panel);
+      });
+    });
+
+    try {
+      if (obsBackBtn) obsBackBtn.style.display = (typeof previousPassageState !== "undefined" && previousPassageState) ? "inline-flex" : "none";
+    } catch (error) {
+      if (obsBackBtn) obsBackBtn.style.display = "none";
+    }
+
+    panel.style.display = "block";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    bringForward(panel);
+    setTimeout(() => keepInsideViewport(panel), 0);
+  }
+
+  function closeCrossRefsPanel(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    const panel = get("obsCrossRefsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "none";
+  }
+
+  function prepareAll() {
+    prepareCrossRefsPanel();
+    preparePresentationCards();
+  }
+
+  function installWindowCaptureOverrides() {
+    window.addEventListener("click", function(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      if (button.id === "obsShowCrossRefs") {
+        renderCrossRefsPanel(event);
+      }
+
+      if (button.id === "closeObsCrossRefs") {
+        closeCrossRefsPanel(event);
+      }
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function() {
+      prepareAll();
+      installWindowCaptureOverrides();
+    });
+  } else {
+    prepareAll();
+    installWindowCaptureOverrides();
+  }
+
+  const observer = new MutationObserver(prepareAll);
+  if (document.body) observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+
+  window.addEventListener("resize", function() {
+    [
+      get("obsCrossRefsPanel"),
+      get("teachingPresentationCard")?.querySelector(".presentation-card-inner"),
+      get("applicationPresentationCard")?.querySelector(".presentation-card-inner")
+    ].forEach((panel) => {
+      if (isOpenElement(panel)) keepInsideViewport(panel);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
