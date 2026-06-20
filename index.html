@@ -1809,6 +1809,63 @@ body:not(.dark) #showApplicationNote:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 
+
+
+/* Iron Sharpener targeted fixes: copy shortcuts, preserved notes, auto-grow, status */
+.copy-tools-grid { margin-bottom: 0; }
+
+.copy-status,
+.connection-status {
+  min-height: 18px;
+  margin-top: 2px;
+  text-align: center;
+  font: 900 12px Arial, sans-serif;
+  color: #8c5b09;
+  letter-spacing: .2px;
+}
+
+.copy-status.is-visible {
+  padding: 6px 8px;
+  border: 1px solid rgba(215,168,79,.45);
+  border-radius: 8px;
+  background: rgba(248,217,135,.16);
+}
+
+.connection-status {
+  padding: 7px 8px;
+  border: 1px solid rgba(215,168,79,.35);
+  border-radius: 8px;
+  background: rgba(255,255,255,.38);
+}
+
+.connection-status.offline { background: rgba(225,95,95,.10); }
+
+body.dark .copy-status,
+body.dark .connection-status { color: #ffe08c; }
+
+body.dark .copy-status.is-visible,
+body.dark .connection-status {
+  background: rgba(248,217,135,.10);
+  border-color: rgba(248,217,135,.45);
+}
+
+textarea.auto-grow-ready { overflow: hidden; }
+
+.cross-ref-manual-text {
+  white-space: pre-wrap;
+  margin: 10px 0 12px;
+  padding: 12px;
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  background: rgba(248,217,135,.14);
+  font: 800 14px Arial, sans-serif;
+  line-height: 1.55;
+}
+
+.obs-cross-ref-buttons { margin-top: 12px; }
+
+.presentation-card-inner p { white-space: pre-wrap !important; }
+
 </style>
 </head>
 <body>
@@ -1892,10 +1949,15 @@ body:not(.dark) #showApplicationNote:hover {
           <div class="teacher-tools-box">
             <button id="openTeacherTools">Open Teacher Tools</button>
             <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
+            <div class="tool-grid copy-tools-grid">
+              <button id="copyVerseShortcut" class="secondary" type="button">Copy Verse</button>
+              <button id="copySelectedVerses" class="secondary" type="button">Copy Selected Verses</button>
+            </div>
             <div class="tool-grid">
               <button id="clearMarks" class="secondary">Clear Marks</button>
               <button id="copyPassage" class="secondary">Copy Passage</button>
             </div>
+            <div id="copyStatus" class="copy-status" aria-live="polite"></div>
           </div>
         </div>
 
@@ -3517,7 +3579,7 @@ body:not(.dark) #showApplicationNote:hover {
     }
     
     function showApplicationPresentation() {
-      const note = cleanText($("applicationNotes")?.value || "");
+      const note = preserveNoteText($("applicationNotes")?.value || "");
       if (!note) return;
       $("applicationPresentationText").textContent = note;
       $("applicationPresentationCard").classList.add("open");
@@ -3576,7 +3638,119 @@ function showSmallTeachingNoteBox() {
     }
 
     function passageKey() {
-      return `${storagePrefix}.marks.${bookSel.value}.${chapSel.value}.${startSel.value}-${endSel.value}`;
+      return chapterMarksKey();
+    }
+
+    function chapterMarksKey(book = bookSel.value, chapter = chapSel.value) {
+      return `${storagePrefix}.marks.${book}.${chapter}.chapter`;
+    }
+
+    function legacyMarksPrefix(book = bookSel.value, chapter = chapSel.value) {
+      return `${storagePrefix}.marks.${book}.${chapter}.`;
+    }
+
+    function blankMarks() {
+      return { highlights: {}, underlined: [], circled: [], boxed: [], inlineHtml: {}, pointed: "", focused: [] };
+    }
+
+    function uniqueStrings(values) {
+      return [...new Set((values || []).map(value => String(value)))];
+    }
+
+    function normalizeMarks(marks) {
+      const normalized = blankMarks();
+      if (!marks || typeof marks !== "object") return normalized;
+
+      Object.entries(marks.highlights || {}).forEach(([verse, cls]) => {
+        if (verse && cls) normalized.highlights[String(verse)] = cls;
+      });
+
+      (marks.highlighted || []).forEach((verse) => {
+        const v = String(verse);
+        if (!normalized.highlights[v]) normalized.highlights[v] = "highlight-gold";
+      });
+
+      normalized.underlined = uniqueStrings(marks.underlined);
+      normalized.circled = uniqueStrings(marks.circled);
+      normalized.boxed = uniqueStrings(marks.boxed);
+      normalized.focused = uniqueStrings(Array.isArray(marks.focused) ? marks.focused : (marks.focused ? [marks.focused] : []));
+
+      Object.entries(marks.inlineHtml || {}).forEach(([verse, value]) => {
+        normalized.inlineHtml[String(verse)] = value;
+      });
+
+      normalized.pointed = marks.pointed ? String(marks.pointed) : "";
+      return normalized;
+    }
+
+    function mergeMarks(base, extra) {
+      const merged = normalizeMarks(base);
+      const incoming = normalizeMarks(extra);
+      Object.assign(merged.highlights, incoming.highlights);
+      Object.assign(merged.inlineHtml, incoming.inlineHtml);
+
+      ["underlined", "circled", "boxed", "focused"].forEach((key) => {
+        merged[key] = uniqueStrings([...(merged[key] || []), ...(incoming[key] || [])]);
+      });
+
+      if (incoming.pointed) merged.pointed = incoming.pointed;
+      return merged;
+    }
+
+    function visibleVerseNumbers() {
+      return Array.from(document.querySelectorAll(".verse[data-v]")).map((verse) => String(verse.dataset.v));
+    }
+
+    function removeMarksForVerses(marks, verseNumbers) {
+      const cleaned = normalizeMarks(marks);
+      const removeSet = new Set((verseNumbers || []).map(String));
+
+      Object.keys(cleaned.highlights).forEach((verse) => {
+        if (removeSet.has(String(verse))) delete cleaned.highlights[verse];
+      });
+
+      Object.keys(cleaned.inlineHtml).forEach((verse) => {
+        if (removeSet.has(String(verse))) delete cleaned.inlineHtml[verse];
+      });
+
+      ["underlined", "circled", "boxed", "focused"].forEach((key) => {
+        cleaned[key] = (cleaned[key] || []).filter((verse) => !removeSet.has(String(verse)));
+      });
+
+      if (removeSet.has(String(cleaned.pointed))) cleaned.pointed = "";
+      return cleaned;
+    }
+
+    function loadMarksForCurrentChapter() {
+      let merged = blankMarks();
+      const prefix = legacyMarksPrefix();
+      const chapterKey = chapterMarksKey();
+      const legacyKeysToRemove = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(prefix)) continue;
+
+        try {
+          merged = mergeMarks(merged, JSON.parse(localStorage.getItem(key) || "{}"));
+          if (key !== chapterKey) legacyKeysToRemove.push(key);
+        } catch (error) {
+          console.warn("Could not read saved marks:", key, error);
+        }
+      }
+
+      try {
+        merged = mergeMarks(merged, JSON.parse(localStorage.getItem(chapterKey) || "{}"));
+      } catch (error) {
+        console.warn("Could not read chapter marks:", error);
+      }
+
+      if (legacyKeysToRemove.length) {
+        localStorage.setItem(chapterKey, JSON.stringify(merged));
+        legacyKeysToRemove.forEach((key) => localStorage.removeItem(key));
+      }
+
+      return merged;
     }
 
     function getCurrentMarks() {
@@ -3612,23 +3786,25 @@ function showSmallTeachingNoteBox() {
     }
 
     function saveMarks() {
-      localStorage.setItem(passageKey(), JSON.stringify(getCurrentMarks()));
+      const visible = visibleVerseNumbers();
+      const existing = loadMarksForCurrentChapter();
+      const visibleCleared = removeMarksForVerses(existing, visible);
+      const currentVisibleMarks = getCurrentMarks();
+      const merged = mergeMarks(visibleCleared, currentVisibleMarks);
+      localStorage.setItem(chapterMarksKey(), JSON.stringify(merged));
     }
 
     function restoreMarks() {
-      const saved = JSON.parse(localStorage.getItem(passageKey()) || "{}");
-      const oldHighlighted = saved.highlighted || [];
+      const saved = loadMarksForCurrentChapter();
 
       document.querySelectorAll(".verse").forEach((verse) => {
-        const v = verse.dataset.v;
+        const v = String(verse.dataset.v);
 
         if (saved.highlights && saved.highlights[v]) {
           verse.classList.add(saved.highlights[v]);
           if (saved.highlights[v] === "highlight-gold") {
             verse.classList.add("highlighted");
           }
-        } else if (oldHighlighted.includes(v)) {
-          verse.classList.add("highlighted", "highlight-gold");
         }
 
         if ((saved.underlined || []).includes(v)) verse.classList.add("underlined");
@@ -3940,6 +4116,19 @@ function setupObsNavigator() {
       return (text || "").replace(/\s+/g, " ").trim();
     }
 
+    function preserveNoteText(text) {
+      return (text || "").replace(/\r\n/g, "\n").trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function getSelectionRangeInsideVerse(verse) {
       const selection = window.getSelection();
 
@@ -4136,23 +4325,97 @@ async function loadPassage() {
     `;
   }
 }
-    function shiftRange(direction) {
+    function moveToAdjacentChapter(direction) {
+      const currentBookIndex = books.findIndex(([name]) => name === bookSel.value);
+      if (currentBookIndex < 0) return false;
+
+      let nextBookIndex = currentBookIndex;
+      let nextChapter = parseInt(chapSel.value, 10) || 1;
+      const currentBookChapterCount = books[currentBookIndex][1];
+
+      if (direction > 0) {
+        if (nextChapter < currentBookChapterCount) {
+          nextChapter += 1;
+        } else if (currentBookIndex < books.length - 1) {
+          nextBookIndex += 1;
+          nextChapter = 1;
+        } else {
+          return false;
+        }
+      } else {
+        if (nextChapter > 1) {
+          nextChapter -= 1;
+        } else if (currentBookIndex > 0) {
+          nextBookIndex -= 1;
+          nextChapter = books[nextBookIndex][1];
+        } else {
+          return false;
+        }
+      }
+
+      saveCurrentNotes();
+
+      bookSel.value = books[nextBookIndex][0];
+      fillChapters();
+      chapSel.value = String(nextChapter);
+      fillVerses();
+
       const max = verseMax();
-      const size = rangeSel.value === "full" ? max : (parseInt(rangeSel.value, 10) || 5);
+
+      if (rangeSel.value === "full") {
+        startSel.value = "1";
+        endSel.value = String(max);
+      } else if (direction > 0) {
+        startSel.value = "1";
+        updateEndFromRange();
+      } else {
+        const size = parseInt(rangeSel.value, 10) || 5;
+        const lastStart = Math.max(1, Math.floor((max - 1) / size) * size + 1);
+        startSel.value = String(lastStart);
+        endSel.value = String(max);
+      }
+
+      loadPassage();
+      syncObsNavigator();
+      return true;
+    }
+
+    function shiftRange(direction) {
+      saveCurrentNotes();
+
+      const max = verseMax();
+      const isFullChapter = rangeSel.value === "full";
+      const size = isFullChapter ? max : (parseInt(rangeSel.value, 10) || 5);
       let startVerse = parseInt(startSel.value, 10) || 1;
       let endVerse = parseInt(endSel.value, 10) || size;
 
+      if (isFullChapter) {
+        moveToAdjacentChapter(direction);
+        return;
+      }
+
       if (direction > 0) {
+        if (endVerse >= max) {
+          moveToAdjacentChapter(1);
+          return;
+        }
+
         startVerse = Math.min(max, endVerse + 1);
         endVerse = Math.min(max, startVerse + size - 1);
       } else {
+        if (startVerse <= 1) {
+          moveToAdjacentChapter(-1);
+          return;
+        }
+
         startVerse = Math.max(1, startVerse - size);
         endVerse = Math.min(max, startVerse + size - 1);
       }
 
-      startSel.value = startVerse;
-      endSel.value = endVerse;
+      startSel.value = String(startVerse);
+      endSel.value = String(endVerse);
       loadPassage();
+      syncObsNavigator();
     }
 
     function closeAllFloatingPanelsForModeChange() {
@@ -4249,6 +4512,60 @@ async function loadPassage() {
       if (status) status.textContent = text || "Notes save per selected passage.";
     }
 
+    function autoGrowTextarea(field) {
+      if (!field) return;
+      field.classList.add("auto-grow-ready");
+      field.style.height = "auto";
+      field.style.height = Math.max(field.scrollHeight, 96) + "px";
+    }
+
+    function refreshAutoGrowTextareas() {
+      noteIds().forEach((id) => autoGrowTextarea($(id)));
+    }
+
+    function initAutoGrowTextareas() {
+      noteIds().forEach((id) => {
+        const field = $(id);
+        if (!field || field.dataset.autoGrowBound === "true") return;
+
+        field.dataset.autoGrowBound = "true";
+        field.addEventListener("input", () => autoGrowTextarea(field));
+        autoGrowTextarea(field);
+      });
+    }
+
+    function ensureConnectionStatus() {
+      let status = $("connectionStatus");
+      if (status) return status;
+
+      const box = document.querySelector(".teacher-tools-box");
+      if (!box) return null;
+
+      status = document.createElement("div");
+      status.id = "connectionStatus";
+      status.className = "connection-status";
+      status.setAttribute("aria-live", "polite");
+      box.appendChild(status);
+      return status;
+    }
+
+    function updateConnectionStatus() {
+      const status = ensureConnectionStatus();
+      if (!status) return;
+
+      const online = navigator.onLine !== false;
+      status.classList.toggle("offline", !online);
+      status.textContent = online
+        ? "Online — using local browser notes"
+        : "Offline — using saved browser notes";
+    }
+
+    function initConnectionStatus() {
+      updateConnectionStatus();
+      window.addEventListener("online", updateConnectionStatus);
+      window.addEventListener("offline", updateConnectionStatus);
+    }
+
     function saveNotesToKey(baseKey) {
       if (!baseKey) return;
       noteIds().forEach((id) => {
@@ -4280,6 +4597,7 @@ async function loadPassage() {
       });
 
       updateNotesSaveStatus(`Notes for ${currentRef()}`);
+      setTimeout(refreshAutoGrowTextareas, 0);
 
       setTimeout(renderCrossReferenceLinks, 0);
     }
@@ -5025,51 +5343,182 @@ async function openRelatedDoctrineTopic(topicName) {
     }
 
     function clearMarks() {
+      const visible = visibleVerseNumbers();
       scriptureBox.classList.remove("focus-mode");
+
       document.querySelectorAll(".verse").forEach((verse) => {
         verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "pointed", "focused", "underlined", "circled", "boxed");
         removeInlineMarksFromVerse(verse);
       });
-      localStorage.removeItem(passageKey());
+
+      const existing = loadMarksForCurrentChapter();
+      const cleaned = removeMarksForVerses(existing, visible);
+      localStorage.setItem(chapterMarksKey(), JSON.stringify(cleaned));
     }
 
-    function copyPassageText() {
-      const text = Array.from(document.querySelectorAll(".verse")).map((verse) => verse.innerText).join("\n");
-      navigator.clipboard.writeText(`${refTitle.innerText}\n${text}`);
+    function fallbackCopyText(text) {
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.left = "-9999px";
+      document.body.appendChild(helper);
+      helper.select();
 
-      if ($("copyPassage")) {
-        $("copyPassage").textContent = "Copied";
-        setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
+      try {
+        document.execCommand("copy");
+      } finally {
+        helper.remove();
       }
     }
 
+    async function writeClipboardText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          fallbackCopyText(text);
+        }
+        return true;
+      } catch (error) {
+        console.warn("Clipboard API failed; using fallback copy.", error);
+        try {
+          fallbackCopyText(text);
+          return true;
+        } catch (fallbackError) {
+          console.warn("Fallback copy failed.", fallbackError);
+          return false;
+        }
+      }
+    }
+
+    function showCopyStatus(message) {
+      const status = $("copyStatus");
+      if (!status) return;
+
+      status.textContent = message || "Copied.";
+      status.classList.add("is-visible");
+
+      clearTimeout(showCopyStatus.timer);
+      showCopyStatus.timer = setTimeout(() => {
+        status.textContent = "";
+        status.classList.remove("is-visible");
+      }, 2200);
+    }
+
+    async function copyPassageText() {
+      const text = Array.from(document.querySelectorAll(".verse[data-v]")).map((verse) => verse.innerText).join("\n");
+      const ok = await writeClipboardText(`${refTitle.innerText}\n${text}`);
+
+      if ($("copyPassage")) {
+        $("copyPassage").textContent = ok ? "Copied" : "Copy Failed";
+        setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
+      }
+
+      showCopyStatus(ok ? "Passage copied." : "Copy failed. Try again.");
+    }
+
     function getVersePlainText(verse) {
-  if (!verse) return "";
+      if (!verse) return "";
 
-  const clone = verse.cloneNode(true);
+      const clone = verse.cloneNode(true);
+      clone.querySelectorAll(".vnum").forEach(el => el.remove());
 
-  clone.querySelectorAll(".vnum").forEach(el => el.remove());
+      return cleanText(clone.textContent || "");
+    }
 
-  return cleanText(clone.textContent || "");
-}
+    function formatVerseForCopy(verse) {
+      const verseNumber = verse.dataset.v;
+      const verseText = getVersePlainText(verse);
+      const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
+      return { reference, text: `${reference} — ${verseText} (WEB)` };
+    }
 
-function copySingleVerse(verse) {
-  if (!verse) return;
+    async function copySingleVerse(verse) {
+      if (!verse) return;
 
-  const verseNumber = verse.dataset.v;
-  const verseText = getVersePlainText(verse);
-  const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
-  const copiedText = `${reference} — ${verseText} (WEB)`;
+      const formatted = formatVerseForCopy(verse);
+      const ok = await writeClipboardText(formatted.text);
+      showCopyStatus(ok ? `Verse copied: ${formatted.reference}` : "Copy failed. Try again.");
+    }
 
-  navigator.clipboard.writeText(copiedText);
+    function rangeIntersectsNode(range, node) {
+      try {
+        return range.intersectsNode(node);
+      } catch (error) {
+        const nodeRange = document.createRange();
+        nodeRange.selectNodeContents(node);
+        return range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0 &&
+          range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0;
+      }
+    }
 
-const label = $("activeToolLabel");
-if (label) label.textContent = `Copied: ${reference} (WEB)`;
+    function getBrowserSelectedVerses() {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return [];
 
-setTimeout(() => {
-  if (label) label.textContent = "Active Tool: Copy Verse";
-}, 1400);
-}
+      const range = selection.getRangeAt(0);
+      if (!passage || !passage.contains(range.commonAncestorContainer)) return [];
+
+      return Array.from(document.querySelectorAll(".verse[data-v]")).filter((verse) => rangeIntersectsNode(range, verse));
+    }
+
+    function getMarkedVersesForCopy() {
+      return Array.from(document.querySelectorAll(
+        ".verse[data-v].focused, .verse[data-v].pointed, .verse[data-v].highlighted, .verse[data-v].highlight-gold, .verse[data-v].highlight-blue, .verse[data-v].highlight-green, .verse[data-v].highlight-red, .verse[data-v].highlight-purple, .verse[data-v].highlight-amber, .verse[data-v].underlined, .verse[data-v].circled, .verse[data-v].boxed"
+      ));
+    }
+
+    function uniqueVerseElements(verses) {
+      const seen = new Set();
+      return (verses || []).filter((verse) => {
+        if (!verse || !verse.dataset) return false;
+        const key = verse.dataset.v;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function getSelectedVerseElementsForCopy() {
+      const browserSelected = getBrowserSelectedVerses();
+      if (browserSelected.length) return uniqueVerseElements(browserSelected);
+
+      const focused = Array.from(document.querySelectorAll(".verse[data-v].focused"));
+      if (focused.length) return uniqueVerseElements(focused);
+
+      return uniqueVerseElements(getMarkedVersesForCopy());
+    }
+
+    async function copySelectedVersesText() {
+      const selectedVerses = getSelectedVerseElementsForCopy();
+
+      if (!selectedVerses.length) {
+        showCopyStatus("No verses selected. Highlight, focus, mark, or drag-select verses first.");
+        return;
+      }
+
+      const copiedText = selectedVerses.map((verse) => formatVerseForCopy(verse).text).join("\n");
+      const ok = await writeClipboardText(copiedText);
+      showCopyStatus(ok ? `${selectedVerses.length} verse${selectedVerses.length === 1 ? "" : "s"} copied.` : "Copy failed. Try again.");
+    }
+
+    function copyVerseShortcutAction() {
+      const selectedVerses = getSelectedVerseElementsForCopy();
+
+      if (selectedVerses.length === 1) {
+        copySingleVerse(selectedVerses[0]);
+        return;
+      }
+
+      if (selectedVerses.length > 1) {
+        showCopyStatus(`${selectedVerses.length} verses selected. Use Copy Selected Verses.`);
+        return;
+      }
+
+      setTool("copy-verse");
+      showCopyStatus("Copy Verse active — click the verse you want to copy.");
+    }
 
     function initTooltips() {
       document.querySelectorAll(".info-wrap").forEach((item) => {
@@ -5214,7 +5663,7 @@ function renderCrossReferenceLinks() {
 }
 
 function showTeachingPresentation() {
-  const note = cleanText($("teachingNotes")?.value || "");
+  const note = preserveNoteText($("teachingNotes")?.value || "");
   if (!note) return;
 
   $("presentationCardText").textContent = note;
@@ -5345,6 +5794,8 @@ if (crossRefs) {
 
   if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
   if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
+  if ($("copyVerseShortcut")) $("copyVerseShortcut").onclick = copyVerseShortcutAction;
+  if ($("copySelectedVerses")) $("copySelectedVerses").onclick = copySelectedVersesText;
   if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
 
   if ($("obsResetPanels")) {
@@ -5394,6 +5845,8 @@ if ($("obsToolsMenuBtn")) {
   loadCurrentNotes();
   initTooltips();
   initTeacherTools();
+  initAutoGrowTextareas();
+  initConnectionStatus();
   setTool("highlight-gold");
   setupObsNavigator();
   syncObsNavigator();
@@ -5992,14 +6445,20 @@ if (title) title.textContent = "Personal Cross References";
 
     if (!panel || !content || !crossRefs) return;
 
+    const manualText = preserveNoteText(crossRefs.value || "");
     const manualRefs = parseScriptureReferences(crossRefs.value);
 
     content.innerHTML = `
       <h4>Personal Cross References</h4>
       ${
-        manualRefs.length
-          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+        manualText
+          ? `<div class="cross-ref-manual-text">${escapeHtml(manualText)}</div>`
           : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
+      }
+      ${
+        manualRefs.length
+          ? `<div class="cross-ref-links obs-cross-ref-buttons">${manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")}</div>`
+          : ""
       }
     `;
 
@@ -7322,7 +7781,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function cleanApplicationText(text) {
-    return (text || "").replace(/\s+/g, " ").trim();
+    return (text || "").replace(/\r\n/g, "\n").trim();
   }
 
   function showApplicationPresentationFinal(event) {
