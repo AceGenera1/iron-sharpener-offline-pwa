@@ -2233,6 +2233,39 @@ body.dark .copy-status {
   }
 }
 
+
+
+/* =========================================================
+   PATCH 6B — iPad / tablet bottom fit cleanup
+   Scope: tablet-sized touch screens only.
+   Purpose: prevent the cream mobile canvas from showing under
+   the footer when iPad/Safari reaches the bottom of the page,
+   without changing iPhone, PC, panels, or tool behavior.
+   ========================================================= */
+@media (min-width: 651px) and (max-width: 1180px) and (pointer: coarse) {
+  html:not(.obs) body .footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+    margin-bottom: 0 !important;
+  }
+
+  html:not(.obs) body:not(.dark) .footer,
+  html:not(.obs) body.dark .footer {
+    background: linear-gradient(180deg, #294843, #203D39) !important;
+    color: #F7F3EA !important;
+    border-top: 2px solid var(--gold) !important;
+  }
+
+  html:not(.obs) body:not(.dark) .footer strong,
+  html:not(.obs) body.dark .footer strong {
+    color: #F7F3EA !important;
+  }
+
+  html:not(.obs) body:not(.dark) .footer .sep,
+  html:not(.obs) body.dark .footer .sep {
+    background: var(--gold) !important;
+  }
+}
+
 </style>
 </head>
 <body>
