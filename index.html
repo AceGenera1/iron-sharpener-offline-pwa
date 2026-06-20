@@ -4535,23 +4535,105 @@ async function loadPassage() {
     `;
   }
 }
+    function getBookIndexByName(bookName) {
+      return books.findIndex(([name]) => name === bookName);
+    }
+
+    function chapterCountForBookName(bookName) {
+      const found = books.find(([name]) => name === bookName);
+      return found ? found[1] : 1;
+    }
+
+    function lastSectionStartForChapter(maxVerse, sectionSize) {
+      const size = parseInt(sectionSize, 10) || 5;
+      return Math.max(1, maxVerse - ((maxVerse - 1) % size));
+    }
+
+    function moveToAdjacentChapter(direction, rangeMode) {
+      const currentBookIndex = getBookIndexByName(bookSel.value);
+      if (currentBookIndex < 0) return false;
+
+      let targetBookIndex = currentBookIndex;
+      let targetChapter = (parseInt(chapSel.value, 10) || 1) + direction;
+      const currentChapterCount = chapterCountForBookName(bookSel.value);
+
+      if (targetChapter > currentChapterCount) {
+        targetBookIndex += 1;
+        if (targetBookIndex >= books.length) return false;
+        targetChapter = 1;
+      }
+
+      if (targetChapter < 1) {
+        targetBookIndex -= 1;
+        if (targetBookIndex < 0) return false;
+        targetChapter = chapterCountForBookName(books[targetBookIndex][0]);
+      }
+
+      const targetBookName = books[targetBookIndex][0];
+      const keepRangeMode = rangeMode || rangeSel.value || "5";
+
+      bookSel.value = targetBookName;
+      fillChapters();
+      chapSel.value = String(targetChapter);
+      fillVerses();
+
+      rangeSel.value = keepRangeMode;
+      localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+
+      const targetMax = verseMax();
+
+      if (rangeSel.value === "full") {
+        startSel.value = "1";
+        endSel.value = String(targetMax);
+      } else if (direction > 0) {
+        const size = parseInt(rangeSel.value, 10) || 5;
+        startSel.value = "1";
+        endSel.value = String(Math.min(targetMax, size));
+      } else {
+        const startVerse = lastSectionStartForChapter(targetMax, rangeSel.value);
+        startSel.value = String(startVerse);
+        endSel.value = String(targetMax);
+      }
+
+      loadPassage();
+      if (typeof syncObsNavigator === "function") syncObsNavigator();
+      return true;
+    }
+
     function shiftRange(direction) {
+      saveCurrentNotes();
+
       const max = verseMax();
-      const size = rangeSel.value === "full" ? max : (parseInt(rangeSel.value, 10) || 5);
+      const rangeMode = rangeSel.value || "5";
+      const isFullChapter = rangeMode === "full";
+      const size = isFullChapter ? max : (parseInt(rangeMode, 10) || 5);
       let startVerse = parseInt(startSel.value, 10) || 1;
       let endVerse = parseInt(endSel.value, 10) || size;
 
       if (direction > 0) {
-        startVerse = Math.min(max, endVerse + 1);
-        endVerse = Math.min(max, startVerse + size - 1);
+        if (isFullChapter || endVerse >= max) {
+          if (moveToAdjacentChapter(1, rangeMode)) return;
+          startVerse = isFullChapter ? 1 : startVerse;
+          endVerse = max;
+        } else {
+          startVerse = endVerse + 1;
+          endVerse = Math.min(max, startVerse + size - 1);
+        }
       } else {
-        startVerse = Math.max(1, startVerse - size);
-        endVerse = Math.min(max, startVerse + size - 1);
+        if (isFullChapter || startVerse <= 1) {
+          if (moveToAdjacentChapter(-1, rangeMode)) return;
+          startVerse = 1;
+          endVerse = isFullChapter ? max : Math.min(max, size);
+        } else {
+          startVerse = Math.max(1, startVerse - size);
+          endVerse = Math.min(max, startVerse + size - 1);
+        }
       }
 
-      startSel.value = startVerse;
-      endSel.value = endVerse;
+      startSel.value = String(startVerse);
+      endSel.value = String(endVerse);
       loadPassage();
+      if (typeof syncObsNavigator === "function") syncObsNavigator();
     }
 
     function closeAllFloatingPanelsForModeChange() {
