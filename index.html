@@ -2208,6 +2208,31 @@ body:not(.dark) #showApplicationNote:hover {
   }
 }
 
+
+/* Patch 4: Teacher Tools Copy Shortcuts */
+.copy-status {
+  min-height: 22px;
+  padding: 7px 10px;
+  border: 1px solid rgba(215,168,79,.50);
+  border-radius: 10px;
+  background: rgba(248,217,135,.13);
+  color: #8c5b09;
+  font: 800 12px Arial, sans-serif;
+  text-align: center;
+  opacity: .95;
+}
+
+body.dark .copy-status {
+  color: #ffe08c;
+  background: rgba(248,217,135,.08);
+}
+
+@media (max-width: 650px) {
+  .teacher-tools-box .tool-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2292,9 +2317,12 @@ body:not(.dark) #showApplicationNote:hover {
             <button id="openTeacherTools">Open Teacher Tools</button>
             <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
             <div class="tool-grid">
-              <button id="clearMarks" class="secondary">Clear Marks</button>
-              <button id="copyPassage" class="secondary">Copy Passage</button>
+              <button id="copyVerse" class="secondary" type="button">Copy Verse</button>
+              <button id="copySelectedVerses" class="secondary" type="button">Copy Selected Verses</button>
+              <button id="clearMarks" class="secondary" type="button">Clear Marks</button>
+              <button id="copyPassage" class="secondary" type="button">Copy Passage</button>
             </div>
+            <div id="copyStatus" class="copy-status" aria-live="polite">Copy tools ready.</div>
           </div>
         </div>
 
@@ -5514,43 +5542,203 @@ async function openRelatedDoctrineTopic(topicName) {
       localStorage.removeItem(passageKey());
     }
 
-    function copyPassageText() {
-      const text = Array.from(document.querySelectorAll(".verse")).map((verse) => verse.innerText).join("\n");
-      navigator.clipboard.writeText(`${refTitle.innerText}\n${text}`);
+    function copyStatus(message) {
+      const status = $("copyStatus");
+      if (!status) return;
+      status.textContent = message;
+      clearTimeout(window.ironCopyStatusTimer);
+      window.ironCopyStatusTimer = setTimeout(() => {
+        if (status) status.textContent = "Copy tools ready.";
+      }, 1800);
+    }
 
-      if ($("copyPassage")) {
-        $("copyPassage").textContent = "Copied";
-        setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
+    function writeClipboardText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+      }
+
+      return Promise.resolve(fallbackCopyText(text));
+    }
+
+    function fallbackCopyText(text) {
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.left = "-9999px";
+      helper.style.top = "0";
+      document.body.appendChild(helper);
+      helper.select();
+      try {
+        document.execCommand("copy");
+      } finally {
+        document.body.removeChild(helper);
       }
     }
 
+    function visibleVerses() {
+      return Array.from(document.querySelectorAll("#passage .verse[data-v]"));
+    }
+
     function getVersePlainText(verse) {
-  if (!verse) return "";
+      if (!verse) return "";
 
-  const clone = verse.cloneNode(true);
+      const clone = verse.cloneNode(true);
+      clone.querySelectorAll(".vnum").forEach(el => el.remove());
 
-  clone.querySelectorAll(".vnum").forEach(el => el.remove());
+      return cleanText(clone.textContent || "");
+    }
 
-  return cleanText(clone.textContent || "");
-}
+    function verseNumber(verse) {
+      return parseInt(verse?.dataset?.v || "0", 10);
+    }
 
-function copySingleVerse(verse) {
-  if (!verse) return;
+    function sortVerses(verses) {
+      return Array.from(new Set(verses)).sort((a, b) => verseNumber(a) - verseNumber(b));
+    }
 
-  const verseNumber = verse.dataset.v;
-  const verseText = getVersePlainText(verse);
-  const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
-  const copiedText = `${reference} — ${verseText} (WEB)`;
+    function areVersesContiguous(verses) {
+      const sorted = sortVerses(verses);
+      if (sorted.length <= 1) return true;
+      for (let i = 1; i < sorted.length; i++) {
+        if (verseNumber(sorted[i]) !== verseNumber(sorted[i - 1]) + 1) return false;
+      }
+      return true;
+    }
 
-  navigator.clipboard.writeText(copiedText);
+    function formatReferenceForVerses(verses) {
+      const sorted = sortVerses(verses);
+      const book = bookSel.value;
+      const chapter = chapSel.value;
 
-const label = $("activeToolLabel");
-if (label) label.textContent = `Copied: ${reference} (WEB)`;
+      if (!sorted.length) return `${book} ${chapter}`;
 
-setTimeout(() => {
-  if (label) label.textContent = "Active Tool: Copy Verse";
-}, 1400);
-}
+      const numbers = sorted.map(verseNumber);
+
+      if (numbers.length === 1) {
+        return `${book} ${chapter}:${numbers[0]}`;
+      }
+
+      if (areVersesContiguous(sorted)) {
+        return `${book} ${chapter}:${numbers[0]}-${numbers[numbers.length - 1]}`;
+      }
+
+      return `${book} ${chapter}:${numbers.join(", ")}`;
+    }
+
+    function formatVersesForCopy(verses) {
+      const sorted = sortVerses(verses);
+      const reference = formatReferenceForVerses(sorted);
+      const body = sorted.map((verse) => `${verse.dataset.v} ${getVersePlainText(verse)}`).join("\n");
+      return `${reference} (WEB)\n${body}`.trim();
+    }
+
+    function selectionTouchesVerse(selection, verse) {
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !verse) return false;
+
+      for (let i = 0; i < selection.rangeCount; i++) {
+        const range = selection.getRangeAt(i);
+        try {
+          if (range.intersectsNode(verse)) return true;
+        } catch (error) {
+          // Older browser fallback.
+          const verseRange = document.createRange();
+          verseRange.selectNodeContents(verse);
+          const startsBeforeVerseEnds = range.compareBoundaryPoints(Range.START_TO_END, verseRange) < 0;
+          const endsAfterVerseStarts = range.compareBoundaryPoints(Range.END_TO_START, verseRange) > 0;
+          if (startsBeforeVerseEnds && endsAfterVerseStarts) return true;
+        }
+      }
+
+      return false;
+    }
+
+    function selectedVersesFromBrowserSelection() {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !cleanText(selection.toString())) return [];
+      return visibleVerses().filter((verse) => selectionTouchesVerse(selection, verse));
+    }
+
+    function markedVersesForCopy() {
+      const markedSelector = [
+        ".verse.focused",
+        ".verse.pointed",
+        ".verse.highlighted",
+        ".verse.highlight-gold",
+        ".verse.highlight-blue",
+        ".verse.highlight-green",
+        ".verse.highlight-red",
+        ".verse.highlight-purple",
+        ".verse.highlight-amber",
+        ".verse.underlined",
+        ".verse.circled",
+        ".verse.boxed"
+      ].join(", ");
+
+      return sortVerses(Array.from(document.querySelectorAll(markedSelector)).filter((verse) => verse.closest("#passage")));
+    }
+
+    function copyPassageText() {
+      const verses = visibleVerses();
+      if (!verses.length) {
+        copyStatus("No passage loaded.");
+        return;
+      }
+
+      const copiedText = formatVersesForCopy(verses);
+      writeClipboardText(copiedText);
+      copyStatus(`Passage copied: ${formatReferenceForVerses(verses)}.`);
+    }
+
+    function copyVerseText() {
+      const selected = selectedVersesFromBrowserSelection();
+      const marked = markedVersesForCopy();
+      const verse = selected[0] || marked[0] || visibleVerses()[0];
+
+      if (!verse) {
+        copyStatus("No verse loaded.");
+        return;
+      }
+
+      const copiedText = formatVersesForCopy([verse]);
+      writeClipboardText(copiedText);
+      copyStatus(`Verse copied: ${formatReferenceForVerses([verse])}.`);
+    }
+
+    function copySelectedVersesText() {
+      let verses = selectedVersesFromBrowserSelection();
+
+      if (!verses.length) {
+        verses = markedVersesForCopy();
+      }
+
+      if (!verses.length) {
+        copyStatus("Select or mark verses first.");
+        return;
+      }
+
+      verses = sortVerses(verses);
+      const copiedText = formatVersesForCopy(verses);
+      writeClipboardText(copiedText);
+      const label = verses.length === 1 ? "Verse" : `${verses.length} verses`;
+      copyStatus(`${label} copied: ${formatReferenceForVerses(verses)}.`);
+    }
+
+    function copySingleVerse(verse) {
+      if (!verse) return;
+      const copiedText = formatVersesForCopy([verse]);
+      const reference = formatReferenceForVerses([verse]);
+
+      writeClipboardText(copiedText);
+
+      const label = $("activeToolLabel");
+      if (label) label.textContent = `Copied: ${reference} (WEB)`;
+      copyStatus(`Verse copied: ${reference}.`);
+
+      setTimeout(() => {
+        if (label) label.textContent = "Active Tool: Copy Verse";
+      }, 1400);
+    }
 
     function initTooltips() {
       document.querySelectorAll(".info-wrap").forEach((item) => {
@@ -5825,6 +6013,8 @@ if (crossRefs) {
   };
 
   if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
+  if ($("copyVerse")) $("copyVerse").onclick = copyVerseText;
+  if ($("copySelectedVerses")) $("copySelectedVerses").onclick = copySelectedVersesText;
   if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
   if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
 
