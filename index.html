@@ -9013,5 +9013,70 @@ body:not(.dark) #studyResourcesPanel .tool-option span {
 }
 </style>
 
+
+<!-- Patch 2G — Dark-mode Teacher Tools + Study Resources text softening only
+     Scope: dark mode only; Teacher Tools + Study Resources panels only.
+     Does not affect I.R.O.N., resource result panels, mobile fit, drag/resize, or panel logic. -->
+<style id="patch-2g-dark-teacher-study-text-soften">
+body.dark #teacherToolsPanel,
+body.dark #studyResourcesPanel {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-weight: 400 !important;
+  text-shadow: none !important;
+}
+
+body.dark #teacherToolsPanel *,
+body.dark #studyResourcesPanel * {
+  text-shadow: none !important;
+}
+
+body.dark #teacherToolsPanel .teacher-tools-status-card,
+body.dark #teacherToolsPanel .teacher-tools-status-card span,
+body.dark #teacherToolsPanel .teacher-tools-status-card strong {
+  font-weight: 450 !important;
+  line-height: 1.5 !important;
+}
+
+body.dark #teacherToolsPanel .tool-section-title,
+body.dark #studyResourcesPanel .tool-section-title {
+  font-weight: 600 !important;
+  letter-spacing: .07em !important;
+}
+
+body.dark #teacherToolsPanel .tool-option,
+body.dark #studyResourcesPanel .tool-option {
+  font-weight: 400 !important;
+  line-height: 1.48 !important;
+}
+
+body.dark #teacherToolsPanel .tool-option strong,
+body.dark #studyResourcesPanel .tool-option strong {
+  font-weight: 560 !important;
+  line-height: 1.28 !important;
+}
+
+body.dark #teacherToolsPanel .tool-option span,
+body.dark #studyResourcesPanel .tool-option span {
+  font-weight: 400 !important;
+  line-height: 1.48 !important;
+}
+
+body.dark #teacherToolsPanel p,
+body.dark #teacherToolsPanel li,
+body.dark #teacherToolsPanel span:not(.swatch),
+body.dark #teacherToolsPanel div:not(.swatch),
+body.dark #studyResourcesPanel p,
+body.dark #studyResourcesPanel li,
+body.dark #studyResourcesPanel span:not(.swatch),
+body.dark #studyResourcesPanel div:not(.swatch) {
+  font-weight: 400 !important;
+}
+
+body.dark #teacherToolsPanel .teacher-pop-head h3,
+body.dark #studyResourcesPanel .teacher-pop-head h3 {
+  font-weight: 650 !important;
+}
+</style>
+
 </body>
 </html>
