@@ -1866,6 +1866,225 @@ textarea.auto-grow-ready { overflow: hidden; }
 
 .presentation-card-inner p { white-space: pre-wrap !important; }
 
+
+/* Restored Daily Ministries — PC-safe mobile/iPad OBS layer
+   Scope: only active on touch devices via html.rdm-touch, so desktop panel behavior stays original. */
+html.rdm-touch,
+html.rdm-touch body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+html.obs.rdm-touch,
+html.obs.rdm-touch body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #061526 !important;
+}
+
+html.obs.rdm-touch .shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #061526 !important;
+}
+
+html.obs.rdm-touch .layout {
+  min-height: calc(100vh - 180px);
+  min-height: calc(100dvh - 180px);
+  background: #153f38 !important;
+}
+
+html.obs.rdm-touch .scripture {
+  min-height: calc(100vh - 180px);
+  min-height: calc(100dvh - 180px);
+  padding-bottom: 96px !important;
+  background: linear-gradient(180deg, #315e56, #1f4b43) !important;
+}
+
+html.obs.rdm-touch .footer {
+  display: none !important;
+}
+
+html.obs.rdm-touch .teacher-pop.open,
+html.obs.rdm-touch #ironPromptPanel.open,
+html.obs.rdm-touch #teachingMethodPanel.open,
+html.obs.rdm-touch #studyResourcesPanel.open {
+  resize: none !important;
+  width: min(54vw, 560px) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: min(320px, calc(100vw - 24px)) !important;
+  max-height: 62vh !important;
+  max-height: 62dvh !important;
+  overflow: auto !important;
+  left: auto !important;
+  right: 12px !important;
+  top: 112px !important;
+  bottom: auto !important;
+  transform: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.obs.rdm-touch #obsCrossRefsPanel.open {
+  resize: none !important;
+  width: min(54vw, 560px) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: min(320px, calc(100vw - 24px)) !important;
+  max-height: 58vh !important;
+  max-height: 58dvh !important;
+  overflow: auto !important;
+  left: auto !important;
+  right: 12px !important;
+  top: 112px !important;
+  bottom: auto !important;
+  transform: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.obs.rdm-touch .resource-instance-panel {
+  resize: none !important;
+  width: min(54vw, 560px) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: min(300px, calc(100vw - 24px)) !important;
+  min-height: 190px !important;
+  max-height: 62vh !important;
+  max-height: 62dvh !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.obs.rdm-touch .teacher-pop.drag-positioned,
+html.obs.rdm-touch #ironPromptPanel.open.drag-positioned,
+html.obs.rdm-touch #teachingMethodPanel.open.drag-positioned,
+html.obs.rdm-touch #studyResourcesPanel.open.drag-positioned,
+html.obs.rdm-touch #obsCrossRefsPanel.open.drag-positioned,
+html.obs.rdm-touch .resource-instance-panel.drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+html.obs.rdm-touch .teacher-pop-head,
+html.obs.rdm-touch .floating-panel-head,
+html.obs.rdm-touch .floating-crossrefs-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: -18px -18px 14px;
+  padding: 12px 18px 10px;
+  border-bottom: 1px solid var(--gold);
+  background: inherit !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  cursor: move;
+  touch-action: none;
+}
+
+html.obs.rdm-touch #obsCrossRefsPanel .floating-crossrefs-header {
+  margin: -12px -12px 12px;
+  padding: 10px 12px;
+}
+
+html.obs.rdm-touch .teacher-pop-head::before,
+html.obs.rdm-touch .floating-panel-head::before,
+html.obs.rdm-touch .floating-crossrefs-header::before,
+html.obs.rdm-touch .teacher-pop-head::after,
+html.obs.rdm-touch .floating-panel-head::after,
+html.obs.rdm-touch .floating-crossrefs-header::after {
+  display: none !important;
+  content: none !important;
+}
+
+html.obs.rdm-touch .mobile-panel-resize-handle {
+  position: sticky;
+  float: right;
+  bottom: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  margin: 12px 0 0 auto;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, transparent 0 48%, rgba(248,217,135,.85) 49% 54%, transparent 55%),
+    linear-gradient(135deg, transparent 0 64%, rgba(248,217,135,.85) 65% 70%, transparent 71%);
+  touch-action: none;
+  cursor: nwse-resize;
+  z-index: 30;
+}
+
+html.obs.rdm-touch #teachingPresentationCard .presentation-card-inner,
+html.obs.rdm-touch #applicationPresentationCard .presentation-card-inner {
+  width: min(760px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: 76vh !important;
+  max-height: 76dvh !important;
+  padding: clamp(20px, 3vw, 34px) !important;
+  text-align: left !important;
+}
+
+html.obs.rdm-touch #teachingPresentationCard .presentation-card-inner h2,
+html.obs.rdm-touch #applicationPresentationCard .presentation-card-inner h2 {
+  text-align: center !important;
+  font-size: clamp(32px, 5vw, 58px) !important;
+  line-height: 1.08 !important;
+}
+
+html.obs.rdm-touch #presentationCardText,
+html.obs.rdm-touch #applicationPresentationText {
+  display: block;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  font-size: clamp(18px, 2.4vw, 29px) !important;
+  line-height: 1.48 !important;
+}
+
+html.obs.rdm-touch #obsCrossRefsContent .cross-ref-manual-text {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 12px 0 !important;
+  font-size: clamp(15px, 2.2vw, 19px) !important;
+  line-height: 1.55 !important;
+  box-shadow: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html.obs.rdm-touch #obsCrossRefsContent h4:first-child {
+  display: none !important;
+}
+
+@media (max-width: 700px) {
+  html.obs.rdm-touch .teacher-pop.open,
+  html.obs.rdm-touch #ironPromptPanel.open,
+  html.obs.rdm-touch #teachingMethodPanel.open,
+  html.obs.rdm-touch #studyResourcesPanel.open,
+  html.obs.rdm-touch #obsCrossRefsPanel.open,
+  html.obs.rdm-touch .resource-instance-panel {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    left: 10px !important;
+    right: auto !important;
+    top: 92px !important;
+    max-height: 62vh !important;
+    max-height: 62dvh !important;
+  }
+
+  html.obs.rdm-touch .verse {
+    font-size: 26px !important;
+    line-height: 1.55 !important;
+  }
+
+  html.obs.rdm-touch .scripture {
+    padding: 28px 22px 92px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4109,7 +4328,7 @@ function setupObsNavigator() {
     }
 
     function preserveNoteText(text) {
-      return String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+      return (text || "").replace(/\r\n/g, "\n").trim();
     }
 
     function escapeHtml(value) {
@@ -5481,8 +5700,7 @@ async function openRelatedDoctrineTopic(topicName) {
       const reference = getReferenceForVerses(selected);
       const verseLines = selected.map(getVerseLineForCopy).join("\n");
 
-      return `${reference} (WEB)
-${verseLines}`;
+      return `${reference} (WEB)\n${verseLines}`;
     }
 
     function formatVerseForCopy(verse) {
@@ -6521,7 +6739,6 @@ if (title) title.textContent = "Personal Cross References";
     const manualRefs = parseScriptureReferences(crossRefs.value);
 
     content.innerHTML = `
-      <h4>Personal Cross References</h4>
       ${
         manualText
           ? `<div class="cross-ref-manual-text">${escapeHtml(manualText)}</div>`
@@ -7853,7 +8070,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function cleanApplicationText(text) {
-    return String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+    return (text || "").replace(/\r\n/g, "\n").trim();
   }
 
   function showApplicationPresentationFinal(event) {
@@ -8005,1386 +8222,375 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 
-
-<style id="rdm-copy-mobile-final-fixes">
-/* Restored Daily targeted copy-format + mobile/OBS compatibility fixes */
-html, body { max-width: 100%; overflow-x: hidden; }
-button, select, textarea, input { touch-action: manipulation; }
-textarea, select, input { font-size: 16px; }
-.drag-handle { touch-action: none; }
-.teacher-pop-head,
-.floating-panel-head,
-.floating-crossrefs-header {
-  gap: 10px;
-}
-.teacher-pop-close,
-#closeObsCrossRefs,
-#closeIronPromptPanel,
-#closeTeachingMethodPanel,
-#closeStudyResourcesPanel,
-#closeObsNavigator,
-#closeTeacherTools {
-  flex: 0 0 auto;
-  min-width: 76px;
-  white-space: nowrap;
-}
-
-@media (max-width: 900px) {
-  body { padding: 0; }
-  .shell {
-    width: 100%;
-    max-width: 100%;
-    border-left: 0;
-    border-right: 0;
-    border-radius: 0;
-  }
-  .hero {
-    grid-template-columns: 1fr !important;
-    gap: 14px !important;
-    padding: 16px 14px !important;
-    text-align: center;
-  }
-  .logo-wrap { width: 146px !important; height: 146px !important; }
-  .logo { width: 140px !important; height: 140px !important; }
-  h1 { font-size: clamp(36px, 11vw, 58px) !important; }
-  .subtitle { font-size: clamp(18px, 4.8vw, 22px) !important; }
-  .eyebrow { letter-spacing: 4px !important; font-size: 13px !important; }
-  .verse-card { max-width: 520px; width: 100%; margin: 0 auto; }
-  .controls {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-    padding: 14px !important;
-  }
-  #loadBtn { grid-column: 1 / -1; width: 100%; }
-  .layout {
-    display: block !important;
-    padding: 14px !important;
-  }
-  .scripture {
-    min-height: auto !important;
-    padding: 24px 20px !important;
-    margin-bottom: 16px;
-  }
-  .ref { font-size: clamp(24px, 7vw, 34px) !important; letter-spacing: 2px !important; }
-  .source { letter-spacing: 2px !important; }
-  .verse { font-size: clamp(20px, 5.2vw, 25px) !important; line-height: 1.55 !important; }
-  .nav-row { gap: 10px; }
-  .nav-row button { flex: 1 1 0; }
-  .side { width: 100%; }
-  .panel { padding: 14px; }
-  .tool-grid,
-  .tool-grid.copy-tools-grid { grid-template-columns: 1fr 1fr; }
-  .tool-options,
-  .tool-options.tool-colors { grid-template-columns: 1fr !important; }
-}
-
-@media (max-width: 520px) {
-  .controls { grid-template-columns: 1fr !important; }
-  .tool-grid,
-  .tool-grid.copy-tools-grid { grid-template-columns: 1fr !important; }
-  .actions { flex-direction: column; align-items: stretch; }
-  .actions button { width: 100%; }
-  .ribbon { letter-spacing: 2px !important; font-size: 12px !important; padding: 10px !important; }
-  .scripture { padding: 22px 16px !important; }
-  .verse.pointed { padding-left: 28px; }
-}
-
-@media (max-width: 900px), (pointer: coarse) {
-  html.obs body { min-height: 100dvh; }
-  html.obs .hero {
-    grid-template-columns: 72px 1fr !important;
-    gap: 10px !important;
-    padding: 8px 10px !important;
-  }
-  html.obs .logo-wrap { width: 66px !important; height: 66px !important; }
-  html.obs .logo { width: 62px !important; height: 62px !important; }
-  html.obs h1 { font-size: clamp(24px, 8vw, 42px) !important; }
-  html.obs .subtitle { font-size: clamp(13px, 3.6vw, 18px) !important; margin: 6px auto 4px !important; }
-  html.obs .eyebrow { font-size: 10px !important; letter-spacing: 2px !important; margin-bottom: 3px !important; }
-  html.obs .ribbon { font-size: 11px !important; letter-spacing: 1.5px !important; padding: 6px !important; }
-  html.obs .scripture {
-    min-height: calc(100dvh - 118px) !important;
-    padding: 24px 16px 96px !important;
-  }
-  html.obs .ref { font-size: clamp(23px, 6.5vw, 34px) !important; letter-spacing: 2px !important; }
-  html.obs .verse { font-size: clamp(22px, 5.6vw, 31px) !important; line-height: 1.6 !important; }
-  html.obs .actions { top: 8px !important; right: 8px !important; }
-  html.obs #obsBtn { font-size: 12px !important; padding: 8px 10px !important; }
-
-  html.obs #obsToolBar {
-    left: 10px !important;
-    bottom: 10px !important;
-    max-width: min(260px, calc(100vw - 20px)) !important;
-    max-height: 70dvh !important;
-    overflow-y: auto !important;
-  }
-  html.obs #obsToolBar.drawer-open {
-    width: min(250px, calc(100vw - 20px)) !important;
-  }
-  html.obs #obsToolBar button {
-    min-height: 44px;
-    font-size: 13px !important;
-    padding: 9px 10px !important;
-  }
-
-  html.obs .teacher-pop.open,
-  html.obs #teachingMethodPanel.open,
-  html.obs #ironPromptPanel.open,
-  html.obs #studyResourcesPanel.open,
-  html.obs #obsCrossRefsPanel.open,
-  html.obs #obsNavigatorPanel.open {
-    position: fixed !important;
-    left: 12px !important;
-    right: auto !important;
-    top: 12px !important;
-    bottom: auto !important;
-    transform: none !important;
-    width: calc(100vw - 24px) !important;
-    max-width: calc(100vw - 24px) !important;
-    min-width: 0 !important;
-    max-height: calc(100dvh - 92px) !important;
-    overflow-y: auto !important;
-    resize: none !important;
-    padding: 14px !important;
-  }
-
-  html.obs .teacher-pop.open.drag-positioned,
-  html.obs #teachingMethodPanel.open.drag-positioned,
-  html.obs #ironPromptPanel.open.drag-positioned,
-  html.obs #studyResourcesPanel.open.drag-positioned,
-  html.obs #obsCrossRefsPanel.open.drag-positioned,
-  html.obs #obsNavigatorPanel.open.drag-positioned {
-    left: var(--drag-left) !important;
-    top: var(--drag-top) !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-  }
-
-  .teacher-pop-head,
-  .floating-panel-head,
-  .floating-crossrefs-header {
-    position: sticky;
-    top: -14px;
-    z-index: 5;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 10px 0 12px !important;
-    margin-top: -2px !important;
-    background: inherit;
-  }
-  .teacher-pop-head h3,
-  .floating-panel-head h3,
-  .floating-crossrefs-header span {
-    min-width: 0;
-    font-size: clamp(16px, 4.8vw, 22px) !important;
-    line-height: 1.15 !important;
-  }
-  .teacher-pop-close,
-  #closeObsCrossRefs,
-  #closeIronPromptPanel,
-  #closeTeachingMethodPanel,
-  #closeStudyResourcesPanel,
-  #closeObsNavigator,
-  #closeTeacherTools {
-    min-height: 40px !important;
-    padding: 8px 10px !important;
-    font-size: 12px !important;
-  }
-}
-</style>
-
-
-<script id="rdm-mobile-touch-device-fixes">
-(function restoredDailyMobileTouchAndDeviceFixes() {
-  function classifyDevice() {
-    const ua = navigator.userAgent || "";
-    const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-    const width = Math.min(window.innerWidth || 0, window.screen?.width || window.innerWidth || 0);
-    const isIPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-    const device = width <= 600 ? "phone" : width <= 1100 ? "tablet" : "desktop";
-
-    document.documentElement.dataset.device = device;
-    document.documentElement.classList.toggle("touch-device", !!coarse || navigator.maxTouchPoints > 0);
-    document.documentElement.classList.toggle("ios-device", /iPad|iPhone|iPod/.test(ua) || isIPadOS);
-    document.documentElement.classList.toggle("android-device", /Android/i.test(ua));
-  }
-
-  function clamp(value, min, max) {
-    if (!Number.isFinite(value)) return min;
-    return Math.max(min, Math.min(value, max));
-  }
-
-  function makeTouchDraggable(panelId) {
-    const panel = document.getElementById(panelId);
-    const handle = document.querySelector('[data-drag-handle="' + panelId + '"]');
-    if (!panel || !handle || handle.dataset.touchDragReady === "true") return;
-
-    handle.dataset.touchDragReady = "true";
-
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
-    let active = false;
-
-    handle.addEventListener("touchstart", function(event) {
-      if (event.target.closest("button, input, textarea, select, a, summary")) return;
-      if (!event.touches || event.touches.length !== 1) return;
-
-      const touch = event.touches[0];
-      const rect = panel.getBoundingClientRect();
-
-      startX = touch.clientX;
-      startY = touch.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
-      active = true;
-
-      panel.classList.add("drag-positioned");
-      panel.style.setProperty("--drag-left", rect.left + "px");
-      panel.style.setProperty("--drag-top", rect.top + "px");
-
-      event.preventDefault();
-    }, { passive: false });
-
-    handle.addEventListener("touchmove", function(event) {
-      if (!active || !event.touches || event.touches.length !== 1) return;
-
-      const touch = event.touches[0];
-      const rect = panel.getBoundingClientRect();
-      const margin = 8;
-      const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
-      const maxTop = Math.max(margin, window.innerHeight - 80);
-      const nextLeft = clamp(startLeft + touch.clientX - startX, margin, maxLeft);
-      const nextTop = clamp(startTop + touch.clientY - startY, margin, maxTop);
-
-      panel.style.setProperty("--drag-left", nextLeft + "px");
-      panel.style.setProperty("--drag-top", nextTop + "px");
-
-      event.preventDefault();
-    }, { passive: false });
-
-    function stopDrag() {
-      active = false;
-    }
-
-    handle.addEventListener("touchend", stopDrag, { passive: true });
-    handle.addEventListener("touchcancel", stopDrag, { passive: true });
-  }
-
-  function fitOpenPanelsInsideViewport() {
-    const ids = ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"];
-    ids.forEach(function(id) {
-      const panel = document.getElementById(id);
-      if (!panel || !panel.classList.contains("open") || !panel.classList.contains("drag-positioned")) return;
-
-      const rect = panel.getBoundingClientRect();
-      const margin = 8;
-      const nextLeft = clamp(rect.left, margin, Math.max(margin, window.innerWidth - rect.width - margin));
-      const nextTop = clamp(rect.top, margin, Math.max(margin, window.innerHeight - 80));
-      panel.style.setProperty("--drag-left", nextLeft + "px");
-      panel.style.setProperty("--drag-top", nextTop + "px");
-    });
-  }
-
-  function init() {
-    classifyDevice();
-    ["teacherToolsPanel", "teachingMethodPanel", "ironPromptPanel", "obsCrossRefsPanel", "studyResourcesPanel", "obsNavigatorPanel"].forEach(makeTouchDraggable);
-    fitOpenPanelsInsideViewport();
-  }
-
-  window.addEventListener("resize", function() {
-    classifyDevice();
-    fitOpenPanelsInsideViewport();
-  });
-  window.addEventListener("orientationchange", function() {
-    setTimeout(function() {
-      classifyDevice();
-      fitOpenPanelsInsideViewport();
-    }, 250);
-  });
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
-</script>
-
-
-
-<!-- Restored Daily Ministries — Mobile OBS panel sizing, touch resizing, and presentation formatting fix -->
-<style id="rdm-mobile-obs-panel-final-polish">
-/* Keep mobile OBS panels usable instead of full-screen oversized. */
-html.obs.touch-device .teacher-pop.open,
-html.obs.touch-device #teachingMethodPanel.open,
-html.obs.touch-device #ironPromptPanel.open,
-html.obs.touch-device #studyResourcesPanel.open,
-html.obs.touch-device #obsNavigatorPanel.open,
-html.obs.touch-device #obsCrossRefsPanel.open {
-  left: 16px !important;
-  top: 92px !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  width: min(560px, calc(100vw - 32px)) !important;
-  height: auto !important;
-  max-height: min(66dvh, 640px) !important;
-  min-width: 300px !important;
-  min-height: 210px !important;
-  overflow: auto !important;
-  resize: both !important;
-  padding: 13px !important;
-  touch-action: auto !important;
-}
-
-/* iPad / tablet: default panels should be smaller and movable/resizable. */
-html.obs.touch-device[data-device="tablet"] .teacher-pop.open,
-html.obs.touch-device[data-device="tablet"] #teachingMethodPanel.open,
-html.obs.touch-device[data-device="tablet"] #ironPromptPanel.open,
-html.obs.touch-device[data-device="tablet"] #studyResourcesPanel.open,
-html.obs.touch-device[data-device="tablet"] #obsNavigatorPanel.open,
-html.obs.touch-device[data-device="tablet"] #obsCrossRefsPanel.open {
-  width: min(500px, 56vw) !important;
-  max-height: 62dvh !important;
-}
-
-/* Phones need more width, but still not the whole screen height. */
-html.obs.touch-device[data-device="phone"] .teacher-pop.open,
-html.obs.touch-device[data-device="phone"] #teachingMethodPanel.open,
-html.obs.touch-device[data-device="phone"] #ironPromptPanel.open,
-html.obs.touch-device[data-device="phone"] #studyResourcesPanel.open,
-html.obs.touch-device[data-device="phone"] #obsNavigatorPanel.open,
-html.obs.touch-device[data-device="phone"] #obsCrossRefsPanel.open {
-  width: calc(100vw - 20px) !important;
-  left: 10px !important;
-  top: 78px !important;
-  max-height: 64dvh !important;
-  min-width: 0 !important;
-}
-
-/* Respect dragged positions without forcing full width again. */
-html.obs.touch-device .teacher-pop.open.drag-positioned,
-html.obs.touch-device #teachingMethodPanel.open.drag-positioned,
-html.obs.touch-device #ironPromptPanel.open.drag-positioned,
-html.obs.touch-device #studyResourcesPanel.open.drag-positioned,
-html.obs.touch-device #obsNavigatorPanel.open.drag-positioned,
-html.obs.touch-device #obsCrossRefsPanel.open.drag-positioned {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-
-/* Study resource result panels can stack independently and be resized. */
-html.obs.touch-device .resource-instance-panel {
-  width: min(520px, 54vw) !important;
-  max-width: calc(100vw - 24px) !important;
-  max-height: 62dvh !important;
-  min-width: 300px !important;
-  min-height: 210px !important;
-  overflow: auto !important;
-  resize: both !important;
-  padding: 13px !important;
-}
-
-html.obs.touch-device[data-device="phone"] .resource-instance-panel {
-  width: calc(100vw - 20px) !important;
-  max-height: 64dvh !important;
-  min-width: 0 !important;
-}
-
-/* Make headers reachable and keep close buttons visible. */
-html.obs.touch-device .teacher-pop-head,
-html.obs.touch-device .floating-panel-head,
-html.obs.touch-device .floating-crossrefs-header,
-html.obs.touch-device .resource-instance-panel .teacher-pop-head {
-  position: sticky !important;
-  top: -13px !important;
-  z-index: 30 !important;
-  padding: 9px 0 10px !important;
-  margin-bottom: 10px !important;
-  background: inherit !important;
-}
-
-html.obs.touch-device .teacher-pop-close,
-html.obs.touch-device #closeObsCrossRefs,
-html.obs.touch-device #closeIronPromptPanel,
-html.obs.touch-device #closeTeachingMethodPanel,
-html.obs.touch-device #closeStudyResourcesPanel,
-html.obs.touch-device #closeObsNavigator,
-html.obs.touch-device #closeTeacherTools {
-  flex: 0 0 auto !important;
-  min-width: 74px !important;
-  min-height: 40px !important;
-  padding: 8px 10px !important;
-  font-size: 12px !important;
-  z-index: 35 !important;
-}
-
-/* Touch resize handle because iPad Safari does not reliably expose CSS resize corners. */
-.rdm-touch-resize-handle {
-  position: sticky;
-  float: right;
-  bottom: 0;
-  right: 0;
-  width: 38px;
-  height: 38px;
-  margin: 6px -4px -4px 6px;
-  border-radius: 12px 0 10px 0;
-  border: 1.5px solid rgba(248,217,135,.75);
-  background: linear-gradient(135deg, transparent 45%, rgba(248,217,135,.95) 47%, rgba(248,217,135,.95) 55%, transparent 57%),
-              linear-gradient(135deg, transparent 62%, rgba(248,217,135,.9) 64%, rgba(248,217,135,.9) 71%, transparent 73%);
-  cursor: nwse-resize;
-  touch-action: none;
-  z-index: 40;
-}
-
-/* Teaching/Application presentation cards: keep notes as readable paragraphs, not huge centered broken lines. */
-html.obs.touch-device #teachingPresentationCard,
-html.obs.touch-device #applicationPresentationCard {
-  align-items: flex-start !important;
-  justify-content: center !important;
-  padding: 14px !important;
-  overflow: auto !important;
-}
-
-html.obs.touch-device #teachingPresentationCard .presentation-card-inner,
-html.obs.touch-device #applicationPresentationCard .presentation-card-inner {
-  width: min(760px, calc(100vw - 28px)) !important;
-  max-height: calc(100dvh - 110px) !important;
-  margin-top: 10px !important;
-  padding: clamp(20px, 3vw, 34px) !important;
-  text-align: left !important;
-  overflow: auto !important;
-}
-
-html.obs.touch-device #teachingPresentationCard .presentation-card-inner h2,
-html.obs.touch-device #applicationPresentationCard .presentation-card-inner h2 {
-  text-align: center !important;
-  font-size: clamp(34px, 5vw, 56px) !important;
-  line-height: 1.05 !important;
-  margin-bottom: 18px !important;
-}
-
-html.obs.touch-device #presentationCardText,
-html.obs.touch-device #applicationPresentationText {
-  display: block !important;
-  text-align: left !important;
-  white-space: pre-wrap !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-  hyphens: none !important;
-  font-family: Georgia, "Times New Roman", serif !important;
-  font-size: clamp(23px, 3vw, 34px) !important;
-  line-height: 1.38 !important;
-  max-width: 100% !important;
-  margin: 0 auto !important;
-}
-
-/* OBS cross-reference notes: remove the note-card highlight look and prevent accidental iPad selection highlights. */
-html.obs.touch-device #obsCrossRefsPanel,
-html.obs.touch-device #obsCrossRefsPanel * {
-  -webkit-user-select: none !important;
-  user-select: none !important;
-}
-
-html.obs #obsCrossRefsContent .cross-ref-manual-text {
-  background: transparent !important;
-  border-left: 0 !important;
-  box-shadow: none !important;
-  padding: 6px 2px 12px !important;
-  color: inherit !important;
-  white-space: pre-wrap !important;
-}
-
-html.obs #obsCrossRefsContent .cross-ref-manual-text::selection,
-html.obs #obsCrossRefsContent .cross-ref-manual-text *::selection {
-  background: transparent !important;
-}
-</style>
-
-<script id="rdm-mobile-obs-touch-resize-final-polish">
-(function rdmMobileObsTouchResizeFinalPolish() {
-  const PANEL_IDS = [
-    "teacherToolsPanel",
-    "teachingMethodPanel",
-    "ironPromptPanel",
-    "obsCrossRefsPanel",
-    "studyResourcesPanel",
-    "obsNavigatorPanel"
-  ];
-
-  function isTouchDevice() {
-    return document.documentElement.classList.contains("touch-device") ||
+<script id="rdm-original-safe-mobile-layer">
+(function rdmOriginalSafeMobileLayer() {
+  function isTouchLikeDevice() {
+    return (
       (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ||
-      navigator.maxTouchPoints > 0;
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
   }
 
-  function clamp(value, min, max) {
-    value = Number(value);
-    if (!Number.isFinite(value)) return min;
-    return Math.max(min, Math.min(value, max));
+  const html = document.documentElement;
+  const touchLike = isTouchLikeDevice();
+
+  html.classList.toggle("rdm-touch", touchLike);
+  html.classList.toggle("rdm-ios", /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  html.classList.toggle("rdm-android", /Android/i.test(navigator.userAgent));
+
+  if (!touchLike) return;
+
+  let topZ = 70000;
+
+  function getPanelSelector() {
+    return [
+      ".teacher-pop",
+      "#ironPromptPanel",
+      "#teachingMethodPanel",
+      "#studyResourcesPanel",
+      "#obsCrossRefsPanel",
+      ".resource-instance-panel"
+    ].join(",");
+  }
+
+  function isInteractive(target) {
+    return !!(target && target.closest && target.closest("button, input, textarea, select, a, summary, details, label"));
+  }
+
+  function panelIsVisible(panel) {
+    if (!panel) return false;
+    if (panel.classList.contains("open")) return true;
+    if (panel.classList.contains("resource-instance-panel")) return document.body.contains(panel);
+    const style = window.getComputedStyle(panel);
+    return style.display !== "none" && style.visibility !== "hidden";
   }
 
   function bringToFront(panel) {
     if (!panel) return;
-    window.rdmPanelZ = (window.rdmPanelZ || 62000) + 1;
-    panel.style.setProperty("z-index", String(window.rdmPanelZ), "important");
+    topZ += 1;
+    panel.style.zIndex = String(topZ);
   }
 
-  function keepPanelInView(panel) {
-    if (!panel || !panel.classList.contains("open") && !panel.classList.contains("resource-instance-panel")) return;
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function viewportWidth() {
+    return window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  }
+
+  function viewportHeight() {
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  }
+
+  function clampPanelIntoView(panel) {
+    if (!panel || !panelIsVisible(panel)) return;
+
     const rect = panel.getBoundingClientRect();
-    const margin = 8;
-    const maxWidth = Math.max(280, window.innerWidth - margin * 2);
-    const maxHeight = Math.max(210, window.innerHeight - 88);
+    const vw = viewportWidth();
+    const vh = viewportHeight();
+    const safeMargin = 8;
 
-    if (rect.width > maxWidth) panel.style.width = maxWidth + "px";
-    if (rect.height > maxHeight) panel.style.height = maxHeight + "px";
+    const width = Math.min(rect.width || panel.offsetWidth || 320, vw - safeMargin * 2);
+    const height = Math.min(rect.height || panel.offsetHeight || 220, vh - safeMargin * 2);
 
-    const afterSize = panel.getBoundingClientRect();
-    const left = clamp(afterSize.left, margin, Math.max(margin, window.innerWidth - afterSize.width - margin));
-    const top = clamp(afterSize.top, margin, Math.max(margin, window.innerHeight - 76));
+    let left = rect.left;
+    let top = rect.top;
 
-    if (Math.abs(left - afterSize.left) > 1 || Math.abs(top - afterSize.top) > 1) {
-      panel.classList.add("drag-positioned");
-      panel.style.setProperty("--drag-left", left + "px");
-      panel.style.setProperty("--drag-top", top + "px");
-      panel.style.left = left + "px";
-      panel.style.top = top + "px";
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-      panel.style.transform = "none";
-    }
+    if (left + width > vw - safeMargin) left = vw - width - safeMargin;
+    if (top + height > vh - safeMargin) top = vh - height - safeMargin;
+    left = clamp(left, safeMargin, Math.max(safeMargin, vw - width - safeMargin));
+    top = clamp(top, safeMargin, Math.max(safeMargin, vh - height - safeMargin));
+
+    panel.style.setProperty("--drag-left", left + "px");
+    panel.style.setProperty("--drag-top", top + "px");
+    panel.classList.add("drag-positioned");
   }
 
-  function addResizeHandle(panel) {
-    if (!panel || panel.dataset.rdmResizeReady === "true") return;
-    panel.dataset.rdmResizeReady = "true";
+  function placePanelIfNeeded(panel) {
+    if (!panel || !panelIsVisible(panel)) return;
+
+    const rect = panel.getBoundingClientRect();
+    const hasPosition = panel.classList.contains("drag-positioned") ||
+      panel.style.left ||
+      panel.style.getPropertyValue("--drag-left");
+
+    if (!hasPosition || rect.width > viewportWidth() || rect.height > viewportHeight()) {
+      const vw = viewportWidth();
+      const defaultWidth = Math.min(Math.max(320, vw * 0.54), vw - 24);
+      const defaultHeight = Math.min(Math.max(230, viewportHeight() * 0.58), viewportHeight() - 80);
+
+      if (panel.classList.contains("resource-instance-panel")) {
+        panel.style.width = defaultWidth + "px";
+        panel.style.maxHeight = defaultHeight + "px";
+      }
+
+      const nextLeft = clamp(vw - defaultWidth - 12, 8, Math.max(8, vw - defaultWidth - 8));
+      const nextTop = clamp(112, 8, Math.max(8, viewportHeight() - Math.min(defaultHeight, rect.height || defaultHeight) - 8));
+
+      panel.style.setProperty("--drag-left", nextLeft + "px");
+      panel.style.setProperty("--drag-top", nextTop + "px");
+      panel.classList.add("drag-positioned");
+    }
+
+    clampPanelIntoView(panel);
+  }
+
+  function getDragHandle(panel) {
+    if (!panel) return null;
+    return panel.querySelector(".drag-handle, .teacher-pop-head, .floating-panel-head, .floating-crossrefs-header");
+  }
+
+  function ensureResizeHandle(panel) {
+    if (!panel || panel.querySelector(":scope > .mobile-panel-resize-handle")) return;
 
     const handle = document.createElement("div");
-    handle.className = "rdm-touch-resize-handle";
-    handle.setAttribute("role", "button");
+    handle.className = "mobile-panel-resize-handle";
     handle.setAttribute("aria-label", "Resize panel");
-    handle.title = "Drag to resize";
+    handle.setAttribute("role", "separator");
     panel.appendChild(handle);
-
-    let active = false;
-    let startX = 0;
-    let startY = 0;
-    let startW = 0;
-    let startH = 0;
-
-    handle.addEventListener("pointerdown", function(event) {
-      if (!isTouchDevice() && event.pointerType === "mouse") return;
-      active = true;
-      bringToFront(panel);
-      const rect = panel.getBoundingClientRect();
-      startX = event.clientX;
-      startY = event.clientY;
-      startW = rect.width;
-      startH = rect.height;
-      panel.style.width = rect.width + "px";
-      panel.style.height = rect.height + "px";
-      panel.style.maxWidth = "calc(100vw - 16px)";
-      panel.style.maxHeight = "calc(100dvh - 82px)";
-      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
-      event.preventDefault();
-      event.stopPropagation();
-    });
-
-    handle.addEventListener("pointermove", function(event) {
-      if (!active) return;
-      const margin = 8;
-      const rect = panel.getBoundingClientRect();
-      const maxW = Math.max(280, window.innerWidth - rect.left - margin);
-      const maxH = Math.max(210, window.innerHeight - rect.top - margin);
-      const minW = document.documentElement.dataset.device === "phone" ? Math.min(290, window.innerWidth - 20) : 300;
-      const minH = 190;
-      const nextW = clamp(startW + (event.clientX - startX), minW, maxW);
-      const nextH = clamp(startH + (event.clientY - startY), minH, maxH);
-      panel.style.width = nextW + "px";
-      panel.style.height = nextH + "px";
-      event.preventDefault();
-      event.stopPropagation();
-    });
-
-    function endResize(event) {
-      if (!active) return;
-      active = false;
-      keepPanelInView(panel);
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-
-    handle.addEventListener("pointerup", endResize);
-    handle.addEventListener("pointercancel", endResize);
-
-    panel.addEventListener("pointerdown", function() {
-      bringToFront(panel);
-    }, true);
   }
 
-  function preparePanel(panel) {
-    if (!panel) return;
-    addResizeHandle(panel);
-    bringToFront(panel);
-    keepPanelInView(panel);
-  }
-
-  function prepareKnownPanels() {
-    PANEL_IDS.forEach(function(id) {
-      preparePanel(document.getElementById(id));
-    });
-    document.querySelectorAll(".resource-instance-panel").forEach(preparePanel);
-  }
-
-  function patchTeachingPresentationText() {
-    const teaching = document.getElementById("presentationCardText");
-    const application = document.getElementById("applicationPresentationText");
-    [teaching, application].forEach(function(el) {
-      if (!el) return;
-      el.style.whiteSpace = "pre-wrap";
-      el.style.wordBreak = "normal";
-      el.style.overflowWrap = "normal";
-      el.style.hyphens = "none";
-    });
-  }
-
-  function patchOpenButtonsForMultiPanelStacking() {
-    document.addEventListener("click", function(event) {
-      const button = event.target.closest("button");
-      if (!button) return;
-      setTimeout(function() {
-        prepareKnownPanels();
-        patchTeachingPresentationText();
-        const openPanels = document.querySelectorAll(".teacher-pop.open, #teachingMethodPanel.open, #ironPromptPanel.open, #studyResourcesPanel.open, #obsCrossRefsPanel.open, #obsNavigatorPanel.open, .resource-instance-panel");
-        openPanels.forEach(function(panel) {
-          if (!panel.dataset.rdmStackReady) {
-            panel.dataset.rdmStackReady = "true";
-            bringToFront(panel);
-          }
-        });
-      }, 60);
-    }, true);
-  }
-
-  function observeNewPanels() {
-    const observer = new MutationObserver(function(records) {
-      records.forEach(function(record) {
-        record.addedNodes.forEach(function(node) {
-          if (!(node instanceof HTMLElement)) return;
-          if (node.classList.contains("resource-instance-panel")) {
-            preparePanel(node);
-          }
-          node.querySelectorAll?.(".resource-instance-panel").forEach(preparePanel);
-        });
-      });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  function init() {
-    prepareKnownPanels();
-    patchTeachingPresentationText();
-    patchOpenButtonsForMultiPanelStacking();
-    observeNewPanels();
-  }
-
-  window.addEventListener("resize", function() {
-    setTimeout(prepareKnownPanels, 80);
-  });
-  window.addEventListener("orientationchange", function() {
-    setTimeout(prepareKnownPanels, 250);
-  });
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
-</script>
-
-
-
-<!-- Restored Daily Ministries — PC-safe panel repair patch -->
-<style id="rdm-pc-safe-panel-repair">
-/* Repair notes:
-   - This patch is intentionally appended after the mobile panel work.
-   - Desktop/PC behavior is left intact unless the rule is specifically for resource panels.
-   - Touch-only resizing/moving is scoped to OBS + touch devices. */
-
-/* No white browser canvas at the bottom of OBS on iPad/mobile. */
-html.obs,
-html.obs body {
-  min-height: 100dvh !important;
-  background-color: #294843 !important;
-  background: #294843 !important;
-}
-
-html.obs .shell,
-html.obs .layout {
-  min-height: 100dvh !important;
-}
-
-html.obs .scripture {
-  min-height: calc(100dvh - 176px) !important;
-  padding-bottom: max(120px, env(safe-area-inset-bottom)) !important;
-}
-
-@supports (-webkit-touch-callout: none) {
-  html.obs,
-  html.obs body,
-  html.obs .shell,
-  html.obs .layout { min-height: 100svh !important; }
-  html.obs .scripture { min-height: calc(100svh - 176px) !important; }
-}
-
-/* Clean the odd header/shadow block around panel titles + Close buttons. */
-.resource-instance-panel .teacher-pop-head,
-html.obs.touch-device .teacher-pop-head,
-html.obs.touch-device .floating-panel-head,
-html.obs.touch-device .floating-crossrefs-header {
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-  text-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-.resource-instance-panel .teacher-pop-head {
-  border-bottom: 1px solid rgba(215,168,79,.62) !important;
-  margin-bottom: 12px !important;
-}
-
-.resource-instance-panel .teacher-pop-head h3,
-.resource-instance-panel .teacher-pop-head .resource-source-label,
-html.obs.touch-device .teacher-pop-head h3,
-html.obs.touch-device .floating-panel-head h3,
-html.obs.touch-device .floating-crossrefs-header span {
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-}
-
-/* Study/resource result panels should float above the Study Resources menu and remain independently movable/resizable. */
-.resource-instance-panel {
-  position: fixed !important;
-  display: block !important;
-  width: min(540px, calc(100vw - 32px));
-  min-width: 320px;
-  min-height: 220px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100dvh - 24px);
-  overflow: auto !important;
-  resize: both;
-  z-index: 90000 !important;
-  border: 2px solid var(--gold);
-  border-radius: 16px;
-  padding: 16px;
-  -webkit-overflow-scrolling: touch;
-}
-
-html.obs #studyResourcesPanel.open {
-  z-index: 64000 !important;
-}
-
-html.obs .resource-instance-panel {
-  z-index: 90000 !important;
-}
-
-/* On touch OBS, keep default panels smaller than the full screen, but do not affect desktop. */
-html.obs.touch-device .teacher-pop.open,
-html.obs.touch-device #teachingMethodPanel.open,
-html.obs.touch-device #ironPromptPanel.open,
-html.obs.touch-device #studyResourcesPanel.open,
-html.obs.touch-device #obsNavigatorPanel.open,
-html.obs.touch-device #obsCrossRefsPanel.open {
-  width: min(560px, 62vw) !important;
-  min-width: min(320px, calc(100vw - 24px)) !important;
-  max-width: calc(100vw - 24px) !important;
-  max-height: calc(100dvh - 92px) !important;
-  overflow: auto !important;
-}
-
-html.obs.touch-device[data-device="phone"] .teacher-pop.open,
-html.obs.touch-device[data-device="phone"] #teachingMethodPanel.open,
-html.obs.touch-device[data-device="phone"] #ironPromptPanel.open,
-html.obs.touch-device[data-device="phone"] #studyResourcesPanel.open,
-html.obs.touch-device[data-device="phone"] #obsNavigatorPanel.open,
-html.obs.touch-device[data-device="phone"] #obsCrossRefsPanel.open {
-  width: calc(100vw - 22px) !important;
-  max-height: calc(100dvh - 88px) !important;
-}
-
-html.obs.touch-device .resource-instance-panel {
-  width: min(520px, 54vw) !important;
-  min-width: min(300px, calc(100vw - 20px)) !important;
-  max-width: calc(100vw - 20px) !important;
-  max-height: calc(100dvh - 88px) !important;
-  resize: both !important;
-}
-
-html.obs.touch-device[data-device="phone"] .resource-instance-panel {
-  width: calc(100vw - 22px) !important;
-  max-height: calc(100dvh - 88px) !important;
-}
-
-/* The resize handle is only for touch devices; PC keeps the normal resize corner. */
-html:not(.touch-device) .rdm-touch-resize-handle {
-  display: none !important;
-}
-
-html.touch-device .rdm-touch-resize-handle {
-  display: block;
-}
-
-/* Remove duplicate resize handles if previous patches created more than one. */
-.resource-instance-panel .rdm-touch-resize-handle:not(:last-of-type),
-.teacher-pop .rdm-touch-resize-handle:not(:last-of-type),
-#obsCrossRefsPanel .rdm-touch-resize-handle:not(:last-of-type),
-#studyResourcesPanel .rdm-touch-resize-handle:not(:last-of-type),
-#ironPromptPanel .rdm-touch-resize-handle:not(:last-of-type),
-#teachingMethodPanel .rdm-touch-resize-handle:not(:last-of-type),
-#obsNavigatorPanel .rdm-touch-resize-handle:not(:last-of-type) {
-  display: none !important;
-}
-
-/* Personal Cross References should not repeat its title inside the panel body. */
-.rdm-personal-crossrefs-panel .resource-panel-body > h4:first-child,
-#obsCrossRefsPanel[data-rdm-panel-kind="personalCrossRefs"] #obsCrossRefsContent > h4:first-child {
-  display: none !important;
-}
-
-/* Cross-reference notes should read like notes, not highlighted selections/cards. */
-.rdm-personal-crossrefs-panel .cross-ref-manual-text,
-html.obs #obsCrossRefsContent .cross-ref-manual-text {
-  background: transparent !important;
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  padding: 4px 0 12px !important;
-  white-space: pre-wrap !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
-
-/* Teaching/Application presentation text stays paragraph-like instead of centered broken lines. */
-#teachingPresentationCard.open,
-#applicationPresentationCard.open {
-  align-items: flex-start !important;
-  justify-content: center !important;
-  overflow: auto !important;
-}
-
-#teachingPresentationCard .presentation-card-inner,
-#applicationPresentationCard .presentation-card-inner {
-  text-align: left !important;
-  max-height: calc(100dvh - 96px) !important;
-  overflow: auto !important;
-}
-
-#presentationCardTitle,
-#applicationPresentationCard .presentation-card-inner h2 {
-  text-align: center !important;
-}
-
-#presentationCardText,
-#applicationPresentationText {
-  display: block !important;
-  text-align: left !important;
-  white-space: pre-wrap !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-  hyphens: none !important;
-  max-width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-</style>
-
-<script id="rdm-pc-safe-panel-repair-script">
-(function rdmPcSafePanelRepair() {
-  function $(id) { return document.getElementById(id); }
-
-  function isTouchDevice() {
-    return document.documentElement.classList.contains('touch-device') ||
-      (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
-      navigator.maxTouchPoints > 0;
-  }
-
-  function isObsMode() {
-    return document.documentElement.classList.contains('obs');
-  }
-
-  function clamp(value, min, max) {
-    value = Number(value);
-    if (!Number.isFinite(value)) return min;
-    return Math.max(min, Math.min(value, max));
-  }
-
-  function escapeHtmlSafe(value) {
-    if (typeof escapeHtml === 'function') return escapeHtml(value || '');
-    const div = document.createElement('div');
-    div.textContent = value || '';
-    return div.innerHTML;
-  }
-
-  function bringToFront(panel) {
-    if (!panel) return;
-    window.rdmPanelZ = (window.rdmPanelZ || 90000) + 1;
-    panel.style.setProperty('z-index', String(window.rdmPanelZ), 'important');
-  }
-
-  function removeDuplicateResizeHandles(panel) {
-    if (!panel) return;
-    const handles = Array.from(panel.querySelectorAll(':scope > .rdm-touch-resize-handle'));
-    if (handles.length <= 1) return;
-    handles.slice(0, -1).forEach(function(handle) { handle.remove(); });
-  }
-
-  function keepPanelInView(panel) {
-    if (!panel || !isTouchDevice()) return;
-    const rect = panel.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-
-    const margin = 8;
-    const maxWidth = Math.max(280, window.innerWidth - margin * 2);
-    const maxHeight = Math.max(210, window.innerHeight - 82);
-
-    if (rect.width > maxWidth) panel.style.width = maxWidth + 'px';
-    if (rect.height > maxHeight) panel.style.height = maxHeight + 'px';
-
-    const after = panel.getBoundingClientRect();
-    const nextLeft = clamp(after.left, margin, Math.max(margin, window.innerWidth - after.width - margin));
-    const nextTop = clamp(after.top, margin, Math.max(margin, window.innerHeight - 80));
-
-    if (Math.abs(nextLeft - after.left) > 1 || Math.abs(nextTop - after.top) > 1) {
-      panel.classList.add('drag-positioned');
-      panel.style.setProperty('--drag-left', nextLeft + 'px');
-      panel.style.setProperty('--drag-top', nextTop + 'px');
-      panel.style.left = nextLeft + 'px';
-      panel.style.top = nextTop + 'px';
-      panel.style.right = 'auto';
-      panel.style.bottom = 'auto';
-      panel.style.transform = 'none';
-    }
-  }
-
-  function makeMovableOnTouch(panel) {
-    if (!panel || panel.dataset.rdmPcSafePanelMove === 'true') return;
-    const handle = panel.querySelector('.drag-handle, .teacher-pop-head, .floating-panel-head, .floating-crossrefs-header');
+  function installTouchDrag(panel) {
+    if (!panel || panel.dataset.rdmTouchDrag === "true") return;
+    const handle = getDragHandle(panel);
     if (!handle) return;
 
-    panel.dataset.rdmPcSafePanelMove = 'true';
-    handle.classList.add('drag-handle');
+    panel.dataset.rdmTouchDrag = "true";
 
-    let active = false;
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
+    let state = null;
 
-    handle.addEventListener('pointerdown', function(event) {
-      if (!isTouchDevice() || !isObsMode()) return;
-      if (event.target.closest('button, input, textarea, select, a, summary, .rdm-touch-resize-handle')) return;
+    function start(event) {
+      if (!panelIsVisible(panel)) return;
+      if (isInteractive(event.target)) return;
 
-      const rect = panel.getBoundingClientRect();
-      active = true;
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
+
       bringToFront(panel);
-      startX = event.clientX;
-      startY = event.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
 
-      panel.classList.add('drag-positioned');
-      panel.style.setProperty('--drag-left', rect.left + 'px');
-      panel.style.setProperty('--drag-top', rect.top + 'px');
-      panel.style.left = rect.left + 'px';
-      panel.style.top = rect.top + 'px';
-      panel.style.right = 'auto';
-      panel.style.bottom = 'auto';
-      panel.style.transform = 'none';
-
-      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
-      event.preventDefault();
-      event.stopPropagation();
-    }, { passive: false });
-
-    handle.addEventListener('pointermove', function(event) {
-      if (!active) return;
       const rect = panel.getBoundingClientRect();
-      const margin = 8;
-      const nextLeft = clamp(startLeft + event.clientX - startX, margin, Math.max(margin, window.innerWidth - rect.width - margin));
-      const nextTop = clamp(startTop + event.clientY - startY, margin, Math.max(margin, window.innerHeight - 80));
-
-      panel.style.setProperty('--drag-left', nextLeft + 'px');
-      panel.style.setProperty('--drag-top', nextTop + 'px');
-      panel.style.left = nextLeft + 'px';
-      panel.style.top = nextTop + 'px';
-
-      event.preventDefault();
-      event.stopPropagation();
-    }, { passive: false });
-
-    function endDrag(event) {
-      if (!active) return;
-      active = false;
-      keepPanelInView(panel);
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-
-    handle.addEventListener('pointerup', endDrag, { passive: false });
-    handle.addEventListener('pointercancel', endDrag, { passive: false });
-  }
-
-  function makeResizableOnTouch(panel) {
-    if (!panel) return;
-    removeDuplicateResizeHandles(panel);
-
-    if (!isTouchDevice() || !isObsMode()) return;
-    if (panel.dataset.rdmPcSafePanelResize === 'true') return;
-    panel.dataset.rdmPcSafePanelResize = 'true';
-
-    let handle = panel.querySelector(':scope > .rdm-touch-resize-handle');
-    if (!handle) {
-      handle = document.createElement('div');
-      handle.className = 'rdm-touch-resize-handle';
-      handle.setAttribute('role', 'button');
-      handle.setAttribute('aria-label', 'Resize panel');
-      handle.title = 'Drag to resize';
-      panel.appendChild(handle);
-    }
-
-    let active = false;
-    let startX = 0;
-    let startY = 0;
-    let startW = 0;
-    let startH = 0;
-
-    handle.addEventListener('pointerdown', function(event) {
-      if (!isTouchDevice() || !isObsMode()) return;
-      active = true;
-      bringToFront(panel);
-      const rect = panel.getBoundingClientRect();
-      startX = event.clientX;
-      startY = event.clientY;
-      startW = rect.width;
-      startH = rect.height;
-      panel.style.width = rect.width + 'px';
-      panel.style.height = rect.height + 'px';
-      panel.style.maxWidth = 'calc(100vw - 16px)';
-      panel.style.maxHeight = 'calc(100dvh - 82px)';
-      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
-      event.preventDefault();
-      event.stopPropagation();
-    }, { passive: false });
-
-    handle.addEventListener('pointermove', function(event) {
-      if (!active) return;
-      const rect = panel.getBoundingClientRect();
-      const margin = 8;
-      const minW = document.documentElement.dataset.device === 'phone' ? Math.min(290, window.innerWidth - 20) : 300;
-      const minH = 190;
-      const maxW = Math.max(minW, window.innerWidth - rect.left - margin);
-      const maxH = Math.max(minH, window.innerHeight - rect.top - margin);
-      panel.style.width = clamp(startW + event.clientX - startX, minW, maxW) + 'px';
-      panel.style.height = clamp(startH + event.clientY - startY, minH, maxH) + 'px';
-      event.preventDefault();
-      event.stopPropagation();
-    }, { passive: false });
-
-    function endResize(event) {
-      if (!active) return;
-      active = false;
-      keepPanelInView(panel);
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-
-    handle.addEventListener('pointerup', endResize, { passive: false });
-    handle.addEventListener('pointercancel', endResize, { passive: false });
-  }
-
-  function preparePanel(panel) {
-    if (!panel) return;
-    removeDuplicateResizeHandles(panel);
-    makeMovableOnTouch(panel);
-    makeResizableOnTouch(panel);
-    if (!panel.dataset.rdmBringForwardReady) {
-      panel.dataset.rdmBringForwardReady = 'true';
-      panel.addEventListener('pointerdown', function() { bringToFront(panel); }, { capture: true });
-      panel.addEventListener('mousedown', function() { bringToFront(panel); }, { capture: true });
-    }
-    if (isTouchDevice() && isObsMode()) keepPanelInView(panel);
-  }
-
-  function prepareAllPanels() {
-    [
-      'teacherToolsPanel',
-      'teachingMethodPanel',
-      'ironPromptPanel',
-      'obsCrossRefsPanel',
-      'studyResourcesPanel',
-      'obsNavigatorPanel'
-    ].forEach(function(id) { preparePanel($(id)); });
-    document.querySelectorAll('.resource-instance-panel').forEach(preparePanel);
-  }
-
-  function makeResourcePanel(title, html, sourceLabel, extraClass) {
-    const panel = document.createElement('div');
-    panel.className = 'resource-instance-panel' + (extraClass ? ' ' + extraClass : '');
-
-    const count = document.querySelectorAll('.resource-instance-panel').length;
-    const touchObs = isTouchDevice() && isObsMode();
-    const left = touchObs ? Math.min(42 + count * 18, Math.max(10, window.innerWidth - 360)) : 80 + count * 28;
-    const top = touchObs ? Math.min(96 + count * 18, Math.max(74, window.innerHeight - 260)) : 120 + count * 24;
-
-    panel.style.left = left + 'px';
-    panel.style.top = top + 'px';
-    panel.style.right = 'auto';
-    panel.style.bottom = 'auto';
-    panel.style.zIndex = String((window.rdmPanelZ || 90000) + 1);
-
-    panel.innerHTML = `
-      <div class="teacher-pop-head drag-handle">
-        <div>
-          ${sourceLabel ? `<div class="resource-source-label">${escapeHtmlSafe(sourceLabel)}</div>` : ''}
-          <h3>${escapeHtmlSafe(title || 'Study Resource')}</h3>
-        </div>
-        <button class="teacher-pop-close secondary" type="button">Close</button>
-      </div>
-      <div class="resource-panel-body">
-        ${html || '<p>No content found.</p>'}
-      </div>
-    `;
-
-    document.body.appendChild(panel);
-
-    const close = panel.querySelector('.teacher-pop-close');
-    if (close) {
-      close.onclick = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        panel.remove();
+      state = {
+        id: event.pointerId,
+        startX: point.clientX,
+        startY: point.clientY,
+        startLeft: rect.left,
+        startTop: rect.top
       };
-    }
 
-    panel.addEventListener('click', function(event) {
-      const refButton = event.target.closest('.cross-ref-link');
-      if (!refButton) return;
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof goToScriptureReference === 'function') {
-        goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
+      panel.style.position = "fixed";
+      panel.style.left = "auto";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+      panel.style.top = "auto";
+      panel.style.transform = "none";
+      panel.style.setProperty("--drag-left", rect.left + "px");
+      panel.style.setProperty("--drag-top", rect.top + "px");
+      panel.classList.add("drag-positioned");
+
+      if (event.pointerId && handle.setPointerCapture) {
+        try { handle.setPointerCapture(event.pointerId); } catch (error) {}
       }
-    });
 
-    preparePanel(panel);
-    bringToFront(panel);
-    return panel;
-  }
-
-  function installResourcePanelOverride() {
-    window.openResourceInstancePanel = function(title, html, sourceLabel) {
-      return makeResourcePanel(title, html, sourceLabel || 'Study Resource', '');
-    };
-    try {
-      openResourceInstancePanel = window.openResourceInstancePanel;
-    } catch (_) {}
-  }
-
-  function openPersonalCrossReferencesPanel(event) {
-    if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
 
-    if (typeof renderCrossReferenceLinks === 'function') renderCrossReferenceLinks();
+    function move(event) {
+      if (!state) return;
 
-    const crossRefs = $('crossRefs');
-    const rawText = crossRefs ? (crossRefs.value || '') : '';
-    const manualText = typeof preserveNoteText === 'function' ? preserveNoteText(rawText) : rawText.trim();
-    const manualRefs = typeof parseScriptureReferences === 'function' ? parseScriptureReferences(rawText) : [];
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
 
-    const bodyHtml = `
-      ${manualText
-        ? `<div class="cross-ref-manual-text">${escapeHtmlSafe(manualText)}</div>`
-        : '<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>'}
-      ${manualRefs.length
-        ? `<div class="cross-ref-links obs-cross-ref-buttons">${manualRefs.map(function(ref) { return `<button type="button" class="cross-ref-link" data-ref="${escapeHtmlSafe(ref)}">${escapeHtmlSafe(ref)}</button>`; }).join('')}</div>`
-        : ''}
-    `;
+      const rect = panel.getBoundingClientRect();
+      const vw = viewportWidth();
+      const vh = viewportHeight();
+      const nextLeft = clamp(state.startLeft + point.clientX - state.startX, 8, Math.max(8, vw - rect.width - 8));
+      const nextTop = clamp(state.startTop + point.clientY - state.startY, 8, Math.max(8, vh - Math.min(rect.height, vh - 16) - 8));
 
-    const existing = document.querySelector('.rdm-personal-crossrefs-panel');
-    if (existing) existing.remove();
-    makeResourcePanel('Personal Cross References', bodyHtml, '', 'rdm-personal-crossrefs-panel');
-  }
+      panel.style.setProperty("--drag-left", nextLeft + "px");
+      panel.style.setProperty("--drag-top", nextTop + "px");
 
-  function bindPersonalCrossReferences() {
-    const crossBtn = $('obsShowCrossRefs');
-    if (crossBtn) crossBtn.onclick = openPersonalCrossReferencesPanel;
-  }
-
-  function parseSection(section) {
-    if (!section) return null;
-    if (section === 'full-chapter') return { start: 1, end: Number.MAX_SAFE_INTEGER };
-    const match = String(section).match(/^(\d+)-(\d+)$/);
-    if (!match) return null;
-    return { start: parseInt(match[1], 10), end: parseInt(match[2], 10) };
-  }
-
-  function findOverlappingNoteValues(fieldId) {
-    const values = [];
-    const seen = new Set();
-    try {
-      const prefix = `${storagePrefix}.notes.${bookSel.value}.${chapSel.value}.`;
-      const suffix = `.${fieldId}`;
-      const start = parseInt(startSel.value, 10) || 1;
-      const end = parseInt(endSel.value, 10) || start;
-      const entries = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith(prefix) || !key.endsWith(suffix)) continue;
-        const section = key.slice(prefix.length, key.length - suffix.length);
-        const range = parseSection(section);
-        if (!range) continue;
-        const rangeEnd = range.end === Number.MAX_SAFE_INTEGER ? (typeof verseMax === 'function' ? verseMax() : 999) : range.end;
-        if (range.start <= end && rangeEnd >= start) entries.push({ key, start: range.start, end: rangeEnd });
-      }
-
-      entries.sort(function(a, b) { return a.start - b.start || a.end - b.end; });
-      entries.forEach(function(entry) {
-        const value = localStorage.getItem(entry.key) || '';
-        const clean = value.trim();
-        if (clean && !seen.has(clean)) {
-          seen.add(clean);
-          values.push(clean);
-        }
-      });
-    } catch (error) {
-      console.warn('Could not merge overlapping passage notes:', error);
+      event.preventDefault();
+      event.stopPropagation();
     }
-    return values;
+
+    function end(event) {
+      if (!state) return;
+      state = null;
+      clampPanelIntoView(panel);
+
+      if (event && event.stopPropagation) event.stopPropagation();
+    }
+
+    handle.addEventListener("pointerdown", start, { passive: false });
+    handle.addEventListener("pointermove", move, { passive: false });
+    handle.addEventListener("pointerup", end, { passive: false });
+    handle.addEventListener("pointercancel", end, { passive: false });
+
+    handle.addEventListener("touchstart", start, { passive: false });
+    handle.addEventListener("touchmove", move, { passive: false });
+    handle.addEventListener("touchend", end, { passive: false });
+    handle.addEventListener("touchcancel", end, { passive: false });
   }
 
-  function installNoteRangeMergeOverride() {
-    if (typeof loadCurrentNotes !== 'function') return;
+  function installTouchResize(panel) {
+    if (!panel || panel.dataset.rdmTouchResize === "true") return;
 
-    loadCurrentNotes = function loadCurrentNotesRangeAware() {
-      const baseKey = currentStudyUnitKey();
-      setTimeout(renderCrossReferenceLinks, 0);
-      activeNotesKey = baseKey;
+    ensureResizeHandle(panel);
+    const handle = panel.querySelector(":scope > .mobile-panel-resize-handle");
+    if (!handle) return;
 
-      noteIds().forEach(function(id) {
-        const field = $(id);
-        if (!field) return;
+    panel.dataset.rdmTouchResize = "true";
 
-        const exact = localStorage.getItem(`${baseKey}.${id}`) || '';
-        const merged = exact || findOverlappingNoteValues(id).join('\n\n');
-        field.value = merged;
-        field.oninput = function() {
-          localStorage.setItem(`${activeNotesKey}.${id}`, field.value);
-          updateNotesSaveStatus(`Notes saved for ${currentRef()}`);
-        };
-      });
+    let state = null;
 
-      updateNotesSaveStatus(`Notes for ${currentRef()}`);
-      setTimeout(refreshAutoGrowTextareas, 0);
-      setTimeout(renderCrossReferenceLinks, 0);
-    };
+    function start(event) {
+      if (!panelIsVisible(panel)) return;
 
-    window.loadCurrentNotes = loadCurrentNotes;
-  }
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
 
-  function normalizeTeachingPresentationText() {
-    const teaching = $('presentationCardText');
-    const application = $('applicationPresentationText');
-    [teaching, application].forEach(function(el) {
-      if (!el) return;
-      el.style.textAlign = 'left';
-      el.style.whiteSpace = 'pre-wrap';
-      el.style.wordBreak = 'normal';
-      el.style.overflowWrap = 'normal';
-      el.style.hyphens = 'none';
-    });
-  }
+      bringToFront(panel);
 
-  function setObsCanvasBackground() {
-    if (!isObsMode()) return;
-    document.documentElement.style.backgroundColor = '#294843';
-    document.body.style.backgroundColor = '#294843';
-  }
+      const rect = panel.getBoundingClientRect();
+      state = {
+        id: event.pointerId,
+        startX: point.clientX,
+        startY: point.clientY,
+        startWidth: rect.width,
+        startHeight: rect.height,
+        startLeft: rect.left,
+        startTop: rect.top
+      };
 
-  function init() {
-    installResourcePanelOverride();
-    bindPersonalCrossReferences();
-    installNoteRangeMergeOverride();
-    normalizeTeachingPresentationText();
-    setObsCanvasBackground();
-    prepareAllPanels();
-  }
+      panel.style.position = "fixed";
+      panel.style.left = "auto";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+      panel.style.top = "auto";
+      panel.style.transform = "none";
+      panel.style.setProperty("--drag-left", rect.left + "px");
+      panel.style.setProperty("--drag-top", rect.top + "px");
+      panel.classList.add("drag-positioned");
 
-  document.addEventListener('click', function() {
-    setTimeout(function() {
-      installResourcePanelOverride();
-      bindPersonalCrossReferences();
-      normalizeTeachingPresentationText();
-      setObsCanvasBackground();
-      prepareAllPanels();
-    }, 60);
-  }, true);
-
-  const observer = new MutationObserver(function(records) {
-    records.forEach(function(record) {
-      record.addedNodes.forEach(function(node) {
-        if (!(node instanceof HTMLElement)) return;
-        if (node.classList.contains('resource-instance-panel')) preparePanel(node);
-        node.querySelectorAll?.('.resource-instance-panel').forEach(preparePanel);
-      });
-    });
-  });
-
-  function startObserver() {
-    if (document.body) observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  window.addEventListener('resize', function() {
-    setTimeout(function() {
-      setObsCanvasBackground();
-      if (isTouchDevice()) {
-        document.querySelectorAll('.teacher-pop.open, #teachingMethodPanel.open, #ironPromptPanel.open, #studyResourcesPanel.open, #obsNavigatorPanel.open, #obsCrossRefsPanel.open, .resource-instance-panel').forEach(keepPanelInView);
+      if (event.pointerId && handle.setPointerCapture) {
+        try { handle.setPointerCapture(event.pointerId); } catch (error) {}
       }
-    }, 100);
-  });
 
-  window.addEventListener('orientationchange', function() {
-    setTimeout(function() {
-      setObsCanvasBackground();
-      if (isTouchDevice()) {
-        document.querySelectorAll('.teacher-pop.open, #teachingMethodPanel.open, #ironPromptPanel.open, #studyResourcesPanel.open, #obsNavigatorPanel.open, #obsCrossRefsPanel.open, .resource-instance-panel').forEach(keepPanelInView);
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function move(event) {
+      if (!state) return;
+
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
+
+      const vw = viewportWidth();
+      const vh = viewportHeight();
+      const minWidth = Math.min(300, vw - 24);
+      const minHeight = 180;
+
+      const nextWidth = clamp(state.startWidth + point.clientX - state.startX, minWidth, Math.max(minWidth, vw - state.startLeft - 8));
+      const nextHeight = clamp(state.startHeight + point.clientY - state.startY, minHeight, Math.max(minHeight, vh - state.startTop - 8));
+
+      panel.style.width = nextWidth + "px";
+      panel.style.height = nextHeight + "px";
+      panel.style.maxHeight = "none";
+
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function end(event) {
+      if (!state) return;
+      state = null;
+      clampPanelIntoView(panel);
+
+      if (event && event.stopPropagation) event.stopPropagation();
+    }
+
+    handle.addEventListener("pointerdown", start, { passive: false });
+    handle.addEventListener("pointermove", move, { passive: false });
+    handle.addEventListener("pointerup", end, { passive: false });
+    handle.addEventListener("pointercancel", end, { passive: false });
+
+    handle.addEventListener("touchstart", start, { passive: false });
+    handle.addEventListener("touchmove", move, { passive: false });
+    handle.addEventListener("touchend", end, { passive: false });
+    handle.addEventListener("touchcancel", end, { passive: false });
+  }
+
+  function enhancePanel(panel) {
+    if (!panel) return;
+    if (!panel.matches || !panel.matches(getPanelSelector())) return;
+
+    installTouchDrag(panel);
+    installTouchResize(panel);
+
+    panel.addEventListener("pointerdown", function () {
+      bringToFront(panel);
+    }, { passive: true });
+
+    if (panelIsVisible(panel)) {
+      bringToFront(panel);
+      window.requestAnimationFrame(function () {
+        placePanelIfNeeded(panel);
+      });
+    }
+  }
+
+  function enhanceAllPanels() {
+    document.querySelectorAll(getPanelSelector()).forEach(enhancePanel);
+  }
+
+  const observer = new MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type === "childList") {
+        mutation.addedNodes.forEach(function (node) {
+          if (!node || node.nodeType !== 1) return;
+          if (node.matches && node.matches(getPanelSelector())) enhancePanel(node);
+          if (node.querySelectorAll) node.querySelectorAll(getPanelSelector()).forEach(enhancePanel);
+        });
       }
-    }, 280);
+
+      if (mutation.type === "attributes" && mutation.target && mutation.target.matches && mutation.target.matches(getPanelSelector())) {
+        enhancePanel(mutation.target);
+      }
+    }
   });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { init(); startObserver(); });
+  function start() {
+    enhanceAllPanels();
+
+    if (document.body) {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "style"]
+      });
+    }
+
+    window.addEventListener("resize", function () {
+      document.querySelectorAll(getPanelSelector()).forEach(clampPanelIntoView);
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", function () {
+        document.querySelectorAll(getPanelSelector()).forEach(clampPanelIntoView);
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
   } else {
-    init();
-    startObserver();
+    start();
   }
 })();
 </script>
