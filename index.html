@@ -8148,6 +8148,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
+    searchBox.focus({ preventScroll: true });
   });
 
   usePanelButton("openSmithsResource", async () => {
@@ -8206,6 +8207,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
+    searchBox.focus({ preventScroll: true });
   });
 
   usePanelButton("openNavesResource", async () => {
@@ -8279,6 +8281,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     searchBox.oninput = () => renderResults(searchBox.value);
+    searchBox.focus({ preventScroll: true });
   });
 
   usePanelButton("openTskResource", async () => {
@@ -8463,6 +8466,236 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    searchBox.focus({ preventScroll: true });
+  });
+})();
+</script>
+
+
+
+<!-- Patch 2B: Resource panel close + mobile drag repair only -->
+<style>
+/* Scope only to Study Resource instance panels. Does not change main PC panel styling. */
+.resource-instance-panel {
+  touch-action: auto;
+}
+
+.resource-instance-panel .teacher-pop-head,
+.resource-instance-panel .drag-handle {
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.resource-instance-panel .teacher-pop-close {
+  cursor: pointer;
+  touch-action: manipulation;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+}
+</style>
+<script>
+(function restoredDailyPatch2BResourceCloseAndDrag() {
+  let topZ = 90000;
+
+  function isResourcePanel(node) {
+    return node && node.classList && node.classList.contains("resource-instance-panel");
+  }
+
+  function bringForward(panel) {
+    if (!isResourcePanel(panel)) return;
+    topZ += 1;
+    panel.style.zIndex = String(topZ);
+  }
+
+  function closeResourcePanelFromEvent(event) {
+    const target = event.target;
+    if (!target || !target.closest) return;
+
+    const closeButton = target.closest(".resource-instance-panel .teacher-pop-close");
+    if (!closeButton) return;
+
+    const panel = closeButton.closest(".resource-instance-panel");
+    if (!panel) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === "function") {
+      event.stopImmediatePropagation();
+    }
+    panel.remove();
+  }
+
+  // Capture-phase close handling fixes desktop cases where another handler swallows the button click.
+  document.addEventListener("mousedown", closeResourcePanelFromEvent, true);
+  document.addEventListener("pointerup", closeResourcePanelFromEvent, true);
+  document.addEventListener("touchend", closeResourcePanelFromEvent, true);
+  document.addEventListener("click", closeResourcePanelFromEvent, true);
+
+  function getPointFromTouchEvent(event) {
+    const touch = (event.touches && event.touches[0]) || (event.changedTouches && event.changedTouches[0]);
+    return touch ? { x: touch.clientX, y: touch.clientY } : null;
+  }
+
+  function keepPanelInView(panel) {
+    if (!isResourcePanel(panel)) return;
+    const margin = 8;
+    const rect = panel.getBoundingClientRect();
+    const usableWidth = Math.max(260, window.innerWidth - margin * 2);
+    const usableHeight = Math.max(180, window.innerHeight - margin * 2);
+
+    const width = Math.min(rect.width || 420, usableWidth);
+    const height = Math.min(rect.height || 260, usableHeight);
+
+    let left = rect.left;
+    let top = rect.top;
+
+    if (left + width > window.innerWidth - margin) left = window.innerWidth - width - margin;
+    if (top + height > window.innerHeight - margin) top = window.innerHeight - height - margin;
+
+    left = Math.max(margin, left);
+    top = Math.max(margin, top);
+
+    panel.style.left = left + "px";
+    panel.style.top = top + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+  }
+
+  function installResourcePanelDrag(panel) {
+    if (!isResourcePanel(panel) || panel.dataset.patch2bDragReady === "true") return;
+    panel.dataset.patch2bDragReady = "true";
+
+    const handle = panel.querySelector(".teacher-pop-head") || panel.querySelector(".drag-handle");
+    if (!handle) return;
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+
+    function isInteractiveTarget(target) {
+      return !!(target && target.closest && target.closest("button, input, textarea, select, a, summary, details, [contenteditable='true']"));
+    }
+
+    function beginDrag(clientX, clientY, target, event) {
+      if (isInteractiveTarget(target)) return;
+      const rect = panel.getBoundingClientRect();
+      dragging = true;
+      startX = clientX;
+      startY = clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      startWidth = rect.width;
+      startHeight = rect.height;
+      bringForward(panel);
+      panel.classList.add("drag-positioned");
+      if (event && event.cancelable && typeof event.preventDefault === "function") event.preventDefault();
+    }
+
+    function moveDrag(clientX, clientY, event) {
+      if (!dragging) return;
+      const margin = 8;
+      const width = Math.min(startWidth || panel.getBoundingClientRect().width, window.innerWidth - margin * 2);
+      const height = Math.min(startHeight || panel.getBoundingClientRect().height, window.innerHeight - margin * 2);
+      const maxLeft = Math.max(margin, window.innerWidth - width - margin);
+      const maxTop = Math.max(margin, window.innerHeight - height - margin);
+
+      const left = Math.max(margin, Math.min(maxLeft, startLeft + clientX - startX));
+      const top = Math.max(margin, Math.min(maxTop, startTop + clientY - startY));
+
+      panel.style.left = left + "px";
+      panel.style.top = top + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+
+      if (event && event.cancelable && typeof event.preventDefault === "function") event.preventDefault();
+    }
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      keepPanelInView(panel);
+    }
+
+    handle.addEventListener("mousedown", function(event) {
+      if (event.button !== 0) return;
+      beginDrag(event.clientX, event.clientY, event.target, event);
+    });
+
+    handle.addEventListener("touchstart", function(event) {
+      const point = getPointFromTouchEvent(event);
+      if (!point) return;
+      beginDrag(point.x, point.y, event.target, event);
+    }, { passive: false });
+
+    // Use pointer only for mouse/pen so iPad touch gets the more reliable touch path above.
+    handle.addEventListener("pointerdown", function(event) {
+      if (event.pointerType === "touch") return;
+      if (event.button != null && event.button !== 0) return;
+      beginDrag(event.clientX, event.clientY, event.target, event);
+    });
+
+    panel.addEventListener("mousedown", function() { bringForward(panel); });
+    panel.addEventListener("pointerdown", function() { bringForward(panel); });
+    panel.addEventListener("touchstart", function() { bringForward(panel); }, { passive: true });
+
+    document.addEventListener("mousemove", function(event) {
+      moveDrag(event.clientX, event.clientY, event);
+    });
+    document.addEventListener("mouseup", endDrag);
+
+    document.addEventListener("touchmove", function(event) {
+      const point = getPointFromTouchEvent(event);
+      if (!point) return;
+      moveDrag(point.x, point.y, event);
+    }, { passive: false });
+    document.addEventListener("touchend", endDrag);
+    document.addEventListener("touchcancel", endDrag);
+
+    document.addEventListener("pointermove", function(event) {
+      if (event.pointerType === "touch") return;
+      moveDrag(event.clientX, event.clientY, event);
+    });
+    document.addEventListener("pointerup", endDrag);
+    document.addEventListener("pointercancel", endDrag);
+  }
+
+  function installAllResourcePanels() {
+    document.querySelectorAll(".resource-instance-panel").forEach(function(panel) {
+      installResourcePanelDrag(panel);
+    });
+  }
+
+  installAllResourcePanels();
+
+  const observer = new MutationObserver(function(mutations) {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (isResourcePanel(node)) {
+          installResourcePanelDrag(node);
+          bringForward(node);
+          keepPanelInView(node);
+        } else if (node && node.querySelectorAll) {
+          node.querySelectorAll(".resource-instance-panel").forEach(function(panel) {
+            installResourcePanelDrag(panel);
+            bringForward(panel);
+            keepPanelInView(panel);
+          });
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  window.addEventListener("resize", function() {
+    document.querySelectorAll(".resource-instance-panel").forEach(keepPanelInView);
   });
 })();
 </script>
