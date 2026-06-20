@@ -9350,5 +9350,299 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 }
 </style>
 
+
+
+<!-- Patch 5 — Auto-expanding note boxes + faithful presentation display
+     Scope: Teaching Notes, Cross References, Application & Prayer, Clip Notes.
+     Preserves existing PC/mobile panel behavior, study resources, copy tools, and navigation. -->
+<style id="patch-5-notes-display-autogrow-style">
+  textarea.note-autogrow-ready,
+  #teachingNotes,
+  #crossRefs,
+  #applicationNotes,
+  #clipNotes {
+    overflow: hidden !important;
+    min-height: 96px;
+  }
+
+  #teachingPresentationCard .presentation-card-inner,
+  #applicationPresentationCard .presentation-card-inner {
+    text-align: center !important;
+  }
+
+  #presentationCardText,
+  #applicationPresentationText {
+    display: block !important;
+    white-space: pre-wrap !important;
+    text-align: left !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: clamp(19px, 2.15vw, 30px) !important;
+    line-height: 1.48 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    max-width: 860px;
+    margin: 0 auto !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  #presentationCardTitle,
+  #applicationPresentationCard .presentation-card-inner h2 {
+    text-align: center !important;
+  }
+
+  .obs-crossrefs-full-note {
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 16px !important;
+    line-height: 1.58 !important;
+    font-weight: 500 !important;
+    padding: 12px 14px;
+    border: 1px solid rgba(215,168,79,.58);
+    border-radius: 12px;
+    background: rgba(255,255,255,.055);
+    margin-bottom: 12px;
+  }
+
+  .obs-crossrefs-ref-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .obs-crossrefs-ref-buttons .cross-ref-link {
+    width: auto !important;
+    margin-bottom: 0 !important;
+  }
+
+  body:not(.dark) .obs-crossrefs-full-note {
+    background: rgba(255,255,255,.58);
+    color: #2B394F;
+  }
+
+  body.dark .obs-crossrefs-full-note {
+    background: rgba(255,255,255,.055);
+    color: #F7F3EA;
+  }
+
+  @media (max-width: 650px) {
+    #presentationCardText,
+    #applicationPresentationText {
+      font-size: 20px !important;
+      line-height: 1.45 !important;
+    }
+
+    #teachingPresentationCard .presentation-card-inner,
+    #applicationPresentationCard .presentation-card-inner {
+      padding: 26px 22px !important;
+    }
+  }
+</style>
+
+<script id="patch-5-notes-display-autogrow-script">
+(function patchFiveNotesDisplayAndAutogrow() {
+  const NOTE_TEXTAREA_IDS = ["teachingNotes", "crossRefs", "applicationNotes", "clipNotes"];
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function preservePresentationText(value) {
+    return String(value || "")
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/[ \t]+$/gm, "")
+      .replace(/^\n+|\n+$/g, "");
+  }
+
+  function autoGrowTextarea(field) {
+    if (!field) return;
+    field.classList.add("note-autogrow-ready");
+    field.style.height = "auto";
+    const min = parseInt(window.getComputedStyle(field).minHeight, 10) || 96;
+    field.style.height = Math.max(min, field.scrollHeight + 2) + "px";
+  }
+
+  function autoGrowAllNoteFields() {
+    NOTE_TEXTAREA_IDS.forEach(id => autoGrowTextarea(get(id)));
+  }
+
+  function showTeachingPresentationPatched(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    const textarea = get("teachingNotes");
+    const card = get("teachingPresentationCard");
+    const textHolder = get("presentationCardText");
+    const title = get("presentationCardTitle");
+
+    if (!textarea || !card || !textHolder) return;
+
+    const note = preservePresentationText(textarea.value);
+    if (!note.trim()) return;
+
+    if (title) title.textContent = "Teaching Note";
+    textHolder.textContent = note;
+    card.classList.add("open");
+    card.setAttribute("aria-hidden", "false");
+  }
+
+  function showApplicationPresentationPatched(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    const textarea = get("applicationNotes");
+    const card = get("applicationPresentationCard");
+    const textHolder = get("applicationPresentationText");
+
+    if (!textarea || !card || !textHolder) return;
+
+    const note = preservePresentationText(textarea.value);
+    if (!note.trim()) return;
+
+    textHolder.textContent = note;
+    card.classList.add("open");
+    card.setAttribute("aria-hidden", "false");
+  }
+
+  function renderPersonalCrossReferencesPanel(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    const panel = get("obsCrossRefsPanel");
+    const content = get("obsCrossRefsContent");
+    const crossRefs = get("crossRefs");
+    const obsBackBtn = get("obsBackToPreviousPassage");
+    const title = get("obsCrossRefsTitle");
+
+    if (!panel || !content || !crossRefs) return;
+
+    if (title) title.textContent = "Personal Cross References";
+
+    const rawText = preservePresentationText(crossRefs.value);
+    const refs = (typeof parseScriptureReferences === "function")
+      ? parseScriptureReferences(rawText)
+      : [];
+
+    if (!rawText.trim()) {
+      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No personal cross references added yet.</p>`;
+    } else {
+      content.innerHTML = `
+        <div class="obs-crossrefs-full-note">${escapeHtml(rawText)}</div>
+        ${refs.length ? `
+          <div class="obs-crossrefs-ref-buttons" aria-label="Detected Scripture references">
+            ${refs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join("")}
+          </div>
+        ` : ""}
+      `;
+    }
+
+    content.querySelectorAll(".cross-ref-link").forEach(btn => {
+      btn.onclick = () => {
+        if (typeof goToScriptureReference === "function") {
+          goToScriptureReference(btn.dataset.ref);
+        }
+        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+        panel.style.display = "";
+        panel.classList.add("open");
+      };
+    });
+
+    if (obsBackBtn) {
+      obsBackBtn.style.display = (typeof previousPassageState !== "undefined" && previousPassageState) ? "inline-flex" : "none";
+    }
+
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+
+    try {
+      if (typeof activeResourcePanel !== "undefined") activeResourcePanel = "personalCrossRefs";
+    } catch (error) {}
+  }
+
+  function installClickOverrides() {
+    document.addEventListener("click", function(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      if (button.id === "showTeachingNote" || button.id === "obsShowTeachingNote") {
+        showTeachingPresentationPatched(event);
+      }
+
+      if (button.id === "showApplicationNote" || button.id === "obsShowApplicationNote") {
+        showApplicationPresentationPatched(event);
+      }
+
+      if (button.id === "obsShowCrossRefs") {
+        renderPersonalCrossReferencesPanel(event);
+      }
+    }, true);
+
+    const showTeaching = get("showTeachingNote");
+    const obsTeaching = get("obsShowTeachingNote");
+    const showApplication = get("showApplicationNote");
+    const obsApplication = get("obsShowApplicationNote");
+    const obsCrossRefs = get("obsShowCrossRefs");
+
+    if (showTeaching) showTeaching.onclick = showTeachingPresentationPatched;
+    if (obsTeaching) obsTeaching.onclick = showTeachingPresentationPatched;
+    if (showApplication) showApplication.onclick = showApplicationPresentationPatched;
+    if (obsApplication) obsApplication.onclick = showApplicationPresentationPatched;
+    if (obsCrossRefs) obsCrossRefs.onclick = renderPersonalCrossReferencesPanel;
+  }
+
+  function init() {
+    NOTE_TEXTAREA_IDS.forEach(id => {
+      const field = get(id);
+      if (!field) return;
+
+      autoGrowTextarea(field);
+
+      field.addEventListener("input", () => autoGrowTextarea(field));
+      field.addEventListener("change", () => autoGrowTextarea(field));
+      field.addEventListener("blur", () => autoGrowTextarea(field));
+    });
+
+    installClickOverrides();
+
+    // Re-size after saved notes, passage changes, font loading, and browser layout settling.
+    autoGrowAllNoteFields();
+    setTimeout(autoGrowAllNoteFields, 80);
+    setTimeout(autoGrowAllNoteFields, 350);
+    setTimeout(autoGrowAllNoteFields, 1000);
+
+    window.addEventListener("resize", () => setTimeout(autoGrowAllNoteFields, 80));
+    window.addEventListener("orientationchange", () => setTimeout(autoGrowAllNoteFields, 250));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  window.ironSharpenerAutoGrowNotes = autoGrowAllNoteFields;
+})();
+</script>
+
 </body>
 </html>
