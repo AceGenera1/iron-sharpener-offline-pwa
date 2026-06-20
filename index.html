@@ -8700,5 +8700,37 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 
+
+<!-- Patch 2D: I.R.O.N. panel dark green only in OBS dark mode -->
+<style>
+/* Scope: only the I.R.O.N. panel in OBS Focus while dark mode is active.
+   This intentionally does not change the OBS page background, Scripture area,
+   study resource panels, Teaching Method panel, or cross-reference panel. */
+html.obs body.dark #ironPromptPanel,
+html.obs body.dark #ironPromptPanel.open {
+  background: linear-gradient(180deg, #355A54 0%, #294843 100%) !important;
+  background-color: #294843 !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.82) !important;
+}
+
+html.obs body.dark #ironPromptPanel h3 {
+  color: #FFE08C !important;
+  border-bottom-color: rgba(248,217,135,.78) !important;
+}
+
+html.obs body.dark #ironPromptPanel p,
+html.obs body.dark #ironPromptPanel li,
+html.obs body.dark #ironPromptPanel strong {
+  color: #F7F3EA !important;
+}
+
+html.obs body.dark #ironPromptPanel .iron-mini-prayer {
+  background: rgba(248,217,135,.12) !important;
+  color: #FFF0BF !important;
+  border-color: rgba(248,217,135,.70) !important;
+}
+</style>
+
 </body>
 </html>
