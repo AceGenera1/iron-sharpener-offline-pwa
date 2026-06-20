@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#102F22" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Iron Sharpener | Scripture Study & Teaching Tool</title>
   <link rel="manifest" href="./manifest.json">
   <style>
@@ -1813,74 +1811,86 @@ body:not(.dark) #showApplicationNote:hover {
 
 
 
-/* Patch 1B — Mobile/iPad Overscroll Backplate Only
-   Purpose: eliminate white flash/gap above and below the tool during mobile rubber-band scrolling.
-   Scope: root/mobile viewport backgrounds only. Does not touch panel behavior, study resources, drag/resize, copy tools, or PC layouts. */
-:root {
-  --et-forest: #102F22;
-  --et-forest-deep: #071B14;
-  --et-forest-soft: #173F2D;
-}
-
-/* iOS/Safari uses the root canvas color during pull-down/push-up overscroll.
-   Setting html globally does not change the visible PC layout because body/shell still paint over it. */
-html {
-  background-color: var(--et-forest) !important;
-}
-
-@media (hover: none) and (pointer: coarse), (max-width: 1050px) {
-  html {
+/* =========================================================
+   PATCH 1C — Mobile Seamless Screen Fit / No Dark Backdrop
+   Scope: mobile/tablet/touch visual canvas only.
+   Purpose: stop iPad/iPhone/Android overscroll from showing white
+   or dark/green backing behind the Iron Sharpener tool.
+   This does not change PC panels, study resources, drag/resize,
+   copy tools, or Scripture loading.
+   ========================================================= */
+@media (max-width: 1050px), (pointer: coarse) {
+  html,
+  body {
+    width: 100%;
+    min-width: 100%;
     min-height: 100%;
-    min-height: -webkit-fill-available;
-    background-color: var(--et-forest) !important;
-    background-image: linear-gradient(180deg, var(--et-forest-deep), var(--et-forest), var(--et-forest-soft)) !important;
+    margin: 0 !important;
     overflow-x: hidden !important;
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: none;
+    background: linear-gradient(180deg, #fff9ec 0%, #fff2d5 100%) !important;
+    background-color: #fff9ec !important;
   }
 
   body {
     min-height: 100vh;
     min-height: 100svh;
     min-height: 100dvh;
-    min-height: -webkit-fill-available;
-    background-color: var(--et-forest) !important;
-    background-image: linear-gradient(180deg, var(--et-forest-deep), var(--et-forest), var(--et-forest-soft)) !important;
-    background-attachment: fixed !important;
-    overflow-x: hidden !important;
-  }
-
-  /* Fixed backplate extends beyond the viewport so iPad/iPhone rubber-band bounce never exposes white. */
-  body::before {
-    content: "";
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: -120vh;
-    bottom: -120vh;
-    z-index: -2147483647;
-    pointer-events: none;
-    background: linear-gradient(180deg, var(--et-forest-deep), var(--et-forest), var(--et-forest-soft)) !important;
   }
 
   .shell {
     min-height: 100vh;
     min-height: 100svh;
     min-height: 100dvh;
-    min-height: -webkit-fill-available;
+    background: #fff9ec !important;
   }
 
+  .layout {
+    background: linear-gradient(180deg, #fff9ec 0%, #fff2d5 100%) !important;
+  }
+
+  body.dark,
+  body.dark .shell,
+  body.dark .layout {
+    background: #07172b !important;
+    background-color: #07172b !important;
+  }
+
+  body:not(.dark) .shell {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 650px), (pointer: coarse) and (max-width: 1050px) {
+  body {
+    padding: 0 !important;
+  }
+
+  .shell {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+@media (max-width: 1050px), (pointer: coarse) {
   html.obs,
   html.obs body {
-    min-height: 100vh;
-    min-height: 100svh;
+    min-height: 100%;
     min-height: 100dvh;
-    background-color: var(--et-forest) !important;
-    background-image: linear-gradient(180deg, var(--et-forest-deep), var(--et-forest), var(--et-forest-soft)) !important;
+    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: none;
   }
 
-  html.obs .shell {
-    min-height: 100vh;
-    min-height: 100svh;
-    min-height: 100dvh;
+  html.obs body.dark,
+  html.obs body.dark .shell,
+  html.obs body.dark .layout {
+    background: #07172b !important;
+    background-color: #07172b !important;
   }
 }
 
