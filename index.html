@@ -1809,282 +1809,6 @@ body:not(.dark) #showApplicationNote:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
 }
 
-
-
-/* Iron Sharpener targeted fixes: copy shortcuts, preserved notes, auto-grow, status */
-.copy-tools-grid { margin-bottom: 0; }
-
-.copy-status,
-.connection-status {
-  min-height: 18px;
-  margin-top: 2px;
-  text-align: center;
-  font: 900 12px Arial, sans-serif;
-  color: #8c5b09;
-  letter-spacing: .2px;
-}
-
-.copy-status.is-visible {
-  padding: 6px 8px;
-  border: 1px solid rgba(215,168,79,.45);
-  border-radius: 8px;
-  background: rgba(248,217,135,.16);
-}
-
-.connection-status {
-  padding: 7px 8px;
-  border: 1px solid rgba(215,168,79,.35);
-  border-radius: 8px;
-  background: rgba(255,255,255,.38);
-}
-
-.connection-status.offline { background: rgba(225,95,95,.10); }
-
-body.dark .copy-status,
-body.dark .connection-status { color: #ffe08c; }
-
-body.dark .copy-status.is-visible,
-body.dark .connection-status {
-  background: rgba(248,217,135,.10);
-  border-color: rgba(248,217,135,.45);
-}
-
-textarea.auto-grow-ready { overflow: hidden; }
-
-.cross-ref-manual-text {
-  white-space: pre-wrap;
-  margin: 10px 0 12px;
-  padding: 12px;
-  border-left: 4px solid var(--gold);
-  border-radius: 10px;
-  background: rgba(248,217,135,.14);
-  font: 800 14px Arial, sans-serif;
-  line-height: 1.55;
-}
-
-.obs-cross-ref-buttons { margin-top: 12px; }
-
-.presentation-card-inner p { white-space: pre-wrap !important; }
-
-
-/* Restored Daily Ministries — PC-safe mobile/iPad OBS layer
-   Scope: only active on touch devices via html.rdm-touch, so desktop panel behavior stays original. */
-html.rdm-touch,
-html.rdm-touch body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-html.obs.rdm-touch,
-html.obs.rdm-touch body {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #061526 !important;
-}
-
-html.obs.rdm-touch .shell {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #061526 !important;
-}
-
-html.obs.rdm-touch .layout {
-  min-height: calc(100vh - 180px);
-  min-height: calc(100dvh - 180px);
-  background: #153f38 !important;
-}
-
-html.obs.rdm-touch .scripture {
-  min-height: calc(100vh - 180px);
-  min-height: calc(100dvh - 180px);
-  padding-bottom: 96px !important;
-  background: linear-gradient(180deg, #315e56, #1f4b43) !important;
-}
-
-html.obs.rdm-touch .footer {
-  display: none !important;
-}
-
-html.obs.rdm-touch .teacher-pop.open,
-html.obs.rdm-touch #ironPromptPanel.open,
-html.obs.rdm-touch #teachingMethodPanel.open,
-html.obs.rdm-touch #studyResourcesPanel.open {
-  resize: none !important;
-  width: min(54vw, 560px) !important;
-  max-width: calc(100vw - 24px) !important;
-  min-width: min(320px, calc(100vw - 24px)) !important;
-  max-height: 62vh !important;
-  max-height: 62dvh !important;
-  overflow: auto !important;
-  left: auto !important;
-  right: 12px !important;
-  top: 112px !important;
-  bottom: auto !important;
-  transform: none !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-html.obs.rdm-touch #obsCrossRefsPanel.open {
-  resize: none !important;
-  width: min(54vw, 560px) !important;
-  max-width: calc(100vw - 24px) !important;
-  min-width: min(320px, calc(100vw - 24px)) !important;
-  max-height: 58vh !important;
-  max-height: 58dvh !important;
-  overflow: auto !important;
-  left: auto !important;
-  right: 12px !important;
-  top: 112px !important;
-  bottom: auto !important;
-  transform: none !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-html.obs.rdm-touch .resource-instance-panel {
-  resize: none !important;
-  width: min(54vw, 560px) !important;
-  max-width: calc(100vw - 24px) !important;
-  min-width: min(300px, calc(100vw - 24px)) !important;
-  min-height: 190px !important;
-  max-height: 62vh !important;
-  max-height: 62dvh !important;
-  overflow: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-html.obs.rdm-touch .teacher-pop.drag-positioned,
-html.obs.rdm-touch #ironPromptPanel.open.drag-positioned,
-html.obs.rdm-touch #teachingMethodPanel.open.drag-positioned,
-html.obs.rdm-touch #studyResourcesPanel.open.drag-positioned,
-html.obs.rdm-touch #obsCrossRefsPanel.open.drag-positioned,
-html.obs.rdm-touch .resource-instance-panel.drag-positioned {
-  left: var(--drag-left) !important;
-  top: var(--drag-top) !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-
-html.obs.rdm-touch .teacher-pop-head,
-html.obs.rdm-touch .floating-panel-head,
-html.obs.rdm-touch .floating-crossrefs-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  margin: -18px -18px 14px;
-  padding: 12px 18px 10px;
-  border-bottom: 1px solid var(--gold);
-  background: inherit !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-  cursor: move;
-  touch-action: none;
-}
-
-html.obs.rdm-touch #obsCrossRefsPanel .floating-crossrefs-header {
-  margin: -12px -12px 12px;
-  padding: 10px 12px;
-}
-
-html.obs.rdm-touch .teacher-pop-head::before,
-html.obs.rdm-touch .floating-panel-head::before,
-html.obs.rdm-touch .floating-crossrefs-header::before,
-html.obs.rdm-touch .teacher-pop-head::after,
-html.obs.rdm-touch .floating-panel-head::after,
-html.obs.rdm-touch .floating-crossrefs-header::after {
-  display: none !important;
-  content: none !important;
-}
-
-html.obs.rdm-touch .mobile-panel-resize-handle {
-  position: sticky;
-  float: right;
-  bottom: 8px;
-  right: 8px;
-  width: 34px;
-  height: 34px;
-  margin: 12px 0 0 auto;
-  border: 2px solid var(--gold);
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, transparent 0 48%, rgba(248,217,135,.85) 49% 54%, transparent 55%),
-    linear-gradient(135deg, transparent 0 64%, rgba(248,217,135,.85) 65% 70%, transparent 71%);
-  touch-action: none;
-  cursor: nwse-resize;
-  z-index: 30;
-}
-
-html.obs.rdm-touch #teachingPresentationCard .presentation-card-inner,
-html.obs.rdm-touch #applicationPresentationCard .presentation-card-inner {
-  width: min(760px, calc(100vw - 32px)) !important;
-  max-width: calc(100vw - 32px) !important;
-  max-height: 76vh !important;
-  max-height: 76dvh !important;
-  padding: clamp(20px, 3vw, 34px) !important;
-  text-align: left !important;
-}
-
-html.obs.rdm-touch #teachingPresentationCard .presentation-card-inner h2,
-html.obs.rdm-touch #applicationPresentationCard .presentation-card-inner h2 {
-  text-align: center !important;
-  font-size: clamp(32px, 5vw, 58px) !important;
-  line-height: 1.08 !important;
-}
-
-html.obs.rdm-touch #presentationCardText,
-html.obs.rdm-touch #applicationPresentationText {
-  display: block;
-  text-align: left !important;
-  white-space: pre-wrap !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-  hyphens: none !important;
-  font-size: clamp(18px, 2.4vw, 29px) !important;
-  line-height: 1.48 !important;
-}
-
-html.obs.rdm-touch #obsCrossRefsContent .cross-ref-manual-text {
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 12px 0 !important;
-  font-size: clamp(15px, 2.2vw, 19px) !important;
-  line-height: 1.55 !important;
-  box-shadow: none !important;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-html.obs.rdm-touch #obsCrossRefsContent h4:first-child {
-  display: none !important;
-}
-
-@media (max-width: 700px) {
-  html.obs.rdm-touch .teacher-pop.open,
-  html.obs.rdm-touch #ironPromptPanel.open,
-  html.obs.rdm-touch #teachingMethodPanel.open,
-  html.obs.rdm-touch #studyResourcesPanel.open,
-  html.obs.rdm-touch #obsCrossRefsPanel.open,
-  html.obs.rdm-touch .resource-instance-panel {
-    width: calc(100vw - 20px) !important;
-    max-width: calc(100vw - 20px) !important;
-    left: 10px !important;
-    right: auto !important;
-    top: 92px !important;
-    max-height: 62vh !important;
-    max-height: 62dvh !important;
-  }
-
-  html.obs.rdm-touch .verse {
-    font-size: 26px !important;
-    line-height: 1.55 !important;
-  }
-
-  html.obs.rdm-touch .scripture {
-    padding: 28px 22px 92px !important;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -2168,15 +1892,10 @@ html.obs.rdm-touch #obsCrossRefsContent h4:first-child {
           <div class="teacher-tools-box">
             <button id="openTeacherTools">Open Teacher Tools</button>
             <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
-            <div class="tool-grid copy-tools-grid">
-              <button id="copyVerseShortcut" class="secondary" type="button">Copy Verse</button>
-              <button id="copySelectedVerses" class="secondary" type="button">Copy Selected Verses</button>
-            </div>
             <div class="tool-grid">
               <button id="clearMarks" class="secondary">Clear Marks</button>
               <button id="copyPassage" class="secondary">Copy Passage</button>
             </div>
-            <div id="copyStatus" class="copy-status" aria-live="polite"></div>
           </div>
         </div>
 
@@ -3798,7 +3517,7 @@ html.obs.rdm-touch #obsCrossRefsContent h4:first-child {
     }
     
     function showApplicationPresentation() {
-      const note = preserveNoteText($("applicationNotes")?.value || "");
+      const note = cleanText($("applicationNotes")?.value || "");
       if (!note) return;
       $("applicationPresentationText").textContent = note;
       $("applicationPresentationCard").classList.add("open");
@@ -3857,111 +3576,7 @@ function showSmallTeachingNoteBox() {
     }
 
     function passageKey() {
-      return chapterMarksKey();
-    }
-
-    function chapterMarksKey(book = bookSel.value, chapter = chapSel.value) {
-      return `${storagePrefix}.marks.${book}.${chapter}.chapter`;
-    }
-
-    function legacyMarksPrefix(book = bookSel.value, chapter = chapSel.value) {
-      return `${storagePrefix}.marks.${book}.${chapter}.`;
-    }
-
-    function blankMarks() {
-      return { highlights: {}, underlined: [], circled: [], boxed: [], inlineHtml: {}, pointed: "", focused: [] };
-    }
-
-    function uniqueStrings(values) {
-      return [...new Set((values || []).map(value => String(value)))];
-    }
-
-    function normalizeMarks(marks) {
-      const normalized = blankMarks();
-      if (!marks || typeof marks !== "object") return normalized;
-
-      Object.entries(marks.highlights || {}).forEach(([verse, cls]) => {
-        if (verse && cls) normalized.highlights[String(verse)] = cls;
-      });
-
-      (marks.highlighted || []).forEach((verse) => {
-        const v = String(verse);
-        if (!normalized.highlights[v]) normalized.highlights[v] = "highlight-gold";
-      });
-
-      normalized.underlined = uniqueStrings(marks.underlined);
-      normalized.circled = uniqueStrings(marks.circled);
-      normalized.boxed = uniqueStrings(marks.boxed);
-      normalized.focused = uniqueStrings(Array.isArray(marks.focused) ? marks.focused : (marks.focused ? [marks.focused] : []));
-
-      Object.entries(marks.inlineHtml || {}).forEach(([verse, value]) => {
-        normalized.inlineHtml[String(verse)] = value;
-      });
-
-      normalized.pointed = marks.pointed ? String(marks.pointed) : "";
-      return normalized;
-    }
-
-    function mergeMarks(base, extra) {
-      const merged = normalizeMarks(base);
-      const incoming = normalizeMarks(extra);
-      Object.assign(merged.highlights, incoming.highlights);
-      Object.assign(merged.inlineHtml, incoming.inlineHtml);
-
-      ["underlined", "circled", "boxed", "focused"].forEach((key) => {
-        merged[key] = uniqueStrings([...(merged[key] || []), ...(incoming[key] || [])]);
-      });
-
-      if (incoming.pointed) merged.pointed = incoming.pointed;
-      return merged;
-    }
-
-    function visibleVerseNumbers() {
-      return Array.from(document.querySelectorAll(".verse[data-v]")).map((verse) => String(verse.dataset.v));
-    }
-
-    function removeMarksForVerses(marks, verseNumbers) {
-      const cleaned = normalizeMarks(marks);
-      const removeSet = new Set((verseNumbers || []).map(String));
-
-      Object.keys(cleaned.highlights).forEach((verse) => {
-        if (removeSet.has(String(verse))) delete cleaned.highlights[verse];
-      });
-
-      Object.keys(cleaned.inlineHtml).forEach((verse) => {
-        if (removeSet.has(String(verse))) delete cleaned.inlineHtml[verse];
-      });
-
-      ["underlined", "circled", "boxed", "focused"].forEach((key) => {
-        cleaned[key] = (cleaned[key] || []).filter((verse) => !removeSet.has(String(verse)));
-      });
-
-      if (removeSet.has(String(cleaned.pointed))) cleaned.pointed = "";
-      return cleaned;
-    }
-
-    function loadMarksForCurrentChapter() {
-      let merged = blankMarks();
-      const prefix = legacyMarksPrefix();
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith(prefix)) continue;
-
-        try {
-          merged = mergeMarks(merged, JSON.parse(localStorage.getItem(key) || "{}"));
-        } catch (error) {
-          console.warn("Could not read saved marks:", key, error);
-        }
-      }
-
-      try {
-        merged = mergeMarks(merged, JSON.parse(localStorage.getItem(chapterMarksKey()) || "{}"));
-      } catch (error) {
-        console.warn("Could not read chapter marks:", error);
-      }
-
-      return merged;
+      return `${storagePrefix}.marks.${bookSel.value}.${chapSel.value}.${startSel.value}-${endSel.value}`;
     }
 
     function getCurrentMarks() {
@@ -3997,25 +3612,23 @@ function showSmallTeachingNoteBox() {
     }
 
     function saveMarks() {
-      const visible = visibleVerseNumbers();
-      const existing = loadMarksForCurrentChapter();
-      const visibleCleared = removeMarksForVerses(existing, visible);
-      const currentVisibleMarks = getCurrentMarks();
-      const merged = mergeMarks(visibleCleared, currentVisibleMarks);
-      localStorage.setItem(chapterMarksKey(), JSON.stringify(merged));
+      localStorage.setItem(passageKey(), JSON.stringify(getCurrentMarks()));
     }
 
     function restoreMarks() {
-      const saved = loadMarksForCurrentChapter();
+      const saved = JSON.parse(localStorage.getItem(passageKey()) || "{}");
+      const oldHighlighted = saved.highlighted || [];
 
       document.querySelectorAll(".verse").forEach((verse) => {
-        const v = String(verse.dataset.v);
+        const v = verse.dataset.v;
 
         if (saved.highlights && saved.highlights[v]) {
           verse.classList.add(saved.highlights[v]);
           if (saved.highlights[v] === "highlight-gold") {
             verse.classList.add("highlighted");
           }
+        } else if (oldHighlighted.includes(v)) {
+          verse.classList.add("highlighted", "highlight-gold");
         }
 
         if ((saved.underlined || []).includes(v)) verse.classList.add("underlined");
@@ -4327,19 +3940,6 @@ function setupObsNavigator() {
       return (text || "").replace(/\s+/g, " ").trim();
     }
 
-    function preserveNoteText(text) {
-      return (text || "").replace(/\r\n/g, "\n").trim();
-    }
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
     function getSelectionRangeInsideVerse(verse) {
       const selection = window.getSelection();
 
@@ -4536,97 +4136,23 @@ async function loadPassage() {
     `;
   }
 }
-    function moveToAdjacentChapter(direction) {
-      const currentBookIndex = books.findIndex(([name]) => name === bookSel.value);
-      if (currentBookIndex < 0) return false;
-
-      let nextBookIndex = currentBookIndex;
-      let nextChapter = parseInt(chapSel.value, 10) || 1;
-      const currentBookChapterCount = books[currentBookIndex][1];
-
-      if (direction > 0) {
-        if (nextChapter < currentBookChapterCount) {
-          nextChapter += 1;
-        } else if (currentBookIndex < books.length - 1) {
-          nextBookIndex += 1;
-          nextChapter = 1;
-        } else {
-          return false;
-        }
-      } else {
-        if (nextChapter > 1) {
-          nextChapter -= 1;
-        } else if (currentBookIndex > 0) {
-          nextBookIndex -= 1;
-          nextChapter = books[nextBookIndex][1];
-        } else {
-          return false;
-        }
-      }
-
-      saveCurrentNotes();
-
-      bookSel.value = books[nextBookIndex][0];
-      fillChapters();
-      chapSel.value = String(nextChapter);
-      fillVerses();
-
-      const max = verseMax();
-
-      if (rangeSel.value === "full") {
-        startSel.value = "1";
-        endSel.value = String(max);
-      } else if (direction > 0) {
-        startSel.value = "1";
-        updateEndFromRange();
-      } else {
-        const size = parseInt(rangeSel.value, 10) || 5;
-        const lastStart = Math.max(1, Math.floor((max - 1) / size) * size + 1);
-        startSel.value = String(lastStart);
-        endSel.value = String(max);
-      }
-
-      loadPassage();
-      syncObsNavigator();
-      return true;
-    }
-
     function shiftRange(direction) {
-      saveCurrentNotes();
-
       const max = verseMax();
-      const isFullChapter = rangeSel.value === "full";
-      const size = isFullChapter ? max : (parseInt(rangeSel.value, 10) || 5);
+      const size = rangeSel.value === "full" ? max : (parseInt(rangeSel.value, 10) || 5);
       let startVerse = parseInt(startSel.value, 10) || 1;
       let endVerse = parseInt(endSel.value, 10) || size;
 
-      if (isFullChapter) {
-        moveToAdjacentChapter(direction);
-        return;
-      }
-
       if (direction > 0) {
-        if (endVerse >= max) {
-          moveToAdjacentChapter(1);
-          return;
-        }
-
         startVerse = Math.min(max, endVerse + 1);
         endVerse = Math.min(max, startVerse + size - 1);
       } else {
-        if (startVerse <= 1) {
-          moveToAdjacentChapter(-1);
-          return;
-        }
-
         startVerse = Math.max(1, startVerse - size);
         endVerse = Math.min(max, startVerse + size - 1);
       }
 
-      startSel.value = String(startVerse);
-      endSel.value = String(endVerse);
+      startSel.value = startVerse;
+      endSel.value = endVerse;
       loadPassage();
-      syncObsNavigator();
     }
 
     function closeAllFloatingPanelsForModeChange() {
@@ -4723,60 +4249,6 @@ async function loadPassage() {
       if (status) status.textContent = text || "Notes save per selected passage.";
     }
 
-    function autoGrowTextarea(field) {
-      if (!field) return;
-      field.classList.add("auto-grow-ready");
-      field.style.height = "auto";
-      field.style.height = Math.max(field.scrollHeight, 96) + "px";
-    }
-
-    function refreshAutoGrowTextareas() {
-      noteIds().forEach((id) => autoGrowTextarea($(id)));
-    }
-
-    function initAutoGrowTextareas() {
-      noteIds().forEach((id) => {
-        const field = $(id);
-        if (!field || field.dataset.autoGrowBound === "true") return;
-
-        field.dataset.autoGrowBound = "true";
-        field.addEventListener("input", () => autoGrowTextarea(field));
-        autoGrowTextarea(field);
-      });
-    }
-
-    function ensureConnectionStatus() {
-      let status = $("connectionStatus");
-      if (status) return status;
-
-      const box = document.querySelector(".teacher-tools-box");
-      if (!box) return null;
-
-      status = document.createElement("div");
-      status.id = "connectionStatus";
-      status.className = "connection-status";
-      status.setAttribute("aria-live", "polite");
-      box.appendChild(status);
-      return status;
-    }
-
-    function updateConnectionStatus() {
-      const status = ensureConnectionStatus();
-      if (!status) return;
-
-      const online = navigator.onLine !== false;
-      status.classList.toggle("offline", !online);
-      status.textContent = online
-        ? "Online — using local browser notes"
-        : "Offline — using saved browser notes";
-    }
-
-    function initConnectionStatus() {
-      updateConnectionStatus();
-      window.addEventListener("online", updateConnectionStatus);
-      window.addEventListener("offline", updateConnectionStatus);
-    }
-
     function saveNotesToKey(baseKey) {
       if (!baseKey) return;
       noteIds().forEach((id) => {
@@ -4808,7 +4280,6 @@ async function loadPassage() {
       });
 
       updateNotesSaveStatus(`Notes for ${currentRef()}`);
-      setTimeout(refreshAutoGrowTextareas, 0);
 
       setTimeout(renderCrossReferenceLinks, 0);
     }
@@ -5554,261 +5025,51 @@ async function openRelatedDoctrineTopic(topicName) {
     }
 
     function clearMarks() {
-      const visible = visibleVerseNumbers();
       scriptureBox.classList.remove("focus-mode");
-
       document.querySelectorAll(".verse").forEach((verse) => {
         verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "pointed", "focused", "underlined", "circled", "boxed");
         removeInlineMarksFromVerse(verse);
       });
-
-      const existing = loadMarksForCurrentChapter();
-      const cleaned = removeMarksForVerses(existing, visible);
-      localStorage.setItem(chapterMarksKey(), JSON.stringify(cleaned));
+      localStorage.removeItem(passageKey());
     }
 
-    function fallbackCopyText(text) {
-      const helper = document.createElement("textarea");
-      helper.value = text;
-      helper.setAttribute("readonly", "");
-      helper.style.position = "fixed";
-      helper.style.left = "-9999px";
-      document.body.appendChild(helper);
-      helper.select();
-
-      try {
-        document.execCommand("copy");
-      } finally {
-        helper.remove();
-      }
-    }
-
-    async function writeClipboardText(text) {
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          fallbackCopyText(text);
-        }
-        return true;
-      } catch (error) {
-        console.warn("Clipboard API failed; using fallback copy.", error);
-        try {
-          fallbackCopyText(text);
-          return true;
-        } catch (fallbackError) {
-          console.warn("Fallback copy failed.", fallbackError);
-          return false;
-        }
-      }
-    }
-
-    function showCopyStatus(message) {
-      const status = $("copyStatus");
-      if (!status) return;
-
-      status.textContent = message || "Copied.";
-      status.classList.add("is-visible");
-
-      clearTimeout(showCopyStatus.timer);
-      showCopyStatus.timer = setTimeout(() => {
-        status.textContent = "";
-        status.classList.remove("is-visible");
-      }, 2200);
-    }
-
-    async function copyPassageText() {
-      const visibleVerses = getVisibleVerseElementsForCopy();
-
-      if (!visibleVerses.length) {
-        showCopyStatus("No visible verses to copy.");
-        return;
-      }
-
-      const copiedText = formatVersesAsPassage(visibleVerses);
-      const ok = await writeClipboardText(copiedText);
+    function copyPassageText() {
+      const text = Array.from(document.querySelectorAll(".verse")).map((verse) => verse.innerText).join("\n");
+      navigator.clipboard.writeText(`${refTitle.innerText}\n${text}`);
 
       if ($("copyPassage")) {
-        $("copyPassage").textContent = ok ? "Copied" : "Copy Failed";
+        $("copyPassage").textContent = "Copied";
         setTimeout(() => $("copyPassage").textContent = "Copy Passage", 1200);
       }
-
-      showCopyStatus(ok ? `${getReferenceForVerses(visibleVerses)} copied.` : "Copy failed. Try again.");
-    }
-
-    function getVisibleVerseElementsForCopy() {
-      return uniqueVerseElements(Array.from(document.querySelectorAll(".verse[data-v]")));
     }
 
     function getVersePlainText(verse) {
-      if (!verse) return "";
+  if (!verse) return "";
 
-      const clone = verse.cloneNode(true);
-      clone.querySelectorAll(".vnum").forEach(el => el.remove());
+  const clone = verse.cloneNode(true);
 
-      return cleanText(clone.textContent || "");
-    }
+  clone.querySelectorAll(".vnum").forEach(el => el.remove());
 
-    function getVerseNumber(verse) {
-      return parseInt(verse?.dataset?.v || "0", 10);
-    }
+  return cleanText(clone.textContent || "");
+}
 
-    function getVerseLineForCopy(verse) {
-      const verseNumber = verse?.dataset?.v || "";
-      const verseText = getVersePlainText(verse);
-      return `${verseNumber} ${verseText}`.trim();
-    }
+function copySingleVerse(verse) {
+  if (!verse) return;
 
-    function formatVerseRangesForCopy(numbers) {
-      const sorted = Array.from(new Set((numbers || [])
-        .map((value) => parseInt(value, 10))
-        .filter((value) => Number.isFinite(value))))
-        .sort((a, b) => a - b);
+  const verseNumber = verse.dataset.v;
+  const verseText = getVersePlainText(verse);
+  const reference = `${bookSel.value} ${chapSel.value}:${verseNumber}`;
+  const copiedText = `${reference} — ${verseText} (WEB)`;
 
-      if (!sorted.length) return "";
+  navigator.clipboard.writeText(copiedText);
 
-      const ranges = [];
-      let start = sorted[0];
-      let previous = sorted[0];
+const label = $("activeToolLabel");
+if (label) label.textContent = `Copied: ${reference} (WEB)`;
 
-      for (let i = 1; i < sorted.length; i += 1) {
-        const current = sorted[i];
-        if (current === previous + 1) {
-          previous = current;
-          continue;
-        }
-
-        ranges.push(start === previous ? String(start) : `${start}-${previous}`);
-        start = current;
-        previous = current;
-      }
-
-      ranges.push(start === previous ? String(start) : `${start}-${previous}`);
-      return ranges.join(", ");
-    }
-
-    function getReferenceForVerses(verses) {
-      const selected = uniqueVerseElements(verses).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-      const rangeLabel = formatVerseRangesForCopy(selected.map((verse) => verse.dataset.v));
-      return `${bookSel.value} ${chapSel.value}:${rangeLabel}`;
-    }
-
-    function formatVersesAsPassage(verses) {
-      const selected = uniqueVerseElements(verses).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-      if (!selected.length) return "";
-
-      const reference = getReferenceForVerses(selected);
-      const verseLines = selected.map(getVerseLineForCopy).join("\n");
-
-      return `${reference} (WEB)\n${verseLines}`;
-    }
-
-    function formatVerseForCopy(verse) {
-      const reference = getReferenceForVerses([verse]);
-      return { reference, text: formatVersesAsPassage([verse]) };
-    }
-
-    async function copySingleVerse(verse) {
-      if (!verse) return;
-
-      const formatted = formatVerseForCopy(verse);
-      const ok = await writeClipboardText(formatted.text);
-      showCopyStatus(ok ? `Verse copied: ${formatted.reference}` : "Copy failed. Try again.");
-    }
-
-    function rangeIntersectsNode(range, node) {
-      try {
-        return range.intersectsNode(node);
-      } catch (error) {
-        const nodeRange = document.createRange();
-        nodeRange.selectNodeContents(node);
-        return range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0 &&
-          range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0;
-      }
-    }
-
-    function getBrowserSelectedVerses() {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return [];
-
-      const selectedVerses = [];
-      const verseNodes = Array.from(document.querySelectorAll(".verse[data-v]"));
-
-      for (let i = 0; i < selection.rangeCount; i += 1) {
-        const range = selection.getRangeAt(i);
-        if (!passage || !passage.contains(range.commonAncestorContainer)) continue;
-
-        verseNodes.forEach((verse) => {
-          if (rangeIntersectsNode(range, verse)) selectedVerses.push(verse);
-        });
-      }
-
-      return uniqueVerseElements(selectedVerses).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-    }
-
-    function getMarkedVersesForCopy() {
-      return Array.from(document.querySelectorAll(
-        ".verse[data-v].focused, .verse[data-v].pointed, .verse[data-v].highlighted, .verse[data-v].highlight-gold, .verse[data-v].highlight-blue, .verse[data-v].highlight-green, .verse[data-v].highlight-red, .verse[data-v].highlight-purple, .verse[data-v].highlight-amber, .verse[data-v].underlined, .verse[data-v].circled, .verse[data-v].boxed"
-      ));
-    }
-
-    function uniqueVerseElements(verses) {
-      const seen = new Set();
-      return (verses || []).filter((verse) => {
-        if (!verse || !verse.dataset) return false;
-        const key = verse.dataset.v;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-    }
-
-    function getSelectedVerseElementsForCopy() {
-      const browserSelected = getBrowserSelectedVerses();
-      if (browserSelected.length) return uniqueVerseElements(browserSelected).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-
-      const focused = Array.from(document.querySelectorAll(".verse[data-v].focused"));
-      if (focused.length) return uniqueVerseElements(focused).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-
-      return uniqueVerseElements(getMarkedVersesForCopy()).sort((a, b) => getVerseNumber(a) - getVerseNumber(b));
-    }
-
-    async function copySelectedVersesText() {
-      const selectedVerses = getSelectedVerseElementsForCopy();
-
-      if (!selectedVerses.length) {
-        showCopyStatus("No verses selected. Highlight, focus, mark, or drag-select verses first.");
-        return;
-      }
-
-      const copiedText = formatVersesAsPassage(selectedVerses);
-      const reference = getReferenceForVerses(selectedVerses);
-      const ok = await writeClipboardText(copiedText);
-
-      if ($("copySelectedVerses")) {
-        $("copySelectedVerses").textContent = ok ? "Copied" : "Copy Failed";
-        setTimeout(() => $("copySelectedVerses").textContent = "Copy Selected Verses", 1200);
-      }
-
-      showCopyStatus(ok ? `${reference} copied.` : "Copy failed. Try again.");
-    }
-
-    function copyVerseShortcutAction() {
-      const selectedVerses = getSelectedVerseElementsForCopy();
-
-      if (selectedVerses.length === 1) {
-        copySingleVerse(selectedVerses[0]);
-        return;
-      }
-
-      if (selectedVerses.length > 1) {
-        showCopyStatus(`${getReferenceForVerses(selectedVerses)} selected. Use Copy Selected Verses.`);
-        return;
-      }
-
-      setTool("copy-verse");
-      showCopyStatus("Copy Verse active — click the verse you want to copy.");
-    }
+setTimeout(() => {
+  if (label) label.textContent = "Active Tool: Copy Verse";
+}, 1400);
+}
 
     function initTooltips() {
       document.querySelectorAll(".info-wrap").forEach((item) => {
@@ -5953,7 +5214,7 @@ function renderCrossReferenceLinks() {
 }
 
 function showTeachingPresentation() {
-  const note = preserveNoteText($("teachingNotes")?.value || "");
+  const note = cleanText($("teachingNotes")?.value || "");
   if (!note) return;
 
   $("presentationCardText").textContent = note;
@@ -6084,8 +5345,6 @@ if (crossRefs) {
 
   if ($("clearMarks")) $("clearMarks").onclick = clearMarks;
   if ($("copyPassage")) $("copyPassage").onclick = copyPassageText;
-  if ($("copyVerseShortcut")) $("copyVerseShortcut").onclick = copyVerseShortcutAction;
-  if ($("copySelectedVerses")) $("copySelectedVerses").onclick = copySelectedVersesText;
   if ($("obsClearMarks")) $("obsClearMarks").onclick = clearMarks;
 
   if ($("obsResetPanels")) {
@@ -6135,8 +5394,6 @@ if ($("obsToolsMenuBtn")) {
   loadCurrentNotes();
   initTooltips();
   initTeacherTools();
-  initAutoGrowTextareas();
-  initConnectionStatus();
   setTool("highlight-gold");
   setupObsNavigator();
   syncObsNavigator();
@@ -6735,19 +5992,14 @@ if (title) title.textContent = "Personal Cross References";
 
     if (!panel || !content || !crossRefs) return;
 
-    const manualText = preserveNoteText(crossRefs.value || "");
     const manualRefs = parseScriptureReferences(crossRefs.value);
 
     content.innerHTML = `
-      ${
-        manualText
-          ? `<div class="cross-ref-manual-text">${escapeHtml(manualText)}</div>`
-          : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
-      }
+      <h4>Personal Cross References</h4>
       ${
         manualRefs.length
-          ? `<div class="cross-ref-links obs-cross-ref-buttons">${manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")}</div>`
-          : ""
+          ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
+          : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
       }
     `;
 
@@ -8070,7 +7322,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function cleanApplicationText(text) {
-    return (text || "").replace(/\r\n/g, "\n").trim();
+    return (text || "").replace(/\s+/g, " ").trim();
   }
 
   function showApplicationPresentationFinal(event) {
@@ -8221,379 +7473,5 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
-
-<script id="rdm-original-safe-mobile-layer">
-(function rdmOriginalSafeMobileLayer() {
-  function isTouchLikeDevice() {
-    return (
-      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ||
-      "ontouchstart" in window ||
-      navigator.maxTouchPoints > 0 ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-    );
-  }
-
-  const html = document.documentElement;
-  const touchLike = isTouchLikeDevice();
-
-  html.classList.toggle("rdm-touch", touchLike);
-  html.classList.toggle("rdm-ios", /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
-  html.classList.toggle("rdm-android", /Android/i.test(navigator.userAgent));
-
-  if (!touchLike) return;
-
-  let topZ = 70000;
-
-  function getPanelSelector() {
-    return [
-      ".teacher-pop",
-      "#ironPromptPanel",
-      "#teachingMethodPanel",
-      "#studyResourcesPanel",
-      "#obsCrossRefsPanel",
-      ".resource-instance-panel"
-    ].join(",");
-  }
-
-  function isInteractive(target) {
-    return !!(target && target.closest && target.closest("button, input, textarea, select, a, summary, details, label"));
-  }
-
-  function panelIsVisible(panel) {
-    if (!panel) return false;
-    if (panel.classList.contains("open")) return true;
-    if (panel.classList.contains("resource-instance-panel")) return document.body.contains(panel);
-    const style = window.getComputedStyle(panel);
-    return style.display !== "none" && style.visibility !== "hidden";
-  }
-
-  function bringToFront(panel) {
-    if (!panel) return;
-    topZ += 1;
-    panel.style.zIndex = String(topZ);
-  }
-
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  function viewportWidth() {
-    return window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  }
-
-  function viewportHeight() {
-    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  }
-
-  function clampPanelIntoView(panel) {
-    if (!panel || !panelIsVisible(panel)) return;
-
-    const rect = panel.getBoundingClientRect();
-    const vw = viewportWidth();
-    const vh = viewportHeight();
-    const safeMargin = 8;
-
-    const width = Math.min(rect.width || panel.offsetWidth || 320, vw - safeMargin * 2);
-    const height = Math.min(rect.height || panel.offsetHeight || 220, vh - safeMargin * 2);
-
-    let left = rect.left;
-    let top = rect.top;
-
-    if (left + width > vw - safeMargin) left = vw - width - safeMargin;
-    if (top + height > vh - safeMargin) top = vh - height - safeMargin;
-    left = clamp(left, safeMargin, Math.max(safeMargin, vw - width - safeMargin));
-    top = clamp(top, safeMargin, Math.max(safeMargin, vh - height - safeMargin));
-
-    panel.style.setProperty("--drag-left", left + "px");
-    panel.style.setProperty("--drag-top", top + "px");
-    panel.classList.add("drag-positioned");
-  }
-
-  function placePanelIfNeeded(panel) {
-    if (!panel || !panelIsVisible(panel)) return;
-
-    const rect = panel.getBoundingClientRect();
-    const hasPosition = panel.classList.contains("drag-positioned") ||
-      panel.style.left ||
-      panel.style.getPropertyValue("--drag-left");
-
-    if (!hasPosition || rect.width > viewportWidth() || rect.height > viewportHeight()) {
-      const vw = viewportWidth();
-      const defaultWidth = Math.min(Math.max(320, vw * 0.54), vw - 24);
-      const defaultHeight = Math.min(Math.max(230, viewportHeight() * 0.58), viewportHeight() - 80);
-
-      if (panel.classList.contains("resource-instance-panel")) {
-        panel.style.width = defaultWidth + "px";
-        panel.style.maxHeight = defaultHeight + "px";
-      }
-
-      const nextLeft = clamp(vw - defaultWidth - 12, 8, Math.max(8, vw - defaultWidth - 8));
-      const nextTop = clamp(112, 8, Math.max(8, viewportHeight() - Math.min(defaultHeight, rect.height || defaultHeight) - 8));
-
-      panel.style.setProperty("--drag-left", nextLeft + "px");
-      panel.style.setProperty("--drag-top", nextTop + "px");
-      panel.classList.add("drag-positioned");
-    }
-
-    clampPanelIntoView(panel);
-  }
-
-  function getDragHandle(panel) {
-    if (!panel) return null;
-    return panel.querySelector(".drag-handle, .teacher-pop-head, .floating-panel-head, .floating-crossrefs-header");
-  }
-
-  function ensureResizeHandle(panel) {
-    if (!panel || panel.querySelector(":scope > .mobile-panel-resize-handle")) return;
-
-    const handle = document.createElement("div");
-    handle.className = "mobile-panel-resize-handle";
-    handle.setAttribute("aria-label", "Resize panel");
-    handle.setAttribute("role", "separator");
-    panel.appendChild(handle);
-  }
-
-  function installTouchDrag(panel) {
-    if (!panel || panel.dataset.rdmTouchDrag === "true") return;
-    const handle = getDragHandle(panel);
-    if (!handle) return;
-
-    panel.dataset.rdmTouchDrag = "true";
-
-    let state = null;
-
-    function start(event) {
-      if (!panelIsVisible(panel)) return;
-      if (isInteractive(event.target)) return;
-
-      const point = event.touches ? event.touches[0] : event;
-      if (!point) return;
-
-      bringToFront(panel);
-
-      const rect = panel.getBoundingClientRect();
-      state = {
-        id: event.pointerId,
-        startX: point.clientX,
-        startY: point.clientY,
-        startLeft: rect.left,
-        startTop: rect.top
-      };
-
-      panel.style.position = "fixed";
-      panel.style.left = "auto";
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-      panel.style.top = "auto";
-      panel.style.transform = "none";
-      panel.style.setProperty("--drag-left", rect.left + "px");
-      panel.style.setProperty("--drag-top", rect.top + "px");
-      panel.classList.add("drag-positioned");
-
-      if (event.pointerId && handle.setPointerCapture) {
-        try { handle.setPointerCapture(event.pointerId); } catch (error) {}
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    function move(event) {
-      if (!state) return;
-
-      const point = event.touches ? event.touches[0] : event;
-      if (!point) return;
-
-      const rect = panel.getBoundingClientRect();
-      const vw = viewportWidth();
-      const vh = viewportHeight();
-      const nextLeft = clamp(state.startLeft + point.clientX - state.startX, 8, Math.max(8, vw - rect.width - 8));
-      const nextTop = clamp(state.startTop + point.clientY - state.startY, 8, Math.max(8, vh - Math.min(rect.height, vh - 16) - 8));
-
-      panel.style.setProperty("--drag-left", nextLeft + "px");
-      panel.style.setProperty("--drag-top", nextTop + "px");
-
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    function end(event) {
-      if (!state) return;
-      state = null;
-      clampPanelIntoView(panel);
-
-      if (event && event.stopPropagation) event.stopPropagation();
-    }
-
-    handle.addEventListener("pointerdown", start, { passive: false });
-    handle.addEventListener("pointermove", move, { passive: false });
-    handle.addEventListener("pointerup", end, { passive: false });
-    handle.addEventListener("pointercancel", end, { passive: false });
-
-    handle.addEventListener("touchstart", start, { passive: false });
-    handle.addEventListener("touchmove", move, { passive: false });
-    handle.addEventListener("touchend", end, { passive: false });
-    handle.addEventListener("touchcancel", end, { passive: false });
-  }
-
-  function installTouchResize(panel) {
-    if (!panel || panel.dataset.rdmTouchResize === "true") return;
-
-    ensureResizeHandle(panel);
-    const handle = panel.querySelector(":scope > .mobile-panel-resize-handle");
-    if (!handle) return;
-
-    panel.dataset.rdmTouchResize = "true";
-
-    let state = null;
-
-    function start(event) {
-      if (!panelIsVisible(panel)) return;
-
-      const point = event.touches ? event.touches[0] : event;
-      if (!point) return;
-
-      bringToFront(panel);
-
-      const rect = panel.getBoundingClientRect();
-      state = {
-        id: event.pointerId,
-        startX: point.clientX,
-        startY: point.clientY,
-        startWidth: rect.width,
-        startHeight: rect.height,
-        startLeft: rect.left,
-        startTop: rect.top
-      };
-
-      panel.style.position = "fixed";
-      panel.style.left = "auto";
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-      panel.style.top = "auto";
-      panel.style.transform = "none";
-      panel.style.setProperty("--drag-left", rect.left + "px");
-      panel.style.setProperty("--drag-top", rect.top + "px");
-      panel.classList.add("drag-positioned");
-
-      if (event.pointerId && handle.setPointerCapture) {
-        try { handle.setPointerCapture(event.pointerId); } catch (error) {}
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    function move(event) {
-      if (!state) return;
-
-      const point = event.touches ? event.touches[0] : event;
-      if (!point) return;
-
-      const vw = viewportWidth();
-      const vh = viewportHeight();
-      const minWidth = Math.min(300, vw - 24);
-      const minHeight = 180;
-
-      const nextWidth = clamp(state.startWidth + point.clientX - state.startX, minWidth, Math.max(minWidth, vw - state.startLeft - 8));
-      const nextHeight = clamp(state.startHeight + point.clientY - state.startY, minHeight, Math.max(minHeight, vh - state.startTop - 8));
-
-      panel.style.width = nextWidth + "px";
-      panel.style.height = nextHeight + "px";
-      panel.style.maxHeight = "none";
-
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    function end(event) {
-      if (!state) return;
-      state = null;
-      clampPanelIntoView(panel);
-
-      if (event && event.stopPropagation) event.stopPropagation();
-    }
-
-    handle.addEventListener("pointerdown", start, { passive: false });
-    handle.addEventListener("pointermove", move, { passive: false });
-    handle.addEventListener("pointerup", end, { passive: false });
-    handle.addEventListener("pointercancel", end, { passive: false });
-
-    handle.addEventListener("touchstart", start, { passive: false });
-    handle.addEventListener("touchmove", move, { passive: false });
-    handle.addEventListener("touchend", end, { passive: false });
-    handle.addEventListener("touchcancel", end, { passive: false });
-  }
-
-  function enhancePanel(panel) {
-    if (!panel) return;
-    if (!panel.matches || !panel.matches(getPanelSelector())) return;
-
-    installTouchDrag(panel);
-    installTouchResize(panel);
-
-    panel.addEventListener("pointerdown", function () {
-      bringToFront(panel);
-    }, { passive: true });
-
-    if (panelIsVisible(panel)) {
-      bringToFront(panel);
-      window.requestAnimationFrame(function () {
-        placePanelIfNeeded(panel);
-      });
-    }
-  }
-
-  function enhanceAllPanels() {
-    document.querySelectorAll(getPanelSelector()).forEach(enhancePanel);
-  }
-
-  const observer = new MutationObserver(function (mutations) {
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        mutation.addedNodes.forEach(function (node) {
-          if (!node || node.nodeType !== 1) return;
-          if (node.matches && node.matches(getPanelSelector())) enhancePanel(node);
-          if (node.querySelectorAll) node.querySelectorAll(getPanelSelector()).forEach(enhancePanel);
-        });
-      }
-
-      if (mutation.type === "attributes" && mutation.target && mutation.target.matches && mutation.target.matches(getPanelSelector())) {
-        enhancePanel(mutation.target);
-      }
-    }
-  });
-
-  function start() {
-    enhanceAllPanels();
-
-    if (document.body) {
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["class", "style"]
-      });
-    }
-
-    window.addEventListener("resize", function () {
-      document.querySelectorAll(getPanelSelector()).forEach(clampPanelIntoView);
-    });
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", function () {
-        document.querySelectorAll(getPanelSelector()).forEach(clampPanelIntoView);
-      });
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-  } else {
-    start();
-  }
-})();
-</script>
-
 </body>
 </html>
