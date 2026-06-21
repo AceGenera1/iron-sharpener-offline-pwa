@@ -11174,5 +11174,67 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 }
 </style>
 
+
+<!-- Patch 6D — iPad/tablet real footer continuation spacer
+     Scope: tablet-sized touch screens only.
+     Purpose: some iPad/Safari views still show the shell/page canvas after
+     the footer. This adds an actual footer continuation element after the
+     footer so the bottom of the page remains green instead of cream.
+     Does not affect iPhone, desktop, panels, notes, copy tools, navigation,
+     or internal cross references. -->
+<style id="patch-6d-ipad-footer-real-spacer-style">
+  .rd-ipad-footer-continuation {
+    display: none;
+  }
+
+  @media (min-width: 651px) and (max-width: 1180px) and (pointer: coarse) {
+    html:not(.obs) .rd-ipad-footer-continuation {
+      display: block !important;
+      height: calc(220px + env(safe-area-inset-bottom, 0px)) !important;
+      min-height: 220px !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: linear-gradient(180deg, #203D39 0%, #203D39 100%) !important;
+      border-top: 0 !important;
+      box-shadow: none !important;
+    }
+
+    html:not(.obs) .footer {
+      margin-bottom: 0 !important;
+      padding-bottom: calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+      background: linear-gradient(180deg, #294843, #203D39) !important;
+    }
+
+    html:not(.obs) .shell {
+      background: #203D39 !important;
+    }
+
+    html:not(.obs) .layout,
+    html:not(.obs) .controls,
+    html:not(.obs) .ribbon {
+      background-clip: padding-box !important;
+    }
+  }
+</style>
+<script id="patch-6d-ipad-footer-real-spacer-script">
+(function(){
+  function ensureIpadFooterContinuation(){
+    var footer = document.querySelector('.footer');
+    if (!footer || document.querySelector('.rd-ipad-footer-continuation')) return;
+    var spacer = document.createElement('div');
+    spacer.className = 'rd-ipad-footer-continuation';
+    spacer.setAttribute('aria-hidden', 'true');
+    footer.insertAdjacentElement('afterend', spacer);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureIpadFooterContinuation);
+  } else {
+    ensureIpadFooterContinuation();
+  }
+})();
+</script>
+
 </body>
 </html>
