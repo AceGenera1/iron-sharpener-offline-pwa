@@ -2233,103 +2233,6 @@ body.dark .copy-status {
   }
 }
 
-
-
-/* Patch 6F - iPad/tablet compact top layout only
-   Keeps phone and desktop rules untouched. Targets touch tablets where the top hero was too stretched. */
-@media (hover: none) and (pointer: coarse) and (min-width: 701px) and (max-width: 1180px) {
-  html:not(.obs) body {
-    padding: 0 !important;
-  }
-
-  html:not(.obs) .shell {
-    border-left: 0 !important;
-    border-right: 0 !important;
-    border-radius: 0 !important;
-    max-width: none !important;
-  }
-
-  html:not(.obs) .hero {
-    grid-template-columns: 150px minmax(0, 1fr) !important;
-    gap: 18px !important;
-    padding: 16px 28px 18px !important;
-    text-align: center !important;
-    align-items: center !important;
-  }
-
-  html:not(.obs) .logo-wrap {
-    width: 142px !important;
-    height: 142px !important;
-  }
-
-  html:not(.obs) .logo {
-    width: 136px !important;
-    height: 136px !important;
-  }
-
-  html:not(.obs) .hero-main {
-    min-width: 0 !important;
-  }
-
-  html:not(.obs) .eyebrow {
-    font-size: 14px !important;
-    letter-spacing: 5px !important;
-    margin-bottom: 6px !important;
-  }
-
-  html:not(.obs) h1 {
-    font-size: clamp(48px, 7vw, 66px) !important;
-    line-height: .88 !important;
-  }
-
-  html:not(.obs) .subtitle {
-    font-size: 20px !important;
-    margin: 10px auto 12px !important;
-    line-height: 1.22 !important;
-  }
-
-  html:not(.obs) .actions {
-    gap: 10px !important;
-  }
-
-  html:not(.obs) .actions button {
-    padding: 10px 16px !important;
-    font-size: 14px !important;
-  }
-
-  html:not(.obs) .verse-card {
-    grid-column: 1 / -1 !important;
-    max-width: 680px !important;
-    width: 100% !important;
-    justify-self: center !important;
-    padding: 14px 18px !important;
-    margin: 2px auto 0 !important;
-  }
-
-  html:not(.obs) .verse-card p {
-    font-size: 20px !important;
-    line-height: 1.22 !important;
-    margin-bottom: 8px !important;
-  }
-
-  html:not(.obs) .verse-card strong {
-    font-size: 13px !important;
-    letter-spacing: 2.5px !important;
-  }
-
-  html:not(.obs) .ribbon {
-    padding: 10px 14px !important;
-    font-size: 15px !important;
-    letter-spacing: 5px !important;
-    line-height: 1.25 !important;
-  }
-
-  html:not(.obs) .controls {
-    padding: 16px 32px !important;
-    gap: 16px 24px !important;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -11181,25 +11084,58 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 </script>
 
 
-<!-- Patch 6E — iPad/tablet bottom fit without spacer
-     Purpose: fixes iPad bottom overscroll/background without adding any real footer spacer
-     or changing the visible page length. It reverts the bad footer-extension approach:
-     the footer stays normal, and only the temporary iPad canvas shown during bottom
-     rubber-band overscroll switches to footer green. PC and iPhone stay untouched. -->
-<style id="patch-6e-ipad-bottom-no-spacer-style">
-  @media (min-width: 651px) and (max-width: 1180px) and (pointer: coarse) {
+
+<!-- Patch 6H — iPad/tablet scroll reset without compacting the top
+     Starts from the clean Patch 6 build. This intentionally does NOT include
+     the 6B/6C/6D/6E/6F/6G footer/background experiments. It keeps the normal
+     iPad hero layout and prevents the tablet page from rubber-band exposing a
+     separate canvas by making the Iron Sharpener shell the scroll container. -->
+<style id="patch-6h-ipad-scroll-reset-style">
+  @media (hover: none) and (pointer: coarse) and (min-width: 701px) and (max-width: 1180px) {
+    html:not(.obs),
     html:not(.obs) body {
-      transition: background-color .12s ease;
+      height: 100% !important;
+      min-height: 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+      margin: 0 !important;
     }
 
-    html:not(.obs).rd-ipad-at-bottom,
-    html:not(.obs).rd-ipad-at-bottom body,
-    html:not(.obs).rd-ipad-at-bottom body:not(.dark) {
+    html:not(.obs) body {
+      padding: 0 !important;
+      background: #fff9ec !important;
+      background-color: #fff9ec !important;
+      position: fixed !important;
+      inset: 0 !important;
+    }
+
+    html:not(.obs) body.dark {
       background: #203D39 !important;
       background-color: #203D39 !important;
     }
 
-    html:not(.obs).rd-ipad-at-bottom body.dark {
+    html:not(.obs) .shell {
+      width: 100% !important;
+      max-width: none !important;
+      height: 100vh !important;
+      height: 100svh !important;
+      height: 100dvh !important;
+      min-height: 100vh !important;
+      min-height: 100svh !important;
+      min-height: 100dvh !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      overscroll-behavior-y: contain;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      border-radius: 0 !important;
+      background: #fff9ec !important;
+    }
+
+    html:not(.obs) body.dark .shell {
       background: #203D39 !important;
       background-color: #203D39 !important;
     }
@@ -11209,51 +11145,78 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     }
   }
 </style>
-<script id="patch-6e-ipad-bottom-no-spacer-script">
-(function(){
+<script id="patch-6h-ipad-scroll-reset-script">
+(function patchSixHIpadScrollReset(){
   function isTabletTouch(){
-    return window.matchMedia && window.matchMedia('(min-width: 651px) and (max-width: 1180px) and (pointer: coarse)').matches;
+    return window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse) and (min-width: 701px) and (max-width: 1180px)').matches;
   }
 
-  function updateIpadBottomCanvas(){
-    var root = document.documentElement;
-    if (!isTabletTouch() || root.classList.contains('obs')) {
-      root.classList.remove('rd-ipad-at-bottom');
-      return;
+  function shell(){
+    return document.querySelector('.shell');
+  }
+
+  function isActive(){
+    return isTabletTouch() && !document.documentElement.classList.contains('obs') && !!shell();
+  }
+
+  function canElementScroll(node, deltaY){
+    while (node && node !== document.body && node !== document.documentElement) {
+      if (node.nodeType === 1) {
+        var style = window.getComputedStyle(node);
+        var overflowY = style.overflowY;
+        var canScroll = (overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 2;
+        if (canScroll) {
+          var atTop = node.scrollTop <= 0;
+          var atBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 2;
+          if (deltaY > 0 && !atTop) return true;
+          if (deltaY < 0 && !atBottom) return true;
+        }
+      }
+      node = node.parentNode;
     }
+    return false;
+  }
 
-    var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    if (window.visualViewport && window.visualViewport.height) {
-      viewportHeight = window.visualViewport.height;
+  var startY = 0;
+
+  document.addEventListener('touchstart', function(event){
+    if (!isActive() || !event.touches || !event.touches.length) return;
+    startY = event.touches[0].clientY;
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', function(event){
+    if (!isActive() || !event.touches || !event.touches.length) return;
+    var currentY = event.touches[0].clientY;
+    var deltaY = currentY - startY;
+    if (Math.abs(deltaY) < 2) return;
+
+    var scroller = shell();
+    if (!scroller) return;
+
+    // Let real inner scrollable panels move normally.
+    if (event.target && event.target !== scroller && canElementScroll(event.target, deltaY)) return;
+
+    var atTop = scroller.scrollTop <= 0;
+    var atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
+
+    if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+      event.preventDefault();
     }
+  }, { passive: false, capture: true });
 
-    var doc = document.documentElement;
-    var body = document.body;
-    var docHeight = Math.max(
-      body ? body.scrollHeight : 0,
-      body ? body.offsetHeight : 0,
-      doc ? doc.clientHeight : 0,
-      doc ? doc.scrollHeight : 0,
-      doc ? doc.offsetHeight : 0
-    );
-
-    var atBottom = (scrollTop + viewportHeight) >= (docHeight - 32);
-    root.classList.toggle('rd-ipad-at-bottom', !!atBottom);
+  function normalizeShellScroll(){
+    if (!isActive()) return;
+    var scroller = shell();
+    if (!scroller) return;
+    if (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) {
+      scroller.scrollTop += window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      window.scrollTo(0, 0);
+    }
   }
 
-  window.addEventListener('scroll', updateIpadBottomCanvas, { passive: true });
-  window.addEventListener('resize', updateIpadBottomCanvas);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', updateIpadBottomCanvas);
-    window.visualViewport.addEventListener('scroll', updateIpadBottomCanvas);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateIpadBottomCanvas);
-  } else {
-    updateIpadBottomCanvas();
-  }
+  window.addEventListener('orientationchange', function(){ setTimeout(normalizeShellScroll, 250); });
+  window.addEventListener('resize', function(){ setTimeout(normalizeShellScroll, 100); });
+  document.addEventListener('DOMContentLoaded', normalizeShellScroll);
 })();
 </script>
 
