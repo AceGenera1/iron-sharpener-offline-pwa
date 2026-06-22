@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-22T18:11:21.645Z",
+  "generatedAt": "2026-06-22T18:59:28.612Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 90,
-    "accepted": 90,
-    "warnings": 90,
+    "scanned": 91,
+    "accepted": 91,
+    "warnings": 91,
     "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 385,
     "resolvedAliases": 385,
     "unresolvedAliases": 0,
-    "unresolvedRelatedTopics": 251
+    "unresolvedRelatedTopics": 257
   },
   "accepted": [
     {
@@ -30,6 +30,12 @@
       "id": "atonement-of-christ",
       "title": "The Atonement of Christ",
       "category": "Jesus Christ"
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "category": "Holy Spirit"
     },
     {
       "file": "blood-of-christ.json",
@@ -575,6 +581,14 @@
       "file": "atonement-of-christ.json",
       "id": "atonement-of-christ",
       "title": "The Atonement of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
       "warnings": [
         "sources array is empty."
       ]
@@ -4040,6 +4054,54 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "The Body of Christ",
+      "normalizedTopic": "the-body-of-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "The Spirit and the Church",
+      "normalizedTopic": "the-spirit-and-the-church",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "The Indwelling of the Spirit",
+      "normalizedTopic": "the-indwelling-of-the-spirit",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "The Unity of the Church",
+      "normalizedTopic": "the-unity-of-the-church",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "Life in the Holy Spirit",
+      "normalizedTopic": "life-in-the-holy-spirit",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "baptism-of-the-spirit.json",
+      "id": "baptism-of-the-spirit",
+      "title": "The Baptism of the Spirit",
+      "relatedTopic": "Spiritual Gifts in the Church",
+      "normalizedTopic": "spiritual-gifts-in-the-church",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "blood-of-christ.json",
       "id": "blood-of-christ",
       "title": "The Blood of Christ",
@@ -5994,6 +6056,7 @@
   ],
   "categories": {
     "Jesus Christ": 30,
+    "Holy Spirit": 1,
     "Scripture": 30,
     "God / Theology Proper": 30
   }
