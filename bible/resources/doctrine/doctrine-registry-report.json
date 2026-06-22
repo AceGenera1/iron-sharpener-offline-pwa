@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-22T19:27:48.999Z",
+  "generatedAt": "2026-06-22T19:54:33.586Z",
   "frameworkVersion": "1.0",
   "totals": {
-    "scanned": 120,
-    "accepted": 120,
-    "warnings": 120,
+    "scanned": 121,
+    "accepted": 121,
+    "warnings": 121,
     "rejected": 0,
     "duplicates": 0,
     "aliasesLoaded": 451,
     "resolvedAliases": 451,
     "unresolvedAliases": 0,
-    "unresolvedRelatedTopics": 343
+    "unresolvedRelatedTopics": 349
   },
   "accepted": [
     {
@@ -108,6 +108,12 @@
       "id": "compassion-of-christ",
       "title": "The Compassion of Christ",
       "category": "Jesus Christ"
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "category": "Salvation"
     },
     {
       "file": "conviction-of-the-spirit.json",
@@ -859,6 +865,14 @@
       "file": "compassion-of-christ.json",
       "id": "compassion-of-christ",
       "title": "The Compassion of Christ",
+      "warnings": [
+        "sources array is empty."
+      ]
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
       "warnings": [
         "sources array is empty."
       ]
@@ -5266,6 +5280,62 @@
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "Repentance",
+      "normalizedTopic": "repentance",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "Saving Faith",
+      "normalizedTopic": "saving-faith",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "Effectual Calling",
+      "normalizedTopic": "effectual-calling",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "Deliverance from Sin’s Power",
+      "normalizedTopic": "deliverance-from-sin-s-power",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "New Life in Christ",
+      "normalizedTopic": "new-life-in-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "The Gospel of Jesus Christ",
+      "normalizedTopic": "the-gospel-of-jesus-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
+      "file": "conversion.json",
+      "id": "conversion",
+      "title": "Conversion",
+      "relatedTopic": "Following Christ",
+      "normalizedTopic": "following-christ",
+      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
+    },
+    {
       "file": "conviction-of-the-spirit.json",
       "id": "conviction-of-the-spirit",
       "title": "The Conviction of the Spirit",
@@ -6359,14 +6429,6 @@
       "title": "The Regenerating Work of the Spirit",
       "relatedTopic": "Salvation by Grace",
       "normalizedTopic": "salvation-by-grace",
-      "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
-    },
-    {
-      "file": "regenerating-work-of-the-spirit.json",
-      "id": "regenerating-work-of-the-spirit",
-      "title": "The Regenerating Work of the Spirit",
-      "relatedTopic": "Conversion",
-      "normalizedTopic": "conversion",
       "message": "Related topic does not match any accepted doctrine id, title, filename, searchTerm, or doctrine alias."
     },
     {
@@ -7614,6 +7676,7 @@
     "Jesus Christ": 30,
     "Holy Spirit": 30,
     "Scripture": 30,
+    "Salvation": 1,
     "God / Theology Proper": 30
   }
 }
