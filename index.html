@@ -5899,6 +5899,14 @@ function refreshActiveResourcePanel() {
   const studyResourcePanelIsOpen = resourcePanels.length > 0;
 
   if (!obsPanelIsOpen && !studyResourcePanelIsOpen) return;
+  if (
+  activeResourcePanel === "eastons" ||
+  activeResourcePanel === "smiths" ||
+  activeResourcePanel === "naves" ||
+  activeResourcePanel === "doctrine"
+) {
+  return;
+}
 
   const hasMatthewHenryOpen = resourcePanels.some(panel => {
     const text = String(panel.textContent || "").toLowerCase();
@@ -6541,6 +6549,19 @@ if ($("openNavesResource")) {
     openFloatingResourcePanel(panel);
   };
 }
+
+if ($("openDoctrineResource")) {
+  $("openDoctrineResource").onclick = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (typeof openDoctrineResource === "function") {
+      await openDoctrineResource();
+    }
+  };
+}
 function addUniqueCommentaryMatch(matches, item) {
   if (!item) return;
 
@@ -6712,49 +6733,73 @@ openResourceInstancePanel(
   };
 }
       
-if ($("openTskResource")) {
-$("openTskResource").onclick = async () => {
-activeResourcePanel = "tsk";
-const crossPanel = $("obsCrossRefsPanel");
-const content = $("obsCrossRefsContent");
-const obsBackBtn = $("obsBackToPreviousPassage");
-const title = $("obsCrossRefsTitle");
-
-if (title) title.textContent = "Treasury of Scripture Knowledge";
-
-    if (!crossPanel || !content) return;
-
-    const tskRefs = await loadTSKReferences();
-
-    content.innerHTML = `
-      <h4>Treasury of Scripture Knowledge</h4>
-      ${
-        tskRefs.length
-          ? tskRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
-          : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`
-      }
-    `;
-
-    content.querySelectorAll(".cross-ref-link").forEach((btn) => {
-      btn.onclick = () => {
-        goToScriptureReference(btn.dataset.ref);
-        if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
-        crossPanel.style.display = "";
-        crossPanel.classList.add("open");
-      };
-    });
-
-    if (obsBackBtn) {
-      obsBackBtn.style.display = previousPassageState ? "inline-flex" : "none";
+if ($("openBookOverviewResource")) {
+  $("openBookOverviewResource").onclick = async (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
 
-  openResourceInstancePanel(
-    `Treasury of Scripture Knowledge — ${currentRef()}`,
-    content.innerHTML,
-    "Treasury of Scripture Knowledge"
-  );
+    activeResourcePanel = "bookOverview";
 
-openFloatingResourcePanel(crossPanel);
+    const currentBook = bookSel.value;
+    const overview = await loadBookOverview(currentBook);
+
+    const html = overview
+      ? `
+        <div style="margin-bottom:12px;">
+          <strong>Author</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.author || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Date</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.date || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Audience</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.audience || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Historical Setting</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.historicalSetting || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Major Themes</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.themes || []).map(theme => `<li>${theme}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Key Verse</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.keyVerse || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Christ Focus</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.christFocus || ""}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Outline</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.outline || []).map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+      `
+      : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${currentBook} yet.</p>`;
+
+    openResourceInstancePanel(
+      overview?.title || `${currentBook} Overview`,
+      html,
+      "Book Overview",
+      "book-overview-current",
+      { updateExisting: true }
+    );
   };
 }
 
@@ -6842,20 +6887,74 @@ if ($("obsBackToPreviousPassage")) {
   };
 }
     
-function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
-  const panel = document.createElement("div");
-  panel.className = "resource-instance-panel";
-  panel.style.left = "80px";
-  panel.style.top = "120px";
+function findExistingResourcePanel(resourceKey) {
+  if (!resourceKey) return null;
+
+  return Array.from(document.querySelectorAll(".resource-instance-panel"))
+    .find(panel => panel.dataset.resourceKey === resourceKey) || null;
+}
+
+function rememberResourcePanelPosition(panel) {
+  if (!panel) return null;
+
+  const rect = panel.getBoundingClientRect();
+
+  return {
+    left: panel.style.left || `${rect.left}px`,
+    top: panel.style.top || `${rect.top}px`,
+    width: panel.style.width || "",
+    height: panel.style.height || "",
+    zIndex: panel.style.zIndex || ""
+  };
+}
+
+function restoreResourcePanelPosition(panel, savedPosition) {
+  if (!panel || !savedPosition) return;
+
+  panel.style.left = savedPosition.left;
+  panel.style.top = savedPosition.top;
   panel.style.right = "auto";
   panel.style.bottom = "auto";
-  panel.style.zIndex = String(Date.now());
+
+  if (savedPosition.width) panel.style.width = savedPosition.width;
+  if (savedPosition.height) panel.style.height = savedPosition.height;
+  if (savedPosition.zIndex) panel.style.zIndex = savedPosition.zIndex;
+
+  panel.classList.add("drag-positioned");
+}
+
+function openResourceInstancePanel(
+  title,
+  html,
+  sourceLabel = "Study Resource",
+  resourceKey = "",
+  options = {}
+) {
+  const key = String(resourceKey || "").trim();
+  let panel = options.updateExisting ? findExistingResourcePanel(key) : null;
+  const savedPosition = panel ? rememberResourcePanelPosition(panel) : null;
+
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.className = "resource-instance-panel";
+    panel.style.left = "80px";
+    panel.style.top = "120px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    panel.style.zIndex = String(Date.now());
+    document.body.appendChild(panel);
+  }
+
+  if (key) {
+    panel.dataset.resourceKey = key;
+  }
+
+  panel.dataset.sourceLabel = sourceLabel;
 
   panel.innerHTML = `
     <div class="teacher-pop-head drag-handle">
       <div>
-        <div class="resource-source-label">${sourceLabel}</div>
-        <h3>${title || "Study Resource"}</h3>
+        <h3 class="resource-panel-title">${title || "Study Resource"}</h3>
       </div>
       <button class="teacher-pop-close secondary" type="button">Close</button>
     </div>
@@ -6864,7 +6963,9 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
     </div>
   `;
 
-  document.body.appendChild(panel);
+  if (savedPosition) {
+    restoreResourcePanelPosition(panel, savedPosition);
+  }
 
   panel.querySelector(".teacher-pop-close").onclick = (event) => {
     event.preventDefault();
@@ -6872,13 +6973,15 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
     panel.remove();
   };
 
-  panel.addEventListener("click", (event) => {
+  panel.onclick = (event) => {
     const refButton = event.target.closest(".cross-ref-link");
     if (!refButton) return;
+
     event.preventDefault();
     event.stopPropagation();
+
     goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
-  });
+  };
 
   if (window.makeFloatingElementDraggable) {
     window.makeFloatingElementDraggable(
@@ -6886,6 +6989,8 @@ function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") 
       panel.querySelector(".drag-handle")
     );
   }
+
+  return panel;
 }
 
     init();
