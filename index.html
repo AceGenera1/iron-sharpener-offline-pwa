@@ -13108,5 +13108,398 @@ body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-interna
   color: #FFF8EA !important;
 }
 </style>
+<!-- =========================================================
+     Iron Sharpener — Bible Backgrounds & Customs Phase 1 Patch
+     Put this directly above </body>, after the final Study Resources patches.
+     ========================================================= -->
+<style>
+body:not(.dark) .resource-instance-panel .backgrounds-topic-btn,
+body:not(.dark) .resource-instance-panel .backgrounds-category-btn,
+body:not(.dark) .resource-instance-panel .backgrounds-back-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) .resource-instance-panel .backgrounds-topic-btn:hover,
+body:not(.dark) .resource-instance-panel .backgrounds-category-btn:hover,
+body:not(.dark) .resource-instance-panel .backgrounds-back-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  color: #FFF8EA !important;
+}
+</style>
+
+<script>
+(function bibleBackgroundsAndCustomsPhaseOne() {
+  if (window.__ironBackgroundsCustomsInstalled) return;
+  window.__ironBackgroundsCustomsInstalled = true;
+
+  const get = (id) => document.getElementById(id);
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function clean(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function currentBookName() {
+    return get("book")?.value || "Genesis";
+  }
+
+  function currentReferenceLabel() {
+    if (typeof currentRef === "function") return currentRef();
+
+    const book = currentBookName();
+    const chapter = get("chapter")?.value || "1";
+    const start = get("start")?.value || "1";
+    const end = get("end")?.value || start;
+
+    return `${book} ${chapter}:${start}-${end}`;
+  }
+
+  function currentVerseKeys() {
+    const book = currentBookName();
+    const chapter = get("chapter")?.value || "1";
+    const start = parseInt(get("start")?.value || "1", 10);
+    const end = parseInt(get("end")?.value || String(start), 10);
+    const keys = [];
+
+    for (let v = start; v <= end; v++) {
+      keys.push(`${book} ${chapter}:${v}`);
+    }
+
+    return keys;
+  }
+
+  async function fetchJson(path, fallback) {
+    try {
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) return fallback;
+      return await response.json();
+    } catch (error) {
+      console.warn("Backgrounds resource load error:", path, error);
+      return fallback;
+    }
+  }
+
+  async function loadBackgroundIndex() {
+    return await fetchJson("bible/resources/backgrounds/index.json", []);
+  }
+
+  async function loadBackgroundTopic(topicFileOrId) {
+    const raw = String(topicFileOrId || "").replace(/^topics\//, "").replace(/\.json$/i, "");
+    return await fetchJson(`bible/resources/backgrounds/topics/${raw}.json`, null);
+  }
+
+  async function loadBackgroundReferenceMap(bookName) {
+    return await fetchJson(`bible/resources/backgrounds/by-reference/${bookName}.json`, {});
+  }
+
+  function renderTopicCard(topic) {
+    if (!topic) return `<p style="font:800 14px Arial,sans-serif;">Background topic could not be loaded.</p>`;
+
+    return `
+      <div class="background-topic-card">
+        ${topic.summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.summary)}</p>` : ""}
+        ${topic.background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.background)}</p>` : ""}
+        ${topic.teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.teachingHelp)}</p>` : ""}
+
+        ${(topic.keyScriptures || []).length ? `
+          <h4>Key Scriptures</h4>
+          <div style="display:grid;gap:7px;margin-bottom:12px;">
+            ${(topic.keyScriptures || []).map(ref => `
+              <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;">
+                ${esc(ref)}
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+
+        ${(topic.relatedTopics || []).length ? `
+          <h4>Related Background Topics</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            ${(topic.relatedTopics || []).map(related => `
+              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(related)}">
+                ${esc(related.replace(/-/g, " "))}
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+
+        ${(topic.sources || []).length ? `
+          <details style="margin-top:12px;">
+            <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">Public-domain source pool</summary>
+            <ul style="font:700 13px Arial,sans-serif;line-height:1.45;">
+              ${(topic.sources || []).map(source => `<li>${esc(source)}</li>`).join("")}
+            </ul>
+          </details>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  async function openBackgroundTopicPanel(topicIdOrFile) {
+    const topic = await loadBackgroundTopic(topicIdOrFile);
+
+    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
+    if (typeof opener !== "function") {
+      alert("Study Resource panel system is not available yet.");
+      return;
+    }
+
+    const panel = opener(
+      topic?.title || "Bible Backgrounds & Customs",
+      renderTopicCard(topic),
+      "Bible Backgrounds & Customs",
+      `background-topic-${topic?.id || topicIdOrFile}`,
+      { updateExisting: false }
+    );
+
+    wireBackgroundPanelClicks(panel);
+  }
+
+  function renderSearchResults(items, heading) {
+    return `
+      <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+        ← Back to Backgrounds Home
+      </button>
+
+      ${heading ? `<h4>${esc(heading)}</h4>` : ""}
+
+      ${items.length ? items.map(item => `
+        <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id || item.file || "")}" style="width:100%;margin-bottom:8px;">
+          <strong>${esc(item.title || item.id || "Background Topic")}</strong>
+          ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
+        </button>
+      `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background topic found.</p>`}
+    `;
+  }
+
+  async function buildBackgroundHomeHtml(index) {
+    const book = currentBookName();
+    const refMap = await loadBackgroundReferenceMap(book);
+    const ids = [];
+
+    currentVerseKeys().forEach(key => {
+      (refMap[key] || []).forEach(id => ids.push(id));
+    });
+
+    const uniqueIds = [...new Set(ids)];
+    const currentItems = uniqueIds
+      .map(id => index.find(item => item.id === id))
+      .filter(Boolean);
+
+    const categories = [...new Set(index.map(item => item.category || "Uncategorized"))].sort();
+
+    return `
+      <div class="backgrounds-home">
+        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
+          Background notes for <strong>${esc(currentReferenceLabel())}</strong>, plus searchable Bible customs and ancient-context topics.
+        </p>
+
+        <input class="backgrounds-search-box" type="text" placeholder="Search: Passover, synagogue, shepherds, Roman citizenship..." style="margin-bottom:10px;">
+
+        <details class="backgrounds-current" open style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
+            Current Passage Backgrounds (${currentItems.length})
+          </summary>
+          <div style="margin-top:8px;">
+            ${currentItems.length ? currentItems.map(item => `
+              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id)}" style="width:100%;margin-bottom:8px;">
+                <strong>${esc(item.title)}</strong>
+                <span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary || "")}</span>
+              </button>
+            `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background cards mapped to this exact passage yet. Use search or browse below.</p>`}
+          </div>
+        </details>
+
+        <details class="backgrounds-category-browser" style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
+            Browse by Category
+          </summary>
+          <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
+            ${categories.map(category => `
+              <button type="button" class="backgrounds-category-btn" data-category="${esc(category)}" style="width:100%;">
+                ${esc(category)}
+              </button>
+            `).join("")}
+          </div>
+        </details>
+
+        <div class="backgrounds-results"></div>
+      </div>
+    `;
+  }
+
+  function findBackgroundMatches(index, query) {
+    const q = clean(query);
+    if (!q) return [];
+
+    return index.filter(item => {
+      const searchable = [
+        item.title,
+        item.id,
+        item.category,
+        item.summary,
+        ...(Array.isArray(item.tags) ? item.tags : []),
+        ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+      ].join(" ").toLowerCase();
+
+      return searchable.includes(q);
+    }).slice(0, 40);
+  }
+
+  function wireBackgroundPanelClicks(panel) {
+    if (!panel) return;
+
+    panel.addEventListener("click", async (event) => {
+      const topicBtn = event.target.closest(".backgrounds-topic-btn");
+      const categoryBtn = event.target.closest(".backgrounds-category-btn");
+      const backBtn = event.target.closest(".backgrounds-back-btn");
+      const crossRef = event.target.closest(".cross-ref-link");
+
+      if (crossRef) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof goToScriptureReference === "function") {
+          goToScriptureReference(crossRef.dataset.ref || crossRef.textContent.trim());
+        }
+        return;
+      }
+
+      if (topicBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        await openBackgroundTopicPanel(topicBtn.dataset.topicId || topicBtn.dataset.file || topicBtn.textContent.trim());
+        return;
+      }
+
+      if (categoryBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const index = await loadBackgroundIndex();
+        const category = categoryBtn.dataset.category;
+        const items = index
+          .filter(item => (item.category || "Uncategorized") === category)
+          .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+
+        const results = panel.querySelector(".backgrounds-results");
+        if (results) results.innerHTML = renderSearchResults(items, category);
+        const browser = panel.querySelector(".backgrounds-category-browser");
+        if (browser) browser.open = false;
+        return;
+      }
+
+      if (backBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        await openBackgroundsResource();
+      }
+    });
+  }
+
+  async function openBackgroundsResource(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const index = await loadBackgroundIndex();
+    const html = await buildBackgroundHomeHtml(index);
+    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
+
+    if (typeof opener !== "function") {
+      alert("Study Resource panel system is not available yet.");
+      return;
+    }
+
+    const panel = opener(
+      "Bible Backgrounds & Customs",
+      html,
+      "Bible Backgrounds & Customs",
+      "backgrounds-current",
+      { updateExisting: true }
+    );
+
+    if (panel) {
+      panel.dataset.resourceKey = "backgrounds-current";
+      wireBackgroundPanelClicks(panel);
+
+      const searchBox = panel.querySelector(".backgrounds-search-box");
+      const results = panel.querySelector(".backgrounds-results");
+      const current = panel.querySelector(".backgrounds-current");
+      const categoryBrowser = panel.querySelector(".backgrounds-category-browser");
+
+      if (searchBox && results) {
+        searchBox.oninput = () => {
+          const value = searchBox.value;
+          if (!value.trim()) {
+            results.innerHTML = "";
+            if (current) current.open = true;
+            return;
+          }
+
+          if (current) current.open = false;
+          if (categoryBrowser) categoryBrowser.open = false;
+          results.innerHTML = renderSearchResults(findBackgroundMatches(index, value), "Search Results");
+        };
+
+        searchBox.focus({ preventScroll: true });
+      }
+    }
+  }
+
+  function installBackgroundsButton() {
+    const oldTskButton = get("openTskResource");
+    if (!oldTskButton) return;
+
+    const button = oldTskButton.cloneNode(false);
+    button.id = "openBackgroundsResource";
+    button.type = "button";
+    button.className = oldTskButton.className || "tool-option";
+    button.innerHTML = `
+      <strong>Bible Backgrounds &amp; Customs</strong>
+      <span>Understand ancient customs, feasts, worship, daily life, places, and historical background connected to the passage.</span>
+    `;
+    oldTskButton.replaceWith(button);
+    button.onclick = openBackgroundsResource;
+  }
+
+  installBackgroundsButton();
+  window.openBackgroundsResource = openBackgroundsResource;
+
+  const previousRefresh = window.refreshActiveResourcePanel;
+
+  window.refreshActiveResourcePanel = function backgroundsAwareRefreshActiveResourcePanel() {
+    const hadBackgroundsOpen = Array.from(document.querySelectorAll(".resource-instance-panel"))
+      .some(panel => panel.dataset.resourceKey === "backgrounds-current");
+
+    if (typeof previousRefresh === "function") {
+      previousRefresh();
+    }
+
+    if (hadBackgroundsOpen) {
+      setTimeout(() => {
+        if (get("openBackgroundsResource")) get("openBackgroundsResource").click();
+      }, 120);
+    }
+  };
+
+  try {
+    refreshActiveResourcePanel = window.refreshActiveResourcePanel;
+  } catch (_) {}
+})();
+</script>
 </body>
 </html>
