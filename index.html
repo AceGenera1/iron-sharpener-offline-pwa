@@ -2232,18 +2232,30 @@ body.dark .copy-status {
     grid-template-columns: 1fr !important;
   }
 }
-/* Study Resources card height fix */
+/* Study Resources compact card layout */
 #studyResourcesPanel .tool-options {
-  align-items: start !important;
-  grid-auto-rows: auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px 10px !important;
+  align-items: stretch !important;
 }
 
 #studyResourcesPanel .tool-option {
-  align-self: start !important;
-  height: auto !important;
-  min-height: 104px !important;
-  display: block !important;
+  min-height: 118px !important;
+  height: 100% !important;
+  padding: 13px 13px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
   text-align: left !important;
+}
+
+#studyResourcesPanel .tool-option strong {
+  margin-bottom: 7px !important;
+}
+
+#studyResourcesPanel .tool-option span {
+  line-height: 1.42 !important;
 }
 </style>
 </head>
