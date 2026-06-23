@@ -8679,10 +8679,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const start = parseInt(get("start")?.value, 10) || 1;
     const end = parseInt(get("end")?.value, 10) || start;
     const matches = [];
-    for (let v = start; v <= end; v++) {
-      const key = `${book} ${chapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
+    const seenCommentaryNotes = new Set();
+
+for (let v = start; v <= end; v++) {
+  const key = `${book} ${chapter}:${v}`;
+  const item = commentary[key];
+
+  if (!item) continue;
+
+  const title = String(item.title || "").trim().toLowerCase();
+  const content = String(item.content || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+  const uniqueKey = `${title}|||${content}`;
+
+  if (seenCommentaryNotes.has(uniqueKey)) continue;
+
+  seenCommentaryNotes.add(uniqueKey);
+  matches.push(item);
+}
     const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
     const html = `
       <h4>Matthew Henry Commentary</h4>
@@ -8705,10 +8722,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const start = parseInt(get("start")?.value, 10) || 1;
     const end = parseInt(get("end")?.value, 10) || start;
     const matches = [];
-    for (let v = start; v <= end; v++) {
-      const key = `${book} ${chapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
+const seenCommentaryNotes = new Set();
+
+for (let v = start; v <= end; v++) {
+  const key = `${book} ${chapter}:${v}`;
+  const item = commentary[key];
+
+  if (!item) continue;
+
+  const title = String(item.title || "").trim().toLowerCase();
+  const content = String(item.content || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+  const uniqueKey = `${title}|||${content}`;
+
+  if (seenCommentaryNotes.has(uniqueKey)) continue;
+
+  seenCommentaryNotes.add(uniqueKey);
+  matches.push(item);
+}
     const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
     const html = `
       <h4>Jamieson-Fausset-Brown Commentary</h4>
