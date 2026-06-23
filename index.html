@@ -11836,5 +11836,34 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   window.openCleanCommentaryPanel = openCleanCommentaryPanel;
 })();
 </script>
+<script>
+(function hideDuplicateCommentarySourceLabels() {
+  function clean(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function removeDuplicateCommentaryLabels() {
+    document.querySelectorAll(".resource-source-label").forEach(label => {
+      const text = clean(label.textContent);
+
+      if (
+        text === "matthew henry commentary" ||
+        text === "jamieson-fausset-brown commentary" ||
+        text === "jfb commentary"
+      ) {
+        label.remove();
+      }
+    });
+  }
+
+  removeDuplicateCommentaryLabels();
+
+  const observer = new MutationObserver(removeDuplicateCommentaryLabels);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
 </body>
 </html>
