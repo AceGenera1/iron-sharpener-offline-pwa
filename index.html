@@ -11586,5 +11586,255 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   color: #FFF8EA !important;
 }
 </style>
+<script>
+(function finalCommentaryPanelCleanup() {
+  const get = (id) => document.getElementById(id);
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function norm(value) {
+    return String(value || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function safeActiveResource(value) {
+    try {
+      activeResourcePanel = value;
+    } catch (_) {
+      window.activeResourcePanel = value;
+    }
+  }
+
+  function getActiveResource() {
+    try {
+      return activeResourcePanel;
+    } catch (_) {
+      return window.activeResourcePanel || "";
+    }
+  }
+
+  function commentaryName(kind) {
+    return kind === "jfb"
+      ? "Jamieson-Fausset-Brown Commentary"
+      : "Matthew Henry Commentary";
+  }
+
+  function commentaryActiveValue(kind) {
+    return kind === "jfb" ? "jfb" : "commentary";
+  }
+
+  function getCommentaryData(kind, book) {
+    if (kind === "jfb") {
+      return typeof loadJfbCommentary === "function"
+        ? loadJfbCommentary(book)
+        : Promise.resolve({});
+    }
+
+    return typeof loadMatthewHenryCommentary === "function"
+      ? loadMatthewHenryCommentary(book)
+      : Promise.resolve({});
+  }
+
+  function getSectionLabel(item, commentary, book, chapter) {
+    const contentKey = norm(item?.content || "");
+    if (!contentKey) return item?.title || "Commentary";
+
+    const pattern = new RegExp(
+      "^" + String(book).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s+" + chapter + ":(\\d+)$"
+    );
+
+    const verses = [];
+
+    Object.keys(commentary || {}).forEach(key => {
+      const match = key.match(pattern);
+      if (!match) return;
+
+      const candidate = commentary[key];
+      if (norm(candidate?.content || "") === contentKey) {
+        verses.push(parseInt(match[1], 10));
+      }
+    });
+
+    const uniqueVerses = [...new Set(verses)]
+      .filter(Number.isFinite)
+      .sort((a, b) => a - b);
+
+    if (!uniqueVerses.length) return item?.title || "Commentary";
+
+    const first = uniqueVerses[0];
+    const last = uniqueVerses[uniqueVerses.length - 1];
+
+    return first === last
+      ? `${book} ${chapter}:${first}`
+      : `${book} ${chapter}:${first}-${last}`;
+  }
+
+  function addUniqueMatch(matches, item, anchorVerse) {
+    if (!item) return;
+
+    const items = Array.isArray(item) ? item : [item];
+
+    items.forEach(entry => {
+      if (!entry) return;
+
+      const content = norm(entry.content || "");
+      if (!content) return;
+
+      const alreadyExists = matches.some(existing => {
+        return norm(existing.content || "") === content;
+      });
+
+      if (!alreadyExists) {
+        matches.push({
+          ...entry,
+          _anchorVerse: anchorVerse
+        });
+      }
+    });
+  }
+
+  function removeLegacyCommentaryPanels(kind) {
+    const needles = kind === "jfb"
+      ? ["jamieson-fausset-brown commentary", "jfb commentary"]
+      : ["matthew henry commentary"];
+
+    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+      if (panel.dataset.commentaryKind === kind) return;
+
+      const text = norm(panel.textContent || "");
+      if (needles.some(needle => text.includes(needle))) {
+        panel.remove();
+      }
+    });
+  }
+
+  async function openCleanCommentaryPanel(kind) {
+    safeActiveResource(commentaryActiveValue(kind));
+
+    const book = get("book")?.value || "";
+    const chapter = get("chapter")?.value || "";
+    const start = parseInt(get("start")?.value, 10) || 1;
+    const end = parseInt(get("end")?.value, 10) || start;
+
+    const commentary = await getCommentaryData(kind, book);
+    const matches = [];
+
+    for (let v = start; v <= end; v++) {
+      const key = `${book} ${chapter}:${v}`;
+      addUniqueMatch(matches, commentary[key], v);
+    }
+
+    const title = commentaryName(kind);
+
+    const html = matches.length
+      ? matches.map(item => `
+          <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+            <h4>${esc(getSectionLabel(item, commentary, book, chapter))}</h4>
+            <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(item.content || "")}</p>
+          </div>
+        `).join("")
+      : `<p style="font:800 14px Arial,sans-serif;">No ${esc(title)} found for this passage yet.</p>`;
+
+    removeLegacyCommentaryPanels(kind);
+
+    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
+    if (typeof opener !== "function") return;
+
+    const panel = opener(
+      title,
+      html,
+      title,
+      `commentary-${kind}`,
+      { updateExisting: true }
+    );
+
+    if (panel) {
+      panel.dataset.commentaryKind = kind;
+
+      const sourceLabel = panel.querySelector(".resource-source-label");
+      if (sourceLabel) sourceLabel.remove();
+
+      const titleNode = panel.querySelector(".resource-panel-title");
+      if (titleNode) titleNode.textContent = title;
+    }
+  }
+
+  const mhButton = get("openCommentariesResource");
+  if (mhButton) {
+    mhButton.onclick = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await openCleanCommentaryPanel("mh");
+    };
+  }
+
+  const jfbButton = get("openJfbResource");
+  if (jfbButton) {
+    jfbButton.onclick = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await openCleanCommentaryPanel("jfb");
+    };
+  }
+
+  function patchedRefreshActiveResourcePanel() {
+    const panels = Array.from(document.querySelectorAll(".resource-instance-panel"));
+
+    const hasMatthewHenryOpen = panels.some(panel => {
+      return panel.dataset.commentaryKind === "mh" ||
+        norm(panel.textContent || "").includes("matthew henry commentary");
+    });
+
+    const hasJfbOpen = panels.some(panel => {
+      const text = norm(panel.textContent || "");
+      return panel.dataset.commentaryKind === "jfb" ||
+        text.includes("jamieson-fausset-brown commentary") ||
+        text.includes("jfb commentary");
+    });
+
+    if (hasMatthewHenryOpen && (!hasJfbOpen || getActiveResource() !== "jfb")) {
+      openCleanCommentaryPanel("mh");
+      return;
+    }
+
+    if (hasJfbOpen) {
+      openCleanCommentaryPanel("jfb");
+      return;
+    }
+
+    const active = getActiveResource();
+
+    if (active === "tsk" && get("openTskResource")) {
+      get("openTskResource").click();
+      return;
+    }
+
+    if (active === "personalCrossRefs" && get("obsShowCrossRefs")) {
+      get("obsShowCrossRefs").click();
+      return;
+    }
+
+    if (active === "bookOverview" && get("openBookOverviewResource")) {
+      get("openBookOverviewResource").click();
+    }
+  }
+
+  try {
+    refreshActiveResourcePanel = patchedRefreshActiveResourcePanel;
+  } catch (_) {}
+
+  window.refreshActiveResourcePanel = patchedRefreshActiveResourcePanel;
+  window.openCleanCommentaryPanel = openCleanCommentaryPanel;
+})();
+</script>
 </body>
 </html>
