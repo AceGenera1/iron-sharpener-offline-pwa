@@ -2232,7 +2232,19 @@ body.dark .copy-status {
     grid-template-columns: 1fr !important;
   }
 }
+/* Study Resources card height fix */
+#studyResourcesPanel .tool-options {
+  align-items: start !important;
+  grid-auto-rows: auto !important;
+}
 
+#studyResourcesPanel .tool-option {
+  align-self: start !important;
+  height: auto !important;
+  min-height: 104px !important;
+  display: block !important;
+  text-align: left !important;
+}
 </style>
 </head>
 <body>
@@ -9282,19 +9294,6 @@ body:not(.dark) #studyResourcesPanel .tool-option span {
 .resource-instance-panel button {
   font-family: Arial, sans-serif !important;
   font-weight: 800 !important;
-}
-
-.resource-grid,
-.study-resource-grid,
-.tools-grid {
-  align-items: start;
-}
-
-.resource-card,
-.study-resource-card,
-.tool-card {
-  align-self: start;
-  height: auto;
 }
 </style>
 
