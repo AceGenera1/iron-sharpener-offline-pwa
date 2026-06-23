@@ -2332,7 +2332,8 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   <button id="obsShowApplicationNote">Application & Prayer</button>
   <button id="obsShowTeachingMethod">Teaching Method</button>
   <button id="ironPromptPanelBtn" type="button">I.R.O.N.</button>
-  <button id="obsShowCrossRefs">Cross References</button>
+  <button id="obsShowCrossRefs">Teaching Cross References</button>
+  <button id="obsShowCrossRefs">Built-In References</button>
   <button id="obsShowStudyResources" type="button">Study Resources</button>
   <button id="obsClearMarks" class="secondary">Clear</button>
   <button id="obsResetPanels" class="secondary">Reset Panels</button>
@@ -11484,40 +11485,53 @@ body.cream-mode #obsToolsPanel .gold-btn:hover {
     panel.setAttribute("aria-hidden", "true");
   }
 
-  function addInternalButtons() {
-    if (!$("openInternalCrossRefs")) {
-      const box = document.querySelector(".teacher-tools-box");
-      if (box) {
-        const button = document.createElement("button");
-        button.id = "openInternalCrossRefs";
-        button.type = "button";
-        button.className = "secondary internal-xref-shortcut";
-        button.textContent = "Built-In Cross References";
-        const status = $("copyStatus");
-        if (status && status.parentElement === box) {
-          box.insertBefore(button, status);
-        } else {
-          box.appendChild(button);
-        }
-      }
-    }
 
-    if (!$("obsShowInternalCrossRefs")) {
-      const obsBar = $("obsToolBar");
-      const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
-      if (obsBar) {
-        const button = document.createElement("button");
-        button.id = "obsShowInternalCrossRefs";
-        button.type = "button";
-        button.textContent = "Internal References";
-        obsBar.insertBefore(button, before || null);
-      }
-    }
-
-    $("openInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
-    $("obsShowInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
+function addInternalButtons() {
+  // Remove any older quick-action shortcut that may have been inserted
+  // into the main Teacher Tools quick box.
+  const existingInternalButton = $("openInternalCrossRefs");
+  if (existingInternalButton) {
+    existingInternalButton.remove();
   }
 
+  // Add Built-In Cross References inside the Open Teacher Tools panel,
+  // directly after Erase Verse Marks so it lands to the right of it.
+  const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
+
+  if (eraseButton && eraseButton.parentElement) {
+    const button = document.createElement("button");
+    button.id = "openInternalCrossRefs";
+    button.type = "button";
+    button.className = "tool-option helper-option internal-xref-shortcut";
+    button.innerHTML = `
+      <strong>Built-In Cross References</strong>
+      <span>Open the built-in Scripture cross-reference database for the current passage or full chapter.</span>
+    `;
+
+    eraseButton.insertAdjacentElement("afterend", button);
+  }
+
+  // Add the OBS Focus toolbar button, clearly differentiated from
+  // Teaching Cross References.
+  const oldObsInternalButton = $("obsShowInternalCrossRefs");
+  if (oldObsInternalButton) {
+    oldObsInternalButton.remove();
+  }
+
+  const obsBar = $("obsToolBar");
+  const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
+
+  if (obsBar) {
+    const button = document.createElement("button");
+    button.id = "obsShowInternalCrossRefs";
+    button.type = "button";
+    button.textContent = "Built-In References";
+    obsBar.insertBefore(button, before || null);
+  }
+
+  $("openInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
+  $("obsShowInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
+}
   function refreshIfOpenSoon() {
     setTimeout(() => {
       const panel = $("internalCrossRefsPanel");
