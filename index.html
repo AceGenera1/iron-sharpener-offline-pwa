@@ -12955,5 +12955,74 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   restoreAllPanelPositions();
 })();
 </script>
+<script>
+(function obsFocusStudyResourceRefreshBridge() {
+  if (window.__ironObsStudyResourceRefreshBridgeInstalled) return;
+  window.__ironObsStudyResourceRefreshBridgeInstalled = true;
+
+  function scheduleStudyResourceRefreshFromObs() {
+    if (typeof window.refreshActiveResourcePanel !== "function") return;
+
+    setTimeout(() => window.refreshActiveResourcePanel(), 80);
+    setTimeout(() => window.refreshActiveResourcePanel(), 250);
+    setTimeout(() => window.refreshActiveResourcePanel(), 500);
+  }
+
+  const originalObsLoader =
+    window.loadPassageFromObsNavigator ||
+    (typeof loadPassageFromObsNavigator === "function" ? loadPassageFromObsNavigator : null);
+
+  if (typeof originalObsLoader === "function") {
+    const wrappedObsLoader = function(...args) {
+      const result = originalObsLoader.apply(this, args);
+      scheduleStudyResourceRefreshFromObs();
+      return result;
+    };
+
+    window.loadPassageFromObsNavigator = wrappedObsLoader;
+
+    try {
+      loadPassageFromObsNavigator = wrappedObsLoader;
+    } catch (_) {}
+  }
+
+  const obsLoadButton = document.getElementById("obsLoadPassage");
+
+  if (obsLoadButton) {
+    obsLoadButton.onclick = function(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      if (typeof window.loadPassageFromObsNavigator === "function") {
+        window.loadPassageFromObsNavigator();
+      } else if (typeof loadPassageFromObsNavigator === "function") {
+        loadPassageFromObsNavigator();
+      }
+
+      scheduleStudyResourceRefreshFromObs();
+    };
+  }
+
+  ["obsBookSelect", "obsChapterSelect", "obsStartVerseSelect", "obsEndVerseSelect", "obsRangeSizeSelect"].forEach(id => {
+    const field = document.getElementById(id);
+    if (!field) return;
+
+    field.addEventListener("change", () => {
+      setTimeout(() => {
+        const obsPanel = document.getElementById("obsNavigatorPanel");
+        const obsIsOpen = obsPanel?.classList.contains("open");
+
+        if (!obsIsOpen) return;
+
+        // This does not load the passage early.
+        // It only prepares the refresh after the user clicks Load Passage.
+        window.__ironObsLastNavigatorChange = Date.now();
+      }, 0);
+    });
+  });
+})();
+</script>
 </body>
 </html>
