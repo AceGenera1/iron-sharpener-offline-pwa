@@ -2278,6 +2278,25 @@ body.dark .copy-status {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Biblical Doctrine cream-mode button color fix */
+body:not(.dark) #obsCrossRefsPanel .doctrine-topic-btn,
+body:not(.dark) #obsCrossRefsPanel .doctrine-category-btn,
+body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) #obsCrossRefsPanel .doctrine-topic-btn:hover,
+body:not(.dark) #obsCrossRefsPanel .doctrine-category-btn:hover,
+body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  color: #FFF8EA !important;
+}
 </style>
 </head>
 <body>
