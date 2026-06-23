@@ -8758,78 +8758,6 @@ function addUniqueCommentaryMatch(matches, item, anchorVerse) {
     });
   }
 }
-  usePanelButton("openCommentariesResource", async () => {
-    const commentary = typeof window.loadMatthewHenryCommentary === "function" ? await window.loadMatthewHenryCommentary(window.bookSel?.value || get("book")?.value) : {};
-    const book = get("book")?.value || "";
-    const chapter = get("chapter")?.value || "";
-    const start = parseInt(get("start")?.value, 10) || 1;
-    const end = parseInt(get("end")?.value, 10) || start;
-   activeResourcePanel = "commentary";
-
-const matches = [];
-
-for (let v = start; v <= end; v++) {
-  const key = `${book} ${chapter}:${v}`;
-  addUniqueCommentaryMatch(matches, commentary[key], v);
-}
-    const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
-    const html = `
-      <h4>Matthew Henry Commentary</h4>
-      ${matches.length
-        ? matches.map(item => `
-          <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-            <h4>${escapeHtml(getCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
-            <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content || ""}</p>
-          </div>
-        `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`}
-    `;
-    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
-  const text = String(panel.textContent || "").toLowerCase();
-  if (text.includes("matthew henry commentary")) {
-    panel.remove();
-  }
-});
-
-openStudyResourcePanel(
-    openStudyResourcePanel(`Matthew Henry Commentary — ${refLabel}`, html, "Matthew Henry Commentary", refLabel, { updateExisting: true });
-  });
-
-  usePanelButton("openJfbResource", async () => {
-    const commentary = typeof window.loadJfbCommentary === "function" ? await window.loadJfbCommentary(get("book")?.value || "") : {};
-    const book = get("book")?.value || "";
-    const chapter = get("chapter")?.value || "";
-    const start = parseInt(get("start")?.value, 10) || 1;
-    const end = parseInt(get("end")?.value, 10) || start;
-    activeResourcePanel = "jfb";
-
-const matches = [];
-
-for (let v = start; v <= end; v++) {
-  const key = `${book} ${chapter}:${v}`;
-  addUniqueCommentaryMatch(matches, commentary[key], v);
-}
-    const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
-    const html = `
-      <h4>Jamieson-Fausset-Brown Commentary</h4>
-      ${matches.length
-        ? matches.map(item => `
-          <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-            <h4>${escapeHtml(getCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
-            <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content || ""}</p>
-          </div>
-        `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`}
-    `;
-    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
-  const text = String(panel.textContent || "").toLowerCase();
-  if (
-    text.includes("jamieson-fausset-brown commentary") ||
-    text.includes("jfb commentary")
-  ) {
-    panel.remove();
-  }
-});
     openStudyResourcePanel(`JFB Commentary — ${refLabel}`, html, "Jamieson-Fausset-Brown Commentary", refLabel, { updateExisting: true });
   });
 
@@ -8875,6 +8803,161 @@ for (let v = start; v <= end; v++) {
     const categoryBrowser = panel.querySelector(".doctrine-category-browser");
     if (!searchBox || !results || searchBox.dataset.ready === "true") return;
     searchBox.dataset.ready = "true";
+
+    function normalizeResourceCommentaryText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function escapeResourceRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getResourceCommentarySectionLabel(item, commentary, book, chapter, anchorVerse) {
+  const contentKey = normalizeResourceCommentaryText(item?.content || "");
+
+  if (!contentKey) {
+    return item?.title || "Commentary";
+  }
+
+  const pattern = new RegExp(`^${escapeResourceRegExp(book)}\\s+${chapter}:(\\d+)$`);
+  const verses = [];
+
+  Object.keys(commentary || {}).forEach(key => {
+    const match = key.match(pattern);
+    if (!match) return;
+
+    const candidate = commentary[key];
+    if (normalizeResourceCommentaryText(candidate?.content || "") === contentKey) {
+      verses.push(parseInt(match[1], 10));
+    }
+  });
+
+  const uniqueVerses = [...new Set(verses)]
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!uniqueVerses.length) {
+    return item?.title || "Commentary";
+  }
+
+  const first = uniqueVerses[0];
+  const last = uniqueVerses[uniqueVerses.length - 1];
+
+  return first === last
+    ? `${book} ${chapter}:${first}`
+    : `${book} ${chapter}:${first}-${last}`;
+}
+
+function addUniqueResourceCommentaryMatch(matches, item, anchorVerse) {
+  if (!item) return;
+
+  const content = normalizeResourceCommentaryText(item.content || "");
+  if (!content) return;
+
+  const alreadyExists = matches.some(existing => {
+    return normalizeResourceCommentaryText(existing.content || "") === content;
+  });
+
+  if (!alreadyExists) {
+    matches.push({
+      ...item,
+      _anchorVerse: anchorVerse
+    });
+  }
+}
+
+usePanelButton("openCommentariesResource", async () => {
+  activeResourcePanel = "commentary";
+
+  const book = get("book")?.value || "";
+  const chapter = get("chapter")?.value || "";
+  const start = parseInt(get("start")?.value, 10) || 1;
+  const end = parseInt(get("end")?.value, 10) || start;
+  const refLabel = typeof window.currentRef === "function"
+    ? window.currentRef()
+    : `${book} ${chapter}:${start}-${end}`;
+
+  const commentary = typeof window.loadMatthewHenryCommentary === "function"
+    ? await window.loadMatthewHenryCommentary(book)
+    : {};
+
+  const matches = [];
+
+  for (let v = start; v <= end; v++) {
+    const key = `${book} ${chapter}:${v}`;
+    addUniqueResourceCommentaryMatch(matches, commentary[key], v);
+  }
+
+  const html = `
+    <h4>Matthew Henry Commentary — ${escapeHtml(refLabel)}</h4>
+    ${
+      matches.length
+        ? matches.map(item => `
+            <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+              <h4>${escapeHtml(getResourceCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
+              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${escapeHtml(item.content || "")}</p>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
+    }
+  `;
+
+  openStudyResourcePanel(
+    "Matthew Henry Commentary",
+    html,
+    "Matthew Henry Commentary",
+    "current-passage",
+    { updateExisting: true }
+  );
+});
+
+usePanelButton("openJfbResource", async () => {
+  activeResourcePanel = "jfb";
+
+  const book = get("book")?.value || "";
+  const chapter = get("chapter")?.value || "";
+  const start = parseInt(get("start")?.value, 10) || 1;
+  const end = parseInt(get("end")?.value, 10) || start;
+  const refLabel = typeof window.currentRef === "function"
+    ? window.currentRef()
+    : `${book} ${chapter}:${start}-${end}`;
+
+  const commentary = typeof window.loadJfbCommentary === "function"
+    ? await window.loadJfbCommentary(book)
+    : {};
+
+  const matches = [];
+
+  for (let v = start; v <= end; v++) {
+    const key = `${book} ${chapter}:${v}`;
+    addUniqueResourceCommentaryMatch(matches, commentary[key], v);
+  }
+
+  const html = `
+    <h4>Jamieson-Fausset-Brown Commentary — ${escapeHtml(refLabel)}</h4>
+    ${
+      matches.length
+        ? matches.map(item => `
+            <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
+              <h4>${escapeHtml(getResourceCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
+              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${escapeHtml(item.content || "")}</p>
+            </div>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`
+    }
+  `;
+
+  openStudyResourcePanel(
+    "Jamieson-Fausset-Brown Commentary",
+    html,
+    "Jamieson-Fausset-Brown Commentary",
+    "current-passage",
+    { updateExisting: true }
+  );
+});
 
     function renderHomeMessage() {
       results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
