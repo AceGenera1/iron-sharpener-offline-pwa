@@ -12722,5 +12722,238 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   document.querySelectorAll(".resource-source-label").forEach(label => label.remove());
 })();
 </script>
+<script>
+(function finalStudyResourcePositionAndRefreshPatch() {
+  const STORAGE_KEY = "ironSharpener.studyResourcePanelPositions.v1";
+
+  const get = (id) => document.getElementById(id);
+
+  function clean(value) {
+    return String(value || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function loadPositions() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function savePositions(positions) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(positions || {}));
+  }
+
+  function panelText(panel) {
+    if (!panel) return "";
+
+    return clean([
+      panel.dataset.resourceKey || "",
+      panel.dataset.commentaryKind || "",
+      panel.querySelector(".resource-panel-title")?.textContent || "",
+      panel.querySelector(".teacher-pop-head h3")?.textContent || "",
+      panel.textContent || ""
+    ].join(" "));
+  }
+
+  function getPanelResourceKey(panel) {
+    if (!panel) return "";
+
+    if (panel.dataset.resourceKey) return panel.dataset.resourceKey;
+
+    if (panel.dataset.commentaryKind === "mh") return "commentary-mh";
+    if (panel.dataset.commentaryKind === "jfb") return "commentary-jfb";
+
+    const text = panelText(panel);
+
+    if (text.includes("matthew henry commentary")) return "commentary-mh";
+    if (text.includes("jamieson-fausset-brown commentary") || text.includes("jfb commentary")) return "commentary-jfb";
+    if (text.includes("treasury of scripture knowledge")) return "tsk-current-passage";
+    if (text.includes("book overview") || /\b(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|psalms|proverbs|ecclesiastes|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|jude|revelation)\s+overview\b/i.test(text)) {
+      return "book-overview-manual";
+    }
+
+    if (text.includes("easton")) return "eastons-search";
+    if (text.includes("smith")) return "smiths-search";
+    if (text.includes("nave")) return "naves-search";
+    if (text.includes("biblical doctrine")) return "doctrine-search";
+
+    return "";
+  }
+
+  function rememberPanelPosition(panel) {
+    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
+
+    const key = getPanelResourceKey(panel);
+    if (!key) return;
+
+    const rect = panel.getBoundingClientRect();
+    const positions = loadPositions();
+
+    positions[key] = {
+      left: panel.style.left || `${rect.left}px`,
+      top: panel.style.top || `${rect.top}px`,
+      width: panel.style.width || "",
+      height: panel.style.height || "",
+      zIndex: panel.style.zIndex || ""
+    };
+
+    savePositions(positions);
+  }
+
+  function rememberAllPanelPositions() {
+    document.querySelectorAll(".resource-instance-panel").forEach(rememberPanelPosition);
+  }
+
+  function restorePanelPosition(panel) {
+    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
+
+    const key = getPanelResourceKey(panel);
+    if (!key) return;
+
+    const saved = loadPositions()[key];
+    if (!saved) return;
+
+    panel.dataset.resourceKey = panel.dataset.resourceKey || key;
+
+    panel.style.left = saved.left;
+    panel.style.top = saved.top;
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+
+    panel.style.setProperty("--drag-left", saved.left);
+    panel.style.setProperty("--drag-top", saved.top);
+
+    if (saved.width) panel.style.width = saved.width;
+    if (saved.height) panel.style.height = saved.height;
+    if (saved.zIndex) panel.style.zIndex = saved.zIndex;
+
+    panel.classList.add("drag-positioned");
+  }
+
+  function restoreAllPanelPositions() {
+    document.querySelectorAll(".resource-instance-panel").forEach(restorePanelPosition);
+  }
+
+  function hasOpenPanelByKey(key) {
+    return Array.from(document.querySelectorAll(".resource-instance-panel")).some(panel => {
+      return getPanelResourceKey(panel) === key;
+    });
+  }
+
+  function hasMatthewHenryOpen() {
+    return hasOpenPanelByKey("commentary-mh");
+  }
+
+  function hasJfbOpen() {
+    return hasOpenPanelByKey("commentary-jfb");
+  }
+
+  function hasTskOpen() {
+    return hasOpenPanelByKey("tsk-current-passage");
+  }
+
+  function hasBookOverviewOpen() {
+    return hasOpenPanelByKey("book-overview-manual");
+  }
+
+  function clickIfPresent(id) {
+    const button = get(id);
+    if (button) button.click();
+  }
+
+  function finalRefreshActiveResourcePanel() {
+    const shouldRefreshMatthewHenry = hasMatthewHenryOpen();
+    const shouldRefreshJfb = hasJfbOpen();
+    const shouldRefreshTsk = hasTskOpen();
+    const shouldRefreshBookOverview = hasBookOverviewOpen();
+
+    if (
+      !shouldRefreshMatthewHenry &&
+      !shouldRefreshJfb &&
+      !shouldRefreshTsk &&
+      !shouldRefreshBookOverview
+    ) {
+      return;
+    }
+
+    rememberAllPanelPositions();
+
+    if (shouldRefreshMatthewHenry) {
+      clickIfPresent("openCommentariesResource");
+    }
+
+    if (shouldRefreshJfb) {
+      clickIfPresent("openJfbResource");
+    }
+
+    if (shouldRefreshTsk) {
+      clickIfPresent("openTskResource");
+    }
+
+    if (shouldRefreshBookOverview) {
+      clickIfPresent("openBookOverviewResource");
+    }
+
+    setTimeout(restoreAllPanelPositions, 0);
+    setTimeout(restoreAllPanelPositions, 80);
+    setTimeout(restoreAllPanelPositions, 250);
+  }
+
+  document.addEventListener("pointerup", rememberAllPanelPositions, true);
+  document.addEventListener("mouseup", rememberAllPanelPositions, true);
+  document.addEventListener("touchend", rememberAllPanelPositions, true);
+
+  document.addEventListener("click", event => {
+    const closeButton = event.target.closest(".resource-instance-panel .teacher-pop-close");
+    if (closeButton) {
+      const panel = closeButton.closest(".resource-instance-panel");
+      rememberPanelPosition(panel);
+      return;
+    }
+
+    const resourceButton = event.target.closest("button");
+    if (!resourceButton) return;
+
+    const resourceButtonIds = new Set([
+      "openTskResource",
+      "openEastonsResource",
+      "openSmithsResource",
+      "openNavesResource",
+      "openDoctrineResource",
+      "openCommentariesResource",
+      "openJfbResource",
+      "openBookOverviewResource"
+    ]);
+
+    if (!resourceButtonIds.has(resourceButton.id)) return;
+
+    setTimeout(restoreAllPanelPositions, 0);
+    setTimeout(restoreAllPanelPositions, 80);
+    setTimeout(restoreAllPanelPositions, 250);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    setTimeout(restoreAllPanelPositions, 0);
+    setTimeout(restoreAllPanelPositions, 80);
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  try {
+    refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
+  } catch (_) {}
+
+  window.refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
+
+  restoreAllPanelPositions();
+})();
+</script>
 </body>
 </html>
