@@ -5895,9 +5895,35 @@ function goToScriptureReference(ref) {
 
 function refreshActiveResourcePanel() {
   const obsPanelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
-  const studyResourcePanelIsOpen = !!document.querySelector(".resource-instance-panel");
+  const resourcePanels = Array.from(document.querySelectorAll(".resource-instance-panel"));
+  const studyResourcePanelIsOpen = resourcePanels.length > 0;
 
   if (!obsPanelIsOpen && !studyResourcePanelIsOpen) return;
+
+  const hasMatthewHenryOpen = resourcePanels.some(panel => {
+    const text = String(panel.textContent || "").toLowerCase();
+    return text.includes("matthew henry commentary");
+  });
+
+  const hasJfbOpen = resourcePanels.some(panel => {
+    const text = String(panel.textContent || "").toLowerCase();
+    return (
+      text.includes("jamieson-fausset-brown commentary") ||
+      text.includes("jfb commentary")
+    );
+  });
+
+  if (hasMatthewHenryOpen && (!hasJfbOpen || activeResourcePanel === "commentary")) {
+    activeResourcePanel = "commentary";
+    if ($("openCommentariesResource")) $("openCommentariesResource").click();
+    return;
+  }
+
+  if (hasJfbOpen && (!hasMatthewHenryOpen || activeResourcePanel === "jfb")) {
+    activeResourcePanel = "jfb";
+    if ($("openJfbResource")) $("openJfbResource").click();
+    return;
+  }
 
   if (activeResourcePanel === "tsk") {
     if ($("openTskResource")) $("openTskResource").click();
@@ -8782,7 +8808,7 @@ function addUniqueCommentaryMatch(matches, item, anchorVerse) {
   usePanelButton("openDoctrineResource", async () => {
     const registry = typeof window.loadDoctrineRegistry === "function" ? await window.loadDoctrineRegistry() : [];
     const categories = [...new Set(registry.map(item => item.category || "Uncategorized"))].sort();
-    const panel = openStudyResourcePanel(
+    
       "Biblical Doctrine",
       `
         <input class="doctrine-search-box" type="text" placeholder="Search doctrine topics like salvation, scripture, prayer..." style="margin-bottom:10px;">
@@ -8892,7 +8918,6 @@ usePanelButton("openCommentariesResource", async () => {
   }
 
   const html = `
-    <h4>Matthew Henry Commentary — ${escapeHtml(refLabel)}</h4>
     ${
       matches.length
         ? matches.map(item => `
@@ -8905,13 +8930,15 @@ usePanelButton("openCommentariesResource", async () => {
     }
   `;
 
-  openStudyResourcePanel(
-    "Matthew Henry Commentary",
-    html,
-    "Matthew Henry Commentary",
-    "current-passage",
-    { updateExisting: true }
-  );
+  const panel = openStudyResourcePanel(
+  "Matthew Henry Commentary",
+  html,
+  "Matthew Henry Commentary",
+  "current-passage",
+  { updateExisting: true }
+);
+
+panel?.querySelector(".resource-source-label")?.remove();
 });
 
 usePanelButton("openJfbResource", async () => {
@@ -8937,7 +8964,6 @@ usePanelButton("openJfbResource", async () => {
   }
 
   const html = `
-    <h4>Jamieson-Fausset-Brown Commentary — ${escapeHtml(refLabel)}</h4>
     ${
       matches.length
         ? matches.map(item => `
@@ -8950,13 +8976,15 @@ usePanelButton("openJfbResource", async () => {
     }
   `;
 
-  openStudyResourcePanel(
-    "Jamieson-Fausset-Brown Commentary",
-    html,
-    "Jamieson-Fausset-Brown Commentary",
-    "current-passage",
-    { updateExisting: true }
-  );
+  const panel = openStudyResourcePanel(
+  "Jamieson-Fausset-Brown Commentary",
+  html,
+  "Jamieson-Fausset-Brown Commentary",
+  "current-passage",
+  { updateExisting: true }
+);
+
+panel?.querySelector(".resource-source-label")?.remove();
 });
 
     function renderHomeMessage() {
