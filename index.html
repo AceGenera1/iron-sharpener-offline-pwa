@@ -7599,7 +7599,27 @@ body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn {
   border: 1.8px solid #7A4C06 !important;
   box-shadow: none !important;
 }
+/* FINAL FIX — active Biblical Doctrine search buttons */
+body:not(.dark) .resource-instance-panel .doctrine-results .doctrine-topic-btn,
+body:not(.dark) .resource-instance-panel .doctrine-category-btn,
+body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+}
 
+body:not(.dark) .resource-instance-panel .doctrine-results .doctrine-topic-btn:hover,
+body:not(.dark) .resource-instance-panel .doctrine-category-btn:hover,
+body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  background-color: #9A6618 !important;
+  color: #FFF8EA !important;
+}
+  
 body:not(.dark) #doctrineResults .doctrine-topic-btn:hover,
 body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
