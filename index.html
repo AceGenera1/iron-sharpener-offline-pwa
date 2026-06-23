@@ -4905,34 +4905,45 @@ async function loadMatthewHenryCommentary(bookName) {
   }
 }
 
-    async function loadJfbCommentary(bookName) {
-  try {
-    const response = await fetch(
-      `bible/resources/commentaries/jfb/${bookName}.json`
-    );
+ async function loadJfbCommentary(bookName) {
+  const cleanBookName = String(bookName || "").trim();
 
-    if (!response.ok) return {};
+  const possiblePaths = [
+    // Correct expected path
+    `bible/resources/commentaries/jfb/${cleanBookName}.json`,
 
-    return await response.json();
-  } catch (error) {
-    console.warn("JFB commentary not found:", error);
-    return {};
+    // Safer encoded version for book names with spaces
+    `bible/resources/commentaries/jfb/${encodeURIComponent(cleanBookName)}.json`,
+
+    // Common accidental nested upload path if the whole ZIP folder was copied into /jfb/
+    `bible/resources/commentaries/jfb/bible/resources/commentaries/jfb/${cleanBookName}.json`,
+
+    // Same nested path, encoded
+    `bible/resources/commentaries/jfb/bible/resources/commentaries/jfb/${encodeURIComponent(cleanBookName)}.json`
+  ];
+
+  for (const path of possiblePaths) {
+    try {
+      const response = await fetch(path, { cache: "no-store" });
+
+      if (!response.ok) {
+        console.warn("JFB commentary path not found:", path, response.status);
+        continue;
+      }
+
+      const data = await response.json();
+
+      if (data && typeof data === "object") {
+        console.log("JFB commentary loaded from:", path);
+        return data;
+      }
+    } catch (error) {
+      console.warn("JFB commentary load error:", path, error);
+    }
   }
-}
 
-    async function loadBookOverview(bookName) {
-  try {
-    const response = await fetch(
-      `bible/resources/book-overviews/${bookName}.json`
-    );
-
-    if (!response.ok) return null;
-
-    return await response.json();
-  } catch (error) {
-    console.warn("Book overview not found:", error);
-    return null;
-  }
+  console.warn("JFB commentary not found for book:", cleanBookName);
+  return {};
 }
 
     async function loadTSKReferences() {
