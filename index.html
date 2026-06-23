@@ -2413,7 +2413,7 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
 
 <div class="panel">
   <div class="panel-title">
-    <h3>Cross References</h3>
+    <h3>Teaching Cross References</h3>
     <span class="info-wrap" tabindex="0">
       <span class="info-icon">i</span>
       <span class="tooltip">Type Scripture references here, and they will become clickable internal WEB links.</span>
@@ -2465,7 +2465,7 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
 
 <div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
   <div class="floating-crossrefs-header drag-handle" data-drag-handle="obsCrossRefsPanel">
-    <span id="obsCrossRefsTitle">Cross References</span>
+    <span id="obsCrossRefsTitle">Teaching Cross References</span>
     <button id="closeObsCrossRefs" class="secondary" type="button">Close</button>
   </div>
 
@@ -2565,7 +2565,7 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   <div class="tool-options">
     <button type="button" class="tool-option" id="openTskResource">
       <strong>Treasury of Scripture Knowledge</strong>
-      <span>View offline cross references for the current passage.</span>
+      <span>View offline Teaching Cross References for the current passage.</span>
     </button>
 
   <button type="button" class="tool-option" id="openEastonsResource">
@@ -6814,18 +6814,18 @@ const crossRefs = $("crossRefs");
 const obsBackBtn = $("obsBackToPreviousPassage");
 const title = $("obsCrossRefsTitle");
 
-if (title) title.textContent = "Personal Cross References";
+if (title) title.textContent = "Teaching Cross References";
 
     if (!panel || !content || !crossRefs) return;
 
     const manualRefs = parseScriptureReferences(crossRefs.value);
 
     content.innerHTML = `
-      <h4>Personal Cross References</h4>
+      <h4>Teaching Cross References</h4>
       ${
         manualRefs.length
           ? manualRefs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${ref}">${ref}</button>`).join("")
-          : `<p style="font:800 14px Arial,sans-serif;">No personal cross references added yet.</p>`
+          : `<p style="font:800 14px Arial,sans-serif;">No Teaching Cross References added yet.</p>`
       }
     `;
 
@@ -9963,7 +9963,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 
     if (!panel || !content || !crossRefs) return;
 
-    if (title) title.textContent = "Personal Cross References";
+    if (title) title.textContent = "Teaching Cross References";
 
     const rawText = preservePresentationText(crossRefs.value);
     const refs = (typeof parseScriptureReferences === "function")
@@ -9971,7 +9971,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
       : [];
 
     if (!rawText.trim()) {
-      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No personal cross references added yet.</p>`;
+      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No Teaching Cross References added yet.</p>`;
     } else {
       content.innerHTML = `
         <div class="obs-crossrefs-full-note">${escapeHtml(rawText)}</div>
@@ -10797,13 +10797,13 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     if (!panel || !content || !crossRefs) return;
 
     prepareCrossRefsPanel();
-    if (title) title.textContent = "Personal Cross References";
+    if (title) title.textContent = "Teaching Cross References";
 
     const rawText = preserveText(crossRefs.value);
     const refs = parseRefsFromText(rawText);
 
     if (!rawText.trim()) {
-      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No personal cross references added yet.</p>`;
+      content.innerHTML = `<p style="font:500 16px/1.58 'Segoe UI', Arial, sans-serif;">No Teaching Cross References added yet.</p>`;
     } else {
       content.innerHTML = `
         <div class="obs-crossrefs-full-note">${escapeHtml(rawText)}</div>
@@ -11128,6 +11128,41 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
       letter-spacing: 1.1px;
     }
   }
+
+  /* =========================================================
+   CREAM MODE ONLY — force action buttons to brown/red
+   ========================================================= */
+
+body.cream-mode #obsNavigatorPanel .action-btn,
+body.cream-mode #obsNavigatorPanel .primary-btn,
+body.cream-mode #obsNavigatorPanel .gold-btn,
+body.cream-mode #obsNavigatorPanel button.load-passage-btn,
+body.cream-mode #obsLoadPassage,
+body.cream-mode #teacherToolsPanel .action-btn,
+body.cream-mode #teacherToolsPanel .primary-btn,
+body.cream-mode #teacherToolsPanel .gold-btn,
+body.cream-mode #obsToolsPanel .action-btn,
+body.cream-mode #obsToolsPanel .primary-btn,
+body.cream-mode #obsToolsPanel .gold-btn {
+  background: linear-gradient(180deg, #9a5d08 0%, #7b4706 100%) !important;
+  color: #fff8ea !important;
+  border: 1px solid #c79a44 !important;
+  box-shadow: none !important;
+}
+
+body.cream-mode #obsNavigatorPanel .action-btn:hover,
+body.cream-mode #obsNavigatorPanel .primary-btn:hover,
+body.cream-mode #obsNavigatorPanel .gold-btn:hover,
+body.cream-mode #obsNavigatorPanel button.load-passage-btn:hover,
+body.cream-mode #obsLoadPassage:hover,
+body.cream-mode #teacherToolsPanel .action-btn:hover,
+body.cream-mode #teacherToolsPanel .primary-btn:hover,
+body.cream-mode #teacherToolsPanel .gold-btn:hover,
+body.cream-mode #obsToolsPanel .action-btn:hover,
+body.cream-mode #obsToolsPanel .primary-btn:hover,
+body.cream-mode #obsToolsPanel .gold-btn:hover {
+  filter: brightness(1.05) !important;
+}
 </style>
 <script>
 (function () {
@@ -11189,7 +11224,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
       internalTskCache[book] = data || {};
       return internalTskCache[book];
     } catch (error) {
-      console.warn("Internal cross references not found:", error);
+      console.warn("Built-In Cross References not found:", error);
       internalTskCache[book] = {};
       return {};
     }
@@ -11233,7 +11268,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     panel.setAttribute("aria-hidden", "true");
     panel.innerHTML = `
       <div class="teacher-pop-head drag-handle" data-internal-xref-drag="true">
-        <h3>Internal Cross References</h3>
+        <h3>Built-In Cross References</h3>
         <button id="closeInternalCrossRefs" class="teacher-pop-close secondary" type="button">Close</button>
       </div>
       <div class="internal-xrefs-body">
@@ -11242,7 +11277,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
           <button type="button" id="internalXrefsChapterMode" class="secondary">Full Chapter</button>
         </div>
         <input id="internalXrefSearch" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
-        <div id="internalXrefsSummary" class="internal-xrefs-summary">Internal cross references load from the local TSK files.</div>
+        <div id="internalXrefsSummary" class="internal-xrefs-summary">Built-In Cross References load from the local TSK files.</div>
         <div id="internalXrefsResults"></div>
       </div>
       <div class="internal-xref-resize-handle" data-internal-xref-resize="true" title="Resize"></div>
@@ -11397,7 +11432,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     const search = String($("internalXrefSearch")?.value || "").toLowerCase().trim();
     if (!results || !summary) return;
 
-    results.innerHTML = `<p class="internal-xref-empty">Loading internal cross references...</p>`;
+    results.innerHTML = `<p class="internal-xref-empty">Loading Built-In Cross References...</p>`;
 
     const rows = await collectInternalRefs(internalXrefMode);
     let refCount = 0;
@@ -11418,7 +11453,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     summary.textContent = `${currentRefLabel(internalXrefMode)} — ${refCount} internal reference${refCount === 1 ? "" : "s"} across ${verseCount} verse${verseCount === 1 ? "" : "s"}.`;
 
     if (!filteredRows.length) {
-      results.innerHTML = `<div class="internal-xref-empty">No internal cross references found for ${escapeHtml(currentRefLabel(internalXrefMode))}${search ? " with this filter" : ""}. Make sure the local TSK JSON file exists for this book.</div>`;
+      results.innerHTML = `<div class="internal-xref-empty">No Built-In Cross References found for ${escapeHtml(currentRefLabel(internalXrefMode))}${search ? " with this filter" : ""}. Make sure the local TSK JSON file exists for this book.</div>`;
       return;
     }
 
@@ -11457,7 +11492,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
         button.id = "openInternalCrossRefs";
         button.type = "button";
         button.className = "secondary internal-xref-shortcut";
-        button.textContent = "Internal Cross References";
+        button.textContent = "Built-In Cross References";
         const status = $("copyStatus");
         if (status && status.parentElement === box) {
           box.insertBefore(button, status);
