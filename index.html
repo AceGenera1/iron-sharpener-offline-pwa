@@ -13072,5 +13072,30 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   });
 })();
 </script>
+<style>
+/* =========================================================
+   CREAM MODE ONLY — Built-In Cross References button cleanup
+   Keeps dark mode unchanged.
+   ========================================================= */
+
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-internal-xref-mode {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button.active-internal-xref-mode:hover,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode.active-internal-xref-mode:hover,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-internal-xref-mode:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  background-color: #9A6618 !important;
+  color: #FFF8EA !important;
+}
+</style>
 </body>
 </html>
