@@ -11283,6 +11283,29 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
   document.addEventListener('DOMContentLoaded', normalizeShellScroll);
 })();
 </script>
+<style>
+/* FINAL OVERRIDE — Biblical Doctrine result/category buttons in cream mode */
+html body:not(.dark) #obsCrossRefsContent button.doctrine-topic-btn,
+html body:not(.dark) #doctrineResults button.doctrine-topic-btn,
+html body:not(.dark) #obsCrossRefsContent button.doctrine-category-btn,
+html body:not(.dark) #doctrineResults button.doctrine-category-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+}
 
+html body:not(.dark) #obsCrossRefsContent button.doctrine-topic-btn:hover,
+html body:not(.dark) #doctrineResults button.doctrine-topic-btn:hover,
+html body:not(.dark) #obsCrossRefsContent button.doctrine-category-btn:hover,
+html body:not(.dark) #doctrineResults button.doctrine-category-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  background-color: #9A6618 !important;
+  color: #FFF8EA !important;
+}
+</style>
 </body>
 </html>
