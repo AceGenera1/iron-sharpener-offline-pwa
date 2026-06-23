@@ -6514,7 +6514,26 @@ if ($("openNavesResource")) {
     openFloatingResourcePanel(panel);
   };
 }
+function addUniqueCommentaryMatch(matches, item) {
+  if (!item) return;
 
+  const title = cleanText(item.title || "");
+  const content = cleanText(item.content || "");
+
+  if (!title && !content) return;
+
+  const key = `${title}|||${content}`;
+
+  const alreadyExists = matches.some(existing => {
+    const existingTitle = cleanText(existing.title || "");
+    const existingContent = cleanText(existing.content || "");
+    return `${existingTitle}|||${existingContent}` === key;
+  });
+
+  if (!alreadyExists) {
+    matches.push(item);
+  }
+}
     if ($("openCommentariesResource")) {
   $("openCommentariesResource").onclick = async () => {
     activeResourcePanel = "commentary";
@@ -6525,12 +6544,12 @@ if ($("openNavesResource")) {
     const start = parseInt(startSel.value, 10);
     const end = parseInt(endSel.value, 10);
 
-    const matches = [];
+   const matches = [];
 
-    for (let v = start; v <= end; v++) {
-      const key = `${currentBook} ${currentChapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
+for (let v = start; v <= end; v++) {
+  const key = `${currentBook} ${currentChapter}:${v}`;
+  addUniqueCommentaryMatch(matches, commentary[key]);
+}
 
     const commentaryHtml = `
       <h4>Matthew Henry Commentary</h4>
@@ -6567,10 +6586,10 @@ if ($("openJfbResource")) {
 
     const matches = [];
 
-    for (let v = start; v <= end; v++) {
-      const key = `${currentBook} ${currentChapter}:${v}`;
-      if (commentary[key]) matches.push(commentary[key]);
-    }
+for (let v = start; v <= end; v++) {
+  const key = `${currentBook} ${currentChapter}:${v}`;
+  addUniqueCommentaryMatch(matches, commentary[key]);
+}
 
     const jfbHtml = `
       <h4>Jamieson-Fausset-Brown Commentary</h4>
