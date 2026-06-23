@@ -6815,6 +6815,22 @@ if ($("obsBackToPreviousPassage")) {
     if (panel) panel.classList.add("open");
   };
 }
+function closeExistingResourcePanelByTitle(titleText) {
+  const needle = normalizeCommentaryText(titleText);
+
+  document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+    const panelText = normalizeCommentaryText(
+      panel.querySelector(".resource-panel-header, .resource-panel-head, header")?.textContent ||
+      panel.textContent ||
+      ""
+    );
+
+    if (panelText.includes(needle)) {
+      panel.remove();
+    }
+  });
+}
+    
 function openResourceInstancePanel(title, html, sourceLabel = "Study Resource") {
   const panel = document.createElement("div");
   panel.className = "resource-instance-panel";
@@ -8783,6 +8799,7 @@ for (let v = start; v <= end; v++) {
         `).join("")
         : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`}
     `;
+    closeExistingResourcePanelByTitle("Matthew Henry Commentary");
     openStudyResourcePanel(`Matthew Henry Commentary — ${refLabel}`, html, "Matthew Henry Commentary", refLabel, { updateExisting: true });
   });
 
@@ -8812,6 +8829,7 @@ for (let v = start; v <= end; v++) {
         `).join("")
         : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`}
     `;
+    closeExistingResourcePanelByTitle("Jamieson-Fausset-Brown Commentary");
     openStudyResourcePanel(`JFB Commentary — ${refLabel}`, html, "Jamieson-Fausset-Brown Commentary", refLabel, { updateExisting: true });
   });
 
