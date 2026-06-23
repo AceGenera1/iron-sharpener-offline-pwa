@@ -11971,100 +11971,68 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
 })();
 </script>
 <script>
-(function globalStudyResourcePanelBehaviorLock() {
-  const CURRENT_PASSAGE_RESOURCE_FAMILIES = new Set([
-    "matthew-henry",
-    "jfb",
-    "tsk",
-    "book-overview"
-  ]);
+(function finalStudyResourcesCleanOverride() {
+  const get = (id) => document.getElementById(id);
 
-  const savedPositions = new Map();
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
   function clean(value) {
-    return String(value || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
   }
 
-  function getPanelText(panel) {
-    if (!panel) return "";
-    return clean([
-      panel.dataset.resourceFamily || "",
-      panel.dataset.resourceKey || "",
-      panel.querySelector(".resource-source-label")?.textContent || "",
-      panel.querySelector(".resource-panel-title")?.textContent || "",
-      panel.querySelector(".teacher-pop-head h3")?.textContent || "",
-      panel.textContent || ""
-    ].join(" "));
+  function currentReferenceLabel() {
+    if (typeof currentRef === "function") return currentRef();
+
+    const book = get("book")?.value || "";
+    const chapter = get("chapter")?.value || "";
+    const start = get("start")?.value || "";
+    const end = get("end")?.value || start;
+
+    return `${book} ${chapter}:${start}-${end}`;
   }
 
-  function classifyResourcePanel(panel) {
-    if (!panel) return "";
+  function closeSharedResourcePanel() {
+    const panel = get("obsCrossRefsPanel");
+    if (!panel) return;
 
-    if (panel.dataset.resourceFamily) {
-      return panel.dataset.resourceFamily;
-    }
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
 
-    const text = getPanelText(panel);
-
-    if (text.includes("matthew henry commentary")) return "matthew-henry";
-
-    if (
-      text.includes("jamieson-fausset-brown commentary") ||
-      text.includes("jfb commentary")
-    ) return "jfb";
-
-    if (text.includes("treasury of scripture knowledge")) return "tsk";
-    if (text.includes("book overview")) return "book-overview";
-    if (text.includes("biblical doctrine")) return "doctrine";
-    if (text.includes("easton")) return "eastons";
-    if (text.includes("smith")) return "smiths";
-    if (text.includes("nave")) return "naves";
-
-    return "";
+  function findResourcePanel(resourceKey) {
+    return Array.from(document.querySelectorAll(".resource-instance-panel"))
+      .find(panel => panel.dataset.resourceKey === resourceKey) || null;
   }
 
   function rememberPanelPosition(panel) {
-    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
-
-    const family = classifyResourcePanel(panel);
-    if (!family) return;
+    if (!panel) return null;
 
     const rect = panel.getBoundingClientRect();
 
-    savedPositions.set(family, {
+    return {
       left: panel.style.left || `${rect.left}px`,
       top: panel.style.top || `${rect.top}px`,
       width: panel.style.width || "",
       height: panel.style.height || "",
       zIndex: panel.style.zIndex || ""
-    });
+    };
   }
 
-  function rememberAllResourcePositions() {
-    document.querySelectorAll(".resource-instance-panel").forEach(rememberPanelPosition);
-  }
-
-  function restorePanelPosition(panel) {
-    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
-
-    const family = classifyResourcePanel(panel);
-    if (!family) return;
-
-    panel.dataset.resourceFamily = family;
-
-    const saved = savedPositions.get(family);
-    if (!saved) return;
+  function restorePanelPosition(panel, saved) {
+    if (!panel || !saved) return;
 
     panel.style.left = saved.left;
     panel.style.top = saved.top;
     panel.style.right = "auto";
     panel.style.bottom = "auto";
-
-    panel.style.setProperty("--drag-left", saved.left);
-    panel.style.setProperty("--drag-top", saved.top);
 
     if (saved.width) panel.style.width = saved.width;
     if (saved.height) panel.style.height = saved.height;
@@ -12073,111 +12041,685 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
     panel.classList.add("drag-positioned");
   }
 
-  function removeResourceSourceLabel(panel) {
-    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
-
-    panel.querySelectorAll(".resource-source-label").forEach(label => {
-      label.remove();
-    });
+  function bringToFront(panel) {
+    if (!panel) return;
+    panel.style.zIndex = String(Date.now());
   }
 
-  function removeOlderCurrentPassageDuplicates(newPanel) {
-    if (!newPanel || !newPanel.classList.contains("resource-instance-panel")) return;
+  function openCleanResourcePanel(title, html, resourceKey, options = {}) {
+    const key = String(resourceKey || title || "study-resource").trim();
+    let panel = options.updateExisting ? findResourcePanel(key) : null;
+    const savedPosition = panel ? rememberPanelPosition(panel) : null;
 
-    const family = classifyResourcePanel(newPanel);
-    if (!CURRENT_PASSAGE_RESOURCE_FAMILIES.has(family)) return;
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.className = "resource-instance-panel";
+      panel.dataset.resourceKey = key;
+      panel.style.left = "80px";
+      panel.style.top = "120px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+      panel.style.zIndex = String(Date.now());
+      document.body.appendChild(panel);
+    }
 
-    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
-      if (panel === newPanel) return;
+    panel.dataset.resourceKey = key;
 
-      const otherFamily = classifyResourcePanel(panel);
-      if (otherFamily !== family) return;
+    panel.innerHTML = `
+      <div class="teacher-pop-head drag-handle">
+        <div>
+          <h3 class="resource-panel-title">${esc(title || "Study Resource")}</h3>
+        </div>
+        <button class="teacher-pop-close secondary" type="button">Close</button>
+      </div>
+      <div class="resource-panel-body">
+        ${html || "<p>No content found.</p>"}
+      </div>
+    `;
 
-      rememberPanelPosition(panel);
+    restorePanelPosition(panel, savedPosition);
+    bringToFront(panel);
+
+    panel.querySelector(".teacher-pop-close")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       panel.remove();
     });
+
+    panel.onclick = async (event) => {
+      const refButton = event.target.closest(".cross-ref-link");
+      if (refButton) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (typeof goToScriptureReference === "function") {
+          goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
+        }
+
+        return;
+      }
+
+      const relatedDoctrineBtn = event.target.closest(".doctrine-related-topic-btn");
+      if (relatedDoctrineBtn && typeof openRelatedDoctrineTopic === "function") {
+        event.preventDefault();
+        event.stopPropagation();
+        await openRelatedDoctrineTopic(relatedDoctrineBtn.dataset.topic || relatedDoctrineBtn.textContent.trim());
+      }
+    };
+
+    if (window.makeFloatingElementDraggable) {
+      window.makeFloatingElementDraggable(
+        panel,
+        panel.querySelector(".drag-handle")
+      );
+    }
+
+    return panel;
   }
 
-  function normalizeResourcePanel(panel) {
-    if (!panel || !panel.classList || !panel.classList.contains("resource-instance-panel")) return;
+  window.openStudyResourcePanel = function(title, html, sourceLabel, keyExtra, options) {
+    const key = String(keyExtra || `${sourceLabel || "resource"}::${title || "panel"}`)
+      .trim()
+      .toLowerCase();
 
-    const family = classifyResourcePanel(panel);
-    if (family) panel.dataset.resourceFamily = family;
+    return openCleanResourcePanel(title, html, key, options || {});
+  };
 
-    removeOlderCurrentPassageDuplicates(panel);
-    restorePanelPosition(panel);
-    removeResourceSourceLabel(panel);
-  }
+  window.openResourceInstancePanel = function(title, html, sourceLabel, keyExtra, options) {
+    const key = String(keyExtra || `${sourceLabel || "resource"}::${title || "panel"}`)
+      .trim()
+      .toLowerCase();
 
-  function normalizeAllResourcePanels() {
-    document.querySelectorAll(".resource-instance-panel").forEach(normalizeResourcePanel);
-  }
+    return openCleanResourcePanel(title, html, key, options || {});
+  };
 
-  document.addEventListener("pointerup", rememberAllResourcePositions, true);
-  document.addEventListener("mouseup", rememberAllResourcePositions, true);
-  document.addEventListener("touchend", rememberAllResourcePositions, true);
+  try {
+    openResourceInstancePanel = window.openResourceInstancePanel;
+  } catch (_) {}
 
-  document.addEventListener("click", event => {
-    const button = event.target.closest("button");
+  try {
+    openStudyResourcePanel = window.openStudyResourcePanel;
+  } catch (_) {}
+
+  function bindButton(id, handler) {
+    const button = get(id);
     if (!button) return;
 
-    const watchedButtons = new Set([
-      "openTskResource",
-      "openEastonsResource",
-      "openSmithsResource",
-      "openNavesResource",
-      "openDoctrineResource",
-      "openCommentariesResource",
-      "openJfbResource",
-      "openBookOverviewResource",
-      "prevBtn",
-      "nextBtn",
-      "loadBtn",
-      "obsLoadPassage"
-    ]);
+    button.onclick = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await handler(event);
+    };
+  }
 
-    if (!watchedButtons.has(button.id)) return;
+  bindButton("openTskResource", async () => {
+    closeSharedResourcePanel();
+    activeResourcePanel = "tsk";
 
-    rememberAllResourcePositions();
+    const refs = typeof loadTSKReferences === "function"
+      ? await loadTSKReferences()
+      : [];
 
-    setTimeout(normalizeAllResourcePanels, 0);
-    setTimeout(normalizeAllResourcePanels, 80);
-    setTimeout(normalizeAllResourcePanels, 250);
-  }, true);
+    const html = refs.length
+      ? refs.map(ref => `
+          <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:8px;">
+            ${esc(ref)}
+          </button>
+        `).join("")
+      : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`;
 
-  const observer = new MutationObserver(mutations => {
-    let shouldNormalize = false;
+    openCleanResourcePanel(
+      `Treasury of Scripture Knowledge — ${currentReferenceLabel()}`,
+      html,
+      "tsk-current-passage",
+      { updateExisting: true }
+    );
+  });
 
-    mutations.forEach(mutation => {
-      mutation.addedNodes.forEach(node => {
-        if (!(node instanceof HTMLElement)) return;
+  bindButton("openBookOverviewResource", async () => {
+    closeSharedResourcePanel();
 
-        if (
-          node.classList?.contains("resource-instance-panel") ||
-          node.querySelector?.(".resource-instance-panel") ||
-          node.classList?.contains("resource-source-label") ||
-          node.querySelector?.(".resource-source-label")
-        ) {
-          shouldNormalize = true;
-        }
+    // Do not set this to "bookOverview" because we do NOT want it auto-opening on book changes.
+    activeResourcePanel = "";
+
+    const book = get("book")?.value || "";
+    const overview = typeof loadBookOverview === "function"
+      ? await loadBookOverview(book)
+      : null;
+
+    const html = overview
+      ? `
+        <div style="margin-bottom:12px;">
+          <strong>Author</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.author || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Date</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.date || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Audience</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.audience || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Historical Setting</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.historicalSetting || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Major Themes</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.themes || []).map(theme => `<li>${esc(theme)}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Key Verse</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.keyVerse || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Christ Focus</strong>
+          <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.christFocus || "")}</p>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong>Outline</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.outline || []).map(item => `<li>${esc(item)}</li>`).join("")}
+          </ul>
+        </div>
+      `
+      : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${esc(book)} yet.</p>`;
+
+    openCleanResourcePanel(
+      overview?.title || `${book} Overview`,
+      html,
+      "book-overview-manual",
+      { updateExisting: true }
+    );
+  });
+
+  bindButton("openEastonsResource", async () => {
+    closeSharedResourcePanel();
+    activeResourcePanel = "eastons";
+
+    const panel = openCleanResourcePanel(
+      "Easton's Bible Dictionary",
+      `
+        <input class="eastons-search-box" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
+        <div class="eastons-results">
+          <p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>
+        </div>
+      `,
+      "eastons-search",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".eastons-search-box");
+    const results = panel.querySelector(".eastons-results");
+
+    let dict = {};
+    let terms = [];
+    let loadedLetter = "";
+
+    async function renderResults(query) {
+      const q = clean(query);
+      const letter = q.charAt(0).toUpperCase();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      if (letter && letter !== loadedLetter) {
+        loadedLetter = letter;
+        dict = typeof loadEastonsDictionary === "function"
+          ? await loadEastonsDictionary(letter)
+          : {};
+        terms = Object.keys(dict).sort();
+      }
+
+      const matches = terms.filter(term => term.includes(q)).slice(0, 20);
+
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <button type="button" class="dictionary-result-btn" data-term="${esc(term)}" style="width:100%;margin-bottom:8px;">
+              ${esc(dict[term]?.title || term)}
+            </button>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+
+      results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+        btn.onclick = () => {
+          const item = dict[btn.dataset.term];
+          if (!item) return;
+
+          openCleanResourcePanel(
+            item.title || "Entry",
+            `<h4>${esc(item.title || "Entry")}</h4><p>${item.content || ""}</p>`,
+            `eastons-entry-${btn.dataset.term}`
+          );
+        };
       });
-    });
+    }
 
-    if (shouldNormalize) {
-      setTimeout(normalizeAllResourcePanels, 0);
-      setTimeout(normalizeAllResourcePanels, 80);
+    if (searchBox) {
+      searchBox.oninput = () => renderResults(searchBox.value);
+      searchBox.focus({ preventScroll: true });
     }
   });
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
+  bindButton("openSmithsResource", async () => {
+    closeSharedResourcePanel();
+    activeResourcePanel = "smiths";
+
+    const panel = openCleanResourcePanel(
+      "Smith's Bible Dictionary",
+      `
+        <input class="smiths-search-box" type="text" placeholder="Search a word like Paul, Jerusalem, Pharisee..." style="margin-bottom:10px;">
+        <div class="smiths-results">
+          <p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>
+        </div>
+      `,
+      "smiths-search",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".smiths-search-box");
+    const results = panel.querySelector(".smiths-results");
+
+    let dict = {};
+    let terms = [];
+    let loadedLetter = "";
+
+    async function renderResults(query) {
+      const q = clean(query);
+      const letter = q.charAt(0).toUpperCase();
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      if (letter && letter !== loadedLetter) {
+        loadedLetter = letter;
+        dict = typeof loadSmithsDictionary === "function"
+          ? await loadSmithsDictionary(letter)
+          : {};
+        terms = Object.keys(dict).sort();
+      }
+
+      const matches = terms.filter(term => term.includes(q)).slice(0, 20);
+
+      results.innerHTML = matches.length
+        ? matches.map(term => `
+            <button type="button" class="dictionary-result-btn" data-term="${esc(term)}" style="width:100%;margin-bottom:8px;">
+              ${esc(dict[term]?.title || term)}
+            </button>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
+
+      results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
+        btn.onclick = () => {
+          const item = dict[btn.dataset.term];
+          if (!item) return;
+
+          openCleanResourcePanel(
+            item.title || "Entry",
+            `<h4>${esc(item.title || "Entry")}</h4><p>${item.content || ""}</p>`,
+            `smiths-entry-${btn.dataset.term}`
+          );
+        };
+      });
+    }
+
+    if (searchBox) {
+      searchBox.oninput = () => renderResults(searchBox.value);
+      searchBox.focus({ preventScroll: true });
+    }
   });
 
-  normalizeAllResourcePanels();
+  bindButton("openNavesResource", async () => {
+    closeSharedResourcePanel();
+    activeResourcePanel = "naves";
 
-  window.ironSharpenerRememberResourcePositions = rememberAllResourcePositions;
-  window.ironSharpenerNormalizeResourcePanels = normalizeAllResourcePanels;
+    const topicFiles = [
+      "baptism",
+      "christ",
+      "church",
+      "communion",
+      "cross",
+      "deliverance",
+      "discipleship",
+      "evangelism",
+      "faith",
+      "fasting",
+      "fear-of-the-lord",
+      "forgiveness",
+      "gospel",
+      "grace",
+      "holy-spirit",
+      "prayer",
+      "repentance",
+      "salvation",
+      "worship"
+    ];
+
+    const panel = openCleanResourcePanel(
+      "Nave's Topical Bible",
+      `
+        <input class="naves-search-box" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
+        <div class="naves-results">
+          <p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>
+        </div>
+      `,
+      "naves-search",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".naves-search-box");
+    const results = panel.querySelector(".naves-results");
+
+    async function renderResults(query) {
+      const q = clean(query);
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
+        return;
+      }
+
+      if (q.length < 3) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
+        return;
+      }
+
+      const matches = topicFiles.filter(term => term.includes(q)).slice(0, 20);
+      const loadedTopics = [];
+
+      for (const topicFile of matches) {
+        const topic = typeof loadNavesTopic === "function"
+          ? await loadNavesTopic(topicFile)
+          : null;
+
+        if (topic) loadedTopics.push(topic);
+      }
+
+      results.innerHTML = loadedTopics.length
+        ? loadedTopics.map((topic, index) => `
+            <button type="button" class="naves-topic-btn" data-index="${index}" style="width:100%;margin-bottom:8px;">
+              ${esc(topic.title || matches[index])}
+            </button>
+          `).join("")
+        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+      results.querySelectorAll(".naves-topic-btn").forEach(btn => {
+        btn.onclick = () => {
+          const topic = loadedTopics[parseInt(btn.dataset.index, 10)];
+          if (!topic) return;
+
+          const html = `
+            <h4>${esc(topic.title || "Topic")}</h4>
+
+            ${(topic.references || []).length ? `
+              <details style="margin-bottom:10px;">
+                <summary>Main References (${topic.references.length})</summary>
+                ${(topic.references || []).map(ref => `
+                  <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:7px;">
+                    ${esc(ref)}
+                  </button>
+                `).join("")}
+              </details>
+            ` : ""}
+
+            ${topic.subtopics
+              ? Object.keys(topic.subtopics).map(subtopic => `
+                  <details style="margin-top:8px;">
+                    <summary>${esc(subtopic)} (${(topic.subtopics[subtopic] || []).length})</summary>
+                    <div style="margin-top:8px;">
+                      ${(topic.subtopics[subtopic] || []).map(ref => `
+                        <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:7px;">
+                          ${esc(ref)}
+                        </button>
+                      `).join("")}
+                    </div>
+                  </details>
+                `).join("")
+              : ""}
+          `;
+
+          openCleanResourcePanel(
+            topic.title || "Topic",
+            html,
+            `naves-topic-${clean(topic.title || "topic")}`
+          );
+        };
+      });
+    }
+
+    if (searchBox) {
+      searchBox.oninput = () => renderResults(searchBox.value);
+      searchBox.focus({ preventScroll: true });
+    }
+  });
+
+  bindButton("openDoctrineResource", async () => {
+    closeSharedResourcePanel();
+    activeResourcePanel = "doctrine";
+
+    const registry = typeof loadDoctrineRegistry === "function"
+      ? await loadDoctrineRegistry()
+      : [];
+
+    const categories = [...new Set(
+      registry.map(item => item.category || "Uncategorized")
+    )].sort();
+
+    const panel = openCleanResourcePanel(
+      "Biblical Doctrine",
+      `
+        <input class="doctrine-search-box" type="text" placeholder="Search doctrine topics like salvation, scripture, prayer..." style="margin-bottom:10px;">
+
+        <details class="doctrine-category-browser" style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
+            Browse by Category
+          </summary>
+
+          <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
+            ${categories.map(category => `
+              <button type="button" class="doctrine-category-btn" data-category="${esc(category)}" style="width:100%;">
+                ${esc(category)}
+              </button>
+            `).join("")}
+          </div>
+        </details>
+
+        <div class="doctrine-results">
+          <p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>
+        </div>
+      `,
+      "doctrine-search",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".doctrine-search-box");
+    const results = panel.querySelector(".doctrine-results");
+    const categoryBrowser = panel.querySelector(".doctrine-category-browser");
+
+    function renderHome() {
+      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
+    }
+
+    function renderButtons(items, headingText = "") {
+      if (!items.length) {
+        results.innerHTML = `
+          <button type="button" class="back-to-doctrine-categories secondary" style="width:100%;margin-bottom:10px;">
+            ← Back to Browse by Category
+          </button>
+          <p style="font:800 14px Arial,sans-serif;">No doctrine topic found.</p>
+        `;
+        return;
+      }
+
+      results.innerHTML = `
+        <button type="button" class="back-to-doctrine-categories secondary" style="width:100%;margin-bottom:10px;">
+          ← Back to Browse by Category
+        </button>
+
+        ${headingText ? `<h4>${esc(headingText)}</h4>` : ""}
+
+        ${items.map(item => `
+          <button type="button" class="doctrine-topic-btn" data-file="${esc(item.file || item.id || item.title)}" style="width:100%;margin-bottom:8px;">
+            ${esc(item.title || item.id || "Doctrine Topic")}
+          </button>
+        `).join("")}
+      `;
+    }
+
+    function findMatches(query) {
+      const q = clean(query);
+      if (!q) return [];
+
+      return registry
+        .filter(item => {
+          const searchable = [
+            item.title,
+            item.id,
+            item.category,
+            ...(Array.isArray(item.tags) ? item.tags : []),
+            ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+          ].join(" ").toLowerCase();
+
+          return searchable.includes(q);
+        })
+        .slice(0, 30);
+    }
+
+    if (searchBox) {
+      searchBox.oninput = () => {
+        const value = searchBox.value;
+
+        if (!value.trim()) {
+          renderHome();
+          return;
+        }
+
+        if (categoryBrowser) categoryBrowser.open = false;
+        renderButtons(findMatches(value), "Search Results");
+      };
+    }
+
+    panel.addEventListener("click", async (event) => {
+      const back = event.target.closest(".back-to-doctrine-categories");
+      const categoryBtn = event.target.closest(".doctrine-category-btn");
+      const topicBtn = event.target.closest(".doctrine-topic-btn");
+
+      if (back) {
+        event.preventDefault();
+        if (searchBox) searchBox.value = "";
+        if (categoryBrowser) categoryBrowser.open = true;
+        renderHome();
+        return;
+      }
+
+      if (categoryBtn) {
+        event.preventDefault();
+
+        const category = categoryBtn.dataset.category;
+
+        const items = registry
+          .filter(item => (item.category || "Uncategorized") === category)
+          .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+
+        if (categoryBrowser) categoryBrowser.open = false;
+        renderButtons(items, category);
+        return;
+      }
+
+      if (topicBtn) {
+        event.preventDefault();
+
+        const file = String(topicBtn.dataset.file || "").replace(/\.json$/i, "");
+        const doctrine = typeof loadDoctrineTopic === "function"
+          ? await loadDoctrineTopic(file)
+          : null;
+
+        if (!doctrine) {
+          alert(`Doctrine topic could not be loaded: ${topicBtn.textContent.trim()}`);
+          return;
+        }
+
+        if (typeof openDoctrineTopicInNewPanel === "function") {
+          openDoctrineTopicInNewPanel(doctrine);
+        }
+      }
+    });
+
+    if (searchBox) {
+      searchBox.focus({ preventScroll: true });
+    }
+  });
+
+  function finalRefreshActiveResourcePanel() {
+    const panels = Array.from(document.querySelectorAll(".resource-instance-panel"));
+
+    const hasMatthewHenryOpen = panels.some(panel =>
+      panel.dataset.commentaryKind === "mh" ||
+      clean(panel.textContent).includes("matthew henry commentary")
+    );
+
+    const hasJfbOpen = panels.some(panel => {
+      const text = clean(panel.textContent);
+      return panel.dataset.commentaryKind === "jfb" ||
+        text.includes("jamieson-fausset-brown commentary") ||
+        text.includes("jfb commentary");
+    });
+
+    const hasTskOpen = panels.some(panel =>
+      panel.dataset.resourceKey === "tsk-current-passage" ||
+      clean(panel.textContent).includes("treasury of scripture knowledge")
+    );
+
+    if (hasMatthewHenryOpen && get("openCommentariesResource")) {
+      get("openCommentariesResource").click();
+      return;
+    }
+
+    if (hasJfbOpen && get("openJfbResource")) {
+      get("openJfbResource").click();
+      return;
+    }
+
+    if (hasTskOpen && get("openTskResource")) {
+      get("openTskResource").click();
+      return;
+    }
+
+    // Do NOT refresh Book Overview automatically.
+    // Do NOT refresh dictionaries automatically.
+    // Do NOT refresh Biblical Doctrine automatically.
+  }
+
+  try {
+    refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
+  } catch (_) {}
+
+  window.refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
+
+  document.querySelectorAll(".resource-source-label").forEach(label => label.remove());
 })();
 </script>
 </body>
