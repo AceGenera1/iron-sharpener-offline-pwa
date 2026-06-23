@@ -5894,34 +5894,35 @@ function goToScriptureReference(ref) {
 }
 
 function refreshActiveResourcePanel() {
-  const panelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
+  const obsPanelIsOpen = $("obsCrossRefsPanel")?.classList.contains("open");
+  const studyResourcePanelIsOpen = !!document.querySelector(".resource-instance-panel");
 
-  if (!panelIsOpen) return;
+  if (!obsPanelIsOpen && !studyResourcePanelIsOpen) return;
 
   if (activeResourcePanel === "tsk") {
     if ($("openTskResource")) $("openTskResource").click();
+    return;
   }
 
   if (activeResourcePanel === "personalCrossRefs") {
     if ($("obsShowCrossRefs")) $("obsShowCrossRefs").click();
+    return;
   }
 
   if (activeResourcePanel === "commentary") {
     if ($("openCommentariesResource")) $("openCommentariesResource").click();
-  }
-
-  if (activeResourcePanel === "bookOverview") {
-    if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
+    return;
   }
 
   if (activeResourcePanel === "jfb") {
     if ($("openJfbResource")) $("openJfbResource").click();
+    return;
   }
-}
 
-if ($("openDoctrineResource")) {
-  $("openDoctrineResource").onclick =
-    openDoctrineResource;
+  if (activeResourcePanel === "bookOverview") {
+    if ($("openBookOverviewResource")) $("openBookOverviewResource").click();
+    return;
+  }
 }
     
 function renderCrossReferenceLinks() {
@@ -8671,34 +8672,104 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     openStudyResourcePanel(`Treasury of Scripture Knowledge — ${refLabel}`, html, "Treasury of Scripture Knowledge", refLabel, { updateExisting: true });
   });
+  function normalizeCommentaryText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
 
+function escapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getCommentarySectionLabel(item, commentary, book, chapter, anchorVerse) {
+  const contentKey = normalizeCommentaryText(item?.content || "");
+
+  if (!contentKey) {
+    return item?.title || "Commentary";
+  }
+
+  const pattern = new RegExp(`^${escapeRegExp(book)}\\s+${chapter}:(\\d+)$`);
+  const verses = [];
+
+  Object.keys(commentary || {}).forEach(key => {
+    const match = key.match(pattern);
+    if (!match) return;
+
+    const candidate = commentary[key];
+    if (normalizeCommentaryText(candidate?.content || "") === contentKey) {
+      verses.push(parseInt(match[1], 10));
+    }
+  });
+
+  const uniqueVerses = [...new Set(verses)]
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!uniqueVerses.length) {
+    return item?.title || "Commentary";
+  }
+
+  const groups = [];
+  let currentGroup = [uniqueVerses[0]];
+
+  for (let i = 1; i < uniqueVerses.length; i++) {
+    const previous = uniqueVerses[i - 1];
+    const current = uniqueVerses[i];
+
+    if (current === previous + 1) {
+      currentGroup.push(current);
+    } else {
+      groups.push(currentGroup);
+      currentGroup = [current];
+    }
+  }
+
+  groups.push(currentGroup);
+
+  const selectedGroup =
+    groups.find(group => group.includes(parseInt(anchorVerse, 10))) ||
+    groups[0];
+
+  const first = selectedGroup[0];
+  const last = selectedGroup[selectedGroup.length - 1];
+
+  return first === last
+    ? `${book} ${chapter}:${first}`
+    : `${book} ${chapter}:${first}-${last}`;
+}
+
+function addUniqueCommentaryMatch(matches, item, anchorVerse) {
+  if (!item) return;
+
+  const content = normalizeCommentaryText(item.content || "");
+  if (!content) return;
+
+  const alreadyExists = matches.some(existing => {
+    return normalizeCommentaryText(existing.content || "") === content;
+  });
+
+  if (!alreadyExists) {
+    matches.push({
+      ...item,
+      _anchorVerse: anchorVerse
+    });
+  }
+}
   usePanelButton("openCommentariesResource", async () => {
     const commentary = typeof window.loadMatthewHenryCommentary === "function" ? await window.loadMatthewHenryCommentary(window.bookSel?.value || get("book")?.value) : {};
     const book = get("book")?.value || "";
     const chapter = get("chapter")?.value || "";
     const start = parseInt(get("start")?.value, 10) || 1;
     const end = parseInt(get("end")?.value, 10) || start;
-    const matches = [];
-    const seenCommentaryNotes = new Set();
+   activeResourcePanel = "commentary";
+
+const matches = [];
 
 for (let v = start; v <= end; v++) {
   const key = `${book} ${chapter}:${v}`;
-  const item = commentary[key];
-
-  if (!item) continue;
-
-  const title = String(item.title || "").trim().toLowerCase();
-  const content = String(item.content || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-
-  const uniqueKey = `${title}|||${content}`;
-
-  if (seenCommentaryNotes.has(uniqueKey)) continue;
-
-  seenCommentaryNotes.add(uniqueKey);
-  matches.push(item);
+  addUniqueCommentaryMatch(matches, commentary[key], v);
 }
     const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
     const html = `
@@ -8706,7 +8777,7 @@ for (let v = start; v <= end; v++) {
       ${matches.length
         ? matches.map(item => `
           <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-            <h4>${escapeHtml(item.title || "Commentary")}</h4>
+            <h4>${escapeHtml(getCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
             <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content || ""}</p>
           </div>
         `).join("")
@@ -8721,27 +8792,13 @@ for (let v = start; v <= end; v++) {
     const chapter = get("chapter")?.value || "";
     const start = parseInt(get("start")?.value, 10) || 1;
     const end = parseInt(get("end")?.value, 10) || start;
-    const matches = [];
-const seenCommentaryNotes = new Set();
+    activeResourcePanel = "jfb";
+
+const matches = [];
 
 for (let v = start; v <= end; v++) {
   const key = `${book} ${chapter}:${v}`;
-  const item = commentary[key];
-
-  if (!item) continue;
-
-  const title = String(item.title || "").trim().toLowerCase();
-  const content = String(item.content || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-
-  const uniqueKey = `${title}|||${content}`;
-
-  if (seenCommentaryNotes.has(uniqueKey)) continue;
-
-  seenCommentaryNotes.add(uniqueKey);
-  matches.push(item);
+  addUniqueCommentaryMatch(matches, commentary[key], v);
 }
     const refLabel = typeof window.currentRef === "function" ? window.currentRef() : `${book} ${chapter}:${start}-${end}`;
     const html = `
@@ -8749,7 +8806,7 @@ for (let v = start; v <= end; v++) {
       ${matches.length
         ? matches.map(item => `
           <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-            <h4>${escapeHtml(item.title || "Commentary")}</h4>
+            <h4>${escapeHtml(getCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
             <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${item.content || ""}</p>
           </div>
         `).join("")
