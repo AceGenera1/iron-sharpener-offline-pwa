@@ -11865,5 +11865,215 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
   });
 })();
 </script>
+<script>
+(function globalStudyResourcePanelBehaviorLock() {
+  const CURRENT_PASSAGE_RESOURCE_FAMILIES = new Set([
+    "matthew-henry",
+    "jfb",
+    "tsk",
+    "book-overview"
+  ]);
+
+  const savedPositions = new Map();
+
+  function clean(value) {
+    return String(value || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function getPanelText(panel) {
+    if (!panel) return "";
+    return clean([
+      panel.dataset.resourceFamily || "",
+      panel.dataset.resourceKey || "",
+      panel.querySelector(".resource-source-label")?.textContent || "",
+      panel.querySelector(".resource-panel-title")?.textContent || "",
+      panel.querySelector(".teacher-pop-head h3")?.textContent || "",
+      panel.textContent || ""
+    ].join(" "));
+  }
+
+  function classifyResourcePanel(panel) {
+    if (!panel) return "";
+
+    if (panel.dataset.resourceFamily) {
+      return panel.dataset.resourceFamily;
+    }
+
+    const text = getPanelText(panel);
+
+    if (text.includes("matthew henry commentary")) return "matthew-henry";
+
+    if (
+      text.includes("jamieson-fausset-brown commentary") ||
+      text.includes("jfb commentary")
+    ) return "jfb";
+
+    if (text.includes("treasury of scripture knowledge")) return "tsk";
+    if (text.includes("book overview")) return "book-overview";
+    if (text.includes("biblical doctrine")) return "doctrine";
+    if (text.includes("easton")) return "eastons";
+    if (text.includes("smith")) return "smiths";
+    if (text.includes("nave")) return "naves";
+
+    return "";
+  }
+
+  function rememberPanelPosition(panel) {
+    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
+
+    const family = classifyResourcePanel(panel);
+    if (!family) return;
+
+    const rect = panel.getBoundingClientRect();
+
+    savedPositions.set(family, {
+      left: panel.style.left || `${rect.left}px`,
+      top: panel.style.top || `${rect.top}px`,
+      width: panel.style.width || "",
+      height: panel.style.height || "",
+      zIndex: panel.style.zIndex || ""
+    });
+  }
+
+  function rememberAllResourcePositions() {
+    document.querySelectorAll(".resource-instance-panel").forEach(rememberPanelPosition);
+  }
+
+  function restorePanelPosition(panel) {
+    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
+
+    const family = classifyResourcePanel(panel);
+    if (!family) return;
+
+    panel.dataset.resourceFamily = family;
+
+    const saved = savedPositions.get(family);
+    if (!saved) return;
+
+    panel.style.left = saved.left;
+    panel.style.top = saved.top;
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+
+    panel.style.setProperty("--drag-left", saved.left);
+    panel.style.setProperty("--drag-top", saved.top);
+
+    if (saved.width) panel.style.width = saved.width;
+    if (saved.height) panel.style.height = saved.height;
+    if (saved.zIndex) panel.style.zIndex = saved.zIndex;
+
+    panel.classList.add("drag-positioned");
+  }
+
+  function removeResourceSourceLabel(panel) {
+    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
+
+    panel.querySelectorAll(".resource-source-label").forEach(label => {
+      label.remove();
+    });
+  }
+
+  function removeOlderCurrentPassageDuplicates(newPanel) {
+    if (!newPanel || !newPanel.classList.contains("resource-instance-panel")) return;
+
+    const family = classifyResourcePanel(newPanel);
+    if (!CURRENT_PASSAGE_RESOURCE_FAMILIES.has(family)) return;
+
+    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+      if (panel === newPanel) return;
+
+      const otherFamily = classifyResourcePanel(panel);
+      if (otherFamily !== family) return;
+
+      rememberPanelPosition(panel);
+      panel.remove();
+    });
+  }
+
+  function normalizeResourcePanel(panel) {
+    if (!panel || !panel.classList || !panel.classList.contains("resource-instance-panel")) return;
+
+    const family = classifyResourcePanel(panel);
+    if (family) panel.dataset.resourceFamily = family;
+
+    removeOlderCurrentPassageDuplicates(panel);
+    restorePanelPosition(panel);
+    removeResourceSourceLabel(panel);
+  }
+
+  function normalizeAllResourcePanels() {
+    document.querySelectorAll(".resource-instance-panel").forEach(normalizeResourcePanel);
+  }
+
+  document.addEventListener("pointerup", rememberAllResourcePositions, true);
+  document.addEventListener("mouseup", rememberAllResourcePositions, true);
+  document.addEventListener("touchend", rememberAllResourcePositions, true);
+
+  document.addEventListener("click", event => {
+    const button = event.target.closest("button");
+    if (!button) return;
+
+    const watchedButtons = new Set([
+      "openTskResource",
+      "openEastonsResource",
+      "openSmithsResource",
+      "openNavesResource",
+      "openDoctrineResource",
+      "openCommentariesResource",
+      "openJfbResource",
+      "openBookOverviewResource",
+      "prevBtn",
+      "nextBtn",
+      "loadBtn",
+      "obsLoadPassage"
+    ]);
+
+    if (!watchedButtons.has(button.id)) return;
+
+    rememberAllResourcePositions();
+
+    setTimeout(normalizeAllResourcePanels, 0);
+    setTimeout(normalizeAllResourcePanels, 80);
+    setTimeout(normalizeAllResourcePanels, 250);
+  }, true);
+
+  const observer = new MutationObserver(mutations => {
+    let shouldNormalize = false;
+
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (!(node instanceof HTMLElement)) return;
+
+        if (
+          node.classList?.contains("resource-instance-panel") ||
+          node.querySelector?.(".resource-instance-panel") ||
+          node.classList?.contains("resource-source-label") ||
+          node.querySelector?.(".resource-source-label")
+        ) {
+          shouldNormalize = true;
+        }
+      });
+    });
+
+    if (shouldNormalize) {
+      setTimeout(normalizeAllResourcePanels, 0);
+      setTimeout(normalizeAllResourcePanels, 80);
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  normalizeAllResourcePanels();
+
+  window.ironSharpenerRememberResourcePositions = rememberAllResourcePositions;
+  window.ironSharpenerNormalizeResourcePanels = normalizeAllResourcePanels;
+})();
+</script>
 </body>
 </html>
