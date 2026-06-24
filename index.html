@@ -7953,6 +7953,207 @@ body.dark .presentation-card-inner p {
   color: #F7F3EA !important;
   text-shadow: none !important;
 } 
+
+/* Core palette */
+:root {
+  --navy: #203D39;
+  --deep: #172B29;
+  --paper: #fff9ec;
+  --ink: #1f2f2d;
+}
+
+/* -----------------------------
+   CREAM MODE — clean parchment
+   ----------------------------- */
+body:not(.dark) {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(215,168,79,.14), transparent 30%),
+    linear-gradient(180deg, #fffaf0 0%, #fff7e6 52%, #fff2d5 100%) !important;
+  background-color: #fff7e6 !important;
+  color: #1f2f2d !important;
+}
+
+body:not(.dark) .shell {
+  background: #fff9ec !important;
+}
+
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, #fff9ec, #fff2d5) !important;
+}
+
+body:not(.dark) .scripture {
+  background: linear-gradient(180deg, #fffaf0, #fff7e6) !important;
+  color: #0d1a2f !important;
+}
+
+body:not(.dark) .panel,
+body:not(.dark) .teacher-pop,
+body:not(.dark) #teacherToolsPanel,
+body:not(.dark) #studyResourcesPanel,
+body:not(.dark) #obsNavigatorPanel,
+body:not(.dark) #obsCrossRefsPanel,
+body:not(.dark) #teachingMethodPanel.open,
+body:not(.dark) #ironPromptPanel.open,
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, #fffaf0, #fff2d6) !important;
+  color: #1f2f2d !important;
+}
+
+body:not(.dark) .controls {
+  background: #fff6e7 !important;
+}
+
+body:not(.dark) .ribbon {
+  background: #fff7e6 !important;
+  color: #203D39 !important;
+}
+
+/* -----------------------------
+   SHARED HEADER / FOOTER
+   ----------------------------- */
+.hero {
+  background: linear-gradient(
+    90deg,
+    rgba(23,43,41,.98),
+    rgba(32,61,57,.98),
+    rgba(23,43,41,.98)
+  ) !important;
+}
+
+.footer {
+  background: linear-gradient(180deg, #203D39, #172B29) !important;
+  color: #fff3cd !important;
+}
+
+/* -----------------------------
+   DARK MODE — forest green
+   ----------------------------- */
+body.dark {
+  --paper: #203D39;
+  --ink: #F7F3EA;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(248,217,135,.11), transparent 30%),
+    linear-gradient(145deg, #172B29 0%, #203D39 52%, #294843 100%) !important;
+  background-color: #203D39 !important;
+  color: #F7F3EA !important;
+}
+
+body.dark .shell,
+body.dark .layout {
+  background: #203D39 !important;
+}
+
+body.dark .scripture {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+}
+
+body.dark .panel,
+body.dark .teacher-pop,
+body.dark #teacherToolsPanel,
+body.dark #studyResourcesPanel,
+body.dark #obsNavigatorPanel,
+body.dark #obsCrossRefsPanel,
+body.dark #teachingMethodPanel.open,
+body.dark #ironPromptPanel.open,
+body.dark .resource-instance-panel {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+  border-color: rgba(248,217,135,.68) !important;
+}
+
+body.dark .controls,
+body.dark .ribbon {
+  background: #203D39 !important;
+  color: #F7F3EA !important;
+}
+
+body.dark select,
+body.dark textarea,
+body.dark input {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+}
+
+/* Presentation cards */
+body.dark .presentation-card-inner {
+  background: #294843 !important;
+  color: #F7F3EA !important;
+}
+
+body:not(.dark) .presentation-card-inner {
+  background: linear-gradient(180deg, #fffaf0, #fff1cf) !important;
+  color: #1f2f2d !important;
+}
+
+/* OBS Focus backgrounds */
+html.obs body:not(.dark) {
+  background: #fff7e6 !important;
+  background-color: #fff7e6 !important;
+}
+
+html.obs body:not(.dark) .shell,
+html.obs body:not(.dark) .layout {
+  background: #fff7e6 !important;
+}
+
+html.obs body:not(.dark) .scripture {
+  background: linear-gradient(180deg, #fffaf0, #fff7e6) !important;
+}
+
+html.obs body.dark {
+  background: #172B29 !important;
+  background-color: #172B29 !important;
+}
+
+html.obs body.dark .shell,
+html.obs body.dark .layout {
+  background: #203D39 !important;
+}
+
+html.obs body.dark .scripture {
+  background: #294843 !important;
+}
+
+html.obs .obs-tool-bar {
+  background: rgba(32,61,57,.96) !important;
+}
+
+/* Mobile/tablet seamless canvas — colors only */
+@media (max-width: 1050px), (pointer: coarse) {
+  body:not(.dark),
+  body:not(.dark) .shell,
+  body:not(.dark) .layout {
+    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
+  }
+
+  body.dark,
+  body.dark .shell,
+  body.dark .layout {
+    background: #203D39 !important;
+    background-color: #203D39 !important;
+  }
+
+  body.dark .scripture {
+    background: #294843 !important;
+  }
+
+  html.obs body:not(.dark),
+  html.obs body:not(.dark) .shell,
+  html.obs body:not(.dark) .layout {
+    background: #fff7e6 !important;
+    background-color: #fff7e6 !important;
+  }
+
+  html.obs body.dark,
+  html.obs body.dark .shell,
+  html.obs body.dark .layout {
+    background: #203D39 !important;
+    background-color: #203D39 !important;
+  }
+}
 </style>
 
 
