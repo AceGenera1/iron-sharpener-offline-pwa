@@ -13956,5 +13956,106 @@ html.obs #studyResourcesPanel .tool-option span,
   } catch (_) {}
 })();
 </script>
+<style>
+/* =========================================================
+   STUDY RESOURCES MENU — GLOBAL LAYOUT LOCK
+   Applies to cream, dark, main screen, and OBS Focus.
+   This fixes the menu shape/spacing without changing the
+   working resource panels.
+   ========================================================= */
+
+#studyResourcesPanel.teacher-pop,
+html.obs #studyResourcesPanel.teacher-pop {
+  width: min(680px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  min-width: min(420px, calc(100vw - 32px)) !important;
+  max-height: calc(100vh - 96px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 18px !important;
+  resize: both !important;
+}
+
+#studyResourcesPanel .teacher-pop-head {
+  margin-bottom: 16px !important;
+}
+
+#studyResourcesPanel .teacher-pop-head h3 {
+  line-height: 1.15 !important;
+  white-space: normal !important;
+}
+
+#studyResourcesPanel .tool-options {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+#studyResourcesPanel .tool-option {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 128px !important;
+  height: 100% !important;
+  padding: 14px 14px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+
+  text-align: left !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  line-height: 1.35 !important;
+}
+
+#studyResourcesPanel .tool-option strong {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 8px 0 !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+
+#studyResourcesPanel .tool-option span {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.45 !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+
+/* Keep the close button from stretching or affecting the title layout */
+#studyResourcesPanel .teacher-pop-close {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+/* Tablet / smaller OBS windows */
+@media (max-width: 760px) {
+  #studyResourcesPanel.teacher-pop,
+  html.obs #studyResourcesPanel.teacher-pop {
+    width: min(540px, calc(100vw - 24px)) !important;
+    min-width: min(360px, calc(100vw - 24px)) !important;
+    padding: 16px !important;
+  }
+
+  #studyResourcesPanel .tool-options {
+    grid-template-columns: 1fr !important;
+  }
+
+  #studyResourcesPanel .tool-option {
+    min-height: auto !important;
+  }
+}
+</style>
 </body>
 </html>
