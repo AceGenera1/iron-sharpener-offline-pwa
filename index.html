@@ -14155,5 +14155,32 @@ html.obs #studyResourcesPanel .tool-option span {
   }
 }
 </style>
+<script>
+(function hideBackgroundsSourcePoolDetails() {
+  if (window.__ironHideBackgroundsSourcePoolDetailsInstalled) return;
+  window.__ironHideBackgroundsSourcePoolDetailsInstalled = true;
+
+  function removeSourcePoolDetails() {
+    document.querySelectorAll(".resource-instance-panel details").forEach(details => {
+      const summaryText = details.querySelector("summary")?.textContent || "";
+
+      if (summaryText.toLowerCase().includes("public-domain source pool")) {
+        details.remove();
+      }
+    });
+  }
+
+  removeSourcePoolDetails();
+
+  const observer = new MutationObserver(() => {
+    removeSourcePoolDetails();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
 </body>
 </html>
