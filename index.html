@@ -13493,5 +13493,635 @@ body.dark .backgrounds-back-btn {
   setTimeout(updateStudyResourcesKey, 350);
 })();
 </script>
+<script id="rdm-study-resource-availability-patch-v2">
+/* =========================================================
+   RDM STUDY RESOURCE AVAILABILITY PATCH v2
+   Purpose:
+   - Backgrounds stays clickable even when count is 0.
+   - Backgrounds count only appears when mapped topics exist.
+   - Backgrounds panel gives a search-first message when no exact match.
+   - Background search is more forgiving.
+   - Built-In Cross References button only appears when valid refs exist.
+   - Commentary button only appears when Matthew Henry has data for the passage.
+   - Book Overview only appears when overview data exists.
+   - Filters broken Built-In Cross Reference buttons after render.
+   ========================================================= */
+(function () {
+  if (window.__rdmStudyResourceAvailabilityPatchV2) return;
+  window.__rdmStudyResourceAvailabilityPatchV2 = true;
+
+  const get = (id) => document.getElementById(id);
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
+  }
+
+  function slug(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function normalizeText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9\s-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function currentState() {
+    return {
+      book: get("book")?.value || "Genesis",
+      chapter: get("chapter")?.value || "1",
+      start: get("start")?.value || "1",
+      end: get("end")?.value || get("start")?.value || "1",
+      range: get("rangeSize")?.value || "5"
+    };
+  }
+
+  function currentLabel() {
+    const state = currentState();
+    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  }
+
+  function exactVerseKeys() {
+    const state = currentState();
+    const start = parseInt(state.start, 10) || 1;
+    const end = parseInt(state.end, 10) || start;
+    const keys = [];
+
+    for (let verse = start; verse <= end; verse += 1) {
+      keys.push(`${state.book} ${state.chapter}:${verse}`);
+    }
+
+    return keys;
+  }
+
+  function backgroundLookupKeys() {
+    const state = currentState();
+    const keys = [
+      `${state.book} ${state.chapter}:${state.start}-${state.end}`,
+      `${state.book} ${state.chapter}`,
+      state.book,
+      ...exactVerseKeys()
+    ];
+
+    return [...new Set(keys)];
+  }
+
+  async function fetchJsonAny(paths, fallback) {
+    for (const path of paths.filter(Boolean)) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) continue;
+        return await response.json();
+      } catch (_) {}
+    }
+    return fallback;
+  }
+
+  async function loadBackgroundIndexV2() {
+    const data = await fetchJsonAny([
+      "bible/resources/backgrounds/index.json",
+      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
+    ], []);
+
+    if (!Array.isArray(data)) return [];
+
+    return data.map((item) => {
+      const id = item.id || slug(item.file || item.title);
+      return {
+        id,
+        file: item.file || `${id}.json`,
+        title: item.title || String(id).replace(/-/g, " "),
+        summary: item.summary || "",
+        category: item.category || "",
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        searchTerms: Array.isArray(item.searchTerms) ? item.searchTerms : []
+      };
+    });
+  }
+
+  async function loadBackgroundMapV2(bookName) {
+    const book = String(bookName || "").trim();
+    const encoded = encodeURIComponent(book);
+
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/by-reference/${encoded}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
+    ], {});
+  }
+
+  async function loadBackgroundTopicV2(idOrFile) {
+    const raw = String(idOrFile || "")
+      .replace(/^topics\//i, "")
+      .replace(/\.json$/i, "")
+      .trim();
+
+    const id = slug(raw);
+
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/topics/${id}.json`,
+      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
+    ], null);
+  }
+
+  function backgroundIdsFromMap(map) {
+    const ids = [];
+
+    backgroundLookupKeys().forEach((key) => {
+      const mapped = map?.[key];
+      if (Array.isArray(mapped)) mapped.forEach((id) => ids.push(slug(id)));
+      if (typeof mapped === "string") ids.push(slug(mapped));
+    });
+
+    return [...new Set(ids)];
+  }
+
+  async function currentBackgroundItems() {
+    const state = currentState();
+    const index = await loadBackgroundIndexV2();
+    const map = await loadBackgroundMapV2(state.book);
+    const ids = backgroundIdsFromMap(map);
+
+    return ids.map((id) => {
+      return index.find((item) =>
+        slug(item.id) === id ||
+        slug(item.file) === id ||
+        slug(String(item.file || "").replace(/\.json$/i, "")) === id
+      ) || {
+        id,
+        file: `${id}.json`,
+        title: id.replace(/-/g, " "),
+        summary: ""
+      };
+    });
+  }
+
+  function findBackgroundMatchesV2(index, query) {
+    const q = normalizeText(query);
+    if (!q) return [];
+
+    const qSlug = slug(q);
+    const singular = q.endsWith("s") ? q.slice(0, -1) : q;
+    const plural = q.endsWith("s") ? q : `${q}s`;
+
+    return index.filter((item) => {
+      const haystack = normalizeText([
+        item.title,
+        item.id,
+        item.file,
+        item.category,
+        item.summary,
+        ...(item.tags || []),
+        ...(item.searchTerms || [])
+      ].join(" "));
+
+      const haySlug = slug(haystack);
+
+      return (
+        haystack.includes(q) ||
+        haystack.includes(singular) ||
+        haystack.includes(plural) ||
+        haySlug.includes(qSlug)
+      );
+    }).slice(0, 40);
+  }
+
+  function renderBackgroundButtons(items, emptyMessage) {
+    if (!items.length) {
+      return `<p style="font:800 14px Arial,sans-serif;line-height:1.45;">${esc(emptyMessage)}</p>`;
+    }
+
+    return items.map((item) => `
+      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id || item.file)}" style="width:100%;margin-bottom:8px;">
+        <strong>${esc(item.title || item.id || item.file)}</strong>
+        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
+      </button>
+    `).join("");
+  }
+
+  function searchHelpHtml() {
+    return `
+      <div style="font:800 13px Arial,sans-serif;line-height:1.45;margin:8px 0 12px;opacity:.95;">
+        Try searches like:
+        <strong>Sabbath</strong>, <strong>temple</strong>, <strong>shepherd</strong>,
+        <strong>wells</strong>, <strong>Passover</strong>, <strong>feasts</strong>,
+        <strong>sacrifice</strong>, <strong>synagogue</strong>, <strong>Pharisees</strong>,
+        <strong>Roman</strong>, <strong>covenant</strong>, or <strong>exile</strong>.
+      </div>
+    `;
+  }
+
+  async function buildBackgroundHomeHtmlV2() {
+    const index = await loadBackgroundIndexV2();
+    const currentItems = await currentBackgroundItems();
+    const hasCurrent = currentItems.length > 0;
+
+    return `
+      <div class="backgrounds-home">
+        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
+          Bible Backgrounds &amp; Customs for <strong>${esc(currentLabel())}</strong>.
+        </p>
+
+        ${hasCurrent ? `
+          <details class="backgrounds-current" open style="margin-bottom:12px;">
+            <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
+              Current Passage Backgrounds (${currentItems.length})
+            </summary>
+            <div style="margin-top:8px;">
+              ${renderBackgroundButtons(currentItems, "")}
+            </div>
+          </details>
+        ` : `
+          <div class="backgrounds-current" style="margin-bottom:12px;">
+            <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
+              No specific background card is mapped to this exact passage yet, but you can still search the Bible Backgrounds &amp; Customs library below.
+            </p>
+            ${searchHelpHtml()}
+          </div>
+        `}
+
+        <input class="backgrounds-search-box" type="text" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;">
+        <div class="backgrounds-results"></div>
+      </div>
+    `;
+  }
+
+  async function openBackgroundsResourceV2(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    window.activeResourcePanel = "backgrounds";
+    try { activeResourcePanel = "backgrounds"; } catch (_) {}
+
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    const panel = window.openResourceInstancePanel(
+      "Bible Backgrounds & Customs",
+      await buildBackgroundHomeHtmlV2(),
+      "Bible Backgrounds & Customs",
+      "backgrounds-current",
+      { updateExisting: true }
+    );
+
+    if (!panel) return;
+
+    const index = await loadBackgroundIndexV2();
+    const searchBox = panel.querySelector(".backgrounds-search-box");
+    const results = panel.querySelector(".backgrounds-results");
+    const current = panel.querySelector(".backgrounds-current");
+
+    if (!searchBox || !results) return;
+
+    searchBox.oninput = () => {
+      const value = searchBox.value.trim();
+
+      if (!value) {
+        results.innerHTML = "";
+        if (current?.tagName === "DETAILS") current.open = true;
+        return;
+      }
+
+      if (current?.tagName === "DETAILS") current.open = false;
+
+      const matches = findBackgroundMatchesV2(index, value);
+
+      results.innerHTML = `
+        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+          ← Back to Current Passage Backgrounds
+        </button>
+        <h4>Search Results</h4>
+        ${renderBackgroundButtons(
+          matches,
+          "No matching background topic was found in the current index. Try a broader word such as worship, priest, sacrifice, feast, city, wilderness, shepherd, temple, Sabbath, or covenant."
+        )}
+      `;
+    };
+
+    setTimeout(() => searchBox.focus(), 80);
+  }
+
+  window.openBackgroundsResource = openBackgroundsResourceV2;
+  window.openBackgroundsResourceSafe = openBackgroundsResourceV2;
+
+  function normalizeRefs(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.map(String).map(v => v.trim()).filter(Boolean);
+
+    if (typeof value === "string") {
+      return value
+        .split(/;|,\s*(?=(?:[1-3]\s*)?[A-Z][a-z]+\s+\d+:)/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    if (typeof value === "object") {
+      return Object.values(value).flatMap(normalizeRefs).filter(Boolean);
+    }
+
+    return [];
+  }
+
+  function bookList() {
+    try {
+      if (typeof books !== "undefined" && Array.isArray(books)) {
+        return books.map(([name]) => name);
+      }
+    } catch (_) {}
+
+    return [
+      "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+      "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
+      "Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
+      "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah",
+      "Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
+      "John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians",
+      "Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
+      "Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John",
+      "Jude","Revelation"
+    ];
+  }
+
+  function parseScriptureRefStrict(ref) {
+    const cleaned = String(ref || "")
+      .replace(/[–—]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const names = bookList().sort((a, b) => b.length - a.length);
+
+    for (const book of names) {
+      const lower = cleaned.toLowerCase();
+      const bookLower = book.toLowerCase();
+
+      if (!lower.startsWith(`${bookLower} `)) continue;
+
+      const rest = cleaned.slice(book.length).trim();
+      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+
+      if (!match) return null;
+
+      return {
+        book,
+        chapter: parseInt(match[1], 10),
+        start: parseInt(match[2], 10),
+        end: parseInt(match[3] || match[2], 10)
+      };
+    }
+
+    return null;
+  }
+
+  function isValidScriptureRef(ref) {
+    const parsed = parseScriptureRefStrict(ref);
+    if (!parsed) return false;
+
+    try {
+      if (typeof verseCounts !== "undefined" && verseCounts[parsed.book]) {
+        const maxVerse = verseCounts[parsed.book][parsed.chapter - 1];
+        if (!maxVerse) return false;
+        return parsed.start >= 1 && parsed.end >= parsed.start && parsed.end <= maxVerse;
+      }
+    } catch (_) {}
+
+    return true;
+  }
+
+  async function loadTskBookV2(book) {
+    const encoded = encodeURIComponent(book);
+
+    return await fetchJsonAny([
+      `bible/resources/tsk/${book}.json`,
+      `bible/resources/tsk/${encoded}.json`,
+      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
+      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
+    ], {});
+  }
+
+  async function validBuiltInRefsForCurrentPassage() {
+    const state = currentState();
+    const data = await loadTskBookV2(state.book);
+    const refs = [];
+
+    exactVerseKeys().forEach((key) => {
+      normalizeRefs(data[key]).forEach((ref) => {
+        if (isValidScriptureRef(ref)) refs.push(ref);
+      });
+    });
+
+    return [...new Set(refs)];
+  }
+
+  async function hasMatthewHenryForCurrentPassage() {
+    const state = currentState();
+    const book = state.book;
+    const encoded = encodeURIComponent(book);
+
+    const data = await fetchJsonAny([
+      `bible/resources/commentaries/matthew-henry/${book}.json`,
+      `bible/resources/commentaries/matthew-henry/${encoded}.json`
+    ], {});
+
+    return exactVerseKeys().some((key) => !!data[key]);
+  }
+
+  async function hasBookOverviewForCurrentBook() {
+    const state = currentState();
+    const book = state.book;
+    const encoded = encodeURIComponent(book);
+    const id = slug(book);
+    const lower = book.toLowerCase();
+
+    const data = await fetchJsonAny([
+      `bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/${encoded}.json`,
+      `bible/resources/book-overviews/${id}.json`,
+      `bible/resources/book-overviews/${lower}.json`,
+      `bible/resources/book-overview/${book}.json`,
+      `bible/resources/book-overview/${encoded}.json`,
+      `bible/resources/overviews/${book}.json`,
+      `bible/resources/overviews/${encoded}.json`,
+      `bible/resources/book-overviews/bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/bible/resources/book-overviews/${encoded}.json`
+    ], null);
+
+    return !!data;
+  }
+
+  async function refineStudyResourcesKey() {
+    const key = get("studyResourcesKey");
+    if (!key) return;
+
+    const [backgroundItems, validRefs, hasCommentary, hasOverview] = await Promise.all([
+      currentBackgroundItems(),
+      validBuiltInRefsForCurrentPassage(),
+      hasMatthewHenryForCurrentPassage(),
+      hasBookOverviewForCurrentBook()
+    ]);
+
+    const bgBtn = key.querySelector('[data-study-key-action="backgrounds"]');
+    if (bgBtn) {
+      bgBtn.dataset.backgroundCount = String(backgroundItems.length);
+      bgBtn.textContent = backgroundItems.length ? `Backgrounds: ${backgroundItems.length}` : "Backgrounds";
+      bgBtn.title = backgroundItems.length
+        ? "Open mapped Bible Backgrounds & Customs for this passage."
+        : "No exact background card is mapped to this passage yet, but search is available.";
+    }
+
+    const xrefBtn = key.querySelector('[data-study-key-action="crossrefs"]');
+    if (xrefBtn) {
+      if (!validRefs.length) {
+        xrefBtn.remove();
+      } else {
+        xrefBtn.dataset.validXrefCount = String(validRefs.length);
+        xrefBtn.textContent = "Built-In Cross References";
+      }
+    }
+
+    const commentaryBtn = key.querySelector('[data-study-key-action="commentary"]');
+    if (commentaryBtn && !hasCommentary) {
+      commentaryBtn.remove();
+    }
+
+    const overviewBtn = key.querySelector('[data-study-key-action="overview"]');
+    if (overviewBtn && !hasOverview) {
+      overviewBtn.remove();
+    }
+  }
+
+  function scheduleRefineStudyResourcesKey() {
+    setTimeout(refineStudyResourcesKey, 120);
+    setTimeout(refineStudyResourcesKey, 350);
+    setTimeout(refineStudyResourcesKey, 800);
+  }
+
+  document.addEventListener("click", async function (event) {
+    const keyButton = event.target.closest("#studyResourcesKey button");
+    if (!keyButton) return;
+
+    const action = keyButton.dataset.studyKeyAction;
+
+    if (action === "backgrounds") {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      await openBackgroundsResourceV2(event);
+      return;
+    }
+
+    if (action === "crossrefs") {
+      const refs = await validBuiltInRefsForCurrentPassage();
+      if (!refs.length) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
+    }
+  }, true);
+
+  const originalOpenInternalCrossReferences = window.openInternalCrossReferences;
+  if (typeof originalOpenInternalCrossReferences === "function") {
+    window.openInternalCrossReferences = async function (mode) {
+      const refs = await validBuiltInRefsForCurrentPassage();
+      if (!refs.length) return;
+
+      originalOpenInternalCrossReferences.call(this, mode || "passage");
+      setTimeout(pruneBrokenInternalCrossRefs, 120);
+      setTimeout(pruneBrokenInternalCrossRefs, 400);
+    };
+  }
+
+  function pruneBrokenInternalCrossRefs() {
+    const panel = get("internalCrossRefsPanel");
+    if (!panel) return;
+
+    panel.querySelectorAll(".internal-xref-link").forEach((button) => {
+      const ref = button.dataset.ref || button.textContent.trim();
+      if (!isValidScriptureRef(ref)) {
+        button.remove();
+      }
+    });
+
+    panel.querySelectorAll(".internal-xref-verse").forEach((section) => {
+      if (!section.querySelector(".internal-xref-link")) {
+        section.remove();
+      }
+    });
+
+    const remaining = panel.querySelectorAll(".internal-xref-link").length;
+    const summary = get("internalXrefsSummary");
+    const results = get("internalXrefsResults");
+
+    if (summary && remaining) {
+      summary.textContent = `${currentLabel()} — ${remaining} valid built-in cross reference${remaining === 1 ? "" : "s"}.`;
+    }
+
+    if (results && !remaining) {
+      results.innerHTML = "";
+      if (summary) summary.textContent = "No valid Built-In Cross References are available for this passage.";
+    }
+  }
+
+  document.addEventListener("input", function (event) {
+    if (event.target?.id === "internalXrefSearch") {
+      setTimeout(pruneBrokenInternalCrossRefs, 120);
+    }
+  }, true);
+
+  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
+    document.addEventListener("change", function (event) {
+      if (event.target?.id === id) scheduleRefineStudyResourcesKey();
+    }, true);
+  });
+
+  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
+    document.addEventListener("click", function (event) {
+      if (event.target?.closest?.(`#${id}`)) scheduleRefineStudyResourcesKey();
+    }, true);
+  });
+
+  window.auditCurrentStudyResources = async function () {
+    const [backgroundItems, validRefs, hasCommentary, hasOverview] = await Promise.all([
+      currentBackgroundItems(),
+      validBuiltInRefsForCurrentPassage(),
+      hasMatthewHenryForCurrentPassage(),
+      hasBookOverviewForCurrentBook()
+    ]);
+
+    const report = {
+      passage: currentLabel(),
+      backgroundsMapped: backgroundItems.length,
+      validBuiltInCrossReferences: validRefs.length,
+      matthewHenryAvailable: hasCommentary,
+      bookOverviewAvailable: hasOverview
+    };
+
+    console.table(report);
+    return report;
+  };
+
+  window.addEventListener("load", scheduleRefineStudyResourcesKey);
+  setTimeout(scheduleRefineStudyResourcesKey, 500);
+})();
+</script>
 </body>
 </html>
