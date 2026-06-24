@@ -8393,794 +8393,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 
-<!-- Patch 2: Study Resources multi-panel consistency (PC + mobile) -->
-<script>
-(function restoredDailyStudyResourcesMultiPanelPatch() {
-  const get = (id) => document.getElementById(id);
-  let nextResourceZ = 70000;
-  let resourceOpenOffset = 0;
 
-  function escapeHtml(value) {
-    return String(value == null ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function makeResourceKey(sourceLabel, title, extra = "") {
-    return [sourceLabel || "Study Resource", title || "Panel", extra || ""]
-      .join("::")
-      .toLowerCase()
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function findResourcePanelByKey(key) {
-    return Array.from(document.querySelectorAll(".resource-instance-panel"))
-      .find(panel => panel.dataset.resourceKey === key) || null;
-  }
-
-  function bringResourcePanelToFront(panel) {
-    if (!panel) return;
-    nextResourceZ += 1;
-    panel.style.zIndex = String(nextResourceZ);
-  }
-
-  function fitResourcePanelToScreen(panel) {
-    if (!panel) return;
-    const rect = panel.getBoundingClientRect();
-    const margin = 8;
-    let left = rect.left;
-    let top = rect.top;
-
-    if (rect.right > window.innerWidth - margin) {
-      left = Math.max(margin, window.innerWidth - rect.width - margin);
-    }
-    if (rect.bottom > window.innerHeight - margin) {
-      top = Math.max(margin, window.innerHeight - rect.height - margin);
-    }
-
-    left = Math.max(margin, left);
-    top = Math.max(margin, top);
-
-    panel.style.left = left + "px";
-    panel.style.top = top + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-  }
-
-  function makeResourcePanelMovable(panel, handle) {
-    if (!panel || !handle || handle.dataset.resourceDragReady === "true") return;
-    handle.dataset.resourceDragReady = "true";
-
-    let dragging = false;
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
-
-    function startDrag(clientX, clientY, target, event) {
-      if (target && target.closest && target.closest("button, input, textarea, select, a, summary, details")) return;
-      const rect = panel.getBoundingClientRect();
-      dragging = true;
-      startX = clientX;
-      startY = clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
-      bringResourcePanelToFront(panel);
-      if (event && event.preventDefault) event.preventDefault();
-    }
-
-    function moveDrag(clientX, clientY) {
-      if (!dragging) return;
-      const rect = panel.getBoundingClientRect();
-      const margin = 8;
-      const maxLeft = Math.max(margin, window.innerWidth - Math.min(rect.width, window.innerWidth - margin * 2) - margin);
-      const maxTop = Math.max(margin, window.innerHeight - 80);
-      const left = Math.max(margin, Math.min(maxLeft, startLeft + clientX - startX));
-      const top = Math.max(margin, Math.min(maxTop, startTop + clientY - startY));
-      panel.style.left = left + "px";
-      panel.style.top = top + "px";
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-    }
-
-    function endDrag() {
-      dragging = false;
-    }
-
-    if (window.PointerEvent) {
-      handle.addEventListener("pointerdown", (event) => {
-        if (event.button != null && event.button !== 0) return;
-        startDrag(event.clientX, event.clientY, event.target, event);
-        try { handle.setPointerCapture(event.pointerId); } catch (_) {}
-      });
-      document.addEventListener("pointermove", (event) => moveDrag(event.clientX, event.clientY));
-      document.addEventListener("pointerup", endDrag);
-      document.addEventListener("pointercancel", endDrag);
-    } else {
-      handle.addEventListener("mousedown", (event) => startDrag(event.clientX, event.clientY, event.target, event));
-      document.addEventListener("mousemove", (event) => moveDrag(event.clientX, event.clientY));
-      document.addEventListener("mouseup", endDrag);
-
-      handle.addEventListener("touchstart", (event) => {
-        const touch = event.touches && event.touches[0];
-        if (!touch) return;
-        startDrag(touch.clientX, touch.clientY, event.target, event);
-      }, { passive: false });
-      document.addEventListener("touchmove", (event) => {
-        const touch = event.touches && event.touches[0];
-        if (!touch) return;
-        moveDrag(touch.clientX, touch.clientY);
-      }, { passive: false });
-      document.addEventListener("touchend", endDrag);
-      document.addEventListener("touchcancel", endDrag);
-    }
-  }
-
-  function openStudyResourcePanel(title, html, sourceLabel = "Study Resource", keyExtra = "", options = {}) {
-    const key = makeResourceKey(sourceLabel, title, keyExtra);
-    const existing = findResourcePanelByKey(key);
-
-    if (existing) {
-      if (options.updateExisting) {
-        const titleNode = existing.querySelector(".resource-panel-title");
-        const sourceNode = existing.querySelector(".resource-source-label");
-        const bodyNode = existing.querySelector(".resource-panel-body");
-        if (titleNode) titleNode.innerHTML = escapeHtml(title || "Study Resource");
-        if (sourceNode) sourceNode.innerHTML = escapeHtml(sourceLabel || "Study Resource");
-        if (bodyNode) bodyNode.innerHTML = html || "<p>No content found.</p>";
-      }
-      bringResourcePanelToFront(existing);
-      fitResourcePanelToScreen(existing);
-      return existing;
-    }
-
-    const panel = document.createElement("div");
-    panel.className = "resource-instance-panel";
-    panel.dataset.resourceKey = key;
-
-    const stagger = resourceOpenOffset % 6;
-    resourceOpenOffset += 1;
-    panel.style.left = (80 + stagger * 28) + "px";
-    panel.style.top = (120 + stagger * 24) + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-
-    panel.innerHTML = `
-      <div class="teacher-pop-head drag-handle">
-        <div>
-          <div class="resource-source-label">${escapeHtml(sourceLabel || "Study Resource")}</div>
-          <h3 class="resource-panel-title">${escapeHtml(title || "Study Resource")}</h3>
-        </div>
-        <button class="teacher-pop-close secondary" type="button">Close</button>
-      </div>
-      <div class="resource-panel-body">
-        ${html || "<p>No content found.</p>"}
-      </div>
-    `;
-
-    document.body.appendChild(panel);
-    bringResourcePanelToFront(panel);
-    fitResourcePanelToScreen(panel);
-
-    panel.querySelector(".teacher-pop-close")?.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      panel.remove();
-    });
-
-    panel.addEventListener("pointerdown", () => bringResourcePanelToFront(panel));
-    panel.addEventListener("mousedown", () => bringResourcePanelToFront(panel));
-    panel.addEventListener("touchstart", () => bringResourcePanelToFront(panel), { passive: true });
-
-    panel.addEventListener("click", async (event) => {
-      const refButton = event.target.closest(".cross-ref-link");
-      if (refButton && typeof window.goToScriptureReference === "function") {
-        event.preventDefault();
-        event.stopPropagation();
-        window.goToScriptureReference(refButton.dataset.ref || refButton.textContent.trim());
-        return;
-      }
-
-      const relatedDoctrineBtn = event.target.closest(".doctrine-related-topic-btn");
-      if (relatedDoctrineBtn && typeof window.openRelatedDoctrineTopic === "function") {
-        event.preventDefault();
-        event.stopPropagation();
-        await window.openRelatedDoctrineTopic(relatedDoctrineBtn.dataset.topic || relatedDoctrineBtn.textContent.trim());
-      }
-    });
-
-    makeResourcePanelMovable(panel, panel.querySelector(".drag-handle"));
-    return panel;
-  }
-
-  window.openStudyResourcePanel = openStudyResourcePanel;
-  window.openResourceInstancePanel = openStudyResourcePanel;
-  try { openResourceInstancePanel = openStudyResourcePanel; } catch (_) {}
-
-  function usePanelButton(id, handler) {
-    const button = get(id);
-    if (!button) return;
-    button.onclick = async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      await handler(event);
-    };
-  }
-
-  usePanelButton("openEastonsResource", async () => {
-    const panel = openStudyResourcePanel(
-      "Easton's Bible Dictionary",
-      `
-        <input class="eastons-search-box" type="text" placeholder="Search a word like faith, grace, Jerusalem..." style="margin-bottom:10px;">
-        <div class="eastons-results"><p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p></div>
-      `,
-      "Easton's Bible Dictionary",
-      "search"
-    );
-
-    const searchBox = panel.querySelector(".eastons-search-box");
-    const results = panel.querySelector(".eastons-results");
-    if (!searchBox || !results || searchBox.dataset.ready === "true") return;
-    searchBox.dataset.ready = "true";
-
-    let dict = {};
-    let terms = [];
-    let loadedLetter = "";
-
-    async function renderResults(query) {
-      const q = String(query || "").toLowerCase().trim();
-      const letter = q.charAt(0).toUpperCase();
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Easton's Bible Dictionary.</p>`;
-        return;
-      }
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
-      if (letter && letter !== loadedLetter) {
-        loadedLetter = letter;
-        dict = typeof window.loadEastonsDictionary === "function" ? await window.loadEastonsDictionary(letter) : {};
-        terms = Object.keys(dict).sort();
-      }
-      const matches = terms.filter(term => term.includes(q)).slice(0, 20);
-      results.innerHTML = matches.length
-        ? matches.map(term => `<button type="button" class="dictionary-result-btn" data-term="${escapeHtml(term)}" style="width:100%;margin-bottom:8px;">${escapeHtml(dict[term].title || term)}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-
-      results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
-        btn.onclick = () => {
-          const item = dict[btn.dataset.term];
-          if (!item) return;
-          openStudyResourcePanel(
-            item.title || "Entry",
-            `<h4>${escapeHtml(item.title || "Entry")}</h4><p>${item.content || ""}</p>`,
-            "Easton's Bible Dictionary",
-            item.title || btn.dataset.term
-          );
-        };
-      });
-    }
-
-    searchBox.oninput = () => renderResults(searchBox.value);
-    searchBox.focus({ preventScroll: true });
-  });
-
-  usePanelButton("openSmithsResource", async () => {
-    const panel = openStudyResourcePanel(
-      "Smith's Bible Dictionary",
-      `
-        <input class="smiths-search-box" type="text" placeholder="Search a word like Paul, Jerusalem, Pharisee..." style="margin-bottom:10px;">
-        <div class="smiths-results"><p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p></div>
-      `,
-      "Smith's Bible Dictionary",
-      "search"
-    );
-
-    const searchBox = panel.querySelector(".smiths-search-box");
-    const results = panel.querySelector(".smiths-results");
-    if (!searchBox || !results || searchBox.dataset.ready === "true") return;
-    searchBox.dataset.ready = "true";
-
-    let dict = {};
-    let terms = [];
-    let loadedLetter = "";
-
-    async function renderResults(query) {
-      const q = String(query || "").toLowerCase().trim();
-      const letter = q.charAt(0).toUpperCase();
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a word above to search Smith's Bible Dictionary.</p>`;
-        return;
-      }
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
-      if (letter && letter !== loadedLetter) {
-        loadedLetter = letter;
-        dict = typeof window.loadSmithsDictionary === "function" ? await window.loadSmithsDictionary(letter) : {};
-        terms = Object.keys(dict).sort();
-      }
-      const matches = terms.filter(term => term.includes(q)).slice(0, 20);
-      results.innerHTML = matches.length
-        ? matches.map(term => `<button type="button" class="dictionary-result-btn" data-term="${escapeHtml(term)}" style="width:100%;margin-bottom:8px;">${escapeHtml(dict[term].title || term)}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No dictionary entry found.</p>`;
-
-      results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
-        btn.onclick = () => {
-          const item = dict[btn.dataset.term];
-          if (!item) return;
-          openStudyResourcePanel(
-            item.title || "Entry",
-            `<h4>${escapeHtml(item.title || "Entry")}</h4><p>${item.content || ""}</p>`,
-            "Smith's Bible Dictionary",
-            item.title || btn.dataset.term
-          );
-        };
-      });
-    }
-
-    searchBox.oninput = () => renderResults(searchBox.value);
-    searchBox.focus({ preventScroll: true });
-  });
-
-  usePanelButton("openNavesResource", async () => {
-    const topicFiles = [
-      "baptism", "christ", "church", "communion", "cross", "deliverance", "discipleship",
-      "evangelism", "faith", "fasting", "fear-of-the-lord", "forgiveness", "gospel", "grace",
-      "holy-spirit", "prayer", "repentance", "salvation", "worship"
-    ].sort();
-
-    const panel = openStudyResourcePanel(
-      "Nave's Topical Bible",
-      `
-        <input class="naves-search-box" type="text" placeholder="Search a topic like faith, prayer, forgiveness..." style="margin-bottom:10px;">
-        <div class="naves-results"><p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p></div>
-      `,
-      "Nave's Topical Bible",
-      "search"
-    );
-
-    const searchBox = panel.querySelector(".naves-search-box");
-    const results = panel.querySelector(".naves-results");
-    if (!searchBox || !results || searchBox.dataset.ready === "true") return;
-    searchBox.dataset.ready = "true";
-
-    async function renderResults(query) {
-      const q = String(query || "").toLowerCase().trim();
-      if (!q) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search Nave's Topical Bible.</p>`;
-        return;
-      }
-      if (q.length < 3) {
-        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 3 letters...</p>`;
-        return;
-      }
-
-      const matches = topicFiles.filter(term => term.includes(q)).slice(0, 20);
-      const loadedTopics = [];
-      for (const topicFile of matches) {
-        const topic = typeof window.loadNavesTopic === "function" ? await window.loadNavesTopic(topicFile) : null;
-        if (topic) loadedTopics.push(topic);
-      }
-
-      results.innerHTML = loadedTopics.length
-        ? loadedTopics.map((topic, index) => `<button type="button" class="naves-topic-btn" data-index="${index}" style="width:100%;margin-bottom:8px;">${escapeHtml(topic.title || matches[index])}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
-
-      results.querySelectorAll(".naves-topic-btn").forEach(btn => {
-        btn.onclick = () => {
-          const topic = loadedTopics[parseInt(btn.dataset.index, 10)];
-          if (!topic) return;
-          const topicHtml = `
-            <h4>${escapeHtml(topic.title || "Topic")}</h4>
-            ${(topic.references || []).length ? `
-              <details style="margin-bottom:10px;">
-                <summary>Main References (${topic.references.length})</summary>
-                ${(topic.references || []).map(ref => `<button type="button" class="cross-ref-link" data-ref="${escapeHtml(ref)}" style="width:100%;margin-bottom:7px;">${escapeHtml(ref)}</button>`).join("")}
-              </details>
-            ` : ""}
-            ${topic.subtopics ? Object.keys(topic.subtopics).map(subtopic => `
-              <details style="margin-top:8px;">
-                <summary>${escapeHtml(subtopic)} (${(topic.subtopics[subtopic] || []).length})</summary>
-                <div style="margin-top:8px;">
-                  ${(topic.subtopics[subtopic] || []).map(ref => `<button type="button" class="cross-ref-link" data-ref="${escapeHtml(ref)}" style="width:100%;margin-bottom:7px;">${escapeHtml(ref)}</button>`).join("")}
-                </div>
-              </details>
-            `).join("") : ""}
-          `;
-          openStudyResourcePanel(topic.title || "Topic", topicHtml, "Nave's Topical Bible", topic.title || "topic");
-        };
-      });
-    }
-
-    searchBox.oninput = () => renderResults(searchBox.value);
-    searchBox.focus({ preventScroll: true });
-  });
-
-  usePanelButton("openTskResource", async () => {
-    const refs = typeof window.loadTSKReferences === "function" ? await window.loadTSKReferences() : [];
-    const refLabel = typeof window.currentRef === "function" ? window.currentRef() : "Current Passage";
-    const html = `
-      <h4>Treasury of Scripture Knowledge</h4>
-      ${refs.length
-        ? refs.map(ref => `<button type="button" class="cross-ref-link" data-ref="${escapeHtml(ref)}" style="width:100%;margin-bottom:8px;">${escapeHtml(ref)}</button>`).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No TSK references found for this passage yet.</p>`
-      }
-    `;
-    openStudyResourcePanel(`Treasury of Scripture Knowledge — ${refLabel}`, html, "Treasury of Scripture Knowledge", refLabel, { updateExisting: true });
-  });
-  function normalizeCommentaryText(value) {
-  return String(value || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
-
-function escapeRegExp(value) {
-  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function getCommentarySectionLabel(item, commentary, book, chapter, anchorVerse) {
-  const contentKey = normalizeCommentaryText(item?.content || "");
-
-  if (!contentKey) {
-    return item?.title || "Commentary";
-  }
-
-  const pattern = new RegExp(`^${escapeRegExp(book)}\\s+${chapter}:(\\d+)$`);
-  const verses = [];
-
-  Object.keys(commentary || {}).forEach(key => {
-    const match = key.match(pattern);
-    if (!match) return;
-
-    const candidate = commentary[key];
-    if (normalizeCommentaryText(candidate?.content || "") === contentKey) {
-      verses.push(parseInt(match[1], 10));
-    }
-  });
-
-  const uniqueVerses = [...new Set(verses)]
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b);
-
-  if (!uniqueVerses.length) {
-    return item?.title || "Commentary";
-  }
-
-  const groups = [];
-  let currentGroup = [uniqueVerses[0]];
-
-  for (let i = 1; i < uniqueVerses.length; i++) {
-    const previous = uniqueVerses[i - 1];
-    const current = uniqueVerses[i];
-
-    if (current === previous + 1) {
-      currentGroup.push(current);
-    } else {
-      groups.push(currentGroup);
-      currentGroup = [current];
-    }
-  }
-
-  groups.push(currentGroup);
-
-  const selectedGroup =
-    groups.find(group => group.includes(parseInt(anchorVerse, 10))) ||
-    groups[0];
-
-  const first = selectedGroup[0];
-  const last = selectedGroup[selectedGroup.length - 1];
-
-  return first === last
-    ? `${book} ${chapter}:${first}`
-    : `${book} ${chapter}:${first}-${last}`;
-}
-
-function addUniqueCommentaryMatch(matches, item, anchorVerse) {
-  if (!item) return;
-
-  const content = normalizeCommentaryText(item.content || "");
-  if (!content) return;
-
-  const alreadyExists = matches.some(existing => {
-    return normalizeCommentaryText(existing.content || "") === content;
-  });
-
-  if (!alreadyExists) {
-    matches.push({
-      ...item,
-      _anchorVerse: anchorVerse
-    });
-  }
-}
-    openStudyResourcePanel(`JFB Commentary — ${refLabel}`, html, "Jamieson-Fausset-Brown Commentary", refLabel, { updateExisting: true });
-  });
-
-  usePanelButton("openBookOverviewResource", async () => {
-    const book = get("book")?.value || "";
-    const overview = typeof window.loadBookOverview === "function" ? await window.loadBookOverview(book) : null;
-    const html = overview ? `
-      <h4>${escapeHtml(overview.title || `${book} Overview`)}</h4>
-      <div style="margin-bottom:12px;"><strong>Author</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.author || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Date</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.date || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Audience</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.audience || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Historical Setting</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.historicalSetting || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Major Themes</strong><ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">${(overview.themes || []).map(theme => `<li>${escapeHtml(theme)}</li>`).join("")}</ul></div>
-      <div style="margin-bottom:12px;"><strong>Key Verse</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.keyVerse || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Christ Focus</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${overview.christFocus || ""}</p></div>
-      <div style="margin-bottom:12px;"><strong>Outline</strong><ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">${(overview.outline || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
-    ` : `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${escapeHtml(book)} yet.</p>`;
-
-    openStudyResourcePanel(overview?.title || `${book} Overview`, html, "Book Overview", book, { updateExisting: true });
-  });
-
-  usePanelButton("openDoctrineResource", async () => {
-    const registry = typeof window.loadDoctrineRegistry === "function" ? await window.loadDoctrineRegistry() : [];
-    const categories = [...new Set(registry.map(item => item.category || "Uncategorized"))].sort();
-    
-      "Biblical Doctrine",
-      `
-        <input class="doctrine-search-box" type="text" placeholder="Search doctrine topics like salvation, scripture, prayer..." style="margin-bottom:10px;">
-        <details class="doctrine-category-browser" style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">Browse by Category</summary>
-          <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
-            ${categories.map(category => `<button type="button" class="doctrine-category-btn" data-category="${escapeHtml(category)}" style="width:100%;">${escapeHtml(category)}</button>`).join("")}
-          </div>
-        </details>
-        <div class="doctrine-results"><p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p></div>
-      `,
-      "Biblical Doctrine",
-      "search"
-    );
-
-    const searchBox = panel.querySelector(".doctrine-search-box");
-    const results = panel.querySelector(".doctrine-results");
-    const categoryBrowser = panel.querySelector(".doctrine-category-browser");
-    if (!searchBox || !results || searchBox.dataset.ready === "true") return;
-    searchBox.dataset.ready = "true";
-
-    function normalizeResourceCommentaryText(value) {
-  return String(value || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
-
-function escapeResourceRegExp(value) {
-  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function getResourceCommentarySectionLabel(item, commentary, book, chapter, anchorVerse) {
-  const contentKey = normalizeResourceCommentaryText(item?.content || "");
-
-  if (!contentKey) {
-    return item?.title || "Commentary";
-  }
-
-  const pattern = new RegExp(`^${escapeResourceRegExp(book)}\\s+${chapter}:(\\d+)$`);
-  const verses = [];
-
-  Object.keys(commentary || {}).forEach(key => {
-    const match = key.match(pattern);
-    if (!match) return;
-
-    const candidate = commentary[key];
-    if (normalizeResourceCommentaryText(candidate?.content || "") === contentKey) {
-      verses.push(parseInt(match[1], 10));
-    }
-  });
-
-  const uniqueVerses = [...new Set(verses)]
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b);
-
-  if (!uniqueVerses.length) {
-    return item?.title || "Commentary";
-  }
-
-  const first = uniqueVerses[0];
-  const last = uniqueVerses[uniqueVerses.length - 1];
-
-  return first === last
-    ? `${book} ${chapter}:${first}`
-    : `${book} ${chapter}:${first}-${last}`;
-}
-
-function addUniqueResourceCommentaryMatch(matches, item, anchorVerse) {
-  if (!item) return;
-
-  const content = normalizeResourceCommentaryText(item.content || "");
-  if (!content) return;
-
-  const alreadyExists = matches.some(existing => {
-    return normalizeResourceCommentaryText(existing.content || "") === content;
-  });
-
-  if (!alreadyExists) {
-    matches.push({
-      ...item,
-      _anchorVerse: anchorVerse
-    });
-  }
-}
-
-usePanelButton("openCommentariesResource", async () => {
-  activeResourcePanel = "commentary";
-
-  const book = get("book")?.value || "";
-  const chapter = get("chapter")?.value || "";
-  const start = parseInt(get("start")?.value, 10) || 1;
-  const end = parseInt(get("end")?.value, 10) || start;
-  const refLabel = typeof window.currentRef === "function"
-    ? window.currentRef()
-    : `${book} ${chapter}:${start}-${end}`;
-
-  const commentary = typeof window.loadMatthewHenryCommentary === "function"
-    ? await window.loadMatthewHenryCommentary(book)
-    : {};
-
-  const matches = [];
-
-  for (let v = start; v <= end; v++) {
-    const key = `${book} ${chapter}:${v}`;
-    addUniqueResourceCommentaryMatch(matches, commentary[key], v);
-  }
-
-  const html = `
-    ${
-      matches.length
-        ? matches.map(item => `
-            <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-              <h4>${escapeHtml(getResourceCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${escapeHtml(item.content || "")}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No Matthew Henry commentary found for this passage yet.</p>`
-    }
-  `;
-
-  const panel = openStudyResourcePanel(
-  "Matthew Henry Commentary",
-  html,
-  "Matthew Henry Commentary",
-  "current-passage",
-  { updateExisting: true }
-);
-
-panel?.querySelector(".resource-source-label")?.remove();
-});
-
-usePanelButton("openJfbResource", async () => {
-  activeResourcePanel = "jfb";
-
-  const book = get("book")?.value || "";
-  const chapter = get("chapter")?.value || "";
-  const start = parseInt(get("start")?.value, 10) || 1;
-  const end = parseInt(get("end")?.value, 10) || start;
-  const refLabel = typeof window.currentRef === "function"
-    ? window.currentRef()
-    : `${book} ${chapter}:${start}-${end}`;
-
-  const commentary = typeof window.loadJfbCommentary === "function"
-    ? await window.loadJfbCommentary(book)
-    : {};
-
-  const matches = [];
-
-  for (let v = start; v <= end; v++) {
-    const key = `${book} ${chapter}:${v}`;
-    addUniqueResourceCommentaryMatch(matches, commentary[key], v);
-  }
-
-  const html = `
-    ${
-      matches.length
-        ? matches.map(item => `
-            <div style="margin-bottom:14px;border-bottom:1px solid rgba(215,168,79,.45);padding-bottom:12px;">
-              <h4>${escapeHtml(getResourceCommentarySectionLabel(item, commentary, book, chapter, item._anchorVerse))}</h4>
-              <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${escapeHtml(item.content || "")}</p>
-            </div>
-          `).join("")
-        : `<p style="font:800 14px Arial,sans-serif;">No JFB commentary found for this passage yet.</p>`
-    }
-  `;
-
-  const panel = openStudyResourcePanel(
-  "Jamieson-Fausset-Brown Commentary",
-  html,
-  "Jamieson-Fausset-Brown Commentary",
-  "current-passage",
-  { updateExisting: true }
-);
-
-panel?.querySelector(".resource-source-label")?.remove();
-});
-
-    function renderHomeMessage() {
-      results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Search above or open Browse by Category.</p>`;
-    }
-
-    function renderDoctrineButtons(items, headingText = "") {
-      if (!items.length) {
-        results.innerHTML = `
-          <button type="button" class="back-to-doctrine-categories secondary" style="width:100%;margin-bottom:10px;">← Back to Browse by Category</button>
-          <p style="font:800 14px Arial,sans-serif;">No doctrine topic found.</p>
-        `;
-        return;
-      }
-      results.innerHTML = `
-        <button type="button" class="back-to-doctrine-categories secondary" style="width:100%;margin-bottom:10px;">← Back to Browse by Category</button>
-        ${headingText ? `<h4>${escapeHtml(headingText)}</h4>` : ""}
-        ${items.map(item => `<button type="button" class="doctrine-topic-btn" data-file="${escapeHtml(item.file || item.id || item.title)}" style="width:100%;margin-bottom:8px;">${escapeHtml(item.title || item.id || "Doctrine Topic")}</button>`).join("")}
-      `;
-    }
-
-    function findMatches(query) {
-      const q = String(query || "").toLowerCase().trim();
-      if (!q) return [];
-      return registry.filter(item => [
-        item.title, item.id, item.category,
-        ...(Array.isArray(item.tags) ? item.tags : []),
-        ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
-      ].join(" ").toLowerCase().includes(q)).slice(0, 30);
-    }
-
-    searchBox.oninput = () => {
-      const value = searchBox.value;
-      if (!value.trim()) {
-        renderHomeMessage();
-        return;
-      }
-      if (categoryBrowser) categoryBrowser.open = false;
-      renderDoctrineButtons(findMatches(value), "Search Results");
-    };
-
-    panel.addEventListener("click", async (event) => {
-      const back = event.target.closest(".back-to-doctrine-categories");
-      if (back) {
-        event.preventDefault();
-        searchBox.value = "";
-        if (categoryBrowser) categoryBrowser.open = true;
-        renderHomeMessage();
-        return;
-      }
-
-      const categoryBtn = event.target.closest(".doctrine-category-btn");
-      if (categoryBtn) {
-        event.preventDefault();
-        const category = categoryBtn.dataset.category;
-        const items = registry.filter(item => (item.category || "Uncategorized") === category).sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
-        if (categoryBrowser) categoryBrowser.open = false;
-        renderDoctrineButtons(items, category);
-        return;
-      }
-
-      const topicBtn = event.target.closest(".doctrine-topic-btn");
-      if (topicBtn) {
-        event.preventDefault();
-        const file = String(topicBtn.dataset.file || "").replace(/\.json$/i, "");
-        const doctrine = typeof window.loadDoctrineTopic === "function" ? await window.loadDoctrineTopic(file) : null;
-        if (!doctrine) {
-          alert(`Doctrine topic could not be loaded: ${topicBtn.textContent.trim()}`);
-          return;
-        }
-        if (typeof window.openDoctrineTopicInNewPanel === "function") {
-          window.openDoctrineTopicInNewPanel(doctrine);
-        }
-      }
-    });
-
-    searchBox.focus({ preventScroll: true });
-  });
-})();
-</script>
 
 
 
@@ -10318,7 +9531,8 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     if (!panel || panel.dataset.rdObsResizeReady === "1") return;
     ensureResizeHandle(panel);
 
-    const handle = panel.querySelector(":scope > .rd-touch-resize-handle");
+    const handle = panel.quer
+ySelector(":scope > .rd-touch-resize-handle");
     if (!handle) return;
 
     panel.dataset.rdObsResizeReady = "1";
@@ -13108,854 +12322,6 @@ body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-interna
   color: #FFF8EA !important;
 }
 </style>
-<!-- =========================================================
-     Iron Sharpener — Bible Backgrounds & Customs Phase 1 Patch
-     Put this directly above </body>, after the final Study Resources patches.
-     ========================================================= -->
-<style>
-body:not(.dark) .resource-instance-panel .backgrounds-topic-btn,
-body:not(.dark) .resource-instance-panel .backgrounds-category-btn,
-body:not(.dark) .resource-instance-panel .backgrounds-back-btn {
-  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: none !important;
-  text-align: center !important;
-  font-weight: 900 !important;
-}
-
-body:not(.dark) .resource-instance-panel .backgrounds-topic-btn:hover,
-body:not(.dark) .resource-instance-panel .backgrounds-category-btn:hover,
-body:not(.dark) .resource-instance-panel .backgrounds-back-btn:hover {
-  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
-  color: #FFF8EA !important;
-}
-</style>
-
-<script>
-(function bibleBackgroundsAndCustomsPhaseOne() {
-  if (window.__ironBackgroundsCustomsInstalled) return;
-  window.__ironBackgroundsCustomsInstalled = true;
-
-  const get = (id) => document.getElementById(id);
-
-  function esc(value) {
-    return String(value == null ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function clean(value) {
-    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
-  }
-
-  function currentBookName() {
-    return get("book")?.value || "Genesis";
-  }
-
-  function currentReferenceLabel() {
-    if (typeof currentRef === "function") return currentRef();
-
-    const book = currentBookName();
-    const chapter = get("chapter")?.value || "1";
-    const start = get("start")?.value || "1";
-    const end = get("end")?.value || start;
-
-    return `${book} ${chapter}:${start}-${end}`;
-  }
-
-  function currentVerseKeys() {
-    const book = currentBookName();
-    const chapter = get("chapter")?.value || "1";
-    const start = parseInt(get("start")?.value || "1", 10);
-    const end = parseInt(get("end")?.value || String(start), 10);
-    const keys = [];
-
-    for (let v = start; v <= end; v++) {
-      keys.push(`${book} ${chapter}:${v}`);
-    }
-
-    return keys;
-  }
-
-  async function fetchJson(path, fallback) {
-    try {
-      const response = await fetch(path, { cache: "no-store" });
-      if (!response.ok) return fallback;
-      return await response.json();
-    } catch (error) {
-      console.warn("Backgrounds resource load error:", path, error);
-      return fallback;
-    }
-  }
-
-  async function loadBackgroundIndex() {
-    return await fetchJson("bible/resources/backgrounds/index.json", []);
-  }
-
-  async function loadBackgroundTopic(topicFileOrId) {
-    const raw = String(topicFileOrId || "").replace(/^topics\//, "").replace(/\.json$/i, "");
-    return await fetchJson(`bible/resources/backgrounds/topics/${raw}.json`, null);
-  }
-
-  async function loadBackgroundReferenceMap(bookName) {
-    return await fetchJson(`bible/resources/backgrounds/by-reference/${bookName}.json`, {});
-  }
-
-  function renderTopicCard(topic) {
-    if (!topic) return `<p style="font:800 14px Arial,sans-serif;">Background topic could not be loaded.</p>`;
-
-    return `
-      <div class="background-topic-card">
-        ${topic.summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.summary)}</p>` : ""}
-        ${topic.background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.background)}</p>` : ""}
-        ${topic.teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.teachingHelp)}</p>` : ""}
-
-        ${(topic.keyScriptures || []).length ? `
-          <h4>Key Scriptures</h4>
-          <div style="display:grid;gap:7px;margin-bottom:12px;">
-            ${(topic.keyScriptures || []).map(ref => `
-              <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;">
-                ${esc(ref)}
-              </button>
-            `).join("")}
-          </div>
-        ` : ""}
-
-        ${(topic.relatedTopics || []).length ? `
-          <h4>Related Background Topics</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-            ${(topic.relatedTopics || []).map(related => `
-              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(related)}">
-                ${esc(related.replace(/-/g, " "))}
-              </button>
-            `).join("")}
-          </div>
-        ` : ""}
-
-        ${(topic.sources || []).length ? `
-          <details style="margin-top:12px;">
-            <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">Public-domain source pool</summary>
-            <ul style="font:700 13px Arial,sans-serif;line-height:1.45;">
-              ${(topic.sources || []).map(source => `<li>${esc(source)}</li>`).join("")}
-            </ul>
-          </details>
-        ` : ""}
-      </div>
-    `;
-  }
-
-  async function openBackgroundTopicPanel(topicIdOrFile) {
-    const topic = await loadBackgroundTopic(topicIdOrFile);
-
-    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
-    if (typeof opener !== "function") {
-      alert("Study Resource panel system is not available yet.");
-      return;
-    }
-
-    const panel = opener(
-      topic?.title || "Bible Backgrounds & Customs",
-      renderTopicCard(topic),
-      "Bible Backgrounds & Customs",
-      `background-topic-${topic?.id || topicIdOrFile}`,
-      { updateExisting: false }
-    );
-
-    wireBackgroundPanelClicks(panel);
-  }
-
-  function renderSearchResults(items, heading) {
-    return `
-      <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-        ← Back to Backgrounds Home
-      </button>
-
-      ${heading ? `<h4>${esc(heading)}</h4>` : ""}
-
-      ${items.length ? items.map(item => `
-        <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id || item.file || "")}" style="width:100%;margin-bottom:8px;">
-          <strong>${esc(item.title || item.id || "Background Topic")}</strong>
-          ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-        </button>
-      `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background topic found.</p>`}
-    `;
-  }
-
-  async function buildBackgroundHomeHtml(index) {
-    const book = currentBookName();
-    const refMap = await loadBackgroundReferenceMap(book);
-    const ids = [];
-
-    currentVerseKeys().forEach(key => {
-      (refMap[key] || []).forEach(id => ids.push(id));
-    });
-
-    const uniqueIds = [...new Set(ids)];
-    const currentItems = uniqueIds
-      .map(id => index.find(item => item.id === id))
-      .filter(Boolean);
-
-    const categories = [...new Set(index.map(item => item.category || "Uncategorized"))].sort();
-
-    return `
-      <div class="backgrounds-home">
-        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-          Background notes for <strong>${esc(currentReferenceLabel())}</strong>, plus searchable Bible customs and ancient-context topics.
-        </p>
-
-        <input class="backgrounds-search-box" type="text" placeholder="Search: Passover, synagogue, shepherds, Roman citizenship..." style="margin-bottom:10px;">
-
-        <details class="backgrounds-current" open style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-            Current Passage Backgrounds (${currentItems.length})
-          </summary>
-          <div style="margin-top:8px;">
-            ${currentItems.length ? currentItems.map(item => `
-              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id)}" style="width:100%;margin-bottom:8px;">
-                <strong>${esc(item.title)}</strong>
-                <span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary || "")}</span>
-              </button>
-            `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background cards mapped to this exact passage yet. Use search or browse below.</p>`}
-          </div>
-        </details>
-
-        <details class="backgrounds-category-browser" style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-            Browse by Category
-          </summary>
-          <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
-            ${categories.map(category => `
-              <button type="button" class="backgrounds-category-btn" data-category="${esc(category)}" style="width:100%;">
-                ${esc(category)}
-              </button>
-            `).join("")}
-          </div>
-        </details>
-
-        <div class="backgrounds-results"></div>
-      </div>
-    `;
-  }
-
-  function findBackgroundMatches(index, query) {
-    const q = clean(query);
-    if (!q) return [];
-
-    return index.filter(item => {
-      const searchable = [
-        item.title,
-        item.id,
-        item.category,
-        item.summary,
-        ...(Array.isArray(item.tags) ? item.tags : []),
-        ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
-      ].join(" ").toLowerCase();
-
-      return searchable.includes(q);
-    }).slice(0, 40);
-  }
-
-  function wireBackgroundPanelClicks(panel) {
-    if (!panel) return;
-
-    panel.addEventListener("click", async (event) => {
-      const topicBtn = event.target.closest(".backgrounds-topic-btn");
-      const categoryBtn = event.target.closest(".backgrounds-category-btn");
-      const backBtn = event.target.closest(".backgrounds-back-btn");
-      const crossRef = event.target.closest(".cross-ref-link");
-
-      if (crossRef) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof goToScriptureReference === "function") {
-          goToScriptureReference(crossRef.dataset.ref || crossRef.textContent.trim());
-        }
-        return;
-      }
-
-      if (topicBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-        await openBackgroundTopicPanel(topicBtn.dataset.topicId || topicBtn.dataset.file || topicBtn.textContent.trim());
-        return;
-      }
-
-      if (categoryBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const index = await loadBackgroundIndex();
-        const category = categoryBtn.dataset.category;
-        const items = index
-          .filter(item => (item.category || "Uncategorized") === category)
-          .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
-
-        const results = panel.querySelector(".backgrounds-results");
-        if (results) results.innerHTML = renderSearchResults(items, category);
-        const browser = panel.querySelector(".backgrounds-category-browser");
-        if (browser) browser.open = false;
-        return;
-      }
-
-      if (backBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-        await openBackgroundsResource();
-      }
-    });
-  }
-
-  async function openBackgroundsResource(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    const index = await loadBackgroundIndex();
-    const html = await buildBackgroundHomeHtml(index);
-    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
-
-    if (typeof opener !== "function") {
-      alert("Study Resource panel system is not available yet.");
-      return;
-    }
-
-    const panel = opener(
-      "Bible Backgrounds & Customs",
-      html,
-      "Bible Backgrounds & Customs",
-      "backgrounds-current",
-      { updateExisting: true }
-    );
-
-    if (panel) {
-      panel.dataset.resourceKey = "backgrounds-current";
-      wireBackgroundPanelClicks(panel);
-
-      const searchBox = panel.querySelector(".backgrounds-search-box");
-      const results = panel.querySelector(".backgrounds-results");
-      const current = panel.querySelector(".backgrounds-current");
-      const categoryBrowser = panel.querySelector(".backgrounds-category-browser");
-
-      if (searchBox && results) {
-        searchBox.oninput = () => {
-          const value = searchBox.value;
-          if (!value.trim()) {
-            results.innerHTML = "";
-            if (current) current.open = true;
-            return;
-          }
-
-          if (current) current.open = false;
-          if (categoryBrowser) categoryBrowser.open = false;
-          results.innerHTML = renderSearchResults(findBackgroundMatches(index, value), "Search Results");
-        };
-
-        searchBox.focus({ preventScroll: true });
-      }
-    }
-  }
-
-  function installBackgroundsButton() {
-    const oldTskButton = get("openTskResource");
-    if (!oldTskButton) return;
-
-    const button = oldTskButton.cloneNode(false);
-    button.id = "openBackgroundsResource";
-    button.type = "button";
-    button.className = oldTskButton.className || "tool-option";
-    button.innerHTML = `
-      <strong>Bible Backgrounds &amp; Customs</strong>
-      <span>Ancient customs, feasts, worship, daily life, places, and historical background.</span>
-    `;
-    oldTskButton.replaceWith(button);
-    button.onclick = openBackgroundsResource;
-  }
-
-  installBackgroundsButton();
-  window.openBackgroundsResource = openBackgroundsResource;
-
-  const previousRefresh = window.refreshActiveResourcePanel;
-
-  window.refreshActiveResourcePanel = function backgroundsAwareRefreshActiveResourcePanel() {
-    const hadBackgroundsOpen = Array.from(document.querySelectorAll(".resource-instance-panel"))
-      .some(panel => panel.dataset.resourceKey === "backgrounds-current");
-
-    if (typeof previousRefresh === "function") {
-      previousRefresh();
-    }
-
-    if (hadBackgroundsOpen) {
-      setTimeout(() => {
-        if (get("openBackgroundsResource")) get("openBackgroundsResource").click();
-      }, 120);
-    }
-  };
-
-  try {
-    refreshActiveResourcePanel = window.refreshActiveResourcePanel;
-  } catch (_) {}
-})();
-</script>
-<style>
-/* =========================================================
-   Bible Backgrounds Phase 1 — panel width correction
-   Keeps Study Resources from stretching in OBS Focus.
-   ========================================================= */
-
-html.obs #studyResourcesPanel.teacher-pop.open,
-#studyResourcesPanel.teacher-pop.open {
-  width: min(500px, calc(100vw - 32px)) !important;
-  max-width: calc(100vw - 32px) !important;
-  max-height: calc(100vh - 120px) !important;
-  overflow-y: auto !important;
-}
-
-html.obs #studyResourcesPanel .tool-options,
-#studyResourcesPanel .tool-options {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-}
-
-html.obs #studyResourcesPanel .tool-option,
-#studyResourcesPanel .tool-option {
-  min-width: 0 !important;
-  width: 100% !important;
-  white-space: normal !important;
-}
-
-html.obs #studyResourcesPanel .tool-option strong,
-html.obs #studyResourcesPanel .tool-option span,
-#studyResourcesPanel .tool-option strong,
-#studyResourcesPanel .tool-option span {
-  overflow-wrap: break-word !important;
-  word-break: normal !important;
-}
-
-@media (max-width: 650px) {
-  html.obs #studyResourcesPanel .tool-options,
-  #studyResourcesPanel .tool-options {
-    grid-template-columns: 1fr !important;
-  }
-}
-</style>
-
-<script>
-(function bibleBackgroundsPhaseOneFix() {
-  if (window.__ironBackgroundsPhaseOneFixInstalled) return;
-  window.__ironBackgroundsPhaseOneFixInstalled = true;
-
-  const get = (id) => document.getElementById(id);
-
-  function esc(value) {
-    return String(value == null ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function clean(value) {
-    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
-  }
-
-  function currentBookName() {
-    return get("book")?.value || "Genesis";
-  }
-
-  function currentChapterNumber() {
-    return get("chapter")?.value || "1";
-  }
-
-  function currentReferenceLabel() {
-    if (typeof currentRef === "function") return currentRef();
-
-    const book = currentBookName();
-    const chapter = currentChapterNumber();
-    const start = get("start")?.value || "1";
-    const end = get("end")?.value || start;
-
-    return `${book} ${chapter}:${start}-${end}`;
-  }
-
-  function currentVerseKeys() {
-    const book = currentBookName();
-    const chapter = currentChapterNumber();
-    const start = parseInt(get("start")?.value || "1", 10);
-    const end = parseInt(get("end")?.value || String(start), 10);
-    const keys = [];
-
-    for (let v = start; v <= end; v++) {
-      keys.push(`${book} ${chapter}:${v}`);
-    }
-
-    return keys;
-  }
-
-  async function fetchJsonFromAny(possiblePaths, fallback) {
-    for (const path of possiblePaths) {
-      try {
-        const response = await fetch(path, { cache: "no-store" });
-
-        if (!response.ok) {
-          console.warn("Backgrounds path not found:", path, response.status);
-          continue;
-        }
-
-        const data = await response.json();
-        console.log("Backgrounds loaded from:", path);
-        return data;
-      } catch (error) {
-        console.warn("Backgrounds load error:", path, error);
-      }
-    }
-
-    return fallback;
-  }
-
-  async function loadBackgroundIndexFixed() {
-    return await fetchJsonFromAny([
-      "bible/resources/backgrounds/index.json",
-      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
-    ], []);
-  }
-
-  async function loadBackgroundTopicFixed(topicIdOrFile) {
-    const raw = String(topicIdOrFile || "")
-      .replace(/^topics\//, "")
-      .replace(/\.json$/i, "")
-      .trim();
-
-    return await fetchJsonFromAny([
-      `bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`
-    ], null);
-  }
-
-  async function loadBackgroundReferenceMapFixed(bookName) {
-    const book = String(bookName || "").trim();
-
-    return await fetchJsonFromAny([
-      `bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/by-reference/${encodeURIComponent(book)}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encodeURIComponent(book)}.json`
-    ], {});
-  }
-
-  function renderTopicCard(topic) {
-    if (!topic) {
-      return `<p style="font:800 14px Arial,sans-serif;">Background topic could not be loaded.</p>`;
-    }
-
-    return `
-      <div class="background-topic-card">
-        ${topic.summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.summary)}</p>` : ""}
-        ${topic.background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.background)}</p>` : ""}
-        ${topic.teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.teachingHelp)}</p>` : ""}
-
-        ${(topic.keyScriptures || []).length ? `
-          <h4>Key Scriptures</h4>
-          <div style="display:grid;gap:7px;margin-bottom:12px;">
-            ${(topic.keyScriptures || []).map(ref => `
-              <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;">
-                ${esc(ref)}
-              </button>
-            `).join("")}
-          </div>
-        ` : ""}
-
-        ${(topic.relatedTopics || []).length ? `
-          <h4>Related Background Topics</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-            ${(topic.relatedTopics || []).map(related => `
-              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(related)}">
-                ${esc(String(related).replace(/-/g, " "))}
-              </button>
-            `).join("")}
-          </div>
-        ` : ""}
-
-        ${(topic.sources || []).length ? `
-          <details style="margin-top:12px;">
-            <summary style="cursor:pointer;font:900 14px Arial,sans-serif;">Public-domain source pool</summary>
-            <ul style="font:700 13px Arial,sans-serif;line-height:1.45;">
-              ${(topic.sources || []).map(source => `<li>${esc(source)}</li>`).join("")}
-            </ul>
-          </details>
-        ` : ""}
-      </div>
-    `;
-  }
-
-  function renderSearchResults(items, heading) {
-    return `
-      <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-        ← Back to Backgrounds Home
-      </button>
-
-      ${heading ? `<h4>${esc(heading)}</h4>` : ""}
-
-      ${items.length ? items.map(item => `
-        <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id || item.file || "")}" style="width:100%;margin-bottom:8px;">
-          <strong>${esc(item.title || item.id || "Background Topic")}</strong>
-          ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-        </button>
-      `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background topic found.</p>`}
-    `;
-  }
-
-  function findBackgroundMatches(index, query) {
-    const q = clean(query);
-    if (!q) return [];
-
-    return index.filter(item => {
-      const searchable = [
-        item.title,
-        item.id,
-        item.category,
-        item.summary,
-        ...(Array.isArray(item.tags) ? item.tags : []),
-        ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
-      ].join(" ").toLowerCase();
-
-      return searchable.includes(q);
-    }).slice(0, 40);
-  }
-
-  async function openBackgroundTopicPanelFixed(topicIdOrFile) {
-    const topic = await loadBackgroundTopicFixed(topicIdOrFile);
-    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
-
-    if (typeof opener !== "function") {
-      alert("Study Resource panel system is not available yet.");
-      return;
-    }
-
-    const panel = opener(
-      topic?.title || "Bible Backgrounds & Customs",
-      renderTopicCard(topic),
-      "Bible Backgrounds & Customs",
-      `background-topic-${topic?.id || topicIdOrFile}`,
-      { updateExisting: false }
-    );
-
-    wireBackgroundPanelClicks(panel);
-  }
-
-  async function buildBackgroundHomeHtmlFixed(index) {
-    const book = currentBookName();
-    const refMap = await loadBackgroundReferenceMapFixed(book);
-    const ids = [];
-
-    currentVerseKeys().forEach(key => {
-      const mapped = refMap[key];
-
-      if (Array.isArray(mapped)) {
-        mapped.forEach(id => ids.push(id));
-      }
-    });
-
-    const uniqueIds = [...new Set(ids)];
-
-    const currentItems = uniqueIds
-      .map(id => index.find(item => item.id === id) || { id, title: id.replace(/-/g, " ") })
-      .filter(Boolean);
-
-    const categories = [...new Set(index.map(item => item.category || "Uncategorized"))].sort();
-
-    return `
-      <div class="backgrounds-home">
-        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-          Background notes for <strong>${esc(currentReferenceLabel())}</strong>, plus searchable Bible customs and ancient-context topics.
-        </p>
-
-        <input class="backgrounds-search-box" type="text" placeholder="Search: Passover, synagogue, shepherds, Roman citizenship..." style="margin-bottom:10px;">
-
-        <details class="backgrounds-current" open style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-            Current Passage Backgrounds (${currentItems.length})
-          </summary>
-
-          <div style="margin-top:8px;">
-            ${currentItems.length ? currentItems.map(item => `
-              <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id)}" style="width:100%;margin-bottom:8px;">
-                <strong>${esc(item.title || item.id)}</strong>
-                ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-              </button>
-            `).join("") : `<p style="font:800 14px Arial,sans-serif;">No background cards mapped to this passage yet. Use search or browse below.</p>`}
-          </div>
-        </details>
-
-        <details class="backgrounds-category-browser" style="margin-bottom:12px;">
-          <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-            Browse by Category
-          </summary>
-
-          <div style="display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;">
-            ${categories.map(category => `
-              <button type="button" class="backgrounds-category-btn" data-category="${esc(category)}" style="width:100%;">
-                ${esc(category)}
-              </button>
-            `).join("")}
-          </div>
-        </details>
-
-        <div class="backgrounds-results"></div>
-      </div>
-    `;
-  }
-
-  function wireBackgroundPanelClicks(panel) {
-    if (!panel) return;
-
-    if (panel.__backgroundsClickHandler) {
-      panel.removeEventListener("click", panel.__backgroundsClickHandler);
-    }
-
-    panel.__backgroundsClickHandler = async function(event) {
-      const topicBtn = event.target.closest(".backgrounds-topic-btn");
-      const categoryBtn = event.target.closest(".backgrounds-category-btn");
-      const backBtn = event.target.closest(".backgrounds-back-btn");
-      const crossRef = event.target.closest(".cross-ref-link");
-
-      if (crossRef) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (typeof goToScriptureReference === "function") {
-          goToScriptureReference(crossRef.dataset.ref || crossRef.textContent.trim());
-        }
-
-        return;
-      }
-
-      if (topicBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-        await openBackgroundTopicPanelFixed(topicBtn.dataset.topicId || topicBtn.dataset.file || topicBtn.textContent.trim());
-        return;
-      }
-
-      if (categoryBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const index = await loadBackgroundIndexFixed();
-        const category = categoryBtn.dataset.category;
-
-        const items = index
-          .filter(item => (item.category || "Uncategorized") === category)
-          .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
-
-        const results = panel.querySelector(".backgrounds-results");
-        if (results) results.innerHTML = renderSearchResults(items, category);
-
-        const browser = panel.querySelector(".backgrounds-category-browser");
-        if (browser) browser.open = false;
-
-        return;
-      }
-
-      if (backBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-        await openBackgroundsResourceFixed(event);
-      }
-    };
-
-    panel.addEventListener("click", panel.__backgroundsClickHandler);
-  }
-
-  async function openBackgroundsResourceFixed(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    activeResourcePanel = "backgrounds";
-
-    const index = await loadBackgroundIndexFixed();
-    const html = await buildBackgroundHomeHtmlFixed(index);
-    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
-
-    if (typeof opener !== "function") {
-      alert("Study Resource panel system is not available yet.");
-      return;
-    }
-
-    const panel = opener(
-      "Bible Backgrounds & Customs",
-      html,
-      "Bible Backgrounds & Customs",
-      "backgrounds-current",
-      { updateExisting: true }
-    );
-
-    if (!panel) return;
-
-    panel.dataset.resourceKey = "backgrounds-current";
-    wireBackgroundPanelClicks(panel);
-
-    const searchBox = panel.querySelector(".backgrounds-search-box");
-    const results = panel.querySelector(".backgrounds-results");
-    const current = panel.querySelector(".backgrounds-current");
-    const categoryBrowser = panel.querySelector(".backgrounds-category-browser");
-
-    if (searchBox && results) {
-      searchBox.oninput = () => {
-        const value = searchBox.value;
-
-        if (!value.trim()) {
-          results.innerHTML = "";
-          if (current) current.open = true;
-          return;
-        }
-
-        if (current) current.open = false;
-        if (categoryBrowser) categoryBrowser.open = false;
-
-        results.innerHTML = renderSearchResults(findBackgroundMatches(index, value), "Search Results");
-      };
-    }
-  }
-
-  window.openBackgroundsResource = openBackgroundsResourceFixed;
-
-  const backgroundsButton = get("openBackgroundsResource");
-  if (backgroundsButton) {
-    backgroundsButton.onclick = openBackgroundsResourceFixed;
-  }
-
-  const previousRefresh = window.refreshActiveResourcePanel;
-
-  window.refreshActiveResourcePanel = function backgroundsPhaseOneFixedRefresh() {
-    const hadBackgroundsOpen = Array.from(document.querySelectorAll(".resource-instance-panel"))
-      .some(panel => panel.dataset.resourceKey === "backgrounds-current");
-
-    if (typeof previousRefresh === "function") {
-      previousRefresh();
-    }
-
-    if (hadBackgroundsOpen) {
-      setTimeout(() => {
-        if (get("openBackgroundsResource")) get("openBackgroundsResource").click();
-      }, 160);
-    }
-  };
-
-  try {
-    refreshActiveResourcePanel = window.refreshActiveResourcePanel;
-  } catch (_) {}
-})();
-</script>
 <style>
 /* =========================================================
    STUDY RESOURCES MENU — GLOBAL LAYOUT LOCK
@@ -14155,61 +12521,54 @@ html.obs #studyResourcesPanel .tool-option span {
   }
 }
 </style>
-<script>
-(function hideBackgroundsSourcePoolDetails() {
-  if (window.__ironHideBackgroundsSourcePoolDetailsInstalled) return;
-  window.__ironHideBackgroundsSourcePoolDetailsInstalled = true;
 
-  function removeSourcePoolDetails() {
-    document.querySelectorAll(".resource-instance-panel details").forEach(details => {
-      const summaryText = details.querySelector("summary")?.textContent || "";
 
-      if (summaryText.toLowerCase().includes("public-domain source pool")) {
-        details.remove();
-      }
-    });
-  }
 
-  removeSourcePoolDetails();
 
-  const observer = new MutationObserver(() => {
-    removeSourcePoolDetails();
-  });
+<!-- =========================================================
+     RDM IRON SHARPENER — STUDY RESOURCES FINAL CLEAN PATCH
+     Consolidates Bible Backgrounds, Study Resources Key,
+     Book Overview loader, cross-reference back stack,
+     and mandatory open-panel refresh.
+     ========================================================= -->
+<style id="rdm-study-resources-final-clean-style">
+/* Cream / dark canvas flow safety */
+body:not(.dark) {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(244,199,108,.22), transparent 28%),
+    linear-gradient(145deg, #020913, #061526 48%, #0a223d) !important;
+}
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-})();
-</script>
-<style id="rdm-study-resources-final-stabilizer-style">
-/* =========================================================
-   RDM FINAL STUDY RESOURCES STABILIZER
-   ========================================================= */
+body:not(.dark) .shell {
+  background: #fff9ec !important;
+}
 
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, #fff9ec, #fff2d5) !important;
+}
+
+body:not(.dark) .scripture {
+  background: linear-gradient(180deg, #fffaf0, #fff7e6) !important;
+  color: #0d1a2f !important;
+}
+
+body.dark {
+  background: #020913 !important;
+}
+
+body.dark .shell,
+body.dark .layout {
+  background: #07172b !important;
+}
+
+body.dark .scripture {
+  background: #0d2139 !important;
+  color: #fff2d7 !important;
+}
+
+/* Hide any legacy Backgrounds category browser if an old panel is still open */
 .backgrounds-category-browser {
   display: none !important;
-}
-
-/* Larger, usable OBS cross-reference panel */
-html.obs #obsCrossRefsPanel.open,
-#obsCrossRefsPanel.open {
-  width: min(680px, calc(100vw - 32px)) !important;
-  min-width: min(420px, calc(100vw - 32px)) !important;
-  max-width: calc(100vw - 24px) !important;
-  max-height: min(74vh, calc(100vh - 115px)) !important;
-  min-height: 320px !important;
-  overflow: auto !important;
-  resize: both !important;
-  z-index: 87000 !important;
-}
-
-html.obs #obsCrossRefsPanel.open:not(.drag-positioned):not(.rd-drag-positioned) {
-  top: 96px !important;
-  right: 22px !important;
-  left: auto !important;
-  bottom: auto !important;
-  transform: none !important;
 }
 
 /* Study Resources Key */
@@ -14287,6 +12646,50 @@ body.dark .study-resource-back-btn {
   border-color: rgba(248,217,135,.45) !important;
 }
 
+/* Larger, usable cross-reference / shared resource panel, especially in OBS */
+#obsCrossRefsPanel.open,
+html.obs #obsCrossRefsPanel.open {
+  width: min(680px, calc(100vw - 32px)) !important;
+  min-width: min(420px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  min-height: 320px !important;
+  max-height: min(74vh, calc(100vh - 115px)) !important;
+  overflow: auto !important;
+  resize: both !important;
+  z-index: 87000 !important;
+}
+
+html.obs #obsCrossRefsPanel.open:not(.drag-positioned) {
+  top: 96px !important;
+  right: 22px !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+body:not(.dark) #obsCrossRefsPanel.open,
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, #fffaf0, #fff2d6) !important;
+  color: #10213c !important;
+}
+
+body.dark #obsCrossRefsPanel.open,
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #102b4b, #071a30) !important;
+  color: #fff6d9 !important;
+}
+
+body:not(.dark) .rdm-background-topic-btn,
+body:not(.dark) .study-background-topic-btn,
+body:not(.dark) .backgrounds-back-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+}
+
 @media (max-width: 650px) {
   #studyResourcesKey {
     margin: 0 auto 16px;
@@ -14298,16 +12701,26 @@ body.dark .study-resource-back-btn {
     font-size: 11px !important;
     padding: 8px 10px !important;
   }
+
+  #obsCrossRefsPanel.open,
+  html.obs #obsCrossRefsPanel.open {
+    width: calc(100vw - 24px) !important;
+    min-width: calc(100vw - 24px) !important;
+    left: 12px !important;
+    right: auto !important;
+    top: 86px !important;
+  }
 }
 </style>
 
-<script id="rdm-study-resources-final-stabilizer-script">
-(function rdmStudyResourcesFinalStabilizer() {
-  if (window.__rdmStudyResourcesFinalStabilizerInstalled) return;
-  window.__rdmStudyResourcesFinalStabilizerInstalled = true;
+<script id="rdm-study-resources-final-clean-script">
+(function rdmStudyResourcesFinalCleanPatch() {
+  if (window.__rdmStudyResourcesFinalCleanPatchInstalled) return;
+  window.__rdmStudyResourcesFinalCleanPatchInstalled = true;
 
-  const cache = {};
+  const cache = window.__rdmStudyResourceCache || {};
   const backStack = window.__rdmCrossReferenceBackStack || [];
+  window.__rdmStudyResourceCache = cache;
   window.__rdmCrossReferenceBackStack = backStack;
 
   function get(id) {
@@ -14333,11 +12746,12 @@ body.dark .study-resource-back-btn {
   }
 
   function currentState() {
+    const start = get("start")?.value || "1";
     return {
       book: get("book")?.value || "Genesis",
       chapter: get("chapter")?.value || "1",
-      start: get("start")?.value || "1",
-      end: get("end")?.value || get("start")?.value || "1",
+      start,
+      end: get("end")?.value || start,
       range: get("rangeSize")?.value || "5"
     };
   }
@@ -14357,6 +12771,19 @@ body.dark .study-resource-back-btn {
       : `${state.book} ${state.chapter}:${state.start}-${state.end}`;
   }
 
+  function currentVerseKeys() {
+    const state = currentState();
+    const start = parseInt(state.start, 10) || 1;
+    const end = parseInt(state.end, 10) || start;
+    const keys = [];
+
+    for (let v = start; v <= end; v++) {
+      keys.push(`${state.book} ${state.chapter}:${v}`);
+    }
+
+    return keys;
+  }
+
   async function fetchJsonAny(paths, fallback = null) {
     for (const path of paths) {
       if (cache[path]) return cache[path];
@@ -14372,6 +12799,28 @@ body.dark .study-resource-back-btn {
     }
 
     return fallback;
+  }
+
+  function parseReference(ref) {
+    const match = String(ref || "").trim().match(/^((?:[1-3]\s*)?[A-Za-z ]+)\s+(\d+):(\d+)(?:-(\d+))?$/i);
+    if (!match) return null;
+
+    let book = match[1].replace(/\s+/g, " ").trim();
+    book = book.replace(/^Psalm$/i, "Psalms");
+
+    const found = Array.isArray(window.books || books)
+      ? (window.books || books).find(b => b[0].toLowerCase() === book.toLowerCase())
+      : null;
+
+    if (!found) return null;
+
+    return {
+      book: found[0],
+      chapter: match[2],
+      start: match[3],
+      end: match[4] || match[3],
+      range: get("rangeSize")?.value || "5"
+    };
   }
 
   function setPassageState(state) {
@@ -14393,37 +12842,15 @@ body.dark .study-resource-back-btn {
     chapSel.value = state.chapter;
 
     if (typeof fillVerses === "function") fillVerses();
+
     rangeSel.value = state.range || rangeSel.value || "5";
     startSel.value = state.start;
     endSel.value = state.end;
 
     if (typeof loadPassage === "function") loadPassage();
-    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 60);
 
-    setTimeout(updateStudyResourcesKey, 120);
-    setTimeout(refreshOpenStudyResourcePanels, 220);
-  }
-
-  function parseReference(ref) {
-    const match = String(ref || "").trim().match(/^((?:[1-3]\s*)?[A-Za-z ]+)\s+(\d+):(\d+)(?:-(\d+))?$/i);
-    if (!match) return null;
-
-    let book = match[1].replace(/\s+/g, " ").trim();
-    book = book.replace(/^Psalm$/i, "Psalms");
-
-    const found = Array.isArray(books)
-      ? books.find(b => b[0].toLowerCase() === book.toLowerCase())
-      : null;
-
-    if (!found) return null;
-
-    return {
-      book: found[0],
-      chapter: match[2],
-      start: match[3],
-      end: match[4] || match[3],
-      range: get("rangeSize")?.value || "5"
-    };
+    setTimeout(updateStudyResourcesKey, 100);
   }
 
   function goToScriptureReferenceStacked(ref) {
@@ -14431,30 +12858,33 @@ body.dark .study-resource-back-btn {
     if (!target) return;
 
     const current = currentState();
-
     if (!sameState(current, target)) {
       backStack.push(current);
     }
 
     setPassageState(target);
-    updateStudyResourcesKey();
+  }
+
+  function goBackOneStep() {
+    const previous = backStack.pop();
+    if (!previous) return;
+    setPassageState(previous);
   }
 
   window.goToScriptureReference = goToScriptureReferenceStacked;
   try { goToScriptureReference = goToScriptureReferenceStacked; } catch (_) {}
 
-  function goBackOneCrossReferenceStep() {
-    const previous = backStack.pop();
-    if (!previous) return;
+  const mainBack = get("backToPreviousPassage");
+  if (mainBack) mainBack.onclick = goBackOneStep;
 
-    setPassageState(previous);
-    updateStudyResourcesKey();
-  }
+  const obsBack = get("obsBackToPreviousPassage");
+  if (obsBack) obsBack.onclick = goBackOneStep;
 
-  async function loadBookOverviewSafe(book) {
+  async function loadBookOverviewSafe(bookName) {
+    const book = String(bookName || "").trim();
     const encoded = encodeURIComponent(book);
-    const lower = String(book).toLowerCase();
     const id = slug(book);
+    const lower = book.toLowerCase();
 
     return await fetchJsonAny([
       `bible/resources/book-overviews/${book}.json`,
@@ -14465,8 +12895,8 @@ body.dark .study-resource-back-btn {
       `bible/resources/book-overview/${encoded}.json`,
       `bible/resources/overviews/${book}.json`,
       `bible/resources/overviews/${encoded}.json`,
-      `bible/resources/backgrounds/book-overviews/${book}.json`,
-      `bible/resources/book-overviews/bible/resources/book-overviews/${book}.json`
+      `bible/resources/book-overviews/bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/bible/resources/book-overviews/${encoded}.json`
     ], null);
   }
 
@@ -14479,8 +12909,6 @@ body.dark .study-resource-back-btn {
     }
 
     return `
-      <h4>${esc(overview.title || `${book} Overview`)}</h4>
-
       ${overview.author ? `<div style="margin-bottom:12px;"><strong>Author</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.author)}</p></div>` : ""}
       ${overview.date ? `<div style="margin-bottom:12px;"><strong>Date</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.date)}</p></div>` : ""}
       ${overview.audience ? `<div style="margin-bottom:12px;"><strong>Audience</strong><p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.audience)}</p></div>` : ""}
@@ -14515,12 +12943,15 @@ body.dark .study-resource-back-btn {
       event.stopPropagation();
     }
 
-    activeResourcePanel = "bookOverview";
+    window.activeResourcePanel = "bookOverview";
+    try { activeResourcePanel = "bookOverview"; } catch (_) {}
 
-    const book = get("book")?.value || "Genesis";
+    const book = currentState().book;
     const overview = await loadBookOverviewSafe(book);
 
-    openResourceInstancePanel(
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    window.openResourceInstancePanel(
       overview?.title || `${book} Overview`,
       renderBookOverview(book, overview),
       "Book Overview",
@@ -14529,31 +12960,35 @@ body.dark .study-resource-back-btn {
     );
   }
 
-  const overviewButton = get("openBookOverviewResource");
-  if (overviewButton) overviewButton.onclick = openBookOverviewSafe;
+  const overviewBtn = get("openBookOverviewResource");
+  if (overviewBtn) overviewBtn.onclick = openBookOverviewSafe;
 
-  async function loadBackgroundIndexSafe() {
-    return await fetchJsonAny([
+  async function loadBackgroundIndex() {
+    const data = await fetchJsonAny([
       "bible/resources/backgrounds/index.json",
       "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
     ], []);
+
+    return Array.isArray(data) ? data.map(normalizeBackgroundIndexItem) : [];
   }
 
-  async function loadBackgroundReferenceMapSafe(book) {
+  async function loadBackgroundMap(bookName) {
+    const book = String(bookName || "").trim();
+    const encoded = encodeURIComponent(book);
+
     return await fetchJsonAny([
       `bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/by-reference/${encodeURIComponent(book)}.json`,
+      `bible/resources/backgrounds/by-reference/${encoded}.json`,
       `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encodeURIComponent(book)}.json`
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
     ], {});
   }
 
-  async function loadBackgroundTopicSafe(idOrFile) {
+  async function loadBackgroundTopic(idOrFile) {
     const raw = String(idOrFile || "")
       .replace(/^topics\//i, "")
       .replace(/\.json$/i, "")
       .trim();
-
     const id = slug(raw);
 
     return await fetchJsonAny([
@@ -14565,33 +13000,13 @@ body.dark .study-resource-back-btn {
     ], null);
   }
 
-  function currentVerseKeys() {
-    const state = currentState();
-    const keys = [];
+  function normalizeBackgroundIndexItem(item) {
+    const id = item.id || slug(item.file || item.title);
 
-    for (let v = parseInt(state.start, 10); v <= parseInt(state.end, 10); v++) {
-      keys.push(`${state.book} ${state.chapter}:${v}`);
-    }
-
-    return keys;
-  }
-
-  function countBackgroundTopics(map) {
-    const ids = [];
-
-    currentVerseKeys().forEach(key => {
-      const mapped = map?.[key];
-      if (Array.isArray(mapped)) mapped.forEach(id => ids.push(id));
-    });
-
-    return [...new Set(ids)].length;
-  }
-
-  function normalizeIndexItem(item) {
     return {
-      id: item.id || slug(item.file || item.title),
-      file: item.file || `${item.id || slug(item.title)}.json`,
-      title: item.title || String(item.id || item.file || "Background Topic").replace(/-/g, " "),
+      id,
+      file: item.file || `${id}.json`,
+      title: item.title || String(id).replace(/-/g, " "),
       summary: item.summary || "",
       category: item.category || "Uncategorized",
       tags: item.tags || [],
@@ -14599,20 +13014,40 @@ body.dark .study-resource-back-btn {
     };
   }
 
+  function countBackgroundTopics(map) {
+    const ids = [];
+    currentVerseKeys().forEach(key => {
+      const mapped = map?.[key];
+      if (Array.isArray(mapped)) mapped.forEach(id => ids.push(slug(id)));
+    });
+    return [...new Set(ids)].length;
+  }
+
   function findBackgroundMatches(index, query) {
     const q = String(query || "").toLowerCase().trim();
     if (!q) return [];
 
-    return index.map(normalizeIndexItem).filter(item => {
-      return [
-        item.title,
-        item.id,
-        item.category,
-        item.summary,
-        ...(Array.isArray(item.tags) ? item.tags : []),
-        ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
-      ].join(" ").toLowerCase().includes(q);
-    }).slice(0, 30);
+    return index.filter(item => [
+      item.title,
+      item.id,
+      item.category,
+      item.summary,
+      ...(Array.isArray(item.tags) ? item.tags : []),
+      ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+    ].join(" ").toLowerCase().includes(q)).slice(0, 30);
+  }
+
+  function renderBackgroundTopicButtons(items) {
+    if (!items.length) {
+      return `<p style="font:800 14px Arial,sans-serif;">No background cards mapped to this exact passage yet. Search is still available.</p>`;
+    }
+
+    return items.map(item => `
+      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id)}" style="width:100%;margin-bottom:8px;">
+        <strong>${esc(item.title || item.id)}</strong>
+        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
+      </button>
+    `).join("");
   }
 
   function renderBackgroundTopicCard(topic) {
@@ -14640,11 +13075,13 @@ body.dark .study-resource-back-btn {
     `;
   }
 
-  async function openBackgroundTopicSafe(idOrFile) {
-    const topic = await loadBackgroundTopicSafe(idOrFile);
+  async function openBackgroundTopic(idOrFile) {
+    const topic = await loadBackgroundTopic(idOrFile);
     const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
 
-    openResourceInstancePanel(
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    window.openResourceInstancePanel(
       title,
       renderBackgroundTopicCard(topic),
       "Bible Backgrounds & Customs",
@@ -14653,31 +13090,17 @@ body.dark .study-resource-back-btn {
     );
   }
 
-  function renderBackgroundButtons(items) {
-    if (!items.length) {
-      return `<p style="font:800 14px Arial,sans-serif;">No background cards mapped to this exact passage yet. Search is still available.</p>`;
-    }
-
-    return items.map(item => `
-      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id)}" style="width:100%;margin-bottom:8px;">
-        <strong>${esc(item.title)}</strong>
-        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-      </button>
-    `).join("");
-  }
-
   async function buildBackgroundHomeHtml() {
-    const index = (await loadBackgroundIndexSafe()).map(normalizeIndexItem);
-    const map = await loadBackgroundReferenceMapSafe(currentState().book);
+    const index = await loadBackgroundIndex();
+    const map = await loadBackgroundMap(currentState().book);
+    const ids = [];
 
-    const topicIds = [];
     currentVerseKeys().forEach(key => {
       const mapped = map?.[key];
-      if (Array.isArray(mapped)) mapped.forEach(id => topicIds.push(id));
+      if (Array.isArray(mapped)) mapped.forEach(id => ids.push(slug(id)));
     });
 
-    const uniqueIds = [...new Set(topicIds.map(id => slug(id)))];
-
+    const uniqueIds = [...new Set(ids)];
     const currentItems = uniqueIds.map(id => {
       return index.find(item => slug(item.id) === id || slug(item.file) === id) || {
         id,
@@ -14687,18 +13110,21 @@ body.dark .study-resource-back-btn {
     });
 
     return `
-      <div class="backgrounds-resource">
+      <div class="backgrounds-home">
+        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
+          Background notes for <strong>${esc(stateLabel(currentState()))}</strong>, plus searchable Bible customs and ancient-context topics.
+        </p>
+
         <details class="backgrounds-current" open style="margin-bottom:12px;">
           <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
             Current Passage Backgrounds (${currentItems.length})
           </summary>
           <div style="margin-top:8px;">
-            ${renderBackgroundButtons(currentItems)}
+            ${renderBackgroundTopicButtons(currentItems)}
           </div>
         </details>
 
         <input class="backgrounds-search-box" type="text" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;">
-
         <div class="backgrounds-results"></div>
       </div>
     `;
@@ -14710,9 +13136,12 @@ body.dark .study-resource-back-btn {
       event.stopPropagation();
     }
 
-    activeResourcePanel = "backgrounds";
+    window.activeResourcePanel = "backgrounds";
+    try { activeResourcePanel = "backgrounds"; } catch (_) {}
 
-    const panel = openResourceInstancePanel(
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    const panel = window.openResourceInstancePanel(
       "Bible Backgrounds & Customs",
       await buildBackgroundHomeHtml(),
       "Bible Backgrounds & Customs",
@@ -14722,9 +13151,7 @@ body.dark .study-resource-back-btn {
 
     if (!panel) return;
 
-    panel.dataset.resourceKey = "backgrounds-current";
-
-    const index = (await loadBackgroundIndexSafe()).map(normalizeIndexItem);
+    const index = await loadBackgroundIndex();
     const searchBox = panel.querySelector(".backgrounds-search-box");
     const results = panel.querySelector(".backgrounds-results");
     const current = panel.querySelector(".backgrounds-current");
@@ -14732,7 +13159,6 @@ body.dark .study-resource-back-btn {
     if (searchBox && results) {
       searchBox.oninput = () => {
         const value = searchBox.value;
-
         if (!value.trim()) {
           results.innerHTML = "";
           if (current) current.open = true;
@@ -14740,34 +13166,65 @@ body.dark .study-resource-back-btn {
         }
 
         if (current) current.open = false;
-        results.innerHTML = renderBackgroundButtons(findBackgroundMatches(index, value));
+        results.innerHTML = `
+          <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+            ← Back to Current Passage Backgrounds
+          </button>
+          <h4>Search Results</h4>
+          ${renderBackgroundTopicButtons(findBackgroundMatches(index, value))}
+        `;
       };
     }
   }
 
   window.openBackgroundsResource = openBackgroundsResourceSafe;
 
-  const backgroundsButton = get("openBackgroundsResource");
-  if (backgroundsButton) backgroundsButton.onclick = openBackgroundsResourceSafe;
+  function installBackgroundsButton() {
+    const existing = get("openBackgroundsResource");
+    if (existing) {
+      existing.onclick = openBackgroundsResourceSafe;
+      return;
+    }
 
-  async function loadTSKReferencesWithChapterFallback() {
+    const tskButton = get("openTskResource");
+    if (!tskButton) return;
+
+    const button = tskButton.cloneNode(false);
+    button.id = "openBackgroundsResource";
+    button.type = "button";
+    button.className = tskButton.className || "tool-option";
+    button.innerHTML = `
+      <strong>Bible Backgrounds &amp; Customs</strong>
+      <span>Ancient customs, feasts, worship, daily life, places, and historical background.</span>
+    `;
+
+    tskButton.replaceWith(button);
+    button.onclick = openBackgroundsResourceSafe;
+  }
+
+  async function loadTSKReferencesSafe() {
     const state = currentState();
+    const book = state.book;
 
     const data = await fetchJsonAny([
-      `bible/resources/tsk/${state.book}.json`,
-      `bible/resources/tsk/${encodeURIComponent(state.book)}.json`
-    ], {});
+      `bible/resources/tsk/${book}.json`,
+      `bible/resources/tsk/${encodeURIComponent(book)}.json`,
+      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
+      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
+    ].filter(Boolean), {});
 
     const refs = [];
+    const start = parseInt(state.start, 10) || 1;
+    const end = parseInt(state.end, 10) || start;
 
-    for (let v = parseInt(state.start, 10); v <= parseInt(state.end, 10); v++) {
-      const key = `${state.book} ${state.chapter}:${v}`;
+    for (let v = start; v <= end; v++) {
+      const key = `${book} ${state.chapter}:${v}`;
       if (Array.isArray(data[key])) data[key].forEach(ref => refs.push(ref));
     }
 
     if (!refs.length) {
       Object.keys(data || {}).forEach(key => {
-        if (key.startsWith(`${state.book} ${state.chapter}:`) && Array.isArray(data[key])) {
+        if (key.startsWith(`${book} ${state.chapter}:`) && Array.isArray(data[key])) {
           data[key].forEach(ref => refs.push(ref));
         }
       });
@@ -14776,8 +13233,8 @@ body.dark .study-resource-back-btn {
     return [...new Set(refs)];
   }
 
-  window.loadTSKReferences = loadTSKReferencesWithChapterFallback;
-  try { loadTSKReferences = loadTSKReferencesWithChapterFallback; } catch (_) {}
+  window.loadTSKReferences = loadTSKReferencesSafe;
+  try { loadTSKReferences = loadTSKReferencesSafe; } catch (_) {}
 
   function ensureStudyResourcesKey() {
     let key = get("studyResourcesKey");
@@ -14789,7 +13246,6 @@ body.dark .study-resource-back-btn {
     key = document.createElement("div");
     key.id = "studyResourcesKey";
     source.insertAdjacentElement("afterend", key);
-
     return key;
   }
 
@@ -14797,16 +13253,16 @@ body.dark .study-resource-back-btn {
     const key = ensureStudyResourcesKey();
     if (!key) return;
 
-    const bgMap = await loadBackgroundReferenceMapSafe(currentState().book);
-    const bgCount = countBackgroundTopics(bgMap);
-    const hasBack = backStack.length > 0;
+    const map = await loadBackgroundMap(currentState().book);
+    const bgCount = countBackgroundTopics(map);
+    const previous = backStack[backStack.length - 1];
 
     key.innerHTML = `
       <div class="study-resources-key-title">Study Resources for this passage</div>
       <div class="study-resources-key-buttons">
-        ${hasBack ? `
+        ${previous ? `
           <button type="button" class="study-resource-back-btn" data-study-key-action="back">
-            ← Back to ${esc(stateLabel(backStack[backStack.length - 1]))}
+            ← Back to ${esc(stateLabel(previous))}
           </button>
         ` : ""}
 
@@ -14834,6 +13290,11 @@ body.dark .study-resource-back-btn {
   }
 
   function openMoreStudyTools() {
+    if (typeof window.openStudyResourcesPanel === "function") {
+      window.openStudyResourcesPanel();
+      return;
+    }
+
     if (typeof openStudyResourcesPanel === "function") {
       openStudyResourcesPanel();
       return;
@@ -14844,23 +13305,32 @@ body.dark .study-resource-back-btn {
   }
 
   document.addEventListener("click", function(event) {
-    const topicBtn = event.target.closest(".rdm-background-topic-btn");
-    if (topicBtn) {
+    const bgTopic = event.target.closest(".rdm-background-topic-btn, .study-background-topic-btn");
+    if (bgTopic) {
       event.preventDefault();
       event.stopPropagation();
-      openBackgroundTopicSafe(topicBtn.dataset.topicId);
+      openBackgroundTopic(bgTopic.dataset.topicId || bgTopic.dataset.file || bgTopic.textContent.trim());
       return;
     }
 
-    const keyBtn = event.target.closest("#studyResourcesKey button");
-    if (!keyBtn) return;
+    const bgBack = event.target.closest(".backgrounds-back-btn");
+    if (bgBack) {
+      event.preventDefault();
+      event.stopPropagation();
+      openBackgroundsResourceSafe(event);
+      return;
+    }
+
+    const keyButton = event.target.closest("#studyResourcesKey button");
+    if (!keyButton) return;
 
     event.preventDefault();
+    event.stopPropagation();
 
-    const action = keyBtn.dataset.studyKeyAction;
+    const action = keyButton.dataset.studyKeyAction;
 
     if (action === "back") {
-      goBackOneCrossReferenceStep();
+      goBackOneStep();
       return;
     }
 
@@ -14880,9 +13350,7 @@ body.dark .study-resource-back-btn {
       } else if (typeof openInternalCrossReferences === "function") {
         openInternalCrossReferences("passage");
       } else {
-        get("openInternalCrossRefs")?.click();
-        get("obsShowInternalCrossRefs")?.click();
-        get("openTskResource")?.click();
+        get("obsShowCrossRefs")?.click();
       }
       return;
     }
@@ -14897,37 +13365,31 @@ body.dark .study-resource-back-btn {
     }
   });
 
+  function panelText(panel) {
+    return String(panel?.textContent || "").toLowerCase();
+  }
+
+  function hasPanel(resourceKey, textNeedle = "") {
+    return Array.from(document.querySelectorAll(".resource-instance-panel")).some(panel => {
+      return panel.dataset.resourceKey === resourceKey || (textNeedle && panelText(panel).includes(textNeedle));
+    });
+  }
+
   function refreshOpenStudyResourcePanels() {
-    const resourcePanels = Array.from(document.querySelectorAll(".resource-instance-panel"));
-    const texts = resourcePanels.map(panel => String(panel.textContent || "").toLowerCase()).join("\n");
+    const shouldRefreshBackgrounds = hasPanel("backgrounds-current", "bible backgrounds");
+    const shouldRefreshOverview = hasPanel("book-overview-current", "book overview");
+    const shouldRefreshMatthewHenry = hasPanel("commentary-mh", "matthew henry commentary");
+    const shouldRefreshJfb = hasPanel("commentary-jfb", "jamieson-fausset-brown commentary") || hasPanel("commentary-jfb", "jfb commentary");
+    const internalPanel = get("internalCrossRefsPanel");
+    const internalOpen = internalPanel?.classList.contains("open");
+    const manualCrossRefsOpen = get("obsCrossRefsPanel")?.classList.contains("open") && String(window.activeResourcePanel || "").includes("personal");
 
-    if (resourcePanels.some(panel => panel.dataset.resourceKey === "backgrounds-current") || texts.includes("bible backgrounds")) {
-      openBackgroundsResourceSafe();
-    }
-
-    if (resourcePanels.some(panel => panel.dataset.resourceKey === "book-overview-current") || texts.includes("book overview")) {
-      openBookOverviewSafe();
-    }
-
-    if (texts.includes("matthew henry commentary")) {
-      get("openCommentariesResource")?.click();
-    }
-
-    if (texts.includes("jamieson-fausset-brown commentary") || texts.includes("jfb commentary")) {
-      get("openJfbResource")?.click();
-    }
-
-    if (get("obsCrossRefsPanel")?.classList.contains("open") && activeResourcePanel === "personalCrossRefs") {
-      get("obsShowCrossRefs")?.click();
-    }
-
-    if (get("internalCrossRefsPanel")?.classList.contains("open")) {
-      if (typeof window.openInternalCrossReferences === "function") {
-        window.openInternalCrossReferences("passage");
-      } else if (typeof openInternalCrossReferences === "function") {
-        openInternalCrossReferences("passage");
-      }
-    }
+    if (shouldRefreshBackgrounds) openBackgroundsResourceSafe();
+    if (shouldRefreshOverview) openBookOverviewSafe();
+    if (shouldRefreshMatthewHenry) get("openCommentariesResource")?.click();
+    if (shouldRefreshJfb) get("openJfbResource")?.click();
+    if (internalOpen && typeof window.renderInternalCrossReferences === "function") window.renderInternalCrossReferences();
+    if (manualCrossRefsOpen) get("obsShowCrossRefs")?.click();
 
     updateStudyResourcesKey();
   }
@@ -14935,17 +13397,13 @@ body.dark .study-resource-back-btn {
   window.refreshActiveResourcePanel = refreshOpenStudyResourcePanels;
   try { refreshActiveResourcePanel = refreshOpenStudyResourcePanels; } catch (_) {}
 
-  const originalLoadPassage =
-    window.loadPassage ||
-    (typeof loadPassage === "function" ? loadPassage : null);
-
-  if (typeof originalLoadPassage === "function" && !window.__rdmLoadPassageRefreshWrapped) {
-    window.__rdmLoadPassageRefreshWrapped = true;
-
+  const originalLoadPassage = window.loadPassage || (typeof loadPassage === "function" ? loadPassage : null);
+  if (typeof originalLoadPassage === "function" && !window.__rdmFinalCleanLoadPassageWrapped) {
+    window.__rdmFinalCleanLoadPassageWrapped = true;
     const wrappedLoadPassage = async function(...args) {
       const result = await originalLoadPassage.apply(this, args);
       setTimeout(updateStudyResourcesKey, 80);
-      setTimeout(refreshOpenStudyResourcePanels, 180);
+      setTimeout(refreshOpenStudyResourcePanels, 220);
       return result;
     };
 
@@ -14956,17 +13414,18 @@ body.dark .study-resource-back-btn {
   ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
     get(id)?.addEventListener("change", () => {
       setTimeout(updateStudyResourcesKey, 100);
-      setTimeout(refreshOpenStudyResourcePanels, 220);
+      setTimeout(refreshOpenStudyResourcePanels, 260);
     });
   });
 
   ["nextBtn", "prevBtn", "loadBtn", "obsLoadPassage"].forEach(id => {
     get(id)?.addEventListener("click", () => {
-      setTimeout(updateStudyResourcesKey, 250);
-      setTimeout(refreshOpenStudyResourcePanels, 420);
+      setTimeout(updateStudyResourcesKey, 240);
+      setTimeout(refreshOpenStudyResourcePanels, 520);
     });
   });
 
+  installBackgroundsButton();
   setTimeout(updateStudyResourcesKey, 350);
 })();
 </script>
