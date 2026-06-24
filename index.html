@@ -9531,7 +9531,8 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     if (!panel || panel.dataset.rdObsResizeReady === "1") return;
     ensureResizeHandle(panel);
 
-    const handle = panel.querySelector(":scope > .rd-touch-resize-handle");
+    const handle = 
+panel.querySelector(":scope > .rd-touch-resize-handle");
     if (!handle) return;
 
     panel.dataset.rdObsResizeReady = "1";
