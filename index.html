@@ -2297,6 +2297,291 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
   color: #FFF8EA !important;
 }
+
+
+/* =========================================================
+   FINAL THEME OVERRIDE — Cream Canvas + East Tennessee Forest Green
+   Keep this block at the VERY BOTTOM of the <style> section.
+   Purpose: removes the old navy/blue canvas in both Cream and Dark modes.
+   ========================================================= */
+:root {
+  --navy: #12382F !important;
+  --deep: #071C17 !important;
+  --paper: #FFF9EC !important;
+  --ink: #10251F !important;
+  --forest-deep: #071C17;
+  --forest: #12382F;
+  --forest-mid: #1F4B40;
+  --forest-soft: #2E5B4F;
+  --forest-panel: #0D2B24;
+  --forest-panel-2: #12372E;
+  --cream-canvas: #FFF9EC;
+  --cream-canvas-2: #FFF2D5;
+}
+
+html {
+  background: var(--cream-canvas) !important;
+  background-color: var(--cream-canvas) !important;
+}
+
+body:not(.dark) {
+  background: linear-gradient(180deg, var(--cream-canvas) 0%, var(--cream-canvas-2) 100%) !important;
+  background-color: var(--cream-canvas) !important;
+  color: #10251F !important;
+}
+
+body:not(.dark) .shell,
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, var(--cream-canvas) 0%, var(--cream-canvas-2) 100%) !important;
+}
+
+body:not(.dark) .scripture,
+body:not(.dark) .panel,
+body:not(.dark) .ribbon,
+body:not(.dark) .controls,
+body:not(.dark) select,
+body:not(.dark) textarea,
+body:not(.dark) input {
+  background: #FFF9EC !important;
+  color: #10251F !important;
+}
+
+body:not(.dark) .scripture {
+  background: linear-gradient(180deg, #FFFCF4, #FFF6E7) !important;
+}
+
+body:not(.dark) .layout {
+  background: linear-gradient(180deg, #FFF9EC, #FFF2D5) !important;
+}
+
+body:not(.dark) label,
+body:not(.dark) .ref,
+body:not(.dark) .panel h3,
+body:not(.dark) .panel-title h3,
+body:not(.dark) .verse {
+  color: #10251F !important;
+}
+
+body:not(.dark) .source,
+body:not(.dark) .vnum {
+  color: #8A5A13 !important;
+}
+
+.hero,
+body:not(.dark) .hero,
+body.dark .hero,
+html.obs .hero {
+  background: linear-gradient(90deg, rgba(7,28,23,.99), rgba(18,56,47,.99), rgba(7,28,23,.99)) !important;
+  color: #FFF8EA !important;
+}
+
+.hero::before {
+  background:
+    radial-gradient(circle at 13% 48%, rgba(244,199,108,.18), transparent 22%),
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,.06), transparent 30%) !important;
+}
+
+.footer,
+body.dark .footer,
+html.obs .footer {
+  background: linear-gradient(90deg, #071C17, #12382F, #071C17) !important;
+  color: #FFF3CD !important;
+}
+
+button.dark-btn,
+body.dark button.dark-btn {
+  background: #071C17 !important;
+  color: #FFF8EA !important;
+  border-color: var(--gold) !important;
+}
+
+button,
+button.secondary,
+body:not(.dark) button,
+body:not(.dark) button.secondary {
+  color: #10251F !important;
+}
+
+body.dark {
+  --paper: #0B241E !important;
+  --ink: #FFF2D7 !important;
+  background: linear-gradient(180deg, #071C17 0%, #0B241E 100%) !important;
+  background-color: #071C17 !important;
+  color: #FFF2D7 !important;
+}
+
+@supports selector(html:has(body.dark)) {
+  html:has(body.dark) {
+    background: #071C17 !important;
+    background-color: #071C17 !important;
+  }
+}
+
+body.dark .shell,
+body.dark .layout {
+  background: linear-gradient(180deg, #0B241E 0%, #071C17 100%) !important;
+  background-color: #0B241E !important;
+}
+
+body.dark .controls,
+body.dark .ribbon {
+  background: linear-gradient(180deg, #2E5B4F, #244B40) !important;
+  color: #FFF2D7 !important;
+}
+
+body.dark .scripture,
+body.dark .panel,
+body.dark select,
+body.dark textarea,
+body.dark input {
+  background: linear-gradient(180deg, #12372E, #0D2B24) !important;
+  background-color: #0D2B24 !important;
+  color: #FFF2D7 !important;
+  border-color: rgba(248,217,135,.62) !important;
+}
+
+body.dark .scripture {
+  box-shadow: 0 14px 34px rgba(0,0,0,.26) !important;
+}
+
+body.dark .divider::after {
+  background: #0D2B24 !important;
+}
+
+body.dark .active-tool-label,
+body.dark .copy-status,
+body.dark .notes-save-status {
+  background: rgba(248,217,135,.10) !important;
+  color: #FFE08C !important;
+  border-color: rgba(248,217,135,.55) !important;
+}
+
+body.dark label,
+body.dark .ref,
+body.dark .panel h3,
+body.dark .panel-title h3,
+body.dark .verse,
+body.dark .teaching-flow-list,
+body.dark .teaching-flow-list li {
+  color: #FFF2D7 !important;
+}
+
+body.dark .source,
+body.dark .vnum,
+body.dark .tool-section-title,
+body.dark .teacher-pop-head h3,
+body.dark .floating-panel-head h3 {
+  color: #F8D987 !important;
+}
+
+body.dark .teacher-pop,
+body.dark #ironPromptPanel.open,
+body.dark #teachingMethodPanel.open,
+body.dark #obsCrossRefsPanel,
+body.dark .resource-instance-panel,
+body.dark .presentation-card-inner {
+  background: linear-gradient(180deg, #12372E, #071C17) !important;
+  background-color: #0D2B24 !important;
+  color: #FFF6D9 !important;
+  border-color: rgba(248,217,135,.88) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.48), 0 0 24px rgba(248,217,135,.12) !important;
+}
+
+body:not(.dark) .teacher-pop,
+body:not(.dark) #ironPromptPanel.open,
+body:not(.dark) #teachingMethodPanel.open,
+body:not(.dark) #obsCrossRefsPanel,
+body:not(.dark) .resource-instance-panel,
+body:not(.dark) .presentation-card-inner {
+  background: linear-gradient(180deg, #FFFCF4, #FFF1D0) !important;
+  background-color: #FFF9EC !important;
+  color: #10251F !important;
+}
+
+body.dark .tool-option,
+body.dark #studyResourcesPanel .tool-option {
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035)) !important;
+  color: #FFF6D9 !important;
+  border-color: rgba(248,217,135,.55) !important;
+}
+
+body.dark .tool-option strong,
+body.dark .tool-option span,
+body.dark #ironPromptPanel p,
+body.dark #ironPromptPanel li,
+body.dark .teaching-method-panel p,
+body.dark .teaching-method-panel li {
+  color: #FFF7DF !important;
+}
+
+body.dark .tool-option:hover,
+body.dark .tool-option.active-choice {
+  background: linear-gradient(180deg, rgba(248,217,135,.20), rgba(248,217,135,.09)) !important;
+  border-color: rgba(248,217,135,.92) !important;
+}
+
+html.obs,
+html.obs body:not(.dark) {
+  background: #FFF7E6 !important;
+  background-color: #FFF7E6 !important;
+}
+
+html.obs body.dark {
+  background: #071C17 !important;
+  background-color: #071C17 !important;
+}
+
+html.obs .obs-tool-bar {
+  background: rgba(7,28,23,.96) !important;
+  border-color: var(--gold) !important;
+}
+
+html.obs body:not(.dark) .layout,
+html.obs body:not(.dark) .scripture {
+  background: #FFF7E6 !important;
+  background-color: #FFF7E6 !important;
+}
+
+html.obs body.dark .layout,
+html.obs body.dark .scripture {
+  background: linear-gradient(180deg, #12372E, #0D2B24) !important;
+  background-color: #0D2B24 !important;
+}
+
+html.obs body.dark .obs-tool-bar {
+  background: rgba(7,28,23,.97) !important;
+}
+
+@media (max-width: 1050px), (pointer: coarse) {
+  html,
+  body:not(.dark),
+  body:not(.dark) .shell,
+  body:not(.dark) .layout {
+    background: linear-gradient(180deg, #FFF9EC 0%, #FFF2D5 100%) !important;
+    background-color: #FFF9EC !important;
+  }
+
+  body.dark,
+  body.dark .shell,
+  body.dark .layout {
+    background: linear-gradient(180deg, #071C17 0%, #0B241E 100%) !important;
+    background-color: #071C17 !important;
+  }
+
+  html.obs,
+  html.obs body:not(.dark) {
+    background: #FFF7E6 !important;
+    background-color: #FFF7E6 !important;
+  }
+
+  html.obs body.dark,
+  html.obs body.dark .shell,
+  html.obs body.dark .layout {
+    background: #071C17 !important;
+    background-color: #071C17 !important;
+  }
+}
+
 </style>
 </head>
 <body>
