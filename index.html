@@ -14182,5 +14182,306 @@ html.obs #studyResourcesPanel .tool-option span {
   });
 })();
 </script>
+<script>
+(function bibleBackgroundsRelatedAndCategoryGuard() {
+  if (window.__ironBackgroundsRelatedAndCategoryGuardInstalled) return;
+  window.__ironBackgroundsRelatedAndCategoryGuardInstalled = true;
+
+  const BASE = "bible/resources/backgrounds";
+
+  function slug(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  async function fetchJson(path, fallback = null) {
+    try {
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) return fallback;
+      return await response.json();
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  async function loadBackgroundIndex() {
+    const index = await fetchJson(`${BASE}/index.json`, []);
+    return Array.isArray(index) ? index : [];
+  }
+
+  async function loadBackgroundTopic(topicValue) {
+    const raw = String(topicValue || "")
+      .replace(/^topics\//i, "")
+      .replace(/\.json$/i, "")
+      .trim();
+
+    const id = slug(raw);
+
+    const topic =
+      await fetchJson(`${BASE}/topics/${id}.json`, null) ||
+      await fetchJson(`${BASE}/topics/${raw}.json`, null);
+
+    if (!topic || typeof topic !== "object") return null;
+
+    return {
+      ...topic,
+      id: topic.id || id
+    };
+  }
+
+  async function topicExists(topicValue, index) {
+    const id = slug(topicValue);
+
+    if ((index || []).some(item => slug(item.id || item.file || item.title) === id)) {
+      return true;
+    }
+
+    const topic = await loadBackgroundTopic(id);
+    return !!topic;
+  }
+
+  function renderTopic(topic, validRelatedIds) {
+    if (!topic) {
+      return `
+        <p style="font:800 14px Arial,sans-serif;line-height:1.45;">
+          This background topic is not available yet.
+        </p>
+      `;
+    }
+
+    const related = (topic.relatedTopics || [])
+      .map(item => ({
+        raw: item,
+        id: slug(item),
+        label: String(item || "").replace(/-/g, " ")
+      }))
+      .filter(item => validRelatedIds.has(item.id));
+
+    return `
+      ${topic.summary ? `
+        <h4>Summary</h4>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.summary)}</p>
+      ` : ""}
+
+      ${topic.background ? `
+        <h4>Background</h4>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.background)}</p>
+      ` : ""}
+
+      ${topic.teachingHelp ? `
+        <h4>Teaching Help</h4>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.teachingHelp)}</p>
+      ` : ""}
+
+      ${(topic.keyScriptures || []).length ? `
+        <h4>Key Scriptures</h4>
+        <div style="display:grid;gap:7px;margin-bottom:12px;">
+          ${(topic.keyScriptures || []).map(ref => `
+            <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;">
+              ${esc(ref)}
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
+
+      ${related.length ? `
+        <h4>Related Background Topics</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          ${related.map(item => `
+            <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(item.id)}">
+              ${esc(item.label)}
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
+    `;
+  }
+
+  async function openGuardedBackgroundTopic(topicValue) {
+    const index = await loadBackgroundIndex();
+    const validRelatedIds = new Set(index.map(item => slug(item.id || item.file || item.title)));
+    const topic = await loadBackgroundTopic(topicValue);
+
+    if (!topic) {
+      const missingLabel = String(topicValue || "").replace(/-/g, " ");
+
+      const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
+      if (typeof opener === "function") {
+        opener(
+          "Bible Backgrounds & Customs",
+          `
+            <p style="font:800 14px Arial,sans-serif;line-height:1.45;">
+              This related background topic is not available yet:
+            </p>
+            <p style="font:900 16px Arial,sans-serif;line-height:1.45;">
+              ${esc(missingLabel)}
+            </p>
+            <p style="font:700 13px Arial,sans-serif;line-height:1.45;">
+              It needs a matching topic file in <code>${BASE}/topics/</code>.
+            </p>
+          `,
+          "Bible Backgrounds & Customs",
+          `background-topic-missing-${slug(topicValue)}`,
+          { updateExisting: true }
+        );
+      }
+
+      return;
+    }
+
+    const opener = window.openStudyResourcePanel || window.openResourceInstancePanel;
+    if (typeof opener !== "function") return;
+
+    const panel = opener(
+      topic.title || String(topicValue || "Background Topic").replace(/-/g, " "),
+      renderTopic(topic, validRelatedIds),
+      "Bible Backgrounds & Customs",
+      `background-topic-${slug(topic.id || topicValue)}`,
+      { updateExisting: true }
+    );
+
+    if (panel) {
+      panel.dataset.resourceKey = `background-topic-${slug(topic.id || topicValue)}`;
+    }
+  }
+
+  async function populateBrowseCategories(panel) {
+    if (!panel) return;
+
+    const browser = panel.querySelector(".backgrounds-category-browser");
+    if (!browser) return;
+
+    const alreadyHasButtons = browser.querySelector(".backgrounds-category-btn");
+    if (alreadyHasButtons) return;
+
+    const index = await loadBackgroundIndex();
+    const categories = [...new Set(
+      index.map(item => item.category || "Uncategorized").filter(Boolean)
+    )].sort();
+
+    const holder = document.createElement("div");
+    holder.className = "backgrounds-category-list";
+    holder.style.cssText = "display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px;";
+
+    holder.innerHTML = categories.length
+      ? categories.map(category => `
+          <button type="button" class="backgrounds-category-btn" data-category="${esc(category)}" style="width:100%;">
+            ${esc(category)}
+          </button>
+        `).join("")
+      : `<p style="font:800 14px Arial,sans-serif;">No categories found yet.</p>`;
+
+    browser.appendChild(holder);
+  }
+
+  async function renderCategoryResults(panel, category) {
+    if (!panel) return;
+
+    const index = await loadBackgroundIndex();
+    const results = panel.querySelector(".backgrounds-results");
+    if (!results) return;
+
+    const items = index
+      .filter(item => (item.category || "Uncategorized") === category)
+      .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+
+    results.innerHTML = `
+      <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+        ← Back to Backgrounds Home
+      </button>
+
+      <h4>${esc(category)}</h4>
+
+      ${items.length ? items.map(item => `
+        <button type="button" class="backgrounds-topic-btn" data-topic-id="${esc(slug(item.id || item.file || item.title))}" style="width:100%;margin-bottom:8px;">
+          <strong>${esc(item.title || item.id || "Background Topic")}</strong>
+          ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
+        </button>
+      `).join("") : `<p style="font:800 14px Arial,sans-serif;">No topics found in this category.</p>`}
+    `;
+
+    const current = panel.querySelector(".backgrounds-current");
+    if (current) current.open = false;
+
+    const browser = panel.querySelector(".backgrounds-category-browser");
+    if (browser) browser.open = false;
+  }
+
+  document.addEventListener("click", function(event) {
+    const topicBtn = event.target.closest(".backgrounds-topic-btn");
+    const categoryBtn = event.target.closest(".backgrounds-category-btn");
+    const backBtn = event.target.closest(".backgrounds-back-btn");
+
+    if (topicBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openGuardedBackgroundTopic(
+        topicBtn.dataset.topicId ||
+        topicBtn.dataset.topic ||
+        topicBtn.dataset.file ||
+        topicBtn.textContent.trim()
+      );
+
+      return;
+    }
+
+    if (categoryBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const panel = categoryBtn.closest(".resource-instance-panel");
+      renderCategoryResults(panel, categoryBtn.dataset.category || categoryBtn.textContent.trim());
+      return;
+    }
+
+    if (backBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (typeof window.openBackgroundsResource === "function") {
+        window.openBackgroundsResource(event);
+      }
+    }
+  }, true);
+
+  document.addEventListener("toggle", function(event) {
+    const browser = event.target.closest?.(".backgrounds-category-browser");
+    if (!browser || !browser.open) return;
+
+    const panel = browser.closest(".resource-instance-panel");
+    populateBrowseCategories(panel);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+      if (panel.textContent.includes("Bible Backgrounds") || panel.querySelector(".backgrounds-category-browser")) {
+        populateBrowseCategories(panel);
+      }
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
 </body>
 </html>
