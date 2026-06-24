@@ -8,12 +8,12 @@
   <style>
 
    :root {
-  --navy: #061526;
-      --deep: #020913;
+  --navy: #294843;
+      --deep: #172B29;
       --gold: #d7a84f;
       --bright: #f4c76c;
       --paper: #fff9ec;
-      --ink: #0d1a2f;
+      --ink: #2B394F;
       --line: rgba(215,168,79,.45);
       --shadow: 0 24px 70px rgba(0,0,0,.33);
     }
@@ -31,7 +31,7 @@
       color: var(--ink);
       background:
         radial-gradient(circle at 20% 0%, rgba(244,199,108,.22), transparent 28%),
-        linear-gradient(145deg, #020913, #061526 48%, #0a223d);
+        linear-gradient(145deg, #E8DDC8, #F4EFE3 48%, #DED2B9);
       padding: 10px;
     }
 
@@ -46,7 +46,7 @@
     }
 
     .hero {
-      background: linear-gradient(90deg, rgba(2,9,19,.98), rgba(6,21,38,.98), rgba(2,9,19,.98));
+      background: linear-gradient(90deg, rgba(23,43,41,.98), rgba(41,72,67,.98), rgba(23,43,41,.98));
       color: #fff;
       display: grid;
       grid-template-columns: 250px 1fr 290px;
@@ -132,7 +132,7 @@
     button {
       border: 1.5px solid var(--gold);
       background: linear-gradient(#f8d987, #d99f31);
-      color: #061526;
+      color: #203D39;
       border-radius: 12px;
       padding: 12px 18px;
       font: 800 15px Arial, sans-serif;
@@ -145,8 +145,8 @@
     }
 
     button.secondary { background: #fff7e6; }
-    button.dark-btn { background: #061526; color: #fff; }
-    button.active-tool { outline: 3px solid var(--bright); background: #fff7e6; color: #061526; }
+    button.dark-btn { background: #203D39; color: #fff; }
+    button.active-tool { outline: 3px solid var(--bright); background: #fff7e6; color: #203D39; }
 
     .verse-card {
       position: relative;
@@ -181,7 +181,7 @@
       letter-spacing: 7px;
       text-transform: uppercase;
       font-weight: 800;
-      color: #10213c;
+      color: #2B394F;
       font-size: 18px;
     }
 
@@ -200,7 +200,7 @@
       font: 800 12px Arial, sans-serif;
       letter-spacing: .8px;
       text-transform: uppercase;
-      color: #17304f;
+      color: #2B394F;
       margin-bottom: 8px;
     }
 
@@ -244,7 +244,7 @@
       font-size: 36px;
       letter-spacing: 5px;
       margin: 0;
-      color: #07172b;
+      color: #203D39;
       font-weight: 800;
     }
 
@@ -479,7 +479,7 @@
       height: 22px;
       border-radius: 50%;
       border: 1.5px solid var(--gold);
-      background: #061526;
+      background: #203D39;
       color: #fff7e6;
       font: 800 13px Arial, sans-serif;
       cursor: help;
@@ -496,7 +496,7 @@
       right: 0;
       top: 30px;
       width: 315px;
-      background: #061526;
+      background: #203D39;
       color: #fff7e6;
       border: 1.5px solid var(--gold);
       border-radius: 10px;
@@ -521,7 +521,7 @@
       padding: 0;
       line-height: 1.65;
       font: 700 15px Arial, sans-serif;
-      color: #17304f;
+      color: #2B394F;
     }
 
     .teaching-flow-list li {
@@ -533,7 +533,7 @@
     }
 
     .footer {
-      background: #061526;
+      background: #203D39;
       color: #fff3cd;
       text-align: center;
       padding: 18px;
@@ -561,21 +561,21 @@
     }
 
     body.dark {
-      --paper: #07172b;
-      --ink: #fff2d7;
-      background: #020913;
+      --paper: #294843;
+      --ink: #F7F3EA;
+      background: #203D39;
     }
 
     body.dark .shell,
-    body.dark .layout { background: #07172b; }
+    body.dark .layout { background: #203D39; }
 
     body.dark .scripture,
     body.dark .panel,
     body.dark select,
     body.dark textarea,
     body.dark input {
-      background: #0d2139;
-      color: #fff2d7;
+      background: #294843;
+      color: #F7F3EA;
     }
 
     body.dark .controls,
@@ -592,9 +592,9 @@
       color: #fff2d7;
     }
 
-    body.dark .divider::after { background: #0d2139; }
+    body.dark .divider::after { background: #294843; }
 
-    html.obs body { padding: 0; background: #061526; }
+    html.obs body { padding: 0; background: #F4EFE3; }
     html.obs .shell { max-width: none; border: 0; border-radius: 0; box-shadow: none; }
     html.obs .controls, html.obs .side, html.obs .footer { display: none !important; }
     html.obs .hero { grid-template-columns: 145px 1fr; padding: 12px 18px; }
@@ -609,7 +609,7 @@
     html.obs .verse { font-size: 31px; line-height: 1.65; }
     html.obs .actions { display: flex !important; position: fixed; top: 14px; right: 14px; z-index: 9999; }
     html.obs .actions button:not(#obsBtn) { display: none !important; }
-    html.obs #obsBtn { display: inline-flex !important; background: #fff7e6 !important; color: #061526 !important; border: 2px solid #d7a84f !important; }
+    html.obs #obsBtn { display: inline-flex !important; background: #fff7e6 !important; color: #203D39 !important; border: 2px solid #d7a84f !important; }
 
     html.obs .obs-tool-bar {
   display: flex !important;
@@ -622,7 +622,7 @@
   padding: 8px;
   border: 2px solid var(--gold);
   border-radius: 14px;
-  background: rgba(6,21,38,.96);
+  background: rgba(41,72,67,.96);
   box-shadow: 0 12px 34px rgba(0,0,0,.38);
   flex-direction: column;
   align-items: stretch;
@@ -654,7 +654,7 @@ html.obs #obsToolsMenuBtn {
       border: 1px solid rgba(215,168,79,.55);
       border-radius: 10px;
       background: rgba(248,217,135,.18);
-      color: #17304f;
+      color: #2B394F;
       font: 800 13px Arial, sans-serif;
       text-align: center;
     }
@@ -753,7 +753,7 @@ html.obs #obsToolsMenuBtn {
       border: 2px solid var(--gold);
       border-radius: 18px;
       background: linear-gradient(180deg, #fffaf0, #fff2d6);
-      color: #10213c;
+      color: #2B394F;
       box-shadow: 0 24px 70px rgba(0,0,0,.38);
       padding: 18px;
     }
@@ -763,7 +763,7 @@ html.obs #obsToolsMenuBtn {
     }
 
     body.dark .teacher-pop {
-      background: linear-gradient(180deg, #0d2139, #07172b);
+      background: linear-gradient(180deg, #355A54, #294843);
       color: #fff3d7;
     }
 
@@ -855,7 +855,7 @@ html.obs #obsToolsMenuBtn {
 
 body:not(.dark) #obsCrossRefsPanel{
   background:#fffdf7;
-  color:#061526;
+  color:#203D39;
 }
 
 body.dark #obsCrossRefsPanel{
@@ -882,7 +882,7 @@ body.dark #obsCrossRefsPanel{
       border: 1px solid rgba(215,168,79,.58);
       border-radius: 13px;
       background: rgba(255,255,255,.58);
-      color: #10213c;
+      color: #2B394F;
       padding: 12px;
       text-align: left;
       box-shadow: none;
@@ -909,7 +909,7 @@ body.dark #obsCrossRefsPanel{
       font-family: Georgia, "Times New Roman", serif;
       font-size: 17px;
       margin-bottom: 6px;
-      color: #061526;
+      color: #203D39;
     }
 
     body.dark .tool-option strong {
@@ -1196,7 +1196,7 @@ body.dark #obsCrossRefsPanel{
       padding: 0;
       line-height: 1.65;
       font: 700 15px Arial, sans-serif;
-      color: #17304f;
+      color: #2B394F;
     }
 
     .teaching-flow-list li {
@@ -1257,7 +1257,7 @@ body.dark #obsCrossRefsPanel{
 
     body:not(.dark) .tooltip {
       background: linear-gradient(180deg, #fffaf0, #fff0d3) !important;
-      color: #10213c !important;
+      color: #2B394F !important;
       border: 1.8px solid rgba(183,116,16,.70) !important;
       box-shadow: 0 14px 28px rgba(122,76,6,.20) !important;
       font-weight: 800 !important;
@@ -1265,13 +1265,13 @@ body.dark #obsCrossRefsPanel{
 
     body.dark .info-icon {
       background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
-      color: #061526 !important;
+      color: #203D39 !important;
       border: 2px solid #fff1c0 !important;
       box-shadow: 0 0 12px rgba(248,217,135,.40) !important;
     }
 
     body.dark .tooltip {
-      background: linear-gradient(180deg, #132b49, #07172b) !important;
+      background: linear-gradient(180deg, #355A54, #294843) !important;
       color: #fff6d9 !important;
       border: 2px solid rgba(248,217,135,.85) !important;
       box-shadow: 0 18px 34px rgba(0,0,0,.48), 0 0 18px rgba(248,217,135,.16) !important;
@@ -1321,7 +1321,7 @@ body.dark #obsCrossRefsPanel{
     }
 
     body.dark .teacher-pop {
-      background: linear-gradient(180deg, #102b4b, #071a30) !important;
+      background: linear-gradient(180deg, #355A54, #294843) !important;
       color: #fff6d9 !important;
       border: 2px solid rgba(248,217,135,.88) !important;
       box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14) !important;
@@ -1368,7 +1368,7 @@ body.dark #obsCrossRefsPanel{
     }
 
     body.dark #ironPromptPanel.open {
-      background: linear-gradient(180deg, #102b4b, #071a30) !important;
+      background: linear-gradient(180deg, #355A54, #294843) !important;
       color: #fff6d9 !important;
       border: 2px solid rgba(248,217,135,.88) !important;
       box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14) !important;
@@ -1402,7 +1402,7 @@ body.dark #obsCrossRefsPanel{
 
     html.obs body:not(.dark) #ironPromptPanel.open {
       background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
-      color: #10213c !important;
+      color: #2B394F !important;
       border: 2px solid rgba(183,116,16,.72) !important;
       box-shadow: 0 22px 52px rgba(122,76,6,.22) !important;
     }
@@ -1413,13 +1413,13 @@ body.dark #obsCrossRefsPanel{
 
     html.obs body:not(.dark) #ironPromptPanel p,
     html.obs body:not(.dark) #ironPromptPanel li {
-      color: #10213c !important;
+      color: #2B394F !important;
       font-weight: 800 !important;
       line-height: 1.48 !important;
     }
 
     html.obs body:not(.dark) #ironPromptPanel strong {
-      color: #061526 !important;
+      color: #203D39 !important;
       font-weight: 900 !important;
     }
 
@@ -1437,18 +1437,18 @@ body.dark #obsCrossRefsPanel{
 
     select option {
       background: #fffaf0 !important;
-      color: #061526 !important;
+      color: #203D39 !important;
       font-weight: 800;
     }
 
     body.dark select {
       color-scheme: dark;
-      background: #0d2139 !important;
+      background: #294843 !important;
       color: #fff7df !important;
     }
 
     body.dark select option {
-      background: #0d2139 !important;
+      background: #294843 !important;
       color: #fff7df !important;
       font-weight: 800;
     }
@@ -1456,13 +1456,13 @@ body.dark #obsCrossRefsPanel{
     body.dark select option:checked,
     body.dark select option:hover {
       background: #d7a84f !important;
-      color: #061526 !important;
+      color: #203D39 !important;
     }
 
     body:not(.dark) select option:checked,
     body:not(.dark) select option:hover {
       background: #d7a84f !important;
-      color: #061526 !important;
+      color: #203D39 !important;
     }
 
     #loadBtn {
@@ -1570,13 +1570,13 @@ body.dark #obsCrossRefsPanel{
   border-radius: 999px;
   padding: 8px 12px;
   background: #fff7e6;
-  color: #061526;
+  color: #203D39;
   font: 800 13px Arial, sans-serif;
   cursor: pointer;
 }
 
 body.dark .cross-ref-link {
-  background: #0d2139;
+  background: #294843;
   color: #fff2d7;
 }
 
@@ -1616,11 +1616,11 @@ body.dark .cross-ref-link {
 
 body:not(.dark) .presentation-card-inner {
   background: linear-gradient(180deg, #fffaf0, #fff1cf);
-  color: #061526;
+  color: #203D39;
 }
 
 body.dark .presentation-card-inner {
-  background: linear-gradient(180deg, #102b4b, #061526);
+  background: linear-gradient(180deg, #355A54, #294843);
   color: #fff3d7;
 }
 
@@ -1691,12 +1691,12 @@ body.dark .presentation-card-inner {
 
     body:not(.dark) #teachingMethodPanel.open {
       background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
-      color: #10213c !important;
+      color: #2B394F !important;
       border: 2px solid rgba(183,116,16,.72) !important;
     }
 
     body.dark #teachingMethodPanel.open {
-      background: linear-gradient(180deg, #102b4b, #071a30) !important;
+      background: linear-gradient(180deg, #355A54, #294843) !important;
       color: #fff6d9 !important;
       border: 2px solid rgba(248,217,135,.88) !important;
       box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14) !important;
@@ -1765,14 +1765,14 @@ html.obs .obs-tool-bar #obsShowCrossRefs,
 html.obs .obs-tool-bar #obsShowStudyResources {
       display: inline-flex !important;
       background: linear-gradient(#f8d987, #d99f31) !important;
-      color: #061526 !important;
+      color: #203D39 !important;
       border: 1.5px solid var(--gold) !important;
     }
 
     html.obs .obs-tool-bar #obsClearMarks,
     html.obs .obs-tool-bar #obsResetPanels {
       background: #fff7e6 !important;
-      color: #061526 !important;
+      color: #203D39 !important;
       border: 1.5px solid var(--gold) !important;
     }
 
@@ -1853,8 +1853,8 @@ body:not(.dark) #showApplicationNote:hover {
   body.dark,
   body.dark .shell,
   body.dark .layout {
-    background: #07172b !important;
-    background-color: #07172b !important;
+    background: #203D39 !important;
+    background-color: #203D39 !important;
   }
 
   body:not(.dark) .shell {
@@ -1889,8 +1889,8 @@ body:not(.dark) #showApplicationNote:hover {
   html.obs body.dark,
   html.obs body.dark .shell,
   html.obs body.dark .layout {
-    background: #07172b !important;
-    background-color: #07172b !important;
+    background: #203D39 !important;
+    background-color: #203D39 !important;
   }
 }
 
@@ -2297,291 +2297,6 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
   color: #FFF8EA !important;
 }
-
-
-/* =========================================================
-   FINAL THEME OVERRIDE — Cream Canvas + East Tennessee Forest Green
-   Keep this block at the VERY BOTTOM of the <style> section.
-   Purpose: removes the old navy/blue canvas in both Cream and Dark modes.
-   ========================================================= */
-:root {
-  --navy: #12382F !important;
-  --deep: #071C17 !important;
-  --paper: #FFF9EC !important;
-  --ink: #10251F !important;
-  --forest-deep: #071C17;
-  --forest: #12382F;
-  --forest-mid: #1F4B40;
-  --forest-soft: #2E5B4F;
-  --forest-panel: #0D2B24;
-  --forest-panel-2: #12372E;
-  --cream-canvas: #FFF9EC;
-  --cream-canvas-2: #FFF2D5;
-}
-
-html {
-  background: var(--cream-canvas) !important;
-  background-color: var(--cream-canvas) !important;
-}
-
-body:not(.dark) {
-  background: linear-gradient(180deg, var(--cream-canvas) 0%, var(--cream-canvas-2) 100%) !important;
-  background-color: var(--cream-canvas) !important;
-  color: #10251F !important;
-}
-
-body:not(.dark) .shell,
-body:not(.dark) .layout {
-  background: linear-gradient(180deg, var(--cream-canvas) 0%, var(--cream-canvas-2) 100%) !important;
-}
-
-body:not(.dark) .scripture,
-body:not(.dark) .panel,
-body:not(.dark) .ribbon,
-body:not(.dark) .controls,
-body:not(.dark) select,
-body:not(.dark) textarea,
-body:not(.dark) input {
-  background: #FFF9EC !important;
-  color: #10251F !important;
-}
-
-body:not(.dark) .scripture {
-  background: linear-gradient(180deg, #FFFCF4, #FFF6E7) !important;
-}
-
-body:not(.dark) .layout {
-  background: linear-gradient(180deg, #FFF9EC, #FFF2D5) !important;
-}
-
-body:not(.dark) label,
-body:not(.dark) .ref,
-body:not(.dark) .panel h3,
-body:not(.dark) .panel-title h3,
-body:not(.dark) .verse {
-  color: #10251F !important;
-}
-
-body:not(.dark) .source,
-body:not(.dark) .vnum {
-  color: #8A5A13 !important;
-}
-
-.hero,
-body:not(.dark) .hero,
-body.dark .hero,
-html.obs .hero {
-  background: linear-gradient(90deg, rgba(7,28,23,.99), rgba(18,56,47,.99), rgba(7,28,23,.99)) !important;
-  color: #FFF8EA !important;
-}
-
-.hero::before {
-  background:
-    radial-gradient(circle at 13% 48%, rgba(244,199,108,.18), transparent 22%),
-    radial-gradient(circle at 50% 10%, rgba(255,255,255,.06), transparent 30%) !important;
-}
-
-.footer,
-body.dark .footer,
-html.obs .footer {
-  background: linear-gradient(90deg, #071C17, #12382F, #071C17) !important;
-  color: #FFF3CD !important;
-}
-
-button.dark-btn,
-body.dark button.dark-btn {
-  background: #071C17 !important;
-  color: #FFF8EA !important;
-  border-color: var(--gold) !important;
-}
-
-button,
-button.secondary,
-body:not(.dark) button,
-body:not(.dark) button.secondary {
-  color: #10251F !important;
-}
-
-body.dark {
-  --paper: #0B241E !important;
-  --ink: #FFF2D7 !important;
-  background: linear-gradient(180deg, #071C17 0%, #0B241E 100%) !important;
-  background-color: #071C17 !important;
-  color: #FFF2D7 !important;
-}
-
-@supports selector(html:has(body.dark)) {
-  html:has(body.dark) {
-    background: #071C17 !important;
-    background-color: #071C17 !important;
-  }
-}
-
-body.dark .shell,
-body.dark .layout {
-  background: linear-gradient(180deg, #0B241E 0%, #071C17 100%) !important;
-  background-color: #0B241E !important;
-}
-
-body.dark .controls,
-body.dark .ribbon {
-  background: linear-gradient(180deg, #2E5B4F, #244B40) !important;
-  color: #FFF2D7 !important;
-}
-
-body.dark .scripture,
-body.dark .panel,
-body.dark select,
-body.dark textarea,
-body.dark input {
-  background: linear-gradient(180deg, #12372E, #0D2B24) !important;
-  background-color: #0D2B24 !important;
-  color: #FFF2D7 !important;
-  border-color: rgba(248,217,135,.62) !important;
-}
-
-body.dark .scripture {
-  box-shadow: 0 14px 34px rgba(0,0,0,.26) !important;
-}
-
-body.dark .divider::after {
-  background: #0D2B24 !important;
-}
-
-body.dark .active-tool-label,
-body.dark .copy-status,
-body.dark .notes-save-status {
-  background: rgba(248,217,135,.10) !important;
-  color: #FFE08C !important;
-  border-color: rgba(248,217,135,.55) !important;
-}
-
-body.dark label,
-body.dark .ref,
-body.dark .panel h3,
-body.dark .panel-title h3,
-body.dark .verse,
-body.dark .teaching-flow-list,
-body.dark .teaching-flow-list li {
-  color: #FFF2D7 !important;
-}
-
-body.dark .source,
-body.dark .vnum,
-body.dark .tool-section-title,
-body.dark .teacher-pop-head h3,
-body.dark .floating-panel-head h3 {
-  color: #F8D987 !important;
-}
-
-body.dark .teacher-pop,
-body.dark #ironPromptPanel.open,
-body.dark #teachingMethodPanel.open,
-body.dark #obsCrossRefsPanel,
-body.dark .resource-instance-panel,
-body.dark .presentation-card-inner {
-  background: linear-gradient(180deg, #12372E, #071C17) !important;
-  background-color: #0D2B24 !important;
-  color: #FFF6D9 !important;
-  border-color: rgba(248,217,135,.88) !important;
-  box-shadow: 0 24px 60px rgba(0,0,0,.48), 0 0 24px rgba(248,217,135,.12) !important;
-}
-
-body:not(.dark) .teacher-pop,
-body:not(.dark) #ironPromptPanel.open,
-body:not(.dark) #teachingMethodPanel.open,
-body:not(.dark) #obsCrossRefsPanel,
-body:not(.dark) .resource-instance-panel,
-body:not(.dark) .presentation-card-inner {
-  background: linear-gradient(180deg, #FFFCF4, #FFF1D0) !important;
-  background-color: #FFF9EC !important;
-  color: #10251F !important;
-}
-
-body.dark .tool-option,
-body.dark #studyResourcesPanel .tool-option {
-  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035)) !important;
-  color: #FFF6D9 !important;
-  border-color: rgba(248,217,135,.55) !important;
-}
-
-body.dark .tool-option strong,
-body.dark .tool-option span,
-body.dark #ironPromptPanel p,
-body.dark #ironPromptPanel li,
-body.dark .teaching-method-panel p,
-body.dark .teaching-method-panel li {
-  color: #FFF7DF !important;
-}
-
-body.dark .tool-option:hover,
-body.dark .tool-option.active-choice {
-  background: linear-gradient(180deg, rgba(248,217,135,.20), rgba(248,217,135,.09)) !important;
-  border-color: rgba(248,217,135,.92) !important;
-}
-
-html.obs,
-html.obs body:not(.dark) {
-  background: #FFF7E6 !important;
-  background-color: #FFF7E6 !important;
-}
-
-html.obs body.dark {
-  background: #071C17 !important;
-  background-color: #071C17 !important;
-}
-
-html.obs .obs-tool-bar {
-  background: rgba(7,28,23,.96) !important;
-  border-color: var(--gold) !important;
-}
-
-html.obs body:not(.dark) .layout,
-html.obs body:not(.dark) .scripture {
-  background: #FFF7E6 !important;
-  background-color: #FFF7E6 !important;
-}
-
-html.obs body.dark .layout,
-html.obs body.dark .scripture {
-  background: linear-gradient(180deg, #12372E, #0D2B24) !important;
-  background-color: #0D2B24 !important;
-}
-
-html.obs body.dark .obs-tool-bar {
-  background: rgba(7,28,23,.97) !important;
-}
-
-@media (max-width: 1050px), (pointer: coarse) {
-  html,
-  body:not(.dark),
-  body:not(.dark) .shell,
-  body:not(.dark) .layout {
-    background: linear-gradient(180deg, #FFF9EC 0%, #FFF2D5 100%) !important;
-    background-color: #FFF9EC !important;
-  }
-
-  body.dark,
-  body.dark .shell,
-  body.dark .layout {
-    background: linear-gradient(180deg, #071C17 0%, #0B241E 100%) !important;
-    background-color: #071C17 !important;
-  }
-
-  html.obs,
-  html.obs body:not(.dark) {
-    background: #FFF7E6 !important;
-    background-color: #FFF7E6 !important;
-  }
-
-  html.obs body.dark,
-  html.obs body.dark .shell,
-  html.obs body.dark .layout {
-    background: #071C17 !important;
-    background-color: #071C17 !important;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -7324,12 +7039,12 @@ html.obs #ironPromptPanel.open {
 
 html.obs body:not(.dark) #ironPromptPanel {
   background: linear-gradient(180deg, #fffaf0, #fff4dc) !important;
-  color: #10213c !important;
+  color: #2B394F !important;
 }
 
 html.obs body.dark #ironPromptPanel {
-  background: linear-gradient(180deg, rgba(6,21,38,.98), rgba(8,27,48,.98)) !important;
-  color: #fff3cd !important;
+  background: linear-gradient(180deg, rgba(53,90,84,.98), rgba(41,72,67,.98)) !important;
+  color: #F7F3EA !important;
 }
 
 #ironPromptPanel h3 {
@@ -7400,7 +7115,7 @@ html.obs #obsCrossRefsPanel.open.drag-positioned {
 
 html.obs body:not(.dark) #ironPromptPanel p,
 html.obs body:not(.dark) #ironPromptPanel li {
-  color: #17304f !important;
+  color: #2B394F !important;
 }
 
 html.obs body.dark #ironPromptPanel p,
@@ -7409,7 +7124,7 @@ html.obs body.dark #ironPromptPanel li {
 }
 
 html.obs body:not(.dark) #ironPromptPanel strong {
-  color: #061526 !important;
+  color: #203D39 !important;
 }
 
 html.obs body.dark #ironPromptPanel strong {
@@ -7437,11 +7152,11 @@ html.obs body.dark #ironPromptPanel .iron-mini-prayer {
 
   body:not(.dark) .footer {
   background: linear-gradient(180deg, #fffaf0, #fff1cf) !important;
-  color: #061526 !important;
+  color: #203D39 !important;
 }
 
 body:not(.dark) .footer strong {
-  color: #061526 !important;
+  color: #203D39 !important;
 }
 
 body:not(.dark) .footer .sep {
@@ -7479,11 +7194,11 @@ html.obs #teachingPresentationCard {
 
 body:not(.dark) #ironPromptPanel.open {
   background: linear-gradient(180deg, #fffaf0, #fff4dc) !important;
-  color: #10213c !important;
+  color: #2B394F !important;
 }
 
 body.dark #ironPromptPanel.open {
-  background: linear-gradient(180deg, rgba(6,21,38,.98), rgba(8,27,48,.98)) !important;
+  background: linear-gradient(180deg, rgba(41,72,67,.98), rgba(53,90,84,.98)) !important;
   color: #fff3cd !important;
 }
 
@@ -7707,14 +7422,14 @@ body.dark #teacherToolsPanel .tool-option span {
 body:not(.dark) .teacher-pop .tool-option strong,
 body:not(.dark) #studyResourcesPanel .tool-option strong,
 body:not(.dark) #teacherToolsPanel .tool-option strong {
-  color: #07172B !important;
+  color: #2B394F !important;
   font-weight: 900 !important;
 }
 
 body:not(.dark) .teacher-pop .tool-option span,
 body:not(.dark) #studyResourcesPanel .tool-option span,
 body:not(.dark) #teacherToolsPanel .tool-option span {
-  color: #1D2E46 !important;
+  color: #2B394F !important;
   font-weight: 750 !important;
 }
 
@@ -7773,7 +7488,7 @@ body.dark #obsCrossRefsContent .cross-ref-link {
 body:not(.dark) .cross-ref-link,
 body:not(.dark) #obsCrossRefsContent .cross-ref-link {
   background: rgba(255,255,255,.72) !important;
-  color: #07172B !important;
+  color: #2B394F !important;
   border-color: rgba(183,116,16,.48) !important;
   box-shadow: none !important;
 }
@@ -7787,7 +7502,7 @@ html.obs .obs-tool-bar {
 
 html.obs .obs-tool-bar #obsToolsMenuBtn {
   background: linear-gradient(#f8d987, #d99f31) !important;
-  color: #061526 !important;
+  color: #203D39 !important;
   border: 2px solid #d7a84f !important;
   box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
 }
@@ -7926,7 +7641,7 @@ body.dark .tooltip {
 
 body.dark .info-icon {
   background: linear-gradient(#f8d987, #d7a84f) !important;
-  color: #061526 !important;
+  color: #203D39 !important;
   border: 2px solid rgba(248,217,135,.85) !important;
   box-shadow: none !important;
 }
@@ -8144,7 +7859,7 @@ html.obs #obsToolsMenuBtn {
   z-index: 10000 !important;
   display: inline-flex !important;
   background: linear-gradient(#f8d987, #d99f31) !important;
-  color: #061526 !important;
+  color: #203D39 !important;
   border: 2px solid #d7a84f !important;
   box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
 }
@@ -9975,7 +9690,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 
   body:not(.dark) #obsCrossRefsContent .obs-crossrefs-full-note {
     background: rgba(255,250,240,.72) !important;
-    color: #10213c !important;
+    color: #2B394F !important;
   }
 
   body.dark #obsCrossRefsContent .obs-crossrefs-full-note {
@@ -10423,7 +10138,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
   html.obs .obs-tool-bar #obsShowInternalCrossRefs {
     display: inline-flex !important;
     background: linear-gradient(#f8d987, #d99f31) !important;
-    color: #061526 !important;
+    color: #203D39 !important;
     border: 1.5px solid var(--gold) !important;
   }
 
@@ -10453,7 +10168,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
 
   body:not(.dark) #internalCrossRefsPanel {
     background: linear-gradient(180deg, #fffaf0, #fff2d6);
-    color: #10213c;
+    color: #2B394F;
   }
 
   body.dark #internalCrossRefsPanel {
@@ -12819,35 +12534,39 @@ html.obs #studyResourcesPanel .tool-option span {
 /* Cream / dark canvas flow safety */
 body:not(.dark) {
   background:
-    radial-gradient(circle at 20% 0%, rgba(244,199,108,.22), transparent 28%),
-    linear-gradient(145deg, #020913, #061526 48%, #0a223d) !important;
+    radial-gradient(circle at 20% 0%, rgba(215,168,79,.16), transparent 28%),
+    linear-gradient(145deg, #E8DDC8, #F4EFE3 48%, #DED2B9) !important;
+  background-color: #F4EFE3 !important;
 }
 
 body:not(.dark) .shell {
-  background: #fff9ec !important;
+  background: #F4EFE3 !important;
 }
 
 body:not(.dark) .layout {
-  background: linear-gradient(180deg, #fff9ec, #fff2d5) !important;
+  background: linear-gradient(180deg, #F4EFE3, #EDE3D0) !important;
 }
 
 body:not(.dark) .scripture {
-  background: linear-gradient(180deg, #fffaf0, #fff7e6) !important;
-  color: #0d1a2f !important;
+  background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+  color: #2B394F !important;
 }
 
 body.dark {
-  background: #020913 !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(248,217,135,.10), transparent 28%),
+    linear-gradient(145deg, #172B29, #294843 52%, #203D39) !important;
+  background-color: #294843 !important;
 }
 
 body.dark .shell,
 body.dark .layout {
-  background: #07172b !important;
+  background: linear-gradient(180deg, #294843, #203D39) !important;
 }
 
 body.dark .scripture {
-  background: #0d2139 !important;
-  color: #fff2d7 !important;
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
 }
 
 /* Hide any legacy Backgrounds category browser if an old panel is still open */
@@ -12863,7 +12582,7 @@ body.dark .scripture {
   border: 1.5px solid rgba(183,116,16,.42);
   border-radius: 14px;
   background: rgba(255,250,240,.72);
-  color: #10213c;
+  color: #2B394F;
   box-shadow: 0 8px 18px rgba(122,76,6,.08);
   font-family: Arial, sans-serif;
 }
@@ -12897,14 +12616,14 @@ body.dark .scripture {
 
 .study-resource-key-btn.available {
   background: #fff7e6 !important;
-  color: #10213c !important;
+  color: #2B394F !important;
   border: 1.5px solid rgba(183,116,16,.52) !important;
 }
 
 .study-resource-key-btn.neutral,
 .study-resource-back-btn {
   background: #fff7e6 !important;
-  color: #10213c !important;
+  color: #2B394F !important;
   border: 1.5px solid rgba(183,116,16,.52) !important;
 }
 
@@ -12955,20 +12674,20 @@ html.obs #obsCrossRefsPanel.open:not(.drag-positioned) {
 body:not(.dark) #obsCrossRefsPanel.open,
 body:not(.dark) .resource-instance-panel {
   background: linear-gradient(180deg, #fffaf0, #fff2d6) !important;
-  color: #10213c !important;
+  color: #2B394F !important;
 }
 
 body.dark #obsCrossRefsPanel.open,
 body.dark .resource-instance-panel {
-  background: linear-gradient(180deg, #102b4b, #071a30) !important;
-  color: #fff6d9 !important;
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #F7F3EA !important;
 }
 
 body:not(.dark) .rdm-background-topic-btn,
 body:not(.dark) .study-background-topic-btn,
 body:not(.dark) .backgrounds-back-btn {
   background: #fff7e6 !important;
-  color: #10213c !important;
+  color: #2B394F !important;
   border: 1.5px solid rgba(183,116,16,.52) !important;
   box-shadow: none !important;
   text-align: center !important;
