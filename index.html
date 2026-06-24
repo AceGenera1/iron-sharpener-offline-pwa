@@ -14057,5 +14057,35 @@ html.obs #studyResourcesPanel.teacher-pop {
   }
 }
 </style>
+<style>
+/* =========================================================
+   STUDY RESOURCES MENU — NATURAL CARD HEIGHT FIX
+   Applies to cream, dark, main screen, and OBS Focus.
+   Stops shorter cards like Easton's from stretching tall.
+   ========================================================= */
+
+#studyResourcesPanel .tool-options,
+html.obs #studyResourcesPanel .tool-options {
+  align-items: start !important;
+}
+
+#studyResourcesPanel .tool-option,
+html.obs #studyResourcesPanel .tool-option {
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+  justify-content: flex-start !important;
+}
+
+#studyResourcesPanel .tool-option strong,
+html.obs #studyResourcesPanel .tool-option strong {
+  margin-bottom: 8px !important;
+}
+
+#studyResourcesPanel .tool-option span,
+html.obs #studyResourcesPanel .tool-option span {
+  flex: 0 0 auto !important;
+}
+</style>
 </body>
 </html>
