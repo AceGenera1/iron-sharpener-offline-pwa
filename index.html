@@ -14747,5 +14747,825 @@ body:not(.dark) .rdm-background-topic-btn:hover {
   setTimeout(installBackgroundsCleanHandlers, 900);
 })();
 </script>
+<script id="rdm-backgrounds-and-tsk-final-repair-v4">
+/* =========================================================
+   FINAL REPAIR v4 — Background Search + Built-In Cross Refs
+   Purpose:
+   1. Make Bible Backgrounds search use the full index robustly.
+   2. Stop false "no valid cross references" messages.
+   3. Render Built-In Cross References from actual TSK data.
+   4. Keep cream-mode brown/red resource buttons.
+   ========================================================= */
+(function () {
+  if (window.__rdmBackgroundsAndTskFinalRepairV4) return;
+  window.__rdmBackgroundsAndTskFinalRepairV4 = true;
+
+  const $id = (id) => document.getElementById(id);
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
+  }
+
+  function slug(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function clean(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9\s:-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  async function fetchJsonAny(paths, fallback) {
+    for (const path of paths.filter(Boolean)) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) continue;
+        return await response.json();
+      } catch (_) {}
+    }
+    return fallback;
+  }
+
+  function currentStudyState() {
+    return {
+      book: $id("book")?.value || "Genesis",
+      chapter: $id("chapter")?.value || "1",
+      start: $id("start")?.value || "1",
+      end: $id("end")?.value || $id("start")?.value || "1",
+      range: $id("rangeSize")?.value || "5"
+    };
+  }
+
+  function passageLabel(state = currentStudyState()) {
+    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  }
+
+  function verseMaxForState(state = currentStudyState()) {
+    try {
+      if (typeof verseCounts !== "undefined" && verseCounts[state.book]) {
+        return verseCounts[state.book][parseInt(state.chapter, 10) - 1] || parseInt(state.end, 10) || 1;
+      }
+    } catch (_) {}
+    return parseInt(state.end, 10) || 1;
+  }
+
+  function exactVerseKeys(state = currentStudyState(), mode = "passage") {
+    const start = mode === "chapter" ? 1 : (parseInt(state.start, 10) || 1);
+    const end = mode === "chapter" ? verseMaxForState(state) : (parseInt(state.end, 10) || start);
+    const keys = [];
+
+    for (let verse = start; verse <= end; verse++) {
+      keys.push(`${state.book} ${state.chapter}:${verse}`);
+    }
+
+    return keys;
+  }
+
+  function backgroundLookupKeys(state = currentStudyState()) {
+    return [
+      `${state.book} ${state.chapter}:${state.start}-${state.end}`,
+      ...exactVerseKeys(state, "passage"),
+      `${state.book} ${state.chapter}`,
+      state.book
+    ];
+  }
+
+  function deepText(value) {
+    const parts = [];
+
+    function walk(item) {
+      if (item == null) return;
+
+      if (typeof item === "string" || typeof item === "number") {
+        parts.push(String(item));
+        return;
+      }
+
+      if (Array.isArray(item)) {
+        item.forEach(walk);
+        return;
+      }
+
+      if (typeof item === "object") {
+        Object.keys(item).forEach((key) => {
+          if (["content", "text", "summary", "background", "teachingHelp", "tags", "searchTerms", "search_terms", "terms", "keywords", "title", "id", "category"].includes(key)) {
+            walk(item[key]);
+          } else if (typeof item[key] !== "object") {
+            walk(item[key]);
+          }
+        });
+      }
+    }
+
+    walk(value);
+    return parts.join(" ");
+  }
+
+  function normalizeBackgroundIndex(data) {
+    const raw = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.topics)
+        ? data.topics
+        : Array.isArray(data?.items)
+          ? data.items
+          : Array.isArray(data?.backgrounds)
+            ? data.backgrounds
+            : data && typeof data === "object"
+              ? Object.values(data)
+              : [];
+
+    return raw.map((item) => {
+      const id = item.id || item.topicId || item.slug || slug(item.file || item.filename || item.title);
+      const file = item.file || item.filename || `${id}.json`;
+
+      const searchBag = [
+        item.title,
+        id,
+        file,
+        item.category,
+        item.summary,
+        item.background,
+        item.teachingHelp,
+        ...(Array.isArray(item.tags) ? item.tags : []),
+        ...(Array.isArray(item.searchTerms) ? item.searchTerms : []),
+        ...(Array.isArray(item.search_terms) ? item.search_terms : []),
+        ...(Array.isArray(item.terms) ? item.terms : []),
+        ...(Array.isArray(item.keywords) ? item.keywords : []),
+        deepText(item)
+      ].join(" ");
+
+      return {
+        ...item,
+        id,
+        file,
+        title: item.title || id.replace(/-/g, " "),
+        summary: item.summary || "",
+        category: item.category || "Uncategorized",
+        _search: clean(searchBag),
+        _slugSearch: slug(searchBag)
+      };
+    });
+  }
+
+  async function loadBackgroundIndexV4() {
+    const data = await fetchJsonAny([
+      "bible/resources/backgrounds/index.json",
+      "bible/resources/backgrounds/backgrounds-index.json",
+      "bible/resources/backgrounds/registry.json",
+      "bible/resources/backgrounds/backgrounds-registry.json",
+      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
+    ], []);
+
+    return normalizeBackgroundIndex(data);
+  }
+
+  async function loadBackgroundMapV4(book) {
+    const encoded = encodeURIComponent(book);
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/by-reference/${encoded}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
+    ], {});
+  }
+
+  async function loadBackgroundTopicV4(idOrFile) {
+    const raw = String(idOrFile || "")
+      .replace(/^topics\//i, "")
+      .replace(/\.json$/i, "")
+      .trim();
+
+    const id = slug(raw);
+
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/topics/${id}.json`,
+      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
+    ], null);
+  }
+
+  function normalizeMappedIds(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(normalizeMappedIds);
+    }
+
+    if (typeof value === "string") {
+      return [slug(value)];
+    }
+
+    if (typeof value === "object") {
+      return normalizeMappedIds(value.id || value.topic || value.topicId || value.file || value.topics || value.backgrounds);
+    }
+
+    return [];
+  }
+
+  function backgroundItemsForCurrentPassage(index, map) {
+    const ids = [];
+
+    backgroundLookupKeys().forEach((key) => {
+      normalizeMappedIds(map?.[key]).forEach((id) => ids.push(id));
+    });
+
+    const uniqueIds = [...new Set(ids)];
+
+    return uniqueIds.map((id) => {
+      return index.find((item) =>
+        slug(item.id) === id ||
+        slug(item.file) === id ||
+        slug(String(item.file || "").replace(/\.json$/i, "")) === id
+      ) || {
+        id,
+        file: `${id}.json`,
+        title: id.replace(/-/g, " "),
+        summary: ""
+      };
+    });
+  }
+
+  function findBackgroundMatchesV4(index, query) {
+    const q = clean(query);
+    if (!q) return [];
+
+    const qSlug = slug(q);
+    const singular = q.endsWith("s") ? q.slice(0, -1) : q;
+    const plural = q.endsWith("s") ? q : `${q}s`;
+
+    const aliases = {
+      sabb: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
+      sabbath: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
+      temple: ["temple", "tabernacle", "priest", "priests", "worship", "sacrifice"],
+      shepherd: ["shepherd", "shepherds", "sheep", "flock", "pasture", "rod", "staff"],
+      wells: ["well", "wells", "water", "cistern", "spring"],
+      well: ["well", "wells", "water", "cistern", "spring"],
+      passover: ["passover", "feast", "feasts", "lamb"],
+      priest: ["priest", "priests", "priesthood", "levite", "levites"],
+      sacrifice: ["sacrifice", "sacrifices", "offering", "offerings", "altar"],
+      synagogue: ["synagogue", "synagogues", "sabbath"],
+      covenant: ["covenant", "covenants", "promise"],
+      roman: ["roman", "rome", "empire", "caesar"]
+    };
+
+    const aliasTerms = [
+      q,
+      singular,
+      plural,
+      qSlug,
+      ...(aliases[qSlug] || [])
+    ].filter(Boolean).map(clean);
+
+    return index.filter((item) => {
+      return aliasTerms.some((term) =>
+        item._search.includes(term) ||
+        item._slugSearch.includes(slug(term))
+      );
+    }).slice(0, 60);
+  }
+
+  function renderBackgroundTopicButtonsV4(items) {
+    if (!items.length) {
+      return `
+        <div class="backgrounds-clean-empty">
+          No matching background topic was found for that word. Try another term such as
+          <strong>temple</strong>, <strong>Sabbath</strong>, <strong>shepherd</strong>,
+          <strong>worship</strong>, <strong>sacrifice</strong>, <strong>priest</strong>,
+          <strong>Passover</strong>, <strong>covenant</strong>, or <strong>Roman</strong>.
+        </div>
+      `;
+    }
+
+    return items.map((item) => `
+      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id || item.file)}" style="width:100%;margin-bottom:8px;">
+        <strong>${esc(item.title || item.id || item.file)}</strong>
+        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
+      </button>
+    `).join("");
+  }
+
+  function renderBackgroundTopicCardV4(topic, titleFallback) {
+    if (!topic) {
+      return `<p style="font:800 14px Arial,sans-serif;">This background topic could not be loaded.</p>`;
+    }
+
+    const summary = topic.summary || "";
+    const background = topic.background || topic.content || topic.body || "";
+    const teachingHelp = topic.teachingHelp || topic.teaching_help || topic.application || "";
+    const keyScriptures = Array.isArray(topic.keyScriptures)
+      ? topic.keyScriptures
+      : Array.isArray(topic.key_scriptures)
+        ? topic.key_scriptures
+        : [];
+
+    return `
+      <div class="background-topic-card">
+        ${summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(summary)}</p>` : ""}
+        ${background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(background)}</p>` : ""}
+        ${teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(teachingHelp)}</p>` : ""}
+        ${keyScriptures.length ? `
+          <h4>Key Scriptures</h4>
+          <div style="display:grid;gap:7px;margin-bottom:12px;">
+            ${keyScriptures.map((ref) => {
+              const reference = typeof ref === "string" ? ref : (ref.reference || ref.ref || "");
+              return reference ? `<button type="button" class="cross-ref-link" data-ref="${esc(reference)}" style="width:100%;">${esc(reference)}</button>` : "";
+            }).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  async function openBackgroundTopicV4(idOrFile) {
+    const topic = await loadBackgroundTopicV4(idOrFile);
+    const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
+
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    window.openResourceInstancePanel(
+      title,
+      renderBackgroundTopicCardV4(topic, title),
+      "Bible Backgrounds & Customs",
+      `background-topic-${slug(topic?.id || idOrFile || title)}`,
+      { updateExisting: true }
+    );
+  }
+
+  function backgroundSuggestionChips() {
+    const words = ["Sabbath", "Temple", "Shepherd", "Wells", "Passover", "Sacrifice", "Priests", "Synagogue", "Covenant", "Roman"];
+    return `
+      <div class="backgrounds-suggestion-row">
+        ${words.map((word) => `<button type="button" class="backgrounds-suggestion-chip" data-bg-search="${esc(word)}">${esc(word)}</button>`).join("")}
+      </div>
+    `;
+  }
+
+  async function buildBackgroundsHomeV4() {
+    const state = currentStudyState();
+    const index = await loadBackgroundIndexV4();
+    const map = await loadBackgroundMapV4(state.book);
+    const currentItems = backgroundItemsForCurrentPassage(index, map);
+
+    return `
+      <div class="backgrounds-home-v4">
+        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
+          Bible Backgrounds &amp; Customs for <strong>${esc(passageLabel(state))}</strong>.
+        </p>
+
+        ${currentItems.length ? `
+          <details class="backgrounds-current-v4" open style="margin-bottom:12px;">
+            <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
+              Current Passage Backgrounds (${currentItems.length})
+            </summary>
+            <div style="margin-top:8px;">
+              ${renderBackgroundTopicButtonsV4(currentItems)}
+            </div>
+          </details>
+        ` : `
+          <div class="backgrounds-clean-empty" style="margin-bottom:12px;">
+            No exact background card is linked to this passage yet. Search the full Bible Backgrounds &amp; Customs library below.
+          </div>
+        `}
+
+        ${backgroundSuggestionChips()}
+
+        <input id="backgroundsSearchV4" class="backgrounds-search-box" type="search" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;width:100%;">
+        <div id="backgroundsResultsV4"></div>
+      </div>
+    `;
+  }
+
+  async function openBackgroundsResourceV4(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+
+    window.activeResourcePanel = "backgrounds";
+    try { activeResourcePanel = "backgrounds"; } catch (_) {}
+
+    if (typeof window.openResourceInstancePanel !== "function") return;
+
+    const panel = window.openResourceInstancePanel(
+      "Bible Backgrounds & Customs",
+      await buildBackgroundsHomeV4(),
+      "Bible Backgrounds & Customs",
+      "backgrounds-current-v4",
+      { updateExisting: true }
+    );
+
+    if (!panel) return;
+
+    const index = await loadBackgroundIndexV4();
+    const searchBox = panel.querySelector("#backgroundsSearchV4");
+    const results = panel.querySelector("#backgroundsResultsV4");
+    const current = panel.querySelector(".backgrounds-current-v4");
+
+    async function runSearch(value) {
+      const query = String(value || "").trim();
+
+      if (!query) {
+        if (results) results.innerHTML = "";
+        if (current) current.open = true;
+        return;
+      }
+
+      if (current) current.open = false;
+
+      const matches = findBackgroundMatchesV4(index, query);
+
+      results.innerHTML = `
+        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+          ← Back to Current Passage Backgrounds
+        </button>
+        <h4>Search Results</h4>
+        ${renderBackgroundTopicButtonsV4(matches)}
+      `;
+    }
+
+    if (searchBox && results) {
+      let timer = null;
+      searchBox.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => runSearch(searchBox.value), 120);
+      });
+    }
+
+    panel.addEventListener("click", async (clickEvent) => {
+      const topicBtn = clickEvent.target.closest(".rdm-background-topic-btn");
+      const backBtn = clickEvent.target.closest(".backgrounds-back-btn");
+      const chip = clickEvent.target.closest(".backgrounds-suggestion-chip");
+
+      if (topicBtn) {
+        clickEvent.preventDefault();
+        await openBackgroundTopicV4(topicBtn.dataset.topicId);
+        return;
+      }
+
+      if (backBtn) {
+        clickEvent.preventDefault();
+        if (searchBox) searchBox.value = "";
+        if (results) results.innerHTML = "";
+        if (current) current.open = true;
+        return;
+      }
+
+      if (chip) {
+        clickEvent.preventDefault();
+        const value = chip.dataset.bgSearch || chip.textContent.trim();
+        if (searchBox) searchBox.value = value;
+        await runSearch(value);
+      }
+    });
+  }
+
+  window.openBackgroundsResource = openBackgroundsResourceV4;
+  window.openBackgroundsResourceSafe = openBackgroundsResourceV4;
+
+  document.addEventListener("click", function (event) {
+    const bgButton = event.target.closest("#openBackgroundsResource, [data-study-key-action='backgrounds']");
+    if (!bgButton) return;
+    openBackgroundsResourceV4(event);
+  }, true);
+
+  /* -----------------------------
+     Built-In Cross References repair
+     ----------------------------- */
+
+  function normalizeRefsV4(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(normalizeRefsV4).map(String).map((x) => x.trim()).filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+      return value
+        .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
+
+    if (typeof value === "object") {
+      return Object.values(value).flatMap(normalizeRefsV4);
+    }
+
+    return [];
+  }
+
+  function tskPaths(book) {
+    const encoded = encodeURIComponent(book);
+    const underscored = book.replace(/\s+/g, "_");
+    const dashed = book.replace(/\s+/g, "-");
+
+    return [
+      `bible/resources/tsk/${book}.json`,
+      `bible/resources/tsk/${encoded}.json`,
+      `bible/resources/tsk/${underscored}.json`,
+      `bible/resources/tsk/${dashed}.json`,
+      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
+      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
+    ];
+  }
+
+  async function loadTskBookV4(book) {
+    return await fetchJsonAny(tskPaths(book), {});
+  }
+
+  function currentInternalModeV4() {
+    const chapterBtn = $id("internalXrefsChapterMode");
+    return chapterBtn?.classList.contains("active-internal-xref-mode") ? "chapter" : "passage";
+  }
+
+  async function collectTskRowsV4(mode = "passage") {
+    const state = currentStudyState();
+    const data = await loadTskBookV4(state.book);
+    const keys = exactVerseKeys(state, mode);
+    const rows = [];
+
+    keys.forEach((key) => {
+      const refs = [...new Set(normalizeRefsV4(data?.[key]))];
+      rows.push({ key, refs });
+    });
+
+    return rows;
+  }
+
+  function currentRefLabelV4(mode) {
+    const state = currentStudyState();
+
+    if (mode === "chapter") {
+      return `${state.book} ${state.chapter}`;
+    }
+
+    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  }
+
+  async function renderInternalCrossReferencesV4(mode = currentInternalModeV4()) {
+    const panel = $id("internalCrossRefsPanel");
+    const results = $id("internalXrefsResults");
+    const summary = $id("internalXrefsSummary");
+    const search = clean($id("internalXrefSearch")?.value || "");
+
+    if (!panel || !results || !summary) return;
+
+    const rows = await collectTskRowsV4(mode);
+    let refCount = 0;
+    let verseCount = 0;
+
+    const filteredRows = rows.map((row) => {
+      let refs = row.refs || [];
+
+      if (search) {
+        refs = refs.filter((ref) =>
+          clean(ref).includes(search) ||
+          clean(row.key).includes(search)
+        );
+      }
+
+      if (refs.length) {
+        refCount += refs.length;
+        verseCount += 1;
+      }
+
+      return { ...row, refs };
+    }).filter((row) => row.refs.length);
+
+    summary.textContent = `${currentRefLabelV4(mode)} — ${refCount} internal reference${refCount === 1 ? "" : "s"} across ${verseCount} verse${verseCount === 1 ? "" : "s"}.`;
+
+    if (!filteredRows.length) {
+      results.innerHTML = `
+        <div class="internal-xref-empty">
+          ${search
+            ? `No Built-In Cross References matched this filter. Clear the search box to see all available references.`
+            : `No Built-In Cross References are linked to this ${mode === "chapter" ? "chapter" : "passage"} in the local TSK database yet.`}
+        </div>
+      `;
+      return;
+    }
+
+    results.innerHTML = filteredRows.map((row) => `
+      <section class="internal-xref-verse">
+        <h4>${esc(row.key)}</h4>
+        <div class="internal-xref-buttons">
+          ${row.refs.map((ref) => `
+            <button type="button" class="cross-ref-link internal-xref-link" data-ref="${esc(ref)}">
+              ${esc(ref)}
+            </button>
+          `).join("")}
+        </div>
+      </section>
+    `).join("");
+  }
+
+  function scheduleInternalRepair(mode) {
+    setTimeout(() => renderInternalCrossReferencesV4(mode || currentInternalModeV4()), 60);
+    setTimeout(() => renderInternalCrossReferencesV4(mode || currentInternalModeV4()), 250);
+  }
+
+  document.addEventListener("click", function (event) {
+    if (event.target.closest("#internalXrefsPassageMode")) {
+      setTimeout(() => {
+        $id("internalXrefsPassageMode")?.classList.add("active-internal-xref-mode");
+        $id("internalXrefsChapterMode")?.classList.remove("active-internal-xref-mode");
+        scheduleInternalRepair("passage");
+      }, 20);
+    }
+
+    if (event.target.closest("#internalXrefsChapterMode")) {
+      setTimeout(() => {
+        $id("internalXrefsChapterMode")?.classList.add("active-internal-xref-mode");
+        $id("internalXrefsPassageMode")?.classList.remove("active-internal-xref-mode");
+        scheduleInternalRepair("chapter");
+      }, 20);
+    }
+
+    if (event.target.closest("[data-study-key-action='crossrefs'], #openInternalCrossRefs")) {
+      scheduleInternalRepair();
+    }
+  }, true);
+
+  document.addEventListener("input", function (event) {
+    if (event.target?.id === "internalXrefSearch") {
+      scheduleInternalRepair();
+    }
+  }, true);
+
+  /* Keep the Study Resources key honest without strict validation */
+  async function countTskForCurrentRangeV4() {
+    const rows = await collectTskRowsV4("passage");
+    return rows.reduce((total, row) => total + row.refs.length, 0);
+  }
+
+  async function countTskForCurrentChapterV4() {
+    const rows = await collectTskRowsV4("chapter");
+    return rows.reduce((total, row) => total + row.refs.length, 0);
+  }
+
+  async function refineStudyResourcesKeyV4() {
+    const key = $id("studyResourcesKey");
+    if (!key) return;
+
+    const xrefBtn = key.querySelector("[data-study-key-action='crossrefs']");
+    const currentCount = await countTskForCurrentRangeV4();
+    const chapterCount = await countTskForCurrentChapterV4();
+
+    if (xrefBtn) {
+      if (!currentCount && !chapterCount) {
+        xrefBtn.remove();
+      } else {
+        xrefBtn.textContent = "Built-In Cross References";
+        xrefBtn.title = currentCount
+          ? `${currentCount} built-in cross references for the current passage.`
+          : `${chapterCount} built-in cross references are available for this chapter.`;
+      }
+    }
+  }
+
+  function scheduleKeyRefineV4() {
+    setTimeout(refineStudyResourcesKeyV4, 150);
+    setTimeout(refineStudyResourcesKeyV4, 500);
+    setTimeout(refineStudyResourcesKeyV4, 1000);
+  }
+
+  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
+    document.addEventListener("change", function (event) {
+      if (event.target?.id === id) scheduleKeyRefineV4();
+    }, true);
+  });
+
+  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
+    document.addEventListener("click", function (event) {
+      if (event.target?.closest?.(`#${id}`)) scheduleKeyRefineV4();
+    }, true);
+  });
+
+  window.auditBackgroundsAndTskV4 = async function () {
+    const bgIndex = await loadBackgroundIndexV4();
+    const bgMap = await loadBackgroundMapV4(currentStudyState().book);
+    const bgItems = backgroundItemsForCurrentPassage(bgIndex, bgMap);
+    const tskPassage = await countTskForCurrentRangeV4();
+    const tskChapter = await countTskForCurrentChapterV4();
+
+    const report = {
+      passage: passageLabel(),
+      backgroundIndexLoaded: bgIndex.length,
+      mappedBackgroundsForPassage: bgItems.length,
+      builtInCrossRefsCurrentPassage: tskPassage,
+      builtInCrossRefsFullChapter: tskChapter
+    };
+
+    console.table(report);
+    return report;
+  };
+
+  window.addEventListener("load", () => {
+    scheduleKeyRefineV4();
+    setTimeout(() => {
+      const bgBtn = $id("openBackgroundsResource");
+      if (bgBtn) bgBtn.onclick = openBackgroundsResourceV4;
+    }, 500);
+  });
+})();
+</script>
+
+<style id="rdm-backgrounds-and-tsk-final-repair-v4-style">
+/* Cream-mode resource buttons: brown/red, not gold */
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode,
+body:not(.dark) .backgrounds-back-btn {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-internal-xref-mode {
+  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
+  color: #FFF8EA !important;
+  border-color: rgba(215,168,79,.92) !important;
+}
+
+body:not(.dark) .backgrounds-clean-empty,
+body:not(.dark) .backgrounds-no-results {
+  background: rgba(255,250,240,.82) !important;
+  border-left: 4px solid #8A4A24 !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  color: #2B394F !important;
+  font: 800 14px Arial, sans-serif !important;
+  line-height: 1.45 !important;
+  margin-bottom: 12px;
+}
+
+.backgrounds-suggestion-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 12px;
+}
+
+body:not(.dark) .backgrounds-suggestion-chip {
+  border: 1.4px solid rgba(138,74,36,.48) !important;
+  background: #fff7e6 !important;
+  color: #5C2E1C !important;
+  border-radius: 999px !important;
+  padding: 7px 10px !important;
+  font: 900 12px Arial, sans-serif !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) .backgrounds-suggestion-chip:hover {
+  background: #f4e5ca !important;
+}
+
+body:not(.dark) .rdm-background-topic-btn {
+  background: #fff7e6 !important;
+  color: #2B394F !important;
+  border: 1.5px solid rgba(183,116,16,.52) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) .rdm-background-topic-btn:hover {
+  background: #f7ead3 !important;
+}
+
+body:not(.dark) .backgrounds-search-box,
+body:not(.dark) #backgroundsSearchV4 {
+  background: #fffaf0 !important;
+  color: #2B394F !important;
+  border: 1.6px solid rgba(183,116,16,.58) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+body:not(.dark) .backgrounds-search-box:focus,
+body:not(.dark) #backgroundsSearchV4:focus {
+  border-color: rgba(138,74,36,.95) !important;
+  box-shadow: 0 0 0 3px rgba(138,74,36,.12) !important;
+}
+</style>
 </body>
 </html>
