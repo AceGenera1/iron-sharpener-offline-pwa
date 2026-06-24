@@ -14628,5 +14628,500 @@ html.obs .study-resources-key {
   });
 })();
 </script>
+<script>
+(function studyResourcesKeyFinalCorrections() {
+  if (window.__ironStudyResourcesKeyFinalCorrectionsInstalled) return;
+  window.__ironStudyResourcesKeyFinalCorrectionsInstalled = true;
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function currentBookName() {
+    return get("book")?.value || "Genesis";
+  }
+
+  function cleanBackgroundPanels() {
+    document.querySelectorAll(".resource-instance-panel, .teacher-pop").forEach(panel => {
+      const text = (panel.textContent || "").toLowerCase();
+
+      if (
+        !text.includes("bible backgrounds") &&
+        !text.includes("current passage backgrounds") &&
+        !text.includes("related background topics") &&
+        !panel.querySelector(".backgrounds-category-browser")
+      ) {
+        return;
+      }
+
+      // Remove Browse by Category completely.
+      panel.querySelectorAll(".backgrounds-category-browser").forEach(el => el.remove());
+
+      panel.querySelectorAll("details").forEach(details => {
+        const summary = details.querySelector("summary")?.textContent || "";
+        if (summary.toLowerCase().includes("browse by category")) {
+          details.remove();
+        }
+      });
+
+      // Remove only the Related Background Topics section.
+      panel.querySelectorAll("h4, h3, strong").forEach(heading => {
+        const label = (heading.textContent || "").toLowerCase().trim();
+
+        if (!label.includes("related background topics")) return;
+
+        let next = heading.nextElementSibling;
+        heading.remove();
+
+        if (
+          next &&
+          (
+            next.querySelector?.(".backgrounds-topic-btn") ||
+            next.className?.toString().toLowerCase().includes("related")
+          )
+        ) {
+          next.remove();
+        }
+      });
+
+      // Remove any leftover related-topic buttons without touching Key Scriptures.
+      panel.querySelectorAll(".backgrounds-topic-btn").forEach(btn => {
+        const wrapper = btn.closest("div");
+        const previous = wrapper?.previousElementSibling;
+        const previousText = previous?.textContent?.toLowerCase() || "";
+
+        if (previousText.includes("related background topics")) {
+          previous.remove();
+          wrapper.remove();
+          return;
+        }
+
+        btn.remove();
+      });
+    });
+  }
+
+  async function fetchJson(paths) {
+    for (const path of paths) {
+      try {
+        const response = await fetch(path, { cache: "force-cache" });
+        if (!response.ok) continue;
+        return await response.json();
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  async function loadOverviewDirect(book) {
+    const loader =
+      window.loadBookOverview ||
+      (typeof loadBookOverview === "function" ? loadBookOverview : null);
+
+    if (typeof loader === "function") {
+      try {
+        const loaded = await loader(book);
+        if (loaded) return loaded;
+      } catch (_) {}
+    }
+
+    return await fetchJson([
+      `bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/${encodeURIComponent(book)}.json`
+    ]);
+  }
+
+  function renderOverview(book, overview) {
+    if (!overview) {
+      return `<p style="font:800 14px Arial,sans-serif;">No book overview found for ${esc(book)} yet.</p>`;
+    }
+
+    return `
+      <div style="margin-bottom:12px;">
+        <strong>Author</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.author || "")}</p>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <strong>Date</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.date || "")}</p>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <strong>Audience</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.audience || "")}</p>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <strong>Historical Setting</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.historicalSetting || "")}</p>
+      </div>
+
+      ${(overview.themes || []).length ? `
+        <div style="margin-bottom:12px;">
+          <strong>Major Themes</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.themes || []).map(theme => `<li>${esc(theme)}</li>`).join("")}
+          </ul>
+        </div>
+      ` : ""}
+
+      <div style="margin-bottom:12px;">
+        <strong>Key Verse</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.keyVerse || "")}</p>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <strong>Christ Focus</strong>
+        <p style="font:700 14px Arial,sans-serif;line-height:1.45;">${esc(overview.christFocus || "")}</p>
+      </div>
+
+      ${(overview.outline || []).length ? `
+        <div style="margin-bottom:12px;">
+          <strong>Outline</strong>
+          <ul style="font:700 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+            ${(overview.outline || []).map(item => `<li>${esc(item)}</li>`).join("")}
+          </ul>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  async function openBookOverviewFromKey(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const book = currentBookName();
+    const overview = await loadOverviewDirect(book);
+    const html = renderOverview(book, overview);
+    const title = overview?.title || `${book} Overview`;
+
+    const openClean =
+      window.openCleanResourcePanel ||
+      (typeof openCleanResourcePanel === "function" ? openCleanResourcePanel : null);
+
+    const openInstance =
+      window.openResourceInstancePanel ||
+      (typeof openResourceInstancePanel === "function" ? openResourceInstancePanel : null);
+
+    const openStudy =
+      window.openStudyResourcePanel ||
+      (typeof openStudyResourcePanel === "function" ? openStudyResourcePanel : null);
+
+    if (typeof openClean === "function") {
+      openClean(title, html, "book-overview-manual", { updateExisting: true });
+      return;
+    }
+
+    if (typeof openInstance === "function") {
+      openInstance(title, html, "Book Overview", "book-overview-manual", { updateExisting: true });
+      return;
+    }
+
+    if (typeof openStudy === "function") {
+      openStudy(title, html, "Book Overview", "book-overview-manual", { updateExisting: true });
+      return;
+    }
+
+    const fallbackButton = get("openBookOverviewResource");
+    if (fallbackButton) fallbackButton.click();
+  }
+
+  document.addEventListener("click", function(event) {
+    const btn = event.target.closest(".study-resource-key-btn");
+    if (!btn) return;
+
+    const action = btn.dataset.studyKeyAction;
+
+    if (action === "overview") {
+      event.preventDefault();
+      event.stopPropagation();
+      openBookOverviewFromKey(event);
+    }
+  }, true);
+
+  cleanBackgroundPanels();
+
+  const observer = new MutationObserver(() => {
+    cleanBackgroundPanels();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
+<style>
+/* =========================================================
+   STUDY RESOURCES KEY — RETURN TO STARTING PASSAGE
+   ========================================================= */
+
+.study-resource-return-btn {
+  border-radius: 999px !important;
+  padding: 7px 11px !important;
+  font: 900 11px Arial, sans-serif !important;
+  white-space: nowrap !important;
+  background: rgba(255, 247, 230, .82) !important;
+  color: #6f4307 !important;
+  border: 1.4px dashed rgba(138, 90, 19, .65) !important;
+  box-shadow: none !important;
+}
+
+.study-resource-return-btn:hover {
+  filter: brightness(1.04);
+}
+
+body.dark .study-resource-return-btn {
+  background: rgba(255,255,255,.08) !important;
+  color: #ffe08c !important;
+  border-color: rgba(248,217,135,.55) !important;
+}
+
+.study-resource-return-btn[hidden] {
+  display: none !important;
+}
+</style>
+
+<script>
+(function studyResourcesReturnToStartingPassage() {
+  if (window.__ironStudyResourcesReturnInstalled) return;
+  window.__ironStudyResourcesReturnInstalled = true;
+
+  const STORAGE_KEY = "ironSharpenerCrossRefReturnOrigin";
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function currentPassageState() {
+    const book = get("book")?.value || "Genesis";
+    const chapter = get("chapter")?.value || "1";
+    const start = get("start")?.value || "1";
+    const end = get("end")?.value || start;
+    const rangeSize = get("rangeSize")?.value || "";
+
+    return {
+      book,
+      chapter,
+      start,
+      end,
+      rangeSize
+    };
+  }
+
+  function passageLabel(state) {
+    if (!state) return "";
+
+    if (String(state.start) === String(state.end)) {
+      return `${state.book} ${state.chapter}:${state.start}`;
+    }
+
+    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  }
+
+  function samePassage(a, b) {
+    if (!a || !b) return false;
+
+    return (
+      String(a.book) === String(b.book) &&
+      String(a.chapter) === String(b.chapter) &&
+      String(a.start) === String(b.start) &&
+      String(a.end) === String(b.end)
+    );
+  }
+
+  function getOrigin() {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setOrigin(state) {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {}
+  }
+
+  function clearOrigin() {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch (_) {}
+  }
+
+  function ensureReturnButton() {
+    const key = document.getElementById("studyResourcesKey");
+    if (!key) return null;
+
+    const row = key.querySelector(".study-resources-key-buttons");
+    if (!row) return null;
+
+    let btn = document.getElementById("studyResourcesReturnBtn");
+
+    if (!btn) {
+      btn = document.createElement("button");
+      btn.id = "studyResourcesReturnBtn";
+      btn.type = "button";
+      btn.className = "study-resource-return-btn";
+      btn.hidden = true;
+      row.appendChild(btn);
+    } else if (!row.contains(btn)) {
+      row.appendChild(btn);
+    }
+
+    return btn;
+  }
+
+  function updateReturnButton() {
+    const btn = ensureReturnButton();
+    if (!btn) return;
+
+    const origin = getOrigin();
+    const current = currentPassageState();
+
+    if (!origin || samePassage(origin, current)) {
+      btn.hidden = true;
+      return;
+    }
+
+    btn.hidden = false;
+    btn.textContent = `↩ Return to ${passageLabel(origin)}`;
+    btn.title = `Return to the passage where you started: ${passageLabel(origin)}`;
+  }
+
+  function rememberStartingPassageBeforeCrossRefClick(event) {
+    const crossRefButton = event.target.closest(
+      ".cross-ref-link, [data-ref], [data-cross-ref], [data-passage-ref], .internal-cross-ref-link"
+    );
+
+    if (!crossRefButton) return;
+
+    if (crossRefButton.id === "studyResourcesReturnBtn") return;
+    if (crossRefButton.closest("#studyResourcesKey")) return;
+
+    const existingOrigin = getOrigin();
+
+    // Do not overwrite the original starting point.
+    if (!existingOrigin) {
+      setOrigin(currentPassageState());
+    }
+
+    setTimeout(updateReturnButton, 150);
+    setTimeout(updateReturnButton, 450);
+    setTimeout(updateReturnButton, 900);
+  }
+
+  async function restorePassage(state) {
+    if (!state) return;
+
+    const bookField = get("book");
+    const chapterField = get("chapter");
+    const startField = get("start");
+    const endField = get("end");
+    const rangeField = get("rangeSize");
+
+    if (bookField) {
+      bookField.value = state.book;
+      bookField.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    await delay(80);
+
+    if (chapterField) {
+      chapterField.value = state.chapter;
+      chapterField.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    await delay(80);
+
+    if (startField) {
+      startField.value = state.start;
+      startField.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    if (endField) {
+      endField.value = state.end;
+      endField.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    if (rangeField && state.rangeSize) {
+      rangeField.value = state.rangeSize;
+      rangeField.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    await delay(80);
+
+    const loader =
+      window.loadPassage ||
+      (typeof loadPassage === "function" ? loadPassage : null);
+
+    if (typeof loader === "function") {
+      await loader();
+    } else {
+      const loadBtn = get("loadBtn") || get("obsLoadPassage");
+      if (loadBtn) loadBtn.click();
+    }
+
+    clearOrigin();
+
+    setTimeout(updateReturnButton, 150);
+
+    if (typeof window.refreshActiveResourcePanel === "function") {
+      setTimeout(() => window.refreshActiveResourcePanel(), 250);
+    }
+  }
+
+  document.addEventListener("click", rememberStartingPassageBeforeCrossRefClick, true);
+
+  document.addEventListener("click", function(event) {
+    const btn = event.target.closest("#studyResourcesReturnBtn");
+    if (!btn) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const origin = getOrigin();
+    restorePassage(origin);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    updateReturnButton();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
+    const field = get(id);
+    if (!field) return;
+    field.addEventListener("change", () => {
+      setTimeout(updateReturnButton, 150);
+    });
+  });
+
+  setTimeout(updateReturnButton, 350);
+})();
+</script>
 </body>
 </html>
