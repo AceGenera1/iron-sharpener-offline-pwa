@@ -14483,5 +14483,38 @@ html.obs #studyResourcesPanel .tool-option span {
   });
 })();
 </script>
+<script>
+(function removeBackgroundBrowseByCategory() {
+  if (window.__ironRemoveBackgroundBrowseByCategoryInstalled) return;
+  window.__ironRemoveBackgroundBrowseByCategoryInstalled = true;
+
+  function removeBrowseByCategory() {
+    document.querySelectorAll(".resource-instance-panel").forEach(panel => {
+      const text = panel.textContent || "";
+
+      if (!text.toLowerCase().includes("bible backgrounds")) return;
+
+      panel.querySelectorAll(".backgrounds-category-browser").forEach(el => el.remove());
+
+      panel.querySelectorAll("details").forEach(details => {
+        const summaryText = details.querySelector("summary")?.textContent || "";
+
+        if (summaryText.toLowerCase().includes("browse by category")) {
+          details.remove();
+        }
+      });
+    });
+  }
+
+  removeBrowseByCategory();
+
+  const observer = new MutationObserver(removeBrowseByCategory);
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
 </body>
 </html>
