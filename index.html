@@ -16291,21 +16291,25 @@ body:not(.dark) #internalCrossRefsPanel #rdmXrefsShowMoreV9 {
   box-shadow: none !important;
 }
 </style>
-<script id="rdm-crossrefs-availability-guard-v10">
+
+</script>
+<script id="rdm-study-resource-bar-stabilizer-v10b">
 /* =========================================================
-   Built-In Cross References Availability Guard v10
+   Study Resources Bar Stabilizer v10b
    Purpose:
-   - Hide/disable Built-In Cross References when the current
-     selected passage AND full chapter have 0 local TSK refs.
-   - Close the panel if it is open on a passage with no refs.
-   - Do not touch Backgrounds, Commentary, Book Overview, Bible
-     loading, copy tools, or panel movement.
+   - Stop the Study Resources bar from visibly freaking out.
+   - No MutationObserver.
+   - No constant rebuild loop.
+   - Only checks cross-reference availability after passage changes.
+   - Does not touch Backgrounds search, Bible loading, panels, or copy tools.
    ========================================================= */
 (function () {
-  if (window.__rdmCrossrefsAvailabilityGuardV10) return;
-  window.__rdmCrossrefsAvailabilityGuardV10 = true;
+  if (window.__rdmStudyResourceBarStabilizerV10b) return;
+  window.__rdmStudyResourceBarStabilizerV10b = true;
 
   const $ = (id) => document.getElementById(id);
+  let timer = null;
+  let runSeq = 0;
 
   function currentState() {
     return {
@@ -16351,15 +16355,11 @@ body:not(.dark) #internalCrossRefsPanel #rdmXrefsShowMoreV9 {
   }
 
   async function loadTskBook(book) {
-    const encoded = encodeURIComponent(book);
-    const underscored = book.replace(/\s+/g, "_");
-    const dashed = book.replace(/\s+/g, "-");
-
     return await fetchJsonAny([
       `bible/resources/tsk/${book}.json`,
-      `bible/resources/tsk/${encoded}.json`,
-      `bible/resources/tsk/${underscored}.json`,
-      `bible/resources/tsk/${dashed}.json`,
+      `bible/resources/tsk/${encodeURIComponent(book)}.json`,
+      `bible/resources/tsk/${book.replace(/\s+/g, "_")}.json`,
+      `bible/resources/tsk/${book.replace(/\s+/g, "-")}.json`,
       book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
       book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
     ]);
@@ -16389,145 +16389,119 @@ body:not(.dark) #internalCrossRefsPanel #rdmXrefsShowMoreV9 {
   async function countRefs(mode) {
     const state = currentState();
     const data = await loadTskBook(state.book);
+
     let total = 0;
-    let versesWithRefs = 0;
 
     verseKeys(mode).forEach((key) => {
-      const refs = [...new Set(normalizeRefs(data[key]))];
-
-      if (refs.length) {
-        total += refs.length;
-        versesWithRefs += 1;
-      }
+      total += [...new Set(normalizeRefs(data[key]))].length;
     });
 
-    return { total, versesWithRefs };
+    return total;
   }
 
-  function setButtonUnavailable(button) {
-    if (!button) return;
+  function setBarBusy(isBusy) {
+    const key = $("studyResourcesKey");
+    if (!key) return;
 
-    button.disabled = true;
-    button.setAttribute("aria-disabled", "true");
-    button.dataset.xrefsAvailable = "0";
-    button.style.display = "none";
+    key.classList.toggle("study-resources-key-stabilizing", !!isBusy);
   }
 
-  function setButtonAvailable(button, passageCount, chapterCount) {
-    if (!button) return;
+  async function stabilizeStudyResourceBar() {
+    const seq = ++runSeq;
+    const key = $("studyResourcesKey");
+    if (!key) return;
 
-    button.disabled = false;
-    button.removeAttribute("aria-disabled");
-    button.dataset.xrefsAvailable = "1";
-    button.style.display = "";
+    setBarBusy(true);
 
-    const label = button.querySelector("span");
-    if (label) {
-      label.textContent = passageCount
-        ? `Open ${passageCount} built-in references for this passage.`
-        : `Open built-in references available for this chapter.`;
-    }
+    await new Promise(resolve => setTimeout(resolve, 180));
 
-    button.title = passageCount
-      ? `${passageCount} built-in cross references for the selected passage.`
-      : `${chapterCount} built-in cross references available for this chapter.`;
-  }
+    if (seq !== runSeq) return;
 
-  function closeInternalPanelIfUnavailable() {
-    const panel = $("internalCrossRefsPanel");
-    if (!panel) return;
+    const crossRefBtn = key.querySelector('[data-study-key-action="crossrefs"]');
 
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "";
-  }
-
-  async function updateCrossRefAvailability() {
-    const [passage, chapter] = await Promise.all([
+    const [passageRefs, chapterRefs] = await Promise.all([
       countRefs("passage"),
       countRefs("chapter")
     ]);
 
-    const passageCount = passage.total;
-    const chapterCount = chapter.total;
-    const hasAnyRefs = passageCount > 0 || chapterCount > 0;
+    if (seq !== runSeq) return;
 
-    const buttons = [
-      $("openInternalCrossRefs"),
-      $("obsShowInternalCrossRefs"),
-      document.querySelector('[data-study-key-action="crossrefs"]')
-    ].filter(Boolean);
+    const hasAnyCrossRefs = passageRefs > 0 || chapterRefs > 0;
 
-    buttons.forEach((button) => {
-      if (hasAnyRefs) {
-        setButtonAvailable(button, passageCount, chapterCount);
+    if (crossRefBtn) {
+      if (!hasAnyCrossRefs) {
+        crossRefBtn.remove();
       } else {
-        setButtonUnavailable(button);
+        crossRefBtn.disabled = false;
+        crossRefBtn.removeAttribute("aria-disabled");
+        crossRefBtn.style.display = "";
+        crossRefBtn.title = passageRefs
+          ? `${passageRefs} built-in cross references for this selected passage.`
+          : `${chapterRefs} built-in cross references available for this chapter.`;
       }
-    });
-
-    if (!hasAnyRefs) {
-      closeInternalPanelIfUnavailable();
     }
 
-    return {
-      passage: `${currentState().book} ${currentState().chapter}:${currentState().start}-${currentState().end}`,
-      passageTotalRefs: passageCount,
-      chapter: `${currentState().book} ${currentState().chapter}`,
-      chapterTotalRefs: chapterCount,
-      builtInCrossRefsAvailable: hasAnyRefs
-    };
+    setBarBusy(false);
   }
 
-  function scheduleAvailabilityUpdate() {
-    setTimeout(updateCrossRefAvailability, 120);
-    setTimeout(updateCrossRefAvailability, 450);
-    setTimeout(updateCrossRefAvailability, 1000);
+  function scheduleStabilize() {
+    clearTimeout(timer);
+    setBarBusy(true);
+
+    timer = setTimeout(() => {
+      stabilizeStudyResourceBar();
+    }, 320);
   }
 
   ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
     document.addEventListener("change", function (event) {
-      if (event.target?.id === id) {
-        scheduleAvailabilityUpdate();
-      }
+      if (event.target?.id === id) scheduleStabilize();
     }, true);
   });
 
   ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
     document.addEventListener("click", function (event) {
-      if (event.target?.closest?.(`#${id}`)) {
-        scheduleAvailabilityUpdate();
-      }
+      if (event.target?.closest?.(`#${id}`)) scheduleStabilize();
     }, true);
   });
 
-  const observer = new MutationObserver(() => {
-    const hasCrossRefButton =
-      $("openInternalCrossRefs") ||
-      $("obsShowInternalCrossRefs") ||
-      document.querySelector('[data-study-key-action="crossrefs"]');
+  window.auditStudyResourceBarV10b = async function () {
+    const [passageRefs, chapterRefs] = await Promise.all([
+      countRefs("passage"),
+      countRefs("chapter")
+    ]);
 
-    if (hasCrossRefButton) {
-      scheduleAvailabilityUpdate();
-    }
-  });
+    const report = {
+      passage: `${currentState().book} ${currentState().chapter}:${currentState().start}-${currentState().end}`,
+      passageRefs,
+      chapter: `${currentState().book} ${currentState().chapter}`,
+      chapterRefs,
+      crossReferencesShouldShow: passageRefs > 0 || chapterRefs > 0
+    };
 
-  if (document.body) {
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  }
-
-  window.auditCrossRefsAvailabilityV10 = async function () {
-    const report = await updateCrossRefAvailability();
     console.table(report);
     return report;
   };
 
-  window.addEventListener("load", scheduleAvailabilityUpdate);
-  scheduleAvailabilityUpdate();
+  window.addEventListener("load", scheduleStabilize);
+  scheduleStabilize();
 })();
 </script>
+
+<style id="rdm-study-resource-bar-stabilizer-v10b-style">
+#studyResourcesKey {
+  min-height: 86px;
+  transition: opacity .12s ease;
+}
+
+#studyResourcesKey.study-resources-key-stabilizing {
+  opacity: .96;
+}
+
+#studyResourcesKey .study-resources-key-buttons {
+  min-height: 44px;
+  align-items: center;
+}
+</style>
 </body>
 </html>
