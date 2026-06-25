@@ -15567,25 +15567,36 @@ body:not(.dark) #backgroundsSearchV4:focus {
   box-shadow: 0 0 0 3px rgba(138,74,36,.12) !important;
 }
 </style>
-<script id="rdm-crossrefs-stable-render-v7">
-/* =========================================================
-   RDM BUILT-IN CROSS REFERENCES — STABLE RENDER v7
-   - No mutation observer loops
-   - Renders from real local TSK data
-   - Restores clickable cross-reference buttons
-   - If selected verse/range has no refs but chapter does,
-     it automatically shows Full Chapter
-   ========================================================= */
+
+</style>
+<!-- =========================================================
+     RDM BUILT-IN CROSS REFERENCES — CLEAN FINAL v8
+     Use after removing the old rdm-crossrefs-stable-render-v7 script/style.
+     Purpose:
+     - One renderer controls Built-In Cross References.
+     - Prevents older stacked listeners from overwriting results.
+     - Chunks large chapters/ranges instead of dumping 600+ refs at once.
+     - Restores clickable references in normal mode and OBS Focus.
+     - Adds a true one-step-at-a-time Scripture back stack.
+     ========================================================= -->
+<script id="rdm-crossrefs-clean-final-v8">
 (function () {
-  if (window.__rdmCrossrefsStableRenderV7) return;
-  window.__rdmCrossrefsStableRenderV7 = true;
+  if (window.__rdmCrossrefsCleanFinalV8) return;
+  window.__rdmCrossrefsCleanFinalV8 = true;
 
   const $ = (id) => document.getElementById(id);
+  const CHUNK_SIZE = 120;
+  let xrefMode = "passage";
+  let visibleLimit = CHUNK_SIZE;
+  let renderToken = 0;
   let renderTimer = null;
-  let renderSeq = 0;
+  const tskCache = window.__rdmTskCacheV8 || {};
+  const backStack = window.__rdmCrossReferenceBackStack || [];
+  window.__rdmTskCacheV8 = tskCache;
+  window.__rdmCrossReferenceBackStack = backStack;
 
   function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, c => ({
+    return String(value ?? "").replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -15595,31 +15606,96 @@ body:not(.dark) #backgroundsSearchV4:focus {
   }
 
   function currentState() {
+    const start = $("start")?.value || "1";
     return {
       book: $("book")?.value || "Genesis",
       chapter: String($("chapter")?.value || "1"),
-      start: String($("start")?.value || "1"),
-      end: String($("end")?.value || $("start")?.value || "1")
+      start: String(start),
+      end: String($("end")?.value || start),
+      range: $("rangeSize")?.value || "5"
     };
   }
 
-  function maxVerseForChapter(s) {
-    try {
-      if (typeof verseCounts !== "undefined" && verseCounts[s.book]) {
-        return verseCounts[s.book][parseInt(s.chapter, 10) - 1] || parseInt(s.end, 10) || 1;
-      }
-    } catch (_) {}
-    return parseInt(s.end, 10) || 1;
+  function sameState(a, b) {
+    return !!a && !!b &&
+      String(a.book) === String(b.book) &&
+      String(a.chapter) === String(b.chapter) &&
+      String(a.start) === String(b.start) &&
+      String(a.end) === String(b.end);
   }
 
-  function verseKeys(mode) {
-    const s = currentState();
-    const start = mode === "chapter" ? 1 : parseInt(s.start, 10) || 1;
-    const end = mode === "chapter" ? maxVerseForChapter(s) : parseInt(s.end, 10) || start;
+  function stateLabel(state) {
+    if (!state) return "";
+    return String(state.start) === String(state.end)
+      ? `${state.book} ${state.chapter}:${state.start}`
+      : `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  }
+
+  function bookNames() {
+    try {
+      if (typeof books !== "undefined" && Array.isArray(books)) {
+        return books.map((item) => Array.isArray(item) ? item[0] : item).filter(Boolean);
+      }
+    } catch (_) {}
+
+    return [
+      "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+      "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
+      "Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
+      "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah",
+      "Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
+      "John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians",
+      "Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
+      "Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John",
+      "Jude","Revelation"
+    ];
+  }
+
+  function parseReference(ref) {
+    const cleaned = String(ref || "")
+      .replace(/[–—]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^Psalm\s+/i, "Psalms ");
+
+    const names = bookNames().sort((a, b) => b.length - a.length);
+
+    for (const book of names) {
+      const prefix = `${book} `;
+      if (!cleaned.toLowerCase().startsWith(prefix.toLowerCase())) continue;
+
+      const rest = cleaned.slice(prefix.length).trim();
+      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?/);
+      if (!match) return null;
+
+      return {
+        book,
+        chapter: String(match[1]),
+        start: String(match[2]),
+        end: String(match[3] || match[2]),
+        range: "5"
+      };
+    }
+
+    return null;
+  }
+
+  function maxVerseForChapter(state = currentState()) {
+    try {
+      if (typeof verseCounts !== "undefined" && verseCounts[state.book]) {
+        return verseCounts[state.book][parseInt(state.chapter, 10) - 1] || parseInt(state.end, 10) || 1;
+      }
+    } catch (_) {}
+    return parseInt(state.end, 10) || 1;
+  }
+
+  function verseKeys(mode, state = currentState()) {
+    const start = mode === "chapter" ? 1 : (parseInt(state.start, 10) || 1);
+    const end = mode === "chapter" ? maxVerseForChapter(state) : (parseInt(state.end, 10) || start);
     const keys = [];
 
     for (let verse = start; verse <= end; verse += 1) {
-      keys.push(`${s.book} ${s.chapter}:${verse}`);
+      keys.push(`${state.book} ${state.chapter}:${verse}`);
     }
 
     return keys;
@@ -15627,11 +15703,17 @@ body:not(.dark) #backgroundsSearchV4:focus {
 
   async function fetchJsonAny(paths) {
     for (const path of paths.filter(Boolean)) {
+      if (tskCache[path]) return tskCache[path];
+
       try {
         const response = await fetch(path, { cache: "no-store" });
-        if (response.ok) return await response.json();
+        if (!response.ok) continue;
+        const data = await response.json();
+        tskCache[path] = data || {};
+        return tskCache[path];
       } catch (_) {}
     }
+
     return {};
   }
 
@@ -15654,129 +15736,252 @@ body:not(.dark) #backgroundsSearchV4:focus {
     if (!value) return [];
 
     if (Array.isArray(value)) {
-      return value.flatMap(normalizeRefs).map(String).map(x => x.trim()).filter(Boolean);
+      return value.flatMap(normalizeRefs).map(String).map((item) => item.trim()).filter(Boolean);
     }
 
     if (typeof value === "string") {
       return value
         .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
-        .map(x => x.trim())
+        .map((item) => item.trim())
         .filter(Boolean);
     }
 
     if (typeof value === "object") {
-      return Object.values(value).flatMap(normalizeRefs).map(String).map(x => x.trim()).filter(Boolean);
+      return Object.values(value).flatMap(normalizeRefs).map(String).map((item) => item.trim()).filter(Boolean);
     }
 
     return [];
   }
 
-  async function collectRows(mode, filterText) {
-    const s = currentState();
-    const data = await loadTskBook(s.book);
+  async function collectRows(mode, filterText = "") {
+    const state = currentState();
+    const data = await loadTskBook(state.book);
     const filter = String(filterText || "").toLowerCase().trim();
 
-    return verseKeys(mode).map(key => {
+    return verseKeys(mode, state).map((key) => {
       let refs = [...new Set(normalizeRefs(data[key]))];
 
       if (filter) {
-        refs = refs.filter(ref =>
+        refs = refs.filter((ref) =>
           ref.toLowerCase().includes(filter) ||
           key.toLowerCase().includes(filter)
         );
       }
 
       return { key, refs };
-    }).filter(row => row.refs.length);
+    }).filter((row) => row.refs.length);
   }
 
-  async function countRefs(mode) {
-    const rows = await collectRows(mode, "");
+  function countRefs(rows) {
     return rows.reduce((total, row) => total + row.refs.length, 0);
   }
 
-  function setActiveMode(mode) {
-    $("internalXrefsPassageMode")?.classList.toggle("active-internal-xref-mode", mode === "passage");
-    $("internalXrefsChapterMode")?.classList.toggle("active-internal-xref-mode", mode === "chapter");
-  }
+  function limitRows(rows, limit) {
+    let remaining = limit;
+    const limited = [];
 
-  function activeMode() {
-    return $("internalXrefsChapterMode")?.classList.contains("active-internal-xref-mode")
-      ? "chapter"
-      : "passage";
-  }
-
-  function labelFor(mode) {
-    const s = currentState();
-    return mode === "chapter"
-      ? `${s.book} ${s.chapter}`
-      : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
-  }
-
-  async function chooseBestMode() {
-    const passageCount = await countRefs("passage");
-    if (passageCount > 0) return "passage";
-
-    const chapterCount = await countRefs("chapter");
-    if (chapterCount > 0) return "chapter";
-
-    return "passage";
-  }
-
-  async function renderCrossRefs(mode, chooseBest = false) {
-    const seq = ++renderSeq;
-
-    const panel = $("internalCrossRefsPanel");
-    const summary = $("internalXrefsSummary");
-    const results = $("internalXrefsResults");
-    const searchBox = $("internalXrefSearch");
-
-    if (!panel || !summary || !results) return;
-
-    let renderMode = mode || activeMode();
-
-    if (chooseBest) {
-      renderMode = await chooseBestMode();
+    for (const row of rows) {
+      if (remaining <= 0) break;
+      const refs = row.refs.slice(0, remaining);
+      if (refs.length) limited.push({ key: row.key, refs });
+      remaining -= refs.length;
     }
 
-    if (seq !== renderSeq) return;
+    return limited;
+  }
 
-    setActiveMode(renderMode);
+  function setActiveMode(mode) {
+    xrefMode = mode === "chapter" ? "chapter" : "passage";
+    $("internalXrefsPassageMode")?.classList.toggle("active-internal-xref-mode", xrefMode === "passage");
+    $("internalXrefsChapterMode")?.classList.toggle("active-internal-xref-mode", xrefMode === "chapter");
+  }
 
-    const filter = searchBox?.value || "";
-    const rows = await collectRows(renderMode, filter);
+  function ensurePanel() {
+    let panel = $("internalCrossRefsPanel");
 
-    if (seq !== renderSeq) return;
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.id = "internalCrossRefsPanel";
+      panel.className = "teacher-pop internal-crossrefs-panel";
+      document.body.appendChild(panel);
+    }
 
-    let totalRefs = 0;
-    rows.forEach(row => totalRefs += row.refs.length);
+    if (panel.dataset.v8Ready !== "true") {
+      panel.dataset.v8Ready = "true";
+      panel.setAttribute("aria-hidden", "true");
+      panel.innerHTML = `
+        <div class="teacher-pop-head drag-handle" id="internalXrefsDragHandle">
+          <h3>Built-In Cross References</h3>
+          <button id="closeInternalCrossRefs" class="teacher-pop-close secondary" type="button">Close</button>
+        </div>
 
-    summary.textContent = `${labelFor(renderMode)} — ${totalRefs} internal reference${totalRefs === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.`;
+        <div class="internal-xrefs-body">
+          <button type="button" id="internalXrefsBackBtn" class="secondary internal-xrefs-back" style="display:none;width:100%;margin-bottom:10px;"></button>
 
-    if (!rows.length) {
-      if (!filter && renderMode === "passage") {
-        const chapterCount = await countRefs("chapter");
-        if (chapterCount > 0) {
-          setActiveMode("chapter");
-          return renderCrossRefs("chapter", false);
-        }
+          <div class="internal-xrefs-controls">
+            <button type="button" id="internalXrefsPassageMode" class="active-internal-xref-mode">Current Passage</button>
+            <button type="button" id="internalXrefsChapterMode" class="secondary">Full Chapter</button>
+          </div>
+
+          <input id="internalXrefSearch" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
+          <div id="internalXrefsSummary" class="internal-xrefs-summary">Built-In Cross References load from the local TSK files.</div>
+          <div id="internalXrefsResults"></div>
+          <div id="internalXrefsMoreWrap"></div>
+        </div>
+
+        <div class="internal-xref-resize-handle" id="internalXrefsResizeHandle" title="Resize"></div>
+      `;
+
+      makeMovable(panel);
+      makeResizable(panel);
+    }
+
+    return panel;
+  }
+
+  function bringForward(panel) {
+    window.__rdmInternalXrefZ = (window.__rdmInternalXrefZ || 87000) + 1;
+    panel.style.zIndex = String(window.__rdmInternalXrefZ);
+  }
+
+  function makeMovable(panel) {
+    const handle = panel.querySelector("#internalXrefsDragHandle");
+    if (!handle || handle.dataset.dragReady === "true") return;
+    handle.dataset.dragReady = "true";
+
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button, input, select, textarea, a")) return;
+      event.preventDefault();
+      bringForward(panel);
+
+      const rect = panel.getBoundingClientRect();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const startLeft = rect.left;
+      const startTop = rect.top;
+
+      function move(moveEvent) {
+        panel.style.left = `${startLeft + moveEvent.clientX - startX}px`;
+        panel.style.top = `${startTop + moveEvent.clientY - startY}px`;
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.transform = "none";
       }
 
-      results.innerHTML = `
-        <div class="internal-xref-empty">
-          ${filter
-            ? "No references matched that filter. Clear the search box to see all available references."
-            : "No Built-In Cross References are linked to this selected range in the local TSK database yet."}
-        </div>
-      `;
-      return;
+      function up() {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      }
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
+    });
+  }
+
+  function makeResizable(panel) {
+    const handle = panel.querySelector("#internalXrefsResizeHandle");
+    if (!handle || handle.dataset.resizeReady === "true") return;
+    handle.dataset.resizeReady = "true";
+
+    handle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      bringForward(panel);
+
+      const rect = panel.getBoundingClientRect();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const startWidth = rect.width;
+      const startHeight = rect.height;
+
+      function move(moveEvent) {
+        const width = Math.min(window.innerWidth - 20, Math.max(340, startWidth + moveEvent.clientX - startX));
+        const height = Math.min(window.innerHeight - 20, Math.max(280, startHeight + moveEvent.clientY - startY));
+        panel.style.width = `${width}px`;
+        panel.style.height = `${height}px`;
+      }
+
+      function up() {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      }
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
+    });
+  }
+
+  function updateBackButtons() {
+    const previous = backStack[backStack.length - 1];
+    const label = previous ? `← Back to ${stateLabel(previous)}` : "";
+
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "internalXrefsBackBtn"].forEach((id) => {
+      const button = $(id);
+      if (!button) return;
+      button.textContent = label || "← Back";
+      button.style.display = previous ? "inline-flex" : "none";
+    });
+
+    document.querySelectorAll('[data-study-key-action="back"]').forEach((button) => {
+      button.textContent = label || "← Back";
+      button.style.display = previous ? "inline-flex" : "none";
+    });
+  }
+
+  function setPassageState(state) {
+    if (!state) return;
+
+    const bookSel = $("book");
+    const chapSel = $("chapter");
+    const startSel = $("start");
+    const endSel = $("end");
+    const rangeSel = $("rangeSize");
+
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = state.book;
+    if (typeof fillChapters === "function") fillChapters();
+
+    chapSel.value = state.chapter;
+    if (typeof fillVerses === "function") fillVerses();
+
+    rangeSel.value = state.range || "5";
+    startSel.value = state.start;
+    endSel.value = state.end;
+
+    if (typeof loadPassage === "function") loadPassage();
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+
+    updateBackButtons();
+    scheduleRender(xrefMode, false, 250);
+  }
+
+  function goToReference(ref) {
+    const target = parseReference(ref);
+    if (!target) return;
+
+    const current = currentState();
+    if (!sameState(current, target)) {
+      backStack.push(current);
     }
 
-    results.innerHTML = rows.map(row => `
+    setPassageState(target);
+  }
+
+  function goBackOneStep() {
+    const previous = backStack.pop();
+    if (!previous) return;
+    setPassageState(previous);
+  }
+
+  function renderRowsHtml(rows) {
+    return rows.map((row) => `
       <section class="internal-xref-verse">
         <h4>${esc(row.key)}</h4>
         <div class="internal-xref-buttons">
-          ${row.refs.map(ref => `
+          ${row.refs.map((ref) => `
             <button type="button" class="cross-ref-link internal-xref-link" data-ref="${esc(ref)}">
               ${esc(ref)}
             </button>
@@ -15786,198 +15991,343 @@ body:not(.dark) #backgroundsSearchV4:focus {
     `).join("");
   }
 
-  function scheduleRender(mode, chooseBest = false) {
+  async function renderCrossRefs(mode = xrefMode, resetLimit = false) {
+    const token = ++renderToken;
+    const panel = ensurePanel();
+    const summary = $("internalXrefsSummary");
+    const results = $("internalXrefsResults");
+    const moreWrap = $("internalXrefsMoreWrap");
+    const searchBox = $("internalXrefSearch");
+
+    if (!summary || !results || !moreWrap) return;
+
+    if (resetLimit) visibleLimit = CHUNK_SIZE;
+    setActiveMode(mode);
+    bringForward(panel);
+    updateBackButtons();
+
+    summary.textContent = `Loading ${stateLabel(currentState())} cross references…`;
+    results.innerHTML = "";
+    moreWrap.innerHTML = "";
+
+    const filter = searchBox?.value || "";
+    const rows = await collectRows(xrefMode, filter);
+    if (token !== renderToken) return;
+
+    const totalRefs = countRefs(rows);
+    const limitedRows = limitRows(rows, visibleLimit);
+    const shownRefs = countRefs(limitedRows);
+    const scopeLabel = xrefMode === "chapter"
+      ? `${currentState().book} ${currentState().chapter}`
+      : stateLabel(currentState());
+
+    summary.textContent = `${scopeLabel} — ${totalRefs} internal reference${totalRefs === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.${totalRefs > shownRefs ? ` Showing ${shownRefs}.` : ""}`;
+
+    if (!rows.length) {
+      if (!filter && xrefMode === "passage") {
+        const chapterRows = await collectRows("chapter", "");
+        const chapterCount = countRefs(chapterRows);
+
+        if (chapterCount > 0) {
+          results.innerHTML = `
+            <div class="internal-xref-empty">
+              No Built-In Cross References are linked to this selected verse/range, but this chapter has ${chapterCount} available reference${chapterCount === 1 ? "" : "s"}.
+            </div>
+            <button type="button" class="internal-xrefs-view-chapter" style="width:100%;margin-top:10px;">
+              View Full Chapter References
+            </button>
+          `;
+          summary.textContent = `${stateLabel(currentState())} — 0 references for the selected range. ${chapterCount} available for the full chapter.`;
+          return;
+        }
+      }
+
+      results.innerHTML = `
+        <div class="internal-xref-empty">
+          ${filter
+            ? "No Built-In Cross References matched that filter. Clear the search box or try another word/reference."
+            : "No Built-In Cross References are linked to this selected range in the local TSK database yet."}
+        </div>
+      `;
+      return;
+    }
+
+    results.innerHTML = renderRowsHtml(limitedRows);
+
+    if (totalRefs > shownRefs) {
+      moreWrap.innerHTML = `
+        <button type="button" id="internalXrefsShowMore" style="width:100%;margin-top:10px;">
+          Show More References (${shownRefs} of ${totalRefs})
+        </button>
+      `;
+    }
+  }
+
+  function scheduleRender(mode = xrefMode, resetLimit = false, delay = 80) {
     clearTimeout(renderTimer);
-    renderTimer = setTimeout(() => renderCrossRefs(mode, chooseBest), 80);
+    renderTimer = setTimeout(() => renderCrossRefs(mode, resetLimit), delay);
   }
 
-  function bookNames() {
-    try {
-      if (typeof books !== "undefined" && Array.isArray(books)) {
-        return books.map(item => Array.isArray(item) ? item[0] : item).filter(Boolean);
-      }
-    } catch (_) {}
-
-    return [
-      "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
-      "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
-      "Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
-      "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah",
-      "Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
-      "John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians",
-      "Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
-      "Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John",
-      "Jude","Revelation"
-    ];
+  function openPanel(mode = "passage") {
+    const panel = ensurePanel();
+    xrefMode = mode === "chapter" ? "chapter" : "passage";
+    visibleLimit = CHUNK_SIZE;
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    bringForward(panel);
+    scheduleRender(xrefMode, true, 40);
   }
 
-  function parseReference(ref) {
-    const cleaned = String(ref || "")
-      .replace(/[–—]/g, "-")
-      .replace(/\s+/g, " ")
-      .trim();
+  function closePanel() {
+    const panel = $("internalCrossRefsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
 
-    const names = bookNames().sort((a, b) => b.length - a.length);
+  function installButtons() {
+    const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
+    let teacherButton = $("openInternalCrossRefs");
 
-    for (const book of names) {
-      if (!cleaned.toLowerCase().startsWith(book.toLowerCase() + " ")) continue;
-
-      const rest = cleaned.slice(book.length).trim();
-      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?/);
-
-      if (!match) return null;
-
-      return {
-        book,
-        chapter: match[1],
-        start: match[2],
-        end: match[3] || match[2]
-      };
+    if (!teacherButton && eraseButton && eraseButton.parentElement) {
+      teacherButton = document.createElement("button");
+      teacherButton.id = "openInternalCrossRefs";
+      teacherButton.type = "button";
+      teacherButton.className = "tool-option helper-option internal-xref-shortcut";
+      teacherButton.innerHTML = `
+        <strong>Built-In Cross References</strong>
+        <span>Open the built-in Scripture cross-reference database for the current passage or full chapter.</span>
+      `;
+      eraseButton.insertAdjacentElement("afterend", teacherButton);
     }
 
-    return null;
-  }
+    const obsBar = $("obsToolBar");
+    const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
+    let obsButton = $("obsShowInternalCrossRefs");
 
-  function setSelectValue(select, value) {
-    if (!select) return false;
-
-    const wanted = String(value).toLowerCase();
-
-    for (const option of Array.from(select.options || [])) {
-      if (
-        String(option.value).toLowerCase() === wanted ||
-        String(option.textContent).trim().toLowerCase() === wanted
-      ) {
-        select.value = option.value;
-        return true;
-      }
+    if (!obsButton && obsBar) {
+      obsButton = document.createElement("button");
+      obsButton.id = "obsShowInternalCrossRefs";
+      obsButton.type = "button";
+      obsButton.textContent = "Built-In References";
+      obsBar.insertBefore(obsButton, before || null);
     }
-
-    select.value = value;
-    return true;
   }
 
-  function loadSelectedPassage() {
-    if (typeof window.loadPassage === "function") {
-      window.loadPassage();
+  window.addEventListener("click", function (event) {
+    const refBtn = event.target.closest("#internalCrossRefsPanel .internal-xref-link, #internalCrossRefsPanel .cross-ref-link");
+    const openBtn = event.target.closest("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs']");
+    const closeBtn = event.target.closest("#closeInternalCrossRefs");
+    const passageBtn = event.target.closest("#internalXrefsPassageMode");
+    const chapterBtn = event.target.closest("#internalXrefsChapterMode, .internal-xrefs-view-chapter");
+    const showMoreBtn = event.target.closest("#internalXrefsShowMore");
+    const backBtn = event.target.closest("#internalXrefsBackBtn, #backToPreviousPassage, #obsBackToPreviousPassage, [data-study-key-action='back']");
+
+    if (!(refBtn || openBtn || closeBtn || passageBtn || chapterBtn || showMoreBtn || backBtn)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (refBtn) {
+      goToReference(refBtn.dataset.ref || refBtn.textContent.trim());
       return;
     }
 
-    try {
-      if (typeof loadPassage === "function") {
-        loadPassage();
-        return;
-      }
-    } catch (_) {}
-
-    $("loadBtn")?.click();
-  }
-
-  function openCrossReference(ref) {
-    const parsed = parseReference(ref);
-    if (!parsed) return;
-
-    const previous = currentState();
-    window.__rdmPreviousCrossRefPassage = previous;
-
-    const bookSelect = $("book");
-    const chapterSelect = $("chapter");
-    const startSelect = $("start");
-    const endSelect = $("end");
-
-    setSelectValue(bookSelect, parsed.book);
-    bookSelect?.dispatchEvent(new Event("change", { bubbles: true }));
-
-    setTimeout(() => {
-      setSelectValue(chapterSelect, parsed.chapter);
-      chapterSelect?.dispatchEvent(new Event("change", { bubbles: true }));
-
-      setTimeout(() => {
-        setSelectValue(startSelect, parsed.start);
-        setSelectValue(endSelect, parsed.end);
-
-        startSelect?.dispatchEvent(new Event("change", { bubbles: true }));
-        endSelect?.dispatchEvent(new Event("change", { bubbles: true }));
-
-        loadSelectedPassage();
-
-        setTimeout(() => scheduleRender(null, true), 250);
-      }, 80);
-    }, 80);
-  }
-
-  document.addEventListener("click", function (event) {
-    const refButton = event.target.closest("#internalCrossRefsPanel .internal-xref-link, #internalCrossRefsPanel .cross-ref-link");
-    if (refButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      const ref = refButton.dataset.ref || refButton.textContent.trim();
-      openCrossReference(ref);
+    if (openBtn) {
+      openPanel("passage");
       return;
     }
 
-    if (event.target.closest("#internalXrefsPassageMode")) {
-      event.preventDefault();
-      setActiveMode("passage");
-      scheduleRender("passage", false);
+    if (closeBtn) {
+      closePanel();
       return;
     }
 
-    if (event.target.closest("#internalXrefsChapterMode")) {
-      event.preventDefault();
-      setActiveMode("chapter");
-      scheduleRender("chapter", false);
+    if (passageBtn) {
+      visibleLimit = CHUNK_SIZE;
+      scheduleRender("passage", true, 20);
       return;
     }
 
-    if (event.target.closest("[data-study-key-action='crossrefs'], #openInternalCrossRefs")) {
-      scheduleRender(null, true);
-      setTimeout(() => scheduleRender(null, true), 250);
+    if (chapterBtn) {
+      visibleLimit = CHUNK_SIZE;
+      scheduleRender("chapter", true, 20);
+      return;
+    }
+
+    if (showMoreBtn) {
+      visibleLimit += CHUNK_SIZE;
+      scheduleRender(xrefMode, false, 20);
+      return;
+    }
+
+    if (backBtn) {
+      goBackOneStep();
     }
   }, true);
 
-  document.addEventListener("input", function (event) {
-    if (event.target?.id === "internalXrefSearch") {
-      scheduleRender(activeMode(), false);
-    }
+  window.addEventListener("input", function (event) {
+    if (event.target?.id !== "internalXrefSearch") return;
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    visibleLimit = CHUNK_SIZE;
+    scheduleRender(xrefMode, true, 120);
   }, true);
 
-  ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
+  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
     document.addEventListener("change", function (event) {
-      if (event.target?.id === id) {
-        const searchBox = $("internalXrefSearch");
-        if (searchBox) searchBox.value = "";
-        scheduleRender(null, true);
+      if (event.target?.id !== id) return;
+      const search = $("internalXrefSearch");
+      if (search) search.value = "";
+      visibleLimit = CHUNK_SIZE;
+      updateBackButtons();
+      if ($("internalCrossRefsPanel")?.classList.contains("open")) {
+        scheduleRender(xrefMode, true, 220);
       }
     }, true);
   });
 
-  window.auditCrossRefsStableV7 = async function () {
+  window.goToScriptureReference = goToReference;
+  try { goToScriptureReference = goToReference; } catch (_) {}
+
+  window.openInternalCrossReferences = openPanel;
+  window.renderInternalCrossReferences = function () {
+    return renderCrossRefs(xrefMode, false);
+  };
+
+  window.auditCrossRefsCleanV8 = async function () {
     const passageRows = await collectRows("passage", "");
     const chapterRows = await collectRows("chapter", "");
-
     const report = {
-      passage: labelFor("passage"),
-      fullChapter: labelFor("chapter"),
+      passage: stateLabel(currentState()),
       passageVersesWithRefs: passageRows.length,
-      passageTotalRefs: passageRows.reduce((sum, row) => sum + row.refs.length, 0),
+      passageTotalRefs: countRefs(passageRows),
+      chapter: `${currentState().book} ${currentState().chapter}`,
       chapterVersesWithRefs: chapterRows.length,
-      chapterTotalRefs: chapterRows.reduce((sum, row) => sum + row.refs.length, 0)
+      chapterTotalRefs: countRefs(chapterRows),
+      backStackDepth: backStack.length,
+      nextBackTarget: stateLabel(backStack[backStack.length - 1])
     };
-
     console.table(report);
     return report;
   };
+
+  installButtons();
+  updateBackButtons();
+  window.addEventListener("load", function () {
+    installButtons();
+    updateBackButtons();
+  });
 })();
 </script>
 
-<style id="rdm-crossrefs-stable-render-v7-style">
+<style id="rdm-crossrefs-clean-final-v8-style">
+#internalCrossRefsPanel {
+  display: none;
+  position: fixed;
+  top: 118px;
+  right: 22px;
+  width: min(680px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 130px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 90px);
+  min-width: 340px;
+  min-height: 280px;
+  overflow: hidden;
+  z-index: 87000;
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  padding: 0;
+  box-shadow: 0 24px 70px rgba(0,0,0,.38);
+}
+
+#internalCrossRefsPanel.open {
+  display: flex !important;
+  flex-direction: column;
+}
+
+#internalCrossRefsPanel .internal-xrefs-body {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 14px 16px 18px;
+}
+
+#internalCrossRefsPanel .internal-xrefs-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+#internalCrossRefsPanel .internal-xrefs-summary,
+#internalCrossRefsPanel .internal-xref-empty {
+  border: 1px solid rgba(215,168,79,.52);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  font: 800 14px Arial, sans-serif;
+  line-height: 1.45;
+}
+
+#internalCrossRefsPanel .internal-xref-verse {
+  border: 1px solid rgba(215,168,79,.45);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+#internalCrossRefsPanel .internal-xref-verse h4 {
+  margin: 0 0 9px;
+  color: #7a4c06;
+  font: 900 14px Arial, sans-serif;
+}
+
+#internalCrossRefsPanel .internal-xref-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
 #internalCrossRefsPanel .internal-xref-link,
 #internalCrossRefsPanel .cross-ref-link {
   pointer-events: auto !important;
   cursor: pointer !important;
+  box-shadow: none !important;
+}
+
+#internalCrossRefsPanel .internal-xref-resize-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  right: 4px;
+  bottom: 4px;
+  cursor: nwse-resize;
+  border-right: 4px solid var(--gold);
+  border-bottom: 4px solid var(--gold);
+  border-radius: 0 0 10px 0;
+}
+
+body:not(.dark) #internalCrossRefsPanel {
+  background: linear-gradient(180deg, #fffaf0, #fff2d6) !important;
+  color: #2B394F !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button,
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-view-chapter,
+body:not(.dark) #internalCrossRefsPanel #internalXrefsShowMore,
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-back {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .active-internal-xref-mode {
+  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
+  border-color: rgba(215,168,79,.95) !important;
 }
 
 body:not(.dark) #internalCrossRefsPanel .internal-xref-link,
@@ -15985,7 +16335,6 @@ body:not(.dark) #internalCrossRefsPanel .cross-ref-link {
   background: #fffaf0 !important;
   color: #26384f !important;
   border: 1.4px solid rgba(138,74,36,.48) !important;
-  box-shadow: none !important;
 }
 
 body:not(.dark) #internalCrossRefsPanel .internal-xref-link:hover,
@@ -15993,119 +16342,34 @@ body:not(.dark) #internalCrossRefsPanel .cross-ref-link:hover {
   background: #f4e5ca !important;
   color: #5c2e1c !important;
 }
-</style>
-</script>
-<script id="rdm-resource-panel-cleanup-v1">
-/* =========================================================
-   RESOURCE PANEL CLEANUP v1
-   - Neutral Backgrounds no-result wording
-   - Closes floating panels when entering/exiting OBS Focus
-   ========================================================= */
-(function () {
-  if (window.__rdmResourcePanelCleanupV1) return;
-  window.__rdmResourcePanelCleanupV1 = true;
 
-  function cleanBackgroundsMessage() {
-    document.querySelectorAll(
-      ".backgrounds-home, .backgrounds-home-v4, .backgrounds-clean-empty, .backgrounds-empty-callout"
-    ).forEach((box) => {
-      const text = box.textContent || "";
+body.dark #internalCrossRefsPanel {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #fff7df !important;
+  border-color: rgba(248,217,135,.88) !important;
+}
 
-      if (
-        /No specific background card/i.test(text) ||
-        /No exact background card/i.test(text) ||
-        /not mapped/i.test(text) ||
-        /no background cards mapped/i.test(text)
-      ) {
-        box.classList.add("backgrounds-search-intro");
-        box.innerHTML = `
-          Search the Bible Backgrounds &amp; Customs library by topic, place, practice, object, feast, group, or custom.
-          <br><br>
-          Try searches like: <strong>Sabbath</strong>, <strong>temple</strong>, <strong>shepherd</strong>,
-          <strong>wells</strong>, <strong>Passover</strong>, <strong>feasts</strong>, <strong>sacrifice</strong>,
-          <strong>synagogue</strong>, <strong>Pharisees</strong>, <strong>Roman</strong>, <strong>covenant</strong>,
-          or <strong>exile</strong>.
-        `;
-      }
-    });
+body.dark #internalCrossRefsPanel .internal-xref-verse h4 {
+  color: #ffe08c !important;
+}
+
+html.obs #internalCrossRefsPanel.open {
+  top: 96px !important;
+  right: 22px !important;
+  left: auto;
+  bottom: auto;
+  max-height: calc(100vh - 115px) !important;
+}
+
+@media (max-width: 650px) {
+  #internalCrossRefsPanel.open,
+  html.obs #internalCrossRefsPanel.open {
+    width: calc(100vw - 24px) !important;
+    min-width: calc(100vw - 24px) !important;
+    left: 12px !important;
+    right: auto !important;
+    top: 86px !important;
   }
-
-  function closeTransientPanels() {
-    const selectors = [
-      ".resource-instance-panel",
-      ".teacher-pop",
-      ".floating-panel",
-      "#internalCrossRefsPanel",
-      "#studyResourcesPanel",
-      "#obsCrossRefsPanel",
-      "#obsNavigatorPanel",
-      "#teachingMethodPanel",
-      "#ironPromptPanel"
-    ];
-
-    document.querySelectorAll(selectors.join(",")).forEach((panel) => {
-      const closeBtn = panel.querySelector?.(".close-btn, .panel-close, button[aria-label='Close']");
-      if (closeBtn) {
-        try { closeBtn.click(); } catch (_) {}
-      }
-
-      if (panel.classList.contains("resource-instance-panel")) {
-        panel.remove();
-        return;
-      }
-
-      panel.classList.remove("open", "show", "active");
-      panel.style.display = "none";
-    });
-  }
-
-  document.addEventListener("click", function (event) {
-    const btn = event.target.closest("button, a");
-    if (!btn) return;
-
-    const text = (btn.textContent || "").toLowerCase();
-    const id = (btn.id || "").toLowerCase();
-
-    const isObsSwitch =
-      id === "obsbtn" ||
-      id === "backtotool" ||
-      text.includes("obs focus") ||
-      text.includes("back to tool");
-
-    if (!isObsSwitch) return;
-
-    closeTransientPanels();
-    setTimeout(closeTransientPanels, 100);
-    setTimeout(closeTransientPanels, 350);
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    cleanBackgroundsMessage();
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  window.addEventListener("load", () => {
-    setTimeout(cleanBackgroundsMessage, 300);
-    setTimeout(cleanBackgroundsMessage, 900);
-  });
-
-  cleanBackgroundsMessage();
-})();
-</script>
-
-<style id="rdm-resource-panel-cleanup-v1-style">
-body:not(.dark) .backgrounds-search-intro {
-  background: transparent !important;
-  border-left: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  color: #26384f !important;
-  font: 800 14px Arial, sans-serif !important;
-  line-height: 1.55 !important;
 }
 </style>
 </body>
