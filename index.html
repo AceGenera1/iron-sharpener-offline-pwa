@@ -15569,30 +15569,35 @@ body:not(.dark) #backgroundsSearchV4:focus {
 </style>
 
 </style>
+
+</script>
 <!-- =========================================================
-     RDM BUILT-IN CROSS REFERENCES — CLEAN FINAL v8
-     Use after removing the old rdm-crossrefs-stable-render-v7 script/style.
+     RDM BUILT-IN CROSS REFERENCES — ISOLATED STABLE RENDER v9
      Purpose:
-     - One renderer controls Built-In Cross References.
-     - Prevents older stacked listeners from overwriting results.
+     - Uses unique v9 element IDs so older cross-reference scripts cannot
+       overwrite the panel after it renders.
+     - Keeps the existing panel ID for styling/positioning compatibility.
      - Chunks large chapters/ranges instead of dumping 600+ refs at once.
      - Restores clickable references in normal mode and OBS Focus.
-     - Adds a true one-step-at-a-time Scripture back stack.
+     - No back button inside the Built-In Cross References box.
      ========================================================= -->
-<script id="rdm-crossrefs-clean-final-v8">
+<script id="rdm-crossrefs-isolated-stable-v9">
 (function () {
-  if (window.__rdmCrossrefsCleanFinalV8) return;
-  window.__rdmCrossrefsCleanFinalV8 = true;
+  if (window.__rdmCrossrefsIsolatedStableV9) return;
+  window.__rdmCrossrefsIsolatedStableV9 = true;
 
   const $ = (id) => document.getElementById(id);
   const CHUNK_SIZE = 120;
+
   let xrefMode = "passage";
   let visibleLimit = CHUNK_SIZE;
   let renderToken = 0;
   let renderTimer = null;
-  const tskCache = window.__rdmTskCacheV8 || {};
+
+  const tskCache = window.__rdmTskCacheV9 || {};
   const backStack = window.__rdmCrossReferenceBackStack || [];
-  window.__rdmTskCacheV8 = tskCache;
+
+  window.__rdmTskCacheV9 = tskCache;
   window.__rdmCrossReferenceBackStack = backStack;
 
   function esc(value) {
@@ -15673,7 +15678,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
         chapter: String(match[1]),
         start: String(match[2]),
         end: String(match[3] || match[2]),
-        range: "5"
+        range: $("rangeSize")?.value || "5"
       };
     }
 
@@ -15790,12 +15795,6 @@ body:not(.dark) #backgroundsSearchV4:focus {
     return limited;
   }
 
-  function setActiveMode(mode) {
-    xrefMode = mode === "chapter" ? "chapter" : "passage";
-    $("internalXrefsPassageMode")?.classList.toggle("active-internal-xref-mode", xrefMode === "passage");
-    $("internalXrefsChapterMode")?.classList.toggle("active-internal-xref-mode", xrefMode === "chapter");
-  }
-
   function ensurePanel() {
     let panel = $("internalCrossRefsPanel");
 
@@ -15806,30 +15805,34 @@ body:not(.dark) #backgroundsSearchV4:focus {
       document.body.appendChild(panel);
     }
 
-    if (panel.dataset.v8Ready !== "true") {
-      panel.dataset.v8Ready = "true";
+    if (panel.dataset.v9Ready !== "true") {
+      panel.dataset.v9Ready = "true";
+      panel.dataset.v8Ready = "false";
       panel.setAttribute("aria-hidden", "true");
+
       panel.innerHTML = `
-        <div class="teacher-pop-head drag-handle" id="internalXrefsDragHandle">
+        <div class="teacher-pop-head drag-handle" id="rdmXrefsDragV9">
           <h3>Built-In Cross References</h3>
-          <button id="closeInternalCrossRefs" class="teacher-pop-close secondary" type="button">Close</button>
+          <button id="rdmXrefsCloseV9" class="teacher-pop-close secondary" type="button">Close</button>
         </div>
 
-        <div class="internal-xrefs-body">
-          <button type="button" id="internalXrefsBackBtn" class="secondary internal-xrefs-back" style="display:none;width:100%;margin-bottom:10px;"></button>
-
+        <div class="internal-xrefs-body" id="rdmXrefsBodyV9">
           <div class="internal-xrefs-controls">
-            <button type="button" id="internalXrefsPassageMode" class="active-internal-xref-mode">Current Passage</button>
-            <button type="button" id="internalXrefsChapterMode" class="secondary">Full Chapter</button>
+            <button type="button" id="rdmXrefsPassageModeV9" class="active-internal-xref-mode">Current Passage</button>
+            <button type="button" id="rdmXrefsChapterModeV9" class="secondary">Full Chapter</button>
           </div>
 
-          <input id="internalXrefSearch" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
-          <div id="internalXrefsSummary" class="internal-xrefs-summary">Built-In Cross References load from the local TSK files.</div>
-          <div id="internalXrefsResults"></div>
-          <div id="internalXrefsMoreWrap"></div>
+          <input id="rdmXrefsSearchV9" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
+
+          <div id="rdmXrefsSummaryV9" class="internal-xrefs-summary">
+            Built-In Cross References load from the local TSK files.
+          </div>
+
+          <div id="rdmXrefsResultsV9"></div>
+          <div id="rdmXrefsMoreWrapV9"></div>
         </div>
 
-        <div class="internal-xref-resize-handle" id="internalXrefsResizeHandle" title="Resize"></div>
+        <div class="internal-xref-resize-handle" id="rdmXrefsResizeV9" title="Resize"></div>
       `;
 
       makeMovable(panel);
@@ -15845,7 +15848,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
   }
 
   function makeMovable(panel) {
-    const handle = panel.querySelector("#internalXrefsDragHandle");
+    const handle = panel.querySelector("#rdmXrefsDragV9");
     if (!handle || handle.dataset.dragReady === "true") return;
     handle.dataset.dragReady = "true";
 
@@ -15879,7 +15882,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
   }
 
   function makeResizable(panel) {
-    const handle = panel.querySelector("#internalXrefsResizeHandle");
+    const handle = panel.querySelector("#rdmXrefsResizeV9");
     if (!handle || handle.dataset.resizeReady === "true") return;
     handle.dataset.resizeReady = "true";
 
@@ -15911,11 +15914,18 @@ body:not(.dark) #backgroundsSearchV4:focus {
     });
   }
 
+  function setActiveMode(mode) {
+    xrefMode = mode === "chapter" ? "chapter" : "passage";
+
+    $("rdmXrefsPassageModeV9")?.classList.toggle("active-internal-xref-mode", xrefMode === "passage");
+    $("rdmXrefsChapterModeV9")?.classList.toggle("active-internal-xref-mode", xrefMode === "chapter");
+  }
+
   function updateBackButtons() {
     const previous = backStack[backStack.length - 1];
     const label = previous ? `← Back to ${stateLabel(previous)}` : "";
 
-    ["backToPreviousPassage", "obsBackToPreviousPassage", "internalXrefsBackBtn"].forEach((id) => {
+    ["backToPreviousPassage", "obsBackToPreviousPassage"].forEach((id) => {
       const button = $(id);
       if (!button) return;
       button.textContent = label || "← Back";
@@ -15947,7 +15957,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
     chapSel.value = state.chapter;
     if (typeof fillVerses === "function") fillVerses();
 
-    rangeSel.value = state.range || "5";
+    rangeSel.value = state.range || rangeSel.value || "5";
     startSel.value = state.start;
     endSel.value = state.end;
 
@@ -15955,7 +15965,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
     if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
 
     updateBackButtons();
-    scheduleRender(xrefMode, false, 250);
+    scheduleRender(xrefMode, true, 260);
   }
 
   function goToReference(ref) {
@@ -15982,7 +15992,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
         <h4>${esc(row.key)}</h4>
         <div class="internal-xref-buttons">
           ${row.refs.map((ref) => `
-            <button type="button" class="cross-ref-link internal-xref-link" data-ref="${esc(ref)}">
+            <button type="button" class="cross-ref-link internal-xref-link rdm-xref-v9-link" data-ref="${esc(ref)}">
               ${esc(ref)}
             </button>
           `).join("")}
@@ -15994,23 +16004,26 @@ body:not(.dark) #backgroundsSearchV4:focus {
   async function renderCrossRefs(mode = xrefMode, resetLimit = false) {
     const token = ++renderToken;
     const panel = ensurePanel();
-    const summary = $("internalXrefsSummary");
-    const results = $("internalXrefsResults");
-    const moreWrap = $("internalXrefsMoreWrap");
-    const searchBox = $("internalXrefSearch");
+    const summary = $("rdmXrefsSummaryV9");
+    const results = $("rdmXrefsResultsV9");
+    const moreWrap = $("rdmXrefsMoreWrapV9");
+    const searchBox = $("rdmXrefsSearchV9");
 
     if (!summary || !results || !moreWrap) return;
 
     if (resetLimit) visibleLimit = CHUNK_SIZE;
+
     setActiveMode(mode);
     bringForward(panel);
     updateBackButtons();
 
-    summary.textContent = `Loading ${stateLabel(currentState())} cross references…`;
+    const state = currentState();
+    const filter = searchBox?.value || "";
+
+    summary.textContent = `Loading ${stateLabel(state)} cross references…`;
     results.innerHTML = "";
     moreWrap.innerHTML = "";
 
-    const filter = searchBox?.value || "";
     const rows = await collectRows(xrefMode, filter);
     if (token !== renderToken) return;
 
@@ -16018,8 +16031,8 @@ body:not(.dark) #backgroundsSearchV4:focus {
     const limitedRows = limitRows(rows, visibleLimit);
     const shownRefs = countRefs(limitedRows);
     const scopeLabel = xrefMode === "chapter"
-      ? `${currentState().book} ${currentState().chapter}`
-      : stateLabel(currentState());
+      ? `${state.book} ${state.chapter}`
+      : stateLabel(state);
 
     summary.textContent = `${scopeLabel} — ${totalRefs} internal reference${totalRefs === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.${totalRefs > shownRefs ? ` Showing ${shownRefs}.` : ""}`;
 
@@ -16033,11 +16046,11 @@ body:not(.dark) #backgroundsSearchV4:focus {
             <div class="internal-xref-empty">
               No Built-In Cross References are linked to this selected verse/range, but this chapter has ${chapterCount} available reference${chapterCount === 1 ? "" : "s"}.
             </div>
-            <button type="button" class="internal-xrefs-view-chapter" style="width:100%;margin-top:10px;">
+            <button type="button" id="rdmXrefsViewChapterV9" class="internal-xrefs-view-chapter" style="width:100%;margin-top:10px;">
               View Full Chapter References
             </button>
           `;
-          summary.textContent = `${stateLabel(currentState())} — 0 references for the selected range. ${chapterCount} available for the full chapter.`;
+          summary.textContent = `${stateLabel(state)} — 0 references for the selected range. ${chapterCount} available for the full chapter.`;
           return;
         }
       }
@@ -16056,7 +16069,7 @@ body:not(.dark) #backgroundsSearchV4:focus {
 
     if (totalRefs > shownRefs) {
       moreWrap.innerHTML = `
-        <button type="button" id="internalXrefsShowMore" style="width:100%;margin-top:10px;">
+        <button type="button" id="rdmXrefsShowMoreV9" style="width:100%;margin-top:10px;">
           Show More References (${shownRefs} of ${totalRefs})
         </button>
       `;
@@ -16072,10 +16085,15 @@ body:not(.dark) #backgroundsSearchV4:focus {
     const panel = ensurePanel();
     xrefMode = mode === "chapter" ? "chapter" : "passage";
     visibleLimit = CHUNK_SIZE;
+
     panel.style.display = "";
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     bringForward(panel);
+
+    const search = $("rdmXrefsSearchV9");
+    if (search) search.value = "";
+
     scheduleRender(xrefMode, true, 40);
   }
 
@@ -16117,13 +16135,13 @@ body:not(.dark) #backgroundsSearchV4:focus {
   }
 
   window.addEventListener("click", function (event) {
-    const refBtn = event.target.closest("#internalCrossRefsPanel .internal-xref-link, #internalCrossRefsPanel .cross-ref-link");
+    const refBtn = event.target.closest("#internalCrossRefsPanel .rdm-xref-v9-link");
     const openBtn = event.target.closest("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs']");
-    const closeBtn = event.target.closest("#closeInternalCrossRefs");
-    const passageBtn = event.target.closest("#internalXrefsPassageMode");
-    const chapterBtn = event.target.closest("#internalXrefsChapterMode, .internal-xrefs-view-chapter");
-    const showMoreBtn = event.target.closest("#internalXrefsShowMore");
-    const backBtn = event.target.closest("#internalXrefsBackBtn, #backToPreviousPassage, #obsBackToPreviousPassage, [data-study-key-action='back']");
+    const closeBtn = event.target.closest("#rdmXrefsCloseV9, #closeInternalCrossRefs");
+    const passageBtn = event.target.closest("#rdmXrefsPassageModeV9");
+    const chapterBtn = event.target.closest("#rdmXrefsChapterModeV9, #rdmXrefsViewChapterV9");
+    const showMoreBtn = event.target.closest("#rdmXrefsShowMoreV9");
+    const backBtn = event.target.closest("#backToPreviousPassage, #obsBackToPreviousPassage, [data-study-key-action='back']");
 
     if (!(refBtn || openBtn || closeBtn || passageBtn || chapterBtn || showMoreBtn || backBtn)) return;
 
@@ -16170,9 +16188,11 @@ body:not(.dark) #backgroundsSearchV4:focus {
   }, true);
 
   window.addEventListener("input", function (event) {
-    if (event.target?.id !== "internalXrefSearch") return;
+    if (event.target?.id !== "rdmXrefsSearchV9") return;
+    event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
+
     visibleLimit = CHUNK_SIZE;
     scheduleRender(xrefMode, true, 120);
   }, true);
@@ -16180,10 +16200,13 @@ body:not(.dark) #backgroundsSearchV4:focus {
   ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
     document.addEventListener("change", function (event) {
       if (event.target?.id !== id) return;
-      const search = $("internalXrefSearch");
+
+      const search = $("rdmXrefsSearchV9");
       if (search) search.value = "";
+
       visibleLimit = CHUNK_SIZE;
       updateBackButtons();
+
       if ($("internalCrossRefsPanel")?.classList.contains("open")) {
         scheduleRender(xrefMode, true, 220);
       }
@@ -16198,9 +16221,10 @@ body:not(.dark) #backgroundsSearchV4:focus {
     return renderCrossRefs(xrefMode, false);
   };
 
-  window.auditCrossRefsCleanV8 = async function () {
+  window.auditCrossRefsStableV9 = async function () {
     const passageRows = await collectRows("passage", "");
     const chapterRows = await collectRows("chapter", "");
+
     const report = {
       passage: stateLabel(currentState()),
       passageVersesWithRefs: passageRows.length,
@@ -16211,49 +16235,61 @@ body:not(.dark) #backgroundsSearchV4:focus {
       backStackDepth: backStack.length,
       nextBackTarget: stateLabel(backStack[backStack.length - 1])
     };
+
     console.table(report);
     return report;
   };
 
   installButtons();
   updateBackButtons();
+
   window.addEventListener("load", function () {
     installButtons();
     updateBackButtons();
   });
 })();
 </script>
-<style id="rdm-built-in-xrefs-no-panel-back-v8-1-style">
-/* Hide/remove the back button inside the Built-In Cross References box only.
-   The study resource back button above Scripture can remain. */
-#internalCrossRefsPanel #internalXrefsBackBtn {
-  display: none !important;
+
+<style id="rdm-crossrefs-isolated-stable-v9-style">
+#internalCrossRefsPanel .rdm-xref-v9-link {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .rdm-xref-v9-link {
+  background: #fffaf0 !important;
+  color: #26384f !important;
+  border: 1.4px solid rgba(138,74,36,.48) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .rdm-xref-v9-link:hover {
+  background: #f4e5ca !important;
+  color: #5c2e1c !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsPassageModeV9,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsChapterModeV9,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsViewChapterV9 {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsPassageModeV9.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsChapterModeV9.active-internal-xref-mode {
+  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
+  color: #FFF8EA !important;
+  border-color: rgba(215,168,79,.92) !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsShowMoreV9 {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
 }
 </style>
-
-<script id="rdm-built-in-xrefs-no-panel-back-v8-1">
-(function () {
-  if (window.__rdmNoInternalXrefBackV81) return;
-  window.__rdmNoInternalXrefBackV81 = true;
-
-  function removeInternalBackButton() {
-    const btn = document.getElementById("internalXrefsBackBtn");
-    if (btn) btn.remove();
-  }
-
-  document.addEventListener("click", function (event) {
-    if (
-      event.target.closest("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs'], #internalXrefsPassageMode, #internalXrefsChapterMode")
-    ) {
-      setTimeout(removeInternalBackButton, 20);
-      setTimeout(removeInternalBackButton, 200);
-      setTimeout(removeInternalBackButton, 600);
-    }
-  }, true);
-
-  window.addEventListener("load", removeInternalBackButton);
-  removeInternalBackButton();
-})();
-</script>
 </body>
 </html>
