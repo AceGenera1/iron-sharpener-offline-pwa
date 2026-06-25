@@ -16223,154 +16223,37 @@ body:not(.dark) #backgroundsSearchV4:focus {
   });
 })();
 </script>
-
-<style id="rdm-crossrefs-clean-final-v8-style">
-#internalCrossRefsPanel {
-  display: none;
-  position: fixed;
-  top: 118px;
-  right: 22px;
-  width: min(680px, calc(100vw - 32px));
-  height: min(720px, calc(100vh - 130px));
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 90px);
-  min-width: 340px;
-  min-height: 280px;
-  overflow: hidden;
-  z-index: 87000;
-  border: 2px solid var(--gold);
-  border-radius: 18px;
-  padding: 0;
-  box-shadow: 0 24px 70px rgba(0,0,0,.38);
-}
-
-#internalCrossRefsPanel.open {
-  display: flex !important;
-  flex-direction: column;
-}
-
-#internalCrossRefsPanel .internal-xrefs-body {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding: 14px 16px 18px;
-}
-
-#internalCrossRefsPanel .internal-xrefs-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-#internalCrossRefsPanel .internal-xrefs-summary,
-#internalCrossRefsPanel .internal-xref-empty {
-  border: 1px solid rgba(215,168,79,.52);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin: 12px 0;
-  font: 800 14px Arial, sans-serif;
-  line-height: 1.45;
-}
-
-#internalCrossRefsPanel .internal-xref-verse {
-  border: 1px solid rgba(215,168,79,.45);
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-}
-
-#internalCrossRefsPanel .internal-xref-verse h4 {
-  margin: 0 0 9px;
-  color: #7a4c06;
-  font: 900 14px Arial, sans-serif;
-}
-
-#internalCrossRefsPanel .internal-xref-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-#internalCrossRefsPanel .internal-xref-link,
-#internalCrossRefsPanel .cross-ref-link {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  box-shadow: none !important;
-}
-
-#internalCrossRefsPanel .internal-xref-resize-handle {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  right: 4px;
-  bottom: 4px;
-  cursor: nwse-resize;
-  border-right: 4px solid var(--gold);
-  border-bottom: 4px solid var(--gold);
-  border-radius: 0 0 10px 0;
-}
-
-body:not(.dark) #internalCrossRefsPanel {
-  background: linear-gradient(180deg, #fffaf0, #fff2d6) !important;
-  color: #2B394F !important;
-}
-
-body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button,
-body:not(.dark) #internalCrossRefsPanel .internal-xrefs-view-chapter,
-body:not(.dark) #internalCrossRefsPanel #internalXrefsShowMore,
-body:not(.dark) #internalCrossRefsPanel .internal-xrefs-back {
-  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid rgba(154,106,52,.85) !important;
-  box-shadow: none !important;
-}
-
-body:not(.dark) #internalCrossRefsPanel .active-internal-xref-mode {
-  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
-  border-color: rgba(215,168,79,.95) !important;
-}
-
-body:not(.dark) #internalCrossRefsPanel .internal-xref-link,
-body:not(.dark) #internalCrossRefsPanel .cross-ref-link {
-  background: #fffaf0 !important;
-  color: #26384f !important;
-  border: 1.4px solid rgba(138,74,36,.48) !important;
-}
-
-body:not(.dark) #internalCrossRefsPanel .internal-xref-link:hover,
-body:not(.dark) #internalCrossRefsPanel .cross-ref-link:hover {
-  background: #f4e5ca !important;
-  color: #5c2e1c !important;
-}
-
-body.dark #internalCrossRefsPanel {
-  background: linear-gradient(180deg, #355A54, #294843) !important;
-  color: #fff7df !important;
-  border-color: rgba(248,217,135,.88) !important;
-}
-
-body.dark #internalCrossRefsPanel .internal-xref-verse h4 {
-  color: #ffe08c !important;
-}
-
-html.obs #internalCrossRefsPanel.open {
-  top: 96px !important;
-  right: 22px !important;
-  left: auto;
-  bottom: auto;
-  max-height: calc(100vh - 115px) !important;
-}
-
-@media (max-width: 650px) {
-  #internalCrossRefsPanel.open,
-  html.obs #internalCrossRefsPanel.open {
-    width: calc(100vw - 24px) !important;
-    min-width: calc(100vw - 24px) !important;
-    left: 12px !important;
-    right: auto !important;
-    top: 86px !important;
-  }
+<style id="rdm-built-in-xrefs-no-panel-back-v8-1-style">
+/* Hide/remove the back button inside the Built-In Cross References box only.
+   The study resource back button above Scripture can remain. */
+#internalCrossRefsPanel #internalXrefsBackBtn {
+  display: none !important;
 }
 </style>
+
+<script id="rdm-built-in-xrefs-no-panel-back-v8-1">
+(function () {
+  if (window.__rdmNoInternalXrefBackV81) return;
+  window.__rdmNoInternalXrefBackV81 = true;
+
+  function removeInternalBackButton() {
+    const btn = document.getElementById("internalXrefsBackBtn");
+    if (btn) btn.remove();
+  }
+
+  document.addEventListener("click", function (event) {
+    if (
+      event.target.closest("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs'], #internalXrefsPassageMode, #internalXrefsChapterMode")
+    ) {
+      setTimeout(removeInternalBackButton, 20);
+      setTimeout(removeInternalBackButton, 200);
+      setTimeout(removeInternalBackButton, 600);
+    }
+  }, true);
+
+  window.addEventListener("load", removeInternalBackButton);
+  removeInternalBackButton();
+})();
+</script>
 </body>
 </html>
