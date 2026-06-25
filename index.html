@@ -15567,209 +15567,37 @@ body:not(.dark) #backgroundsSearchV4:focus {
   box-shadow: 0 0 0 3px rgba(138,74,36,.12) !important;
 }
 </style>
-<!-- =========================================================
-     RDM TSK CROSS REFERENCES — SOURCE OF TRUTH v12
-     Purpose:
-     - Uses Treasury of Scripture Knowledge JSON as the only built-in cross-reference source.
-     - Shows only source verses that actually have valid TSK references.
-     - Shows only target references that resolve against the local 66-book WEB verseCounts.
-     - Uses isolated v12 panel IDs so older cross-reference patches cannot overwrite results.
-     - Keeps references clickable in normal mode and OBS Focus.
-     - Uses the shared Scripture back stack, one step at a time, but no back button inside the TSK panel.
-     ========================================================= -->
-<style id="rdm-tsk-crossrefs-v12-style">
-#internalCrossRefsPanel.rdm-tsk-xrefs-panel-v12 {
-  display: none;
-  position: fixed;
-  right: 24px;
-  top: 110px;
-  width: min(660px, calc(100vw - 32px));
-  max-height: min(78vh, calc(100vh - 130px));
-  overflow: auto;
-  resize: both;
-  z-index: 78000 !important;
-  border: 2px solid var(--gold);
-  border-radius: 16px;
-  background: linear-gradient(180deg, #fffaf0, #fff2d6);
-  color: #26384f;
-  box-shadow: 0 24px 70px rgba(0,0,0,.28);
-  padding: 0;
-}
 
-#internalCrossRefsPanel.rdm-tsk-xrefs-panel-v12.open {
-  display: block !important;
-}
-
-body.dark #internalCrossRefsPanel.rdm-tsk-xrefs-panel-v12 {
-  background: linear-gradient(180deg, #355A54, #294843);
-  color: #fff6d9;
-  border-color: rgba(248,217,135,.88);
-  box-shadow: 0 24px 70px rgba(0,0,0,.48);
-}
-
-.rdm-tsk-xrefs-head-v12 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1.5px solid rgba(183,116,16,.55);
-  cursor: move;
-}
-
-.rdm-tsk-xrefs-head-v12 h3 {
-  margin: 0;
-  color: #7a4c06;
-  font-size: 21px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-body.dark .rdm-tsk-xrefs-head-v12 h3 {
-  color: #ffe08c;
-}
-
-.rdm-tsk-xrefs-body-v12 {
-  padding: 14px 16px 18px;
-}
-
-.rdm-tsk-xrefs-mode-row-v12 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-body:not(.dark) .rdm-tsk-xrefs-mode-row-v12 button,
-body:not(.dark) #rdmTskXrefsShowMoreV12,
-body:not(.dark) #rdmTskXrefsViewChapterV12 {
-  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
-  color: #fff8ea !important;
-  border: 1.8px solid rgba(154,106,52,.85) !important;
-  box-shadow: none !important;
-}
-
-body:not(.dark) .rdm-tsk-xrefs-mode-row-v12 button.active-internal-xref-mode {
-  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
-  border-color: rgba(215,168,79,.95) !important;
-  outline: 2px solid rgba(215,168,79,.45);
-}
-
-#rdmTskXrefsSearchV12 {
-  margin-bottom: 12px;
-  width: 100%;
-}
-
-.rdm-tsk-xrefs-summary-v12 {
-  margin: 0 0 12px;
-  padding: 12px 14px;
-  border: 1.4px solid rgba(183,116,16,.42);
-  border-radius: 10px;
-  background: rgba(255,247,230,.72);
-  color: #8A5A13;
-  font: 900 14px Arial, sans-serif;
-  line-height: 1.45;
-}
-
-body.dark .rdm-tsk-xrefs-summary-v12 {
-  background: rgba(0,0,0,.16);
-  color: #ffe08c;
-  border-color: rgba(248,217,135,.55);
-}
-
-#rdmTskXrefsResultsV12 .internal-xref-verse {
-  margin: 0 0 12px;
-  padding: 12px;
-  border: 1.3px solid rgba(183,116,16,.36);
-  border-radius: 12px;
-  background: rgba(255,250,240,.62);
-}
-
-body.dark #rdmTskXrefsResultsV12 .internal-xref-verse {
-  background: rgba(0,0,0,.12);
-  border-color: rgba(248,217,135,.35);
-}
-
-#rdmTskXrefsResultsV12 .internal-xref-verse h4 {
-  margin: 0 0 9px;
-  color: #7a4c06;
-  font: 900 15px Arial, sans-serif;
-}
-
-body.dark #rdmTskXrefsResultsV12 .internal-xref-verse h4 {
-  color: #ffe08c;
-}
-
-#rdmTskXrefsResultsV12 .internal-xref-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-#rdmTskXrefsResultsV12 .rdm-tsk-xref-link-v12 {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  background: #fffaf0 !important;
-  color: #26384f !important;
-  border: 1.4px solid rgba(138,74,36,.48) !important;
-  box-shadow: none !important;
-  border-radius: 999px !important;
-  padding: 8px 12px !important;
-  font: 900 13px Arial, sans-serif !important;
-}
-
-#rdmTskXrefsResultsV12 .rdm-tsk-xref-link-v12:hover {
-  background: #f4e5ca !important;
-  color: #5c2e1c !important;
-}
-
-body.dark #rdmTskXrefsResultsV12 .rdm-tsk-xref-link-v12 {
-  background: #294843 !important;
-  color: #fff2d7 !important;
-  border-color: rgba(248,217,135,.55) !important;
-}
-
-.rdm-tsk-xrefs-empty-v12 {
-  margin: 0 0 12px;
-  padding: 13px 15px;
-  border-left: 4px solid #8A4A24;
-  border-radius: 10px;
-  background: rgba(255,250,240,.72);
-  color: #26384f;
-  font: 800 14px Arial, sans-serif;
-  line-height: 1.5;
-}
-
-body.dark .rdm-tsk-xrefs-empty-v12 {
-  background: rgba(0,0,0,.14);
-  color: #fff6d9;
-  border-left-color: #f8d987;
-}
-
-body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
-  background: #fff7e6 !important;
-  color: #10213c !important;
-  border: 1.5px solid rgba(183,116,16,.52) !important;
-}
 </style>
 
-<script id="rdm-tsk-crossrefs-source-of-truth-v12">
+</script>
+<!-- =========================================================
+     RDM BUILT-IN CROSS REFERENCES — ISOLATED STABLE RENDER v9
+     Purpose:
+     - Uses unique v9 element IDs so older cross-reference scripts cannot
+       overwrite the panel after it renders.
+     - Keeps the existing panel ID for styling/positioning compatibility.
+     - Chunks large chapters/ranges instead of dumping 600+ refs at once.
+     - Restores clickable references in normal mode and OBS Focus.
+     - No back button inside the Built-In Cross References box.
+     ========================================================= -->
+<script id="rdm-crossrefs-isolated-stable-v9">
 (function () {
-  if (window.__rdmTskCrossRefsSourceOfTruthV12) return;
-  window.__rdmTskCrossRefsSourceOfTruthV12 = true;
+  if (window.__rdmCrossrefsIsolatedStableV9) return;
+  window.__rdmCrossrefsIsolatedStableV9 = true;
 
   const $ = (id) => document.getElementById(id);
   const CHUNK_SIZE = 120;
-  let currentMode = "passage";
+
+  let xrefMode = "passage";
   let visibleLimit = CHUNK_SIZE;
   let renderToken = 0;
   let renderTimer = null;
-  let panelReady = false;
 
-  const tskCache = window.__rdmTskCrossRefsCacheV12 || {};
-  window.__rdmTskCrossRefsCacheV12 = tskCache;
-
+  const tskCache = window.__rdmTskCacheV9 || {};
   const backStack = window.__rdmCrossReferenceBackStack || [];
+
+  window.__rdmTskCacheV9 = tskCache;
   window.__rdmCrossReferenceBackStack = backStack;
 
   function esc(value) {
@@ -15780,15 +15608,6 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
       '"': "&quot;",
       "'": "&#39;"
     }[c]));
-  }
-
-  function slug(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   }
 
   function currentState() {
@@ -15810,14 +15629,11 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
       String(a.end) === String(b.end);
   }
 
-  function stateLabel(state = currentState()) {
+  function stateLabel(state) {
+    if (!state) return "";
     return String(state.start) === String(state.end)
       ? `${state.book} ${state.chapter}:${state.start}`
       : `${state.book} ${state.chapter}:${state.start}-${state.end}`;
-  }
-
-  function chapterLabel(state = currentState()) {
-    return `${state.book} ${state.chapter}`;
   }
 
   function bookNames() {
@@ -15840,24 +15656,6 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
     ];
   }
 
-  function normalizeBookName(book) {
-    const cleaned = String(book || "").replace(/\s+/g, " ").trim();
-    if (/^Psalm$/i.test(cleaned)) return "Psalms";
-
-    const found = bookNames().find((name) => name.toLowerCase() === cleaned.toLowerCase());
-    return found || cleaned;
-  }
-
-  function maxVerseFor(book, chapter) {
-    try {
-      const normalized = normalizeBookName(book);
-      if (typeof verseCounts !== "undefined" && verseCounts[normalized]) {
-        return verseCounts[normalized][parseInt(chapter, 10) - 1] || 0;
-      }
-    } catch (_) {}
-    return 0;
-  }
-
   function parseReference(ref) {
     const cleaned = String(ref || "")
       .replace(/[–—]/g, "-")
@@ -15865,86 +15663,46 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
       .trim()
       .replace(/^Psalm\s+/i, "Psalms ");
 
-    if (!cleaned) return null;
-
     const names = bookNames().sort((a, b) => b.length - a.length);
 
-    for (const name of names) {
-      const prefix = `${name} `;
+    for (const book of names) {
+      const prefix = `${book} `;
       if (!cleaned.toLowerCase().startsWith(prefix.toLowerCase())) continue;
 
       const rest = cleaned.slice(prefix.length).trim();
-      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?/);
       if (!match) return null;
-
-      const book = normalizeBookName(name);
-      const chapter = parseInt(match[1], 10);
-      const start = parseInt(match[2], 10);
-      const end = parseInt(match[3] || match[2], 10);
-      const max = maxVerseFor(book, chapter);
-
-      if (!max) return null;
-      if (chapter < 1 || start < 1 || end < start || end > max) return null;
 
       return {
         book,
-        chapter: String(chapter),
-        start: String(start),
-        end: String(end),
-        range: start === end ? "1" : String(end - start + 1),
-        canonical: start === end ? `${book} ${chapter}:${start}` : `${book} ${chapter}:${start}-${end}`
+        chapter: String(match[1]),
+        start: String(match[2]),
+        end: String(match[3] || match[2]),
+        range: $("rangeSize")?.value || "5"
       };
     }
 
     return null;
   }
 
-  function splitRawRefs(value) {
-    if (!value) return [];
-
-    if (Array.isArray(value)) {
-      return value.flatMap(splitRawRefs);
-    }
-
-    if (typeof value === "object") {
-      return Object.values(value).flatMap(splitRawRefs);
-    }
-
-    if (typeof value !== "string") return [];
-
-    return value
-      .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  function validTskRefs(value) {
-    const seen = new Set();
-    const refs = [];
-
-    splitRawRefs(value).forEach((raw) => {
-      const parsed = parseReference(raw);
-      if (!parsed) return;
-
-      if (!seen.has(parsed.canonical)) {
-        seen.add(parsed.canonical);
-        refs.push(parsed.canonical);
+  function maxVerseForChapter(state = currentState()) {
+    try {
+      if (typeof verseCounts !== "undefined" && verseCounts[state.book]) {
+        return verseCounts[state.book][parseInt(state.chapter, 10) - 1] || parseInt(state.end, 10) || 1;
       }
-    });
-
-    return refs;
+    } catch (_) {}
+    return parseInt(state.end, 10) || 1;
   }
 
   function verseKeys(mode, state = currentState()) {
-    const start = mode === "chapter" ? 1 : parseInt(state.start, 10) || 1;
-    const end = mode === "chapter"
-      ? maxVerseFor(state.book, state.chapter)
-      : parseInt(state.end, 10) || start;
-
+    const start = mode === "chapter" ? 1 : (parseInt(state.start, 10) || 1);
+    const end = mode === "chapter" ? maxVerseForChapter(state) : (parseInt(state.end, 10) || start);
     const keys = [];
+
     for (let verse = start; verse <= end; verse += 1) {
       keys.push(`${state.book} ${state.chapter}:${verse}`);
     }
+
     return keys;
   }
 
@@ -15965,28 +15723,48 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
   }
 
   async function loadTskBook(book) {
-    const cleanBook = normalizeBookName(book);
-    const encoded = encodeURIComponent(cleanBook);
-    const underscored = cleanBook.replace(/\s+/g, "_");
-    const dashed = cleanBook.replace(/\s+/g, "-");
+    const encoded = encodeURIComponent(book);
+    const underscored = book.replace(/\s+/g, "_");
+    const dashed = book.replace(/\s+/g, "-");
 
     return await fetchJsonAny([
-      `bible/resources/tsk/${cleanBook}.json`,
+      `bible/resources/tsk/${book}.json`,
       `bible/resources/tsk/${encoded}.json`,
       `bible/resources/tsk/${underscored}.json`,
       `bible/resources/tsk/${dashed}.json`,
-      cleanBook === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
-      cleanBook === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
+      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
+      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
     ]);
   }
 
-  async function collectTskRows(mode, filterText = "") {
+  function normalizeRefs(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(normalizeRefs).map(String).map((item) => item.trim()).filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+      return value
+        .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    if (typeof value === "object") {
+      return Object.values(value).flatMap(normalizeRefs).map(String).map((item) => item.trim()).filter(Boolean);
+    }
+
+    return [];
+  }
+
+  async function collectRows(mode, filterText = "") {
     const state = currentState();
     const data = await loadTskBook(state.book);
     const filter = String(filterText || "").toLowerCase().trim();
 
     return verseKeys(mode, state).map((key) => {
-      let refs = validTskRefs(data[key]);
+      let refs = [...new Set(normalizeRefs(data[key]))];
 
       if (filter) {
         refs = refs.filter((ref) =>
@@ -16000,7 +15778,7 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
   }
 
   function countRefs(rows) {
-    return rows.reduce((sum, row) => sum + row.refs.length, 0);
+    return rows.reduce((total, row) => total + row.refs.length, 0);
   }
 
   function limitRows(rows, limit) {
@@ -16023,64 +15801,198 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
     if (!panel) {
       panel = document.createElement("div");
       panel.id = "internalCrossRefsPanel";
+      panel.className = "teacher-pop internal-crossrefs-panel";
       document.body.appendChild(panel);
     }
 
-    if (!panelReady) {
-      panel.className = "rdm-tsk-xrefs-panel-v12";
+    if (panel.dataset.v9Ready !== "true") {
+      panel.dataset.v9Ready = "true";
+      panel.dataset.v8Ready = "false";
       panel.setAttribute("aria-hidden", "true");
+
       panel.innerHTML = `
-        <div class="rdm-tsk-xrefs-head-v12 drag-handle" data-drag-handle="internalCrossRefsPanel">
-          <h3>TSK Cross References</h3>
-          <button id="rdmTskXrefsCloseV12" type="button" class="secondary">Close</button>
+        <div class="teacher-pop-head drag-handle" id="rdmXrefsDragV9">
+          <h3>Built-In Cross References</h3>
+          <button id="rdmXrefsCloseV9" class="teacher-pop-close secondary" type="button">Close</button>
         </div>
-        <div class="rdm-tsk-xrefs-body-v12">
-          <div class="rdm-tsk-xrefs-mode-row-v12">
-            <button id="rdmTskXrefsPassageModeV12" type="button">Current Passage</button>
-            <button id="rdmTskXrefsChapterModeV12" type="button">Full Chapter</button>
+
+        <div class="internal-xrefs-body" id="rdmXrefsBodyV9">
+          <div class="internal-xrefs-controls">
+            <button type="button" id="rdmXrefsPassageModeV9" class="active-internal-xref-mode">Current Passage</button>
+            <button type="button" id="rdmXrefsChapterModeV9" class="secondary">Full Chapter</button>
           </div>
-          <input id="rdmTskXrefsSearchV12" type="search" placeholder="Filter TSK references, e.g. Romans, covenant, 12:1...">
-          <div id="rdmTskXrefsSummaryV12" class="rdm-tsk-xrefs-summary-v12"></div>
-          <div id="rdmTskXrefsResultsV12"></div>
-          <div id="rdmTskXrefsMoreWrapV12"></div>
+
+          <input id="rdmXrefsSearchV9" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
+
+          <div id="rdmXrefsSummaryV9" class="internal-xrefs-summary">
+            Built-In Cross References load from the local TSK files.
+          </div>
+
+          <div id="rdmXrefsResultsV9"></div>
+          <div id="rdmXrefsMoreWrapV9"></div>
         </div>
+
+        <div class="internal-xref-resize-handle" id="rdmXrefsResizeV9" title="Resize"></div>
       `;
-      panelReady = true;
+
+      makeMovable(panel);
+      makeResizable(panel);
     }
 
     return panel;
   }
 
-  function openPanel() {
-    const panel = ensurePanel();
-    panel.style.display = "block";
-    panel.style.setProperty("z-index", "78000", "important");
-    panel.classList.add("open", "rdm-tsk-xrefs-panel-v12");
-    panel.setAttribute("aria-hidden", "false");
-    return panel;
+  function bringForward(panel) {
+    window.__rdmInternalXrefZ = (window.__rdmInternalXrefZ || 87000) + 1;
+    panel.style.zIndex = String(window.__rdmInternalXrefZ);
   }
 
-  function closePanel() {
-    const panel = $("internalCrossRefsPanel");
-    if (!panel) return;
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "none";
+  function makeMovable(panel) {
+    const handle = panel.querySelector("#rdmXrefsDragV9");
+    if (!handle || handle.dataset.dragReady === "true") return;
+    handle.dataset.dragReady = "true";
+
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button, input, select, textarea, a")) return;
+      event.preventDefault();
+      bringForward(panel);
+
+      const rect = panel.getBoundingClientRect();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const startLeft = rect.left;
+      const startTop = rect.top;
+
+      function move(moveEvent) {
+        panel.style.left = `${startLeft + moveEvent.clientX - startX}px`;
+        panel.style.top = `${startTop + moveEvent.clientY - startY}px`;
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.transform = "none";
+      }
+
+      function up() {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      }
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
+    });
+  }
+
+  function makeResizable(panel) {
+    const handle = panel.querySelector("#rdmXrefsResizeV9");
+    if (!handle || handle.dataset.resizeReady === "true") return;
+    handle.dataset.resizeReady = "true";
+
+    handle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      bringForward(panel);
+
+      const rect = panel.getBoundingClientRect();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const startWidth = rect.width;
+      const startHeight = rect.height;
+
+      function move(moveEvent) {
+        const width = Math.min(window.innerWidth - 20, Math.max(340, startWidth + moveEvent.clientX - startX));
+        const height = Math.min(window.innerHeight - 20, Math.max(280, startHeight + moveEvent.clientY - startY));
+        panel.style.width = `${width}px`;
+        panel.style.height = `${height}px`;
+      }
+
+      function up() {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      }
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
+    });
   }
 
   function setActiveMode(mode) {
-    currentMode = mode === "chapter" ? "chapter" : "passage";
-    $("rdmTskXrefsPassageModeV12")?.classList.toggle("active-internal-xref-mode", currentMode === "passage");
-    $("rdmTskXrefsChapterModeV12")?.classList.toggle("active-internal-xref-mode", currentMode === "chapter");
+    xrefMode = mode === "chapter" ? "chapter" : "passage";
+
+    $("rdmXrefsPassageModeV9")?.classList.toggle("active-internal-xref-mode", xrefMode === "passage");
+    $("rdmXrefsChapterModeV9")?.classList.toggle("active-internal-xref-mode", xrefMode === "chapter");
   }
 
-  function renderRows(rows) {
+  function updateBackButtons() {
+    const previous = backStack[backStack.length - 1];
+    const label = previous ? `← Back to ${stateLabel(previous)}` : "";
+
+    ["backToPreviousPassage", "obsBackToPreviousPassage"].forEach((id) => {
+      const button = $(id);
+      if (!button) return;
+      button.textContent = label || "← Back";
+      button.style.display = previous ? "inline-flex" : "none";
+    });
+
+    document.querySelectorAll('[data-study-key-action="back"]').forEach((button) => {
+      button.textContent = label || "← Back";
+      button.style.display = previous ? "inline-flex" : "none";
+    });
+  }
+
+  function setPassageState(state) {
+    if (!state) return;
+
+    const bookSel = $("book");
+    const chapSel = $("chapter");
+    const startSel = $("start");
+    const endSel = $("end");
+    const rangeSel = $("rangeSize");
+
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = state.book;
+    if (typeof fillChapters === "function") fillChapters();
+
+    chapSel.value = state.chapter;
+    if (typeof fillVerses === "function") fillVerses();
+
+    rangeSel.value = state.range || rangeSel.value || "5";
+    startSel.value = state.start;
+    endSel.value = state.end;
+
+    if (typeof loadPassage === "function") loadPassage();
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+
+    updateBackButtons();
+    scheduleRender(xrefMode, true, 260);
+  }
+
+  function goToReference(ref) {
+    const target = parseReference(ref);
+    if (!target) return;
+
+    const current = currentState();
+    if (!sameState(current, target)) {
+      backStack.push(current);
+    }
+
+    setPassageState(target);
+  }
+
+  function goBackOneStep() {
+    const previous = backStack.pop();
+    if (!previous) return;
+    setPassageState(previous);
+  }
+
+  function renderRowsHtml(rows) {
     return rows.map((row) => `
       <section class="internal-xref-verse">
         <h4>${esc(row.key)}</h4>
         <div class="internal-xref-buttons">
           ${row.refs.map((ref) => `
-            <button type="button" class="cross-ref-link internal-xref-link rdm-tsk-xref-link-v12" data-ref="${esc(ref)}">
+            <button type="button" class="cross-ref-link internal-xref-link rdm-xref-v9-link" data-ref="${esc(ref)}">
               ${esc(ref)}
             </button>
           `).join("")}
@@ -16089,432 +16001,507 @@ body:not(.dark) #studyResourcesKey [data-study-key-action="crossrefs"] {
     `).join("");
   }
 
-  async function render(mode = currentMode, resetLimit = false) {
+  async function renderCrossRefs(mode = xrefMode, resetLimit = false) {
     const token = ++renderToken;
-    const panel = openPanel();
-    const summary = $("rdmTskXrefsSummaryV12");
-    const results = $("rdmTskXrefsResultsV12");
-    const moreWrap = $("rdmTskXrefsMoreWrapV12");
-    const searchBox = $("rdmTskXrefsSearchV12");
+    const panel = ensurePanel();
+    const summary = $("rdmXrefsSummaryV9");
+    const results = $("rdmXrefsResultsV9");
+    const moreWrap = $("rdmXrefsMoreWrapV9");
+    const searchBox = $("rdmXrefsSearchV9");
 
-    if (!panel || !summary || !results || !moreWrap) return;
+    if (!summary || !results || !moreWrap) return;
 
     if (resetLimit) visibleLimit = CHUNK_SIZE;
+
     setActiveMode(mode);
+    bringForward(panel);
+    updateBackButtons();
 
     const state = currentState();
     const filter = searchBox?.value || "";
-    const scopeLabel = currentMode === "chapter" ? chapterLabel(state) : stateLabel(state);
 
-    summary.textContent = `Checking TSK cross references for ${scopeLabel}…`;
+    summary.textContent = `Loading ${stateLabel(state)} cross references…`;
     results.innerHTML = "";
     moreWrap.innerHTML = "";
 
-    const rows = await collectTskRows(currentMode, filter);
+    const rows = await collectRows(xrefMode, filter);
     if (token !== renderToken) return;
 
-    const total = countRefs(rows);
-    const limited = limitRows(rows, visibleLimit);
-    const shown = countRefs(limited);
+    const totalRefs = countRefs(rows);
+    const limitedRows = limitRows(rows, visibleLimit);
+    const shownRefs = countRefs(limitedRows);
+    const scopeLabel = xrefMode === "chapter"
+      ? `${state.book} ${state.chapter}`
+      : stateLabel(state);
 
-    summary.textContent = `${scopeLabel} — ${total} TSK reference${total === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.` +
-      (total > shown ? ` Showing ${shown}.` : "");
+    summary.textContent = `${scopeLabel} — ${totalRefs} internal reference${totalRefs === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.${totalRefs > shownRefs ? ` Showing ${shownRefs}.` : ""}`;
 
     if (!rows.length) {
-      if (!filter && currentMode === "passage") {
-        const chapterRows = await collectTskRows("chapter", "");
-        const chapterTotal = countRefs(chapterRows);
+      if (!filter && xrefMode === "passage") {
+        const chapterRows = await collectRows("chapter", "");
+        const chapterCount = countRefs(chapterRows);
 
-        if (token !== renderToken) return;
-
-        if (chapterTotal > 0) {
-          summary.textContent = `${stateLabel(state)} — no TSK references for this selected range. ${chapterTotal} TSK references are available in ${chapterLabel(state)}.`;
+        if (chapterCount > 0) {
           results.innerHTML = `
-            <div class="rdm-tsk-xrefs-empty-v12">
-              This selected verse/range does not have a TSK entry, but the full chapter has TSK cross references available.
+            <div class="internal-xref-empty">
+              No Built-In Cross References are linked to this selected verse/range, but this chapter has ${chapterCount} available reference${chapterCount === 1 ? "" : "s"}.
             </div>
-            <button type="button" id="rdmTskXrefsViewChapterV12" style="width:100%;margin-top:10px;">
-              View Full Chapter TSK References
+            <button type="button" id="rdmXrefsViewChapterV9" class="internal-xrefs-view-chapter" style="width:100%;margin-top:10px;">
+              View Full Chapter References
             </button>
           `;
+          summary.textContent = `${stateLabel(state)} — 0 references for the selected range. ${chapterCount} available for the full chapter.`;
           return;
         }
       }
 
       results.innerHTML = `
-        <div class="rdm-tsk-xrefs-empty-v12">
+        <div class="internal-xref-empty">
           ${filter
-            ? "No TSK cross references matched that filter. Clear the search box or try another word/reference."
-            : "No TSK cross references are linked to this selected range in the local TSK database."}
+            ? "No Built-In Cross References matched that filter. Clear the search box or try another word/reference."
+            : "No Built-In Cross References are linked to this selected range in the local TSK database yet."}
         </div>
       `;
       return;
     }
 
-    results.innerHTML = renderRows(limited);
+    results.innerHTML = renderRowsHtml(limitedRows);
 
-    if (total > shown) {
+    if (totalRefs > shownRefs) {
       moreWrap.innerHTML = `
-        <button type="button" id="rdmTskXrefsShowMoreV12" style="width:100%;margin-top:10px;">
-          Show More TSK References (${shown} of ${total})
+        <button type="button" id="rdmXrefsShowMoreV9" style="width:100%;margin-top:10px;">
+          Show More References (${shownRefs} of ${totalRefs})
         </button>
       `;
     }
   }
 
-  function scheduleRender(mode = currentMode, resetLimit = false, delay = 80) {
+  function scheduleRender(mode = xrefMode, resetLimit = false, delay = 80) {
     clearTimeout(renderTimer);
-    renderTimer = setTimeout(() => render(mode, resetLimit), delay);
+    renderTimer = setTimeout(() => renderCrossRefs(mode, resetLimit), delay);
   }
 
-  function setSelectValue(select, wanted) {
-    if (!select) return false;
-    const target = String(wanted).toLowerCase();
+  function openPanel(mode = "passage") {
+    const panel = ensurePanel();
+    xrefMode = mode === "chapter" ? "chapter" : "passage";
+    visibleLimit = CHUNK_SIZE;
 
-    for (const option of Array.from(select.options || [])) {
-      if (
-        String(option.value).toLowerCase() === target ||
-        String(option.textContent).trim().toLowerCase() === target
-      ) {
-        select.value = option.value;
-        return true;
-      }
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    bringForward(panel);
+
+    const search = $("rdmXrefsSearchV9");
+    if (search) search.value = "";
+
+    scheduleRender(xrefMode, true, 40);
+  }
+
+  function closePanel() {
+    const panel = $("internalCrossRefsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
+
+  function installButtons() {
+    const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
+    let teacherButton = $("openInternalCrossRefs");
+
+    if (!teacherButton && eraseButton && eraseButton.parentElement) {
+      teacherButton = document.createElement("button");
+      teacherButton.id = "openInternalCrossRefs";
+      teacherButton.type = "button";
+      teacherButton.className = "tool-option helper-option internal-xref-shortcut";
+      teacherButton.innerHTML = `
+        <strong>Built-In Cross References</strong>
+        <span>Open the built-in Scripture cross-reference database for the current passage or full chapter.</span>
+      `;
+      eraseButton.insertAdjacentElement("afterend", teacherButton);
     }
 
-    select.value = wanted;
-    return true;
+    const obsBar = $("obsToolBar");
+    const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
+    let obsButton = $("obsShowInternalCrossRefs");
+
+    if (!obsButton && obsBar) {
+      obsButton = document.createElement("button");
+      obsButton.id = "obsShowInternalCrossRefs";
+      obsButton.type = "button";
+      obsButton.textContent = "Built-In References";
+      obsBar.insertBefore(obsButton, before || null);
+    }
   }
 
-  function loadCurrentPassage() {
-    if (typeof window.loadPassage === "function") {
-      window.loadPassage();
+  window.addEventListener("click", function (event) {
+    const refBtn = event.target.closest("#internalCrossRefsPanel .rdm-xref-v9-link");
+    const openBtn = event.target.closest("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs']");
+    const closeBtn = event.target.closest("#rdmXrefsCloseV9, #closeInternalCrossRefs");
+    const passageBtn = event.target.closest("#rdmXrefsPassageModeV9");
+    const chapterBtn = event.target.closest("#rdmXrefsChapterModeV9, #rdmXrefsViewChapterV9");
+    const showMoreBtn = event.target.closest("#rdmXrefsShowMoreV9");
+    const backBtn = event.target.closest("#backToPreviousPassage, #obsBackToPreviousPassage, [data-study-key-action='back']");
+
+    if (!(refBtn || openBtn || closeBtn || passageBtn || chapterBtn || showMoreBtn || backBtn)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (refBtn) {
+      goToReference(refBtn.dataset.ref || refBtn.textContent.trim());
       return;
     }
 
-    try {
-      if (typeof loadPassage === "function") {
-        loadPassage();
-        return;
-      }
-    } catch (_) {}
+    if (openBtn) {
+      openPanel("passage");
+      return;
+    }
 
-    $("loadBtn")?.click();
-  }
+    if (closeBtn) {
+      closePanel();
+      return;
+    }
 
-  function navigateToState(targetState) {
-    if (!targetState) return;
-
-    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
-
-    const bookSel = $("book");
-    const chapSel = $("chapter");
-    const startSel = $("start");
-    const endSel = $("end");
-    const rangeSel = $("rangeSize");
-
-    setSelectValue(bookSel, targetState.book);
-    try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
-
-    setSelectValue(chapSel, targetState.chapter);
-    try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
-
-    setSelectValue(startSel, targetState.start);
-    setSelectValue(endSel, targetState.end);
-    if (rangeSel && targetState.range) rangeSel.value = targetState.range;
-
-    loadCurrentPassage();
-    setTimeout(refreshStudyResourcesKey, 180);
-    setTimeout(refreshStudyResourcesKey, 600);
-
-    if ($("internalCrossRefsPanel")?.classList.contains("open")) {
+    if (passageBtn) {
       visibleLimit = CHUNK_SIZE;
-      setTimeout(() => render("passage", true), 280);
-    }
-  }
-
-  function navigateToReference(ref) {
-    const parsed = parseReference(ref);
-    if (!parsed) return;
-
-    const current = currentState();
-    if (!sameState(current, parsed)) {
-      backStack.push(current);
+      scheduleRender("passage", true, 20);
+      return;
     }
 
-    navigateToState(parsed);
-  }
+    if (chapterBtn) {
+      visibleLimit = CHUNK_SIZE;
+      scheduleRender("chapter", true, 20);
+      return;
+    }
 
-  function goBackOneStep() {
-    const previous = backStack.pop();
-    if (!previous) return;
-    navigateToState(previous);
-  }
-
-  async function hasTskRefs(mode) {
-    const rows = await collectTskRows(mode, "");
-    return countRefs(rows);
-  }
-
-  async function refreshStudyResourcesKey() {
-    const key = $("studyResourcesKey");
-    if (!key) return;
-
-    const previous = backStack[backStack.length - 1];
-    let backBtn = key.querySelector('[data-study-key-action="back"]');
-
-    if (previous && !backBtn) {
-      const row = key.querySelector(".study-resources-key-buttons") || key;
-      backBtn = document.createElement("button");
-      backBtn.type = "button";
-      backBtn.className = "study-resource-back-btn";
-      backBtn.dataset.studyKeyAction = "back";
-      row.insertBefore(backBtn, row.firstChild);
+    if (showMoreBtn) {
+      visibleLimit += CHUNK_SIZE;
+      scheduleRender(xrefMode, false, 20);
+      return;
     }
 
     if (backBtn) {
-      if (previous) {
-        backBtn.textContent = `← Back to ${stateLabel(previous)}`;
-        backBtn.style.display = "";
-      } else {
-        backBtn.remove();
-      }
+      goBackOneStep();
     }
+  }, true);
 
-    const [passageCount, chapterCount] = await Promise.all([
-      hasTskRefs("passage"),
-      hasTskRefs("chapter")
-    ]);
+  window.addEventListener("input", function (event) {
+    if (event.target?.id !== "rdmXrefsSearchV9") return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
 
-    const xrefBtn = key.querySelector('[data-study-key-action="crossrefs"]');
-    if (xrefBtn) {
-      if (!passageCount && !chapterCount) {
-        xrefBtn.remove();
-      } else {
-        xrefBtn.textContent = "TSK Cross References";
-        xrefBtn.disabled = false;
-        xrefBtn.removeAttribute("aria-disabled");
-        xrefBtn.style.display = "";
-        xrefBtn.title = passageCount
-          ? `${passageCount} TSK cross references for this selected passage.`
-          : `${chapterCount} TSK cross references available for this full chapter.`;
-      }
-    }
-  }
-
-  function openTskCrossReferences(mode = "passage") {
     visibleLimit = CHUNK_SIZE;
-    openPanel();
-    render(mode, true);
-  }
+    scheduleRender(xrefMode, true, 120);
+  }, true);
 
-  window.openInternalCrossReferences = openTskCrossReferences;
+  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
+    document.addEventListener("change", function (event) {
+      if (event.target?.id !== id) return;
+
+      const search = $("rdmXrefsSearchV9");
+      if (search) search.value = "";
+
+      visibleLimit = CHUNK_SIZE;
+      updateBackButtons();
+
+      if ($("internalCrossRefsPanel")?.classList.contains("open")) {
+        scheduleRender(xrefMode, true, 220);
+      }
+    }, true);
+  });
+
+  window.goToScriptureReference = goToReference;
+  try { goToScriptureReference = goToReference; } catch (_) {}
+
+  window.openInternalCrossReferences = openPanel;
   window.renderInternalCrossReferences = function () {
-    return render(currentMode, false);
+    return renderCrossRefs(xrefMode, false);
   };
-  window.openTskCrossReferencesV12 = openTskCrossReferences;
-  window.refreshTskCrossReferencesKeyV12 = refreshStudyResourcesKey;
 
-  window.auditTskCrossRefsV12 = async function () {
-    const [passageRows, chapterRows] = await Promise.all([
-      collectTskRows("passage", ""),
-      collectTskRows("chapter", "")
-    ]);
+  window.auditCrossRefsStableV9 = async function () {
+    const passageRows = await collectRows("passage", "");
+    const chapterRows = await collectRows("chapter", "");
 
     const report = {
       passage: stateLabel(currentState()),
-      passageSourceVersesWithTskRefs: passageRows.length,
-      passageTskRefs: countRefs(passageRows),
-      chapter: chapterLabel(currentState()),
-      chapterSourceVersesWithTskRefs: chapterRows.length,
-      chapterTskRefs: countRefs(chapterRows),
-      tskButtonShouldShow: countRefs(passageRows) > 0 || countRefs(chapterRows) > 0
+      passageVersesWithRefs: passageRows.length,
+      passageTotalRefs: countRefs(passageRows),
+      chapter: `${currentState().book} ${currentState().chapter}`,
+      chapterVersesWithRefs: chapterRows.length,
+      chapterTotalRefs: countRefs(chapterRows),
+      backStackDepth: backStack.length,
+      nextBackTarget: stateLabel(backStack[backStack.length - 1])
     };
 
     console.table(report);
     return report;
   };
 
-  window.addEventListener("click", function (event) {
-    const target = event.target;
+  installButtons();
+  updateBackButtons();
 
-    const openBtn = target.closest?.("#openInternalCrossRefs, #obsShowInternalCrossRefs, [data-study-key-action='crossrefs']");
-    if (openBtn) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      openTskCrossReferences("passage");
-      return;
+  window.addEventListener("load", function () {
+    installButtons();
+    updateBackButtons();
+  });
+})();
+</script>
+
+<style id="rdm-crossrefs-isolated-stable-v9-style">
+#internalCrossRefsPanel .rdm-xref-v9-link {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .rdm-xref-v9-link {
+  background: #fffaf0 !important;
+  color: #26384f !important;
+  border: 1.4px solid rgba(138,74,36,.48) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel .rdm-xref-v9-link:hover {
+  background: #f4e5ca !important;
+  color: #5c2e1c !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsPassageModeV9,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsChapterModeV9,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsViewChapterV9 {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsPassageModeV9.active-internal-xref-mode,
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsChapterModeV9.active-internal-xref-mode {
+  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
+  color: #FFF8EA !important;
+  border-color: rgba(215,168,79,.92) !important;
+}
+
+body:not(.dark) #internalCrossRefsPanel #rdmXrefsShowMoreV9 {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid rgba(154,106,52,.85) !important;
+  box-shadow: none !important;
+}
+</style>
+
+</script>
+<script id="rdm-study-resource-bar-stabilizer-v10b">
+/* =========================================================
+   Study Resources Bar Stabilizer v10b
+   Purpose:
+   - Stop the Study Resources bar from visibly freaking out.
+   - No MutationObserver.
+   - No constant rebuild loop.
+   - Only checks cross-reference availability after passage changes.
+   - Does not touch Backgrounds search, Bible loading, panels, or copy tools.
+   ========================================================= */
+(function () {
+  if (window.__rdmStudyResourceBarStabilizerV10b) return;
+  window.__rdmStudyResourceBarStabilizerV10b = true;
+
+  const $ = (id) => document.getElementById(id);
+  let timer = null;
+  let runSeq = 0;
+
+  function currentState() {
+    return {
+      book: $("book")?.value || "Genesis",
+      chapter: String($("chapter")?.value || "1"),
+      start: String($("start")?.value || "1"),
+      end: String($("end")?.value || $("start")?.value || "1")
+    };
+  }
+
+  function maxVerseForChapter(state) {
+    try {
+      if (typeof verseCounts !== "undefined" && verseCounts[state.book]) {
+        return verseCounts[state.book][parseInt(state.chapter, 10) - 1] || parseInt(state.end, 10) || 1;
+      }
+    } catch (_) {}
+
+    return parseInt(state.end, 10) || 1;
+  }
+
+  function verseKeys(mode) {
+    const state = currentState();
+    const start = mode === "chapter" ? 1 : parseInt(state.start, 10) || 1;
+    const end = mode === "chapter" ? maxVerseForChapter(state) : parseInt(state.end, 10) || start;
+    const keys = [];
+
+    for (let verse = start; verse <= end; verse += 1) {
+      keys.push(`${state.book} ${state.chapter}:${verse}`);
     }
 
-    const backBtn = target.closest?.("#studyResourcesKey [data-study-key-action='back']");
-    if (backBtn) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      goBackOneStep();
-      return;
-    }
-  }, true);
+    return keys;
+  }
 
-  document.addEventListener("click", function (event) {
-    const closeBtn = event.target.closest("#rdmTskXrefsCloseV12");
-    const passageBtn = event.target.closest("#rdmTskXrefsPassageModeV12");
-    const chapterBtn = event.target.closest("#rdmTskXrefsChapterModeV12, #rdmTskXrefsViewChapterV12");
-    const showMore = event.target.closest("#rdmTskXrefsShowMoreV12");
-    const refBtn = event.target.closest("#rdmTskXrefsResultsV12 .rdm-tsk-xref-link-v12");
-
-    if (closeBtn) {
-      event.preventDefault();
-      closePanel();
-      return;
+  async function fetchJsonAny(paths) {
+    for (const path of paths.filter(Boolean)) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (response.ok) return await response.json();
+      } catch (_) {}
     }
 
-    if (passageBtn) {
-      event.preventDefault();
-      visibleLimit = CHUNK_SIZE;
-      render("passage", true);
-      return;
+    return {};
+  }
+
+  async function loadTskBook(book) {
+    return await fetchJsonAny([
+      `bible/resources/tsk/${book}.json`,
+      `bible/resources/tsk/${encodeURIComponent(book)}.json`,
+      `bible/resources/tsk/${book.replace(/\s+/g, "_")}.json`,
+      `bible/resources/tsk/${book.replace(/\s+/g, "-")}.json`,
+      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
+      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
+    ]);
+  }
+
+  function normalizeRefs(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(normalizeRefs).map(String).map(ref => ref.trim()).filter(Boolean);
     }
 
-    if (chapterBtn) {
-      event.preventDefault();
-      visibleLimit = CHUNK_SIZE;
-      render("chapter", true);
-      return;
+    if (typeof value === "string") {
+      return value
+        .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
+        .map(ref => ref.trim())
+        .filter(Boolean);
     }
 
-    if (showMore) {
-      event.preventDefault();
-      visibleLimit += CHUNK_SIZE;
-      render(currentMode, false);
-      return;
+    if (typeof value === "object") {
+      return Object.values(value).flatMap(normalizeRefs).map(String).map(ref => ref.trim()).filter(Boolean);
     }
 
-    if (refBtn) {
-      event.preventDefault();
-      event.stopPropagation();
-      const ref = refBtn.dataset.ref || refBtn.textContent.trim();
-      navigateToReference(ref);
-    }
-  }, true);
+    return [];
+  }
 
-  document.addEventListener("input", function (event) {
-    if (event.target?.id === "rdmTskXrefsSearchV12") {
-      scheduleRender(currentMode, true, 140);
+  async function countRefs(mode) {
+    const state = currentState();
+    const data = await loadTskBook(state.book);
+
+    let total = 0;
+
+    verseKeys(mode).forEach((key) => {
+      total += [...new Set(normalizeRefs(data[key]))].length;
+    });
+
+    return total;
+  }
+
+  function setBarBusy(isBusy) {
+    const key = $("studyResourcesKey");
+    if (!key) return;
+
+    key.classList.toggle("study-resources-key-stabilizing", !!isBusy);
+  }
+
+  async function stabilizeStudyResourceBar() {
+    const seq = ++runSeq;
+    const key = $("studyResourcesKey");
+    if (!key) return;
+
+    setBarBusy(true);
+
+    await new Promise(resolve => setTimeout(resolve, 180));
+
+    if (seq !== runSeq) return;
+
+    const crossRefBtn = key.querySelector('[data-study-key-action="crossrefs"]');
+
+    const [passageRefs, chapterRefs] = await Promise.all([
+      countRefs("passage"),
+      countRefs("chapter")
+    ]);
+
+    if (seq !== runSeq) return;
+
+    const hasAnyCrossRefs = passageRefs > 0 || chapterRefs > 0;
+
+    if (crossRefBtn) {
+      if (!hasAnyCrossRefs) {
+        crossRefBtn.remove();
+      } else {
+        crossRefBtn.disabled = false;
+        crossRefBtn.removeAttribute("aria-disabled");
+        crossRefBtn.style.display = "";
+        crossRefBtn.title = passageRefs
+          ? `${passageRefs} built-in cross references for this selected passage.`
+          : `${chapterRefs} built-in cross references available for this chapter.`;
+      }
     }
-  }, true);
+
+    setBarBusy(false);
+  }
+
+  function scheduleStabilize() {
+    clearTimeout(timer);
+    setBarBusy(true);
+
+    timer = setTimeout(() => {
+      stabilizeStudyResourceBar();
+    }, 320);
+  }
 
   ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
     document.addEventListener("change", function (event) {
-      if (event.target?.id === id) {
-        visibleLimit = CHUNK_SIZE;
-        setTimeout(refreshStudyResourcesKey, 200);
-        if ($("internalCrossRefsPanel")?.classList.contains("open")) {
-          scheduleRender("passage", true, 260);
-        }
-      }
+      if (event.target?.id === id) scheduleStabilize();
     }, true);
   });
 
   ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
     document.addEventListener("click", function (event) {
-      if (event.target?.closest?.(`#${id}`)) {
-        visibleLimit = CHUNK_SIZE;
-        setTimeout(refreshStudyResourcesKey, 300);
-        if ($("internalCrossRefsPanel")?.classList.contains("open")) {
-          scheduleRender("passage", true, 360);
-        }
-      }
+      if (event.target?.closest?.(`#${id}`)) scheduleStabilize();
     }, true);
   });
 
-  function ensureObsButton() {
-    if ($("obsShowInternalCrossRefs")) return;
+  window.auditStudyResourceBarV10b = async function () {
+    const [passageRefs, chapterRefs] = await Promise.all([
+      countRefs("passage"),
+      countRefs("chapter")
+    ]);
 
-    const bar = $("obsToolBar");
-    if (!bar) return;
+    const report = {
+      passage: `${currentState().book} ${currentState().chapter}:${currentState().start}-${currentState().end}`,
+      passageRefs,
+      chapter: `${currentState().book} ${currentState().chapter}`,
+      chapterRefs,
+      crossReferencesShouldShow: passageRefs > 0 || chapterRefs > 0
+    };
 
-    const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
-    const button = document.createElement("button");
-    button.id = "obsShowInternalCrossRefs";
-    button.type = "button";
-    button.textContent = "TSK References";
-    bar.insertBefore(button, before || null);
-  }
+    console.table(report);
+    return report;
+  };
 
-  window.addEventListener("load", function () {
-    ensureObsButton();
-    setTimeout(refreshStudyResourcesKey, 300);
-    setTimeout(refreshStudyResourcesKey, 900);
-  });
-
-  ensureObsButton();
-  setTimeout(refreshStudyResourcesKey, 500);
+  window.addEventListener("load", scheduleStabilize);
+  scheduleStabilize();
 })();
 </script>
 
-<script id="rdm-tsk-crossrefs-v12-label-and-button-lock">
-/* Keep every public-facing built-in cross-reference control tied to the TSK v12 source-of-truth renderer. */
-(function () {
-  if (window.__rdmTskCrossRefsV12LabelLock) return;
-  window.__rdmTskCrossRefsV12LabelLock = true;
+<style id="rdm-study-resource-bar-stabilizer-v10b-style">
+#studyResourcesKey {
+  min-height: 86px;
+  transition: opacity .12s ease;
+}
 
-  const $ = (id) => document.getElementById(id);
+#studyResourcesKey.study-resources-key-stabilizing {
+  opacity: .96;
+}
 
-  function refreshLabels() {
-    const toolBtn = $("openInternalCrossRefs");
-    if (toolBtn) {
-      const strong = toolBtn.querySelector("strong");
-      const span = toolBtn.querySelector("span");
-      if (strong) strong.textContent = "TSK Cross References";
-      if (span) span.textContent = "Open Treasury of Scripture Knowledge references for the current passage or full chapter.";
-      toolBtn.title = "Open TSK Cross References.";
-    }
-
-    const obsBtn = $("obsShowInternalCrossRefs");
-    if (obsBtn) {
-      obsBtn.textContent = "TSK References";
-      obsBtn.title = "Open TSK Cross References.";
-    }
-
-    const studyBtn = $("openTskResource");
-    if (studyBtn) {
-      const strong = studyBtn.querySelector("strong");
-      const span = studyBtn.querySelector("span");
-      if (strong) strong.textContent = "TSK Cross References";
-      if (span) span.textContent = "Open Treasury of Scripture Knowledge references for the current passage or full chapter.";
-      studyBtn.title = "Open TSK Cross References.";
-    }
-  }
-
-  document.addEventListener("click", function (event) {
-    const tskResourceBtn = event.target.closest?.("#openTskResource");
-    if (!tskResourceBtn) return;
-
-    if (typeof window.openTskCrossReferencesV12 === "function") {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      window.openTskCrossReferencesV12("passage");
-    }
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    refreshLabels();
-  });
-
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  window.addEventListener("load", () => {
-    refreshLabels();
-    setTimeout(refreshLabels, 400);
-    setTimeout(refreshLabels, 1200);
-  });
-
-  refreshLabels();
-})();
-</script>
+#studyResourcesKey .study-resources-key-buttons {
+  min-height: 44px;
+  align-items: center;
+}
+</style>
 </body>
 </html>
