@@ -1,0 +1,62 @@
+name: Import Nave Small ZIP Parts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-naves-small-zips:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Verify all Nave ZIP parts are present
+        run: |
+          set -e
+          expected=12
+          found=$(find . -maxdepth 2 -type f -name 'naves-topical-bible-part-*-of-12.zip' | wc -l | tr -d ' ')
+          echo "Found $found Nave ZIP parts."
+          if [ "$found" != "$expected" ]; then
+            echo "ERROR: Expected $expected Nave ZIP parts before importing."
+            echo "Upload all files named naves-topical-bible-part-01-of-12.zip through naves-topical-bible-part-12-of-12.zip to the repo root, then run again."
+            exit 1
+          fi
+
+      - name: Import Nave topic files
+        run: |
+          set -e
+          rm -rf /tmp/rdm-naves-small
+          mkdir -p /tmp/rdm-naves-small
+          mkdir -p bible/resources/topics
+
+          find . -maxdepth 2 -type f -name 'naves-topical-bible-part-*-of-12.zip' | sort | while read -r zip; do
+            echo "Unpacking $zip"
+            unzip -q "$zip" -d /tmp/rdm-naves-small
+          done
+
+          count=$(find /tmp/rdm-naves-small/bible/resources/topics -type f -name '*.json' | wc -l | tr -d ' ')
+          echo "Found $count Nave JSON files in ZIP parts."
+
+          if [ "$count" -lt 5319 ]; then
+            echo "ERROR: Expected at least 5,319 Nave JSON files including index.json."
+            exit 1
+          fi
+
+          cp -R /tmp/rdm-naves-small/bible/resources/topics/. bible/resources/topics/
+
+          find . -maxdepth 2 -type f -name 'naves-topical-bible-part-*-of-12.zip' -delete
+
+      - name: Commit Nave topics
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add bible/resources/topics
+          git add -u
+
+          git diff --cached --quiet || git commit -m "Import Nave topical Bible database"
+          git push
