@@ -2563,6 +2563,11 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   </div>
 
   <div class="tool-options">
+<button type="button" class="tool-option" id="openBackgroundsResource">
+  <strong>Bible Backgrounds &amp; Customs</strong>
+  <span>Search ancient customs, feasts, worship, daily life, places, and historical background.</span>
+</button>
+
 <button type="button" class="tool-option" id="openEastonsResource">
   <strong>Easton's Bible Dictionary</strong>
   <span>Search offline Bible dictionary entries.</span>
@@ -4941,35 +4946,6 @@ async function loadMatthewHenryCommentary(bookName) {
   return {};
 }
 
-    async function loadTSKReferences() {
-  const book = bookSel.value;
-  const chapter = chapSel.value;
-  const start = parseInt(startSel.value, 10);
-  const end = parseInt(endSel.value, 10);
-
-  try {
-    const response = await fetch(`bible/resources/tsk/${book}.json`);
-
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    const refs = [];
-
-    for (let v = start; v <= end; v++) {
-      const key = `${book} ${chapter}:${v}`;
-
-      if (Array.isArray(data[key])) {
-        data[key].forEach(ref => refs.push(ref));
-      }
-    }
-
-    return [...new Set(refs)];
-  } catch (error) {
-    console.warn("TSK references not found:", error);
-    return [];
-  }
-}
-
 function makeDoctrineId(value) {
   return String(value || "")
     .trim()
@@ -5936,11 +5912,6 @@ function refreshActiveResourcePanel() {
   if (hasJfbOpen && (!hasMatthewHenryOpen || activeResourcePanel === "jfb")) {
     activeResourcePanel = "jfb";
     if ($("openJfbResource")) $("openJfbResource").click();
-    return;
-  }
-
-  if (activeResourcePanel === "tsk") {
-    if ($("openTskResource")) $("openTskResource").click();
     return;
   }
 
@@ -10148,799 +10119,6 @@ panel.querySelector(":scope > .rd-touch-resize-handle");
 
 
 
-<!-- Patch 6 — Fully Internal Cross Reference System
-     Scope: adds an internal internal cross-reference explorer for the current passage or full chapter.
-     Uses local files only: bible/resources/tsk/<Book>.json. Does not alter existing panels/tools. -->
-<style>
-  .internal-xref-shortcut {
-    width: 100%;
-    margin-top: 2px;
-  }
-
-  html.obs .obs-tool-bar #obsShowInternalCrossRefs {
-    display: inline-flex !important;
-    background: linear-gradient(#f8d987, #d99f31) !important;
-    color: #203D39 !important;
-    border: 1.5px solid var(--gold) !important;
-  }
-
-  #internalCrossRefsPanel {
-    display: none;
-    position: fixed;
-    top: 118px;
-    right: 22px;
-    width: min(640px, calc(100vw - 32px));
-    height: min(680px, calc(100vh - 150px));
-    max-width: calc(100vw - 24px);
-    max-height: calc(100vh - 90px);
-    min-width: 340px;
-    min-height: 260px;
-    overflow: hidden;
-    z-index: 86000;
-    border: 2px solid var(--gold);
-    border-radius: 18px;
-    padding: 0;
-    box-shadow: 0 24px 70px rgba(0,0,0,.38);
-  }
-
-  #internalCrossRefsPanel.open {
-    display: flex;
-    flex-direction: column;
-  }
-
-  body:not(.dark) #internalCrossRefsPanel {
-    background: linear-gradient(180deg, #fffaf0, #fff2d6);
-    color: #2B394F;
-  }
-
-  body.dark #internalCrossRefsPanel {
-    background: linear-gradient(180deg, #315f51, #254f44) !important;
-    color: #fff7df !important;
-    border-color: rgba(248,217,135,.88) !important;
-    box-shadow: 0 24px 60px rgba(0,0,0,.48), 0 0 22px rgba(248,217,135,.10) !important;
-  }
-
-  #internalCrossRefsPanel .teacher-pop-head {
-    flex: 0 0 auto;
-    margin: 0;
-    padding: 16px 18px 12px;
-    border-bottom: 1px solid var(--gold);
-    cursor: move;
-  }
-
-  #internalCrossRefsPanel .teacher-pop-head h3 {
-    margin: 0;
-    color: #8c5b09;
-    font-size: 22px;
-    text-transform: uppercase;
-    letter-spacing: 1.8px;
-    font-weight: 800;
-  }
-
-  body.dark #internalCrossRefsPanel .teacher-pop-head h3 {
-    color: #ffe08c !important;
-    text-shadow: none !important;
-  }
-
-  .internal-xrefs-body {
-    flex: 1 1 auto;
-    overflow: auto;
-    padding: 16px 18px 18px;
-    font: 500 15px/1.55 "Segoe UI", Arial, sans-serif;
-  }
-
-  body.dark .internal-xrefs-body,
-  body.dark .internal-xrefs-body p,
-  body.dark .internal-xrefs-body div,
-  body.dark .internal-xrefs-body li {
-    color: #fff7df !important;
-    font-weight: 500 !important;
-    text-shadow: none !important;
-  }
-
-  .internal-xrefs-controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .internal-xrefs-controls button,
-  .internal-xrefs-refresh {
-    box-shadow: none;
-    padding: 10px 12px;
-    font-size: 13px;
-    border-radius: 10px;
-  }
-
-  .internal-xrefs-controls button.active-internal-xref-mode {
-    outline: 2px solid rgba(248,217,135,.95);
-    background: linear-gradient(#f8d987, #d99f31);
-  }
-
-  .internal-xrefs-search {
-    margin: 0 0 12px;
-  }
-
-  .internal-xrefs-summary {
-    margin: 8px 0 14px;
-    padding: 10px 12px;
-    border: 1px solid rgba(215,168,79,.55);
-    border-radius: 10px;
-    font: 600 13px/1.45 "Segoe UI", Arial, sans-serif;
-    color: #7a4c06;
-    background: rgba(248,217,135,.13);
-  }
-
-  body.dark .internal-xrefs-summary {
-    color: #ffe8aa !important;
-    background: rgba(0,0,0,.10);
-  }
-
-  .internal-xref-verse {
-    margin: 0 0 14px;
-    padding: 12px;
-    border: 1px solid rgba(215,168,79,.55);
-    border-radius: 12px;
-    background: rgba(255,255,255,.28);
-  }
-
-  body.dark .internal-xref-verse {
-    background: rgba(255,255,255,.055);
-  }
-
-  .internal-xref-verse h4 {
-    margin: 0 0 9px;
-    color: #8c5b09;
-    font: 800 15px/1.3 "Segoe UI", Arial, sans-serif;
-  }
-
-  body.dark .internal-xref-verse h4 {
-    color: #ffe08c !important;
-    text-shadow: none !important;
-  }
-
-  .internal-xref-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .internal-xref-link {
-    box-shadow: none;
-    padding: 8px 11px;
-    border-radius: 999px;
-    font: 700 13px Arial, sans-serif;
-  }
-
-  body.dark .internal-xref-link {
-    background: rgba(0,0,0,.14) !important;
-    color: #fff7df !important;
-    border-color: rgba(248,217,135,.66) !important;
-  }
-
-  .internal-xref-empty {
-    padding: 14px;
-    border-left: 4px solid var(--gold);
-    border-radius: 10px;
-    background: rgba(248,217,135,.14);
-    font: 500 15px/1.55 "Segoe UI", Arial, sans-serif;
-  }
-
-  .internal-xref-resize-handle {
-    position: absolute;
-    right: 5px;
-    bottom: 5px;
-    width: 28px;
-    height: 28px;
-    cursor: nwse-resize;
-    border-right: 4px solid rgba(215,168,79,.82);
-    border-bottom: 4px solid rgba(215,168,79,.82);
-    border-radius: 0 0 12px 0;
-    touch-action: none;
-  }
-
-  html.obs #internalCrossRefsPanel {
-    width: min(620px, calc(100vw - 32px));
-    height: min(620px, calc(100vh - 120px));
-    top: 110px;
-    right: 22px;
-  }
-
-  @media (max-width: 760px), (pointer: coarse) {
-    #internalCrossRefsPanel {
-      width: min(92vw, 620px);
-      height: min(62vh, 620px);
-      min-width: min(320px, calc(100vw - 24px));
-      left: 14px;
-      right: auto;
-      top: 96px;
-    }
-
-    html.obs #internalCrossRefsPanel {
-      width: min(88vw, 620px);
-      height: min(56vh, 620px);
-      left: 14px;
-      right: auto;
-      top: 104px;
-    }
-
-    .internal-xrefs-controls {
-      grid-template-columns: 1fr;
-    }
-
-    #internalCrossRefsPanel .teacher-pop-head h3 {
-      font-size: 19px;
-      letter-spacing: 1.1px;
-    }
-  }
-
-  /* =========================================================
-   CREAM MODE ONLY — force action buttons to brown/red
-   ========================================================= */
-
-body.cream-mode #obsNavigatorPanel .action-btn,
-body.cream-mode #obsNavigatorPanel .primary-btn,
-body.cream-mode #obsNavigatorPanel .gold-btn,
-body.cream-mode #obsNavigatorPanel button.load-passage-btn,
-body.cream-mode #obsLoadPassage,
-body.cream-mode #teacherToolsPanel .action-btn,
-body.cream-mode #teacherToolsPanel .primary-btn,
-body.cream-mode #teacherToolsPanel .gold-btn,
-body.cream-mode #obsToolsPanel .action-btn,
-body.cream-mode #obsToolsPanel .primary-btn,
-body.cream-mode #obsToolsPanel .gold-btn {
-  background: linear-gradient(180deg, #9a5d08 0%, #7b4706 100%) !important;
-  color: #fff8ea !important;
-  border: 1px solid #c79a44 !important;
-  box-shadow: none !important;
-}
-
-body.cream-mode #obsNavigatorPanel .action-btn:hover,
-body.cream-mode #obsNavigatorPanel .primary-btn:hover,
-body.cream-mode #obsNavigatorPanel .gold-btn:hover,
-body.cream-mode #obsNavigatorPanel button.load-passage-btn:hover,
-body.cream-mode #obsLoadPassage:hover,
-body.cream-mode #teacherToolsPanel .action-btn:hover,
-body.cream-mode #teacherToolsPanel .primary-btn:hover,
-body.cream-mode #teacherToolsPanel .gold-btn:hover,
-body.cream-mode #obsToolsPanel .action-btn:hover,
-body.cream-mode #obsToolsPanel .primary-btn:hover,
-body.cream-mode #obsToolsPanel .gold-btn:hover {
-  filter: brightness(1.05) !important;
-}
-</style>
-<script>
-(function () {
-  const $ = (id) => document.getElementById(id);
-  let internalXrefMode = "passage";
-  let internalXrefZ = 87000;
-  let internalTskCache = {};
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function getViewportBox() {
-    const vv = window.visualViewport;
-    return {
-      width: vv ? vv.width : window.innerWidth,
-      height: vv ? vv.height : window.innerHeight,
-      left: vv ? vv.offsetLeft : 0,
-      top: vv ? vv.offsetTop : 0
-    };
-  }
-
-  function currentSelection() {
-    const book = $("book")?.value || "";
-    const chapter = $("chapter")?.value || "1";
-    const start = parseInt($("start")?.value, 10) || 1;
-    const end = parseInt($("end")?.value, 10) || start;
-    return { book, chapter, start, end };
-  }
-
-  function currentRefLabel(mode) {
-    const { book, chapter, start, end } = currentSelection();
-    if (mode === "chapter") return `${book} ${chapter}`;
-    return `${book} ${chapter}:${start}${end !== start ? "-" + end : ""}`;
-  }
-
-  function verseMaxForCurrentChapter() {
-    const endSelect = $("end");
-    if (endSelect && endSelect.options && endSelect.options.length) {
-      return Math.max(...Array.from(endSelect.options).map(option => parseInt(option.value, 10) || 0));
-    }
-    const selectedEnd = parseInt(endSelect?.value, 10) || 1;
-    return selectedEnd || 1;
-  }
-
-  async function loadInternalTskBook(book) {
-    if (!book) return {};
-    if (internalTskCache[book]) return internalTskCache[book];
-
-    try {
-      const response = await fetch(`bible/resources/tsk/${book}.json`);
-      if (!response.ok) throw new Error(`Missing TSK file for ${book}`);
-      const data = await response.json();
-      internalTskCache[book] = data || {};
-      return internalTskCache[book];
-    } catch (error) {
-      console.warn("Built-In Cross References not found:", error);
-      internalTskCache[book] = {};
-      return {};
-    }
-  }
-
-  function normalizeRefs(value) {
-    if (!value) return [];
-    if (Array.isArray(value)) return value.map(String).filter(Boolean);
-    if (typeof value === "string") {
-      return value.split(/;|,\s*(?=(?:[1-3]\s*)?[A-Z][a-z]+\s+\d+:)/).map(item => item.trim()).filter(Boolean);
-    }
-    if (typeof value === "object") {
-      return Object.values(value).flatMap(normalizeRefs).filter(Boolean);
-    }
-    return [];
-  }
-
-  async function collectInternalRefs(mode) {
-    const { book, chapter, start, end } = currentSelection();
-    const data = await loadInternalTskBook(book);
-    const firstVerse = mode === "chapter" ? 1 : start;
-    const lastVerse = mode === "chapter" ? verseMaxForCurrentChapter() : end;
-    const rows = [];
-
-    for (let verse = firstVerse; verse <= lastVerse; verse += 1) {
-      const key = `${book} ${chapter}:${verse}`;
-      const refs = [...new Set(normalizeRefs(data[key]))];
-      rows.push({ key, refs });
-    }
-
-    return rows;
-  }
-
-  function ensureInternalPanel() {
-    let panel = $("internalCrossRefsPanel");
-    if (panel) return panel;
-
-    panel = document.createElement("div");
-    panel.id = "internalCrossRefsPanel";
-    panel.className = "teacher-pop internal-crossrefs-panel";
-    panel.setAttribute("aria-hidden", "true");
-    panel.innerHTML = `
-      <div class="teacher-pop-head drag-handle" data-internal-xref-drag="true">
-        <h3>Built-In Cross References</h3>
-        <button id="closeInternalCrossRefs" class="teacher-pop-close secondary" type="button">Close</button>
-      </div>
-      <div class="internal-xrefs-body">
-        <div class="internal-xrefs-controls">
-          <button type="button" id="internalXrefsPassageMode" class="active-internal-xref-mode">Current Passage</button>
-          <button type="button" id="internalXrefsChapterMode" class="secondary">Full Chapter</button>
-        </div>
-        <input id="internalXrefSearch" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
-        <div id="internalXrefsSummary" class="internal-xrefs-summary">Built-In Cross References load from the local internal reference files.</div>
-        <div id="internalXrefsResults"></div>
-      </div>
-      <div class="internal-xref-resize-handle" data-internal-xref-resize="true" title="Resize"></div>
-    `;
-    document.body.appendChild(panel);
-
-    $("closeInternalCrossRefs")?.addEventListener("click", () => closeInternalCrossReferences());
-    $("internalXrefsPassageMode")?.addEventListener("click", () => setInternalMode("passage"));
-    $("internalXrefsChapterMode")?.addEventListener("click", () => setInternalMode("chapter"));
-    $("internalXrefSearch")?.addEventListener("input", () => renderInternalCrossReferences());
-    panel.addEventListener("pointerdown", () => bringInternalPanelForward());
-    panel.addEventListener("click", (event) => {
-      const button = event.target.closest(".internal-xref-link");
-      if (!button) return;
-      event.preventDefault();
-      event.stopPropagation();
-      const ref = button.dataset.ref || button.textContent.trim();
-      if (typeof window.goToScriptureReference === "function") {
-        window.goToScriptureReference(ref);
-      }
-    });
-
-    makeInternalPanelMovable(panel);
-    makeInternalPanelResizable(panel);
-    return panel;
-  }
-
-  function bringInternalPanelForward() {
-    const panel = ensureInternalPanel();
-    internalXrefZ += 1;
-    panel.style.zIndex = String(internalXrefZ);
-  }
-
-  function clampInternalPanel(panel) {
-    if (!panel) return;
-    const viewport = getViewportBox();
-    const margin = 10;
-    const rect = panel.getBoundingClientRect();
-    const maxWidth = Math.max(320, viewport.width - margin * 2);
-    const maxHeight = Math.max(260, viewport.height - margin * 2);
-
-    if (rect.width > maxWidth) panel.style.width = `${maxWidth}px`;
-    if (rect.height > maxHeight) panel.style.height = `${maxHeight}px`;
-
-    const updated = panel.getBoundingClientRect();
-    let left = updated.left;
-    let top = updated.top;
-
-    if (left < viewport.left + margin) left = viewport.left + margin;
-    if (top < viewport.top + margin) top = viewport.top + margin;
-    if (left + updated.width > viewport.left + viewport.width - margin) {
-      left = viewport.left + viewport.width - updated.width - margin;
-    }
-    if (top + updated.height > viewport.top + viewport.height - margin) {
-      top = viewport.top + viewport.height - updated.height - margin;
-    }
-
-    panel.style.left = `${Math.max(margin, left)}px`;
-    panel.style.top = `${Math.max(margin, top)}px`;
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-    panel.style.transform = "none";
-  }
-
-  function makeInternalPanelMovable(panel) {
-    const handle = panel.querySelector("[data-internal-xref-drag]");
-    if (!handle || handle.dataset.ready === "true") return;
-    handle.dataset.ready = "true";
-
-    handle.addEventListener("pointerdown", (event) => {
-      if (event.target.closest("button, input, select, textarea, a")) return;
-      event.preventDefault();
-      bringInternalPanelForward();
-
-      const rect = panel.getBoundingClientRect();
-      const startX = event.clientX;
-      const startY = event.clientY;
-      const startLeft = rect.left;
-      const startTop = rect.top;
-      panel.setPointerCapture?.(event.pointerId);
-
-      function move(moveEvent) {
-        panel.style.left = `${startLeft + moveEvent.clientX - startX}px`;
-        panel.style.top = `${startTop + moveEvent.clientY - startY}px`;
-        panel.style.right = "auto";
-        panel.style.bottom = "auto";
-        panel.style.transform = "none";
-      }
-
-      function up(upEvent) {
-        panel.releasePointerCapture?.(upEvent.pointerId);
-        window.removeEventListener("pointermove", move);
-        window.removeEventListener("pointerup", up);
-        clampInternalPanel(panel);
-      }
-
-      window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", up, { once: true });
-    });
-  }
-
-  function makeInternalPanelResizable(panel) {
-    const handle = panel.querySelector("[data-internal-xref-resize]");
-    if (!handle || handle.dataset.ready === "true") return;
-    handle.dataset.ready = "true";
-
-    handle.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      bringInternalPanelForward();
-
-      const rect = panel.getBoundingClientRect();
-      const startX = event.clientX;
-      const startY = event.clientY;
-      const startWidth = rect.width;
-      const startHeight = rect.height;
-      handle.setPointerCapture?.(event.pointerId);
-
-      function move(moveEvent) {
-        const viewport = getViewportBox();
-        const maxWidth = viewport.width - 20;
-        const maxHeight = viewport.height - 20;
-        const width = Math.min(maxWidth, Math.max(320, startWidth + moveEvent.clientX - startX));
-        const height = Math.min(maxHeight, Math.max(260, startHeight + moveEvent.clientY - startY));
-        panel.style.width = `${width}px`;
-        panel.style.height = `${height}px`;
-      }
-
-      function up(upEvent) {
-        handle.releasePointerCapture?.(upEvent.pointerId);
-        window.removeEventListener("pointermove", move);
-        window.removeEventListener("pointerup", up);
-        clampInternalPanel(panel);
-      }
-
-      window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", up, { once: true });
-    });
-  }
-
-  function setInternalMode(mode) {
-    internalXrefMode = mode === "chapter" ? "chapter" : "passage";
-    $("internalXrefsPassageMode")?.classList.toggle("active-internal-xref-mode", internalXrefMode === "passage");
-    $("internalXrefsChapterMode")?.classList.toggle("active-internal-xref-mode", internalXrefMode === "chapter");
-    renderInternalCrossReferences();
-  }
-
-  async function renderInternalCrossReferences() {
-    const panel = ensureInternalPanel();
-    const results = $("internalXrefsResults");
-    const summary = $("internalXrefsSummary");
-    const search = String($("internalXrefSearch")?.value || "").toLowerCase().trim();
-    if (!results || !summary) return;
-
-    results.innerHTML = `<p class="internal-xref-empty">Loading Built-In Cross References...</p>`;
-
-    const rows = await collectInternalRefs(internalXrefMode);
-    let refCount = 0;
-    let verseCount = 0;
-
-    const filteredRows = rows.map(row => {
-      let refs = row.refs;
-      if (search) {
-        refs = refs.filter(ref => ref.toLowerCase().includes(search) || row.key.toLowerCase().includes(search));
-      }
-      if (refs.length) {
-        refCount += refs.length;
-        verseCount += 1;
-      }
-      return { ...row, refs };
-    }).filter(row => row.refs.length);
-
-    summary.textContent = `${currentRefLabel(internalXrefMode)} — ${refCount} internal reference${refCount === 1 ? "" : "s"} across ${verseCount} verse${verseCount === 1 ? "" : "s"}.`;
-
-    if (!filteredRows.length) {
-      results.innerHTML = `<div class="internal-xref-empty">No Built-In Cross References found for ${escapeHtml(currentRefLabel(internalXrefMode))}${search ? " with this filter" : ""}. No internal reference data is available for this book yet.</div>`;
-      return;
-    }
-
-    results.innerHTML = filteredRows.map(row => `
-      <section class="internal-xref-verse">
-        <h4>${escapeHtml(row.key)}</h4>
-        <div class="internal-xref-buttons">
-          ${row.refs.map(ref => `<button type="button" class="cross-ref-link internal-xref-link" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join("")}
-        </div>
-      </section>
-    `).join("");
-  }
-
-  function openInternalCrossReferences(mode) {
-    const panel = ensureInternalPanel();
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-    bringInternalPanelForward();
-    if (mode) internalXrefMode = mode;
-    setInternalMode(internalXrefMode);
-    setTimeout(() => clampInternalPanel(panel), 30);
-  }
-
-  function closeInternalCrossReferences() {
-    const panel = $("internalCrossRefsPanel");
-    if (!panel) return;
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-  }
-
-
-function addInternalButtons() {
-  // Remove any older quick-action shortcut that may have been inserted
-  // into the main Teacher Tools quick box.
-  const existingInternalButton = $("openInternalCrossRefs");
-  if (existingInternalButton) {
-    existingInternalButton.remove();
-  }
-
-  // Add Built-In Cross References inside the Open Teacher Tools panel,
-  // directly after Erase Verse Marks so it lands to the right of it.
-  const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
-
-  if (eraseButton && eraseButton.parentElement) {
-    const button = document.createElement("button");
-    button.id = "openInternalCrossRefs";
-    button.type = "button";
-    button.className = "tool-option helper-option internal-xref-shortcut";
-    button.innerHTML = `
-      <strong>Built-In Cross References</strong>
-      <span>Open the built-in Scripture cross-reference database for the current passage or full chapter.</span>
-    `;
-
-    eraseButton.insertAdjacentElement("afterend", button);
-  }
-
-  // Add the OBS Focus toolbar button, clearly differentiated from
-  // Teaching Cross References.
-  const oldObsInternalButton = $("obsShowInternalCrossRefs");
-  if (oldObsInternalButton) {
-    oldObsInternalButton.remove();
-  }
-
-  const obsBar = $("obsToolBar");
-  const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
-
-  if (obsBar) {
-    const button = document.createElement("button");
-    button.id = "obsShowInternalCrossRefs";
-    button.type = "button";
-    button.textContent = "Built-In References";
-    obsBar.insertBefore(button, before || null);
-  }
-
-  $("openInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
-  $("obsShowInternalCrossRefs")?.addEventListener("click", () => openInternalCrossReferences("passage"));
-}
-  function refreshIfOpenSoon() {
-    setTimeout(() => {
-      const panel = $("internalCrossRefsPanel");
-      if (panel?.classList.contains("open")) renderInternalCrossReferences();
-    }, 250);
-  }
-
-  ["nextBtn", "prevBtn", "loadBtn", "obsLoadPassage"].forEach(id => {
-    document.addEventListener("click", (event) => {
-      if (event.target && event.target.closest && event.target.closest(`#${id}`)) refreshIfOpenSoon();
-    }, true);
-  });
-
-  ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
-    document.addEventListener("change", (event) => {
-      if (event.target && event.target.id === id) refreshIfOpenSoon();
-    }, true);
-  });
-
-  window.addEventListener("resize", () => clampInternalPanel($("internalCrossRefsPanel")));
-  window.visualViewport?.addEventListener("resize", () => clampInternalPanel($("internalCrossRefsPanel")));
-
-  addInternalButtons();
-  window.openInternalCrossReferences = openInternalCrossReferences;
-  window.renderInternalCrossReferences = renderInternalCrossReferences;
-})();
-</script>
-
-
-
-<!-- Patch 6H — iPad/tablet scroll reset without compacting the top
-     Starts from the clean Patch 6 build. This intentionally does NOT include
-     the 6B/6C/6D/6E/6F/6G footer/background experiments. It keeps the normal
-     iPad hero layout and prevents the tablet page from rubber-band exposing a
-     separate canvas by making the Iron Sharpener shell the scroll container. -->
-<style id="patch-6h-ipad-scroll-reset-style">
-  @media (hover: none) and (pointer: coarse) and (min-width: 701px) and (max-width: 1180px) {
-    html:not(.obs),
-    html:not(.obs) body {
-      height: 100% !important;
-      min-height: 100% !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      overflow: hidden !important;
-      margin: 0 !important;
-    }
-
-    html:not(.obs) body {
-      padding: 0 !important;
-      background: #fff9ec !important;
-      background-color: #fff9ec !important;
-      position: fixed !important;
-      inset: 0 !important;
-    }
-
-    html:not(.obs) body.dark {
-      background: #203D39 !important;
-      background-color: #203D39 !important;
-    }
-
-    html:not(.obs) .shell {
-      width: 100% !important;
-      max-width: none !important;
-      height: 100vh !important;
-      height: 100svh !important;
-      height: 100dvh !important;
-      min-height: 100vh !important;
-      min-height: 100svh !important;
-      min-height: 100dvh !important;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      overscroll-behavior-y: contain;
-      border-left: 0 !important;
-      border-right: 0 !important;
-      border-radius: 0 !important;
-      background: #fff9ec !important;
-    }
-
-    html:not(.obs) body.dark .shell {
-      background: #203D39 !important;
-      background-color: #203D39 !important;
-    }
-
-    html:not(.obs) .footer {
-      margin-bottom: 0 !important;
-    }
-  }
-</style>
-<script id="patch-6h-ipad-scroll-reset-script">
-(function patchSixHIpadScrollReset(){
-  function isTabletTouch(){
-    return window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse) and (min-width: 701px) and (max-width: 1180px)').matches;
-  }
-
-  function shell(){
-    return document.querySelector('.shell');
-  }
-
-  function isActive(){
-    return isTabletTouch() && !document.documentElement.classList.contains('obs') && !!shell();
-  }
-
-  function canElementScroll(node, deltaY){
-    while (node && node !== document.body && node !== document.documentElement) {
-      if (node.nodeType === 1) {
-        var style = window.getComputedStyle(node);
-        var overflowY = style.overflowY;
-        var canScroll = (overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight + 2;
-        if (canScroll) {
-          var atTop = node.scrollTop <= 0;
-          var atBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 2;
-          if (deltaY > 0 && !atTop) return true;
-          if (deltaY < 0 && !atBottom) return true;
-        }
-      }
-      node = node.parentNode;
-    }
-    return false;
-  }
-
-  var startY = 0;
-
-  document.addEventListener('touchstart', function(event){
-    if (!isActive() || !event.touches || !event.touches.length) return;
-    startY = event.touches[0].clientY;
-  }, { passive: true, capture: true });
-
-  document.addEventListener('touchmove', function(event){
-    if (!isActive() || !event.touches || !event.touches.length) return;
-    var currentY = event.touches[0].clientY;
-    var deltaY = currentY - startY;
-    if (Math.abs(deltaY) < 2) return;
-
-    var scroller = shell();
-    if (!scroller) return;
-
-    // Let real inner scrollable panels move normally.
-    if (event.target && event.target !== scroller && canElementScroll(event.target, deltaY)) return;
-
-    var atTop = scroller.scrollTop <= 0;
-    var atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
-
-    if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
-      event.preventDefault();
-    }
-  }, { passive: false, capture: true });
-
-  function normalizeShellScroll(){
-    if (!isActive()) return;
-    var scroller = shell();
-    if (!scroller) return;
-    if (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) {
-      scroller.scrollTop += window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      window.scrollTo(0, 0);
-    }
-  }
-
-  window.addEventListener('orientationchange', function(){ setTimeout(normalizeShellScroll, 250); });
-  window.addEventListener('resize', function(){ setTimeout(normalizeShellScroll, 100); });
-  document.addEventListener('DOMContentLoaded', normalizeShellScroll);
-})();
-</script>
 <style>
 /* FINAL OVERRIDE — Biblical Doctrine result/category buttons in cream mode */
 html body:not(.dark) #obsCrossRefsContent button.doctrine-topic-btn,
@@ -11211,11 +10389,6 @@ body:not(.dark) #obsCrossRefsPanel #obsCrossRefsContent button:not(.secondary):n
     }
 
     const active = getActiveResource();
-
-    if (active === "tsk" && get("openTskResource")) {
-      get("openTskResource").click();
-      return;
-    }
 
     if (active === "personalCrossRefs" && get("obsShowCrossRefs")) {
       get("obsShowCrossRefs").click();
@@ -11957,11 +11130,6 @@ bindButton("openBookOverviewResource", async () => {
         text.includes("jfb commentary");
     });
 
-    const hasTskOpen = panels.some(panel =>
-      panel.dataset.resourceKey === "tsk-current-passage" ||
-      clean(panel.textContent).includes("treasury of scripture knowledge")
-    );
-
     if (hasMatthewHenryOpen && get("openCommentariesResource")) {
       get("openCommentariesResource").click();
       return;
@@ -11969,11 +11137,6 @@ bindButton("openBookOverviewResource", async () => {
 
     if (hasJfbOpen && get("openJfbResource")) {
       get("openJfbResource").click();
-      return;
-    }
-
-    if (hasTskOpen && get("openTskResource")) {
-      get("openTskResource").click();
       return;
     }
 
@@ -12040,7 +11203,6 @@ bindButton("openBookOverviewResource", async () => {
 
     if (text.includes("matthew henry commentary")) return "commentary-mh";
     if (text.includes("jamieson-fausset-brown commentary") || text.includes("jfb commentary")) return "commentary-jfb";
-    if (text.includes("treasury of scripture knowledge")) return "tsk-current-passage";
     if (text.includes("book overview") || /\b(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|psalms|proverbs|ecclesiastes|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|jude|revelation)\s+overview\b/i.test(text)) {
       return "book-overview-manual";
     }
@@ -12121,10 +11283,6 @@ bindButton("openBookOverviewResource", async () => {
     return hasOpenPanelByKey("commentary-jfb");
   }
 
-  function hasTskOpen() {
-    return hasOpenPanelByKey("tsk-current-passage");
-  }
-
   function hasBookOverviewOpen() {
     return hasOpenPanelByKey("book-overview-manual");
   }
@@ -12137,13 +11295,11 @@ bindButton("openBookOverviewResource", async () => {
   function finalRefreshActiveResourcePanel() {
     const shouldRefreshMatthewHenry = hasMatthewHenryOpen();
     const shouldRefreshJfb = hasJfbOpen();
-    const shouldRefreshTsk = hasTskOpen();
     const shouldRefreshBookOverview = hasBookOverviewOpen();
 
     if (
       !shouldRefreshMatthewHenry &&
       !shouldRefreshJfb &&
-      !shouldRefreshTsk &&
       !shouldRefreshBookOverview
     ) {
       return;
@@ -12157,10 +11313,6 @@ bindButton("openBookOverviewResource", async () => {
 
     if (shouldRefreshJfb) {
       clickIfPresent("openJfbResource");
-    }
-
-    if (shouldRefreshTsk) {
-      clickIfPresent("openTskResource");
     }
 
     if (shouldRefreshBookOverview) {
@@ -12188,7 +11340,6 @@ bindButton("openBookOverviewResource", async () => {
     if (!resourceButton) return;
 
     const resourceButtonIds = new Set([
-      "openTskResource",
       "openEastonsResource",
       "openSmithsResource",
       "openNavesResource",
@@ -13198,71 +12349,128 @@ body.dark .backgrounds-back-btn {
       return;
     }
 
-    const tskButton = get("openTskResource");
-    if (!tskButton) return;
+    const options = get("studyResourcesPanel")?.querySelector(".tool-options");
+    if (!options) return;
 
-    const button = tskButton.cloneNode(false);
+    const button = document.createElement("button");
     button.id = "openBackgroundsResource";
     button.type = "button";
-    button.className = tskButton.className || "tool-option";
+    button.className = "tool-option";
     button.innerHTML = `
       <strong>Bible Backgrounds &amp; Customs</strong>
-      <span>Ancient customs, feasts, worship, daily life, places, and historical background.</span>
+      <span>Search ancient customs, feasts, worship, daily life, places, and historical background.</span>
     `;
 
-    tskButton.replaceWith(button);
+    options.insertAdjacentElement("afterbegin", button);
     button.onclick = openBackgroundsResourceSafe;
   }
 
-  async function loadTSKReferencesSafe() {
+  function builtInCrossRefDataPaths(book) {
+    const encoded = encodeURIComponent(book);
+    const dashed = String(book || "").replace(/\s+/g, "-");
+    const underscored = String(book || "").replace(/\s+/g, "_");
+
+    return [
+      `bible/resources/cross-references/${book}.json`,
+      `bible/resources/cross-references/${encoded}.json`,
+      `bible/resources/cross-references/${dashed}.json`,
+      `bible/resources/cross-references/${underscored}.json`,
+      `bible/resources/internal-cross-references/${book}.json`,
+      `bible/resources/internal-cross-references/${encoded}.json`,
+      `bible/resources/built-in-cross-references/${book}.json`,
+      `bible/resources/built-in-cross-references/${encoded}.json`,
+      `bible/resources/crossrefs/${book}.json`,
+      `bible/resources/crossrefs/${encoded}.json`,
+      `bible/resources/xrefs/${book}.json`,
+      `bible/resources/xrefs/${encoded}.json`,
+      book === "Psalms" ? "bible/resources/cross-references/Psalm.json" : ""
+    ].filter(Boolean);
+  }
+
+  async function loadBuiltInReferenceBook(book) {
+    return await fetchJsonAny(builtInCrossRefDataPaths(book), {});
+  }
+
+  function normalizeBuiltInReferenceItems(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(normalizeBuiltInReferenceItems);
+    }
+
+    if (typeof value === "string") {
+      return value
+        .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    if (typeof value === "object") {
+      const direct = value.reference || value.ref || value.target || value.verse || value.passage;
+      const refs = value.references || value.refs || value.targets || value.crossReferences || value.cross_refs || value.xrefs;
+      return [
+        ...normalizeBuiltInReferenceItems(direct),
+        ...normalizeBuiltInReferenceItems(refs)
+      ];
+    }
+
+    return [];
+  }
+
+  function isValidBuiltInReference(ref) {
+    const parsed = parseReference(ref);
+    if (!parsed) return false;
+
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[parsed.book] : null;
+      if (!counts) return false;
+      const chapterIndex = parseInt(parsed.chapter, 10) - 1;
+      const maxVerse = counts[chapterIndex] || 0;
+      const startVerse = parseInt(parsed.start, 10) || 0;
+      const endVerse = parseInt(parsed.end, 10) || startVerse;
+      return maxVerse > 0 && startVerse >= 1 && endVerse >= startVerse && endVerse <= maxVerse;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  function uniqueValidBuiltInReferences(value) {
+    const seen = new Set();
+    const refs = [];
+
+    normalizeBuiltInReferenceItems(value).forEach(ref => {
+      const clean = String(ref || "").replace(/\s+/g, " ").trim().replace(/^Psalm\s+/i, "Psalms ");
+      if (!clean || !isValidBuiltInReference(clean)) return;
+      const key = clean.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      refs.push(clean);
+    });
+
+    return refs;
+  }
+
+  async function loadBuiltInCrossReferencesSafe() {
+    return await loadExactBuiltInReferencesForCurrentRange();
+  }
+
+  async function loadExactBuiltInReferencesForCurrentRange() {
     const state = currentState();
-    const book = state.book;
-
-    const data = await fetchJsonAny([
-      `bible/resources/tsk/${book}.json`,
-      `bible/resources/tsk/${encodeURIComponent(book)}.json`,
-      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
-      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
-    ].filter(Boolean), {});
-
+    const data = await loadBuiltInReferenceBook(state.book);
     const refs = [];
     const start = parseInt(state.start, 10) || 1;
     const end = parseInt(state.end, 10) || start;
 
     for (let v = start; v <= end; v++) {
-      const key = `${book} ${state.chapter}:${v}`;
-      if (Array.isArray(data[key])) data[key].forEach(ref => refs.push(ref));
+      const key = `${state.book} ${state.chapter}:${v}`;
+      uniqueValidBuiltInReferences(data[key]).forEach(ref => refs.push(ref));
     }
 
     return [...new Set(refs)];
   }
 
-  async function loadExactTSKReferencesForCurrentRange() {
-    const state = currentState();
-    const book = state.book;
-
-    const data = await fetchJsonAny([
-      `bible/resources/tsk/${book}.json`,
-      `bible/resources/tsk/${encodeURIComponent(book)}.json`,
-      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
-      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
-    ].filter(Boolean), {});
-
-    const refs = [];
-    const start = parseInt(state.start, 10) || 1;
-    const end = parseInt(state.end, 10) || start;
-
-    for (let v = start; v <= end; v++) {
-      const key = `${book} ${state.chapter}:${v}`;
-      if (Array.isArray(data[key])) data[key].forEach(ref => refs.push(ref));
-    }
-
-    return [...new Set(refs)];
-  }
-
-
-  window.loadTSKReferences = loadTSKReferencesSafe;
-  try { loadTSKReferences = loadTSKReferencesSafe; } catch (_) {}
+  window.loadBuiltInCrossReferences = loadBuiltInCrossReferencesSafe;
+  try { loadBuiltInCrossReferences = loadBuiltInCrossReferencesSafe; } catch (_) {}
 
   function ensureStudyResourcesKey() {
     let key = get("studyResourcesKey");
@@ -13283,7 +12491,7 @@ body.dark .backgrounds-back-btn {
 
     const map = await loadBackgroundMap(currentState().book);
     const bgCount = countBackgroundTopics(map);
-    const exactBuiltInRefs = await loadExactTSKReferencesForCurrentRange();
+    const exactBuiltInRefs = await loadExactBuiltInReferencesForCurrentRange();
     const builtInXrefCount = exactBuiltInRefs.length;
     const previous = backStack[backStack.length - 1];
 
@@ -13463,636 +12671,7 @@ body.dark .backgrounds-back-btn {
   setTimeout(updateStudyResourcesKey, 350);
 })();
 </script>
-<script id="rdm-study-resource-availability-patch-v2">
-/* =========================================================
-   RDM STUDY RESOURCE AVAILABILITY PATCH v2
-   Purpose:
-   - Backgrounds stays clickable even when count is 0.
-   - Backgrounds count only appears when mapped topics exist.
-   - Backgrounds panel gives a search-first message when no exact match.
-   - Background search is more forgiving.
-   - Built-In Cross References button only appears when valid refs exist.
-   - Commentary button only appears when Matthew Henry has data for the passage.
-   - Book Overview only appears when overview data exists.
-   - Filters broken Built-In Cross Reference buttons after render.
-   ========================================================= */
-(function () {
-  if (window.__rdmStudyResourceAvailabilityPatchV2) return;
-  window.__rdmStudyResourceAvailabilityPatchV2 = true;
 
-  const get = (id) => document.getElementById(id);
-
-  function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char]));
-  }
-
-  function slug(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
-  function normalizeText(value) {
-    return String(value || "")
-      .toLowerCase()
-      .replace(/&/g, " and ")
-      .replace(/[^a-z0-9\s-]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function currentState() {
-    return {
-      book: get("book")?.value || "Genesis",
-      chapter: get("chapter")?.value || "1",
-      start: get("start")?.value || "1",
-      end: get("end")?.value || get("start")?.value || "1",
-      range: get("rangeSize")?.value || "5"
-    };
-  }
-
-  function currentLabel() {
-    const state = currentState();
-    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
-  }
-
-  function exactVerseKeys() {
-    const state = currentState();
-    const start = parseInt(state.start, 10) || 1;
-    const end = parseInt(state.end, 10) || start;
-    const keys = [];
-
-    for (let verse = start; verse <= end; verse += 1) {
-      keys.push(`${state.book} ${state.chapter}:${verse}`);
-    }
-
-    return keys;
-  }
-
-  function backgroundLookupKeys() {
-    const state = currentState();
-    const keys = [
-      `${state.book} ${state.chapter}:${state.start}-${state.end}`,
-      `${state.book} ${state.chapter}`,
-      state.book,
-      ...exactVerseKeys()
-    ];
-
-    return [...new Set(keys)];
-  }
-
-  async function fetchJsonAny(paths, fallback) {
-    for (const path of paths.filter(Boolean)) {
-      try {
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) continue;
-        return await response.json();
-      } catch (_) {}
-    }
-    return fallback;
-  }
-
-  async function loadBackgroundIndexV2() {
-    const data = await fetchJsonAny([
-      "bible/resources/backgrounds/index.json",
-      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
-    ], []);
-
-    if (!Array.isArray(data)) return [];
-
-    return data.map((item) => {
-      const id = item.id || slug(item.file || item.title);
-      return {
-        id,
-        file: item.file || `${id}.json`,
-        title: item.title || String(id).replace(/-/g, " "),
-        summary: item.summary || "",
-        category: item.category || "",
-        tags: Array.isArray(item.tags) ? item.tags : [],
-        searchTerms: Array.isArray(item.searchTerms) ? item.searchTerms : []
-      };
-    });
-  }
-
-  async function loadBackgroundMapV2(bookName) {
-    const book = String(bookName || "").trim();
-    const encoded = encodeURIComponent(book);
-
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/by-reference/${encoded}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
-    ], {});
-  }
-
-  async function loadBackgroundTopicV2(idOrFile) {
-    const raw = String(idOrFile || "")
-      .replace(/^topics\//i, "")
-      .replace(/\.json$/i, "")
-      .trim();
-
-    const id = slug(raw);
-
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/topics/${id}.json`,
-      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
-    ], null);
-  }
-
-  function backgroundIdsFromMap(map) {
-    const ids = [];
-
-    backgroundLookupKeys().forEach((key) => {
-      const mapped = map?.[key];
-      if (Array.isArray(mapped)) mapped.forEach((id) => ids.push(slug(id)));
-      if (typeof mapped === "string") ids.push(slug(mapped));
-    });
-
-    return [...new Set(ids)];
-  }
-
-  async function currentBackgroundItems() {
-    const state = currentState();
-    const index = await loadBackgroundIndexV2();
-    const map = await loadBackgroundMapV2(state.book);
-    const ids = backgroundIdsFromMap(map);
-
-    return ids.map((id) => {
-      return index.find((item) =>
-        slug(item.id) === id ||
-        slug(item.file) === id ||
-        slug(String(item.file || "").replace(/\.json$/i, "")) === id
-      ) || {
-        id,
-        file: `${id}.json`,
-        title: id.replace(/-/g, " "),
-        summary: ""
-      };
-    });
-  }
-
-  function findBackgroundMatchesV2(index, query) {
-    const q = normalizeText(query);
-    if (!q) return [];
-
-    const qSlug = slug(q);
-    const singular = q.endsWith("s") ? q.slice(0, -1) : q;
-    const plural = q.endsWith("s") ? q : `${q}s`;
-
-    return index.filter((item) => {
-      const haystack = normalizeText([
-        item.title,
-        item.id,
-        item.file,
-        item.category,
-        item.summary,
-        ...(item.tags || []),
-        ...(item.searchTerms || [])
-      ].join(" "));
-
-      const haySlug = slug(haystack);
-
-      return (
-        haystack.includes(q) ||
-        haystack.includes(singular) ||
-        haystack.includes(plural) ||
-        haySlug.includes(qSlug)
-      );
-    }).slice(0, 40);
-  }
-
-  function renderBackgroundButtons(items, emptyMessage) {
-    if (!items.length) {
-      return `<p style="font:800 14px Arial,sans-serif;line-height:1.45;">${esc(emptyMessage)}</p>`;
-    }
-
-    return items.map((item) => `
-      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id || item.file)}" style="width:100%;margin-bottom:8px;">
-        <strong>${esc(item.title || item.id || item.file)}</strong>
-        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-      </button>
-    `).join("");
-  }
-
-  function searchHelpHtml() {
-    return `
-      <div style="font:800 13px Arial,sans-serif;line-height:1.45;margin:8px 0 12px;opacity:.95;">
-        Try searches like:
-        <strong>Sabbath</strong>, <strong>temple</strong>, <strong>shepherd</strong>,
-        <strong>wells</strong>, <strong>Passover</strong>, <strong>feasts</strong>,
-        <strong>sacrifice</strong>, <strong>synagogue</strong>, <strong>Pharisees</strong>,
-        <strong>Roman</strong>, <strong>covenant</strong>, or <strong>exile</strong>.
-      </div>
-    `;
-  }
-
-  async function buildBackgroundHomeHtmlV2() {
-    const index = await loadBackgroundIndexV2();
-    const currentItems = await currentBackgroundItems();
-    const hasCurrent = currentItems.length > 0;
-
-    return `
-      <div class="backgrounds-home">
-        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-          Bible Backgrounds &amp; Customs for <strong>${esc(currentLabel())}</strong>.
-        </p>
-
-        ${hasCurrent ? `
-          <details class="backgrounds-current" open style="margin-bottom:12px;">
-            <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-              Current Passage Backgrounds (${currentItems.length})
-            </summary>
-            <div style="margin-top:8px;">
-              ${renderBackgroundButtons(currentItems, "")}
-            </div>
-          </details>
-        ` : `
-          <div class="backgrounds-current" style="margin-bottom:12px;">
-            <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-              No specific background card is mapped to this exact passage yet, but you can still search the Bible Backgrounds &amp; Customs library below.
-            </p>
-            ${searchHelpHtml()}
-          </div>
-        `}
-
-        <input class="backgrounds-search-box" type="text" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;">
-        <div class="backgrounds-results"></div>
-      </div>
-    `;
-  }
-
-  async function openBackgroundsResourceV2(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    window.activeResourcePanel = "backgrounds";
-    try { activeResourcePanel = "backgrounds"; } catch (_) {}
-
-    if (typeof window.openResourceInstancePanel !== "function") return;
-
-    const panel = window.openResourceInstancePanel(
-      "Bible Backgrounds & Customs",
-      await buildBackgroundHomeHtmlV2(),
-      "Bible Backgrounds & Customs",
-      "backgrounds-current",
-      { updateExisting: true }
-    );
-
-    if (!panel) return;
-
-    const index = await loadBackgroundIndexV2();
-    const searchBox = panel.querySelector(".backgrounds-search-box");
-    const results = panel.querySelector(".backgrounds-results");
-    const current = panel.querySelector(".backgrounds-current");
-
-    if (!searchBox || !results) return;
-
-    searchBox.oninput = () => {
-      const value = searchBox.value.trim();
-
-      if (!value) {
-        results.innerHTML = "";
-        if (current?.tagName === "DETAILS") current.open = true;
-        return;
-      }
-
-      if (current?.tagName === "DETAILS") current.open = false;
-
-      const matches = findBackgroundMatchesV2(index, value);
-
-      results.innerHTML = `
-        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-          ← Back to Current Passage Backgrounds
-        </button>
-        <h4>Search Results</h4>
-        ${renderBackgroundButtons(
-          matches,
-          "No matching background topic was found in the current index. Try a broader word such as worship, priest, sacrifice, feast, city, wilderness, shepherd, temple, Sabbath, or covenant."
-        )}
-      `;
-    };
-
-    setTimeout(() => searchBox.focus(), 80);
-  }
-
-  window.openBackgroundsResource = openBackgroundsResourceV2;
-  window.openBackgroundsResourceSafe = openBackgroundsResourceV2;
-
-  function normalizeRefs(value) {
-    if (!value) return [];
-    if (Array.isArray(value)) return value.map(String).map(v => v.trim()).filter(Boolean);
-
-    if (typeof value === "string") {
-      return value
-        .split(/;|,\s*(?=(?:[1-3]\s*)?[A-Z][a-z]+\s+\d+:)/)
-        .map(item => item.trim())
-        .filter(Boolean);
-    }
-
-    if (typeof value === "object") {
-      return Object.values(value).flatMap(normalizeRefs).filter(Boolean);
-    }
-
-    return [];
-  }
-
-  function bookList() {
-    try {
-      if (typeof books !== "undefined" && Array.isArray(books)) {
-        return books.map(([name]) => name);
-      }
-    } catch (_) {}
-
-    return [
-      "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
-      "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
-      "Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
-      "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah",
-      "Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
-      "John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians",
-      "Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
-      "Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John",
-      "Jude","Revelation"
-    ];
-  }
-
-  function parseScriptureRefStrict(ref) {
-    const cleaned = String(ref || "")
-      .replace(/[–—]/g, "-")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    const names = bookList().sort((a, b) => b.length - a.length);
-
-    for (const book of names) {
-      const lower = cleaned.toLowerCase();
-      const bookLower = book.toLowerCase();
-
-      if (!lower.startsWith(`${bookLower} `)) continue;
-
-      const rest = cleaned.slice(book.length).trim();
-      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?$/);
-
-      if (!match) return null;
-
-      return {
-        book,
-        chapter: parseInt(match[1], 10),
-        start: parseInt(match[2], 10),
-        end: parseInt(match[3] || match[2], 10)
-      };
-    }
-
-    return null;
-  }
-
-  function isValidScriptureRef(ref) {
-    const parsed = parseScriptureRefStrict(ref);
-    if (!parsed) return false;
-
-    try {
-      if (typeof verseCounts !== "undefined" && verseCounts[parsed.book]) {
-        const maxVerse = verseCounts[parsed.book][parsed.chapter - 1];
-        if (!maxVerse) return false;
-        return parsed.start >= 1 && parsed.end >= parsed.start && parsed.end <= maxVerse;
-      }
-    } catch (_) {}
-
-    return true;
-  }
-
-  async function loadTskBookV2(book) {
-    const encoded = encodeURIComponent(book);
-
-    return await fetchJsonAny([
-      `bible/resources/tsk/${book}.json`,
-      `bible/resources/tsk/${encoded}.json`,
-      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
-      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
-    ], {});
-  }
-
-  async function validBuiltInRefsForCurrentPassage() {
-    const state = currentState();
-    const data = await loadTskBookV2(state.book);
-    const refs = [];
-
-    exactVerseKeys().forEach((key) => {
-      normalizeRefs(data[key]).forEach((ref) => {
-        if (isValidScriptureRef(ref)) refs.push(ref);
-      });
-    });
-
-    return [...new Set(refs)];
-  }
-
-  async function hasMatthewHenryForCurrentPassage() {
-    const state = currentState();
-    const book = state.book;
-    const encoded = encodeURIComponent(book);
-
-    const data = await fetchJsonAny([
-      `bible/resources/commentaries/matthew-henry/${book}.json`,
-      `bible/resources/commentaries/matthew-henry/${encoded}.json`
-    ], {});
-
-    return exactVerseKeys().some((key) => !!data[key]);
-  }
-
-  async function hasBookOverviewForCurrentBook() {
-    const state = currentState();
-    const book = state.book;
-    const encoded = encodeURIComponent(book);
-    const id = slug(book);
-    const lower = book.toLowerCase();
-
-    const data = await fetchJsonAny([
-      `bible/resources/book-overviews/${book}.json`,
-      `bible/resources/book-overviews/${encoded}.json`,
-      `bible/resources/book-overviews/${id}.json`,
-      `bible/resources/book-overviews/${lower}.json`,
-      `bible/resources/book-overview/${book}.json`,
-      `bible/resources/book-overview/${encoded}.json`,
-      `bible/resources/overviews/${book}.json`,
-      `bible/resources/overviews/${encoded}.json`,
-      `bible/resources/book-overviews/bible/resources/book-overviews/${book}.json`,
-      `bible/resources/book-overviews/bible/resources/book-overviews/${encoded}.json`
-    ], null);
-
-    return !!data;
-  }
-
-  async function refineStudyResourcesKey() {
-    const key = get("studyResourcesKey");
-    if (!key) return;
-
-    const [backgroundItems, validRefs, hasCommentary, hasOverview] = await Promise.all([
-      currentBackgroundItems(),
-      validBuiltInRefsForCurrentPassage(),
-      hasMatthewHenryForCurrentPassage(),
-      hasBookOverviewForCurrentBook()
-    ]);
-
-    const bgBtn = key.querySelector('[data-study-key-action="backgrounds"]');
-    if (bgBtn) {
-      bgBtn.dataset.backgroundCount = String(backgroundItems.length);
-      bgBtn.textContent = backgroundItems.length ? `Backgrounds: ${backgroundItems.length}` : "Backgrounds";
-      bgBtn.title = backgroundItems.length
-        ? "Open mapped Bible Backgrounds & Customs for this passage."
-        : "No exact background card is mapped to this passage yet, but search is available.";
-    }
-
-    const xrefBtn = key.querySelector('[data-study-key-action="crossrefs"]');
-    if (xrefBtn) {
-      if (!validRefs.length) {
-        xrefBtn.remove();
-      } else {
-        xrefBtn.dataset.validXrefCount = String(validRefs.length);
-        xrefBtn.textContent = "Built-In Cross References";
-      }
-    }
-
-    const commentaryBtn = key.querySelector('[data-study-key-action="commentary"]');
-    if (commentaryBtn && !hasCommentary) {
-      commentaryBtn.remove();
-    }
-
-    const overviewBtn = key.querySelector('[data-study-key-action="overview"]');
-    if (overviewBtn && !hasOverview) {
-      overviewBtn.remove();
-    }
-  }
-
-  function scheduleRefineStudyResourcesKey() {
-    setTimeout(refineStudyResourcesKey, 120);
-    setTimeout(refineStudyResourcesKey, 350);
-    setTimeout(refineStudyResourcesKey, 800);
-  }
-
-  document.addEventListener("click", async function (event) {
-    const keyButton = event.target.closest("#studyResourcesKey button");
-    if (!keyButton) return;
-
-    const action = keyButton.dataset.studyKeyAction;
-
-    if (action === "backgrounds") {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      await openBackgroundsResourceV2(event);
-      return;
-    }
-
-    if (action === "crossrefs") {
-      const refs = await validBuiltInRefsForCurrentPassage();
-      if (!refs.length) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-      }
-    }
-  }, true);
-
-  const originalOpenInternalCrossReferences = window.openInternalCrossReferences;
-  if (typeof originalOpenInternalCrossReferences === "function") {
-    window.openInternalCrossReferences = async function (mode) {
-      const refs = await validBuiltInRefsForCurrentPassage();
-      if (!refs.length) return;
-
-      originalOpenInternalCrossReferences.call(this, mode || "passage");
-      setTimeout(pruneBrokenInternalCrossRefs, 120);
-      setTimeout(pruneBrokenInternalCrossRefs, 400);
-    };
-  }
-
-  function pruneBrokenInternalCrossRefs() {
-    const panel = get("internalCrossRefsPanel");
-    if (!panel) return;
-
-    panel.querySelectorAll(".internal-xref-link").forEach((button) => {
-      const ref = button.dataset.ref || button.textContent.trim();
-      if (!isValidScriptureRef(ref)) {
-        button.remove();
-      }
-    });
-
-    panel.querySelectorAll(".internal-xref-verse").forEach((section) => {
-      if (!section.querySelector(".internal-xref-link")) {
-        section.remove();
-      }
-    });
-
-    const remaining = panel.querySelectorAll(".internal-xref-link").length;
-    const summary = get("internalXrefsSummary");
-    const results = get("internalXrefsResults");
-
-    if (summary && remaining) {
-      summary.textContent = `${currentLabel()} — ${remaining} valid built-in cross reference${remaining === 1 ? "" : "s"}.`;
-    }
-
-    if (results && !remaining) {
-      results.innerHTML = "";
-      if (summary) summary.textContent = "No valid Built-In Cross References are available for this passage.";
-    }
-  }
-
-  document.addEventListener("input", function (event) {
-    if (event.target?.id === "internalXrefSearch") {
-      setTimeout(pruneBrokenInternalCrossRefs, 120);
-    }
-  }, true);
-
-  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
-    document.addEventListener("change", function (event) {
-      if (event.target?.id === id) scheduleRefineStudyResourcesKey();
-    }, true);
-  });
-
-  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
-    document.addEventListener("click", function (event) {
-      if (event.target?.closest?.(`#${id}`)) scheduleRefineStudyResourcesKey();
-    }, true);
-  });
-
-  window.auditCurrentStudyResources = async function () {
-    const [backgroundItems, validRefs, hasCommentary, hasOverview] = await Promise.all([
-      currentBackgroundItems(),
-      validBuiltInRefsForCurrentPassage(),
-      hasMatthewHenryForCurrentPassage(),
-      hasBookOverviewForCurrentBook()
-    ]);
-
-    const report = {
-      passage: currentLabel(),
-      backgroundsMapped: backgroundItems.length,
-      validBuiltInCrossReferences: validRefs.length,
-      matthewHenryAvailable: hasCommentary,
-      bookOverviewAvailable: hasOverview
-    };
-
-    console.table(report);
-    return report;
-  };
-
-  window.addEventListener("load", scheduleRefineStudyResourcesKey);
-  setTimeout(scheduleRefineStudyResourcesKey, 500);
-})();
-</script>
 <style id="rdm-resource-ui-cleanup-v3">
 /* =========================================================
    RESOURCE PANEL BUTTON CLEANUP
@@ -14186,23 +12765,171 @@ body:not(.dark) .rdm-background-topic-btn:hover {
 }
 </style>
 
-<script id="rdm-backgrounds-search-cleanup-v3">
+
+
+
+
+
+</style>
+
+
+</style>
+
+
+
+<style id="rdm-built-in-crossrefs-internal-rebuild-v1-style">
+#internalCrossRefsPanel {
+  display: none;
+  position: fixed;
+  top: 118px;
+  right: 22px;
+  width: min(660px, calc(100vw - 32px));
+  height: min(680px, calc(100vh - 150px));
+  min-width: min(340px, calc(100vw - 32px));
+  min-height: 280px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 90px);
+  overflow: hidden;
+  resize: both;
+  z-index: 88000;
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.38);
+}
+#internalCrossRefsPanel.open {
+  display: flex;
+  flex-direction: column;
+}
+body:not(.dark) #internalCrossRefsPanel {
+  background: linear-gradient(180deg, #fffaf0, #fff2d6);
+  color: #2B394F;
+}
+body.dark #internalCrossRefsPanel {
+  background: linear-gradient(180deg, #355A54, #294843);
+  color: #fff7df;
+  border-color: rgba(248,217,135,.88);
+}
+#internalCrossRefsPanel .teacher-pop-head {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--gold);
+  cursor: move;
+}
+#internalCrossRefsPanel .teacher-pop-head h3 {
+  margin: 0;
+  color: #8c5b09;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+}
+body.dark #internalCrossRefsPanel .teacher-pop-head h3 { color: #ffe08c !important; }
+.internal-xrefs-body {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px 18px 18px;
+  font: 800 14px/1.55 Arial, sans-serif;
+}
+.internal-xrefs-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.internal-xrefs-controls button {
+  box-shadow: none !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+}
+body:not(.dark) .internal-xrefs-controls button {
+  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
+  color: #fff8ea !important;
+  border-color: rgba(154,106,52,.85) !important;
+}
+.internal-xrefs-controls button.active-internal-xref-mode {
+  outline: 2px solid rgba(248,217,135,.95) !important;
+}
+.internal-xrefs-search {
+  margin: 0 0 12px !important;
+}
+.internal-xrefs-summary {
+  margin: 8px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(215,168,79,.55);
+  border-radius: 10px;
+  color: #7a4c06;
+  background: rgba(248,217,135,.13);
+}
+.internal-xref-empty {
+  margin-top: 10px;
+  padding: 13px 14px;
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  background: rgba(248,217,135,.13);
+  color: #2B394F;
+  font-weight: 900;
+}
+body.dark .internal-xref-empty,
+body.dark .internal-xrefs-summary { color: #fff2c8 !important; }
+.internal-xref-verse {
+  margin: 0 0 13px;
+  padding: 12px;
+  border: 1px solid rgba(215,168,79,.45);
+  border-radius: 12px;
+  background: rgba(255,255,255,.32);
+}
+body.dark .internal-xref-verse { background: rgba(0,0,0,.10); }
+.internal-xref-verse h4 {
+  margin: 0 0 8px;
+  color: #8c5b09;
+  font: 900 14px Arial, sans-serif;
+}
+body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
+.internal-xref-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#internalCrossRefsPanel .internal-xref-link {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+#internalXrefsShowMore {
+  width: 100%;
+  margin-top: 8px;
+}
+html.obs .obs-tool-bar #obsShowInternalCrossRefs {
+  display: inline-flex !important;
+  background: linear-gradient(#f8d987, #d99f31) !important;
+  color: #203D39 !important;
+  border: 1.5px solid var(--gold) !important;
+}
+</style>
+
+
+<script id="rdm-built-in-crossrefs-internal-rebuild-v1">
 /* =========================================================
-   BIBLE BACKGROUNDS & CUSTOMS SEARCH CLEANUP v3
-   - Replaces the rough empty message.
-   - Keeps search available when no passage card is mapped.
-   - Makes search more forgiving.
-   - Tries direct topic-file loading when the index misses a term.
-   - Does not touch Scripture loading, copy tools, panels, or layout.
+   Iron Sharpener Built-In Cross References — Internal Rebuild v1
+   Source of truth: internal cross-reference JSON only.
+   Does not read or mention Treasury resources.
    ========================================================= */
 (function () {
-  if (window.__rdmBackgroundsSearchCleanupV3) return;
-  window.__rdmBackgroundsSearchCleanupV3 = true;
+  if (window.__rdmBuiltInCrossRefsInternalRebuildV1) return;
+  window.__rdmBuiltInCrossRefsInternalRebuildV1 = true;
 
-  const get = (id) => document.getElementById(id);
+  const CHUNK_SIZE = 120;
+  const $ = (id) => document.getElementById(id);
+  const cache = window.__rdmBuiltInCrossRefCache || {};
+  window.__rdmBuiltInCrossRefCache = cache;
+
+  let mode = "passage";
+  let visibleLimit = CHUNK_SIZE;
+  let renderToken = 0;
+  let zIndex = 88000;
 
   function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -14211,1372 +12938,394 @@ body:not(.dark) .rdm-background-topic-btn:hover {
     }[char]));
   }
 
-  function slug(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
-  function cleanText(value) {
-    return String(value || "")
-      .toLowerCase()
-      .replace(/&/g, " and ")
-      .replace(/[^a-z0-9\s-]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function currentState() {
+  function state() {
+    const start = $("start")?.value || "1";
     return {
-      book: get("book")?.value || "Genesis",
-      chapter: get("chapter")?.value || "1",
-      start: get("start")?.value || "1",
-      end: get("end")?.value || get("start")?.value || "1"
+      book: $("book")?.value || "Genesis",
+      chapter: String($("chapter")?.value || "1"),
+      start: String(start),
+      end: String($("end")?.value || start),
+      range: $("rangeSize")?.value || "5"
     };
   }
 
-  function stateLabel(state) {
-    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  function stateLabel(s = state(), scope = "passage") {
+    if (scope === "chapter") return `${s.book} ${s.chapter}`;
+    return String(s.start) === String(s.end)
+      ? `${s.book} ${s.chapter}:${s.start}`
+      : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
   }
 
-  function currentVerseKeys() {
-    const state = currentState();
-    const start = parseInt(state.start, 10) || 1;
-    const end = parseInt(state.end, 10) || start;
-    const keys = [];
-
-    for (let verse = start; verse <= end; verse += 1) {
-      keys.push(`${state.book} ${state.chapter}:${verse}`);
-    }
-
-    keys.push(`${state.book} ${state.chapter}:${state.start}-${state.end}`);
-    keys.push(`${state.book} ${state.chapter}`);
-    keys.push(state.book);
-
-    return [...new Set(keys)];
-  }
-
-  async function fetchJsonAny(paths, fallback) {
-    for (const path of paths.filter(Boolean)) {
-      try {
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) continue;
-        return await response.json();
-      } catch (_) {}
-    }
-
-    return fallback;
-  }
-
-  function normalizeIndex(data) {
-    const raw = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.topics)
-        ? data.topics
-        : Array.isArray(data?.items)
-          ? data.items
-          : Array.isArray(data?.backgrounds)
-            ? data.backgrounds
-            : data && typeof data === "object"
-              ? Object.values(data)
-              : [];
-
-    return raw.map((item) => {
-      const id = item.id || slug(item.file || item.title);
-      return {
-        id,
-        file: item.file || `${id}.json`,
-        title: item.title || id.replace(/-/g, " "),
-        summary: item.summary || "",
-        background: item.background || "",
-        category: item.category || "",
-        tags: Array.isArray(item.tags) ? item.tags : [],
-        searchTerms: Array.isArray(item.searchTerms) ? item.searchTerms : []
-      };
-    });
-  }
-
-  async function loadBackgroundIndexClean() {
-    const data = await fetchJsonAny([
-      "bible/resources/backgrounds/index.json",
-      "bible/resources/backgrounds/backgrounds-index.json",
-      "bible/resources/backgrounds/registry.json",
-      "bible/resources/backgrounds/backgrounds-registry.json",
-      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
-    ], []);
-
-    return normalizeIndex(data);
-  }
-
-  async function loadBackgroundMapClean(book) {
-    const encoded = encodeURIComponent(book);
-
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/by-reference/${encoded}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
-    ], {});
-  }
-
-  async function loadBackgroundTopicClean(idOrFile) {
-    const raw = String(idOrFile || "")
-      .replace(/^topics\//i, "")
-      .replace(/\.json$/i, "")
-      .trim();
-
-    const id = slug(raw);
-
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/topics/${id}.json`,
-      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
-    ], null);
-  }
-
-  function mappedBackgroundItems(index, map) {
-    const ids = [];
-
-    currentVerseKeys().forEach((key) => {
-      const mapped = map?.[key];
-      if (Array.isArray(mapped)) mapped.forEach((id) => ids.push(slug(id)));
-      if (typeof mapped === "string") ids.push(slug(mapped));
-    });
-
-    return [...new Set(ids)].map((id) => {
-      return index.find((item) =>
-        slug(item.id) === id ||
-        slug(item.file) === id ||
-        slug(String(item.file || "").replace(/\.json$/i, "")) === id
-      ) || {
-        id,
-        file: `${id}.json`,
-        title: id.replace(/-/g, " "),
-        summary: ""
-      };
-    });
-  }
-
-  function searchAliases(query) {
-    const q = slug(query);
-
-    const groups = {
-      sabbath: ["sabbath", "sabbath-day", "sabbath-observance", "sabbaths", "synagogue-and-sabbath"],
-      temple: ["temple", "jerusalem-temple", "temple-worship", "second-temple", "solomons-temple", "herods-temple"],
-      shepherd: ["shepherd", "shepherds", "shepherding", "sheep-and-shepherds", "flocks-and-shepherds"],
-      wells: ["wells", "well", "water-wells", "ancient-wells"],
-      passover: ["passover", "feast-of-passover", "passover-lamb"],
-      synagogue: ["synagogue", "synagogues"],
-      sacrifice: ["sacrifice", "sacrifices", "offerings", "altar", "burnt-offerings"],
-      priest: ["priest", "priests", "priesthood", "levites"],
-      covenant: ["covenant", "covenants"],
-      exile: ["exile", "exiles", "babylonian-exile"],
-      roman: ["roman", "rome", "roman-empire", "roman-world"]
-    };
-
-    const matches = [];
-
-    Object.keys(groups).forEach((key) => {
-      if (key.startsWith(q) || q.startsWith(key) || groups[key].some((term) => term.startsWith(q))) {
-        matches.push(...groups[key]);
-      }
-    });
-
-    return [...new Set([q, q.replace(/s$/, ""), `${q}s`, ...matches].filter(Boolean))];
-  }
-
-  async function directTopicMatches(query, existingIndex) {
-    const candidates = searchAliases(query);
-    const found = [];
-
-    for (const candidate of candidates) {
-      const indexed = existingIndex.find((item) =>
-        slug(item.id) === candidate ||
-        slug(item.file) === candidate ||
-        slug(item.title) === candidate
-      );
-
-      if (indexed) {
-        found.push(indexed);
-        continue;
-      }
-
-      const topic = await loadBackgroundTopicClean(candidate);
-      if (topic) {
-        found.push({
-          id: topic.id || candidate,
-          file: `${topic.id || candidate}.json`,
-          title: topic.title || candidate.replace(/-/g, " "),
-          summary: topic.summary || "",
-          background: topic.background || "",
-          category: topic.category || "",
-          tags: Array.isArray(topic.tags) ? topic.tags : [],
-          searchTerms: Array.isArray(topic.searchTerms) ? topic.searchTerms : []
-        });
-      }
-    }
-
-    const seen = new Set();
-    return found.filter((item) => {
-      const key = slug(item.id || item.title || item.file);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }
-
-  async function findBackgroundMatchesClean(index, query) {
-    const q = cleanText(query);
-    if (!q) return [];
-
-    const qSlug = slug(q);
-    const aliases = searchAliases(q);
-    const qSingular = q.endsWith("s") ? q.slice(0, -1) : q;
-
-    let matches = index.filter((item) => {
-      const haystackText = cleanText([
-        item.title,
-        item.id,
-        item.file,
-        item.summary,
-        item.background,
-        item.category,
-        ...(item.tags || []),
-        ...(item.searchTerms || [])
-      ].join(" "));
-
-      const haystackSlug = slug(haystackText);
-
-      return (
-        haystackText.includes(q) ||
-        haystackText.includes(qSingular) ||
-        haystackSlug.includes(qSlug) ||
-        aliases.some((alias) => haystackSlug.includes(alias))
-      );
-    });
-
-    if (!matches.length) {
-      matches = await directTopicMatches(q, index);
-    }
-
-    return matches.slice(0, 40);
-  }
-
-  function renderTopicButtons(items) {
-    if (!items.length) {
-      return `
-        <div class="backgrounds-no-results">
-          No matching background topic was found yet. Try a broader word such as
-          <strong>temple</strong>, <strong>Sabbath</strong>, <strong>shepherd</strong>,
-          <strong>sacrifice</strong>, <strong>priest</strong>, <strong>Passover</strong>,
-          <strong>covenant</strong>, <strong>synagogue</strong>, or <strong>Roman</strong>.
-        </div>
-      `;
-    }
-
-    return items.map((item) => `
-      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id || item.file)}" style="width:100%;margin-bottom:8px;">
-        <strong>${esc(item.title || item.id || item.file)}</strong>
-        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-      </button>
-    `).join("");
-  }
-
-  function renderTopicCard(topic, fallbackTitle) {
-    if (!topic) {
-      return `<p style="font:800 14px Arial,sans-serif;">This background topic could not be loaded.</p>`;
-    }
-
-    return `
-      <div class="background-topic-card">
-        ${topic.summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.summary)}</p>` : ""}
-        ${topic.background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.background)}</p>` : ""}
-        ${topic.teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(topic.teachingHelp)}</p>` : ""}
-
-        ${(topic.keyScriptures || []).length ? `
-          <h4>Key Scriptures</h4>
-          <div style="display:grid;gap:7px;margin-bottom:12px;">
-            ${(topic.keyScriptures || []).map((ref) => `
-              <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;">
-                ${esc(ref)}
-              </button>
-            `).join("")}
-          </div>
-        ` : ""}
-      </div>
-    `;
-  }
-
-  async function openBackgroundTopicClean(idOrFile) {
-    const topic = await loadBackgroundTopicClean(idOrFile);
-    const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
-
-    if (typeof window.openResourceInstancePanel !== "function") return;
-
-    window.openResourceInstancePanel(
-      title,
-      renderTopicCard(topic, title),
-      "Bible Backgrounds & Customs",
-      `background-topic-${slug(topic?.id || idOrFile || title)}`,
-      { updateExisting: true }
-    );
-  }
-
-  function suggestionChipsHtml() {
-    const words = ["Sabbath", "Temple", "Shepherd", "Passover", "Sacrifice", "Priests", "Synagogue", "Covenant", "Roman"];
-
-    return `
-      <div class="backgrounds-suggestion-row">
-        ${words.map((word) => `<button type="button" class="backgrounds-suggestion-chip" data-background-search="${esc(word)}">${esc(word)}</button>`).join("")}
-      </div>
-    `;
-  }
-
-  async function buildBackgroundHomeClean() {
-    const state = currentState();
-    const index = await loadBackgroundIndexClean();
-    const map = await loadBackgroundMapClean(state.book);
-    const currentItems = mappedBackgroundItems(index, map);
-
-    return `
-      <div class="backgrounds-home">
-        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-          Bible Backgrounds &amp; Customs for <strong>${esc(stateLabel(state))}</strong>.
-        </p>
-
-        ${currentItems.length ? `
-          <details class="backgrounds-current" open style="margin-bottom:12px;">
-            <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-              Current Passage Backgrounds (${currentItems.length})
-            </summary>
-            <div style="margin-top:8px;">
-              ${renderTopicButtons(currentItems)}
-            </div>
-          </details>
-        ` : `
-          <div class="backgrounds-empty-callout" style="margin-bottom:12px;">
-            No exact background card is linked to this passage yet. Use the search below to look up Bible customs, places, worship practices, feasts, and ancient context.
-          </div>
-        `}
-
-        ${suggestionChipsHtml()}
-
-        <input class="backgrounds-search-box" type="text" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;width:100%;">
-        <div class="backgrounds-results"></div>
-      </div>
-    `;
-  }
-
-  async function openBackgroundsClean(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation?.();
-    }
-
-    window.activeResourcePanel = "backgrounds";
-    try { activeResourcePanel = "backgrounds"; } catch (_) {}
-
-    if (typeof window.openResourceInstancePanel !== "function") return;
-
-    const panel = window.openResourceInstancePanel(
-      "Bible Backgrounds & Customs",
-      await buildBackgroundHomeClean(),
-      "Bible Backgrounds & Customs",
-      "backgrounds-current",
-      { updateExisting: true }
-    );
-
-    if (!panel) return;
-
-    const index = await loadBackgroundIndexClean();
-    const searchBox = panel.querySelector(".backgrounds-search-box");
-    const results = panel.querySelector(".backgrounds-results");
-    const current = panel.querySelector(".backgrounds-current");
-
-    async function runSearch(value) {
-      const query = String(value || "").trim();
-
-      if (!query) {
-        results.innerHTML = "";
-        if (current) current.open = true;
-        return;
-      }
-
-      if (current) current.open = false;
-
-      results.innerHTML = `
-        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-          ← Back to Current Passage Backgrounds
-        </button>
-        <h4>Search Results</h4>
-        <p style="font:800 13px Arial,sans-serif;line-height:1.4;">Searching for <strong>${esc(query)}</strong>…</p>
-      `;
-
-      const matches = await findBackgroundMatchesClean(index, query);
-
-      results.innerHTML = `
-        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-          ← Back to Current Passage Backgrounds
-        </button>
-        <h4>Search Results</h4>
-        ${renderTopicButtons(matches)}
-      `;
-    }
-
-    if (searchBox && results) {
-      let timer = null;
-
-      searchBox.oninput = () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => runSearch(searchBox.value), 180);
-      };
-    }
-
-    panel.onclick = async (clickEvent) => {
-      const topicBtn = clickEvent.target.closest(".rdm-background-topic-btn");
-      const backBtn = clickEvent.target.closest(".backgrounds-back-btn");
-      const suggestion = clickEvent.target.closest(".backgrounds-suggestion-chip");
-
-      if (topicBtn) {
-        clickEvent.preventDefault();
-        await openBackgroundTopicClean(topicBtn.dataset.topicId);
-        return;
-      }
-
-      if (backBtn) {
-        clickEvent.preventDefault();
-        if (searchBox) searchBox.value = "";
-        if (results) results.innerHTML = "";
-        if (current) current.open = true;
-        return;
-      }
-
-      if (suggestion) {
-        clickEvent.preventDefault();
-        const value = suggestion.dataset.backgroundSearch || suggestion.textContent.trim();
-        if (searchBox) searchBox.value = value;
-        await runSearch(value);
-      }
-    };
-  }
-
-  window.openBackgroundsResource = openBackgroundsClean;
-  window.openBackgroundsResourceSafe = openBackgroundsClean;
-
-  function installBackgroundsCleanHandlers() {
-    const btn = get("openBackgroundsResource");
-    if (btn) btn.onclick = openBackgroundsClean;
-  }
-
-  document.addEventListener("click", function (event) {
-    const backgroundBtn = event.target.closest(
-      "#openBackgroundsResource, [data-study-key-action='backgrounds']"
-    );
-
-    if (!backgroundBtn) return;
-
-    openBackgroundsClean(event);
-  }, true);
-
-  function cleanInternalXrefEmptyMessage() {
-    const panel = get("internalCrossRefsPanel");
-    if (!panel) return;
-
-    const bodyText = panel.textContent || "";
-    if (!/0 internal references/i.test(bodyText)) return;
-
-    const summary = get("internalXrefsSummary");
-    const results = get("internalXrefsResults");
-
-    if (summary) {
-      summary.textContent = "No built-in cross references are available for this passage.";
-    }
-
-    if (results) {
-      results.innerHTML = `
-        <div class="backgrounds-empty-callout">
-          No built-in cross references are linked to this passage in the local database yet.
-        </div>
-      `;
-    }
-  }
-
-  document.addEventListener("click", () => {
-    setTimeout(cleanInternalXrefEmptyMessage, 150);
-    setTimeout(cleanInternalXrefEmptyMessage, 500);
-  }, true);
-
-  window.addEventListener("load", installBackgroundsCleanHandlers);
-  setTimeout(installBackgroundsCleanHandlers, 300);
-  setTimeout(installBackgroundsCleanHandlers, 900);
-})();
-</script>
-<script id="rdm-backgrounds-and-tsk-final-repair-v4">
-/* =========================================================
-   FINAL REPAIR v4 — Background Search + Built-In Cross Refs
-   Purpose:
-   1. Make Bible Backgrounds search use the full index robustly.
-   2. Stop false "no valid cross references" messages.
-   3. Render Built-In Cross References from actual TSK data.
-   4. Keep cream-mode brown/red resource buttons.
-   ========================================================= */
-(function () {
-  if (window.__rdmBackgroundsAndTskFinalRepairV4) return;
-  window.__rdmBackgroundsAndTskFinalRepairV4 = true;
-
-  const $id = (id) => document.getElementById(id);
-
-  function esc(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char]));
-  }
-
-  function slug(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
-  function clean(value) {
-    return String(value || "")
-      .toLowerCase()
-      .replace(/&/g, " and ")
-      .replace(/[^a-z0-9\s:-]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  async function fetchJsonAny(paths, fallback) {
-    for (const path of paths.filter(Boolean)) {
-      try {
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) continue;
-        return await response.json();
-      } catch (_) {}
-    }
-    return fallback;
-  }
-
-  function currentStudyState() {
-    return {
-      book: $id("book")?.value || "Genesis",
-      chapter: $id("chapter")?.value || "1",
-      start: $id("start")?.value || "1",
-      end: $id("end")?.value || $id("start")?.value || "1",
-      range: $id("rangeSize")?.value || "5"
-    };
-  }
-
-  function passageLabel(state = currentStudyState()) {
-    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
-  }
-
-  function verseMaxForState(state = currentStudyState()) {
+  function bookList() {
     try {
-      if (typeof verseCounts !== "undefined" && verseCounts[state.book]) {
-        return verseCounts[state.book][parseInt(state.chapter, 10) - 1] || parseInt(state.end, 10) || 1;
-      }
+      if (Array.isArray(window.books)) return window.books.map(b => Array.isArray(b) ? b[0] : b).filter(Boolean);
+      if (Array.isArray(books)) return books.map(b => Array.isArray(b) ? b[0] : b).filter(Boolean);
     } catch (_) {}
-    return parseInt(state.end, 10) || 1;
-  }
-
-  function exactVerseKeys(state = currentStudyState(), mode = "passage") {
-    const start = mode === "chapter" ? 1 : (parseInt(state.start, 10) || 1);
-    const end = mode === "chapter" ? verseMaxForState(state) : (parseInt(state.end, 10) || start);
-    const keys = [];
-
-    for (let verse = start; verse <= end; verse++) {
-      keys.push(`${state.book} ${state.chapter}:${verse}`);
-    }
-
-    return keys;
-  }
-
-  function backgroundLookupKeys(state = currentStudyState()) {
-    return [
-      `${state.book} ${state.chapter}:${state.start}-${state.end}`,
-      ...exactVerseKeys(state, "passage"),
-      `${state.book} ${state.chapter}`,
-      state.book
-    ];
-  }
-
-  function deepText(value) {
-    const parts = [];
-
-    function walk(item) {
-      if (item == null) return;
-
-      if (typeof item === "string" || typeof item === "number") {
-        parts.push(String(item));
-        return;
-      }
-
-      if (Array.isArray(item)) {
-        item.forEach(walk);
-        return;
-      }
-
-      if (typeof item === "object") {
-        Object.keys(item).forEach((key) => {
-          if (["content", "text", "summary", "background", "teachingHelp", "tags", "searchTerms", "search_terms", "terms", "keywords", "title", "id", "category"].includes(key)) {
-            walk(item[key]);
-          } else if (typeof item[key] !== "object") {
-            walk(item[key]);
-          }
-        });
-      }
-    }
-
-    walk(value);
-    return parts.join(" ");
-  }
-
-  function normalizeBackgroundIndex(data) {
-    const raw = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.topics)
-        ? data.topics
-        : Array.isArray(data?.items)
-          ? data.items
-          : Array.isArray(data?.backgrounds)
-            ? data.backgrounds
-            : data && typeof data === "object"
-              ? Object.values(data)
-              : [];
-
-    return raw.map((item) => {
-      const id = item.id || item.topicId || item.slug || slug(item.file || item.filename || item.title);
-      const file = item.file || item.filename || `${id}.json`;
-
-      const searchBag = [
-        item.title,
-        id,
-        file,
-        item.category,
-        item.summary,
-        item.background,
-        item.teachingHelp,
-        ...(Array.isArray(item.tags) ? item.tags : []),
-        ...(Array.isArray(item.searchTerms) ? item.searchTerms : []),
-        ...(Array.isArray(item.search_terms) ? item.search_terms : []),
-        ...(Array.isArray(item.terms) ? item.terms : []),
-        ...(Array.isArray(item.keywords) ? item.keywords : []),
-        deepText(item)
-      ].join(" ");
-
-      return {
-        ...item,
-        id,
-        file,
-        title: item.title || id.replace(/-/g, " "),
-        summary: item.summary || "",
-        category: item.category || "Uncategorized",
-        _search: clean(searchBag),
-        _slugSearch: slug(searchBag)
-      };
-    });
-  }
-
-  async function loadBackgroundIndexV4() {
-    const data = await fetchJsonAny([
-      "bible/resources/backgrounds/index.json",
-      "bible/resources/backgrounds/backgrounds-index.json",
-      "bible/resources/backgrounds/registry.json",
-      "bible/resources/backgrounds/backgrounds-registry.json",
-      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
-    ], []);
-
-    return normalizeBackgroundIndex(data);
-  }
-
-  async function loadBackgroundMapV4(book) {
-    const encoded = encodeURIComponent(book);
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/by-reference/${encoded}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
-    ], {});
-  }
-
-  async function loadBackgroundTopicV4(idOrFile) {
-    const raw = String(idOrFile || "")
-      .replace(/^topics\//i, "")
-      .replace(/\.json$/i, "")
-      .trim();
-
-    const id = slug(raw);
-
-    return await fetchJsonAny([
-      `bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/topics/${id}.json`,
-      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
-      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
-    ], null);
-  }
-
-  function normalizeMappedIds(value) {
-    if (!value) return [];
-
-    if (Array.isArray(value)) {
-      return value.flatMap(normalizeMappedIds);
-    }
-
-    if (typeof value === "string") {
-      return [slug(value)];
-    }
-
-    if (typeof value === "object") {
-      return normalizeMappedIds(value.id || value.topic || value.topicId || value.file || value.topics || value.backgrounds);
-    }
-
     return [];
   }
 
-  function backgroundItemsForCurrentPassage(index, map) {
-    const ids = [];
+  function maxVerse(book, chapter) {
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
+      return counts ? (counts[parseInt(chapter, 10) - 1] || 0) : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
 
-    backgroundLookupKeys().forEach((key) => {
-      normalizeMappedIds(map?.[key]).forEach((id) => ids.push(id));
-    });
+  function parseRef(ref) {
+    const cleaned = String(ref || "")
+      .replace(/[–—]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^Psalm\s+/i, "Psalms ");
 
-    const uniqueIds = [...new Set(ids)];
+    if (!cleaned) return null;
 
-    return uniqueIds.map((id) => {
-      return index.find((item) =>
-        slug(item.id) === id ||
-        slug(item.file) === id ||
-        slug(String(item.file || "").replace(/\.json$/i, "")) === id
-      ) || {
-        id,
-        file: `${id}.json`,
-        title: id.replace(/-/g, " "),
-        summary: ""
+    const names = bookList().sort((a, b) => b.length - a.length);
+    for (const book of names) {
+      if (!cleaned.toLowerCase().startsWith(book.toLowerCase() + " ")) continue;
+      const rest = cleaned.slice(book.length).trim();
+      const match = rest.match(/^(\d+):(\d+)(?:-(\d+))?$/);
+      if (!match) return null;
+
+      const chapter = parseInt(match[1], 10);
+      const start = parseInt(match[2], 10);
+      const end = parseInt(match[3] || match[2], 10);
+      const max = maxVerse(book, chapter);
+
+      if (!max || chapter < 1 || start < 1 || end < start || end > max) return null;
+
+      return {
+        book,
+        chapter: String(chapter),
+        start: String(start),
+        end: String(end),
+        canonical: start === end ? `${book} ${chapter}:${start}` : `${book} ${chapter}:${start}-${end}`
       };
-    });
-  }
-
-  function findBackgroundMatchesV4(index, query) {
-    const q = clean(query);
-    if (!q) return [];
-
-    const qSlug = slug(q);
-    const singular = q.endsWith("s") ? q.slice(0, -1) : q;
-    const plural = q.endsWith("s") ? q : `${q}s`;
-
-    const aliases = {
-      sabb: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
-      sabbath: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
-      temple: ["temple", "tabernacle", "priest", "priests", "worship", "sacrifice"],
-      shepherd: ["shepherd", "shepherds", "sheep", "flock", "pasture", "rod", "staff"],
-      wells: ["well", "wells", "water", "cistern", "spring"],
-      well: ["well", "wells", "water", "cistern", "spring"],
-      passover: ["passover", "feast", "feasts", "lamb"],
-      priest: ["priest", "priests", "priesthood", "levite", "levites"],
-      sacrifice: ["sacrifice", "sacrifices", "offering", "offerings", "altar"],
-      synagogue: ["synagogue", "synagogues", "sabbath"],
-      covenant: ["covenant", "covenants", "promise"],
-      roman: ["roman", "rome", "empire", "caesar"]
-    };
-
-    const aliasTerms = [
-      q,
-      singular,
-      plural,
-      qSlug,
-      ...(aliases[qSlug] || [])
-    ].filter(Boolean).map(clean);
-
-    return index.filter((item) => {
-      return aliasTerms.some((term) =>
-        item._search.includes(term) ||
-        item._slugSearch.includes(slug(term))
-      );
-    }).slice(0, 60);
-  }
-
-  function renderBackgroundTopicButtonsV4(items) {
-    if (!items.length) {
-      return `
-        <div class="backgrounds-clean-empty">
-          No matching background topic was found for that word. Try another term such as
-          <strong>temple</strong>, <strong>Sabbath</strong>, <strong>shepherd</strong>,
-          <strong>worship</strong>, <strong>sacrifice</strong>, <strong>priest</strong>,
-          <strong>Passover</strong>, <strong>covenant</strong>, or <strong>Roman</strong>.
-        </div>
-      `;
     }
-
-    return items.map((item) => `
-      <button type="button" class="rdm-background-topic-btn" data-topic-id="${esc(item.id || item.file)}" style="width:100%;margin-bottom:8px;">
-        <strong>${esc(item.title || item.id || item.file)}</strong>
-        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${esc(item.summary)}</span>` : ""}
-      </button>
-    `).join("");
+    return null;
   }
 
-  function renderBackgroundTopicCardV4(topic, titleFallback) {
-    if (!topic) {
-      return `<p style="font:800 14px Arial,sans-serif;">This background topic could not be loaded.</p>`;
+  function dataPaths(book) {
+    const encoded = encodeURIComponent(book);
+    const dashed = String(book || "").replace(/\s+/g, "-");
+    const underscored = String(book || "").replace(/\s+/g, "_");
+    return [
+      `bible/resources/cross-references/${book}.json`,
+      `bible/resources/cross-references/${encoded}.json`,
+      `bible/resources/cross-references/${dashed}.json`,
+      `bible/resources/cross-references/${underscored}.json`,
+      `bible/resources/internal-cross-references/${book}.json`,
+      `bible/resources/internal-cross-references/${encoded}.json`,
+      `bible/resources/built-in-cross-references/${book}.json`,
+      `bible/resources/built-in-cross-references/${encoded}.json`,
+      `bible/resources/crossrefs/${book}.json`,
+      `bible/resources/crossrefs/${encoded}.json`,
+      `bible/resources/xrefs/${book}.json`,
+      `bible/resources/xrefs/${encoded}.json`,
+      book === "Psalms" ? "bible/resources/cross-references/Psalm.json" : ""
+    ].filter(Boolean);
+  }
+
+  async function fetchJsonAny(paths) {
+    for (const path of paths) {
+      if (cache[path]) return cache[path];
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) continue;
+        const data = await response.json();
+        cache[path] = data || {};
+        return cache[path];
+      } catch (_) {}
     }
-
-    const summary = topic.summary || "";
-    const background = topic.background || topic.content || topic.body || "";
-    const teachingHelp = topic.teachingHelp || topic.teaching_help || topic.application || "";
-    const keyScriptures = Array.isArray(topic.keyScriptures)
-      ? topic.keyScriptures
-      : Array.isArray(topic.key_scriptures)
-        ? topic.key_scriptures
-        : [];
-
-    return `
-      <div class="background-topic-card">
-        ${summary ? `<h4>Summary</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(summary)}</p>` : ""}
-        ${background ? `<h4>Background</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(background)}</p>` : ""}
-        ${teachingHelp ? `<h4>Teaching Help</h4><p style="font:700 14px Arial,sans-serif;line-height:1.5;">${esc(teachingHelp)}</p>` : ""}
-        ${keyScriptures.length ? `
-          <h4>Key Scriptures</h4>
-          <div style="display:grid;gap:7px;margin-bottom:12px;">
-            ${keyScriptures.map((ref) => {
-              const reference = typeof ref === "string" ? ref : (ref.reference || ref.ref || "");
-              return reference ? `<button type="button" class="cross-ref-link" data-ref="${esc(reference)}" style="width:100%;">${esc(reference)}</button>` : "";
-            }).join("")}
-          </div>
-        ` : ""}
-      </div>
-    `;
+    return {};
   }
 
-  async function openBackgroundTopicV4(idOrFile) {
-    const topic = await loadBackgroundTopicV4(idOrFile);
-    const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
-
-    if (typeof window.openResourceInstancePanel !== "function") return;
-
-    window.openResourceInstancePanel(
-      title,
-      renderBackgroundTopicCardV4(topic, title),
-      "Bible Backgrounds & Customs",
-      `background-topic-${slug(topic?.id || idOrFile || title)}`,
-      { updateExisting: true }
-    );
+  async function loadBookData(book) {
+    return await fetchJsonAny(dataPaths(book));
   }
 
-  function backgroundSuggestionChips() {
-    const words = ["Sabbath", "Temple", "Shepherd", "Wells", "Passover", "Sacrifice", "Priests", "Synagogue", "Covenant", "Roman"];
-    return `
-      <div class="backgrounds-suggestion-row">
-        ${words.map((word) => `<button type="button" class="backgrounds-suggestion-chip" data-bg-search="${esc(word)}">${esc(word)}</button>`).join("")}
-      </div>
-    `;
-  }
-
-  async function buildBackgroundsHomeV4() {
-    const state = currentStudyState();
-    const index = await loadBackgroundIndexV4();
-    const map = await loadBackgroundMapV4(state.book);
-    const currentItems = backgroundItemsForCurrentPassage(index, map);
-
-    return `
-      <div class="backgrounds-home-v4">
-        <p style="font:800 14px Arial,sans-serif;line-height:1.45;margin-top:0;">
-          Bible Backgrounds &amp; Customs for <strong>${esc(passageLabel(state))}</strong>.
-        </p>
-
-        ${currentItems.length ? `
-          <details class="backgrounds-current-v4" open style="margin-bottom:12px;">
-            <summary style="cursor:pointer;font:900 15px Arial,sans-serif;margin-bottom:8px;">
-              Current Passage Backgrounds (${currentItems.length})
-            </summary>
-            <div style="margin-top:8px;">
-              ${renderBackgroundTopicButtonsV4(currentItems)}
-            </div>
-          </details>
-        ` : `
-          <div class="backgrounds-clean-empty" style="margin-bottom:12px;">
-            No exact background card is linked to this passage yet. Search the full Bible Backgrounds &amp; Customs library below.
-          </div>
-        `}
-
-        ${backgroundSuggestionChips()}
-
-        <input id="backgroundsSearchV4" class="backgrounds-search-box" type="search" placeholder="Search background topics like Sabbath, temple, wells, shepherds..." style="margin-bottom:10px;width:100%;">
-        <div id="backgroundsResultsV4"></div>
-      </div>
-    `;
-  }
-
-  async function openBackgroundsResourceV4(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-
-    window.activeResourcePanel = "backgrounds";
-    try { activeResourcePanel = "backgrounds"; } catch (_) {}
-
-    if (typeof window.openResourceInstancePanel !== "function") return;
-
-    const panel = window.openResourceInstancePanel(
-      "Bible Backgrounds & Customs",
-      await buildBackgroundsHomeV4(),
-      "Bible Backgrounds & Customs",
-      "backgrounds-current-v4",
-      { updateExisting: true }
-    );
-
-    if (!panel) return;
-
-    const index = await loadBackgroundIndexV4();
-    const searchBox = panel.querySelector("#backgroundsSearchV4");
-    const results = panel.querySelector("#backgroundsResultsV4");
-    const current = panel.querySelector(".backgrounds-current-v4");
-
-    async function runSearch(value) {
-      const query = String(value || "").trim();
-
-      if (!query) {
-        if (results) results.innerHTML = "";
-        if (current) current.open = true;
-        return;
-      }
-
-      if (current) current.open = false;
-
-      const matches = findBackgroundMatchesV4(index, query);
-
-      results.innerHTML = `
-        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
-          ← Back to Current Passage Backgrounds
-        </button>
-        <h4>Search Results</h4>
-        ${renderBackgroundTopicButtonsV4(matches)}
-      `;
-    }
-
-    if (searchBox && results) {
-      let timer = null;
-      searchBox.addEventListener("input", () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => runSearch(searchBox.value), 120);
-      });
-    }
-
-    panel.addEventListener("click", async (clickEvent) => {
-      const topicBtn = clickEvent.target.closest(".rdm-background-topic-btn");
-      const backBtn = clickEvent.target.closest(".backgrounds-back-btn");
-      const chip = clickEvent.target.closest(".backgrounds-suggestion-chip");
-
-      if (topicBtn) {
-        clickEvent.preventDefault();
-        await openBackgroundTopicV4(topicBtn.dataset.topicId);
-        return;
-      }
-
-      if (backBtn) {
-        clickEvent.preventDefault();
-        if (searchBox) searchBox.value = "";
-        if (results) results.innerHTML = "";
-        if (current) current.open = true;
-        return;
-      }
-
-      if (chip) {
-        clickEvent.preventDefault();
-        const value = chip.dataset.bgSearch || chip.textContent.trim();
-        if (searchBox) searchBox.value = value;
-        await runSearch(value);
-      }
-    });
-  }
-
-  window.openBackgroundsResource = openBackgroundsResourceV4;
-  window.openBackgroundsResourceSafe = openBackgroundsResourceV4;
-
-  document.addEventListener("click", function (event) {
-    const bgButton = event.target.closest("#openBackgroundsResource, [data-study-key-action='backgrounds']");
-    if (!bgButton) return;
-    openBackgroundsResourceV4(event);
-  }, true);
-
-  /* -----------------------------
-     Built-In Cross References repair
-     ----------------------------- */
-
-  function normalizeRefsV4(value) {
+  function rawRefs(value) {
     if (!value) return [];
-
-    if (Array.isArray(value)) {
-      return value.flatMap(normalizeRefsV4).map(String).map((x) => x.trim()).filter(Boolean);
-    }
-
+    if (Array.isArray(value)) return value.flatMap(rawRefs);
     if (typeof value === "string") {
       return value
         .split(/;|\n|,(?=\s*(?:[1-3]\s*)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+\d+:\d+)/)
-        .map((x) => x.trim())
+        .map(item => item.trim())
         .filter(Boolean);
     }
-
     if (typeof value === "object") {
-      return Object.values(value).flatMap(normalizeRefsV4);
+      return [
+        ...rawRefs(value.reference || value.ref || value.target || value.verse || value.passage),
+        ...rawRefs(value.references || value.refs || value.targets || value.crossReferences || value.cross_refs || value.xrefs)
+      ];
     }
-
     return [];
   }
 
-  function tskPaths(book) {
-    const encoded = encodeURIComponent(book);
-    const underscored = book.replace(/\s+/g, "_");
-    const dashed = book.replace(/\s+/g, "-");
-
-    return [
-      `bible/resources/tsk/${book}.json`,
-      `bible/resources/tsk/${encoded}.json`,
-      `bible/resources/tsk/${underscored}.json`,
-      `bible/resources/tsk/${dashed}.json`,
-      book === "Psalms" ? "bible/resources/tsk/Psalm.json" : "",
-      book === "Psalms" ? "bible/resources/tsk/psalms.json" : ""
-    ];
+  function validRefs(value) {
+    const seen = new Set();
+    const refs = [];
+    rawRefs(value).forEach(item => {
+      const parsed = parseRef(item);
+      if (!parsed) return;
+      const key = parsed.canonical.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      refs.push(parsed.canonical);
+    });
+    return refs;
   }
 
-  async function loadTskBookV4(book) {
-    return await fetchJsonAny(tskPaths(book), {});
+  function verseKeys(scope = mode) {
+    const s = state();
+    const start = scope === "chapter" ? 1 : (parseInt(s.start, 10) || 1);
+    const end = scope === "chapter" ? maxVerse(s.book, s.chapter) : (parseInt(s.end, 10) || start);
+    const keys = [];
+    for (let v = start; v <= end; v += 1) keys.push(`${s.book} ${s.chapter}:${v}`);
+    return keys;
   }
 
-  function currentInternalModeV4() {
-    const chapterBtn = $id("internalXrefsChapterMode");
-    return chapterBtn?.classList.contains("active-internal-xref-mode") ? "chapter" : "passage";
+  async function collectRows(scope = mode, filterText = "") {
+    const s = state();
+    const data = await loadBookData(s.book);
+    const filter = String(filterText || "").toLowerCase().trim();
+
+    return verseKeys(scope).map(key => {
+      let refs = validRefs(data[key]);
+      if (filter) refs = refs.filter(ref => ref.toLowerCase().includes(filter) || key.toLowerCase().includes(filter));
+      return { key, refs };
+    }).filter(row => row.refs.length);
   }
 
-  async function collectTskRowsV4(mode = "passage") {
-    const state = currentStudyState();
-    const data = await loadTskBookV4(state.book);
-    const keys = exactVerseKeys(state, mode);
-    const rows = [];
+  function countRows(rows) {
+    return rows.reduce((sum, row) => sum + row.refs.length, 0);
+  }
 
-    keys.forEach((key) => {
-      const refs = [...new Set(normalizeRefsV4(data?.[key]))];
-      rows.push({ key, refs });
+  function limitedRows(rows) {
+    let remaining = visibleLimit;
+    const limited = [];
+    for (const row of rows) {
+      if (remaining <= 0) break;
+      const refs = row.refs.slice(0, remaining);
+      if (refs.length) limited.push({ key: row.key, refs });
+      remaining -= refs.length;
+    }
+    return limited;
+  }
+
+  function ensurePanel() {
+    let panel = $("internalCrossRefsPanel");
+    if (panel) return panel;
+
+    panel = document.createElement("div");
+    panel.id = "internalCrossRefsPanel";
+    panel.className = "teacher-pop internal-crossrefs-panel";
+    panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = `
+      <div class="teacher-pop-head drag-handle" data-drag-handle="internalCrossRefsPanel">
+        <h3>Built-In Cross References</h3>
+        <button id="closeInternalCrossRefs" class="teacher-pop-close secondary" type="button">Close</button>
+      </div>
+      <div class="internal-xrefs-body">
+        <div class="internal-xrefs-controls">
+          <button type="button" id="internalXrefsPassageMode">Current Passage</button>
+          <button type="button" id="internalXrefsChapterMode">Full Chapter</button>
+        </div>
+        <input id="internalXrefSearch" class="internal-xrefs-search" type="search" placeholder="Filter references, e.g. Romans, covenant, 12:1...">
+        <div id="internalXrefsSummary" class="internal-xrefs-summary">Built-In Cross References are loaded from the internal reference database.</div>
+        <div id="internalXrefsResults"></div>
+        <div id="internalXrefsMoreWrap"></div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    $("closeInternalCrossRefs")?.addEventListener("click", closePanel);
+    $("internalXrefsPassageMode")?.addEventListener("click", () => { mode = "passage"; visibleLimit = CHUNK_SIZE; render(); });
+    $("internalXrefsChapterMode")?.addEventListener("click", () => { mode = "chapter"; visibleLimit = CHUNK_SIZE; render(); });
+    $("internalXrefSearch")?.addEventListener("input", () => { visibleLimit = CHUNK_SIZE; render(); });
+
+    panel.addEventListener("click", event => {
+      const more = event.target.closest("#internalXrefsShowMore");
+      if (more) {
+        event.preventDefault();
+        visibleLimit += CHUNK_SIZE;
+        render();
+        return;
+      }
+
+      const refBtn = event.target.closest(".internal-xref-link");
+      if (!refBtn) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const ref = refBtn.dataset.ref || refBtn.textContent.trim();
+      if (typeof window.goToScriptureReference === "function") window.goToScriptureReference(ref);
     });
 
-    return rows;
+    return panel;
   }
 
-  function currentRefLabelV4(mode) {
-    const state = currentStudyState();
-
-    if (mode === "chapter") {
-      return `${state.book} ${state.chapter}`;
-    }
-
-    return `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+  function setActiveMode() {
+    $("internalXrefsPassageMode")?.classList.toggle("active-internal-xref-mode", mode === "passage");
+    $("internalXrefsChapterMode")?.classList.toggle("active-internal-xref-mode", mode === "chapter");
   }
 
-  async function renderInternalCrossReferencesV4(mode = currentInternalModeV4()) {
-    const panel = $id("internalCrossRefsPanel");
-    const results = $id("internalXrefsResults");
-    const summary = $id("internalXrefsSummary");
-    const search = clean($id("internalXrefSearch")?.value || "");
+  async function render() {
+    const token = ++renderToken;
+    const panel = ensurePanel();
+    const summary = $("internalXrefsSummary");
+    const results = $("internalXrefsResults");
+    const moreWrap = $("internalXrefsMoreWrap");
+    const search = $("internalXrefSearch")?.value || "";
+    if (!summary || !results || !moreWrap) return;
 
-    if (!panel || !results || !summary) return;
+    setActiveMode();
+    summary.textContent = `Checking Built-In Cross References for ${stateLabel(state(), mode)}…`;
+    results.innerHTML = "";
+    moreWrap.innerHTML = "";
 
-    const rows = await collectTskRowsV4(mode);
-    let refCount = 0;
-    let verseCount = 0;
+    const rows = await collectRows(mode, search);
+    if (token !== renderToken) return;
 
-    const filteredRows = rows.map((row) => {
-      let refs = row.refs || [];
+    const total = countRows(rows);
+    const shownRows = limitedRows(rows);
+    const shown = countRows(shownRows);
 
-      if (search) {
-        refs = refs.filter((ref) =>
-          clean(ref).includes(search) ||
-          clean(row.key).includes(search)
-        );
-      }
+    summary.textContent = `${stateLabel(state(), mode)} — ${total} built-in cross reference${total === 1 ? "" : "s"} across ${rows.length} verse${rows.length === 1 ? "" : "s"}.` + (shown < total ? ` Showing ${shown}.` : "");
 
-      if (refs.length) {
-        refCount += refs.length;
-        verseCount += 1;
-      }
-
-      return { ...row, refs };
-    }).filter((row) => row.refs.length);
-
-    summary.textContent = `${currentRefLabelV4(mode)} — ${refCount} internal reference${refCount === 1 ? "" : "s"} across ${verseCount} verse${verseCount === 1 ? "" : "s"}.`;
-
-    if (!filteredRows.length) {
-      results.innerHTML = `
-        <div class="internal-xref-empty">
-          ${search
-            ? `No Built-In Cross References matched this filter. Clear the search box to see all available references.`
-            : `No Built-In Cross References are linked to this ${mode === "chapter" ? "chapter" : "passage"} in the local reference database yet.`}
-        </div>
-      `;
+    if (!rows.length) {
+      results.innerHTML = `<div class="internal-xref-empty">${search ? "No Built-In Cross References matched that filter." : "No Built-In Cross References are available for this selected range."}</div>`;
       return;
     }
 
-    results.innerHTML = filteredRows.map((row) => `
+    results.innerHTML = shownRows.map(row => `
       <section class="internal-xref-verse">
         <h4>${esc(row.key)}</h4>
         <div class="internal-xref-buttons">
-          ${row.refs.map((ref) => `
-            <button type="button" class="cross-ref-link internal-xref-link" data-ref="${esc(ref)}">
-              ${esc(ref)}
-            </button>
-          `).join("")}
+          ${row.refs.map(ref => `<button type="button" class="cross-ref-link internal-xref-link" data-ref="${esc(ref)}">${esc(ref)}</button>`).join("")}
         </div>
       </section>
     `).join("");
-  }
 
-  function scheduleInternalRepair(mode) {
-    setTimeout(() => renderInternalCrossReferencesV4(mode || currentInternalModeV4()), 60);
-    setTimeout(() => renderInternalCrossReferencesV4(mode || currentInternalModeV4()), 250);
-  }
-
-  document.addEventListener("click", function (event) {
-    if (event.target.closest("#internalXrefsPassageMode")) {
-      setTimeout(() => {
-        $id("internalXrefsPassageMode")?.classList.add("active-internal-xref-mode");
-        $id("internalXrefsChapterMode")?.classList.remove("active-internal-xref-mode");
-        scheduleInternalRepair("passage");
-      }, 20);
-    }
-
-    if (event.target.closest("#internalXrefsChapterMode")) {
-      setTimeout(() => {
-        $id("internalXrefsChapterMode")?.classList.add("active-internal-xref-mode");
-        $id("internalXrefsPassageMode")?.classList.remove("active-internal-xref-mode");
-        scheduleInternalRepair("chapter");
-      }, 20);
-    }
-
-    if (event.target.closest("[data-study-key-action='crossrefs'], #openInternalCrossRefs")) {
-      scheduleInternalRepair();
-    }
-  }, true);
-
-  document.addEventListener("input", function (event) {
-    if (event.target?.id === "internalXrefSearch") {
-      scheduleInternalRepair();
-    }
-  }, true);
-
-  /* Keep the Study Resources key honest without strict validation */
-  async function countTskForCurrentRangeV4() {
-    const rows = await collectTskRowsV4("passage");
-    return rows.reduce((total, row) => total + row.refs.length, 0);
-  }
-
-  async function countTskForCurrentChapterV4() {
-    const rows = await collectTskRowsV4("chapter");
-    return rows.reduce((total, row) => total + row.refs.length, 0);
-  }
-
-  async function refineStudyResourcesKeyV4() {
-    const key = $id("studyResourcesKey");
-    if (!key) return;
-
-    const xrefBtn = key.querySelector("[data-study-key-action='crossrefs']");
-    const currentCount = await countTskForCurrentRangeV4();
-    const chapterCount = await countTskForCurrentChapterV4();
-
-    if (xrefBtn) {
-      if (!currentCount && !chapterCount) {
-        xrefBtn.remove();
-      } else {
-        xrefBtn.textContent = "Built-In Cross References";
-        xrefBtn.title = currentCount
-          ? `${currentCount} built-in cross references for the current passage.`
-          : `${chapterCount} built-in cross references are available for this chapter.`;
-      }
+    if (shown < total) {
+      moreWrap.innerHTML = `<button type="button" id="internalXrefsShowMore">Show More References (${shown} of ${total})</button>`;
     }
   }
 
-  function scheduleKeyRefineV4() {
-    setTimeout(refineStudyResourcesKeyV4, 150);
-    setTimeout(refineStudyResourcesKeyV4, 500);
-    setTimeout(refineStudyResourcesKeyV4, 1000);
+  async function openPanel(scope = "passage") {
+    mode = scope || "passage";
+    visibleLimit = CHUNK_SIZE;
+    const panel = ensurePanel();
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.display = "";
+    panel.style.zIndex = String(++zIndex);
+    await render();
   }
 
-  ["book", "chapter", "start", "end", "rangeSize"].forEach((id) => {
-    document.addEventListener("change", function (event) {
-      if (event.target?.id === id) scheduleKeyRefineV4();
-    }, true);
-  });
+  function closePanel() {
+    const panel = $("internalCrossRefsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
 
-  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach((id) => {
-    document.addEventListener("click", function (event) {
-      if (event.target?.closest?.(`#${id}`)) scheduleKeyRefineV4();
-    }, true);
-  });
+  function installButtons() {
+    const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
+    if (eraseButton && eraseButton.parentElement && !$("openInternalCrossRefs")) {
+      const button = document.createElement("button");
+      button.id = "openInternalCrossRefs";
+      button.type = "button";
+      button.className = "tool-option helper-option internal-xref-shortcut";
+      button.innerHTML = `<strong>Built-In Cross References</strong><span>Open the internal Scripture cross-reference database for the current passage.</span>`;
+      eraseButton.insertAdjacentElement("afterend", button);
+    }
 
-  window.auditBackgroundsAndTskV4 = async function () {
-    const bgIndex = await loadBackgroundIndexV4();
-    const bgMap = await loadBackgroundMapV4(currentStudyState().book);
-    const bgItems = backgroundItemsForCurrentPassage(bgIndex, bgMap);
-    const tskPassage = await countTskForCurrentRangeV4();
-    const tskChapter = await countTskForCurrentChapterV4();
+    const obsBar = $("obsToolBar");
+    const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
+    if (obsBar && !$("obsShowInternalCrossRefs")) {
+      const button = document.createElement("button");
+      button.id = "obsShowInternalCrossRefs";
+      button.type = "button";
+      button.textContent = "Built-In References";
+      obsBar.insertBefore(button, before || null);
+    }
 
+    $("openInternalCrossRefs")?.addEventListener("click", event => { event.preventDefault(); openPanel("passage"); });
+    $("obsShowInternalCrossRefs")?.addEventListener("click", event => { event.preventDefault(); openPanel("passage"); });
+  }
+
+  async function updateAvailability() {
+    const rows = await collectRows("passage", "");
+    const count = countRows(rows);
+    const available = count > 0;
+    [$("openInternalCrossRefs"), $("obsShowInternalCrossRefs")].filter(Boolean).forEach(btn => {
+      btn.disabled = !available;
+      btn.style.display = available ? "" : "none";
+      btn.title = available ? `${count} built-in cross reference${count === 1 ? "" : "s"} for this selected passage.` : "No Built-In Cross References available for this selected passage.";
+    });
+    return { passage: stateLabel(), builtInCrossReferences: count, available };
+  }
+
+  function scheduleAvailability() {
+    setTimeout(updateAvailability, 180);
+    setTimeout(updateAvailability, 700);
+  }
+
+  window.openInternalCrossReferences = openPanel;
+  window.renderInternalCrossReferences = render;
+  window.closeInternalCrossReferences = closePanel;
+  window.auditBuiltInCrossReferencesInternal = async function () {
+    const passageRows = await collectRows("passage", "");
+    const chapterRows = await collectRows("chapter", "");
     const report = {
-      passage: passageLabel(),
-      backgroundIndexLoaded: bgIndex.length,
-      mappedBackgroundsForPassage: bgItems.length,
-      builtInCrossRefsCurrentPassage: tskPassage,
-      builtInCrossRefsFullChapter: tskChapter
+      passage: stateLabel(state(), "passage"),
+      passageVersesWithRefs: passageRows.length,
+      passageRefs: countRows(passageRows),
+      chapter: stateLabel(state(), "chapter"),
+      chapterVersesWithRefs: chapterRows.length,
+      chapterRefs: countRows(chapterRows)
     };
-
     console.table(report);
     return report;
   };
 
-  window.addEventListener("load", () => {
-    scheduleKeyRefineV4();
-    setTimeout(() => {
-      const bgBtn = $id("openBackgroundsResource");
-      if (bgBtn) bgBtn.onclick = openBackgroundsResourceV4;
-    }, 500);
-  });
-})();
-</script>
-
-<style id="rdm-backgrounds-and-tsk-final-repair-v4-style">
-/* Cream-mode resource buttons: brown/red, not gold */
-body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button,
-body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode,
-body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode,
-body:not(.dark) .backgrounds-back-btn {
-  background: linear-gradient(180deg, #8A4A24, #5C2E1C) !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid rgba(154,106,52,.85) !important;
-  box-shadow: none !important;
-}
-
-body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button.active-internal-xref-mode,
-body:not(.dark) #internalCrossRefsPanel #internalXrefsPassageMode.active-internal-xref-mode,
-body:not(.dark) #internalCrossRefsPanel #internalXrefsChapterMode.active-internal-xref-mode {
-  background: linear-gradient(180deg, #6F351E, #4E2517) !important;
-  color: #FFF8EA !important;
-  border-color: rgba(215,168,79,.92) !important;
-}
-
-body:not(.dark) .backgrounds-clean-empty,
-body:not(.dark) .backgrounds-no-results {
-  background: rgba(255,250,240,.82) !important;
-  border-left: 4px solid #8A4A24 !important;
-  border-radius: 10px !important;
-  padding: 12px 14px !important;
-  color: #2B394F !important;
-  font: 800 14px Arial, sans-serif !important;
-  line-height: 1.45 !important;
-  margin-bottom: 12px;
-}
-
-.backgrounds-suggestion-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: 8px 0 12px;
-}
-
-body:not(.dark) .backgrounds-suggestion-chip {
-  border: 1.4px solid rgba(138,74,36,.48) !important;
-  background: #fff7e6 !important;
-  color: #5C2E1C !important;
-  border-radius: 999px !important;
-  padding: 7px 10px !important;
-  font: 900 12px Arial, sans-serif !important;
-  box-shadow: none !important;
-}
-
-body:not(.dark) .backgrounds-suggestion-chip:hover {
-  background: #f4e5ca !important;
-}
-
-body:not(.dark) .rdm-background-topic-btn {
-  background: #fff7e6 !important;
-  color: #2B394F !important;
-  border: 1.5px solid rgba(183,116,16,.52) !important;
-  box-shadow: none !important;
-}
-
-body:not(.dark) .rdm-background-topic-btn:hover {
-  background: #f7ead3 !important;
-}
-
-body:not(.dark) .backgrounds-search-box,
-body:not(.dark) #backgroundsSearchV4 {
-  background: #fffaf0 !important;
-  color: #2B394F !important;
-  border: 1.6px solid rgba(183,116,16,.58) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-body:not(.dark) .backgrounds-search-box:focus,
-body:not(.dark) #backgroundsSearchV4:focus {
-  border-color: rgba(138,74,36,.95) !important;
-  box-shadow: 0 0 0 3px rgba(138,74,36,.12) !important;
-}
-</style>
-
-</style>
-
-
-</style>
-<script id="rdm-remove-tsk-ui-copy-v1">
-/* Remove TSK from user-facing Study Resources copy/card.
-   This does not change Bible loading, Backgrounds, dictionaries, doctrine,
-   commentary, book overview, Teaching Cross References, or panel movement. */
-(function () {
-  if (window.__rdmRemoveTskUiCopyV1) return;
-  window.__rdmRemoveTskUiCopyV1 = true;
-
-  function cleanTskUiCopy() {
-    const helper = document.querySelector("#openStudyResourcesFromTools span");
-    if (helper && /TSK|Treasury/i.test(helper.textContent || "")) {
-      helper.textContent = "Open offline study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.";
+  document.addEventListener("click", event => {
+    const keyBtn = event.target.closest('#studyResourcesKey [data-study-key-action="crossrefs"]');
+    if (keyBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      openPanel("passage");
     }
+  }, true);
 
-    const tskCard = document.getElementById("openTskResource");
-    if (tskCard) tskCard.remove();
-
-    const obsTskBtn = document.getElementById("obsShowInternalCrossRefs");
-    if (obsTskBtn && /TSK|Treasury/i.test(obsTskBtn.textContent || "")) {
-      obsTskBtn.remove();
-    }
-
-    document.querySelectorAll("button, .tool-option, .teacher-pop, #studyResourcesPanel, #obsToolBar").forEach((el) => {
-      const text = el.textContent || "";
-      if (/Built-In Cross References/i.test(text)) {
-        const card = el.closest("button, .tool-option");
-        if (card) card.remove();
+  ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
+    document.addEventListener("change", event => {
+      if (event.target?.id === id) {
+        scheduleAvailability();
+        if ($("internalCrossRefsPanel")?.classList.contains("open")) render();
       }
-    });
-  }
+    }, true);
+  });
 
-  document.addEventListener("DOMContentLoaded", cleanTskUiCopy);
-  window.addEventListener("load", cleanTskUiCopy);
-  setTimeout(cleanTskUiCopy, 300);
-  setTimeout(cleanTskUiCopy, 1000);
+  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach(id => {
+    document.addEventListener("click", event => {
+      if (event.target?.closest?.(`#${id}`)) {
+        scheduleAvailability();
+        if ($("internalCrossRefsPanel")?.classList.contains("open")) setTimeout(render, 260);
+      }
+    }, true);
+  });
+
+  window.addEventListener("load", () => {
+    installButtons();
+    scheduleAvailability();
+  });
+
+  installButtons();
+  scheduleAvailability();
 })();
 </script>
 
