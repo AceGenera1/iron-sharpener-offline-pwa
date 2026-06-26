@@ -12551,7 +12551,7 @@ body.dark .backgrounds-back-btn {
       <div class="study-resources-key-title-row">
         <div class="study-resources-key-title">Study Resources for this passage</div>
         <span class="study-resources-help-wrap" tabindex="0" role="button" aria-label="How this study resources bar works">
-          <span class="study-resources-eye" aria-hidden="true">i</span>
+          <span class="study-resources-eye info-icon" aria-hidden="true">i</span>
           <span class="study-resources-help-tooltip">
             This bar shows quick resources for the passage you are currently viewing. Backgrounds appears only when Bible Backgrounds &amp; Customs are mapped to this exact verse range. Built-In Cross References appears only when the internal WEB-generated reference database has links for this passage. Commentary, Book Overview, and More Study Tools remain available for deeper study.
           </span>
@@ -13364,295 +13364,202 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
 
 
 <!-- Patch 6 — Study Resources dark-mode icon/buttons + OBS tools cleanup -->
-<style id="rdm-study-key-dark-button-flow-v6">
-/* Match the dark green flow: yellow/gold controls on the green passage panel. */
-body.dark #studyResourcesKey .study-resources-eye {
-  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
-  color: #203D39 !important;
-  border: 2px solid #f8d987 !important;
-  box-shadow: 0 0 0 1px rgba(32,61,57,.28), 0 0 12px rgba(248,217,135,.32) !important;
-  text-shadow: none !important;
-}
-
-body.dark #studyResourcesKey .study-resource-key-btn.neutral,
-body.dark #studyResourcesKey .study-resource-key-btn.available,
-body.dark #studyResourcesKey .study-resource-back-btn {
-  background: linear-gradient(180deg, #f8d987, #d99f31) !important;
-  color: #203D39 !important;
-  border: 1.7px solid #d7a84f !important;
-  box-shadow: 0 6px 14px rgba(0,0,0,.14) !important;
-  text-shadow: none !important;
-}
-
-body.dark #studyResourcesKey .study-resource-key-btn.neutral:hover,
-body.dark #studyResourcesKey .study-resource-key-btn.available:hover,
-body.dark #studyResourcesKey .study-resource-back-btn:hover {
-  background: linear-gradient(180deg, #ffe4a0, #e0a83b) !important;
-  color: #203D39 !important;
-  border-color: #f8d987 !important;
-}
-
-body.dark #studyResourcesKey .study-resource-back-btn {
-  border-style: dashed !important;
-}
-
-/* The More Study Tools button now lives in the passage study bar, not the OBS drawer. */
-#obsToolBar #obsShowStudyResources {
-  display: none !important;
-}
-</style>
-
-
-
 <!-- Patch 7 — Bible Backgrounds dark-mode polish + Study Resources help icon alignment -->
-<style id="rdm-backgrounds-dark-polish-study-icon-v7">
-/* Study Resources passage-bar help icon: match the standard dark-mode info-icon style. */
-body.dark #studyResourcesKey .study-resources-key-title-row {
-  align-items: center !important;
-  gap: 8px !important;
-}
+<!-- Patch 8 — Backgrounds gold/green dark buttons + exact Study Resources info icon match -->
 
-body.dark #studyResourcesKey .study-resources-help-wrap {
+<!-- Patch 9 — Unified gold/green resource buttons + exact info icon match -->
+<style id="rdm-resource-buttons-icon-unified-v9">
+/* =========================================================
+   Study Resources passage-bar info icon
+   Match the Teacher Tools info icon exactly, including the
+   small Arial "i" treatment, while preserving the passage-bar
+   tooltip behavior.
+   ========================================================= */
+#studyResourcesKey .study-resources-help-wrap {
+  position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  flex: 0 0 auto !important;
   line-height: 1 !important;
-  transform: translateY(-1px);
+  cursor: help !important;
+  outline: none !important;
 }
 
-body.dark #studyResourcesKey .study-resources-eye {
+#studyResourcesKey .study-resources-eye,
+#studyResourcesKey .study-resources-eye.info-icon {
   width: 22px !important;
   height: 22px !important;
   min-width: 22px !important;
   min-height: 22px !important;
+  padding: 0 !important;
   border-radius: 50% !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0 !important;
-  font: 900 13px/1 Arial, sans-serif !important;
+  font: 800 13px Arial, sans-serif !important;
+  line-height: 1 !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
+  user-select: none !important;
+}
+
+body:not(.dark) #studyResourcesKey .study-resources-eye,
+body:not(.dark) #studyResourcesKey .study-resources-eye.info-icon {
+  background: linear-gradient(180deg, #fffaf0, #fff0c6) !important;
+  color: #7a4c06 !important;
+  border: 2px solid rgba(183,116,16,.75) !important;
+  box-shadow: 0 3px 9px rgba(122,76,6,.18) !important;
+  text-shadow: none !important;
+}
+
+body.dark #studyResourcesKey .study-resources-eye,
+body.dark #studyResourcesKey .study-resources-eye.info-icon {
   background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
   color: #203D39 !important;
   border: 2px solid #fff1c0 !important;
-  box-shadow: 0 0 12px rgba(248,217,135,.32) !important;
+  box-shadow: 0 0 12px rgba(248,217,135,.40) !important;
   text-shadow: none !important;
+}
+
+#studyResourcesKey .study-resources-help-tooltip {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-align: left !important;
 }
 
 body.dark #studyResourcesKey .study-resources-help-tooltip {
   background: linear-gradient(180deg, #355A54, #294843) !important;
   color: #fff6d9 !important;
-  border: 2px solid rgba(248,217,135,.74) !important;
-  box-shadow: 0 18px 34px rgba(0,0,0,.45), 0 0 18px rgba(248,217,135,.12) !important;
-  text-shadow: none !important;
+  border: 2px solid rgba(248,217,135,.85) !important;
+  box-shadow: 0 18px 34px rgba(0,0,0,.48), 0 0 18px rgba(248,217,135,.16) !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35) !important;
 }
 
-/* Bible Backgrounds & Customs: in dark mode, keep the green panel, but make its resource cards
-   match the cream-mode brown/gold button treatment so the two themes feel intentional. */
+/* =========================================================
+   Gold button / green text standard for dark resource panels.
+   This matches the dark-mode doctrine category button look:
+   gold gradient, green text, bold, rounded, centered.
+   ========================================================= */
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn,
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn,
-body.dark #obsCrossRefsContent .study-background-topic-btn {
-  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
-  background-color: #8A5A13 !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: none !important;
-  text-align: center !important;
-  font-weight: 900 !important;
+body.dark .resource-instance-panel[data-resource-key="backgrounds-current"] .rdm-background-topic-btn,
+body.dark .resource-instance-panel[data-resource-key^="background-topic-"] .cross-ref-link,
+body.dark .resource-instance-panel .backgrounds-home .rdm-background-topic-btn,
+body.dark .resource-instance-panel .backgrounds-results .rdm-background-topic-btn,
+body.dark .resource-instance-panel .background-topic-card .cross-ref-link,
+body.dark #obsCrossRefsContent .backgrounds-home .rdm-background-topic-btn,
+body.dark #obsCrossRefsContent .background-topic-card .cross-ref-link,
+body.dark #obsCrossRefsContent .backgrounds-back-btn,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn {
+  background: linear-gradient(180deg, #f8d987 0%, #efbd55 46%, #d99f31 100%) !important;
+  background-color: #d99f31 !important;
+  color: #203D39 !important;
+  border: 1.8px solid #d7a84f !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
   text-shadow: none !important;
+  font: 900 14px Arial, sans-serif !important;
 }
 
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn:hover,
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn:hover,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn:hover,
-body.dark #obsCrossRefsContent .study-background-topic-btn:hover {
-  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
-  background-color: #9A6618 !important;
-  color: #FFF8EA !important;
+body.dark .resource-instance-panel[data-resource-key="backgrounds-current"] .rdm-background-topic-btn:hover,
+body.dark .resource-instance-panel[data-resource-key^="background-topic-"] .cross-ref-link:hover,
+body.dark .resource-instance-panel .backgrounds-home .rdm-background-topic-btn:hover,
+body.dark .resource-instance-panel .backgrounds-results .rdm-background-topic-btn:hover,
+body.dark .resource-instance-panel .background-topic-card .cross-ref-link:hover,
+body.dark #obsCrossRefsContent .backgrounds-home .rdm-background-topic-btn:hover,
+body.dark #obsCrossRefsContent .background-topic-card .cross-ref-link:hover,
+body.dark #obsCrossRefsContent .backgrounds-back-btn:hover,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn:hover {
+  background: linear-gradient(180deg, #ffe4a0 0%, #f0c76c 45%, #e0a83b 100%) !important;
+  background-color: #e0a83b !important;
+  color: #203D39 !important;
+  border-color: #f8d987 !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn,
+body.dark .resource-instance-panel .backgrounds-home .rdm-background-topic-btn,
+body.dark .resource-instance-panel .backgrounds-results .rdm-background-topic-btn,
+body.dark #obsCrossRefsContent .backgrounds-home .rdm-background-topic-btn {
+  width: 100% !important;
+  min-height: 56px !important;
+  padding: 11px 14px !important;
+  display: grid !important;
+  grid-template-columns: minmax(92px, .34fr) 1fr !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  text-align: center !important;
 }
 
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn strong,
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn strong,
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn span,
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn span,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn strong,
-body.dark #obsCrossRefsContent .study-background-topic-btn strong,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn span,
-body.dark #obsCrossRefsContent .study-background-topic-btn span {
-  color: #FFF8EA !important;
-  text-shadow: none !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn,
-body.dark #obsCrossRefsContent .backgrounds-back-btn {
-  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
-  background-color: #8A5A13 !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: none !important;
-  text-align: center !important;
+body.dark .resource-instance-panel .backgrounds-home .rdm-background-topic-btn strong,
+body.dark .resource-instance-panel .backgrounds-home .rdm-background-topic-btn span,
+body.dark .resource-instance-panel .backgrounds-results .rdm-background-topic-btn strong,
+body.dark .resource-instance-panel .backgrounds-results .rdm-background-topic-btn span,
+body.dark #obsCrossRefsContent .backgrounds-home .rdm-background-topic-btn strong,
+body.dark #obsCrossRefsContent .backgrounds-home .rdm-background-topic-btn span {
+  color: #203D39 !important;
   font-weight: 900 !important;
   text-shadow: none !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn:hover,
-body.dark #obsCrossRefsContent .backgrounds-back-btn:hover {
-  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
 }
 
 body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link {
-  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
-  background-color: #8A5A13 !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: none !important;
+body.dark .resource-instance-panel[data-resource-key^="background-topic-"] .background-topic-card .cross-ref-link,
+body.dark .resource-instance-panel .background-topic-card .cross-ref-link,
+body.dark #obsCrossRefsContent .background-topic-card .cross-ref-link {
+  width: 100% !important;
+  min-height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px 14px !important;
   text-align: center !important;
-  font-weight: 900 !important;
+}
+
+/* =========================================================
+   Biblical Doctrine key Scripture buttons in dark mode.
+   Keep doctrine content Scripture buttons visually consistent
+   with the gold/green standard shown in the doctrine browser.
+   ========================================================= */
+body.dark .resource-instance-panel[data-source-label="Biblical Doctrine"] .resource-panel-body button.cross-ref-link,
+body.dark .resource-instance-panel[data-resource-key^="doctrine"] .resource-panel-body button.cross-ref-link {
+  background: linear-gradient(180deg, #f8d987 0%, #efbd55 46%, #d99f31 100%) !important;
+  background-color: #d99f31 !important;
+  color: #203D39 !important;
+  border: 1.8px solid #d7a84f !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
   text-shadow: none !important;
+  font: 900 14px Arial, sans-serif !important;
+  min-height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link:hover,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link:hover {
-  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
-  color: #FFF8EA !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box,
-body.dark #obsCrossRefsContent .backgrounds-search-box {
-  background: rgba(255,250,240,.08) !important;
-  color: #fff6d9 !important;
-  border: 1.6px solid rgba(248,217,135,.62) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box::placeholder,
-body.dark #obsCrossRefsContent .backgrounds-search-box::placeholder {
-  color: rgba(255,246,217,.72) !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box:focus,
-body.dark #obsCrossRefsContent .backgrounds-search-box:focus {
+body.dark .resource-instance-panel[data-source-label="Biblical Doctrine"] .resource-panel-body button.cross-ref-link:hover,
+body.dark .resource-instance-panel[data-resource-key^="doctrine"] .resource-panel-body button.cross-ref-link:hover:hover {
+  background: linear-gradient(180deg, #ffe4a0 0%, #f0c76c 45%, #e0a83b 100%) !important;
+  background-color: #e0a83b !important;
+  color: #203D39 !important;
   border-color: #f8d987 !important;
-  box-shadow: 0 0 0 3px rgba(248,217,135,.13) !important;
-  outline: none !important;
 }
 
-/* Keep More Study Tools out of the OBS drawer; it belongs in the passage Study Resources bar. */
+/* Do not show the general Study Resources button in the OBS drawer. */
 #obsToolBar #obsShowStudyResources {
   display: none !important;
-}
-</style>
-
-
-
-<!-- Patch 8 — Backgrounds gold/green dark buttons + exact Study Resources info icon match -->
-<style id="rdm-backgrounds-gold-green-buttons-study-icon-v8">
-/* Study Resources passage-bar icon: match the standard Teacher Tools info icon exactly in dark mode. */
-body.dark #studyResourcesKey .study-resources-help-wrap {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  transform: none !important;
-}
-
-body.dark #studyResourcesKey .study-resources-eye {
-  width: 22px !important;
-  height: 22px !important;
-  min-width: 22px !important;
-  min-height: 22px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  font: 800 13px Arial, sans-serif !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  background: linear-gradient(#f8d987, #d7a84f) !important;
-  color: #203D39 !important;
-  border: 2px solid rgba(248,217,135,.85) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-body.dark #studyResourcesKey .study-resources-eye:hover,
-body.dark #studyResourcesKey .study-resources-help-wrap:hover .study-resources-eye,
-body.dark #studyResourcesKey .study-resources-help-wrap:focus-within .study-resources-eye {
-  background: linear-gradient(#ffe4a0, #d7a84f) !important;
-  color: #203D39 !important;
-  border-color: rgba(248,217,135,.95) !important;
-  box-shadow: none !important;
-}
-
-/* Bible Backgrounds & Customs topic buttons in dark mode: gold button with green text, matching the passage Study Resources bar. */
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn,
-body.dark #obsCrossRefsContent .study-background-topic-btn,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn,
-body.dark #obsCrossRefsContent .backgrounds-back-btn {
-  background: linear-gradient(180deg, #f8d987, #d99f31) !important;
-  background-color: #d99f31 !important;
-  color: #203D39 !important;
-  border: 1.8px solid #d7a84f !important;
-  box-shadow: 0 6px 14px rgba(0,0,0,.16) !important;
-  text-align: center !important;
-  font-weight: 900 !important;
-  text-shadow: none !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn:hover,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn:hover,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn:hover,
-body.dark #obsCrossRefsContent .study-background-topic-btn:hover,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn:hover,
-body.dark #obsCrossRefsContent .backgrounds-back-btn:hover {
-  background: linear-gradient(180deg, #ffe4a0, #e0a83b) !important;
-  background-color: #e0a83b !important;
-  color: #203D39 !important;
-  border-color: #f8d987 !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn strong,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn strong,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn span,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn span,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn strong,
-body.dark #obsCrossRefsContent .study-background-topic-btn strong,
-body.dark #obsCrossRefsContent .rdm-background-topic-btn span,
-body.dark #obsCrossRefsContent .study-background-topic-btn span {
-  color: #203D39 !important;
-  font-weight: 900 !important;
-  text-shadow: none !important;
-}
-
-/* Key Scripture buttons inside Bible Backgrounds topic cards: same gold/green treatment. */
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link,
-body.dark #obsCrossRefsContent .background-topic-card .cross-ref-link {
-  background: linear-gradient(180deg, #f8d987, #d99f31) !important;
-  background-color: #d99f31 !important;
-  color: #203D39 !important;
-  border: 1.8px solid #d7a84f !important;
-  box-shadow: 0 6px 14px rgba(0,0,0,.16) !important;
-  text-align: center !important;
-  font-weight: 900 !important;
-  text-shadow: none !important;
-}
-
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link:hover,
-body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link:hover,
-body.dark #obsCrossRefsContent .background-topic-card .cross-ref-link:hover {
-  background: linear-gradient(180deg, #ffe4a0, #e0a83b) !important;
-  background-color: #e0a83b !important;
-  color: #203D39 !important;
-  border-color: #f8d987 !important;
 }
 </style>
 
