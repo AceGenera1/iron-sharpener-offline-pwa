@@ -1,10 +1,14 @@
-/* Iron Sharpener service worker — v26 public dark-only button/offline hide lock
-   Goal: keep the app shell/index.html network-first while preserving stable
-   cache-first behavior for same-origin Scripture/resource JSON and assets.
-   This prevents older cached UI from being served offline after an update. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v26-public-lock-20260626-darkonly";
-const IRON_SHARPENER_OLD_CACHES = ["iron-sharpener-offline-v26-public-lock-20260626", "iron-sharpener-offline-v15"];
-const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
+/* Iron Sharpener service worker — v26 public stability rescue v29
+   App shell/index.html is network-first and cached only in the current cache.
+   Scripture/resources stay cache-first, with old caches used only as resource fallbacks.
+   This avoids old UI shells and avoids broad CacheStorage scans that can stall the browser. */
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v26-public-stability-v29-20260626";
+const IRON_SHARPENER_RESOURCE_FALLBACK_CACHES = [
+  "iron-sharpener-offline-v26-public-lock-20260626-darkonly",
+  "iron-sharpener-offline-v26-public-lock-20260626",
+  "iron-sharpener-offline-v15"
+];
+
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
@@ -17,69 +21,49 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil((async () => {
-    // Keep older resource caches available as a fallback so already-cached
-    // Scripture/study JSON remains usable. Navigation fallback below never uses
-    // old index.html, so old UI cannot win offline.
-    await self.clients.claim();
-  })());
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 function sameOriginGet(request) {
   if (!request || request.method !== "GET") return false;
-  try {
-    const url = new URL(request.url);
-    return url.origin === self.location.origin;
-  } catch (_) {
-    return false;
-  }
+  try { return new URL(request.url).origin === self.location.origin; }
+  catch (_) { return false; }
 }
 
 function isNavigationRequest(request) {
-  if (request.mode === "navigate") return true;
+  return request && request.mode === "navigate";
+}
+
+function pathnameFor(requestOrUrl) {
   try {
-    const url = new URL(request.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+    const raw = typeof requestOrUrl === "string" ? requestOrUrl : requestOrUrl.url;
+    return new URL(raw, self.location.href).pathname;
   } catch (_) {
-    return false;
+    return "";
   }
 }
 
 function isJsonRequest(request) {
-  try {
-    return new URL(request.url).pathname.endsWith(".json");
-  } catch (_) {
-    return false;
-  }
+  return pathnameFor(request).endsWith(".json");
 }
 
-function isHtmlLikeRequest(request) {
-  try {
-    const url = new URL(request.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || request.mode === "navigate";
-  } catch (_) {
-    return false;
-  }
+function noDotKey(request) {
+  const path = pathnameFor(request).replace(/^\//, "");
+  return path || request;
 }
 
 async function putIfGood(cache, request, response) {
   if (!response || !response.ok || response.type === "opaque") return false;
 
   try {
-    const url = new URL(request.url || String(request), self.location.href);
-    const contentType = response.headers.get("content-type") || "";
-
-    if (url.pathname.endsWith(".json") && contentType && !contentType.includes("json")) return false;
-    if ((url.pathname.endsWith(".html") || url.pathname.endsWith("/")) && contentType && !contentType.includes("html")) return false;
-  } catch (_) {}
-
-  try {
+    const path = pathnameFor(request);
+    const type = response.headers.get("content-type") || "";
+    if (path.endsWith(".json") && type && !type.includes("json")) return false;
+    if ((path.endsWith(".html") || path.endsWith("/")) && type && !type.includes("html")) return false;
     await cache.put(request, response.clone());
     return true;
   } catch (_) {
@@ -89,8 +73,8 @@ async function putIfGood(cache, request, response) {
 
 async function cacheHtmlResponse(cache, response, request) {
   if (!response || !response.ok) return;
-  const contentType = response.headers.get("content-type") || "";
-  if (contentType && !contentType.includes("html")) return;
+  const type = response.headers.get("content-type") || "";
+  if (type && !type.includes("html")) return;
 
   await putIfGood(cache, request, response);
   await putIfGood(cache, "./index.html", response);
@@ -102,13 +86,11 @@ async function cacheFreshCoreShell() {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
   try {
-    const htmlResponse = await fetch(new Request("./index.html", { cache: "reload" }));
-    if (htmlResponse && htmlResponse.ok) {
-      await cacheHtmlResponse(cache, htmlResponse, "./index.html");
-    }
+    const response = await fetch(new Request("./index.html", { cache: "reload" }));
+    if (response && response.ok) await cacheHtmlResponse(cache, response, "./index.html");
   } catch (_) {}
 
-  for (const asset of CORE_ASSETS.filter(item => !item.endsWith("index.html"))) {
+  for (const asset of CORE_ASSETS.filter((item) => !item.endsWith("index.html"))) {
     try {
       const response = await fetch(new Request(asset, { cache: "reload" }));
       if (response && response.ok) {
@@ -138,51 +120,30 @@ async function navigationNetworkFirst(request) {
       await cacheHtmlResponse(cache, response, request);
       return response;
     }
-
-    const fallback = await navigationFallback();
-    return fallback || response || new Response("Iron Sharpener is unavailable offline.", { status: 503 });
+    return response || await navigationFallback();
   } catch (_) {
     return await navigationFallback();
   }
 }
 
-async function matchOldResourceCache(request) {
-  // Never return old cached HTML for navigation/app-shell requests.
-  if (isHtmlLikeRequest(request)) return null;
-
-  for (const name of IRON_SHARPENER_OLD_CACHES) {
+async function matchInNamedCaches(request, cacheNames) {
+  for (const name of cacheNames) {
     try {
       const cache = await caches.open(name);
-      const cached = await cache.match(request) || await cache.match(urlWithoutDot(request));
+      const cached = await cache.match(request) || await cache.match(noDotKey(request));
       if (cached) return cached;
     } catch (_) {}
   }
-
-  try {
-    const cached = await caches.match(request);
-    if (cached && !isHtmlLikeRequest(request)) return cached;
-  } catch (_) {}
-
   return null;
-}
-
-function urlWithoutDot(request) {
-  try {
-    const url = new URL(request.url);
-    return url.pathname.replace(/^\//, "");
-  } catch (_) {
-    return request;
-  }
 }
 
 async function resourceCacheFirst(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cached = await cache.match(request) || await cache.match(urlWithoutDot(request));
+  const cached = await cache.match(request) || await cache.match(noDotKey(request));
   if (cached) return cached;
 
-  const oldCached = await matchOldResourceCache(request);
+  const oldCached = await matchInNamedCaches(request, IRON_SHARPENER_RESOURCE_FALLBACK_CACHES);
   if (oldCached) {
-    // Promote old resource cache hits into the current cache as they are used.
     await putIfGood(cache, request, oldCached);
     return oldCached;
   }
@@ -219,7 +180,5 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Stability rule: same-origin JSON/assets remain cache-first so offline study
-  // resources stay stable and protected from temporary host errors.
   event.respondWith(resourceCacheFirst(request));
 });
