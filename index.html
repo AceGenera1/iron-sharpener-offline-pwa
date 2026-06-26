@@ -16226,5 +16226,375 @@ body.dark #rdmOfflineDetails {
 
 <!-- Patch 19 — Gentle offline cache mode: prevents forced 7,000+ file re-downloads and reduces GitHub Pages throttling/browser freeze risk -->
 
+
+
+<!-- Patch 20 — Stability Cache: no browser-freeze refresh, no false optional files, safer offline JSON handling support -->
+<style id="rdm-v20-stability-cache-style">
+#rdmOfflineDetailsBody .rdm-cache-ok {
+  color: inherit;
+  font-weight: 900;
+}
+#rdmOfflineDetailsBody .rdm-cache-note {
+  display: block;
+  margin-top: 6px;
+  opacity: .92;
+  font-weight: 800;
+}
+</style>
+<script id="rdm-v20-stability-cache">
+(function rdmV20StabilityCache() {
+  if (window.__rdmV20StabilityCache) return;
+  window.__rdmV20StabilityCache = true;
+
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const CACHE_NAME = "iron-sharpener-offline-v15";
+  const VERSION = "iron-sharpener-offline-v20-stability-cache";
+  const FETCH_DELAY_MS = 120;   // Only used before downloading a missing file.
+  const YIELD_EVERY = 25;       // Keeps the browser responsive while checking cached files.
+  const PROGRESS_EVERY = 50;
+
+  let v20Running = false;
+  let v20Abort = false;
+
+  const get = (id) => document.getElementById(id);
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  const safeText = (value) => String(value == null ? "" : value).trim();
+
+  function setMessage(message) {
+    const box = get("rdmOfflineCacheMessage");
+    if (box) box.textContent = message;
+  }
+
+  function setProgress(percent, text) {
+    const bar = get("rdmOfflineProgressBar");
+    const progressText = get("rdmOfflineProgressText");
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, Number(percent) || 0))}%`;
+    if (progressText) progressText.textContent = text || "";
+  }
+
+  function setButtons(running, complete) {
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+    if (start) {
+      start.disabled = running || !!complete;
+      start.textContent = running ? "Preparing..." : (complete ? "Offline Ready" : "Prepare Offline Use");
+    }
+    if (refresh) {
+      refresh.disabled = running || !navigator.onLine;
+      refresh.textContent = running ? "Checking..." : "Refresh Cache";
+    }
+  }
+
+  function ensureDetails() {
+    const panel = get("rdmOfflineCachePanel");
+    if (!panel) return null;
+    let details = get("rdmOfflineDetails");
+    if (details) return details;
+
+    const actions = panel.querySelector(".rdm-offline-cache-actions");
+    details = document.createElement("details");
+    details.id = "rdmOfflineDetails";
+    details.innerHTML = '<summary>Cache details</summary><div id="rdmOfflineDetailsBody">No detailed cache report yet.</div>';
+    if (actions) actions.insertAdjacentElement("beforebegin", details);
+    else panel.appendChild(details);
+    return details;
+  }
+
+  function setDetails(summary) {
+    const details = ensureDetails();
+    const body = get("rdmOfflineDetailsBody");
+    if (!details || !body) return;
+
+    const failed = Array.isArray(summary?.failedUrls) ? summary.failedUrls : [];
+    const skipped = Array.isArray(summary?.skippedUrls) ? summary.skippedUrls : [];
+    const repaired = Number(summary?.downloaded || 0);
+    const already = Number(summary?.alreadyCached || summary?.cached || 0);
+
+    if (!failed.length && !skipped.length) {
+      details.open = false;
+      body.innerHTML = `
+        <span class="rdm-cache-ok">No missing or failed files were reported.</span>
+        <span class="rdm-cache-note">${already.toLocaleString()} files were already ready${repaired ? `, and ${repaired.toLocaleString()} missing files were repaired/downloaded` : ""}.</span>
+      `;
+      return;
+    }
+
+    details.open = failed.length > 0;
+    const failedHtml = failed.length
+      ? `<strong>Failed files (${failed.length})</strong><ul>${failed.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>`
+      : "<strong>Failed files (0)</strong><br>No failed files reported.";
+
+    const skippedHtml = skipped.length
+      ? `<strong>Optional missing files (${skipped.length})</strong><ul>${skipped.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>`
+      : "<strong>Optional missing files (0)</strong><br>No optional missing files reported.";
+
+    body.innerHTML = `${failedHtml}<div style="height:9px"></div>${skippedHtml}`;
+  }
+
+  function addUrl(set, url) {
+    const clean = safeText(url);
+    if (!clean || clean.includes("undefined") || clean.includes("null")) return;
+    set.add(clean.replace(/^\.\//, ""));
+  }
+
+  function primaryJsonFile(value) {
+    const file = safeText(value);
+    if (!file) return "";
+    return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
+  }
+
+  async function tryJson(url) {
+    // Use the browser/service-worker cache first. Do not force a fresh network request for indexes.
+    try {
+      const response = await fetch(url, { cache: "force-cache" });
+      if (!response || !response.ok) return null;
+      const type = response.headers.get("content-type") || "";
+      // Some hosts may return an HTML protection page. Do not treat that as JSON.
+      if (type && !type.includes("json") && !url.endsWith(".json")) return null;
+      return await response.json();
+    } catch (_) {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(url) || await cache.match(`./${url}`);
+        return cached ? await cached.json() : null;
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  async function buildStableUrlList() {
+    const urls = new Set();
+    const bookList = (typeof books !== "undefined" && Array.isArray(books)) ? books : [];
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    ["./", "index.html", "manifest.json", "assets/iron-sharpener-logo.png", "service-worker.js"].forEach(url => addUrl(urls, url));
+
+    bookList.forEach(([book, chapterCount]) => {
+      const chapters = Number(chapterCount || 0);
+      for (let chapter = 1; chapter <= chapters; chapter++) {
+        addUrl(urls, `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`);
+      }
+
+      addUrl(urls, `bible/resources/commentaries/matthew-henry/${book}.json`);
+      addUrl(urls, `bible/resources/commentaries/jfb/${book}.json`);
+      addUrl(urls, `bible/resources/book-overviews/${book}.json`);
+      addUrl(urls, `bible/resources/internal-cross-references/${book}.json`);
+      addUrl(urls, `bible/resources/backgrounds/by-reference/${book}.json`);
+    });
+
+    letters.forEach(letter => {
+      addUrl(urls, `bible/resources/eastons/${letter}.json`);
+      addUrl(urls, `bible/resources/smiths/${letter}.json`);
+    });
+
+    // Current doctrine system uses doctrine-registry.json + individual topic files.
+    // Do not include old optional doctrine index-addition files here; they created false warnings.
+    addUrl(urls, "bible/resources/doctrine/doctrine-registry.json");
+    addUrl(urls, "bible/resources/topics/index.json");
+    addUrl(urls, "bible/resources/backgrounds/index.json");
+
+    const naveIndex = await tryJson("bible/resources/topics/index.json");
+    const naveTopics = Array.isArray(naveIndex?.topics) ? naveIndex.topics : (Array.isArray(naveIndex) ? naveIndex : []);
+    naveTopics.forEach(item => {
+      const file = primaryJsonFile(item?.file || item?.id || item);
+      if (file) addUrl(urls, `bible/resources/topics/${file}`);
+    });
+
+    const doctrineRegistry = await tryJson("bible/resources/doctrine/doctrine-registry.json");
+    if (Array.isArray(doctrineRegistry)) {
+      doctrineRegistry.forEach(item => {
+        const file = primaryJsonFile(item?.file || item?.id || item?.title || item);
+        if (file) addUrl(urls, `bible/resources/doctrine/${file}`);
+      });
+    }
+
+    const backgroundsIndex = await tryJson("bible/resources/backgrounds/index.json");
+    if (Array.isArray(backgroundsIndex)) {
+      backgroundsIndex.forEach(item => {
+        const file = safeText(item?.file || (item?.id ? `topics/${item.id}.json` : ""));
+        if (file) addUrl(urls, `bible/resources/backgrounds/${file.replace(/^\/+/, "")}`);
+      });
+    }
+
+    return Array.from(urls);
+  }
+
+  async function matchEither(cache, url) {
+    const requestUrl = url.startsWith("./") ? url : `./${url}`;
+    return (await cache.match(requestUrl)) || (await cache.match(url));
+  }
+
+  async function cacheOneStable(cache, url, index) {
+    const requestUrl = url.startsWith("./") ? url : `./${url}`;
+
+    const existing = await matchEither(cache, url);
+    if (existing) {
+      if (index % YIELD_EVERY === 0) await sleep(8);
+      return { result: "ready", url, status: "already cached" };
+    }
+
+    // A missing file is the only time we touch the network. Slow this down on purpose.
+    await sleep(FETCH_DELAY_MS);
+
+    try {
+      const response = await fetch(requestUrl, { cache: "no-cache" });
+      if (!response || !response.ok) {
+        const status = response ? `${response.status} ${response.statusText || ""}`.trim() : "no response";
+        if (response && response.status === 404) return { result: "skipped", url, status };
+        return { result: "failed", url, status };
+      }
+
+      // Never cache an HTML protection page as a JSON resource.
+      const contentType = response.headers.get("content-type") || "";
+      if (requestUrl.endsWith(".json") && contentType && !contentType.includes("json")) {
+        return { result: "failed", url, status: `unexpected content-type ${contentType}` };
+      }
+
+      await cache.put(requestUrl, response.clone());
+      if (!url.startsWith("./")) {
+        try { await cache.put(url, response.clone()); } catch (_) {}
+      }
+      return { result: "downloaded", url, status: "downloaded" };
+    } catch (error) {
+      return { result: navigator.onLine ? "failed" : "stopped", url, status: error?.message || "fetch error" };
+    }
+  }
+
+  async function startStableCacheRun() {
+    if (v20Running) return;
+
+    ensureDetails();
+    if (!navigator.onLine) {
+      setMessage("You are offline. Connect to the internet to prepare or refresh the offline cache.");
+      setProgress(0, "Waiting for internet connection.");
+      return;
+    }
+    if (!("caches" in window)) {
+      setMessage("This browser does not support the Cache API required for full offline setup.");
+      setProgress(0, "Offline cache unavailable in this browser.");
+      return;
+    }
+
+    v20Running = true;
+    v20Abort = false;
+    setButtons(true, false);
+    setMessage("Safely checking Iron Sharpener for offline use. This mode avoids freezing the browser.");
+    setProgress(1, "Building stable offline resource list...");
+    setDetails({ failedUrls: [], skippedUrls: [] });
+
+    let urls = [];
+    try {
+      urls = await buildStableUrlList();
+    } catch (error) {
+      v20Running = false;
+      setButtons(false, false);
+      setMessage("Could not build the offline resource list. Try again while connected.");
+      setProgress(0, "Offline setup did not complete.");
+      setDetails({ failedUrls: [{ url: "resource-list-build", status: error?.message || "error" }], skippedUrls: [] });
+      return;
+    }
+
+    const cache = await caches.open(CACHE_NAME);
+    const total = urls.length || 1;
+    let ready = 0;
+    let downloaded = 0;
+    const skippedUrls = [];
+    const failedUrls = [];
+    let stopped = false;
+
+    setMessage(`Checking ${total.toLocaleString()} files. Already-ready files are not downloaded again.`);
+
+    for (let i = 0; i < urls.length; i++) {
+      if (v20Abort) { stopped = true; break; }
+      const result = await cacheOneStable(cache, urls[i], i);
+
+      if (result.result === "ready") ready += 1;
+      else if (result.result === "downloaded") { ready += 1; downloaded += 1; }
+      else if (result.result === "skipped") skippedUrls.push({ url: result.url, status: result.status || "404" });
+      else if (result.result === "stopped") { stopped = true; break; }
+      else failedUrls.push({ url: result.url, status: result.status || "failed" });
+
+      const completed = i + 1;
+      if (completed === total || completed % PROGRESS_EVERY === 0) {
+        const percent = Math.round((completed / total) * 100);
+        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${ready.toLocaleString()} ready • ${downloaded.toLocaleString()} repaired • ${skippedUrls.length.toLocaleString()} optional skipped • ${failedUrls.length.toLocaleString()} failed`);
+      }
+    }
+
+    const summary = {
+      version: VERSION,
+      complete: !stopped,
+      completedAt: new Date().toISOString(),
+      total,
+      cached: ready,
+      alreadyCached: ready - downloaded,
+      downloaded,
+      skipped: skippedUrls.length,
+      failed: failedUrls.length,
+      skippedUrls,
+      failedUrls
+    };
+
+    try { localStorage.setItem(STATUS_KEY, JSON.stringify(summary)); } catch (_) {}
+    window.rdmOfflineCacheLastDetailedStatus = summary;
+    window.rdmOfflineCacheStatus = () => summary;
+
+    if (stopped) {
+      setMessage("Offline setup paused before completion. Run Refresh Cache again when ready.");
+      setProgress(Math.round((ready / total) * 100), `${ready.toLocaleString()} files ready before the run stopped.`);
+    } else if (failedUrls.length) {
+      setMessage("Iron Sharpener cache finished, but review the failed file details below.");
+      setProgress(100, `${ready.toLocaleString()} files ready. ${downloaded.toLocaleString()} repaired/downloaded. ${skippedUrls.length.toLocaleString()} optional skipped. ${failedUrls.length.toLocaleString()} failed.`);
+    } else {
+      setMessage("Iron Sharpener is ready for offline use on this device.");
+      setProgress(100, `${ready.toLocaleString()} files ready. ${downloaded.toLocaleString()} repaired/downloaded. ${skippedUrls.length.toLocaleString()} optional missing files skipped. 0 failed.`);
+    }
+
+    setDetails(summary);
+    setButtons(false, !stopped);
+    v20Running = false;
+  }
+
+  function installButtons() {
+    ensureDetails();
+    ["rdmOfflineStartCache", "rdmOfflineRefreshCache"].forEach(id => {
+      const oldButton = get(id);
+      if (!oldButton || oldButton.dataset.rdmV20Stable === "1") return;
+      const newButton = oldButton.cloneNode(true);
+      newButton.dataset.rdmV20Stable = "1";
+      newButton.disabled = false;
+      newButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        startStableCacheRun();
+      }, true);
+      oldButton.replaceWith(newButton);
+    });
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
+      if (saved && (Array.isArray(saved.failedUrls) || Array.isArray(saved.skippedUrls))) setDetails(saved);
+    } catch (_) {}
+  }
+
+  window.rdmStartOfflineCacheStable = startStableCacheRun;
+  window.rdmStopOfflineCacheStable = () => { v20Abort = true; };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(installButtons, 500);
+      setTimeout(installButtons, 1500);
+      setTimeout(installButtons, 3000);
+    });
+  } else {
+    setTimeout(installButtons, 500);
+    setTimeout(installButtons, 1500);
+    setTimeout(installButtons, 3000);
+  }
+})();
+</script>
+
 </body>
 </html>
