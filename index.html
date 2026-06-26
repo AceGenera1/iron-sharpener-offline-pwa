@@ -16629,5 +16629,85 @@ body:not(.rdm-offline-debug) #rdmOfflineCachePanel .rdm-offline-cache-muted.rdm-
 })();
 </script>
 
+
+<!-- Patch 23 — Offline Ready button acts as user acknowledgement -->
+<style id="rdm-v23-offline-ready-button-clickable">
+#rdmOfflineStartCache.rdm-offline-ready-ack,
+#rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
+#rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+#rdmOfflineStartCache.rdm-offline-ready-ack:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+</style>
+<script id="rdm-v23-offline-ready-button-clickable">
+(function rdmV23OfflineReadyButtonClickable() {
+  if (window.__rdmV23OfflineReadyButtonClickable) return;
+  window.__rdmV23OfflineReadyButtonClickable = true;
+
+  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v15";
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function isOfflineReadyButton(button) {
+    return !!button && /offline ready/i.test(String(button.textContent || ""));
+  }
+
+  function hideOfflinePanel() {
+    const panel = get("rdmOfflineCachePanel");
+    try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
+    if (panel) panel.classList.remove("open");
+  }
+
+  function makeOfflineReadyClickable() {
+    const button = get("rdmOfflineStartCache");
+    if (!button) return;
+
+    if (isOfflineReadyButton(button)) {
+      button.disabled = false;
+      button.removeAttribute("disabled");
+      button.classList.add("rdm-offline-ready-ack");
+      button.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
+      button.setAttribute("aria-label", "Iron Sharpener is ready for offline use. Close this message.");
+    } else {
+      button.classList.remove("rdm-offline-ready-ack");
+      button.removeAttribute("title");
+    }
+  }
+
+  document.addEventListener("click", function(event) {
+    const button = event.target && event.target.closest ? event.target.closest("#rdmOfflineStartCache") : null;
+    if (!isOfflineReadyButton(button)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    hideOfflinePanel();
+  }, true);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      makeOfflineReadyClickable();
+      setTimeout(makeOfflineReadyClickable, 400);
+      setTimeout(makeOfflineReadyClickable, 1200);
+      setTimeout(makeOfflineReadyClickable, 2600);
+    });
+  } else {
+    makeOfflineReadyClickable();
+    setTimeout(makeOfflineReadyClickable, 400);
+    setTimeout(makeOfflineReadyClickable, 1200);
+    setTimeout(makeOfflineReadyClickable, 2600);
+  }
+
+  setInterval(makeOfflineReadyClickable, 1500);
+})();
+</script>
+
 </body>
 </html>
