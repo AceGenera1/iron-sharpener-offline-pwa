@@ -11768,18 +11768,18 @@ body.dark .scripture {
 }
 
 .study-resources-eye {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 999px;
-  border: 1.5px solid rgba(183,116,16,.58);
-  background: #fff7e6;
-  color: #7A4C06;
+  border: 2px solid #B87310;
+  background: #fffaf0;
+  color: #B87310;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font: 900 13px Arial, sans-serif;
   line-height: 1;
-  box-shadow: 0 4px 10px rgba(122,76,6,.10);
+  box-shadow: 0 2px 7px rgba(122,76,6,.13);
 }
 
 .study-resources-help-tooltip {
@@ -11857,10 +11857,10 @@ body.dark .study-resources-key-title {
 }
 
 body.dark .study-resources-eye {
-  background: rgba(255,255,255,.08);
-  color: #ffe08c;
-  border-color: rgba(248,217,135,.50);
-  box-shadow: 0 0 12px rgba(248,217,135,.12);
+  background: #fffaf0;
+  color: #B87310;
+  border-color: #D7A84F;
+  box-shadow: 0 0 12px rgba(248,217,135,.18);
 }
 
 body.dark .study-resources-help-tooltip {
@@ -12562,7 +12562,7 @@ body.dark .backgrounds-back-btn {
       <div class="study-resources-key-title-row">
         <div class="study-resources-key-title">Study Resources for this passage</div>
         <span class="study-resources-help-wrap" tabindex="0" role="button" aria-label="How this study resources bar works">
-          <span class="study-resources-eye" aria-hidden="true">👁</span>
+          <span class="study-resources-eye" aria-hidden="true">i</span>
           <span class="study-resources-help-tooltip">
             This bar shows quick resources for the passage you are currently viewing. Backgrounds appears only when Bible Backgrounds &amp; Customs are mapped to this exact verse range. Built-In Cross References appears only when the internal WEB-generated reference database has links for this passage. Commentary, Book Overview, and More Study Tools remain available for deeper study.
           </span>
@@ -12973,12 +12973,6 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   width: 100%;
   margin-top: 8px;
 }
-html.obs .obs-tool-bar #obsShowInternalCrossRefs {
-  display: inline-flex !important;
-  background: linear-gradient(#f8d987, #d99f31) !important;
-  color: #203D39 !important;
-  border: 1.5px solid var(--gold) !important;
-}
 </style>
 
 
@@ -13300,25 +13294,18 @@ html.obs .obs-tool-bar #obsShowInternalCrossRefs {
       eraseButton.insertAdjacentElement("afterend", button);
     }
 
-    const obsBar = $("obsToolBar");
-    const before = $("obsShowCrossRefs") || $("obsShowStudyResources") || $("obsToolsMenuBtn");
-    if (obsBar && !$("obsShowInternalCrossRefs")) {
-      const button = document.createElement("button");
-      button.id = "obsShowInternalCrossRefs";
-      button.type = "button";
-      button.textContent = "Built-In References";
-      obsBar.insertBefore(button, before || null);
-    }
+    // Built-In Cross References now lives in the Study Resources for this passage bar.
+    // Keep it out of the OBS tools drawer to avoid duplicated controls.
+    $("obsShowInternalCrossRefs")?.remove();
 
     $("openInternalCrossRefs")?.addEventListener("click", event => { event.preventDefault(); openPanel("passage"); });
-    $("obsShowInternalCrossRefs")?.addEventListener("click", event => { event.preventDefault(); openPanel("passage"); });
   }
 
   async function updateAvailability() {
     const rows = await collectRows("passage", "");
     const count = countRows(rows);
     const available = count > 0;
-    [$("openInternalCrossRefs"), $("obsShowInternalCrossRefs")].filter(Boolean).forEach(btn => {
+    [$("openInternalCrossRefs")].filter(Boolean).forEach(btn => {
       btn.disabled = !available;
       btn.style.display = available ? "" : "none";
       btn.title = available ? `${count} built-in cross reference${count === 1 ? "" : "s"} for this selected passage.` : "No Built-In Cross References available for this selected passage.";
