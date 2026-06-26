@@ -15352,5 +15352,295 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
 })();
 </script>
 
+
+<!-- Patch 16 — Final UI polish: OBS colors, internal cross-ref drag, mode-change cleanup -->
+<style id="rdm-v16-final-ui-polish">
+/* Cream-mode Scripture Navigator: Load Passage should match the reddish-brown/cream resource buttons. */
+body:not(.dark) #obsNavigatorPanel #obsLoadPassage,
+body:not(.dark) #obsNavigatorPanel button#obsLoadPassage {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) #obsNavigatorPanel #obsLoadPassage:hover,
+body:not(.dark) #obsNavigatorPanel button#obsLoadPassage:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  color: #FFF8EA !important;
+}
+
+/* Dark OBS mode: every OBS toolbar button, including secondary buttons, stays gold/green. */
+html.obs body.dark #obsToolBar button,
+html.obs body.dark .obs-tool-bar button,
+html.obs body.dark .obs-tool-bar #obsShowNavigator,
+html.obs body.dark .obs-tool-bar #obsOpenTeacherTools,
+html.obs body.dark .obs-tool-bar #obsShowTeachingNote,
+html.obs body.dark .obs-tool-bar #obsShowApplicationNote,
+html.obs body.dark .obs-tool-bar #obsShowTeachingMethod,
+html.obs body.dark .obs-tool-bar #ironPromptPanelBtn,
+html.obs body.dark .obs-tool-bar #obsShowCrossRefs,
+html.obs body.dark .obs-tool-bar #obsClearMarks,
+html.obs body.dark .obs-tool-bar #obsResetPanels,
+html.obs body.dark .obs-tool-bar #obsToolsMenuBtn {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  background-color: #d7a84f !important;
+  color: #203D39 !important;
+  border: 1.8px solid #fff1c0 !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+html.obs body.dark #obsToolBar button:hover,
+html.obs body.dark .obs-tool-bar button:hover {
+  background: linear-gradient(180deg, #ffe49c, #dca942) !important;
+  color: #203D39 !important;
+}
+
+/* Dark OBS Leave Focus button should match the same gold/green system. */
+html.obs body.dark #obsBtn,
+html.obs body.dark .actions #obsBtn {
+  display: inline-flex !important;
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  background-color: #d7a84f !important;
+  color: #203D39 !important;
+  border: 1.8px solid #fff1c0 !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+/* Dark Built-In Cross References: Scripture buttons should be gold/green, not cream/green. */
+html body.dark #internalCrossRefsPanel .internal-xref-buttons button.cross-ref-link,
+html body.dark #internalCrossRefsPanel button.internal-xref-link,
+html.obs body.dark #internalCrossRefsPanel .internal-xref-buttons button.cross-ref-link,
+html.obs body.dark #internalCrossRefsPanel button.internal-xref-link {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  background-color: #d7a84f !important;
+  color: #203D39 !important;
+  border: 1.8px solid #fff1c0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+html body.dark #internalCrossRefsPanel .internal-xref-buttons button.cross-ref-link:hover,
+html body.dark #internalCrossRefsPanel button.internal-xref-link:hover,
+html.obs body.dark #internalCrossRefsPanel .internal-xref-buttons button.cross-ref-link:hover,
+html.obs body.dark #internalCrossRefsPanel button.internal-xref-link:hover {
+  background: linear-gradient(180deg, #ffe49c, #dca942) !important;
+  color: #203D39 !important;
+}
+
+/* Keep Built-In Cross References movable/resizable in normal mode and OBS mode. */
+#internalCrossRefsPanel {
+  resize: both !important;
+}
+
+#internalCrossRefsPanel.drag-positioned,
+#internalCrossRefsPanel.rd-drag-positioned,
+html.obs #internalCrossRefsPanel.open.drag-positioned,
+html.obs #internalCrossRefsPanel.open.rd-drag-positioned {
+  left: var(--drag-left) !important;
+  top: var(--drag-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+</style>
+
+<script id="rdm-v16-internal-crossrefs-drag-mode-cleanup">
+(function rdmV16InternalCrossRefsDragAndModeCleanup() {
+  if (window.__rdmV16InternalCrossRefsDragAndModeCleanup) return;
+  window.__rdmV16InternalCrossRefsDragAndModeCleanup = true;
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function closeInternalCrossRefsPanel() {
+    const panel = get("internalCrossRefsPanel");
+    if (!panel) return;
+
+    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+    panel.style.right = "";
+    panel.style.bottom = "";
+  }
+
+  function attachInternalCrossRefsDrag() {
+    const panel = get("internalCrossRefsPanel");
+    if (!panel || panel.dataset.rdmV16DragReady === "1") return;
+
+    const handle = panel.querySelector('[data-drag-handle="internalCrossRefsPanel"], .teacher-pop-head, .drag-handle');
+    if (!handle) return;
+
+    panel.dataset.rdmV16DragReady = "1";
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function beginDrag(event) {
+      if (event.target.closest("button, input, textarea, select, a, summary")) return;
+
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
+
+      const rect = panel.getBoundingClientRect();
+      dragging = true;
+      startX = point.clientX;
+      startY = point.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      panel.style.setProperty("--drag-left", startLeft + "px");
+      panel.style.setProperty("--drag-top", startTop + "px");
+      panel.style.left = startLeft + "px";
+      panel.style.top = startTop + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+      panel.classList.add("drag-positioned", "rd-drag-positioned");
+
+      if (event.pointerId !== undefined && handle.setPointerCapture) {
+        try { handle.setPointerCapture(event.pointerId); } catch (_) {}
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function moveDrag(event) {
+      if (!dragging) return;
+
+      const point = event.touches ? event.touches[0] : event;
+      if (!point) return;
+
+      const rect = panel.getBoundingClientRect();
+      const nextLeft = clamp(startLeft + point.clientX - startX, 8, Math.max(8, window.innerWidth - Math.min(120, rect.width)));
+      const nextTop = clamp(startTop + point.clientY - startY, 8, Math.max(8, window.innerHeight - Math.min(120, rect.height)));
+
+      panel.style.setProperty("--drag-left", nextLeft + "px");
+      panel.style.setProperty("--drag-top", nextTop + "px");
+      panel.style.left = nextLeft + "px";
+      panel.style.top = nextTop + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+
+      event.preventDefault();
+    }
+
+    function endDrag() {
+      dragging = false;
+    }
+
+    handle.addEventListener("pointerdown", beginDrag, { passive: false });
+    document.addEventListener("pointermove", moveDrag, { passive: false });
+    document.addEventListener("pointerup", endDrag);
+    document.addEventListener("pointercancel", endDrag);
+
+    /* Mouse fallback for older desktop browsers. */
+    handle.addEventListener("mousedown", beginDrag, { passive: false });
+    document.addEventListener("mousemove", moveDrag, { passive: false });
+    document.addEventListener("mouseup", endDrag);
+  }
+
+  function closeAllModePanelsV16() {
+    closeInternalCrossRefsPanel();
+
+    if (typeof window.closeInternalCrossReferences === "function") {
+      try { window.closeInternalCrossReferences(); } catch (_) {}
+    }
+
+    [
+      "teacherToolsPanel",
+      "studyResourcesPanel",
+      "obsCrossRefsPanel",
+      "obsNavigatorPanel",
+      "teachingMethodPanel",
+      "ironPromptPanel",
+      "internalCrossRefsPanel"
+    ].forEach(id => {
+      const panel = get(id);
+      if (!panel) return;
+
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+      panel.style.removeProperty("--drag-left");
+      panel.style.removeProperty("--drag-top");
+      panel.style.right = "";
+      panel.style.bottom = "";
+    });
+
+    document.querySelectorAll(".resource-instance-panel").forEach(panel => panel.remove());
+  }
+
+  const originalSetObsMode = window.setObsMode;
+  if (typeof originalSetObsMode === "function") {
+    window.setObsMode = function patchedSetObsMode(on) {
+      closeAllModePanelsV16();
+      const result = originalSetObsMode.apply(this, arguments);
+      closeAllModePanelsV16();
+      setTimeout(closeAllModePanelsV16, 0);
+      return result;
+    };
+
+    try { setObsMode = window.setObsMode; } catch (_) {}
+  }
+
+  const originalReset = window.resetIronSharpenerFloatingPanels;
+  window.resetIronSharpenerFloatingPanels = function patchedResetIronSharpenerFloatingPanels() {
+    if (typeof originalReset === "function") {
+      try { originalReset.apply(this, arguments); } catch (_) {}
+    }
+    closeInternalCrossRefsPanel();
+  };
+
+  document.addEventListener("click", function(event) {
+    if (event.target.closest('#studyResourcesKey [data-study-key-action="crossrefs"], #openInternalCrossRefs')) {
+      setTimeout(attachInternalCrossRefsDrag, 0);
+      setTimeout(attachInternalCrossRefsDrag, 250);
+      setTimeout(attachInternalCrossRefsDrag, 800);
+    }
+
+    if (event.target.closest("#obsBtn")) {
+      closeAllModePanelsV16();
+      setTimeout(closeAllModePanelsV16, 0);
+      setTimeout(closeAllModePanelsV16, 250);
+    }
+  }, true);
+
+  const observer = new MutationObserver(function() {
+    attachInternalCrossRefsDrag();
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", function() {
+      observer.observe(document.body, { childList: true, subtree: true });
+      attachInternalCrossRefsDrag();
+    });
+  }
+
+  attachInternalCrossRefsDrag();
+  window.rdmCloseAllModePanelsV16 = closeAllModePanelsV16;
+})();
+</script>
+
 </body>
 </html>
