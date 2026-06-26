@@ -1761,8 +1761,7 @@ html.obs .obs-tool-bar #obsShowTeachingNote,
 html.obs .obs-tool-bar #obsShowApplicationNote,
 html.obs .obs-tool-bar #obsShowTeachingMethod,
 html.obs .obs-tool-bar #ironPromptPanelBtn,
-html.obs .obs-tool-bar #obsShowCrossRefs,
-html.obs .obs-tool-bar #obsShowStudyResources {
+html.obs .obs-tool-bar #obsShowCrossRefs {
       display: inline-flex !important;
       background: linear-gradient(#f8d987, #d99f31) !important;
       color: #203D39 !important;
@@ -2333,7 +2332,6 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   <button id="obsShowTeachingMethod">Teaching Method</button>
   <button id="ironPromptPanelBtn" type="button">I.R.O.N.</button>
   <button id="obsShowCrossRefs">Teaching Cross References</button>
-  <button id="obsShowStudyResources" type="button">Study Resources</button>
   <button id="obsClearMarks" class="secondary">Clear</button>
   <button id="obsResetPanels" class="secondary">Reset Panels</button>
   <button id="obsToolsMenuBtn" type="button">⚔ Tools</button>
@@ -6189,14 +6187,6 @@ function openStudyResourcesPanel() {
   panel.style.zIndex = "10200";
 }
 
-if ($("obsShowStudyResources")) {
-  $("obsShowStudyResources").onclick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openStudyResourcesPanel();
-  };
-}
-
 if ($("openStudyResourcesFromTools")) {
   $("openStudyResourcesFromTools").onclick = openStudyResourcesPanel;
 }
@@ -8364,7 +8354,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ["openTeacherTools", "teacherToolsPanel", "open"],
     ["obsOpenTeacherTools", "teacherToolsPanel", "open"],
     ["closeTeacherTools", "teacherToolsPanel", "close"],
-    ["obsShowStudyResources", "studyResourcesPanel", "open"],
     ["openStudyResourcesFromTools", "studyResourcesPanel", "open"],
     ["closeStudyResourcesPanel", "studyResourcesPanel", "close"]
   ];
@@ -12614,7 +12603,6 @@ body.dark .backgrounds-back-btn {
     }
 
     get("openStudyResourcesFromTools")?.click();
-    get("obsShowStudyResources")?.click();
   }
 
   document.addEventListener("click", function(event) {
@@ -13372,6 +13360,47 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   scheduleAvailability();
 })();
 </script>
+
+
+
+<!-- Patch 6 — Study Resources dark-mode icon/buttons + OBS tools cleanup -->
+<style id="rdm-study-key-dark-button-flow-v6">
+/* Match the dark green flow: yellow/gold controls on the green passage panel. */
+body.dark #studyResourcesKey .study-resources-eye {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border: 2px solid #f8d987 !important;
+  box-shadow: 0 0 0 1px rgba(32,61,57,.28), 0 0 12px rgba(248,217,135,.32) !important;
+  text-shadow: none !important;
+}
+
+body.dark #studyResourcesKey .study-resource-key-btn.neutral,
+body.dark #studyResourcesKey .study-resource-key-btn.available,
+body.dark #studyResourcesKey .study-resource-back-btn {
+  background: linear-gradient(180deg, #f8d987, #d99f31) !important;
+  color: #203D39 !important;
+  border: 1.7px solid #d7a84f !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,.14) !important;
+  text-shadow: none !important;
+}
+
+body.dark #studyResourcesKey .study-resource-key-btn.neutral:hover,
+body.dark #studyResourcesKey .study-resource-key-btn.available:hover,
+body.dark #studyResourcesKey .study-resource-back-btn:hover {
+  background: linear-gradient(180deg, #ffe4a0, #e0a83b) !important;
+  color: #203D39 !important;
+  border-color: #f8d987 !important;
+}
+
+body.dark #studyResourcesKey .study-resource-back-btn {
+  border-style: dashed !important;
+}
+
+/* The More Study Tools button now lives in the passage study bar, not the OBS drawer. */
+#obsToolBar #obsShowStudyResources {
+  display: none !important;
+}
+</style>
 
 </body>
 </html>
