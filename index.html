@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Iron Sharpener | Scripture Study & Teaching Tool</title>
-  <link rel="manifest" href="./manifest.json">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
+<link href="./manifest.json" rel="manifest"/>
+<style>
 
    :root {
   --navy: #294843;
@@ -2463,370 +2464,313 @@ html.obs .rdm-offline-cache-panel {
 </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="hero">
-      <div class="logo-wrap">
-      <img class="logo" src="./assets/iron-sharpener-logo.png" alt="Iron Sharpener logo"> 
-      </div>
-
-      <div class="hero-main">
-        <p class="eyebrow">Restored Daily Ministries</p>
-        <h1>Iron Sharpener</h1>
-        <p class="subtitle">Scripture study, discipleship, and live teaching tools.</p>
-        <div class="actions">
-          <button id="themeBtn" class="secondary">Cream / Dark</button>
-          <button id="obsBtn" class="dark-btn">OBS Focus</button>
-          <button id="fsBtn">Fullscreen</button>
-        </div>
-      </div>
-
-      <aside class="verse-card">
-        <p>“As iron sharpens iron, so one person sharpens another.”</p>
-        <strong>PROVERBS 27:17</strong>
-      </aside>
-    </header>
-
-    
-  <div class="ribbon">Prepared in prayer &nbsp; ✦ &nbsp; Taught with clarity &nbsp; ✦ &nbsp; Shared for discipleship</div>
-<div id="obsToolBar" class="obs-tool-bar" aria-label="OBS teaching tools">
-  <button id="obsShowNavigator" type="button">Scripture Navigator</button>
-  <button id="obsOpenTeacherTools">Teacher Tools</button>
-  <button id="obsShowTeachingNote">Teaching Note</button>
-  <button id="obsShowApplicationNote">Application & Prayer</button>
-  <button id="obsShowTeachingMethod">Teaching Method</button>
-  <button id="ironPromptPanelBtn" type="button">I.R.O.N.</button>
-  <button id="obsShowCrossRefs">Teaching Cross References</button>
-  <button id="obsClearMarks" class="secondary">Clear</button>
-  <button id="obsResetPanels" class="secondary">Reset Panels</button>
-  <button id="obsToolsMenuBtn" type="button">⚔ Tools</button>
+<div class="shell">
+<header class="hero">
+<div class="logo-wrap">
+<img alt="Iron Sharpener logo" class="logo" src="./assets/iron-sharpener-logo.png"/>
 </div>
-
-    <section class="controls">
-      <div><label for="book">Book</label><select id="book"></select></div>
-      <div><label for="chapter">Chapter</label><select id="chapter"></select></div>
-      <div><label for="start">Start Verse</label><select id="start"></select></div>
-      <div><label for="end">End Verse</label><select id="end"></select></div>
-      <div>
-        <label for="rangeSize">Section Size</label>
-        <select id="rangeSize">
-          <option value="3">3</option>
-          <option value="5" selected>5</option>
-          <option value="7">7</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-          <option value="full">Full Chapter</option>
-        </select>
-      </div>
-      <button id="loadBtn" title="Refresh the current passage if it does not load correctly.">↻ Refresh Passage</button>
-    </section>
-
-    <main class="layout">
-      <section id="scriptureBox" class="scripture">
-        <h2 id="refTitle" class="ref">Hebrews 1 1-5</h2>
-        <div class="source">World English Bible • Public Domain</div>
-        <div class="divider"></div>
-        <div id="passage"><p class="verse">Loading passage…</p></div>
-        <div class="nav-row">
-          <button id="prevBtn" class="dark-btn">‹ Previous</button>
-          <button id="nextBtn" class="dark-btn">Next ›</button>
-        </div>
-      </section>
-
-      <aside class="side">
-        <div class="panel">
-          <div class="panel-title"><h3>Teacher Tools</h3><span class="info-wrap" tabindex="0"><span class="info-icon">i</span><span class="tooltip">Open the Teacher Tools panel to choose how you want to mark the passage. These tools help with visual teaching, personal study, Bible study groups, OBS recordings, and Scripture explanation.</span></span></div>
-          <div class="teacher-tools-box">
-            <button id="openTeacherTools">Open Teacher Tools</button>
-            <div id="activeToolLabel" class="active-tool-label">Active Tool: Gold Highlight</div>
-            <div class="tool-grid">
-              <button id="copyVerse" class="secondary" type="button">Copy Verse</button>
-              <button id="copySelectedVerses" class="secondary" type="button">Copy Selected Verses</button>
-              <button id="clearMarks" class="secondary" type="button">Clear Marks</button>
-              <button id="copyPassage" class="secondary" type="button">Copy Passage</button>
-            </div>
-            <div id="copyStatus" class="copy-status" aria-live="polite">Copy tools ready.</div>
-          </div>
-        </div>
-
-
+<div class="hero-main">
+<p class="eyebrow">Restored Daily Ministries</p>
+<h1>Iron Sharpener</h1>
+<p class="subtitle">Scripture study, discipleship, and live teaching tools.</p>
+<div class="actions">
+<button class="secondary" id="themeBtn">Cream / Dark</button>
+<button class="dark-btn" id="obsBtn">OBS Focus</button>
+<button id="fsBtn">Fullscreen</button>
+</div>
+</div>
+<aside class="verse-card">
+<p>“As iron sharpens iron, so one person sharpens another.”</p>
+<strong>PROVERBS 27:17</strong>
+</aside>
+</header>
+<div class="ribbon">Prepared in prayer   ✦   Taught with clarity   ✦   Shared for discipleship</div>
+<div aria-label="OBS teaching tools" class="obs-tool-bar" id="obsToolBar">
+<button id="obsShowNavigator" type="button">Scripture Navigator</button>
+<button id="obsOpenTeacherTools">Teacher Tools</button>
+<button id="obsShowTeachingNote">Teaching Note</button>
+<button id="obsShowApplicationNote">Application &amp; Prayer</button>
+<button id="obsShowTeachingMethod">Teaching Method</button>
+<button id="ironPromptPanelBtn" type="button">I.R.O.N.</button>
+<button id="obsShowCrossRefs">Teaching Cross References</button>
+<button class="secondary" id="obsClearMarks">Clear</button>
+<button class="secondary" id="obsResetPanels">Reset Panels</button>
+<button id="obsToolsMenuBtn" type="button">⚔ Tools</button>
+</div>
+<section class="controls">
+<div><label for="book">Book</label><select id="book"></select></div>
+<div><label for="chapter">Chapter</label><select id="chapter"></select></div>
+<div><label for="start">Start Verse</label><select id="start"></select></div>
+<div><label for="end">End Verse</label><select id="end"></select></div>
+<div>
+<label for="rangeSize">Section Size</label>
+<select id="rangeSize">
+<option value="3">3</option>
+<option selected="" value="5">5</option>
+<option value="7">7</option>
+<option value="10">10</option>
+<option value="15">15</option>
+<option value="20">20</option>
+<option value="25">25</option>
+<option value="50">50</option>
+<option value="100">100</option>
+<option value="full">Full Chapter</option>
+</select>
+</div>
+<button id="loadBtn" title="Refresh the current passage if it does not load correctly.">↻ Refresh Passage</button>
+</section>
+<main class="layout">
+<section class="scripture" id="scriptureBox">
+<h2 class="ref" id="refTitle">Hebrews 1 1-5</h2>
+<div class="source">World English Bible • Public Domain</div>
+<div class="divider"></div>
+<div id="passage"><p class="verse">Loading passage…</p></div>
+<div class="nav-row">
+<button class="dark-btn" id="prevBtn">‹ Previous</button>
+<button class="dark-btn" id="nextBtn">Next ›</button>
+</div>
+</section>
+<aside class="side">
 <div class="panel">
-  <div class="panel-title">
-    <h3>Teaching Notes</h3>
-    <span class="info-wrap" tabindex="0">
-      <span class="info-icon">i</span>
-      <span class="tooltip">Use this privately while preparing. When ready, show it as a presentation card on screen.</span>
-    </span>
-  </div>
-
-  <textarea id="teachingNotes" placeholder="Sermon title, main teaching note, outline, main point..."></textarea>
-
-  <div class="teaching-note-actions">
-    <button id="showTeachingNote" type="button">Show Teaching Note</button>
-    <button id="hideTeachingNote" class="secondary" type="button">Hide</button>
-    <button id="showSmallTeachingNote" class="secondary" type="button" style="display:none;">
+<div class="panel-title"><h3>Teacher Tools</h3><span class="info-wrap" tabindex="0"><span class="info-icon">i</span><span class="tooltip">Open the Teacher Tools panel to choose how you want to mark the passage. These tools help with visual teaching, personal study, Bible study groups, OBS recordings, and Scripture explanation.</span></span></div>
+<div class="teacher-tools-box">
+<button id="openTeacherTools">Open Teacher Tools</button>
+<div class="active-tool-label" id="activeToolLabel">Active Tool: Gold Highlight</div>
+<div class="tool-grid">
+<button class="secondary" id="copyVerse" type="button">Copy Verse</button>
+<button class="secondary" id="copySelectedVerses" type="button">Copy Selected Verses</button>
+<button class="secondary" id="clearMarks" type="button">Clear Marks</button>
+<button class="secondary" id="copyPassage" type="button">Copy Passage</button>
+</div>
+<div aria-live="polite" class="copy-status" id="copyStatus">Copy tools ready.</div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-title">
+<h3>Teaching Notes</h3>
+<span class="info-wrap" tabindex="0">
+<span class="info-icon">i</span>
+<span class="tooltip">Use this privately while preparing. When ready, show it as a presentation card on screen.</span>
+</span>
+</div>
+<textarea id="teachingNotes" placeholder="Sermon title, main teaching note, outline, main point..."></textarea>
+<div class="teaching-note-actions">
+<button id="showTeachingNote" type="button">Show Teaching Note</button>
+<button class="secondary" id="hideTeachingNote" type="button">Hide</button>
+<button class="secondary" id="showSmallTeachingNote" style="display:none;" type="button">
   Bring Note Box Back
 </button>
-  </div>
 </div>
-
+</div>
 <div class="panel">
-  <div class="panel-title">
-    <h3>Teaching Cross References</h3>
-    <span class="info-wrap" tabindex="0">
-      <span class="info-icon">i</span>
-      <span class="tooltip">Type Scripture references here, and they will become clickable internal WEB links.</span>
-    </span>
-  </div>
-
-  <textarea id="crossRefs" placeholder="Example: John 1:1-5, Colossians 1:15-20, Hebrews 1:1-4"></textarea>
-  <div id="crossRefLinks" class="cross-ref-links"></div>
-  <button id="backToPreviousPassage" class="secondary" type="button" style="display:none;margin-top:10px;">
+<div class="panel-title">
+<h3>Teaching Cross References</h3>
+<span class="info-wrap" tabindex="0">
+<span class="info-icon">i</span>
+<span class="tooltip">Type Scripture references here, and they will become clickable internal WEB links.</span>
+</span>
+</div>
+<textarea id="crossRefs" placeholder="Example: John 1:1-5, Colossians 1:15-20, Hebrews 1:1-4"></textarea>
+<div class="cross-ref-links" id="crossRefLinks"></div>
+<button class="secondary" id="backToPreviousPassage" style="display:none;margin-top:10px;" type="button">
   ← Back to Previous Passage
 </button>
 </div>
-
 <div class="panel">
-  <div class="panel-title">
-    <h3>Application & Prayer</h3>
-    <span class="info-wrap" tabindex="0">
-      <span class="info-icon">i</span>
-      <span class="tooltip">Use this area for application, prayer points, encouragement, repentance, surrender, and pastoral response.</span>
-    </span>
-  </div>
-
-  <textarea id="applicationNotes" placeholder="Pastoral application, prayer points, invitation, encouragement..."></textarea>
-
-  <div class="application-note-actions teaching-note-actions">
-    <button id="showApplicationNote" type="button">Show Application & Prayer</button>
-    <button id="hideApplicationNote" class="secondary" type="button">Hide</button>
-    <button id="showSmallApplicationNote" class="secondary" type="button" style="display:none;">
+<div class="panel-title">
+<h3>Application &amp; Prayer</h3>
+<span class="info-wrap" tabindex="0">
+<span class="info-icon">i</span>
+<span class="tooltip">Use this area for application, prayer points, encouragement, repentance, surrender, and pastoral response.</span>
+</span>
+</div>
+<textarea id="applicationNotes" placeholder="Pastoral application, prayer points, invitation, encouragement..."></textarea>
+<div class="application-note-actions teaching-note-actions">
+<button id="showApplicationNote" type="button">Show Application &amp; Prayer</button>
+<button class="secondary" id="hideApplicationNote" type="button">Hide</button>
+<button class="secondary" id="showSmallApplicationNote" style="display:none;" type="button">
       Bring Application Box Back
     </button>
-  </div></div>
-
+</div></div>
 <div class="panel">
-  <div class="panel-title">
-    <h3>Clip / Timestamp Notes</h3>
-    <span class="info-wrap" tabindex="0">
-      <span class="info-icon">i</span>
-      <span class="tooltip">Use this area to mark strong moments, possible short clips, key quotes, timestamps, and video notes.</span>
-    </span>
-  </div>
-
-  <textarea id="clipNotes" placeholder="Example: 12:40 - strong clip on Christ's supremacy..."></textarea>
-  <div id="notesSaveStatus" class="notes-save-status">Notes save per selected passage.</div>
+<div class="panel-title">
+<h3>Clip / Timestamp Notes</h3>
+<span class="info-wrap" tabindex="0">
+<span class="info-icon">i</span>
+<span class="tooltip">Use this area to mark strong moments, possible short clips, key quotes, timestamps, and video notes.</span>
+</span>
 </div>
-
+<textarea id="clipNotes" placeholder="Example: 12:40 - strong clip on Christ's supremacy..."></textarea>
+<div class="notes-save-status" id="notesSaveStatus">Notes save per selected passage.</div>
+</div>
 </aside>
 </main>
-
-
-<div id="obsCrossRefsPanel" class="floating-crossrefs-panel">
-  <div class="floating-crossrefs-header drag-handle" data-drag-handle="obsCrossRefsPanel">
-    <span id="obsCrossRefsTitle">Teaching Cross References</span>
-    <button id="closeObsCrossRefs" class="secondary" type="button">Close</button>
-  </div>
-
-  <div id="obsCrossRefsContent"></div>
-
-  <button id="obsBackToPreviousPassage" class="secondary" type="button" style="display:none;margin-top:10px;width:100%;">
+<div class="floating-crossrefs-panel" id="obsCrossRefsPanel">
+<div class="floating-crossrefs-header drag-handle" data-drag-handle="obsCrossRefsPanel">
+<span id="obsCrossRefsTitle">Teaching Cross References</span>
+<button class="secondary" id="closeObsCrossRefs" type="button">Close</button>
+</div>
+<div id="obsCrossRefsContent"></div>
+<button class="secondary" id="obsBackToPreviousPassage" style="display:none;margin-top:10px;width:100%;" type="button">
     ← Back to Previous Passage
   </button>
 </div>
-
-<div id="obsNavigatorPanel" class="teacher-pop" aria-hidden="true">
-  <div class="teacher-pop-head drag-handle" data-drag-handle="obsNavigatorPanel">
-    <h3>Scripture Navigator</h3>
-    <button id="closeObsNavigator" class="teacher-pop-close secondary" type="button">Close</button>
-  </div>
-
-  <label>Book</label>
-  <select id="obsBookSelect"></select>
-
-  <label>Chapter</label>
-  <select id="obsChapterSelect"></select>
-
-  <label>Start Verse</label>
-  <select id="obsStartVerseSelect"></select>
-
-  <label>End Verse</label>
-  <select id="obsEndVerseSelect"></select>
-
-  <label>Section Size</label>
-  <select id="obsRangeSizeSelect"></select>
-
-  <button type="button" id="obsLoadPassage" style="width:100%;margin-top:12px;">
+<div aria-hidden="true" class="teacher-pop" id="obsNavigatorPanel">
+<div class="teacher-pop-head drag-handle" data-drag-handle="obsNavigatorPanel">
+<h3>Scripture Navigator</h3>
+<button class="teacher-pop-close secondary" id="closeObsNavigator" type="button">Close</button>
+</div>
+<label>Book</label>
+<select id="obsBookSelect"></select>
+<label>Chapter</label>
+<select id="obsChapterSelect"></select>
+<label>Start Verse</label>
+<select id="obsStartVerseSelect"></select>
+<label>End Verse</label>
+<select id="obsEndVerseSelect"></select>
+<label>Section Size</label>
+<select id="obsRangeSizeSelect"></select>
+<button id="obsLoadPassage" style="width:100%;margin-top:12px;" type="button">
     Load Passage
   </button>
 </div>
-
-    <div id="teacherToolsPanel" class="teacher-pop" aria-hidden="true">
-      <div class="teacher-pop-head drag-handle" data-drag-handle="teacherToolsPanel">
-        <h3>Teacher Tools</h3>
-        <button id="closeTeacherTools" class="teacher-pop-close secondary" type="button">Close</button>
-      </div>
-
-      <div class="teacher-tools-status-card">
-        <strong>Teacher Tools Active</strong>
-        <span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
-      </div>
-
-      <div class="tool-section-title">Highlight Colors</div>
-      <div class="tool-options tool-colors">
-        <button type="button" class="tool-option" data-tool="highlight-gold"><strong><i class="swatch gold"></i> Gold Highlight</strong><span>Main points, key verses, repeated truths, or the central idea. Select words first to highlight only that phrase.</span></button>
-        <button type="button" class="tool-option" data-tool="highlight-blue"><strong><i class="swatch blue"></i> Blue Highlight</strong><span>Promises, comfort, grace, encouragement, or what God is revealing. Select words first to highlight only that phrase.</span></button>
-        <button type="button" class="tool-option" data-tool="highlight-green"><strong><i class="swatch green"></i> Green Highlight</strong><span>Growth, obedience, application, discipleship, and next steps. Select words first to highlight only that phrase.</span></button>
-        <button type="button" class="tool-option" data-tool="highlight-red"><strong><i class="swatch red"></i> Red Highlight</strong><span>Warnings, sin, repentance, urgency, or serious commands. Select words first to highlight only that phrase.</span></button>
-        <button type="button" class="tool-option" data-tool="highlight-purple"><strong><i class="swatch purple"></i> Purple Highlight</strong><span>Christ-centered themes, kingdom language, worship, authority, and glory. Select words first to highlight only that phrase.</span></button>
-        <button type="button" class="tool-option" data-tool="highlight-amber"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
-      </div>
-
-      <div class="tool-section-title">Teaching Marks</div>
-      <div class="tool-options">
-        <button type="button" class="tool-option" data-tool="pointer"><strong>➤ Pointer</strong><span>Marks one verse with an arrow so viewers know exactly where you are focusing.</span></button>
-        <button type="button" class="tool-option" data-tool="underline"><strong>Underline</strong><span>Select a word or phrase first to underline only that text, or click a verse to underline the whole verse.</span></button>
-        <button type="button" class="tool-option" data-tool="circle"><strong>Circle</strong><span>Select a word, phrase, or even a single letter first to circle only that text, or click a verse to circle the whole verse.</span></button>
-        <button type="button" class="tool-option" data-tool="box"><strong>Box</strong><span>Select a word or group of words first to box in only that text, or click a verse to box the whole verse.</span></button>
-        <button type="button" class="tool-option" data-tool="focus"><strong>Focus</strong><span>Click one or multiple verses to spotlight them together while dimming the rest of the passage.</span></button>
-        <button type="button" class="tool-option" data-tool="copy-verse"><strong>Copy Verse</strong><span>Click one verse to copy only that verse with its reference and WEB translation note.</span></button>
-        <button type="button" class="tool-option" data-tool="erase"><strong>Erase Verse Marks</strong><span>Click a marked verse to remove highlights, pointer, underline, circle, box, focus, and selected-word marks.</span></button>
-      </div>
-
-      <div class="tool-section-title">Teaching Help</div>
-      <div class="tool-options">
-        <button type="button" class="tool-option helper-option" id="openTeachingMethodFromTools">
-          <strong>Teaching Method</strong>
-          <span>Open the five-verse teaching rhythm, why it matters, and how to teach with clarity without rushing the passage.</span>
-        </button>
-        <button type="button" class="tool-option helper-option" id="openIronPanelFromTools">
-          <strong>I.R.O.N. Prompts</strong>
-          <span>Open the Inspect, Reflect, Observe, and Next Steps prompts for prayerful study and application.</span>
-        </button>
-      </div>
-
-  <button type="button" class="tool-option helper-option" id="openStudyResourcesFromTools">
-  <strong>Study Resources</strong>
-  <span>Open study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.</span>
+<div aria-hidden="true" class="teacher-pop" id="teacherToolsPanel">
+<div class="teacher-pop-head drag-handle" data-drag-handle="teacherToolsPanel">
+<h3>Teacher Tools</h3>
+<button class="teacher-pop-close secondary" id="closeTeacherTools" type="button">Close</button>
+</div>
+<div class="teacher-tools-status-card">
+<strong>Teacher Tools Active</strong>
+<span id="teacherToolsStatusText">Current Selection: Gold Highlight</span>
+</div>
+<div class="tool-section-title">Highlight Colors</div>
+<div class="tool-options tool-colors">
+<button class="tool-option" data-tool="highlight-gold" type="button"><strong><i class="swatch gold"></i> Gold Highlight</strong><span>Main points, key verses, repeated truths, or the central idea. Select words first to highlight only that phrase.</span></button>
+<button class="tool-option" data-tool="highlight-blue" type="button"><strong><i class="swatch blue"></i> Blue Highlight</strong><span>Promises, comfort, grace, encouragement, or what God is revealing. Select words first to highlight only that phrase.</span></button>
+<button class="tool-option" data-tool="highlight-green" type="button"><strong><i class="swatch green"></i> Green Highlight</strong><span>Growth, obedience, application, discipleship, and next steps. Select words first to highlight only that phrase.</span></button>
+<button class="tool-option" data-tool="highlight-red" type="button"><strong><i class="swatch red"></i> Red Highlight</strong><span>Warnings, sin, repentance, urgency, or serious commands. Select words first to highlight only that phrase.</span></button>
+<button class="tool-option" data-tool="highlight-purple" type="button"><strong><i class="swatch purple"></i> Purple Highlight</strong><span>Christ-centered themes, kingdom language, worship, authority, and glory. Select words first to highlight only that phrase.</span></button>
+<button class="tool-option" data-tool="highlight-amber" type="button"><strong><i class="swatch amber"></i> Amber Highlight</strong><span>Helpful for repeated emphasis, transition points, observations, or comparisons. Select words first to highlight only that phrase.</span></button>
+</div>
+<div class="tool-section-title">Teaching Marks</div>
+<div class="tool-options">
+<button class="tool-option" data-tool="pointer" type="button"><strong>➤ Pointer</strong><span>Marks one verse with an arrow so viewers know exactly where you are focusing.</span></button>
+<button class="tool-option" data-tool="underline" type="button"><strong>Underline</strong><span>Select a word or phrase first to underline only that text, or click a verse to underline the whole verse.</span></button>
+<button class="tool-option" data-tool="circle" type="button"><strong>Circle</strong><span>Select a word, phrase, or even a single letter first to circle only that text, or click a verse to circle the whole verse.</span></button>
+<button class="tool-option" data-tool="box" type="button"><strong>Box</strong><span>Select a word or group of words first to box in only that text, or click a verse to box the whole verse.</span></button>
+<button class="tool-option" data-tool="focus" type="button"><strong>Focus</strong><span>Click one or multiple verses to spotlight them together while dimming the rest of the passage.</span></button>
+<button class="tool-option" data-tool="copy-verse" type="button"><strong>Copy Verse</strong><span>Click one verse to copy only that verse with its reference and WEB translation note.</span></button>
+<button class="tool-option" data-tool="erase" type="button"><strong>Erase Verse Marks</strong><span>Click a marked verse to remove highlights, pointer, underline, circle, box, focus, and selected-word marks.</span></button>
+</div>
+<div class="tool-section-title">Teaching Help</div>
+<div class="tool-options">
+<button class="tool-option helper-option" id="openTeachingMethodFromTools" type="button">
+<strong>Teaching Method</strong>
+<span>Open the five-verse teaching rhythm, why it matters, and how to teach with clarity without rushing the passage.</span>
 </button>
-
-      <div class="teacher-pop-note">
+<button class="tool-option helper-option" id="openIronPanelFromTools" type="button">
+<strong>I.R.O.N. Prompts</strong>
+<span>Open the Inspect, Reflect, Observe, and Next Steps prompts for prayerful study and application.</span>
+</button>
+</div>
+<button class="tool-option helper-option" id="openStudyResourcesFromTools" type="button">
+<strong>Study Resources</strong>
+<span>Open study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.</span>
+</button>
+<div class="teacher-pop-note">
         Choose a tool, then click a verse to apply it. For highlight colors, underline, circle, or box, you can also select a word or phrase first, then click inside that verse to mark only the selected text.
       </div>
-    </div>
-
-<div id="studyResourcesPanel" class="teacher-pop" aria-hidden="true">
-  <div class="teacher-pop-head drag-handle" data-drag-handle="studyResourcesPanel">
-    <h3>Study Resources</h3>
-    <button id="closeStudyResourcesPanel" class="teacher-pop-close secondary" type="button">Close</button>
-  </div>
-
-  <div class="tool-options">
-<button type="button" class="tool-option" id="openBackgroundsResource">
-  <strong>Bible Backgrounds &amp; Customs</strong>
-  <span>Search ancient customs, feasts, worship, daily life, places, and historical background.</span>
-</button>
-
-<button type="button" class="tool-option" id="openEastonsResource">
-  <strong>Easton's Bible Dictionary</strong>
-  <span>Search Bible dictionary entries.</span>
-</button>
-
-  <button type="button" class="tool-option" id="openSmithsResource">
-  <strong>Smith's Bible Dictionary</strong>
-  <span>Search historical Bible dictionary entries.</span>
-</button>
-
-<button type="button" class="tool-option" id="openNavesResource">
-  <strong>Nave's Topical Bible</strong>
-  <span>Search Bible topics and Scripture references.</span>
-</button>
-
-<button type="button" class="tool-option" id="openDoctrineResource">
-  <strong>Biblical Doctrine</strong>
-  <span>Open Scripture-centered doctrine topics for deeper study, discipleship, and biblical understanding.</span>
-</button>
-
-<button type="button" class="tool-option" id="openCommentariesResource">
-  <strong>Matthew Henry Commentary</strong>
-  <span>Open commentary by passage.</span>
-</button>
-
-<button type="button" class="tool-option" id="openBookOverviewResource">
-  <strong>Book Overview</strong>
-  <span>View author, setting, themes, Christ focus, and outline.</span>
-</button>
-
-  <button type="button" class="tool-option" id="openJfbResource">
-  <strong>Jamieson-Fausset-Brown Commentary</strong>
-  <span>Open commentary by passage.</span>
-</button>
-    
-  </div>
 </div>
-    <div id="teachingMethodPanel" class="teaching-method-panel" aria-hidden="true" style="display:none;">
-      <div class="floating-panel-head drag-handle" data-drag-handle="teachingMethodPanel">
-        <h3>Teaching Method</h3>
-        <button id="closeTeachingMethodPanel" class="teacher-pop-close secondary" type="button">Close</button>
-      </div>
-
-      <div class="teaching-method-callout">
+<div aria-hidden="true" class="teacher-pop" id="studyResourcesPanel">
+<div class="teacher-pop-head drag-handle" data-drag-handle="studyResourcesPanel">
+<h3>Study Resources</h3>
+<button class="teacher-pop-close secondary" id="closeStudyResourcesPanel" type="button">Close</button>
+</div>
+<div class="tool-options">
+<button class="tool-option" id="openBackgroundsResource" type="button">
+<strong>Bible Backgrounds &amp; Customs</strong>
+<span>Search ancient customs, feasts, worship, daily life, places, and historical background.</span>
+</button>
+<button class="tool-option" id="openEastonsResource" type="button">
+<strong>Easton's Bible Dictionary</strong>
+<span>Search Bible dictionary entries.</span>
+</button>
+<button class="tool-option" id="openSmithsResource" type="button">
+<strong>Smith's Bible Dictionary</strong>
+<span>Search historical Bible dictionary entries.</span>
+</button>
+<button class="tool-option" id="openNavesResource" type="button">
+<strong>Nave's Topical Bible</strong>
+<span>Search Bible topics and Scripture references.</span>
+</button>
+<button class="tool-option" id="openDoctrineResource" type="button">
+<strong>Biblical Doctrine</strong>
+<span>Open Scripture-centered doctrine topics for deeper study, discipleship, and biblical understanding.</span>
+</button>
+<button class="tool-option" id="openCommentariesResource" type="button">
+<strong>Matthew Henry Commentary</strong>
+<span>Open commentary by passage.</span>
+</button>
+<button class="tool-option" id="openBookOverviewResource" type="button">
+<strong>Book Overview</strong>
+<span>View author, setting, themes, Christ focus, and outline.</span>
+</button>
+<button class="tool-option" id="openJfbResource" type="button">
+<strong>Jamieson-Fausset-Brown Commentary</strong>
+<span>Open commentary by passage.</span>
+</button>
+</div>
+</div>
+<div aria-hidden="true" class="teaching-method-panel" id="teachingMethodPanel" style="display:none;">
+<div class="floating-panel-head drag-handle" data-drag-handle="teachingMethodPanel">
+<h3>Teaching Method</h3>
+<button class="teacher-pop-close secondary" id="closeTeachingMethodPanel" type="button">Close</button>
+</div>
+<div class="teaching-method-callout">
         A five-verse rhythm helps the teacher slow down, protect the context, and let Scripture lead instead of rushing through too much at once.
       </div>
-
-      <p><strong>Why teach around five verses at a time?</strong></p>
-      <ul class="teaching-flow-list">
-        <li><strong>It keeps the passage manageable.</strong> People can follow the text without feeling overwhelmed.</li>
-        <li><strong>It protects context.</strong> You can explain what came before, what is happening now, and where the passage is going.</li>
-        <li><strong>It gives room for observation.</strong> Repeated words, commands, promises, warnings, and Christ-centered truths become easier to see.</li>
-        <li><strong>It helps application become clear.</strong> The goal is not just information, but faithful response to God’s Word.</li>
-        <li><strong>It leaves space for prayer.</strong> The teacher can slow down and ask the Lord for wisdom, humility, and obedience.</li>
-      </ul>
-
-      <div class="iron-panel-divider"></div>
-
-      <p><strong>Simple teaching rhythm:</strong></p>
-      <ul class="teaching-flow-list">
-        <li>Read the selected verses slowly and clearly.</li>
-        <li>Explain the context in plain language.</li>
-        <li>Mark key words, repeated ideas, promises, warnings, or commands.</li>
-        <li>Point people to Christ and the Gospel.</li>
-        <li>Give one clear application or prayerful response.</li>
-      </ul>
-
-      <div class="teaching-method-callout">
+<p><strong>Why teach around five verses at a time?</strong></p>
+<ul class="teaching-flow-list">
+<li><strong>It keeps the passage manageable.</strong> People can follow the text without feeling overwhelmed.</li>
+<li><strong>It protects context.</strong> You can explain what came before, what is happening now, and where the passage is going.</li>
+<li><strong>It gives room for observation.</strong> Repeated words, commands, promises, warnings, and Christ-centered truths become easier to see.</li>
+<li><strong>It helps application become clear.</strong> The goal is not just information, but faithful response to God’s Word.</li>
+<li><strong>It leaves space for prayer.</strong> The teacher can slow down and ask the Lord for wisdom, humility, and obedience.</li>
+</ul>
+<div class="iron-panel-divider"></div>
+<p><strong>Simple teaching rhythm:</strong></p>
+<ul class="teaching-flow-list">
+<li>Read the selected verses slowly and clearly.</li>
+<li>Explain the context in plain language.</li>
+<li>Mark key words, repeated ideas, promises, warnings, or commands.</li>
+<li>Point people to Christ and the Gospel.</li>
+<li>Give one clear application or prayerful response.</li>
+</ul>
+<div class="teaching-method-callout">
         The five-verse number is a guide, not a law. Some passages may need fewer verses. Some may allow more. The goal is faithful, Spirit-led clarity.
       </div>
-    </div>
-
-    <div id="teachingPresentationCard" aria-hidden="true">
-  <div class="presentation-card-inner">
-    <h2 id="presentationCardTitle">Teaching Note</h2>
-    <p id="presentationCardText"></p>
-    <button id="closeTeachingPresentation" class="presentation-close secondary" type="button">Hide Teaching Note</button>
-  </div>
 </div>
-
-
-    <div id="applicationPresentationCard" aria-hidden="true">
-      <div class="presentation-card-inner">
-        <h2>Application & Prayer</h2>
-        <p id="applicationPresentationText"></p>
-        <button id="closeApplicationPresentation" class="presentation-close secondary" type="button">Hide Application & Prayer</button>
-      </div>
-    </div>
-
-    <footer class="footer">
-      <strong>World English Bible (WEB) scripture text is public domain.</strong>
-      <span class="sep"></span>
-      <strong>Iron Sharpener™ is a Scripture study and teaching tool created by<br>Restored Daily Ministries™.</strong>
-    </footer>
-  </div>
-
-  <script>
+<div aria-hidden="true" id="teachingPresentationCard">
+<div class="presentation-card-inner">
+<h2 id="presentationCardTitle">Teaching Note</h2>
+<p id="presentationCardText"></p>
+<button class="presentation-close secondary" id="closeTeachingPresentation" type="button">Hide Teaching Note</button>
+</div>
+</div>
+<div aria-hidden="true" id="applicationPresentationCard">
+<div class="presentation-card-inner">
+<h2>Application &amp; Prayer</h2>
+<p id="applicationPresentationText"></p>
+<button class="presentation-close secondary" id="closeApplicationPresentation" type="button">Hide Application &amp; Prayer</button>
+</div>
+</div>
+<footer class="footer">
+<strong>World English Bible (WEB) scripture text is public domain.</strong>
+<span class="sep"></span>
+<strong>Iron Sharpener™ is a Scripture study and teaching tool created by<br/>Restored Daily Ministries™.</strong>
+</footer>
+</div>
+<script>
     const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
     const verseCounts = {
       "Genesis": [
@@ -7154,8 +7098,6 @@ function openResourceInstancePanel(
 
     init();
   </script>
-
-
 <style>
 html.obs #ironPromptPanelBtn {
   display: inline-flex !important;
@@ -8128,55 +8070,41 @@ body:not(.dark) #obsBtn {
   border-color: #d7a84f !important;
 }
 </style>
-
-
 <div id="ironPromptPanel">
-  <div class="floating-panel-head drag-handle" data-drag-handle="ironPromptPanel">
-    <h3>I.R.O.N. Study Prompts</h3>
-    <button id="closeIronPromptPanel" class="teacher-pop-close secondary" type="button">Close</button>
-  </div>
-
-  <p><strong>I — Identify the Truth</strong><br>
+<div class="floating-panel-head drag-handle" data-drag-handle="ironPromptPanel">
+<h3>I.R.O.N. Study Prompts</h3>
+<button class="teacher-pop-close secondary" id="closeIronPromptPanel" type="button">Close</button>
+</div>
+<p><strong>I — Identify the Truth</strong><br/>
   What does this passage clearly teach about God, Christ, salvation, faith, obedience, or Christian living?</p>
-
-  <p><strong>R — Reflect on the Meaning</strong><br>
+<p><strong>R — Reflect on the Meaning</strong><br/>
   Why would the original audience have needed this message? What is the Holy Spirit emphasizing here?</p>
-
-  <p><strong>O — Observe the Details</strong><br>
+<p><strong>O — Observe the Details</strong><br/>
   Are there repeated words, commands, warnings, promises, contrasts, examples, or connections to other Scripture?</p>
-
-  <p><strong>N — Next Faithful Step</strong><br>
+<p><strong>N — Next Faithful Step</strong><br/>
   Based on this passage, what should I believe, repent of, obey, trust, remember, or do today?</p>
-
-  <div class="iron-mini-prayer">
+<div class="iron-mini-prayer">
     Lord Jesus, help me rightly understand Your Word and faithfully respond to what You are showing me.
   </div>
-
-  <div class="iron-panel-divider"></div>
-
-  <h3>Prayerful Response</h3>
-  <p><strong>Ask the Lord:</strong></p>
-  <p>• What truth do You want me to see clearly?<br>
-  • What do I need to believe, surrender, repent of, obey, or share?<br>
+<div class="iron-panel-divider"></div>
+<h3>Prayerful Response</h3>
+<p><strong>Ask the Lord:</strong></p>
+<p>• What truth do You want me to see clearly?<br/>
+  • What do I need to believe, surrender, repent of, obey, or share?<br/>
   • How should this passage shape my heart, my words, and my steps today?</p>
-
-  <div class="iron-mini-prayer">
+<div class="iron-mini-prayer">
     Holy Spirit, give me wisdom, humility, discernment, and obedience through the Word of God.
   </div>
-
-  <div class="iron-panel-divider"></div>
-
-  <h3>Study Reminder</h3>
-  <ul class="iron-study-list">
-    <li>Read the passage slowly and prayerfully.</li>
-    <li>Stay rooted in the surrounding context.</li>
-    <li>Let Scripture interpret Scripture.</li>
-    <li>Look for Christ, the Gospel, commands, warnings, promises, and application.</li>
-    <li>Move from understanding to faithful obedience.</li>
-  </ul>
+<div class="iron-panel-divider"></div>
+<h3>Study Reminder</h3>
+<ul class="iron-study-list">
+<li>Read the passage slowly and prayerfully.</li>
+<li>Stay rooted in the surrounding context.</li>
+<li>Let Scripture interpret Scripture.</li>
+<li>Look for Christ, the Gospel, commands, warnings, promises, and application.</li>
+<li>Move from understanding to faithful obedience.</li>
+</ul>
 </div>
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const obsToolbar = document.querySelector(".obs-tool-bar");
@@ -8209,8 +8137,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
-
-
 <script>
 (function () {
   function makeDraggable(panelId) {
@@ -8329,8 +8255,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .forEach(makeDraggable);
 })();
 </script>
-
-
 <script>
 (function restoredDailyTeachingHelpPanels() {
   function get(id) {
@@ -8405,8 +8329,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 })();
 </script>
-
-
 <script>
 (function finalApplicationPrayerButtonFix() {
   function get(id) {
@@ -8564,12 +8486,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
-
-
-
-
-
-
 <!-- Patch 2B: Resource panel close + mobile drag repair only -->
 <style>
 /* Scope only to Study Resource instance panels. Does not change main PC panel styling. */
@@ -8796,8 +8712,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
-
-
 <!-- Patch 2D: I.R.O.N. panel dark green only in OBS dark mode -->
 <style>
 /* Scope: only the I.R.O.N. panel in OBS Focus while dark mode is active.
@@ -8868,9 +8782,6 @@ html.obs body.dark #ironPromptPanel h3 {
   color: #F8D987 !important;
 }
 </style>
-
-
-
 <!-- Patch 2F — Unified floating panel typography/style
      Goal: make regular-screen panels match the softer OBS I.R.O.N. panel look
      without changing panel open/close, dragging, resizing, copy tools, or Scripture loading. -->
@@ -9109,8 +9020,6 @@ body:not(.dark) #studyResourcesPanel .tool-option span {
   font-weight: 800 !important;
 }
 </style>
-
-
 <!-- Patch 2G — Dark-mode Teacher Tools + Study Resources text softening only
      Scope: dark mode only; Teacher Tools + Study Resources panels only.
      Does not affect I.R.O.N., resource result panels, mobile fit, drag/resize, or panel logic. -->
@@ -9174,9 +9083,6 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
   font-weight: 650 !important;
 }
 </style>
-
-
-
 <!-- Patch 5 — Auto-expanding note boxes + faithful presentation display
      Scope: Teaching Notes, Cross References, Application & Prayer, Clip Notes.
      Preserves existing PC/mobile panel behavior, study resources, copy tools, and navigation. -->
@@ -9266,7 +9172,6 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     }
   }
 </style>
-
 <script id="patch-5-notes-display-autogrow-script">
 (function patchFiveNotesDisplayAndAutogrow() {
   const NOTE_TEXTAREA_IDS = ["teachingNotes", "crossRefs", "applicationNotes", "clipNotes"];
@@ -9468,9 +9373,6 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
   window.ironSharpenerAutoGrowNotes = autoGrowAllNoteFields;
 })();
 </script>
-
-
-
 <!-- Patch 5B — OBS Focus panel scale, drag, and resize for Cross References + Teaching Note
      Scope: OBS Focus only for the personal cross-reference panel and teaching presentation card.
      Keeps copy tools, Study Resources, navigation, notes autogrow, and normal screen behavior unchanged. -->
@@ -9610,7 +9512,6 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     }
   }
 </style>
-
 <script id="patch-5b-obs-panel-scale-drag-script">
 (function patchFiveBObsPanelScaleDrag() {
   function get(id) {
@@ -9806,9 +9707,6 @@ panel.querySelector(":scope > .rd-touch-resize-handle");
   });
 })();
 </script>
-
-
-
 <!-- Patch 5C — Cross References reopen fix + universal presentation card drag/resize
      Scope: fixes OBS Cross References reopening after close; makes Teaching Note and Application & Prayer cards movable/resizable in regular mode and OBS mode. -->
 <style id="patch-5c-presentation-crossrefs-control-style">
@@ -9968,7 +9866,6 @@ panel.querySelector(":scope > .rd-touch-resize-handle");
     }
   }
 </style>
-
 <script id="patch-5c-presentation-crossrefs-control-script">
 (function patchFiveCPresentationAndCrossRefsControl() {
   const get = (id) => document.getElementById(id);
@@ -10297,9 +10194,6 @@ panel.querySelector(":scope > .rd-touch-resize-handle");
   });
 })();
 </script>
-
-
-
 <style>
 /* FINAL OVERRIDE — Biblical Doctrine result/category buttons in cream mode */
 html body:not(.dark) #obsCrossRefsContent button.doctrine-topic-btn,
@@ -11849,10 +11743,6 @@ html.obs #studyResourcesPanel .tool-option span {
   }
 }
 </style>
-
-
-
-
 <!-- =========================================================
      RDM IRON SHARPENER — STUDY RESOURCES FINAL CLEAN PATCH
      Consolidates Bible Backgrounds, Study Resources Key,
@@ -12136,7 +12026,6 @@ body.dark .backgrounds-back-btn {
   }
 }
 </style>
-
 <script id="rdm-study-resources-final-clean-script">
 (function rdmStudyResourcesFinalCleanPatch() {
   if (window.__rdmStudyResourcesFinalCleanPatchInstalled) return;
@@ -12937,7 +12826,6 @@ body.dark .backgrounds-back-btn {
   setTimeout(updateStudyResourcesKey, 350);
 })();
 </script>
-
 <style id="rdm-resource-ui-cleanup-v3">
 /* =========================================================
    RESOURCE PANEL BUTTON CLEANUP
@@ -13030,7 +12918,6 @@ body:not(.dark) .rdm-background-topic-btn:hover {
   background: #f7ead3 !important;
 }
 </style>
-
 <style id="rdm-built-in-crossrefs-internal-rebuild-v2-style">
 #internalCrossRefsPanel {
   display: none;
@@ -13154,8 +13041,6 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   margin-top: 8px;
 }
 </style>
-
-
 <script id="rdm-built-in-crossrefs-internal-rebuild-v2">
 /* =========================================================
    Iron Sharpener Built-In Cross References — Internal Rebuild v2
@@ -13552,13 +13437,9 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   scheduleAvailability();
 })();
 </script>
-
-
-
 <!-- Patch 6 — Study Resources dark-mode icon/buttons + OBS tools cleanup -->
 <!-- Patch 7 — Bible Backgrounds dark-mode polish + Study Resources help icon alignment -->
 <!-- Patch 8 — Backgrounds gold/green dark buttons + exact Study Resources info icon match -->
-
 <!-- Patch 9 — Unified gold/green resource buttons + exact info icon match -->
 <style id="rdm-resource-buttons-icon-unified-v9">
 /* =========================================================
@@ -13754,9 +13635,6 @@ body.dark .resource-instance-panel[data-resource-key^="doctrine"] .resource-pane
   display: none !important;
 }
 </style>
-
-
-
 <style id="rdm-final-dark-resource-button-icon-polish-v10">
 /* =========================================================
    FINAL v10 — Dark-mode button + info-icon alignment
@@ -13888,9 +13766,6 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
   border: 1.5px solid var(--gold) !important;
 }
 </style>
-
-
-
 <script id="rdm-naves-full-index-v11">
 (function () {
   if (window.__rdmNavesFullIndexV11) return;
@@ -14169,8 +14044,6 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
   setTimeout(install, 1200);
 })();
 </script>
-
-
 <!-- =========================================================
      RDM IRON SHARPENER — v13 Study Resource Back Button + Nave Rank
      Base: user-updated script with resource wording adjusted.
@@ -14214,7 +14087,6 @@ body.dark #studyResourcesKey .study-resource-back-btn {
   box-shadow: 0 0 12px rgba(248,217,135,.22) !important;
 }
 </style>
-
 <script id="rdm-v13-study-resource-back-naves-rank">
 (function () {
   if (window.__rdmV13StudyResourceBackNavesRank) return;
@@ -14750,9 +14622,6 @@ body.dark #studyResourcesKey .study-resource-back-btn {
   setTimeout(install, 2600);
 })();
 </script>
-
-
-
 <style id="rdm-v14-exact-reference-back-button-polish">
 /* Patch v14 — cream-mode Study Resources back button matches the brown/cream resource buttons. */
 body:not(.dark) #studyResourcesKey .study-resource-back-btn {
@@ -14771,7 +14640,6 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
   color: #FFF8EA !important;
 }
 </style>
-
 <script id="rdm-v14-exact-reference-final-guard">
 (function () {
   if (window.__rdmV14ExactReferenceFinalGuard) return;
@@ -14946,449 +14814,6 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
 })();
 </script>
 
-
-<script>
-/* Patch 15 — Offline Ready + first-run cache status */
-(() => {
-  "use strict";
-
-  const CACHE_VERSION = "iron-sharpener-offline-v26-public-lock-20260626";
-  const CACHE_NAME = "iron-sharpener-offline-v26-public-lock-20260626";
-  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v26";
-  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v26";
-  const MAX_CONCURRENT_FETCHES = 1;
-  const GENTLE_CACHE_DELAY_MS = 35;
-
-  let cacheRunActive = false;
-  let lastCacheSummary = null;
-
-  function byId(id) {
-    return document.getElementById(id);
-  }
-
-  function safeText(value) {
-    return String(value || "").replace(/\s+/g, " ").trim();
-  }
-
-  function readStatus() {
-    try {
-      return JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function writeStatus(status) {
-    try {
-      localStorage.setItem(STATUS_KEY, JSON.stringify(status));
-    } catch (_) {}
-  }
-
-  function isCacheComplete() {
-    const status = readStatus();
-    return !!status && status.version === CACHE_VERSION && status.complete === true;
-  }
-
-  function createOfflineUi() {
-    if (byId("rdmOfflineStatusPill")) return;
-
-    const pill = document.createElement("button");
-    pill.id = "rdmOfflineStatusPill";
-    pill.type = "button";
-    pill.className = "rdm-offline-status-pill";
-    pill.innerHTML = '<span class="rdm-offline-status-dot" aria-hidden="true"></span><span id="rdmOfflineStatusText">Checking offline status...</span>';
-    pill.addEventListener("click", () => openCachePanel(true));
-
-    const panel = document.createElement("div");
-    panel.id = "rdmOfflineCachePanel";
-    panel.className = "rdm-offline-cache-panel";
-    panel.setAttribute("role", "status");
-    panel.setAttribute("aria-live", "polite");
-    panel.innerHTML = `
-      <div class="rdm-offline-cache-head">
-        <strong>Offline Ready</strong>
-        <button id="rdmOfflinePanelClose" class="secondary" type="button">Hide</button>
-      </div>
-      <p id="rdmOfflineCacheMessage">Checking offline cache status...</p>
-      <div class="rdm-offline-progress-track" aria-hidden="true">
-        <div id="rdmOfflineProgressBar" class="rdm-offline-progress-bar"></div>
-      </div>
-      <p id="rdmOfflineProgressText" class="rdm-offline-cache-muted">Waiting to begin.</p>
-      <div class="rdm-offline-cache-actions">
-        <button id="rdmOfflineStartCache" type="button">Prepare Offline Use</button>
-        <button id="rdmOfflineRefreshCache" class="secondary" type="button">Refresh Cache</button>
-      </div>
-    `;
-
-    document.body.appendChild(panel);
-    document.body.appendChild(pill);
-
-    byId("rdmOfflinePanelClose")?.addEventListener("click", () => {
-      try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
-      openCachePanel(false);
-    });
-
-    byId("rdmOfflineStartCache")?.addEventListener("click", () => startOfflineCaching({ force: false, manual: true }));
-    byId("rdmOfflineRefreshCache")?.addEventListener("click", () => startOfflineCaching({ force: true, manual: true }));
-  }
-
-  function openCachePanel(open) {
-    const panel = byId("rdmOfflineCachePanel");
-    if (!panel) return;
-    panel.classList.toggle("open", !!open);
-    if (open) {
-      try { localStorage.removeItem(HIDE_KEY); } catch (_) {}
-    }
-  }
-
-  function setProgress(percent, text) {
-    const bar = byId("rdmOfflineProgressBar");
-    const progressText = byId("rdmOfflineProgressText");
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent || 0))}%`;
-    if (progressText) progressText.textContent = text || "";
-  }
-
-  function setMessage(message) {
-    const box = byId("rdmOfflineCacheMessage");
-    if (box) box.textContent = message;
-  }
-
-  function setActionButtons({ running = false, ready = false } = {}) {
-    const start = byId("rdmOfflineStartCache");
-    const refresh = byId("rdmOfflineRefreshCache");
-
-    if (start) {
-      start.disabled = running || ready;
-      start.textContent = ready ? "Offline Ready" : running ? "Preparing..." : "Prepare Offline Use";
-    }
-
-    if (refresh) {
-      refresh.disabled = running || !navigator.onLine;
-    }
-  }
-
-  function updateOfflinePill() {
-    createOfflineUi();
-
-    const pill = byId("rdmOfflineStatusPill");
-    const text = byId("rdmOfflineStatusText");
-    if (!pill || !text) return;
-
-    const online = navigator.onLine;
-    const ready = isCacheComplete();
-
-    pill.classList.toggle("offline", !online);
-    pill.classList.toggle("not-ready", !ready);
-
-    if (online && ready) text.textContent = "Online • Offline Ready";
-    else if (!online && ready) text.textContent = "Offline • Ready";
-    else if (online && !ready) text.textContent = "Online • Offline Setup Needed";
-    else text.textContent = "Offline • Setup Not Complete";
-
-    if (cacheRunActive) return;
-
-    if (!ready && !online) {
-      setMessage("Connect to the internet to finish preparing Iron Sharpener for offline use.");
-      setProgress(0, "Offline setup has not completed yet.");
-      setActionButtons({ running: false, ready: false });
-      openCachePanel(true);
-    } else if (ready) {
-      const status = readStatus();
-      const cached = status?.cached || 0;
-      const skipped = status?.skipped || 0;
-      const failed = status?.failed || 0;
-      setMessage("Iron Sharpener is ready for offline use on this device.");
-      setProgress(100, `Cached ${cached.toLocaleString()} files. Skipped ${skipped.toLocaleString()} optional missing files. Failed ${failed.toLocaleString()}.`);
-      setActionButtons({ running: false, ready: true });
-    } else {
-      setMessage("Prepare Scripture and study resources for offline use. Stay connected until this completes.");
-      setProgress(0, "Ready to begin offline setup.");
-      setActionButtons({ running: false, ready: false });
-      const hidden = localStorage.getItem(HIDE_KEY) === "1";
-      if (!hidden) openCachePanel(true);
-    }
-  }
-
-  async function registerServiceWorker() {
-    if (!("serviceWorker" in navigator)) {
-      setMessage("This browser does not support service workers, so full offline mode is unavailable here.");
-      return false;
-    }
-
-    try {
-      const registration = await navigator.serviceWorker.register("./service-worker.js");
-      if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
-      return true;
-    } catch (error) {
-      console.warn("Iron Sharpener service worker registration failed:", error);
-      setMessage("The offline service worker could not be registered. Make sure service-worker.js is uploaded beside index.html.");
-      return false;
-    }
-  }
-
-  function addUrl(set, url) {
-    const clean = safeText(url);
-    if (!clean || clean.includes("undefined") || clean.includes("null")) return;
-    set.add(clean.replace(/^\.\//, ""));
-  }
-
-  function primaryFileName(value) {
-    const file = safeText(value);
-    if (!file) return "";
-    return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
-  }
-
-  function gentleWait(ms = GENTLE_CACHE_DELAY_MS) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  async function tryJson(url) {
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  async function buildOfflineUrlList() {
-    const urls = new Set();
-    const bookList = Array.isArray(window.books) ? window.books : (typeof books !== "undefined" ? books : []);
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-    [
-      "./",
-      "index.html",
-      "manifest.json",
-      "assets/iron-sharpener-logo.png",
-      "service-worker.js"
-    ].forEach(url => addUrl(urls, url));
-
-    bookList.forEach(([book, chapterCount]) => {
-      for (let chapter = 1; chapter <= Number(chapterCount || 0); chapter++) {
-        addUrl(urls, `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`);
-      }
-
-      addUrl(urls, `bible/resources/commentaries/matthew-henry/${book}.json`);
-      addUrl(urls, `bible/resources/commentaries/jfb/${book}.json`);
-      addUrl(urls, `bible/resources/book-overviews/${book}.json`);
-      addUrl(urls, `bible/resources/internal-cross-references/${book}.json`);
-      addUrl(urls, `bible/resources/backgrounds/by-reference/${book}.json`);
-    });
-
-    letters.forEach(letter => {
-      addUrl(urls, `bible/resources/eastons/${letter}.json`);
-      addUrl(urls, `bible/resources/smiths/${letter}.json`);
-    });
-
-    const doctrineIndexes = [
-      "index.json",
-      "index-2a-additions.json",
-      "index-2b-2c-3-additions.json",
-      "index-4-5-6-additions.json",
-      "index-7-8-additions.json",
-      "index-9-10-additions.json",
-      "index-11-12-additions.json",
-      "doctrine-registry.json"
-    ];
-    doctrineIndexes.forEach(file => addUrl(urls, `bible/resources/doctrine/${file}`));
-
-    addUrl(urls, "bible/resources/topics/index.json");
-    addUrl(urls, "bible/resources/backgrounds/index.json");
-
-    const naveIndex = await tryJson("bible/resources/topics/index.json");
-    const naveTopics = Array.isArray(naveIndex?.topics) ? naveIndex.topics : (Array.isArray(naveIndex) ? naveIndex : []);
-    naveTopics.forEach(item => {
-      const file = primaryFileName(item?.file || item?.id || item);
-      if (file) addUrl(urls, `bible/resources/topics/${file}`);
-    });
-
-    const doctrineRegistry = await tryJson("bible/resources/doctrine/doctrine-registry.json");
-    if (Array.isArray(doctrineRegistry)) {
-      doctrineRegistry.forEach(item => {
-        const file = primaryFileName(item?.file || item?.id || item?.title || item);
-        if (file) addUrl(urls, `bible/resources/doctrine/${file}`);
-      });
-    }
-
-    const backgroundsIndex = await tryJson("bible/resources/backgrounds/index.json");
-    if (Array.isArray(backgroundsIndex)) {
-      backgroundsIndex.forEach(item => {
-        const file = safeText(item?.file || (item?.id ? `topics/${item.id}.json` : ""));
-        if (file) addUrl(urls, `bible/resources/backgrounds/${file.replace(/^\/+/, "")}`);
-      });
-    }
-
-    return Array.from(urls);
-  }
-
-  async function cacheOneUrl(cache, url) {
-    const requestUrl = url.startsWith("./") ? url : `./${url}`;
-    try {
-      const response = await fetch(requestUrl, { cache: "reload" });
-
-      if (!response || !response.ok) {
-        if (response && response.status === 404) return "skipped";
-        return "failed";
-      }
-
-      await cache.put(requestUrl, response.clone());
-      if (!url.startsWith("./")) {
-        try { await cache.put(url, response.clone()); } catch (_) {}
-      }
-      return "cached";
-    } catch (error) {
-      console.warn("Offline cache fetch failed:", url, error);
-      return navigator.onLine ? "failed" : "stopped";
-    }
-  }
-
-  async function runWithConcurrency(items, limit, worker) {
-    let index = 0;
-    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-      while (index < items.length) {
-        const currentIndex = index++;
-        await worker(items[currentIndex], currentIndex);
-      }
-    });
-    await Promise.all(runners);
-  }
-
-  async function startOfflineCaching({ force = false, manual = false } = {}) {
-    createOfflineUi();
-
-    if (cacheRunActive) return;
-
-    if (!navigator.onLine) {
-      openCachePanel(true);
-      setMessage("You are offline. Connect to the internet to prepare or refresh the offline cache.");
-      setProgress(0, "Waiting for internet connection.");
-      setActionButtons({ running: false, ready: isCacheComplete() });
-      return;
-    }
-
-    if (!force && isCacheComplete()) {
-      updateOfflinePill();
-      if (manual) openCachePanel(true);
-      return;
-    }
-
-    if (!("caches" in window)) {
-      openCachePanel(true);
-      setMessage("This browser does not support the Cache API required for full offline setup.");
-      setProgress(0, "Offline cache unavailable in this browser.");
-      return;
-    }
-
-    cacheRunActive = true;
-    openCachePanel(true);
-    setActionButtons({ running: true, ready: false });
-    setMessage("Preparing Iron Sharpener for offline use. Please stay connected until this completes.");
-    setProgress(1, "Building resource list...");
-
-    await registerServiceWorker();
-
-    let urls = [];
-    try {
-      urls = await buildOfflineUrlList();
-    } catch (error) {
-      console.warn("Could not build offline cache list:", error);
-      cacheRunActive = false;
-      setMessage("Could not build the offline resource list. Try again while connected.");
-      setProgress(0, "Offline setup did not complete.");
-      setActionButtons({ running: false, ready: false });
-      updateOfflinePill();
-      return;
-    }
-
-    const cache = await caches.open(CACHE_NAME);
-    let completed = 0;
-    let cached = 0;
-    let skipped = 0;
-    let failed = 0;
-    let stopped = false;
-    const total = urls.length || 1;
-
-    setMessage(`Gently checking ${total.toLocaleString()} Scripture and study resource files. Already-cached files are not downloaded again.`);
-
-    await runWithConcurrency(urls, MAX_CONCURRENT_FETCHES, async (url) => {
-      if (stopped) return;
-      const result = await cacheOneUrl(cache, url);
-      completed += 1;
-
-      if (result === "cached") cached += 1;
-      else if (result === "skipped") skipped += 1;
-      else if (result === "stopped") stopped = true;
-      else failed += 1;
-
-      const percent = Math.round((completed / total) * 100);
-      if (completed === total || completed % 50 === 0) {
-        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${cached.toLocaleString()} cached • ${skipped.toLocaleString()} optional skipped • ${failed.toLocaleString()} failed`);
-      }
-    });
-
-    cacheRunActive = false;
-
-    const complete = !stopped;
-    lastCacheSummary = {
-      version: CACHE_VERSION,
-      complete,
-      completedAt: new Date().toISOString(),
-      total,
-      cached,
-      skipped,
-      failed
-    };
-    writeStatus(lastCacheSummary);
-
-    if (complete) {
-      setMessage("Iron Sharpener is ready for offline use on this device.");
-      setProgress(100, `${cached.toLocaleString()} files cached. ${skipped.toLocaleString()} optional missing files skipped. ${failed.toLocaleString()} failed.`);
-    } else {
-      setMessage("Offline setup paused because the connection was lost. It can resume when you are back online.");
-      setProgress(Math.round((completed / total) * 100), `${completed.toLocaleString()} of ${total.toLocaleString()} checked before connection stopped.`);
-    }
-
-    setActionButtons({ running: false, ready: complete });
-    updateOfflinePill();
-  }
-
-  async function initOfflineReady() {
-    createOfflineUi();
-    updateOfflinePill();
-    await registerServiceWorker();
-    updateOfflinePill();
-
-    window.addEventListener("online", () => {
-      updateOfflinePill();
-      // v19: do not auto-download thousands of files in the background.
-      // The user starts the gentle cache preparation manually.
-      if (!isCacheComplete()) {
-        openCachePanel(true);
-      }
-    });
-
-    window.addEventListener("offline", updateOfflinePill);
-
-    if (!isCacheComplete() && navigator.onLine) {
-      // v19: show the setup panel, but do not automatically start a heavy cache run.
-      setTimeout(() => openCachePanel(true), 600);
-    }
-  }
-
-  window.rdmStartOfflineCache = startOfflineCaching;
-  window.rdmOfflineCacheStatus = () => readStatus() || lastCacheSummary;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initOfflineReady);
-  } else {
-    initOfflineReady();
-  }
-})();
-</script>
-
-
 <!-- Patch 16 — Final UI polish: OBS colors, internal cross-ref drag, mode-change cleanup -->
 <style id="rdm-v16-final-ui-polish">
 /* Cream-mode Scripture Navigator: Load Passage should match the reddish-brown/cream resource buttons. */
@@ -15488,7 +14913,6 @@ html.obs #internalCrossRefsPanel.open.rd-drag-positioned {
   transform: none !important;
 }
 </style>
-
 <script id="rdm-v16-internal-crossrefs-drag-mode-cleanup">
 (function rdmV16InternalCrossRefsDragAndModeCleanup() {
   if (window.__rdmV16InternalCrossRefsDragAndModeCleanup) return;
@@ -15677,52 +15101,7 @@ html.obs #internalCrossRefsPanel.open.rd-drag-positioned {
   window.rdmCloseAllModePanelsV16 = closeAllModePanelsV16;
 })();
 </script>
-
-
-
 <!-- Patch 17 — Commentary availability + offline cache diagnostics -->
-<style id="rdm-v17-commentary-cache-diagnostics">
-.rdm-commentary-unavailable {
-  display: none !important;
-}
-
-#rdmOfflineDetails {
-  margin-top: 10px;
-  border: 1px solid rgba(215,168,79,.62);
-  border-radius: 10px;
-  padding: 9px 10px;
-  background: rgba(255,250,240,.10);
-  color: inherit;
-  font: 800 12px Arial, sans-serif;
-  line-height: 1.45;
-}
-
-#rdmOfflineDetails summary {
-  cursor: pointer;
-  color: inherit;
-  font-weight: 900;
-}
-
-#rdmOfflineDetails ul {
-  margin: 8px 0 0 18px;
-  padding: 0;
-}
-
-#rdmOfflineDetails li {
-  margin-bottom: 5px;
-  overflow-wrap: anywhere;
-}
-
-body:not(.dark) #rdmOfflineDetails {
-  background: rgba(255,250,240,.64);
-  color: #2B394F;
-}
-
-body.dark #rdmOfflineDetails {
-  background: rgba(0,0,0,.12);
-  color: #fff6d9;
-}
-</style>
 
 <script id="rdm-v21-safe-commentary-availability">
 /* Patch 21 — Safe commentary availability
@@ -15967,1159 +15346,23 @@ body.dark #rdmOfflineDetails {
   window.rdmRefreshCommentaryAvailability = () => applyAvailability(true);
 })();
 </script>
-
 <!-- Patch 18 — Smart Commentary fallback: quick Commentary opens Matthew Henry first, then JFB if Matthew Henry is unavailable -->
-
 <!-- Patch 19 — Gentle offline cache mode: prevents forced 7,000+ file re-downloads and reduces GitHub Pages throttling/browser freeze risk -->
-
-
-
 <!-- Patch 20 — Stability Cache: no browser-freeze refresh, no false optional files, safer offline JSON handling support -->
-<style id="rdm-v20-stability-cache-style">
-#rdmOfflineDetailsBody .rdm-cache-ok {
-  color: inherit;
-  font-weight: 900;
-}
-#rdmOfflineDetailsBody .rdm-cache-note {
-  display: block;
-  margin-top: 6px;
-  opacity: .92;
-  font-weight: 800;
-}
-</style>
-<script id="rdm-v20-stability-cache">
-(function rdmV20StabilityCache() {
-  if (window.__rdmV20StabilityCache) return;
-  window.__rdmV20StabilityCache = true;
-
-  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v26";
-  const CACHE_NAME = "iron-sharpener-offline-v26-public-lock-20260626";
-  const VERSION = "iron-sharpener-offline-v20-stability-cache";
-  const FETCH_DELAY_MS = 120;   // Only used before downloading a missing file.
-  const YIELD_EVERY = 25;       // Keeps the browser responsive while checking cached files.
-  const PROGRESS_EVERY = 50;
-
-  let v20Running = false;
-  let v20Abort = false;
-
-  const get = (id) => document.getElementById(id);
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  const safeText = (value) => String(value == null ? "" : value).trim();
-
-  function setMessage(message) {
-    const box = get("rdmOfflineCacheMessage");
-    if (box) box.textContent = message;
-  }
-
-  function setProgress(percent, text) {
-    const bar = get("rdmOfflineProgressBar");
-    const progressText = get("rdmOfflineProgressText");
-    if (bar) bar.style.width = `${Math.max(0, Math.min(100, Number(percent) || 0))}%`;
-    if (progressText) progressText.textContent = text || "";
-  }
-
-  function setButtons(running, complete) {
-    const start = get("rdmOfflineStartCache");
-    const refresh = get("rdmOfflineRefreshCache");
-    if (start) {
-      start.disabled = running || !!complete;
-      start.textContent = running ? "Preparing..." : (complete ? "Offline Ready" : "Prepare Offline Use");
-    }
-    if (refresh) {
-      refresh.disabled = running || !navigator.onLine;
-      refresh.textContent = running ? "Checking..." : "Refresh Cache";
-    }
-  }
-
-  function ensureDetails() {
-    const panel = get("rdmOfflineCachePanel");
-    if (!panel) return null;
-    let details = get("rdmOfflineDetails");
-    if (details) return details;
-
-    const actions = panel.querySelector(".rdm-offline-cache-actions");
-    details = document.createElement("details");
-    details.id = "rdmOfflineDetails";
-    details.innerHTML = '<summary>Cache details</summary><div id="rdmOfflineDetailsBody">No detailed cache report yet.</div>';
-    if (actions) actions.insertAdjacentElement("beforebegin", details);
-    else panel.appendChild(details);
-    return details;
-  }
-
-  function setDetails(summary) {
-    const details = ensureDetails();
-    const body = get("rdmOfflineDetailsBody");
-    if (!details || !body) return;
-
-    const failed = Array.isArray(summary?.failedUrls) ? summary.failedUrls : [];
-    const skipped = Array.isArray(summary?.skippedUrls) ? summary.skippedUrls : [];
-    const repaired = Number(summary?.downloaded || 0);
-    const already = Number(summary?.alreadyCached || summary?.cached || 0);
-
-    if (!failed.length && !skipped.length) {
-      details.open = false;
-      body.innerHTML = `
-        <span class="rdm-cache-ok">No missing or failed files were reported.</span>
-        <span class="rdm-cache-note">${already.toLocaleString()} files were already ready${repaired ? `, and ${repaired.toLocaleString()} missing files were repaired/downloaded` : ""}.</span>
-      `;
-      return;
-    }
-
-    details.open = failed.length > 0;
-    const failedHtml = failed.length
-      ? `<strong>Failed files (${failed.length})</strong><ul>${failed.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>`
-      : "<strong>Failed files (0)</strong><br>No failed files reported.";
-
-    const skippedHtml = skipped.length
-      ? `<strong>Optional missing files (${skipped.length})</strong><ul>${skipped.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>`
-      : "<strong>Optional missing files (0)</strong><br>No optional missing files reported.";
-
-    body.innerHTML = `${failedHtml}<div style="height:9px"></div>${skippedHtml}`;
-  }
-
-  function addUrl(set, url) {
-    const clean = safeText(url);
-    if (!clean || clean.includes("undefined") || clean.includes("null")) return;
-    set.add(clean.replace(/^\.\//, ""));
-  }
-
-  function primaryJsonFile(value) {
-    const file = safeText(value);
-    if (!file) return "";
-    return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
-  }
-
-  async function tryJson(url) {
-    // Use the browser/service-worker cache first. Do not force a fresh network request for indexes.
-    try {
-      const response = await fetch(url, { cache: "force-cache" });
-      if (!response || !response.ok) return null;
-      const type = response.headers.get("content-type") || "";
-      // Some hosts may return an HTML protection page. Do not treat that as JSON.
-      if (type && !type.includes("json") && !url.endsWith(".json")) return null;
-      return await response.json();
-    } catch (_) {
-      try {
-        const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match(url) || await cache.match(`./${url}`);
-        return cached ? await cached.json() : null;
-      } catch (_) {
-        return null;
-      }
-    }
-  }
-
-  async function buildStableUrlList() {
-    const urls = new Set();
-    const bookList = (typeof books !== "undefined" && Array.isArray(books)) ? books : [];
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-    ["./", "index.html", "manifest.json", "assets/iron-sharpener-logo.png", "service-worker.js"].forEach(url => addUrl(urls, url));
-
-    bookList.forEach(([book, chapterCount]) => {
-      const chapters = Number(chapterCount || 0);
-      for (let chapter = 1; chapter <= chapters; chapter++) {
-        addUrl(urls, `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`);
-      }
-
-      addUrl(urls, `bible/resources/commentaries/matthew-henry/${book}.json`);
-      addUrl(urls, `bible/resources/commentaries/jfb/${book}.json`);
-      addUrl(urls, `bible/resources/book-overviews/${book}.json`);
-      addUrl(urls, `bible/resources/internal-cross-references/${book}.json`);
-      addUrl(urls, `bible/resources/backgrounds/by-reference/${book}.json`);
-    });
-
-    letters.forEach(letter => {
-      addUrl(urls, `bible/resources/eastons/${letter}.json`);
-      addUrl(urls, `bible/resources/smiths/${letter}.json`);
-    });
-
-    // Current doctrine system uses doctrine-registry.json + individual topic files.
-    // Do not include old optional doctrine index-addition files here; they created false warnings.
-    addUrl(urls, "bible/resources/doctrine/doctrine-registry.json");
-    addUrl(urls, "bible/resources/topics/index.json");
-    addUrl(urls, "bible/resources/backgrounds/index.json");
-
-    const naveIndex = await tryJson("bible/resources/topics/index.json");
-    const naveTopics = Array.isArray(naveIndex?.topics) ? naveIndex.topics : (Array.isArray(naveIndex) ? naveIndex : []);
-    naveTopics.forEach(item => {
-      const file = primaryJsonFile(item?.file || item?.id || item);
-      if (file) addUrl(urls, `bible/resources/topics/${file}`);
-    });
-
-    const doctrineRegistry = await tryJson("bible/resources/doctrine/doctrine-registry.json");
-    if (Array.isArray(doctrineRegistry)) {
-      doctrineRegistry.forEach(item => {
-        const file = primaryJsonFile(item?.file || item?.id || item?.title || item);
-        if (file) addUrl(urls, `bible/resources/doctrine/${file}`);
-      });
-    }
-
-    const backgroundsIndex = await tryJson("bible/resources/backgrounds/index.json");
-    if (Array.isArray(backgroundsIndex)) {
-      backgroundsIndex.forEach(item => {
-        const file = safeText(item?.file || (item?.id ? `topics/${item.id}.json` : ""));
-        if (file) addUrl(urls, `bible/resources/backgrounds/${file.replace(/^\/+/, "")}`);
-      });
-    }
-
-    return Array.from(urls);
-  }
-
-  async function matchEither(cache, url) {
-    const requestUrl = url.startsWith("./") ? url : `./${url}`;
-    return (await cache.match(requestUrl)) || (await cache.match(url));
-  }
-
-  async function cacheOneStable(cache, url, index) {
-    const requestUrl = url.startsWith("./") ? url : `./${url}`;
-
-    const existing = await matchEither(cache, url);
-    if (existing) {
-      if (index % YIELD_EVERY === 0) await sleep(8);
-      return { result: "ready", url, status: "already cached" };
-    }
-
-    // A missing file is the only time we touch the network. Slow this down on purpose.
-    await sleep(FETCH_DELAY_MS);
-
-    try {
-      const response = await fetch(requestUrl, { cache: "no-cache" });
-      if (!response || !response.ok) {
-        const status = response ? `${response.status} ${response.statusText || ""}`.trim() : "no response";
-        if (response && response.status === 404) return { result: "skipped", url, status };
-        return { result: "failed", url, status };
-      }
-
-      // Never cache an HTML protection page as a JSON resource.
-      const contentType = response.headers.get("content-type") || "";
-      if (requestUrl.endsWith(".json") && contentType && !contentType.includes("json")) {
-        return { result: "failed", url, status: `unexpected content-type ${contentType}` };
-      }
-
-      await cache.put(requestUrl, response.clone());
-      if (!url.startsWith("./")) {
-        try { await cache.put(url, response.clone()); } catch (_) {}
-      }
-      return { result: "downloaded", url, status: "downloaded" };
-    } catch (error) {
-      return { result: navigator.onLine ? "failed" : "stopped", url, status: error?.message || "fetch error" };
-    }
-  }
-
-  async function startStableCacheRun() {
-    if (v20Running) return;
-
-    ensureDetails();
-    if (!navigator.onLine) {
-      setMessage("You are offline. Connect to the internet to prepare or refresh the offline cache.");
-      setProgress(0, "Waiting for internet connection.");
-      return;
-    }
-    if (!("caches" in window)) {
-      setMessage("This browser does not support the Cache API required for full offline setup.");
-      setProgress(0, "Offline cache unavailable in this browser.");
-      return;
-    }
-
-    v20Running = true;
-    v20Abort = false;
-    setButtons(true, false);
-    setMessage("Safely checking Iron Sharpener for offline use. This mode avoids freezing the browser.");
-    setProgress(1, "Building stable offline resource list...");
-    setDetails({ failedUrls: [], skippedUrls: [] });
-
-    let urls = [];
-    try {
-      urls = await buildStableUrlList();
-    } catch (error) {
-      v20Running = false;
-      setButtons(false, false);
-      setMessage("Could not build the offline resource list. Try again while connected.");
-      setProgress(0, "Offline setup did not complete.");
-      setDetails({ failedUrls: [{ url: "resource-list-build", status: error?.message || "error" }], skippedUrls: [] });
-      return;
-    }
-
-    const cache = await caches.open(CACHE_NAME);
-    const total = urls.length || 1;
-    let ready = 0;
-    let downloaded = 0;
-    const skippedUrls = [];
-    const failedUrls = [];
-    let stopped = false;
-
-    setMessage(`Checking ${total.toLocaleString()} files. Already-ready files are not downloaded again.`);
-
-    for (let i = 0; i < urls.length; i++) {
-      if (v20Abort) { stopped = true; break; }
-      const result = await cacheOneStable(cache, urls[i], i);
-
-      if (result.result === "ready") ready += 1;
-      else if (result.result === "downloaded") { ready += 1; downloaded += 1; }
-      else if (result.result === "skipped") skippedUrls.push({ url: result.url, status: result.status || "404" });
-      else if (result.result === "stopped") { stopped = true; break; }
-      else failedUrls.push({ url: result.url, status: result.status || "failed" });
-
-      const completed = i + 1;
-      if (completed === total || completed % PROGRESS_EVERY === 0) {
-        const percent = Math.round((completed / total) * 100);
-        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${ready.toLocaleString()} ready • ${downloaded.toLocaleString()} repaired • ${skippedUrls.length.toLocaleString()} optional skipped • ${failedUrls.length.toLocaleString()} failed`);
-      }
-    }
-
-    const summary = {
-      version: VERSION,
-      complete: !stopped,
-      completedAt: new Date().toISOString(),
-      total,
-      cached: ready,
-      alreadyCached: ready - downloaded,
-      downloaded,
-      skipped: skippedUrls.length,
-      failed: failedUrls.length,
-      skippedUrls,
-      failedUrls
-    };
-
-    try { localStorage.setItem(STATUS_KEY, JSON.stringify(summary)); } catch (_) {}
-    window.rdmOfflineCacheLastDetailedStatus = summary;
-    window.rdmOfflineCacheStatus = () => summary;
-
-    if (stopped) {
-      setMessage("Offline setup paused before completion. Run Refresh Cache again when ready.");
-      setProgress(Math.round((ready / total) * 100), `${ready.toLocaleString()} files ready before the run stopped.`);
-    } else if (failedUrls.length) {
-      setMessage("Iron Sharpener cache finished, but review the failed file details below.");
-      setProgress(100, `${ready.toLocaleString()} files ready. ${downloaded.toLocaleString()} repaired/downloaded. ${skippedUrls.length.toLocaleString()} optional skipped. ${failedUrls.length.toLocaleString()} failed.`);
-    } else {
-      setMessage("Iron Sharpener is ready for offline use on this device.");
-      setProgress(100, `${ready.toLocaleString()} files ready. ${downloaded.toLocaleString()} repaired/downloaded. ${skippedUrls.length.toLocaleString()} optional missing files skipped. 0 failed.`);
-    }
-
-    setDetails(summary);
-    setButtons(false, !stopped);
-    v20Running = false;
-  }
-
-  function installButtons() {
-    ensureDetails();
-    ["rdmOfflineStartCache", "rdmOfflineRefreshCache"].forEach(id => {
-      const oldButton = get(id);
-      if (!oldButton || oldButton.dataset.rdmV20Stable === "1") return;
-      const newButton = oldButton.cloneNode(true);
-      newButton.dataset.rdmV20Stable = "1";
-      newButton.disabled = false;
-      newButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        startStableCacheRun();
-      }, true);
-      oldButton.replaceWith(newButton);
-    });
-
-    try {
-      const saved = JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
-      if (saved && (Array.isArray(saved.failedUrls) || Array.isArray(saved.skippedUrls))) setDetails(saved);
-    } catch (_) {}
-  }
-
-  window.rdmStartOfflineCacheStable = startStableCacheRun;
-  window.rdmStopOfflineCacheStable = () => { v20Abort = true; };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(installButtons, 500);
-      setTimeout(installButtons, 1500);
-      setTimeout(installButtons, 3000);
-    });
-  } else {
-    setTimeout(installButtons, 500);
-    setTimeout(installButtons, 1500);
-    setTimeout(installButtons, 3000);
-  }
-})();
-</script>
 
 
 <!-- Patch 21B — Lightweight resource smoke test; does not scan or cache thousands of files. -->
-<script id="rdm-v21-lightweight-smoke-test">
-(function rdmV21LightweightSmokeTest() {
-  if (window.__rdmV21LightweightSmokeTest) return;
-  window.__rdmV21LightweightSmokeTest = true;
-
-  const get = (id) => document.getElementById(id);
-
-  function ensureDetails() {
-    const panel = get("rdmOfflineCachePanel");
-    if (!panel) return null;
-    let details = get("rdmOfflineDetails");
-    if (!details) {
-      const actions = panel.querySelector(".rdm-offline-cache-actions");
-      details = document.createElement("details");
-      details.id = "rdmOfflineDetails";
-      details.innerHTML = '<summary>Cache details</summary><div id="rdmOfflineDetailsBody">No detailed cache report yet.</div>';
-      if (actions) actions.insertAdjacentElement("beforebegin", details);
-      else panel.appendChild(details);
-    }
-    return details;
-  }
-
-  function installSmokeButton() {
-    const actions = document.querySelector("#rdmOfflineCachePanel .rdm-offline-cache-actions");
-    if (!actions || get("rdmOfflineSmokeTest")) return;
-    const btn = document.createElement("button");
-    btn.id = "rdmOfflineSmokeTest";
-    btn.type = "button";
-    btn.className = "secondary";
-    btn.textContent = "Run Smoke Test";
-    btn.addEventListener("click", runSmokeTest);
-    actions.appendChild(btn);
-  }
-
-  async function readJson(path) {
-    try {
-      const response = await fetch(path, { cache: "force-cache" });
-      if (!response || !response.ok) return { ok: false, status: response ? `${response.status} ${response.statusText || ""}`.trim() : "no response" };
-      const type = response.headers.get("content-type") || "";
-      if (path.endsWith(".json") && type && !type.includes("json")) return { ok: false, status: `unexpected content-type ${type}` };
-      await response.clone().json();
-      return { ok: true, status: "ok" };
-    } catch (error) {
-      return { ok: false, status: error?.message || "fetch/json error" };
-    }
-  }
-
-  async function runSmokeTest(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    const details = ensureDetails();
-    const body = get("rdmOfflineDetailsBody");
-    const message = get("rdmOfflineCacheMessage");
-    const progress = get("rdmOfflineProgressText");
-    const bar = get("rdmOfflineProgressBar");
-    const btn = get("rdmOfflineSmokeTest");
-
-    const tests = [
-      ["App shell", "index.html"],
-      ["Manifest", "manifest.json"],
-      ["Bible — Hosea 1", "bible/web/Hosea/01.json"],
-      ["Bible — Mark 1", "bible/web/Mark/01.json"],
-      ["Bible — Philippians 1", "bible/web/Philippians/01.json"],
-      ["Nave index", "bible/resources/topics/index.json"],
-      ["Nave — Prayer", "bible/resources/topics/prayer.json"],
-      ["Easton A", "bible/resources/eastons/A.json"],
-      ["Smith A", "bible/resources/smiths/A.json"],
-      ["Doctrine registry", "bible/resources/doctrine/doctrine-registry.json"],
-      ["Backgrounds index", "bible/resources/backgrounds/index.json"],
-      ["Internal cross refs — Mark", "bible/resources/internal-cross-references/Mark.json"],
-      ["Book overview — Mark", "bible/resources/book-overviews/Mark.json"],
-      ["JFB — Mark", "bible/resources/commentaries/jfb/Mark.json"],
-      ["Matthew Henry — Matthew", "bible/resources/commentaries/matthew-henry/Matthew.json"]
-    ];
-
-    if (btn) btn.disabled = true;
-    if (details) details.open = true;
-    if (message) message.textContent = "Running a lightweight smoke test. This checks key resources only and does not scan the full database.";
-    if (progress) progress.textContent = "Smoke test running...";
-    if (bar) bar.style.width = "10%";
-    if (body) body.innerHTML = "<strong>Smoke test running...</strong>";
-
-    const results = [];
-    for (let i = 0; i < tests.length; i++) {
-      const [label, path] = tests[i];
-      const result = await readJson(path);
-      results.push({ label, path, ...result });
-      if (bar) bar.style.width = `${Math.round(((i + 1) / tests.length) * 100)}%`;
-      if (progress) progress.textContent = `${i + 1} of ${tests.length} smoke tests checked.`;
-      await new Promise(resolve => setTimeout(resolve, 25));
-    }
-
-    const failed = results.filter(item => !item.ok);
-    if (message) message.textContent = failed.length ? "Smoke test found items to review." : "Smoke test passed. Core Scripture and study-resource paths are responding.";
-    if (progress) progress.textContent = failed.length ? `${results.length - failed.length} passed. ${failed.length} need review.` : `${results.length} key checks passed.`;
-
-    if (body) {
-      body.innerHTML = `
-        <strong>Smoke Test Results</strong>
-        <ul>
-          ${results.map(item => `<li>${item.ok ? "✅" : "❌"} <strong>${item.label}</strong><br><span style="overflow-wrap:anywhere;">${item.path} — ${item.status}</span></li>`).join("")}
-        </ul>
-      `;
-    }
-    if (btn) btn.disabled = false;
-  }
-
-  window.rdmRunSmokeTest = runSmokeTest;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(installSmokeButton, 800);
-      setTimeout(installSmokeButton, 1800);
-    });
-  } else {
-    setTimeout(installSmokeButton, 800);
-    setTimeout(installSmokeButton, 1800);
-  }
-})();
-</script>
-
-
 
 <!-- Patch 22 — Public Offline Ready cleanup: simple user menu, hidden diagnostics, guarded update button -->
-<style id="rdm-v22-public-offline-ready-cleanup">
-/* Keep the offline menu simple for regular users. Developer diagnostics remain available with ?offlineDebug=1. */
-body:not(.rdm-offline-debug) #rdmOfflineDetails,
-body:not(.rdm-offline-debug) #rdmOfflineSmokeTest {
-  display: none !important;
-}
-
-#rdmOfflineCachePanel .rdm-offline-cache-head strong {
-  letter-spacing: 1.6px !important;
-}
-
-#rdmOfflineCachePanel .rdm-offline-cache-muted {
-  line-height: 1.35 !important;
-}
-
-#rdmOfflineCachePanel .rdm-offline-cache-actions {
-  align-items: center !important;
-}
-
-#rdmOfflineStartCache[disabled],
-#rdmOfflineStartCache:disabled {
-  opacity: .96 !important;
-  cursor: default !important;
-}
-
-body.dark #rdmOfflineRefreshCache,
-body.dark #rdmOfflineStartCache {
-  font-weight: 900 !important;
-}
-
-body:not(.rdm-offline-debug) #rdmOfflineCachePanel .rdm-offline-cache-muted.rdm-v22-clean-ready {
-  color: inherit !important;
-  font-weight: 900 !important;
-}
-</style>
-<script id="rdm-v22-public-offline-ready-cleanup">
-(function rdmV22PublicOfflineReadyCleanup() {
-  if (window.__rdmV22PublicOfflineReadyCleanup) return;
-  window.__rdmV22PublicOfflineReadyCleanup = true;
-
-  const DEBUG_KEY = "ironSharpenerUnified.offlineDebug";
-  const get = (id) => document.getElementById(id);
-
-  function isDebugMode() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("offlineDebug") === "1" || localStorage.getItem(DEBUG_KEY) === "1";
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function enableDebugMode() {
-    try { localStorage.setItem(DEBUG_KEY, "1"); } catch (_) {}
-    document.body.classList.add("rdm-offline-debug");
-  }
-
-  function disableDebugMode() {
-    try { localStorage.removeItem(DEBUG_KEY); } catch (_) {}
-    document.body.classList.remove("rdm-offline-debug");
-  }
-
-  function showPublicReadyText() {
-    if (isDebugMode()) return;
-
-    const message = get("rdmOfflineCacheMessage");
-    const progress = get("rdmOfflineProgressText");
-    const bar = get("rdmOfflineProgressBar");
-
-    const msg = String(message?.textContent || "");
-    const txt = String(progress?.textContent || "");
-
-    const readyLike = /offline use|offline ready|files ready|files cached|cache finished/i.test(msg + " " + txt);
-    const runningLike = /preparing|checking|running|building|of\s+[\d,]+\s+checked/i.test(msg + " " + txt);
-
-    if (readyLike && !runningLike) {
-      if (message && (/cache finished/i.test(msg) || /ready for offline use/i.test(msg))) {
-        message.textContent = "Iron Sharpener is ready for offline use on this device.";
-      }
-
-      if (progress) {
-        const combined = msg + " " + txt;
-        const match = combined.match(/([\d,]+)\s+files\s+(?:ready|cached)/i) || combined.match(/Cached\s+([\d,]+)\s+files/i);
-        progress.textContent = match
-          ? `${match[1]} files ready on this device.`
-          : "Scripture and study resources are ready on this device.";
-        progress.classList.add("rdm-v22-clean-ready");
-      }
-
-      if (bar) bar.style.width = "100%";
-    }
-  }
-
-  function replaceRefreshButton() {
-    const old = get("rdmOfflineRefreshCache");
-    if (!old || old.dataset.rdmV22Public === "1") return;
-
-    const next = old.cloneNode(true);
-    next.id = "rdmOfflineRefreshCache";
-    next.className = old.className || "secondary";
-    next.dataset.rdmV22Public = "1";
-    next.dataset.rdmV20Stable = "1"; // Prevent older installer patches from reclaiming this button.
-    next.textContent = "Update Offline Files";
-    next.disabled = old.disabled;
-
-    next.addEventListener("click", async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      if (!navigator.onLine) {
-        const message = get("rdmOfflineCacheMessage");
-        if (message) message.textContent = "Connect to the internet before updating offline files.";
-        return;
-      }
-
-      const proceed = window.confirm(
-        "Update offline files now?\n\nUse this after Iron Sharpener has been updated. This checks for missing or changed files and keeps the app available offline."
-      );
-
-      if (!proceed) return;
-
-      if (typeof window.rdmStartOfflineCacheStable === "function") {
-        await window.rdmStartOfflineCacheStable();
-      } else if (typeof window.rdmStartOfflineCache === "function") {
-        await window.rdmStartOfflineCache({ force: true, manual: true });
-      }
-
-      setTimeout(showPublicReadyText, 300);
-      setTimeout(showPublicReadyText, 1500);
-    }, true);
-
-    old.replaceWith(next);
-  }
-
-  function polishButtons() {
-    const start = get("rdmOfflineStartCache");
-    const refresh = get("rdmOfflineRefreshCache");
-
-    if (start && /offline ready/i.test(start.textContent || "")) {
-      start.textContent = "Offline Ready";
-      start.setAttribute("aria-label", "Iron Sharpener is ready for offline use");
-    }
-
-    if (refresh && refresh.dataset.rdmV22Public === "1" && !/update offline files/i.test(refresh.textContent || "")) {
-      refresh.textContent = refresh.disabled ? "Updating..." : "Update Offline Files";
-    }
-  }
-
-  function polishOfflineUi() {
-    document.body.classList.toggle("rdm-offline-debug", isDebugMode());
-
-    replaceRefreshButton();
-    polishButtons();
-    showPublicReadyText();
-
-    if (!isDebugMode()) {
-      const smoke = get("rdmOfflineSmokeTest");
-      if (smoke) smoke.setAttribute("aria-hidden", "true");
-      const details = get("rdmOfflineDetails");
-      if (details) details.open = false;
-    }
-  }
-
-  window.rdmEnableOfflineDebug = enableDebugMode;
-  window.rdmDisableOfflineDebug = disableDebugMode;
-  window.rdmCleanOfflineReadyUi = polishOfflineUi;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      polishOfflineUi();
-      setTimeout(polishOfflineUi, 900);
-      setTimeout(polishOfflineUi, 2200);
-      setTimeout(polishOfflineUi, 4200);
-    });
-  } else {
-    polishOfflineUi();
-    setTimeout(polishOfflineUi, 900);
-    setTimeout(polishOfflineUi, 2200);
-    setTimeout(polishOfflineUi, 4200);
-  }
-
-  setInterval(polishOfflineUi, 4000);
-})();
-</script>
 
 
 <!-- Patch 23 — Offline Ready button acts as user acknowledgement -->
-<style id="rdm-v23-offline-ready-button-clickable">
-#rdmOfflineStartCache.rdm-offline-ready-ack,
-#rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
-#rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  opacity: 1 !important;
-}
-
-#rdmOfflineStartCache.rdm-offline-ready-ack:hover {
-  filter: brightness(1.04);
-  transform: translateY(-1px);
-}
-</style>
-<script id="rdm-v23-offline-ready-button-clickable">
-(function rdmV23OfflineReadyButtonClickable() {
-  if (window.__rdmV23OfflineReadyButtonClickable) return;
-  window.__rdmV23OfflineReadyButtonClickable = true;
-
-  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v26";
-
-  function get(id) {
-    return document.getElementById(id);
-  }
-
-  function isOfflineReadyButton(button) {
-    return !!button && /offline ready/i.test(String(button.textContent || ""));
-  }
-
-  function hideOfflinePanel() {
-    const panel = get("rdmOfflineCachePanel");
-    try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
-    if (panel) panel.classList.remove("open");
-  }
-
-  function makeOfflineReadyClickable() {
-    const button = get("rdmOfflineStartCache");
-    if (!button) return;
-
-    if (isOfflineReadyButton(button)) {
-      button.disabled = false;
-      button.removeAttribute("disabled");
-      button.classList.add("rdm-offline-ready-ack");
-      button.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
-      button.setAttribute("aria-label", "Iron Sharpener is ready for offline use. Close this message.");
-    } else {
-      button.classList.remove("rdm-offline-ready-ack");
-      button.removeAttribute("title");
-    }
-  }
-
-  document.addEventListener("click", function(event) {
-    const button = event.target && event.target.closest ? event.target.closest("#rdmOfflineStartCache") : null;
-    if (!isOfflineReadyButton(button)) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    hideOfflinePanel();
-  }, true);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      makeOfflineReadyClickable();
-      setTimeout(makeOfflineReadyClickable, 400);
-      setTimeout(makeOfflineReadyClickable, 1200);
-      setTimeout(makeOfflineReadyClickable, 2600);
-    });
-  } else {
-    makeOfflineReadyClickable();
-    setTimeout(makeOfflineReadyClickable, 400);
-    setTimeout(makeOfflineReadyClickable, 1200);
-    setTimeout(makeOfflineReadyClickable, 2600);
-  }
-
-  setInterval(makeOfflineReadyClickable, 1500);
-})();
-</script>
-
 
 
 <!-- Patch 24 — Offline-ready status normalization for public release -->
-<style id="rdm-v24-offline-status-fix-style">
-#rdmOfflineStartCache.rdm-offline-ready-ack,
-#rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
-#rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  opacity: 1 !important;
-}
-
-#rdmOfflineStatusPill:not(.not-ready) .rdm-offline-status-dot {
-  background: #2f9e44 !important;
-  box-shadow: 0 0 0 3px rgba(47,158,68,.18) !important;
-}
-</style>
-<script id="rdm-v24-offline-status-fix">
-(function rdmV24OfflineStatusFix() {
-  if (window.__rdmV24OfflineStatusFix) return;
-  window.__rdmV24OfflineStatusFix = true;
-
-  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v26";
-  const PUBLIC_VERSION = "iron-sharpener-offline-v26-public-lock-20260626";
-  const CACHE_NAME = "iron-sharpener-offline-v26-public-lock-20260626";
-  const READY_THRESHOLD = 1000;
-
-  function get(id) {
-    return document.getElementById(id);
-  }
-
-  function readStatus() {
-    try {
-      return JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function writeStatus(status) {
-    try {
-      localStorage.setItem(STATUS_KEY, JSON.stringify(status));
-    } catch (_) {}
-  }
-
-  function countReadyFiles(status) {
-    return Math.max(
-      Number(status?.cached || 0),
-      Number(status?.alreadyCached || 0) + Number(status?.downloaded || 0),
-      Number(status?.ready || 0),
-      Number(status?.total || 0) - Number(status?.skipped || 0) - Number(status?.failed || 0)
-    );
-  }
-
-  function statusLooksReady(status) {
-    if (!status || status.complete !== true) return false;
-    if (Number(status.failed || 0) > 0) return false;
-    return countReadyFiles(status) >= READY_THRESHOLD;
-  }
-
-  function normalizeReadyStatus(status) {
-    if (!statusLooksReady(status)) return false;
-
-    if (status.version === PUBLIC_VERSION) return true;
-
-    const ready = countReadyFiles(status);
-    const normalized = {
-      ...status,
-      version: PUBLIC_VERSION,
-      complete: true,
-      cached: ready,
-      failed: 0,
-      normalizedFrom: status.version || "unknown",
-      normalizedAt: new Date().toISOString()
-    };
-
-    writeStatus(normalized);
-    window.rdmOfflineCacheStatus = () => normalized;
-    return true;
-  }
-
-  async function cacheHasCoreFiles() {
-    if (!("caches" in window)) return null;
-
-    const coreFiles = [
-      "index.html",
-      "manifest.json",
-      "assets/iron-sharpener-logo.png",
-      "service-worker.js",
-      "bible/web/Hosea/01.json",
-      "bible/web/Mark/01.json",
-      "bible/resources/topics/index.json",
-      "bible/resources/topics/prayer.json",
-      "bible/resources/eastons/A.json",
-      "bible/resources/smiths/A.json",
-      "bible/resources/doctrine/doctrine-registry.json",
-      "bible/resources/backgrounds/index.json"
-    ];
-
-    try {
-      const cache = await caches.open(CACHE_NAME);
-      for (const file of coreFiles) {
-        const found = await cache.match(file) || await cache.match(`./${file}`);
-        if (!found) return null;
-      }
-
-      let count = 0;
-      try {
-        const keys = await cache.keys();
-        count = keys.length || coreFiles.length;
-      } catch (_) {
-        count = coreFiles.length;
-      }
-
-      return {
-        version: PUBLIC_VERSION,
-        complete: true,
-        completedAt: new Date().toISOString(),
-        total: count,
-        cached: count,
-        skipped: 0,
-        failed: 0,
-        inferredFromCache: true
-      };
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function forceReadyUi() {
-    const status = readStatus();
-    if (!statusLooksReady(status)) return false;
-
-    const cached = countReadyFiles(status) || Number(status.cached || 0);
-    const panel = get("rdmOfflineCachePanel");
-    const pill = get("rdmOfflineStatusPill");
-    const pillText = get("rdmOfflineStatusText");
-    const message = get("rdmOfflineCacheMessage");
-    const progress = get("rdmOfflineProgressText");
-    const bar = get("rdmOfflineProgressBar");
-    const start = get("rdmOfflineStartCache");
-    const refresh = get("rdmOfflineRefreshCache");
-
-    if (pill) {
-      pill.classList.remove("not-ready");
-      pill.classList.toggle("offline", !navigator.onLine);
-    }
-
-    if (pillText) {
-      pillText.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
-    }
-
-    if (message) {
-      message.textContent = "Iron Sharpener is ready for offline use on this device.";
-    }
-
-    if (progress) {
-      progress.textContent = cached
-        ? `${cached.toLocaleString()} files ready on this device.`
-        : "Scripture and study resources are ready on this device.";
-      progress.classList.add("rdm-v22-clean-ready");
-    }
-
-    if (bar) bar.style.width = "100%";
-
-    if (start) {
-      start.disabled = false;
-      start.removeAttribute("disabled");
-      start.textContent = "Offline Ready";
-      start.classList.add("rdm-offline-ready-ack");
-      start.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
-    }
-
-    if (refresh) {
-      refresh.textContent = "Update Offline Files";
-      refresh.disabled = !navigator.onLine;
-    }
-
-    if (panel && !navigator.onLine) {
-      // Keep panel usable offline, but never show the false setup-needed message once cache is ready.
-      panel.classList.add("open");
-    }
-
-    return true;
-  }
-
-  async function repairStatusAndUi() {
-    const current = readStatus();
-
-    if (normalizeReadyStatus(current)) {
-      forceReadyUi();
-      return true;
-    }
-
-    const inferred = await cacheHasCoreFiles();
-    if (inferred && statusLooksReady(inferred)) {
-      writeStatus(inferred);
-      window.rdmOfflineCacheStatus = () => inferred;
-      forceReadyUi();
-      return true;
-    }
-
-    return false;
-  }
-
-  async function runSoon() {
-    setTimeout(repairStatusAndUi, 50);
-    setTimeout(repairStatusAndUi, 500);
-    setTimeout(repairStatusAndUi, 1500);
-    setTimeout(repairStatusAndUi, 3500);
-  }
-
-  window.rdmRepairOfflineReadyStatus = repairStatusAndUi;
-
-  window.addEventListener("online", runSoon);
-  window.addEventListener("offline", runSoon);
-  document.addEventListener("visibilitychange", runSoon);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", runSoon);
-  } else {
-    runSoon();
-  }
-
-  setInterval(() => {
-    const status = readStatus();
-    if (statusLooksReady(status)) forceReadyUi();
-  }, 1500);
-})();
-</script>
-
 
 
 <!-- Patch 25 — Public offline panel cleanup + OBS copy confirmation polish -->
-<style id="rdm-v25-public-offline-and-obs-copy-polish">
-/* Public release: keep developer diagnostics hidden unless explicitly enabled with ?offlineDebug=1. */
-body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineDetails,
-body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineSmokeTest {
-  display: none !important;
-}
-
-body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineCachePanel .rdm-offline-cache-muted {
-  color: #fff6d9 !important;
-  font-weight: 900 !important;
-}
-
-body:not(.dark):not(.rdm-v25-offline-debug-enabled) #rdmOfflineCachePanel .rdm-offline-cache-muted {
-  color: #203D39 !important;
-}
-
-#rdmOfflineStartCache.rdm-offline-ready-ack {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-</style>
-<script id="rdm-v25-public-offline-and-obs-copy-polish">
-(function rdmV25PublicOfflineAndObsCopyPolish() {
-  if (window.__rdmV25PublicOfflineAndObsCopyPolish) return;
-  window.__rdmV25PublicOfflineAndObsCopyPolish = true;
-
-  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v26";
-  const DEBUG_KEY = "ironSharpenerUnified.offlineDebug";
-
-  const get = (id) => document.getElementById(id);
-
-  function hasDebugParam() {
-    try {
-      return new URLSearchParams(window.location.search).get("offlineDebug") === "1";
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function readStatus() {
-    try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); }
-    catch (_) { return null; }
-  }
-
-  function readyCount(status) {
-    return Math.max(
-      Number(status?.cached || 0),
-      Number(status?.ready || 0),
-      Number(status?.total || 0) - Number(status?.skipped || 0) - Number(status?.failed || 0)
-    );
-  }
-
-  function isReady() {
-    const status = readStatus();
-    if (status && status.complete === true && Number(status.failed || 0) === 0 && readyCount(status) > 0) return true;
-
-    const pillText = String(get("rdmOfflineStatusText")?.textContent || "");
-    const message = String(get("rdmOfflineCacheMessage")?.textContent || "");
-    const progress = String(get("rdmOfflineProgressText")?.textContent || "");
-    return /offline ready|offline • ready|ready for offline use|files ready/i.test(`${pillText} ${message} ${progress}`);
-  }
-
-  function sanitizeOfflinePanel() {
-    const debug = hasDebugParam();
-    document.body.classList.toggle("rdm-v25-offline-debug-enabled", debug);
-    document.body.classList.toggle("rdm-offline-debug", debug);
-
-    if (!debug) {
-      try { localStorage.removeItem(DEBUG_KEY); } catch (_) {}
-      const details = get("rdmOfflineDetails");
-      if (details) {
-        details.open = false;
-        details.style.display = "none";
-        details.setAttribute("aria-hidden", "true");
-      }
-      const smoke = get("rdmOfflineSmokeTest");
-      if (smoke) {
-        smoke.style.display = "none";
-        smoke.setAttribute("aria-hidden", "true");
-      }
-    }
-
-    const ready = isReady();
-    const status = readStatus();
-    const count = readyCount(status);
-    const message = get("rdmOfflineCacheMessage");
-    const progress = get("rdmOfflineProgressText");
-    const bar = get("rdmOfflineProgressBar");
-    const start = get("rdmOfflineStartCache");
-    const refresh = get("rdmOfflineRefreshCache");
-    const pill = get("rdmOfflineStatusPill");
-    const pillText = get("rdmOfflineStatusText");
-
-    if (ready) {
-      if (message) message.textContent = "Iron Sharpener is ready for offline use on this device.";
-      if (progress) {
-        progress.textContent = count ? `${count.toLocaleString()} files ready on this device.` : "Scripture and study resources are ready on this device.";
-        progress.classList.add("rdm-v22-clean-ready");
-      }
-      if (bar) bar.style.width = "100%";
-      if (start) {
-        start.disabled = false;
-        start.removeAttribute("disabled");
-        start.textContent = "Offline Ready";
-        start.classList.add("rdm-offline-ready-ack");
-        start.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
-      }
-      if (refresh) {
-        refresh.textContent = "Update Offline Files";
-        refresh.disabled = !navigator.onLine;
-      }
-      if (pill) {
-        pill.classList.remove("not-ready");
-        pill.classList.toggle("offline", !navigator.onLine);
-      }
-      if (pillText) pillText.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
-    } else if (refresh) {
-      refresh.textContent = "Update Offline Files";
-    }
-  }
-
-  document.addEventListener("click", function(event) {
-    const btn = event.target && event.target.closest ? event.target.closest("#rdmOfflineStartCache.rdm-offline-ready-ack") : null;
-    if (!btn) return;
-    event.preventDefault();
-    event.stopPropagation();
-    get("rdmOfflineCachePanel")?.classList.remove("open");
-  }, true);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      sanitizeOfflinePanel();
-      setTimeout(sanitizeOfflinePanel, 500);
-      setTimeout(sanitizeOfflinePanel, 1500);
-      setTimeout(sanitizeOfflinePanel, 3500);
-    });
-  } else {
-    sanitizeOfflinePanel();
-    setTimeout(sanitizeOfflinePanel, 500);
-    setTimeout(sanitizeOfflinePanel, 1500);
-    setTimeout(sanitizeOfflinePanel, 3500);
-  }
-
-  window.addEventListener("online", sanitizeOfflinePanel);
-  window.addEventListener("offline", sanitizeOfflinePanel);
-  document.addEventListener("visibilitychange", sanitizeOfflinePanel);
-  setInterval(sanitizeOfflinePanel, 1500);
-})();
-</script>
 
 
 <!-- Patch 26 — Final public offline panel cleanup + one-button copy Scripture workflow -->
@@ -17541,259 +15784,134 @@ body.dark .verse.copy-selected {
     setTimeout(runCleanup, 1600);
     setTimeout(runCleanup, 3600);
   }
-
-  window.addEventListener("online", forceCleanOfflinePanel);
-  window.addEventListener("offline", forceCleanOfflinePanel);
-  document.addEventListener("visibilitychange", forceCleanOfflinePanel);
-  setInterval(forceCleanOfflinePanel, 1200);
 })();
 </script>
-
 <!-- Patch 29 — Stability rescue: dark-only gold/green buttons + offline panel hide lock -->
-<style id="rdm-v29-stability-dark-only-buttons">
-/*
-  v29 final guard:
-  - Cream mode uses the reddish-brown ministry button system.
-  - Dark mode/OBS Focus uses the forest-green + gold system only.
-  - No polling loops, no repeated shell-refresh script, and no teaching/resource logic changes.
-*/
 
-/* Cream mode: keep OBS/primary action buttons brownish-red, never green/gold. */
+
+<style id="rdm-v30-rescue-stability-style">
+/* v30 rescue: stop white-page/offline-menu loops and lock button colors by theme. */
+html, body {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.shell {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#rdmOfflineStatusPill,
+#rdmOfflineCachePanel,
+#rdmOfflineDetails,
+#rdmOfflineSmokeTest {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Cream mode: bold buttons use the reddish-brown ministry style only. */
 body:not(.dark) #obsBtn,
-body:not(.dark) .actions #obsBtn,
 body:not(.dark) #fsBtn,
+body:not(.dark) #loadBtn,
+body:not(.dark) #openTeacherTools,
+body:not(.dark) #showTeachingNote,
+body:not(.dark) #showApplicationNote,
+body:not(.dark) #copyScriptureMainBtn,
+body:not(.dark) #copyScriptureOpenBtn,
 html.obs body:not(.dark) #obsBtn,
-html.obs body:not(.dark) .actions #obsBtn,
 html.obs body:not(.dark) #obsToolBar button,
-html.obs body:not(.dark) .obs-tool-bar button,
-html.obs body:not(.dark) .obs-tool-bar #obsShowNavigator,
-html.obs body:not(.dark) .obs-tool-bar #obsOpenTeacherTools,
-html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingNote,
-html.obs body:not(.dark) .obs-tool-bar #obsShowApplicationNote,
-html.obs body:not(.dark) .obs-tool-bar #obsShowTeachingMethod,
-html.obs body:not(.dark) .obs-tool-bar #ironPromptPanelBtn,
-html.obs body:not(.dark) .obs-tool-bar #obsShowCrossRefs,
-html.obs body:not(.dark) .obs-tool-bar #obsClearMarks,
-html.obs body:not(.dark) .obs-tool-bar #obsResetPanels,
-html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn,
-body:not(.dark) #rdmOfflineStatusPill,
-body:not(.dark) .rdm-offline-status-pill,
-body:not(.dark) #rdmOfflineCachePanel .rdm-offline-cache-actions button,
-body:not(.dark) #rdmOfflineStartCache,
-body:not(.dark) #rdmOfflineRefreshCache {
-  display: inline-flex !important;
+html.obs body:not(.dark) .obs-tool-bar button {
   background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
   background-color: #7A4C06 !important;
   color: #FFF8EA !important;
   border: 1.8px solid #7A4C06 !important;
-  box-shadow: 0 8px 18px rgba(70, 38, 12, .22) !important;
-  text-shadow: none !important;
-  font-weight: 900 !important;
+  box-shadow: none !important;
   opacity: 1 !important;
   filter: none !important;
+  text-shadow: none !important;
 }
-
 body:not(.dark) #obsBtn:hover,
-body:not(.dark) .actions #obsBtn:hover,
 body:not(.dark) #fsBtn:hover,
+body:not(.dark) #loadBtn:hover,
+body:not(.dark) #openTeacherTools:hover,
+body:not(.dark) #showTeachingNote:hover,
+body:not(.dark) #showApplicationNote:hover,
+body:not(.dark) #copyScriptureMainBtn:hover,
+body:not(.dark) #copyScriptureOpenBtn:hover,
 html.obs body:not(.dark) #obsBtn:hover,
-html.obs body:not(.dark) .actions #obsBtn:hover,
 html.obs body:not(.dark) #obsToolBar button:hover,
-html.obs body:not(.dark) .obs-tool-bar button:hover,
-body:not(.dark) #rdmOfflineStatusPill:hover,
-body:not(.dark) .rdm-offline-status-pill:hover,
-body:not(.dark) #rdmOfflineCachePanel .rdm-offline-cache-actions button:hover {
+html.obs body:not(.dark) .obs-tool-bar button:hover {
   background: linear-gradient(180deg, #9A6618 0%, #7A4C06 100%) !important;
   color: #FFF8EA !important;
   opacity: 1 !important;
-  filter: brightness(1.03) !important;
 }
 
-html.obs body:not(.dark) #obsToolBar,
-html.obs body:not(.dark) .obs-tool-bar {
-  background: rgba(58, 43, 31, .98) !important;
-  border: 2px solid #8A5A13 !important;
-  box-shadow: 0 14px 38px rgba(70, 38, 12, .34) !important;
-}
-
-body:not(.dark) #rdmOfflineStatusPill .rdm-offline-status-dot,
-body:not(.dark) .rdm-offline-status-pill .rdm-offline-status-dot {
-  background: #FFF8EA !important;
-  box-shadow: 0 0 0 3px rgba(255,248,234,.22) !important;
-}
-
-/* Dark mode: original forest-green container + bold gold buttons only here. */
-html.obs body.dark #obsToolBar,
-html.obs body.dark .obs-tool-bar {
-  background: rgba(41,72,67,.98) !important;
-  border: 2px solid #d7a84f !important;
-  box-shadow: 0 14px 38px rgba(0,0,0,.42), 0 0 22px rgba(248,217,135,.14) !important;
-}
-
+/* Dark mode / OBS dark: gold over forest green, never faded. */
 body.dark #obsBtn,
-body.dark .actions #obsBtn,
 body.dark #fsBtn,
+body.dark #loadBtn,
+body.dark #openTeacherTools,
+body.dark #showTeachingNote,
+body.dark #showApplicationNote,
+body.dark #copyScriptureMainBtn,
+body.dark #copyScriptureOpenBtn,
 html.obs body.dark #obsBtn,
-html.obs body.dark .actions #obsBtn,
 html.obs body.dark #obsToolBar button,
-html.obs body.dark .obs-tool-bar button,
-html.obs body.dark .obs-tool-bar #obsShowNavigator,
-html.obs body.dark .obs-tool-bar #obsOpenTeacherTools,
-html.obs body.dark .obs-tool-bar #obsShowTeachingNote,
-html.obs body.dark .obs-tool-bar #obsShowApplicationNote,
-html.obs body.dark .obs-tool-bar #obsShowTeachingMethod,
-html.obs body.dark .obs-tool-bar #ironPromptPanelBtn,
-html.obs body.dark .obs-tool-bar #obsShowCrossRefs,
-html.obs body.dark .obs-tool-bar #obsClearMarks,
-html.obs body.dark .obs-tool-bar #obsResetPanels,
-html.obs body.dark .obs-tool-bar #obsToolsMenuBtn,
-body.dark #rdmOfflineStatusPill,
-body.dark .rdm-offline-status-pill,
-body.dark #rdmOfflineCachePanel .rdm-offline-cache-actions button,
-body.dark #rdmOfflineStartCache,
-body.dark #rdmOfflineRefreshCache {
+html.obs body.dark .obs-tool-bar button {
   display: inline-flex !important;
   background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
   background-color: #d7a84f !important;
   color: #203D39 !important;
-  border: 1.8px solid #fff1c0 !important;
-  box-shadow: 0 8px 18px rgba(0,0,0,.28), 0 0 12px rgba(248,217,135,.18) !important;
-  text-shadow: none !important;
-  font-weight: 900 !important;
+  border: 2px solid #fff1c0 !important;
+  box-shadow: 0 0 14px rgba(248,217,135,.20), 0 8px 18px rgba(0,0,0,.28) !important;
   opacity: 1 !important;
   filter: none !important;
+  text-shadow: none !important;
 }
-
 body.dark #obsBtn:hover,
-body.dark .actions #obsBtn:hover,
 body.dark #fsBtn:hover,
+body.dark #loadBtn:hover,
+body.dark #openTeacherTools:hover,
+body.dark #showTeachingNote:hover,
+body.dark #showApplicationNote:hover,
+body.dark #copyScriptureMainBtn:hover,
+body.dark #copyScriptureOpenBtn:hover,
 html.obs body.dark #obsBtn:hover,
-html.obs body.dark .actions #obsBtn:hover,
 html.obs body.dark #obsToolBar button:hover,
-html.obs body.dark .obs-tool-bar button:hover,
-body.dark #rdmOfflineStatusPill:hover,
-body.dark .rdm-offline-status-pill:hover,
-body.dark #rdmOfflineCachePanel .rdm-offline-cache-actions button:hover {
+html.obs body.dark .obs-tool-bar button:hover {
   background: linear-gradient(180deg, #ffe49c 0%, #dca942 100%) !important;
   color: #203D39 !important;
   opacity: 1 !important;
-  filter: brightness(1.04) !important;
 }
-
-body.dark #rdmOfflineStatusPill .rdm-offline-status-dot,
-body.dark .rdm-offline-status-pill .rdm-offline-status-dot {
-  background: #203D39 !important;
-  box-shadow: 0 0 0 3px rgba(32,61,57,.22) !important;
-}
-
-/* Browser disabled-state must never fade these final buttons. */
-#rdmOfflineStatusPill,
-#rdmOfflineStartCache,
-#rdmOfflineRefreshCache,
-#obsBtn,
-#fsBtn,
-#obsToolBar button,
-.obs-tool-bar button,
-#rdmOfflineStatusPill:disabled,
-#rdmOfflineStartCache:disabled,
-#rdmOfflineRefreshCache:disabled,
 #obsBtn:disabled,
 #fsBtn:disabled,
+#loadBtn:disabled,
 #obsToolBar button:disabled,
 .obs-tool-bar button:disabled {
   opacity: 1 !important;
   filter: none !important;
 }
-
-html.obs .obs-tool-bar.collapsed #obsToolsMenuBtn,
-html.obs .obs-tool-bar.drawer-open #obsToolsMenuBtn {
-  display: inline-flex !important;
-}
-</style>
-
-<script id="rdm-v29-offline-panel-stability-guard">
-(function rdmV29OfflinePanelStabilityGuard() {
-  if (window.__rdmV29OfflinePanelStabilityGuard) return;
-  window.__rdmV29OfflinePanelStabilityGuard = true;
-
-  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v26";
-  const get = (id) => document.getElementById(id);
-  let enforcing = false;
-
-  function hiddenByUser() {
-    try { return localStorage.getItem(HIDE_KEY) === "1"; }
-    catch (_) { return false; }
-  }
-
-  function setHiddenByUser(value) {
-    try {
-      if (value) localStorage.setItem(HIDE_KEY, "1");
-      else localStorage.removeItem(HIDE_KEY);
-    } catch (_) {}
-  }
-
-  function isActiveCacheRun() {
-    const progress = `${get("rdmOfflineStartCache")?.textContent || ""} ${get("rdmOfflineProgressText")?.textContent || ""}`;
-    return /preparing|building|checking|downloading|caching/i.test(progress);
-  }
-
-  function closePanel() {
-    const panel = get("rdmOfflineCachePanel");
-    if (!panel || enforcing) return;
-    enforcing = true;
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-    enforcing = false;
-  }
-
-  function enforceHidden() {
-    if (hiddenByUser() && !isActiveCacheRun()) closePanel();
-  }
-
-  document.addEventListener("click", function(event) {
-    if (event.target && event.target.closest && event.target.closest("#rdmOfflinePanelClose")) {
-      setHiddenByUser(true);
-      closePanel();
-      setTimeout(enforceHidden, 60);
-      setTimeout(enforceHidden, 250);
-      return;
-    }
-
-    if (event.target && event.target.closest && event.target.closest("#rdmOfflineStatusPill")) {
-      setHiddenByUser(false);
-    }
-  }, true);
-
-  function attachObserver() {
-    const panel = get("rdmOfflineCachePanel");
-    if (!panel || panel.dataset.rdmV29Observer === "1") return;
-    panel.dataset.rdmV29Observer = "1";
-    new MutationObserver(function() {
-      if (!enforcing) enforceHidden();
-    }).observe(panel, { attributes: true, attributeFilter: ["class", "aria-hidden"] });
-  }
-
-  function run() {
-    attachObserver();
-    enforceHidden();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function() {
-      run();
-      setTimeout(run, 300);
-      setTimeout(run, 1200);
+</style><script id="rdm-v30-silent-service-worker-register">
+(function rdmV30SilentServiceWorkerRegister() {
+  if (window.__rdmV30SilentServiceWorkerRegister) return;
+  window.__rdmV30SilentServiceWorkerRegister = true;
+  try {
+    localStorage.setItem("ironSharpenerUnified.offlineCachePanelHidden.v26", "1");
+  } catch (_) {}
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js").then(function (registration) {
+      if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      if (registration.installing) {
+        registration.installing.addEventListener("statechange", function () {
+          if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        });
+      }
+    }).catch(function (error) {
+      console.warn("Iron Sharpener service worker registration skipped:", error);
     });
-  } else {
-    run();
-    setTimeout(run, 300);
-    setTimeout(run, 1200);
-  }
-
-  window.addEventListener("online", run);
-  window.addEventListener("offline", run);
+  });
 })();
-</script>
-
-</body>
+</script></body>
 </html>
