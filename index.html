@@ -16440,5 +16440,194 @@ body.dark #rdmOfflineDetails {
 })();
 </script>
 
+
+
+<!-- Patch 22 — Public Offline Ready cleanup: simple user menu, hidden diagnostics, guarded update button -->
+<style id="rdm-v22-public-offline-ready-cleanup">
+/* Keep the offline menu simple for regular users. Developer diagnostics remain available with ?offlineDebug=1. */
+body:not(.rdm-offline-debug) #rdmOfflineDetails,
+body:not(.rdm-offline-debug) #rdmOfflineSmokeTest {
+  display: none !important;
+}
+
+#rdmOfflineCachePanel .rdm-offline-cache-head strong {
+  letter-spacing: 1.6px !important;
+}
+
+#rdmOfflineCachePanel .rdm-offline-cache-muted {
+  line-height: 1.35 !important;
+}
+
+#rdmOfflineCachePanel .rdm-offline-cache-actions {
+  align-items: center !important;
+}
+
+#rdmOfflineStartCache[disabled],
+#rdmOfflineStartCache:disabled {
+  opacity: .96 !important;
+  cursor: default !important;
+}
+
+body.dark #rdmOfflineRefreshCache,
+body.dark #rdmOfflineStartCache {
+  font-weight: 900 !important;
+}
+
+body:not(.rdm-offline-debug) #rdmOfflineCachePanel .rdm-offline-cache-muted.rdm-v22-clean-ready {
+  color: inherit !important;
+  font-weight: 900 !important;
+}
+</style>
+<script id="rdm-v22-public-offline-ready-cleanup">
+(function rdmV22PublicOfflineReadyCleanup() {
+  if (window.__rdmV22PublicOfflineReadyCleanup) return;
+  window.__rdmV22PublicOfflineReadyCleanup = true;
+
+  const DEBUG_KEY = "ironSharpenerUnified.offlineDebug";
+  const get = (id) => document.getElementById(id);
+
+  function isDebugMode() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("offlineDebug") === "1" || localStorage.getItem(DEBUG_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function enableDebugMode() {
+    try { localStorage.setItem(DEBUG_KEY, "1"); } catch (_) {}
+    document.body.classList.add("rdm-offline-debug");
+  }
+
+  function disableDebugMode() {
+    try { localStorage.removeItem(DEBUG_KEY); } catch (_) {}
+    document.body.classList.remove("rdm-offline-debug");
+  }
+
+  function showPublicReadyText() {
+    if (isDebugMode()) return;
+
+    const message = get("rdmOfflineCacheMessage");
+    const progress = get("rdmOfflineProgressText");
+    const bar = get("rdmOfflineProgressBar");
+
+    const msg = String(message?.textContent || "");
+    const txt = String(progress?.textContent || "");
+
+    const readyLike = /offline use|offline ready|files ready|files cached|cache finished/i.test(msg + " " + txt);
+    const runningLike = /preparing|checking|running|building|of\s+[\d,]+\s+checked/i.test(msg + " " + txt);
+
+    if (readyLike && !runningLike) {
+      if (message && (/cache finished/i.test(msg) || /ready for offline use/i.test(msg))) {
+        message.textContent = "Iron Sharpener is ready for offline use on this device.";
+      }
+
+      if (progress) {
+        const combined = msg + " " + txt;
+        const match = combined.match(/([\d,]+)\s+files\s+(?:ready|cached)/i) || combined.match(/Cached\s+([\d,]+)\s+files/i);
+        progress.textContent = match
+          ? `${match[1]} files ready on this device.`
+          : "Scripture and study resources are ready on this device.";
+        progress.classList.add("rdm-v22-clean-ready");
+      }
+
+      if (bar) bar.style.width = "100%";
+    }
+  }
+
+  function replaceRefreshButton() {
+    const old = get("rdmOfflineRefreshCache");
+    if (!old || old.dataset.rdmV22Public === "1") return;
+
+    const next = old.cloneNode(true);
+    next.id = "rdmOfflineRefreshCache";
+    next.className = old.className || "secondary";
+    next.dataset.rdmV22Public = "1";
+    next.dataset.rdmV20Stable = "1"; // Prevent older installer patches from reclaiming this button.
+    next.textContent = "Update Offline Files";
+    next.disabled = old.disabled;
+
+    next.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (!navigator.onLine) {
+        const message = get("rdmOfflineCacheMessage");
+        if (message) message.textContent = "Connect to the internet before updating offline files.";
+        return;
+      }
+
+      const proceed = window.confirm(
+        "Update offline files now?\n\nUse this after Iron Sharpener has been updated. This checks for missing or changed files and keeps the app available offline."
+      );
+
+      if (!proceed) return;
+
+      if (typeof window.rdmStartOfflineCacheStable === "function") {
+        await window.rdmStartOfflineCacheStable();
+      } else if (typeof window.rdmStartOfflineCache === "function") {
+        await window.rdmStartOfflineCache({ force: true, manual: true });
+      }
+
+      setTimeout(showPublicReadyText, 300);
+      setTimeout(showPublicReadyText, 1500);
+    }, true);
+
+    old.replaceWith(next);
+  }
+
+  function polishButtons() {
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+
+    if (start && /offline ready/i.test(start.textContent || "")) {
+      start.textContent = "Offline Ready";
+      start.setAttribute("aria-label", "Iron Sharpener is ready for offline use");
+    }
+
+    if (refresh && refresh.dataset.rdmV22Public === "1" && !/update offline files/i.test(refresh.textContent || "")) {
+      refresh.textContent = refresh.disabled ? "Updating..." : "Update Offline Files";
+    }
+  }
+
+  function polishOfflineUi() {
+    document.body.classList.toggle("rdm-offline-debug", isDebugMode());
+
+    replaceRefreshButton();
+    polishButtons();
+    showPublicReadyText();
+
+    if (!isDebugMode()) {
+      const smoke = get("rdmOfflineSmokeTest");
+      if (smoke) smoke.setAttribute("aria-hidden", "true");
+      const details = get("rdmOfflineDetails");
+      if (details) details.open = false;
+    }
+  }
+
+  window.rdmEnableOfflineDebug = enableDebugMode;
+  window.rdmDisableOfflineDebug = disableDebugMode;
+  window.rdmCleanOfflineReadyUi = polishOfflineUi;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      polishOfflineUi();
+      setTimeout(polishOfflineUi, 900);
+      setTimeout(polishOfflineUi, 2200);
+      setTimeout(polishOfflineUi, 4200);
+    });
+  } else {
+    polishOfflineUi();
+    setTimeout(polishOfflineUi, 900);
+    setTimeout(polishOfflineUi, 2200);
+    setTimeout(polishOfflineUi, 4200);
+  }
+
+  setInterval(polishOfflineUi, 4000);
+})();
+</script>
+
 </body>
 </html>
