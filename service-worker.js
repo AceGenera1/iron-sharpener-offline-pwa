@@ -1,6 +1,8 @@
-/* Iron Sharpener service worker — v20 stability cache
-   Important fix: JSON/resource requests never fall back to index.html.
-   Only page navigation gets the app-shell fallback. */
+/* Iron Sharpener service worker — v21 stability
+   Main change: same-origin JSON/assets are cache-first, not network-first, even
+   when the page asks for no-store/reload. This avoids repeated GitHub Pages
+   hits, prevents HTML protection pages from being returned as JSON, and keeps
+   the app stable when resources are already cached. */
 const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v15";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
@@ -20,13 +22,11 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key.startsWith(IRON_SHARPENER_CACHE_PREFIX) && key !== IRON_SHARPENER_CACHE)
-          .map((key) => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((keys) => Promise.all(
+      keys
+        .filter((key) => key.startsWith(IRON_SHARPENER_CACHE_PREFIX) && key !== IRON_SHARPENER_CACHE)
+        .map((key) => caches.delete(key))
+    )).then(() => self.clients.claim())
   );
 });
 
@@ -56,10 +56,17 @@ function isNavigationRequest(request) {
   }
 }
 
+function isJsonRequest(request) {
+  try {
+    return new URL(request.url).pathname.endsWith(".json");
+  } catch (_) {
+    return false;
+  }
+}
+
 async function putIfGood(cache, request, response) {
   if (!response || !response.ok || response.type === "opaque") return;
 
-  // Do not cache an HTML protection page as a JSON resource.
   try {
     const url = new URL(request.url);
     const contentType = response.headers.get("content-type") || "";
@@ -105,33 +112,20 @@ async function resourceCacheFirst(request) {
 
   try {
     const response = await fetch(request);
+
+    if (isJsonRequest(request)) {
+      const type = response?.headers?.get("content-type") || "";
+      if (!response || !response.ok || (type && !type.includes("json"))) {
+        return new Response("JSON resource unavailable or invalid.", {
+          status: response?.status || 503,
+          statusText: "JSON resource unavailable or invalid"
+        });
+      }
+    }
+
     if (response && response.ok) await putIfGood(cache, request, response);
     return response;
   } catch (_) {
-    // Critical fix: do not return index.html for JSON/assets.
-    return new Response("Offline resource not cached.", {
-      status: 504,
-      statusText: "Offline resource not cached"
-    });
-  }
-}
-
-async function resourceNetworkFirstExactCache(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  try {
-    const response = await fetch(request);
-    if (response && response.ok) {
-      await putIfGood(cache, request, response);
-      return response;
-    }
-
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    return response || new Response("Resource unavailable.", { status: 503 });
-  } catch (_) {
-    const cached = await cache.match(request);
-    if (cached) return cached;
     return new Response("Offline resource not cached.", {
       status: 504,
       statusText: "Offline resource not cached"
@@ -148,10 +142,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (request.cache === "reload" || request.cache === "no-store") {
-    event.respondWith(resourceNetworkFirstExactCache(request));
-    return;
-  }
-
+  // Stability rule: resources are cache-first even if the page uses no-store.
+  // This prevents repeated thousands-file GitHub hits and protects already-cached
+  // Scripture/resource JSON from temporary GitHub protection screens.
   event.respondWith(resourceCacheFirst(request));
 });
