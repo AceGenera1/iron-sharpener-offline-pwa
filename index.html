@@ -12366,25 +12366,8 @@ body.dark .backgrounds-back-btn {
   }
 
   function builtInCrossRefDataPaths(book) {
-    const encoded = encodeURIComponent(book);
-    const dashed = String(book || "").replace(/\s+/g, "-");
-    const underscored = String(book || "").replace(/\s+/g, "_");
-
-    return [
-      `bible/resources/cross-references/${book}.json`,
-      `bible/resources/cross-references/${encoded}.json`,
-      `bible/resources/cross-references/${dashed}.json`,
-      `bible/resources/cross-references/${underscored}.json`,
-      `bible/resources/internal-cross-references/${book}.json`,
-      `bible/resources/internal-cross-references/${encoded}.json`,
-      `bible/resources/built-in-cross-references/${book}.json`,
-      `bible/resources/built-in-cross-references/${encoded}.json`,
-      `bible/resources/crossrefs/${book}.json`,
-      `bible/resources/crossrefs/${encoded}.json`,
-      `bible/resources/xrefs/${book}.json`,
-      `bible/resources/xrefs/${encoded}.json`,
-      book === "Psalms" ? "bible/resources/cross-references/Psalm.json" : ""
-    ].filter(Boolean);
+    // WEB-generated internal database only. No legacy fallback paths.
+    return [`bible/resources/internal-cross-references/${book}.json`];
   }
 
   async function loadBuiltInReferenceBook(book) {
@@ -12765,19 +12748,7 @@ body:not(.dark) .rdm-background-topic-btn:hover {
 }
 </style>
 
-
-
-
-
-
-</style>
-
-
-</style>
-
-
-
-<style id="rdm-built-in-crossrefs-internal-rebuild-v1-style">
+<style id="rdm-built-in-crossrefs-internal-rebuild-v2-style">
 #internalCrossRefsPanel {
   display: none;
   position: fixed;
@@ -12908,15 +12879,14 @@ html.obs .obs-tool-bar #obsShowInternalCrossRefs {
 </style>
 
 
-<script id="rdm-built-in-crossrefs-internal-rebuild-v1">
+<script id="rdm-built-in-crossrefs-internal-rebuild-v2">
 /* =========================================================
-   Iron Sharpener Built-In Cross References — Internal Rebuild v1
-   Source of truth: internal cross-reference JSON only.
-   Does not read or mention Treasury resources.
+   Iron Sharpener Built-In Cross References — Internal Rebuild v2
+   Source of truth: WEB-generated internal cross-reference JSON only.
    ========================================================= */
 (function () {
-  if (window.__rdmBuiltInCrossRefsInternalRebuildV1) return;
-  window.__rdmBuiltInCrossRefsInternalRebuildV1 = true;
+  if (window.__rdmBuiltInCrossRefsInternalRebuildV2) return;
+  window.__rdmBuiltInCrossRefsInternalRebuildV2 = true;
 
   const CHUNK_SIZE = 120;
   const $ = (id) => document.getElementById(id);
@@ -13008,24 +12978,8 @@ html.obs .obs-tool-bar #obsShowInternalCrossRefs {
   }
 
   function dataPaths(book) {
-    const encoded = encodeURIComponent(book);
-    const dashed = String(book || "").replace(/\s+/g, "-");
-    const underscored = String(book || "").replace(/\s+/g, "_");
-    return [
-      `bible/resources/cross-references/${book}.json`,
-      `bible/resources/cross-references/${encoded}.json`,
-      `bible/resources/cross-references/${dashed}.json`,
-      `bible/resources/cross-references/${underscored}.json`,
-      `bible/resources/internal-cross-references/${book}.json`,
-      `bible/resources/internal-cross-references/${encoded}.json`,
-      `bible/resources/built-in-cross-references/${book}.json`,
-      `bible/resources/built-in-cross-references/${encoded}.json`,
-      `bible/resources/crossrefs/${book}.json`,
-      `bible/resources/crossrefs/${encoded}.json`,
-      `bible/resources/xrefs/${book}.json`,
-      `bible/resources/xrefs/${encoded}.json`,
-      book === "Psalms" ? "bible/resources/cross-references/Psalm.json" : ""
-    ].filter(Boolean);
+    // WEB-generated internal database only. No legacy fallback paths.
+    return [`bible/resources/internal-cross-references/${book}.json`];
   }
 
   async function fetchJsonAny(paths) {
