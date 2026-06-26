@@ -14081,6 +14081,28 @@ body.dark #studyResourcesKey .study-resource-back-btn {
       String(a.end) === String(b.end);
   }
 
+  function chooseExactReferenceRange(start, end) {
+    const rangeSel = get("rangeSize");
+    const span = Math.max(1, (parseInt(end, 10) || parseInt(start, 10) || 1) - (parseInt(start, 10) || 1) + 1);
+    const allowed = rangeSel ? Array.from(rangeSel.options || []).map(option => option.value) : [];
+
+    if (allowed.includes(String(span))) {
+      return String(span);
+    }
+
+    const current = rangeSel?.value || "";
+    if (current && current !== "full") {
+      return current;
+    }
+
+    const saved = localStorage.getItem("ironSharpenerUnified.sectionSize") || "";
+    if (saved && saved !== "full") {
+      return saved;
+    }
+
+    return allowed.includes("5") ? "5" : (allowed[0] || "5");
+  }
+
   function parseReference(ref) {
     const raw = String(ref || "").replace(/\s+/g, " ").trim();
     if (!raw) return null;
@@ -14103,8 +14125,9 @@ body.dark #studyResourcesKey .study-resource-back-btn {
       chapter,
       start,
       end,
-      range: hasVerse ? (get("rangeSize")?.value || "5") : "full",
-      fullChapter: !hasVerse
+      range: hasVerse ? chooseExactReferenceRange(start, end) : "full",
+      fullChapter: !hasVerse,
+      explicitVerse: hasVerse
     };
   }
 
@@ -14195,12 +14218,13 @@ body.dark #studyResourcesKey .study-resource-back-btn {
     chapSel.value = String(state.chapter);
     if (typeof fillVerses === "function") fillVerses();
 
-    if (state.fullChapter || state.range === "full") {
+    if (state.fullChapter === true && state.explicitVerse !== true) {
       rangeSel.value = "full";
       startSel.value = "1";
       endSel.value = maxVerseFor(state.book, state.chapter);
     } else {
-      rangeSel.value = state.range || localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
+      const chosenRange = state.range || localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
+      rangeSel.value = chosenRange === "full" ? chooseExactReferenceRange(state.start, state.end || state.start) : chosenRange;
       startSel.value = String(state.start);
       endSel.value = String(state.end || state.start);
     }
@@ -14532,6 +14556,201 @@ body.dark #studyResourcesKey .study-resource-back-btn {
   setTimeout(install, 300);
   setTimeout(install, 1200);
   setTimeout(install, 2600);
+})();
+</script>
+
+
+
+<style id="rdm-v14-exact-reference-back-button-polish">
+/* Patch v14 — cream-mode Study Resources back button matches the brown/cream resource buttons. */
+body:not(.dark) #studyResourcesKey .study-resource-back-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  background-color: #9A6618 !important;
+  color: #FFF8EA !important;
+}
+</style>
+
+<script id="rdm-v14-exact-reference-final-guard">
+(function () {
+  if (window.__rdmV14ExactReferenceFinalGuard) return;
+  window.__rdmV14ExactReferenceFinalGuard = true;
+
+  const bookNames = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+
+  const get = id => document.getElementById(id);
+  const backStack = window.__rdmCrossReferenceBackStack || [];
+  window.__rdmCrossReferenceBackStack = backStack;
+
+  function currentState() {
+    const start = get("start")?.value || "1";
+    return {
+      book: get("book")?.value || "Genesis",
+      chapter: get("chapter")?.value || "1",
+      start,
+      end: get("end")?.value || start,
+      range: get("rangeSize")?.value || "5"
+    };
+  }
+
+  function sameState(a, b) {
+    return !!a && !!b &&
+      String(a.book) === String(b.book) &&
+      String(a.chapter) === String(b.chapter) &&
+      String(a.start) === String(b.start) &&
+      String(a.end) === String(b.end);
+  }
+
+  function chooseExactReferenceRange(start, end) {
+    const rangeSel = get("rangeSize");
+    const span = Math.max(1, (parseInt(end, 10) || parseInt(start, 10) || 1) - (parseInt(start, 10) || 1) + 1);
+    const allowed = rangeSel ? Array.from(rangeSel.options || []).map(option => option.value) : [];
+
+    if (allowed.includes(String(span))) return String(span);
+
+    const current = rangeSel?.value || "";
+    if (current && current !== "full") return current;
+
+    const saved = localStorage.getItem("ironSharpenerUnified.sectionSize") || "";
+    if (saved && saved !== "full") return saved;
+
+    return allowed.includes("5") ? "5" : (allowed[0] || "5");
+  }
+
+  function parseReference(ref) {
+    const raw = String(ref || "").replace(/\s+/g, " ").trim();
+    if (!raw) return null;
+
+    const sortedBooks = bookNames.slice().sort((a, b) => b.length - a.length);
+    const book = sortedBooks.find(name => raw.toLowerCase().startsWith(name.toLowerCase() + " "));
+    if (!book) return null;
+
+    const rest = raw.slice(book.length).trim();
+    const match = rest.match(/^(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
+    if (!match) return null;
+
+    const chapter = String(parseInt(match[1], 10));
+    const explicitVerse = !!match[2];
+    const start = explicitVerse ? String(parseInt(match[2], 10)) : "1";
+    const end = match[3] ? String(parseInt(match[3], 10)) : start;
+
+    return {
+      book,
+      chapter,
+      start,
+      end,
+      explicitVerse,
+      fullChapter: !explicitVerse,
+      range: explicitVerse ? chooseExactReferenceRange(start, end) : "full"
+    };
+  }
+
+  function maxVerseFor(book, chapter) {
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
+      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
+      if (value) return String(value);
+    } catch (_) {}
+
+    const endSel = get("end");
+    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
+  }
+
+  function hideTeachingBackButtons() {
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
+      const btn = get(id);
+      if (!btn) return;
+      btn.classList.remove("rdm-teaching-back-active");
+      btn.style.display = "none";
+    });
+  }
+
+  function showTeachingBackButton(origin) {
+    hideTeachingBackButtons();
+    const id = origin === "obsTeachingCrossRefs" ? "obsBackToPreviousPassage" : origin === "mainTeachingCrossRefs" ? "backToPreviousPassage" : "";
+    const btn = id ? get(id) : null;
+    if (!btn) return;
+    btn.classList.add("rdm-teaching-back-active");
+    btn.style.display = "inline-flex";
+  }
+
+  function setPreviousPassageBindings(state) {
+    try { previousPassageState = state; } catch (_) {}
+    try { window.previousPassageState = state; } catch (_) {}
+  }
+
+  function setPassageStateExact(state) {
+    if (!state) return;
+
+    const bookSel = get("book");
+    const chapSel = get("chapter");
+    const startSel = get("start");
+    const endSel = get("end");
+    const rangeSel = get("rangeSize");
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = state.book;
+    if (typeof fillChapters === "function") fillChapters();
+
+    chapSel.value = String(state.chapter);
+    if (typeof fillVerses === "function") fillVerses();
+
+    if (state.fullChapter === true && state.explicitVerse !== true) {
+      rangeSel.value = "full";
+      startSel.value = "1";
+      endSel.value = maxVerseFor(state.book, state.chapter);
+    } else {
+      const chosenRange = state.range || chooseExactReferenceRange(state.start, state.end || state.start);
+      rangeSel.value = chosenRange === "full" ? chooseExactReferenceRange(state.start, state.end || state.start) : chosenRange;
+      startSel.value = String(state.start);
+      endSel.value = String(state.end || state.start);
+    }
+
+    if (typeof loadPassage === "function") loadPassage();
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+  }
+
+  function detectOriginFromLastClick() {
+    return window.__rdmLastScriptureReferenceOrigin || "studyResources";
+  }
+
+  window.goToScriptureReference = function goToScriptureReferenceV14(ref, options = {}) {
+    const parsed = parseReference(ref);
+    if (!parsed) return;
+
+    const origin = options.origin || detectOriginFromLastClick();
+    window.__rdmLastScriptureReferenceOrigin = "";
+
+    const current = currentState();
+    if (!sameState(current, parsed)) {
+      backStack.push(current);
+      setPreviousPassageBindings(current);
+    }
+
+    setPassageStateExact(parsed);
+
+    if (origin === "mainTeachingCrossRefs" || origin === "obsTeachingCrossRefs") {
+      showTeachingBackButton(origin);
+    } else {
+      hideTeachingBackButtons();
+    }
+  };
+
+  try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
 })();
 </script>
 
