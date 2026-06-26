@@ -13563,5 +13563,139 @@ body.dark .resource-instance-panel[data-resource-key^="doctrine"] .resource-pane
 }
 </style>
 
+
+
+<style id="rdm-final-dark-resource-button-icon-polish-v10">
+/* =========================================================
+   FINAL v10 — Dark-mode button + info-icon alignment
+   Purpose:
+   1) Make Bible Backgrounds & Customs topic buttons match the
+      gold-button/green-text style used in the doctrine browser.
+   2) Make Backgrounds and Doctrine Key Scripture buttons match
+      that same gold/green button style on dark backgrounds.
+   3) Make the Study Resources passage-bar info icon use the
+      same compact info-icon feel, with white “i” text on dark mode.
+   ========================================================= */
+
+html body.dark #studyResourcesKey .study-resources-eye {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(248,217,135,.92) !important;
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #ffffff !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 0 10px rgba(248,217,135,.18) !important;
+  text-shadow: none !important;
+}
+
+html body.dark #studyResourcesKey .study-resources-help-tooltip,
+html body.dark #studyResourcesKey .study-resources-help-tooltip * {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* One dark-mode gold/green button standard for study-resource panels. */
+html body.dark .resource-instance-panel .resource-panel-body button.rdm-background-topic-btn,
+html body.dark .resource-instance-panel .resource-panel-body button.study-background-topic-btn,
+html body.dark .resource-instance-panel .resource-panel-body button.backgrounds-back-btn,
+html body.dark .resource-instance-panel .resource-panel-body .backgrounds-home button.rdm-background-topic-btn,
+html body.dark .resource-instance-panel .resource-panel-body .backgrounds-results button.rdm-background-topic-btn,
+html body.dark .resource-instance-panel .resource-panel-body .background-topic-card button.cross-ref-link,
+html body.dark .resource-instance-panel .resource-panel-body button.cross-ref-link,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .backgrounds-home button.rdm-background-topic-btn,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .backgrounds-results button.rdm-background-topic-btn,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .background-topic-card button.cross-ref-link {
+  background: linear-gradient(180deg, #f8d987 0%, #efbd55 48%, #d99f31 100%) !important;
+  background-color: #d99f31 !important;
+  color: #203D39 !important;
+  border: 1.8px solid #d7a84f !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
+  text-shadow: none !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+}
+
+html body.dark .resource-instance-panel .resource-panel-body button.rdm-background-topic-btn:hover,
+html body.dark .resource-instance-panel .resource-panel-body button.study-background-topic-btn:hover,
+html body.dark .resource-instance-panel .resource-panel-body button.backgrounds-back-btn:hover,
+html body.dark .resource-instance-panel .resource-panel-body .backgrounds-home button.rdm-background-topic-btn:hover,
+html body.dark .resource-instance-panel .resource-panel-body .backgrounds-results button.rdm-background-topic-btn:hover,
+html body.dark .resource-instance-panel .resource-panel-body .background-topic-card button.cross-ref-link:hover,
+html body.dark .resource-instance-panel .resource-panel-body button.cross-ref-link:hover,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .backgrounds-home button.rdm-background-topic-btn:hover,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .backgrounds-results button.rdm-background-topic-btn:hover,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent .background-topic-card button.cross-ref-link:hover {
+  background: linear-gradient(180deg, #ffe4a0 0%, #f0c76c 48%, #e0a83b 100%) !important;
+  background-color: #e0a83b !important;
+  color: #203D39 !important;
+  border-color: #f8d987 !important;
+}
+
+html body.dark .resource-instance-panel .resource-panel-body button.rdm-background-topic-btn strong,
+html body.dark .resource-instance-panel .resource-panel-body button.study-background-topic-btn strong,
+html body.dark .resource-instance-panel .resource-panel-body button.rdm-background-topic-btn span,
+html body.dark .resource-instance-panel .resource-panel-body button.study-background-topic-btn span,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent button.rdm-background-topic-btn strong,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent button.rdm-background-topic-btn span {
+  color: #203D39 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+  line-height: 1.25 !important;
+}
+
+/* Background topic list cards: same layout as the gold doctrine buttons. */
+html body.dark .resource-instance-panel .resource-panel-body button.rdm-background-topic-btn,
+html body.dark .resource-instance-panel .resource-panel-body button.study-background-topic-btn,
+html body.dark #obsCrossRefsPanel #obsCrossRefsContent button.rdm-background-topic-btn {
+  width: 100% !important;
+  min-height: 56px !important;
+  padding: 11px 14px !important;
+  display: grid !important;
+  grid-template-columns: minmax(92px, .34fr) 1fr !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+/* Key Scripture buttons should be pill-like but still gold/green. */
+html body.dark .resource-instance-panel .resource-panel-body button.cross-ref-link {
+  min-height: 42px !important;
+  padding: 10px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+html body.dark .resource-instance-panel .background-topic-card button.cross-ref-link,
+html body.dark .resource-instance-panel[data-resource-key*="background-topic"] button.cross-ref-link {
+  width: 100% !important;
+}
+
+/* Keep built-in internal cross references from inheriting this resource-card style. */
+html body.dark #internalCrossRefsPanel button.cross-ref-link,
+html body.dark #internalCrossRefsPanel .internal-xref-link {
+  background: #fff7e6 !important;
+  color: #203D39 !important;
+  border: 1.5px solid var(--gold) !important;
+}
+</style>
+
 </body>
 </html>
