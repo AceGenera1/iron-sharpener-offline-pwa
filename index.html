@@ -16709,5 +16709,236 @@ body:not(.rdm-offline-debug) #rdmOfflineCachePanel .rdm-offline-cache-muted.rdm-
 })();
 </script>
 
+
+
+<!-- Patch 24 — Offline-ready status normalization for public release -->
+<style id="rdm-v24-offline-status-fix-style">
+#rdmOfflineStartCache.rdm-offline-ready-ack,
+#rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
+#rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+#rdmOfflineStatusPill:not(.not-ready) .rdm-offline-status-dot {
+  background: #2f9e44 !important;
+  box-shadow: 0 0 0 3px rgba(47,158,68,.18) !important;
+}
+</style>
+<script id="rdm-v24-offline-status-fix">
+(function rdmV24OfflineStatusFix() {
+  if (window.__rdmV24OfflineStatusFix) return;
+  window.__rdmV24OfflineStatusFix = true;
+
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const PUBLIC_VERSION = "iron-sharpener-offline-v15-2026-06-26";
+  const CACHE_NAME = "iron-sharpener-offline-v15";
+  const READY_THRESHOLD = 1000;
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function readStatus() {
+    try {
+      return JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeStatus(status) {
+    try {
+      localStorage.setItem(STATUS_KEY, JSON.stringify(status));
+    } catch (_) {}
+  }
+
+  function countReadyFiles(status) {
+    return Math.max(
+      Number(status?.cached || 0),
+      Number(status?.alreadyCached || 0) + Number(status?.downloaded || 0),
+      Number(status?.ready || 0),
+      Number(status?.total || 0) - Number(status?.skipped || 0) - Number(status?.failed || 0)
+    );
+  }
+
+  function statusLooksReady(status) {
+    if (!status || status.complete !== true) return false;
+    if (Number(status.failed || 0) > 0) return false;
+    return countReadyFiles(status) >= READY_THRESHOLD;
+  }
+
+  function normalizeReadyStatus(status) {
+    if (!statusLooksReady(status)) return false;
+
+    if (status.version === PUBLIC_VERSION) return true;
+
+    const ready = countReadyFiles(status);
+    const normalized = {
+      ...status,
+      version: PUBLIC_VERSION,
+      complete: true,
+      cached: ready,
+      failed: 0,
+      normalizedFrom: status.version || "unknown",
+      normalizedAt: new Date().toISOString()
+    };
+
+    writeStatus(normalized);
+    window.rdmOfflineCacheStatus = () => normalized;
+    return true;
+  }
+
+  async function cacheHasCoreFiles() {
+    if (!("caches" in window)) return null;
+
+    const coreFiles = [
+      "index.html",
+      "manifest.json",
+      "assets/iron-sharpener-logo.png",
+      "service-worker.js",
+      "bible/web/Hosea/01.json",
+      "bible/web/Mark/01.json",
+      "bible/resources/topics/index.json",
+      "bible/resources/topics/prayer.json",
+      "bible/resources/eastons/A.json",
+      "bible/resources/smiths/A.json",
+      "bible/resources/doctrine/doctrine-registry.json",
+      "bible/resources/backgrounds/index.json"
+    ];
+
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      for (const file of coreFiles) {
+        const found = await cache.match(file) || await cache.match(`./${file}`);
+        if (!found) return null;
+      }
+
+      let count = 0;
+      try {
+        const keys = await cache.keys();
+        count = keys.length || coreFiles.length;
+      } catch (_) {
+        count = coreFiles.length;
+      }
+
+      return {
+        version: PUBLIC_VERSION,
+        complete: true,
+        completedAt: new Date().toISOString(),
+        total: count,
+        cached: count,
+        skipped: 0,
+        failed: 0,
+        inferredFromCache: true
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function forceReadyUi() {
+    const status = readStatus();
+    if (!statusLooksReady(status)) return false;
+
+    const cached = countReadyFiles(status) || Number(status.cached || 0);
+    const panel = get("rdmOfflineCachePanel");
+    const pill = get("rdmOfflineStatusPill");
+    const pillText = get("rdmOfflineStatusText");
+    const message = get("rdmOfflineCacheMessage");
+    const progress = get("rdmOfflineProgressText");
+    const bar = get("rdmOfflineProgressBar");
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+
+    if (pill) {
+      pill.classList.remove("not-ready");
+      pill.classList.toggle("offline", !navigator.onLine);
+    }
+
+    if (pillText) {
+      pillText.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
+    }
+
+    if (message) {
+      message.textContent = "Iron Sharpener is ready for offline use on this device.";
+    }
+
+    if (progress) {
+      progress.textContent = cached
+        ? `${cached.toLocaleString()} files ready on this device.`
+        : "Scripture and study resources are ready on this device.";
+      progress.classList.add("rdm-v22-clean-ready");
+    }
+
+    if (bar) bar.style.width = "100%";
+
+    if (start) {
+      start.disabled = false;
+      start.removeAttribute("disabled");
+      start.textContent = "Offline Ready";
+      start.classList.add("rdm-offline-ready-ack");
+      start.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
+    }
+
+    if (refresh) {
+      refresh.textContent = "Update Offline Files";
+      refresh.disabled = !navigator.onLine;
+    }
+
+    if (panel && !navigator.onLine) {
+      // Keep panel usable offline, but never show the false setup-needed message once cache is ready.
+      panel.classList.add("open");
+    }
+
+    return true;
+  }
+
+  async function repairStatusAndUi() {
+    const current = readStatus();
+
+    if (normalizeReadyStatus(current)) {
+      forceReadyUi();
+      return true;
+    }
+
+    const inferred = await cacheHasCoreFiles();
+    if (inferred && statusLooksReady(inferred)) {
+      writeStatus(inferred);
+      window.rdmOfflineCacheStatus = () => inferred;
+      forceReadyUi();
+      return true;
+    }
+
+    return false;
+  }
+
+  async function runSoon() {
+    setTimeout(repairStatusAndUi, 50);
+    setTimeout(repairStatusAndUi, 500);
+    setTimeout(repairStatusAndUi, 1500);
+    setTimeout(repairStatusAndUi, 3500);
+  }
+
+  window.rdmRepairOfflineReadyStatus = repairStatusAndUi;
+
+  window.addEventListener("online", runSoon);
+  window.addEventListener("offline", runSoon);
+  document.addEventListener("visibilitychange", runSoon);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runSoon);
+  } else {
+    runSoon();
+  }
+
+  setInterval(() => {
+    const status = readStatus();
+    if (statusLooksReady(status)) forceReadyUi();
+  }, 1500);
+})();
+</script>
+
 </body>
 </html>
