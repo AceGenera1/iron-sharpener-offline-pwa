@@ -1,0 +1,750 @@
+{
+  "generatedAt": "2026-06-26T03:36:11.746Z",
+  "source": "World English Bible local JSON only",
+  "externalSourcesUsed": [],
+  "tskUsed": false,
+  "schema": "book-file-map-v1",
+  "settings": {
+    "maxPerVerse": 12,
+    "minScore": 8,
+    "maxWordDf": 80,
+    "maxBigramDf": 60,
+    "maxTrigramDf": 45
+  },
+  "totals": {
+    "totalVerses": 31077,
+    "sourceVersesWithRefs": 28351,
+    "totalLinks": 258545,
+    "averageLinksPerSourceVerse": 9.12,
+    "books": [
+      {
+        "book": "Genesis",
+        "sourceVersesWithRefs": 1447,
+        "links": 13495
+      },
+      {
+        "book": "Exodus",
+        "sourceVersesWithRefs": 1166,
+        "links": 11578
+      },
+      {
+        "book": "Leviticus",
+        "sourceVersesWithRefs": 802,
+        "links": 8526
+      },
+      {
+        "book": "Numbers",
+        "sourceVersesWithRefs": 1211,
+        "links": 12909
+      },
+      {
+        "book": "Deuteronomy",
+        "sourceVersesWithRefs": 916,
+        "links": 9641
+      },
+      {
+        "book": "Joshua",
+        "sourceVersesWithRefs": 605,
+        "links": 6364
+      },
+      {
+        "book": "Judges",
+        "sourceVersesWithRefs": 601,
+        "links": 6095
+      },
+      {
+        "book": "Ruth",
+        "sourceVersesWithRefs": 81,
+        "links": 712
+      },
+      {
+        "book": "1 Samuel",
+        "sourceVersesWithRefs": 791,
+        "links": 8140
+      },
+      {
+        "book": "2 Samuel",
+        "sourceVersesWithRefs": 675,
+        "links": 6883
+      },
+      {
+        "book": "1 Kings",
+        "sourceVersesWithRefs": 798,
+        "links": 8304
+      },
+      {
+        "book": "2 Kings",
+        "sourceVersesWithRefs": 699,
+        "links": 7571
+      },
+      {
+        "book": "1 Chronicles",
+        "sourceVersesWithRefs": 804,
+        "links": 7100
+      },
+      {
+        "book": "2 Chronicles",
+        "sourceVersesWithRefs": 814,
+        "links": 9044
+      },
+      {
+        "book": "Ezra",
+        "sourceVersesWithRefs": 259,
+        "links": 2497
+      },
+      {
+        "book": "Nehemiah",
+        "sourceVersesWithRefs": 356,
+        "links": 3327
+      },
+      {
+        "book": "Esther",
+        "sourceVersesWithRefs": 162,
+        "links": 1745
+      },
+      {
+        "book": "Job",
+        "sourceVersesWithRefs": 778,
+        "links": 4684
+      },
+      {
+        "book": "Psalms",
+        "sourceVersesWithRefs": 2183,
+        "links": 17473
+      },
+      {
+        "book": "Proverbs",
+        "sourceVersesWithRefs": 747,
+        "links": 4650
+      },
+      {
+        "book": "Ecclesiastes",
+        "sourceVersesWithRefs": 186,
+        "links": 1303
+      },
+      {
+        "book": "Song of Solomon",
+        "sourceVersesWithRefs": 100,
+        "links": 724
+      },
+      {
+        "book": "Isaiah",
+        "sourceVersesWithRefs": 1212,
+        "links": 11037
+      },
+      {
+        "book": "Jeremiah",
+        "sourceVersesWithRefs": 1315,
+        "links": 13889
+      },
+      {
+        "book": "Lamentations",
+        "sourceVersesWithRefs": 126,
+        "links": 1079
+      },
+      {
+        "book": "Ezekiel",
+        "sourceVersesWithRefs": 1207,
+        "links": 12181
+      },
+      {
+        "book": "Daniel",
+        "sourceVersesWithRefs": 348,
+        "links": 3491
+      },
+      {
+        "book": "Hosea",
+        "sourceVersesWithRefs": 184,
+        "links": 1670
+      },
+      {
+        "book": "Joel",
+        "sourceVersesWithRefs": 71,
+        "links": 695
+      },
+      {
+        "book": "Amos",
+        "sourceVersesWithRefs": 142,
+        "links": 1353
+      },
+      {
+        "book": "Obadiah",
+        "sourceVersesWithRefs": 21,
+        "links": 189
+      },
+      {
+        "book": "Jonah",
+        "sourceVersesWithRefs": 44,
+        "links": 404
+      },
+      {
+        "book": "Micah",
+        "sourceVersesWithRefs": 102,
+        "links": 976
+      },
+      {
+        "book": "Nahum",
+        "sourceVersesWithRefs": 38,
+        "links": 338
+      },
+      {
+        "book": "Habakkuk",
+        "sourceVersesWithRefs": 50,
+        "links": 338
+      },
+      {
+        "book": "Zephaniah",
+        "sourceVersesWithRefs": 50,
+        "links": 501
+      },
+      {
+        "book": "Haggai",
+        "sourceVersesWithRefs": 35,
+        "links": 352
+      },
+      {
+        "book": "Zechariah",
+        "sourceVersesWithRefs": 205,
+        "links": 2047
+      },
+      {
+        "book": "Malachi",
+        "sourceVersesWithRefs": 51,
+        "links": 460
+      },
+      {
+        "book": "Matthew",
+        "sourceVersesWithRefs": 1001,
+        "links": 8430
+      },
+      {
+        "book": "Mark",
+        "sourceVersesWithRefs": 616,
+        "links": 5028
+      },
+      {
+        "book": "Luke",
+        "sourceVersesWithRefs": 1023,
+        "links": 7801
+      },
+      {
+        "book": "John",
+        "sourceVersesWithRefs": 792,
+        "links": 6304
+      },
+      {
+        "book": "Acts",
+        "sourceVersesWithRefs": 874,
+        "links": 7208
+      },
+      {
+        "book": "Romans",
+        "sourceVersesWithRefs": 346,
+        "links": 2418
+      },
+      {
+        "book": "1 Corinthians",
+        "sourceVersesWithRefs": 355,
+        "links": 2345
+      },
+      {
+        "book": "2 Corinthians",
+        "sourceVersesWithRefs": 196,
+        "links": 1261
+      },
+      {
+        "book": "Galatians",
+        "sourceVersesWithRefs": 120,
+        "links": 837
+      },
+      {
+        "book": "Ephesians",
+        "sourceVersesWithRefs": 129,
+        "links": 989
+      },
+      {
+        "book": "Philippians",
+        "sourceVersesWithRefs": 85,
+        "links": 576
+      },
+      {
+        "book": "Colossians",
+        "sourceVersesWithRefs": 76,
+        "links": 584
+      },
+      {
+        "book": "1 Thessalonians",
+        "sourceVersesWithRefs": 82,
+        "links": 540
+      },
+      {
+        "book": "2 Thessalonians",
+        "sourceVersesWithRefs": 40,
+        "links": 350
+      },
+      {
+        "book": "1 Timothy",
+        "sourceVersesWithRefs": 87,
+        "links": 630
+      },
+      {
+        "book": "2 Timothy",
+        "sourceVersesWithRefs": 61,
+        "links": 411
+      },
+      {
+        "book": "Titus",
+        "sourceVersesWithRefs": 39,
+        "links": 295
+      },
+      {
+        "book": "Philemon",
+        "sourceVersesWithRefs": 17,
+        "links": 126
+      },
+      {
+        "book": "Hebrews",
+        "sourceVersesWithRefs": 257,
+        "links": 1921
+      },
+      {
+        "book": "James",
+        "sourceVersesWithRefs": 91,
+        "links": 672
+      },
+      {
+        "book": "1 Peter",
+        "sourceVersesWithRefs": 88,
+        "links": 671
+      },
+      {
+        "book": "2 Peter",
+        "sourceVersesWithRefs": 56,
+        "links": 406
+      },
+      {
+        "book": "1 John",
+        "sourceVersesWithRefs": 99,
+        "links": 807
+      },
+      {
+        "book": "2 John",
+        "sourceVersesWithRefs": 12,
+        "links": 99
+      },
+      {
+        "book": "3 John",
+        "sourceVersesWithRefs": 13,
+        "links": 68
+      },
+      {
+        "book": "Jude",
+        "sourceVersesWithRefs": 20,
+        "links": 167
+      },
+      {
+        "book": "Revelation",
+        "sourceVersesWithRefs": 394,
+        "links": 3836
+      }
+    ]
+  },
+  "files": [
+    {
+      "book": "Genesis",
+      "file": "Genesis.json",
+      "sourceVersesWithRefs": 1447,
+      "links": 13495
+    },
+    {
+      "book": "Exodus",
+      "file": "Exodus.json",
+      "sourceVersesWithRefs": 1166,
+      "links": 11578
+    },
+    {
+      "book": "Leviticus",
+      "file": "Leviticus.json",
+      "sourceVersesWithRefs": 802,
+      "links": 8526
+    },
+    {
+      "book": "Numbers",
+      "file": "Numbers.json",
+      "sourceVersesWithRefs": 1211,
+      "links": 12909
+    },
+    {
+      "book": "Deuteronomy",
+      "file": "Deuteronomy.json",
+      "sourceVersesWithRefs": 916,
+      "links": 9641
+    },
+    {
+      "book": "Joshua",
+      "file": "Joshua.json",
+      "sourceVersesWithRefs": 605,
+      "links": 6364
+    },
+    {
+      "book": "Judges",
+      "file": "Judges.json",
+      "sourceVersesWithRefs": 601,
+      "links": 6095
+    },
+    {
+      "book": "Ruth",
+      "file": "Ruth.json",
+      "sourceVersesWithRefs": 81,
+      "links": 712
+    },
+    {
+      "book": "1 Samuel",
+      "file": "1 Samuel.json",
+      "sourceVersesWithRefs": 791,
+      "links": 8140
+    },
+    {
+      "book": "2 Samuel",
+      "file": "2 Samuel.json",
+      "sourceVersesWithRefs": 675,
+      "links": 6883
+    },
+    {
+      "book": "1 Kings",
+      "file": "1 Kings.json",
+      "sourceVersesWithRefs": 798,
+      "links": 8304
+    },
+    {
+      "book": "2 Kings",
+      "file": "2 Kings.json",
+      "sourceVersesWithRefs": 699,
+      "links": 7571
+    },
+    {
+      "book": "1 Chronicles",
+      "file": "1 Chronicles.json",
+      "sourceVersesWithRefs": 804,
+      "links": 7100
+    },
+    {
+      "book": "2 Chronicles",
+      "file": "2 Chronicles.json",
+      "sourceVersesWithRefs": 814,
+      "links": 9044
+    },
+    {
+      "book": "Ezra",
+      "file": "Ezra.json",
+      "sourceVersesWithRefs": 259,
+      "links": 2497
+    },
+    {
+      "book": "Nehemiah",
+      "file": "Nehemiah.json",
+      "sourceVersesWithRefs": 356,
+      "links": 3327
+    },
+    {
+      "book": "Esther",
+      "file": "Esther.json",
+      "sourceVersesWithRefs": 162,
+      "links": 1745
+    },
+    {
+      "book": "Job",
+      "file": "Job.json",
+      "sourceVersesWithRefs": 778,
+      "links": 4684
+    },
+    {
+      "book": "Psalms",
+      "file": "Psalms.json",
+      "sourceVersesWithRefs": 2183,
+      "links": 17473
+    },
+    {
+      "book": "Proverbs",
+      "file": "Proverbs.json",
+      "sourceVersesWithRefs": 747,
+      "links": 4650
+    },
+    {
+      "book": "Ecclesiastes",
+      "file": "Ecclesiastes.json",
+      "sourceVersesWithRefs": 186,
+      "links": 1303
+    },
+    {
+      "book": "Song of Solomon",
+      "file": "Song of Solomon.json",
+      "sourceVersesWithRefs": 100,
+      "links": 724
+    },
+    {
+      "book": "Isaiah",
+      "file": "Isaiah.json",
+      "sourceVersesWithRefs": 1212,
+      "links": 11037
+    },
+    {
+      "book": "Jeremiah",
+      "file": "Jeremiah.json",
+      "sourceVersesWithRefs": 1315,
+      "links": 13889
+    },
+    {
+      "book": "Lamentations",
+      "file": "Lamentations.json",
+      "sourceVersesWithRefs": 126,
+      "links": 1079
+    },
+    {
+      "book": "Ezekiel",
+      "file": "Ezekiel.json",
+      "sourceVersesWithRefs": 1207,
+      "links": 12181
+    },
+    {
+      "book": "Daniel",
+      "file": "Daniel.json",
+      "sourceVersesWithRefs": 348,
+      "links": 3491
+    },
+    {
+      "book": "Hosea",
+      "file": "Hosea.json",
+      "sourceVersesWithRefs": 184,
+      "links": 1670
+    },
+    {
+      "book": "Joel",
+      "file": "Joel.json",
+      "sourceVersesWithRefs": 71,
+      "links": 695
+    },
+    {
+      "book": "Amos",
+      "file": "Amos.json",
+      "sourceVersesWithRefs": 142,
+      "links": 1353
+    },
+    {
+      "book": "Obadiah",
+      "file": "Obadiah.json",
+      "sourceVersesWithRefs": 21,
+      "links": 189
+    },
+    {
+      "book": "Jonah",
+      "file": "Jonah.json",
+      "sourceVersesWithRefs": 44,
+      "links": 404
+    },
+    {
+      "book": "Micah",
+      "file": "Micah.json",
+      "sourceVersesWithRefs": 102,
+      "links": 976
+    },
+    {
+      "book": "Nahum",
+      "file": "Nahum.json",
+      "sourceVersesWithRefs": 38,
+      "links": 338
+    },
+    {
+      "book": "Habakkuk",
+      "file": "Habakkuk.json",
+      "sourceVersesWithRefs": 50,
+      "links": 338
+    },
+    {
+      "book": "Zephaniah",
+      "file": "Zephaniah.json",
+      "sourceVersesWithRefs": 50,
+      "links": 501
+    },
+    {
+      "book": "Haggai",
+      "file": "Haggai.json",
+      "sourceVersesWithRefs": 35,
+      "links": 352
+    },
+    {
+      "book": "Zechariah",
+      "file": "Zechariah.json",
+      "sourceVersesWithRefs": 205,
+      "links": 2047
+    },
+    {
+      "book": "Malachi",
+      "file": "Malachi.json",
+      "sourceVersesWithRefs": 51,
+      "links": 460
+    },
+    {
+      "book": "Matthew",
+      "file": "Matthew.json",
+      "sourceVersesWithRefs": 1001,
+      "links": 8430
+    },
+    {
+      "book": "Mark",
+      "file": "Mark.json",
+      "sourceVersesWithRefs": 616,
+      "links": 5028
+    },
+    {
+      "book": "Luke",
+      "file": "Luke.json",
+      "sourceVersesWithRefs": 1023,
+      "links": 7801
+    },
+    {
+      "book": "John",
+      "file": "John.json",
+      "sourceVersesWithRefs": 792,
+      "links": 6304
+    },
+    {
+      "book": "Acts",
+      "file": "Acts.json",
+      "sourceVersesWithRefs": 874,
+      "links": 7208
+    },
+    {
+      "book": "Romans",
+      "file": "Romans.json",
+      "sourceVersesWithRefs": 346,
+      "links": 2418
+    },
+    {
+      "book": "1 Corinthians",
+      "file": "1 Corinthians.json",
+      "sourceVersesWithRefs": 355,
+      "links": 2345
+    },
+    {
+      "book": "2 Corinthians",
+      "file": "2 Corinthians.json",
+      "sourceVersesWithRefs": 196,
+      "links": 1261
+    },
+    {
+      "book": "Galatians",
+      "file": "Galatians.json",
+      "sourceVersesWithRefs": 120,
+      "links": 837
+    },
+    {
+      "book": "Ephesians",
+      "file": "Ephesians.json",
+      "sourceVersesWithRefs": 129,
+      "links": 989
+    },
+    {
+      "book": "Philippians",
+      "file": "Philippians.json",
+      "sourceVersesWithRefs": 85,
+      "links": 576
+    },
+    {
+      "book": "Colossians",
+      "file": "Colossians.json",
+      "sourceVersesWithRefs": 76,
+      "links": 584
+    },
+    {
+      "book": "1 Thessalonians",
+      "file": "1 Thessalonians.json",
+      "sourceVersesWithRefs": 82,
+      "links": 540
+    },
+    {
+      "book": "2 Thessalonians",
+      "file": "2 Thessalonians.json",
+      "sourceVersesWithRefs": 40,
+      "links": 350
+    },
+    {
+      "book": "1 Timothy",
+      "file": "1 Timothy.json",
+      "sourceVersesWithRefs": 87,
+      "links": 630
+    },
+    {
+      "book": "2 Timothy",
+      "file": "2 Timothy.json",
+      "sourceVersesWithRefs": 61,
+      "links": 411
+    },
+    {
+      "book": "Titus",
+      "file": "Titus.json",
+      "sourceVersesWithRefs": 39,
+      "links": 295
+    },
+    {
+      "book": "Philemon",
+      "file": "Philemon.json",
+      "sourceVersesWithRefs": 17,
+      "links": 126
+    },
+    {
+      "book": "Hebrews",
+      "file": "Hebrews.json",
+      "sourceVersesWithRefs": 257,
+      "links": 1921
+    },
+    {
+      "book": "James",
+      "file": "James.json",
+      "sourceVersesWithRefs": 91,
+      "links": 672
+    },
+    {
+      "book": "1 Peter",
+      "file": "1 Peter.json",
+      "sourceVersesWithRefs": 88,
+      "links": 671
+    },
+    {
+      "book": "2 Peter",
+      "file": "2 Peter.json",
+      "sourceVersesWithRefs": 56,
+      "links": 406
+    },
+    {
+      "book": "1 John",
+      "file": "1 John.json",
+      "sourceVersesWithRefs": 99,
+      "links": 807
+    },
+    {
+      "book": "2 John",
+      "file": "2 John.json",
+      "sourceVersesWithRefs": 12,
+      "links": 99
+    },
+    {
+      "book": "3 John",
+      "file": "3 John.json",
+      "sourceVersesWithRefs": 13,
+      "links": 68
+    },
+    {
+      "book": "Jude",
+      "file": "Jude.json",
+      "sourceVersesWithRefs": 20,
+      "links": 167
+    },
+    {
+      "book": "Revelation",
+      "file": "Revelation.json",
+      "sourceVersesWithRefs": 394,
+      "links": 3836
+    }
+  ]
+}
