@@ -1,0 +1,48 @@
+name: Cleanup Misplaced Nave Topic Files
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Delete misplaced duplicate Nave files
+        run: |
+          set -e
+
+          if [ ! -d "bible/resources/topics" ]; then
+            echo "ERROR: bible/resources/topics does not exist."
+            exit 1
+          fi
+
+          deleted=0
+
+          for file in bible/resources/*.json; do
+            [ -e "$file" ] || continue
+
+            base="$(basename "$file")"
+
+            if [ -f "bible/resources/topics/$base" ]; then
+              echo "Deleting misplaced duplicate: $file"
+              git rm "$file"
+              deleted=$((deleted + 1))
+            fi
+          done
+
+          echo "Deleted $deleted misplaced duplicate files."
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git diff --cached --quiet || git commit -m "Remove misplaced Nave topic files"
+          git push
