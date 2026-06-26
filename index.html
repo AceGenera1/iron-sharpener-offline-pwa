@@ -5752,11 +5752,36 @@ async function openRelatedDoctrineTopic(topicName) {
 
     function copyStatus(message) {
       const status = $("copyStatus");
-      if (!status) return;
-      status.textContent = message;
+      const teacherStatus = $("teacherToolsStatusText");
+      const activeToolNames = {
+        "highlight-gold": "Gold Highlight",
+        "highlight-blue": "Blue Highlight",
+        "highlight-green": "Green Highlight",
+        "highlight-red": "Red Highlight",
+        "highlight-purple": "Purple Highlight",
+        "highlight-amber": "Amber Highlight",
+        pointer: "Pointer",
+        underline: "Underline",
+        circle: "Circle",
+        box: "Box",
+        focus: "Focus",
+        erase: "Erase Verse Marks",
+        "copy-verse": "Copy Verse"
+      };
+      const resetTeacherStatus = () => {
+        if (teacherStatus) teacherStatus.textContent = `Current Selection: ${activeToolNames[activeTool] || activeTool || "Gold Highlight"}`;
+      };
+
+      if (status) status.textContent = message;
+
+      if (teacherStatus && /copied/i.test(String(message || ""))) {
+        teacherStatus.textContent = message;
+      }
+
       clearTimeout(window.ironCopyStatusTimer);
       window.ironCopyStatusTimer = setTimeout(() => {
         if (status) status.textContent = "Copy tools ready.";
+        resetTeacherStatus();
       }, 1800);
     }
 
@@ -5940,11 +5965,14 @@ async function openRelatedDoctrineTopic(topicName) {
       writeClipboardText(copiedText);
 
       const label = $("activeToolLabel");
+      const teacherStatus = $("teacherToolsStatusText");
       if (label) label.textContent = `Copied: ${reference} (WEB)`;
+      if (teacherStatus) teacherStatus.textContent = `Verse copied: ${reference}.`;
       copyStatus(`Verse copied: ${reference}.`);
 
       setTimeout(() => {
         if (label) label.textContent = "Active Tool: Copy Verse";
+        if (teacherStatus) teacherStatus.textContent = "Current Selection: Copy Verse";
       }, 1400);
     }
 
@@ -16937,6 +16965,159 @@ body:not(.rdm-offline-debug) #rdmOfflineCachePanel .rdm-offline-cache-muted.rdm-
     const status = readStatus();
     if (statusLooksReady(status)) forceReadyUi();
   }, 1500);
+})();
+</script>
+
+
+
+<!-- Patch 25 — Public offline panel cleanup + OBS copy confirmation polish -->
+<style id="rdm-v25-public-offline-and-obs-copy-polish">
+/* Public release: keep developer diagnostics hidden unless explicitly enabled with ?offlineDebug=1. */
+body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineDetails,
+body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineSmokeTest {
+  display: none !important;
+}
+
+body:not(.rdm-v25-offline-debug-enabled) #rdmOfflineCachePanel .rdm-offline-cache-muted {
+  color: #fff6d9 !important;
+  font-weight: 900 !important;
+}
+
+body:not(.dark):not(.rdm-v25-offline-debug-enabled) #rdmOfflineCachePanel .rdm-offline-cache-muted {
+  color: #203D39 !important;
+}
+
+#rdmOfflineStartCache.rdm-offline-ready-ack {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+</style>
+<script id="rdm-v25-public-offline-and-obs-copy-polish">
+(function rdmV25PublicOfflineAndObsCopyPolish() {
+  if (window.__rdmV25PublicOfflineAndObsCopyPolish) return;
+  window.__rdmV25PublicOfflineAndObsCopyPolish = true;
+
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const DEBUG_KEY = "ironSharpenerUnified.offlineDebug";
+
+  const get = (id) => document.getElementById(id);
+
+  function hasDebugParam() {
+    try {
+      return new URLSearchParams(window.location.search).get("offlineDebug") === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function readStatus() {
+    try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); }
+    catch (_) { return null; }
+  }
+
+  function readyCount(status) {
+    return Math.max(
+      Number(status?.cached || 0),
+      Number(status?.ready || 0),
+      Number(status?.total || 0) - Number(status?.skipped || 0) - Number(status?.failed || 0)
+    );
+  }
+
+  function isReady() {
+    const status = readStatus();
+    if (status && status.complete === true && Number(status.failed || 0) === 0 && readyCount(status) > 0) return true;
+
+    const pillText = String(get("rdmOfflineStatusText")?.textContent || "");
+    const message = String(get("rdmOfflineCacheMessage")?.textContent || "");
+    const progress = String(get("rdmOfflineProgressText")?.textContent || "");
+    return /offline ready|offline • ready|ready for offline use|files ready/i.test(`${pillText} ${message} ${progress}`);
+  }
+
+  function sanitizeOfflinePanel() {
+    const debug = hasDebugParam();
+    document.body.classList.toggle("rdm-v25-offline-debug-enabled", debug);
+    document.body.classList.toggle("rdm-offline-debug", debug);
+
+    if (!debug) {
+      try { localStorage.removeItem(DEBUG_KEY); } catch (_) {}
+      const details = get("rdmOfflineDetails");
+      if (details) {
+        details.open = false;
+        details.style.display = "none";
+        details.setAttribute("aria-hidden", "true");
+      }
+      const smoke = get("rdmOfflineSmokeTest");
+      if (smoke) {
+        smoke.style.display = "none";
+        smoke.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    const ready = isReady();
+    const status = readStatus();
+    const count = readyCount(status);
+    const message = get("rdmOfflineCacheMessage");
+    const progress = get("rdmOfflineProgressText");
+    const bar = get("rdmOfflineProgressBar");
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+    const pill = get("rdmOfflineStatusPill");
+    const pillText = get("rdmOfflineStatusText");
+
+    if (ready) {
+      if (message) message.textContent = "Iron Sharpener is ready for offline use on this device.";
+      if (progress) {
+        progress.textContent = count ? `${count.toLocaleString()} files ready on this device.` : "Scripture and study resources are ready on this device.";
+        progress.classList.add("rdm-v22-clean-ready");
+      }
+      if (bar) bar.style.width = "100%";
+      if (start) {
+        start.disabled = false;
+        start.removeAttribute("disabled");
+        start.textContent = "Offline Ready";
+        start.classList.add("rdm-offline-ready-ack");
+        start.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
+      }
+      if (refresh) {
+        refresh.textContent = "Update Offline Files";
+        refresh.disabled = !navigator.onLine;
+      }
+      if (pill) {
+        pill.classList.remove("not-ready");
+        pill.classList.toggle("offline", !navigator.onLine);
+      }
+      if (pillText) pillText.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
+    } else if (refresh) {
+      refresh.textContent = "Update Offline Files";
+    }
+  }
+
+  document.addEventListener("click", function(event) {
+    const btn = event.target && event.target.closest ? event.target.closest("#rdmOfflineStartCache.rdm-offline-ready-ack") : null;
+    if (!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    get("rdmOfflineCachePanel")?.classList.remove("open");
+  }, true);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      sanitizeOfflinePanel();
+      setTimeout(sanitizeOfflinePanel, 500);
+      setTimeout(sanitizeOfflinePanel, 1500);
+      setTimeout(sanitizeOfflinePanel, 3500);
+    });
+  } else {
+    sanitizeOfflinePanel();
+    setTimeout(sanitizeOfflinePanel, 500);
+    setTimeout(sanitizeOfflinePanel, 1500);
+    setTimeout(sanitizeOfflinePanel, 3500);
+  }
+
+  window.addEventListener("online", sanitizeOfflinePanel);
+  window.addEventListener("offline", sanitizeOfflinePanel);
+  document.addEventListener("visibilitychange", sanitizeOfflinePanel);
+  setInterval(sanitizeOfflinePanel, 1500);
 })();
 </script>
 
