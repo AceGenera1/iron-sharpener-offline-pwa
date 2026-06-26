@@ -1,0 +1,31 @@
+name: Build WEB Internal Cross References
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-crossrefs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build internal cross references
+        run: node tools/build-web-internal-crossrefs.js
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add bible/resources/internal-cross-references
+          git diff --cached --quiet || git commit -m "Generate WEB internal cross references"
+          git push
