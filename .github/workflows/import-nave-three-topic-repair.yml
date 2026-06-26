@@ -1,0 +1,54 @@
+name: Repair Nave Missing Topics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair-nave-topics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Import Nave repair files
+        run: |
+          set -e
+
+          ZIP="$(find . -type f -name 'nave-three-topic-repair-v1.zip' | head -n 1)"
+
+          if [ -z "$ZIP" ]; then
+            echo "ERROR: nave-three-topic-repair-v1.zip not found."
+            echo "Upload nave-three-topic-repair-v1.zip to the repo root first."
+            exit 1
+          fi
+
+          echo "Using ZIP: $ZIP"
+
+          rm -rf /tmp/rdm-nave-repair
+          mkdir -p /tmp/rdm-nave-repair
+          unzip -q "$ZIP" -d /tmp/rdm-nave-repair
+
+          mkdir -p bible/resources/topics
+
+          cp /tmp/rdm-nave-repair/bible/resources/topics/prayer.json bible/resources/topics/prayer.json
+          cp /tmp/rdm-nave-repair/bible/resources/topics/repentance.json bible/resources/topics/repentance.json
+          cp /tmp/rdm-nave-repair/bible/resources/topics/zechariah-zecharias.json bible/resources/topics/zechariah-zecharias.json
+          cp /tmp/rdm-nave-repair/bible/resources/topics/zacharias-zechariah.json bible/resources/topics/zacharias-zechariah.json
+          cp /tmp/rdm-nave-repair/bible/resources/topics/index.json bible/resources/topics/index.json
+
+          rm -f "$ZIP"
+
+      - name: Commit Nave repair files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add bible/resources/topics/prayer.json                   bible/resources/topics/repentance.json                   bible/resources/topics/zechariah-zecharias.json                   bible/resources/topics/zacharias-zechariah.json                   bible/resources/topics/index.json
+          git add -u
+
+          git diff --cached --quiet || git commit -m "Repair missing Nave topic files"
+          git push
