@@ -13697,5 +13697,286 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
 }
 </style>
 
+
+
+<script id="rdm-naves-full-index-v11">
+(function () {
+  if (window.__rdmNavesFullIndexV11) return;
+  window.__rdmNavesFullIndexV11 = true;
+
+  const bookNamesV11 = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+
+  function get(id) { return document.getElementById(id); }
+  function esc(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+  function clean(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function safePanel(title, html, key, options) {
+    if (typeof window.openResourceInstancePanel === "function") {
+      return window.openResourceInstancePanel(title, html, "Nave's Topical Bible", key, options || {});
+    }
+
+    const panel = document.createElement("div");
+    panel.className = "resource-instance-panel";
+    panel.innerHTML = `<div class="teacher-pop-head drag-handle"><h3>${esc(title)}</h3><button class="teacher-pop-close secondary" type="button">Close</button></div><div class="resource-panel-body">${html}</div>`;
+    document.body.appendChild(panel);
+    panel.querySelector(".teacher-pop-close").onclick = () => panel.remove();
+    return panel;
+  }
+
+  async function loadNavesIndexFullV11() {
+    if (window.__rdmNavesIndexFullV11) return window.__rdmNavesIndexFullV11;
+
+    try {
+      const response = await fetch("bible/resources/topics/index.json", { cache: "no-store" });
+      if (!response.ok) throw new Error(`Nave's index not found: ${response.status}`);
+      const data = await response.json();
+      const topics = Array.isArray(data) ? data : (Array.isArray(data.topics) ? data.topics : []);
+      window.__rdmNavesIndexFullV11 = topics;
+      return topics;
+    } catch (error) {
+      console.warn("Nave's index load error:", error);
+      window.__rdmNavesIndexFullV11 = [];
+      return [];
+    }
+  }
+
+  window.loadNavesIndexFullV11 = loadNavesIndexFullV11;
+
+  window.loadNavesTopic = async function loadNavesTopicFullV11(topicFile) {
+    const file = String(topicFile || "").replace(/\.json$/i, "").trim();
+    if (!file) return null;
+
+    try {
+      const response = await fetch(`bible/resources/topics/${encodeURIComponent(file)}.json`, { cache: "no-store" });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.warn("Nave's topic not found:", file, error);
+      return null;
+    }
+  };
+
+  function parseFullOrVerseReferenceV11(ref) {
+    const raw = String(ref || "").replace(/\s+/g, " ").trim();
+    if (!raw) return null;
+
+    const sortedBooks = bookNamesV11.slice().sort((a, b) => b.length - a.length);
+    const book = sortedBooks.find(name => raw.toLowerCase().startsWith(name.toLowerCase() + " "));
+    if (!book) return null;
+
+    const rest = raw.slice(book.length).trim();
+    const match = rest.match(/^(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
+    if (!match) return null;
+
+    return {
+      book,
+      chapter: parseInt(match[1], 10),
+      start: match[2] ? parseInt(match[2], 10) : 1,
+      end: match[3] ? parseInt(match[3], 10) : (match[2] ? parseInt(match[2], 10) : null),
+      fullChapter: !match[2]
+    };
+  }
+
+  window.goToScriptureReference = function goToScriptureReferenceV11(ref) {
+    const parsed = parseFullOrVerseReferenceV11(ref);
+    if (!parsed) return;
+
+    const bookSel = get("book");
+    const chapSel = get("chapter");
+    const startSel = get("start");
+    const endSel = get("end");
+    const rangeSel = get("rangeSize");
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    try {
+      window.previousPassageState = {
+        book: bookSel.value,
+        chapter: chapSel.value,
+        start: startSel.value,
+        end: endSel.value,
+        range: rangeSel.value
+      };
+    } catch (_) {}
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = parsed.book;
+    if (typeof fillChapters === "function") fillChapters();
+    chapSel.value = String(parsed.chapter);
+    if (typeof fillVerses === "function") fillVerses();
+
+    if (parsed.fullChapter) {
+      rangeSel.value = "full";
+      startSel.value = "1";
+      const counts = (typeof verseCounts !== "undefined" && verseCounts[parsed.book]) ? verseCounts[parsed.book] : null;
+      const max = counts ? counts[parsed.chapter - 1] : parseInt(endSel.options[endSel.options.length - 1]?.value || "1", 10);
+      endSel.value = String(max || 1);
+    } else {
+      startSel.value = String(parsed.start);
+      endSel.value = String(parsed.end || parsed.start);
+      rangeSel.value = localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
+    }
+
+    const backBtn = get("backToPreviousPassage");
+    if (backBtn) backBtn.style.display = "inline-flex";
+    const obsBackBtn = get("obsBackToPreviousPassage");
+    if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
+
+    if (typeof loadPassage === "function") loadPassage();
+  };
+
+  function referenceButtons(refs) {
+    return (refs || []).map(ref => `
+      <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:7px;">
+        ${esc(ref)}
+      </button>
+    `).join("");
+  }
+
+  function renderNavesTopicHtml(topic) {
+    const references = Array.isArray(topic.references) ? topic.references : [];
+    const subtopics = topic.subtopics && typeof topic.subtopics === "object" ? topic.subtopics : {};
+    const sourceLines = Array.isArray(topic.sourceLines) ? topic.sourceLines : [];
+
+    const mainRefs = references.length ? `
+      <details open style="margin-bottom:12px;">
+        <summary style="font:900 14px Arial,sans-serif;cursor:pointer;">Main References (${references.length})</summary>
+        <div style="margin-top:8px;">${referenceButtons(references)}</div>
+      </details>
+    ` : "";
+
+    const subtopicHtml = Object.keys(subtopics).length ? Object.keys(subtopics).map(label => {
+      const refs = Array.isArray(subtopics[label]) ? subtopics[label] : [];
+      return `
+        <details style="margin-top:8px;">
+          <summary style="font:900 14px Arial,sans-serif;cursor:pointer;">${esc(label)} (${refs.length})</summary>
+          <div style="margin-top:8px;">${referenceButtons(refs)}</div>
+        </details>
+      `;
+    }).join("") : "";
+
+    const fallbackLines = (!references.length && !Object.keys(subtopics).length && sourceLines.length) ? `
+      <h4>Topic Notes</h4>
+      <ul style="font:800 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+        ${sourceLines.slice(0, 80).map(line => `<li>${esc(String(line).replace(/^[-.]+\s*/, ""))}</li>`).join("")}
+      </ul>
+    ` : "";
+
+    return `
+      <h4>${esc(topic.title || "Nave's Topic")}</h4>
+      ${mainRefs}
+      ${subtopicHtml}
+      ${fallbackLines || ""}
+      ${(!references.length && !Object.keys(subtopics).length && !fallbackLines) ? `<p style="font:800 14px Arial,sans-serif;">No references found for this topic.</p>` : ""}
+    `;
+  }
+
+  async function openNavesResourceFullV11(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    try { activeResourcePanel = "naves"; } catch (_) {}
+
+    const panel = safePanel(
+      "Nave's Topical Bible",
+      `
+        <input class="naves-search-box-v11" type="text" placeholder="Search topics like faith, prayer, salvation, angels..." style="margin-bottom:10px;">
+        <div class="naves-results-v11"><p style="font:800 14px Arial,sans-serif;">Loading Nave's Topical Bible index...</p></div>
+      `,
+      "naves-search-full-v11",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".naves-search-box-v11");
+    const results = panel.querySelector(".naves-results-v11");
+    const index = await loadNavesIndexFullV11();
+
+    function renderResults(query) {
+      const q = clean(query);
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search ${index.length.toLocaleString()} Nave's topics.</p>`;
+        return;
+      }
+
+      if (q.length < 2) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 2 letters...</p>`;
+        return;
+      }
+
+      const matches = index
+        .filter(item => clean(`${item.title || ""} ${item.file || ""} ${item.search || ""}`).includes(q))
+        .slice(0, 35);
+
+      results.innerHTML = matches.length ? matches.map(item => `
+        <button type="button" class="naves-topic-btn-v11" data-file="${esc(item.file)}" style="width:100%;margin-bottom:8px;">
+          ${esc(item.title || item.file)}
+        </button>
+      `).join("") : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+      results.querySelectorAll(".naves-topic-btn-v11").forEach(button => {
+        button.onclick = async () => {
+          const topic = await window.loadNavesTopic(button.dataset.file);
+          if (!topic) {
+            results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Unable to load this Nave's topic.</p>`;
+            return;
+          }
+
+          safePanel(
+            topic.title || button.textContent.trim(),
+            renderNavesTopicHtml(topic),
+            `naves-topic-full-v11-${button.dataset.file}`,
+            { updateExisting: true }
+          );
+        };
+      });
+    }
+
+    if (searchBox) {
+      searchBox.oninput = () => renderResults(searchBox.value);
+      searchBox.focus({ preventScroll: true });
+    }
+    renderResults("");
+  }
+
+  function replaceButtonHandler(id, handler) {
+    const oldButton = get(id);
+    if (!oldButton || oldButton.dataset.rdmNavesFullV11 === "1") return;
+    const newButton = oldButton.cloneNode(true);
+    newButton.dataset.rdmNavesFullV11 = "1";
+    oldButton.replaceWith(newButton);
+    newButton.onclick = handler;
+  }
+
+  window.openNavesResourceFullV11 = openNavesResourceFullV11;
+
+  function install() {
+    replaceButtonHandler("openNavesResource", openNavesResourceFullV11);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install);
+  } else {
+    install();
+  }
+
+  setTimeout(install, 300);
+  setTimeout(install, 1200);
+})();
+</script>
+
 </body>
 </html>
