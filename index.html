@@ -17121,5 +17121,433 @@ body:not(.dark):not(.rdm-v25-offline-debug-enabled) #rdmOfflineCachePanel .rdm-o
 })();
 </script>
 
+
+<!-- Patch 26 — Final public offline panel cleanup + one-button copy Scripture workflow -->
+<style id="rdm-v26-public-offline-copy-cleanup">
+/* Force the public Offline Ready card to stay clean unless support mode is explicitly enabled. */
+html body:not(.rdm-v26-offline-debug-enabled) #rdmOfflineDetails,
+html body:not(.rdm-v26-offline-debug-enabled) #rdmOfflineSmokeTest {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+html body:not(.rdm-v26-offline-debug-enabled) #rdmOfflineRefreshCache {
+  cursor: pointer !important;
+}
+
+/* Consolidated copy workflow */
+.copy-scripture-single-button {
+  width: 100% !important;
+}
+
+#copyScripturePanel .copy-scripture-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+#copyScripturePanel .copy-scripture-help {
+  margin: 12px 0;
+  padding: 11px 12px;
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  background: rgba(248,217,135,.14);
+  font: 800 14px Arial, sans-serif;
+  line-height: 1.45;
+}
+
+body.dark #copyScripturePanel .copy-scripture-help {
+  color: #fff6d9;
+  background: rgba(248,217,135,.10);
+}
+
+.verse.copy-selected {
+  background: linear-gradient(90deg, rgba(248,217,135,.62), rgba(248,217,135,.20)) !important;
+  border-left: 7px solid #d7a84f !important;
+  outline: 2px solid rgba(248,217,135,.92) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  margin-left: -12px !important;
+  margin-right: -10px !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.10), 0 0 18px rgba(248,217,135,.20) !important;
+}
+
+body.dark .verse.copy-selected {
+  color: #fff8df !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.32) !important;
+}
+</style>
+<script id="rdm-v26-public-offline-copy-cleanup">
+(function rdmV26PublicOfflineCopyCleanup() {
+  if (window.__rdmV26PublicOfflineCopyCleanup) return;
+  window.__rdmV26PublicOfflineCopyCleanup = true;
+
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const DEBUG_KEY = "ironSharpenerUnified.offlineDebug";
+  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v15";
+  const get = (id) => document.getElementById(id);
+
+  function debugMode() {
+    try {
+      return new URLSearchParams(window.location.search).get("offlineDebug") === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function readOfflineStatus() {
+    try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); }
+    catch (_) { return null; }
+  }
+
+  function readyCount(status) {
+    const total = Number(status?.total || 0);
+    const skipped = Number(status?.skipped || 0);
+    const failed = Number(status?.failed || 0);
+    return Math.max(Number(status?.cached || 0), Number(status?.ready || 0), total - skipped - failed);
+  }
+
+  function publicLooksReady() {
+    const status = readOfflineStatus();
+    if (status && status.complete === true && Number(status.failed || 0) === 0 && readyCount(status) > 0) return true;
+
+    const combined = [
+      get("rdmOfflineStatusText")?.textContent,
+      get("rdmOfflineCacheMessage")?.textContent,
+      get("rdmOfflineProgressText")?.textContent
+    ].join(" ");
+
+    return /offline ready|offline • ready|ready for offline use|files ready|files cached/i.test(combined);
+  }
+
+  function forceCleanOfflinePanel() {
+    const debug = debugMode();
+    document.body.classList.toggle("rdm-v26-offline-debug-enabled", debug);
+    document.body.classList.toggle("rdm-v25-offline-debug-enabled", debug);
+    document.body.classList.toggle("rdm-offline-debug", debug);
+
+    if (!debug) {
+      try { localStorage.removeItem(DEBUG_KEY); } catch (_) {}
+
+      const details = get("rdmOfflineDetails");
+      if (details) {
+        details.open = false;
+        details.setAttribute("aria-hidden", "true");
+        details.style.setProperty("display", "none", "important");
+        details.style.setProperty("visibility", "hidden", "important");
+      }
+
+      const smoke = get("rdmOfflineSmokeTest");
+      if (smoke) {
+        smoke.setAttribute("aria-hidden", "true");
+        smoke.style.setProperty("display", "none", "important");
+        smoke.style.setProperty("visibility", "hidden", "important");
+      }
+    }
+
+    const ready = publicLooksReady();
+    const status = readOfflineStatus();
+    const count = readyCount(status);
+    const message = get("rdmOfflineCacheMessage");
+    const progress = get("rdmOfflineProgressText");
+    const bar = get("rdmOfflineProgressBar");
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+    const pill = get("rdmOfflineStatusPill");
+    const pillText = get("rdmOfflineStatusText");
+
+    if (ready) {
+      if (message) message.textContent = "Iron Sharpener is ready for offline use on this device.";
+      if (progress) {
+        progress.textContent = count ? `${count.toLocaleString()} files ready on this device.` : "Scripture and study resources are ready on this device.";
+        progress.classList.add("rdm-v22-clean-ready");
+      }
+      if (bar) bar.style.width = "100%";
+      if (start) {
+        start.disabled = false;
+        start.removeAttribute("disabled");
+        start.textContent = "Offline Ready";
+        start.classList.add("rdm-offline-ready-ack");
+        start.setAttribute("title", "Iron Sharpener is ready. Click to close this message.");
+      }
+      if (refresh) {
+        refresh.textContent = "Update Offline Files";
+        refresh.disabled = !navigator.onLine;
+      }
+      if (pill) {
+        pill.classList.remove("not-ready");
+        pill.classList.toggle("offline", !navigator.onLine);
+      }
+      if (pillText) pillText.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
+    } else if (refresh) {
+      refresh.textContent = "Update Offline Files";
+    }
+  }
+
+  function hideOfflinePanel() {
+    try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
+    get("rdmOfflineCachePanel")?.classList.remove("open");
+  }
+
+  document.addEventListener("click", function(event) {
+    const btn = event.target?.closest?.("#rdmOfflineStartCache.rdm-offline-ready-ack");
+    if (!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    hideOfflinePanel();
+  }, true);
+
+  function setCopyMessage(message) {
+    try { if (typeof copyStatus === "function") copyStatus(message); } catch (_) {}
+
+    const active = get("activeToolLabel");
+    if (active) active.textContent = message;
+
+    const teacherStatus = get("teacherToolsStatusText");
+    if (teacherStatus) teacherStatus.textContent = message;
+  }
+
+  function clearCopySelection() {
+    document.querySelectorAll("#passage .verse.copy-selected").forEach(verse => verse.classList.remove("copy-selected"));
+  }
+
+  function selectedCopyVerses() {
+    if (typeof sortVerses !== "function") return [];
+    return sortVerses(Array.from(document.querySelectorAll("#passage .verse.copy-selected[data-v]")));
+  }
+
+  function copyVersesClean(verses, messagePrefix) {
+    const list = typeof sortVerses === "function" ? sortVerses(verses || []) : Array.from(verses || []);
+    if (!list.length) {
+      setCopyMessage("No verse selected yet.");
+      return;
+    }
+
+    const copiedText = formatVersesForCopy(list);
+    const reference = formatReferenceForVerses(list);
+    writeClipboardText(copiedText);
+
+    if (messagePrefix === "Passage") {
+      setCopyMessage("Passage copied.");
+    } else {
+      const label = list.length === 1 ? "Verse" : `${list.length} verses`;
+      setCopyMessage(`${label} copied: ${reference}.`);
+    }
+  }
+
+  function copyPassageClean() {
+    const verses = typeof visibleVerses === "function" ? visibleVerses() : [];
+    if (!verses.length) {
+      setCopyMessage("No passage loaded.");
+      return;
+    }
+    clearCopySelection();
+    copyVersesClean(verses, "Passage");
+  }
+
+  window.rdmCopyScriptureMode = "";
+
+  function setCopyMode(mode) {
+    window.rdmCopyScriptureMode = mode;
+
+    if (mode === "single") {
+      clearCopySelection();
+      setCopyMessage("Copy Single Verse: click one verse to copy it.");
+    } else if (mode === "multiple") {
+      clearCopySelection();
+      setCopyMessage("Copy Multiple Verses: click verses to select and copy them.");
+    } else {
+      setCopyMessage("Copy tools ready.");
+    }
+  }
+
+  function handleCopyVerseClick(verse) {
+    if (!verse) return false;
+
+    if (window.rdmCopyScriptureMode === "single") {
+      clearCopySelection();
+      verse.classList.add("copy-selected");
+      copyVersesClean([verse], "Verse");
+      window.rdmCopyScriptureMode = "";
+      return true;
+    }
+
+    if (window.rdmCopyScriptureMode === "multiple") {
+      verse.classList.toggle("copy-selected");
+      const selected = selectedCopyVerses();
+      if (selected.length) {
+        copyVersesClean(selected, "Verses");
+      } else {
+        setCopyMessage("No verses selected. Click verses to select them.");
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  function buildCopyPanel() {
+    if (get("copyScripturePanel")) return;
+
+    const panel = document.createElement("div");
+    panel.id = "copyScripturePanel";
+    panel.className = "teacher-pop";
+    panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = `
+      <div class="teacher-pop-head drag-handle" data-drag-handle="copyScripturePanel">
+        <h3>Copy Scripture</h3>
+        <button id="closeCopyScripturePanel" class="teacher-pop-close secondary" type="button">Close</button>
+      </div>
+      <div class="copy-scripture-help">
+        Choose what to copy. For single or multiple verses, click the verse text after choosing the option. Selected verses will highlight as they are copied.
+      </div>
+      <div class="copy-scripture-actions">
+        <button id="copySingleVerseMode" type="button">Copy Single Verse</button>
+        <button id="copyMultipleVersesMode" type="button">Copy Multiple Verses</button>
+        <button id="copyWholePassageMode" type="button">Copy Passage</button>
+        <button id="clearCopySelectionMode" class="secondary" type="button">Clear Copy Selection</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    const handle = panel.querySelector('[data-drag-handle="copyScripturePanel"]');
+    if (window.makeFloatingElementDraggable && handle) {
+      window.makeFloatingElementDraggable(panel, handle);
+    }
+
+    get("closeCopyScripturePanel").onclick = () => {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+    };
+    get("copySingleVerseMode").onclick = () => setCopyMode("single");
+    get("copyMultipleVersesMode").onclick = () => setCopyMode("multiple");
+    get("copyWholePassageMode").onclick = () => copyPassageClean();
+    get("clearCopySelectionMode").onclick = () => {
+      clearCopySelection();
+      window.rdmCopyScriptureMode = "";
+      setCopyMessage("Copy selection cleared.");
+    };
+  }
+
+  function openCopyScripturePanel(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    buildCopyPanel();
+    const panel = get("copyScripturePanel");
+    if (!panel) return;
+
+    panel.style.display = "";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.setProperty("z-index", "61050", "important");
+  }
+
+  function consolidateMainCopyButtons() {
+    const grid = document.querySelector(".teacher-tools-box .tool-grid");
+    if (!grid || grid.dataset.rdmV26CopyClean === "1") return;
+
+    grid.dataset.rdmV26CopyClean = "1";
+    grid.innerHTML = `
+      <button id="copyScriptureMain" class="secondary copy-scripture-single-button" type="button">Copy Scripture</button>
+      <button id="clearMarks" class="secondary" type="button">Clear Marks</button>
+    `;
+
+    get("copyScriptureMain").onclick = openCopyScripturePanel;
+    get("clearMarks").onclick = function() {
+      clearCopySelection();
+      window.rdmCopyScriptureMode = "";
+      if (typeof clearMarks === "function") clearMarks();
+    };
+  }
+
+  function consolidateTeacherToolsCopyOption() {
+    const old = document.querySelector('.tool-option[data-tool="copy-verse"]');
+    if (!old || old.dataset.rdmV26CopyClean === "1") return;
+
+    old.dataset.rdmV26CopyClean = "1";
+    old.removeAttribute("data-tool");
+    old.id = "openCopyScriptureFromTools";
+    old.innerHTML = `<strong>Copy Scripture</strong><span>Open one simple copy menu for a single verse, multiple selected verses, or the whole passage.</span>`;
+    old.onclick = openCopyScripturePanel;
+  }
+
+  const originalUseActiveTool = typeof useActiveTool === "function" ? useActiveTool : null;
+  if (originalUseActiveTool) {
+    useActiveTool = function rdmV26UseActiveTool(verse) {
+      if (handleCopyVerseClick(verse)) return;
+      return originalUseActiveTool(verse);
+    };
+  }
+
+  const originalSetTool = typeof setTool === "function" ? setTool : null;
+  if (originalSetTool) {
+    setTool = function rdmV26SetTool(toolName) {
+      window.rdmCopyScriptureMode = "";
+      clearCopySelection();
+      return originalSetTool(toolName);
+    };
+  }
+
+  const originalClearMarks = typeof clearMarks === "function" ? clearMarks : null;
+  if (originalClearMarks) {
+    clearMarks = function rdmV26ClearMarks() {
+      clearCopySelection();
+      window.rdmCopyScriptureMode = "";
+      return originalClearMarks();
+    };
+  }
+
+  const originalCloseAllFloatingPanels = typeof closeAllFloatingPanelsForModeChange === "function" ? closeAllFloatingPanelsForModeChange : null;
+  if (originalCloseAllFloatingPanels) {
+    closeAllFloatingPanelsForModeChange = function rdmV26CloseAllFloatingPanelsForModeChange() {
+      get("copyScripturePanel")?.classList.remove("open", "drag-positioned");
+      return originalCloseAllFloatingPanels();
+    };
+  }
+
+  const originalResetPanels = window.resetIronSharpenerFloatingPanels;
+  if (typeof originalResetPanels === "function") {
+    window.resetIronSharpenerFloatingPanels = function rdmV26ResetPanels() {
+      originalResetPanels();
+      const panel = get("copyScripturePanel");
+      if (panel) {
+        panel.classList.remove("drag-positioned", "open-up", "open-down");
+        panel.style.removeProperty("--drag-left");
+        panel.style.removeProperty("--drag-top");
+      }
+    };
+  }
+
+  function runCleanup() {
+    forceCleanOfflinePanel();
+    buildCopyPanel();
+    consolidateMainCopyButtons();
+    consolidateTeacherToolsCopyOption();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      runCleanup();
+      setTimeout(runCleanup, 500);
+      setTimeout(runCleanup, 1600);
+      setTimeout(runCleanup, 3600);
+    });
+  } else {
+    runCleanup();
+    setTimeout(runCleanup, 500);
+    setTimeout(runCleanup, 1600);
+    setTimeout(runCleanup, 3600);
+  }
+
+  window.addEventListener("online", forceCleanOfflinePanel);
+  window.addEventListener("offline", forceCleanOfflinePanel);
+  document.addEventListener("visibilitychange", forceCleanOfflinePanel);
+  setInterval(forceCleanOfflinePanel, 1200);
+})();
+</script>
+
 </body>
 </html>
