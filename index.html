@@ -13402,5 +13402,150 @@ body.dark #studyResourcesKey .study-resource-back-btn {
 }
 </style>
 
+
+
+<!-- Patch 7 — Bible Backgrounds dark-mode polish + Study Resources help icon alignment -->
+<style id="rdm-backgrounds-dark-polish-study-icon-v7">
+/* Study Resources passage-bar help icon: match the standard dark-mode info-icon style. */
+body.dark #studyResourcesKey .study-resources-key-title-row {
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.dark #studyResourcesKey .study-resources-help-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transform: translateY(-1px);
+}
+
+body.dark #studyResourcesKey .study-resources-eye {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  font: 900 13px/1 Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border: 2px solid #fff1c0 !important;
+  box-shadow: 0 0 12px rgba(248,217,135,.32) !important;
+  text-shadow: none !important;
+}
+
+body.dark #studyResourcesKey .study-resources-help-tooltip {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #fff6d9 !important;
+  border: 2px solid rgba(248,217,135,.74) !important;
+  box-shadow: 0 18px 34px rgba(0,0,0,.45), 0 0 18px rgba(248,217,135,.12) !important;
+  text-shadow: none !important;
+}
+
+/* Bible Backgrounds & Customs: in dark mode, keep the green panel, but make its resource cards
+   match the cream-mode brown/gold button treatment so the two themes feel intentional. */
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn,
+body.dark #obsCrossRefsContent .rdm-background-topic-btn,
+body.dark #obsCrossRefsContent .study-background-topic-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn:hover,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn:hover,
+body.dark #obsCrossRefsContent .rdm-background-topic-btn:hover,
+body.dark #obsCrossRefsContent .study-background-topic-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  background-color: #9A6618 !important;
+  color: #FFF8EA !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn strong,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn strong,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .rdm-background-topic-btn span,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .study-background-topic-btn span,
+body.dark #obsCrossRefsContent .rdm-background-topic-btn strong,
+body.dark #obsCrossRefsContent .study-background-topic-btn strong,
+body.dark #obsCrossRefsContent .rdm-background-topic-btn span,
+body.dark #obsCrossRefsContent .study-background-topic-btn span {
+  color: #FFF8EA !important;
+  text-shadow: none !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn,
+body.dark #obsCrossRefsContent .backgrounds-back-btn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-back-btn:hover,
+body.dark #obsCrossRefsContent .backgrounds-back-btn:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  background-color: #8A5A13 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .background-topic-card .cross-ref-link:hover,
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .resource-panel-body button.cross-ref-link:hover {
+  background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
+  color: #FFF8EA !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box,
+body.dark #obsCrossRefsContent .backgrounds-search-box {
+  background: rgba(255,250,240,.08) !important;
+  color: #fff6d9 !important;
+  border: 1.6px solid rgba(248,217,135,.62) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box::placeholder,
+body.dark #obsCrossRefsContent .backgrounds-search-box::placeholder {
+  color: rgba(255,246,217,.72) !important;
+}
+
+body.dark .resource-instance-panel[data-source-label="Bible Backgrounds & Customs"] .backgrounds-search-box:focus,
+body.dark #obsCrossRefsContent .backgrounds-search-box:focus {
+  border-color: #f8d987 !important;
+  box-shadow: 0 0 0 3px rgba(248,217,135,.13) !important;
+  outline: none !important;
+}
+
+/* Keep More Study Tools out of the OBS drawer; it belongs in the passage Study Resources bar. */
+#obsToolBar #obsShowStudyResources {
+  display: none !important;
+}
+</style>
+
 </body>
 </html>
