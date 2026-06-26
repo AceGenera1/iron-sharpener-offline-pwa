@@ -2296,6 +2296,170 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   background: linear-gradient(180deg, #9A6618, #7A4C06) !important;
   color: #FFF8EA !important;
 }
+
+
+/* Patch 15 — Offline Ready status + first-run cache progress */
+.rdm-offline-status-pill {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 76000;
+  border: 1.7px solid var(--gold);
+  border-radius: 999px;
+  padding: 9px 13px;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf);
+  color: #203D39;
+  font: 900 12px Arial, sans-serif;
+  letter-spacing: .2px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.rdm-offline-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #3fb377;
+  box-shadow: 0 0 0 3px rgba(63,179,119,.16);
+}
+
+.rdm-offline-status-pill.offline .rdm-offline-status-dot {
+  background: #d99f31;
+  box-shadow: 0 0 0 3px rgba(217,159,49,.18);
+}
+
+.rdm-offline-status-pill.not-ready .rdm-offline-status-dot {
+  background: #d44d4d;
+  box-shadow: 0 0 0 3px rgba(212,77,77,.16);
+}
+
+.rdm-offline-cache-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 62px;
+  width: min(390px, calc(100vw - 32px));
+  z-index: 76001;
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 15px;
+  background: linear-gradient(180deg, #fffaf0, #fff1d0);
+  color: #203D39;
+  box-shadow: 0 22px 52px rgba(0,0,0,.25);
+  font-family: Arial, sans-serif;
+  display: none;
+}
+
+.rdm-offline-cache-panel.open {
+  display: block;
+}
+
+.rdm-offline-cache-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 9px;
+  margin-bottom: 10px;
+}
+
+.rdm-offline-cache-head strong {
+  font: 900 16px Georgia, "Times New Roman", serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #7A4C06;
+}
+
+.rdm-offline-cache-panel p {
+  margin: 8px 0;
+  font: 800 13px Arial, sans-serif;
+  line-height: 1.45;
+}
+
+.rdm-offline-progress-track {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(122,76,6,.14);
+  overflow: hidden;
+  border: 1px solid rgba(122,76,6,.20);
+  margin: 10px 0 8px;
+}
+
+.rdm-offline-progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8A5A13, #d7a84f);
+  transition: width .22s ease;
+}
+
+.rdm-offline-cache-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.rdm-offline-cache-actions button {
+  padding: 9px 11px;
+  font-size: 12px;
+  min-height: 38px;
+}
+
+.rdm-offline-cache-muted {
+  opacity: .82;
+  font-size: 12px !important;
+}
+
+body.dark .rdm-offline-status-pill {
+  background: linear-gradient(180deg, #f8d987, #d7a84f);
+  color: #203D39;
+  border-color: #fff1c0;
+  box-shadow: 0 0 14px rgba(248,217,135,.20), 0 10px 24px rgba(0,0,0,.28);
+}
+
+body.dark .rdm-offline-cache-panel {
+  background: linear-gradient(180deg, #355A54, #294843);
+  color: #fff6d9;
+  border-color: rgba(248,217,135,.88);
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14);
+}
+
+body.dark .rdm-offline-cache-head strong {
+  color: #ffe08c;
+}
+
+body.dark .rdm-offline-progress-track {
+  background: rgba(255,255,255,.09);
+  border-color: rgba(248,217,135,.45);
+}
+
+html.obs .rdm-offline-status-pill,
+html.obs .rdm-offline-cache-panel {
+  display: none !important;
+}
+
+@media (max-width: 650px) {
+  .rdm-offline-status-pill {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    justify-content: center;
+  }
+
+  .rdm-offline-cache-panel {
+    left: 12px;
+    right: 12px;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -14751,6 +14915,440 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
   };
 
   try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
+})();
+</script>
+
+
+<script>
+/* Patch 15 — Offline Ready + first-run cache status */
+(() => {
+  "use strict";
+
+  const CACHE_VERSION = "iron-sharpener-offline-v15-2026-06-26";
+  const CACHE_NAME = "iron-sharpener-offline-v15";
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v15";
+  const MAX_CONCURRENT_FETCHES = 6;
+
+  let cacheRunActive = false;
+  let lastCacheSummary = null;
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function safeText(value) {
+    return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function readStatus() {
+    try {
+      return JSON.parse(localStorage.getItem(STATUS_KEY) || "null");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeStatus(status) {
+    try {
+      localStorage.setItem(STATUS_KEY, JSON.stringify(status));
+    } catch (_) {}
+  }
+
+  function isCacheComplete() {
+    const status = readStatus();
+    return !!status && status.version === CACHE_VERSION && status.complete === true;
+  }
+
+  function createOfflineUi() {
+    if (byId("rdmOfflineStatusPill")) return;
+
+    const pill = document.createElement("button");
+    pill.id = "rdmOfflineStatusPill";
+    pill.type = "button";
+    pill.className = "rdm-offline-status-pill";
+    pill.innerHTML = '<span class="rdm-offline-status-dot" aria-hidden="true"></span><span id="rdmOfflineStatusText">Checking offline status...</span>';
+    pill.addEventListener("click", () => openCachePanel(true));
+
+    const panel = document.createElement("div");
+    panel.id = "rdmOfflineCachePanel";
+    panel.className = "rdm-offline-cache-panel";
+    panel.setAttribute("role", "status");
+    panel.setAttribute("aria-live", "polite");
+    panel.innerHTML = `
+      <div class="rdm-offline-cache-head">
+        <strong>Offline Ready</strong>
+        <button id="rdmOfflinePanelClose" class="secondary" type="button">Hide</button>
+      </div>
+      <p id="rdmOfflineCacheMessage">Checking offline cache status...</p>
+      <div class="rdm-offline-progress-track" aria-hidden="true">
+        <div id="rdmOfflineProgressBar" class="rdm-offline-progress-bar"></div>
+      </div>
+      <p id="rdmOfflineProgressText" class="rdm-offline-cache-muted">Waiting to begin.</p>
+      <div class="rdm-offline-cache-actions">
+        <button id="rdmOfflineStartCache" type="button">Prepare Offline Use</button>
+        <button id="rdmOfflineRefreshCache" class="secondary" type="button">Refresh Cache</button>
+      </div>
+    `;
+
+    document.body.appendChild(panel);
+    document.body.appendChild(pill);
+
+    byId("rdmOfflinePanelClose")?.addEventListener("click", () => {
+      try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
+      openCachePanel(false);
+    });
+
+    byId("rdmOfflineStartCache")?.addEventListener("click", () => startOfflineCaching({ force: false, manual: true }));
+    byId("rdmOfflineRefreshCache")?.addEventListener("click", () => startOfflineCaching({ force: true, manual: true }));
+  }
+
+  function openCachePanel(open) {
+    const panel = byId("rdmOfflineCachePanel");
+    if (!panel) return;
+    panel.classList.toggle("open", !!open);
+    if (open) {
+      try { localStorage.removeItem(HIDE_KEY); } catch (_) {}
+    }
+  }
+
+  function setProgress(percent, text) {
+    const bar = byId("rdmOfflineProgressBar");
+    const progressText = byId("rdmOfflineProgressText");
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent || 0))}%`;
+    if (progressText) progressText.textContent = text || "";
+  }
+
+  function setMessage(message) {
+    const box = byId("rdmOfflineCacheMessage");
+    if (box) box.textContent = message;
+  }
+
+  function setActionButtons({ running = false, ready = false } = {}) {
+    const start = byId("rdmOfflineStartCache");
+    const refresh = byId("rdmOfflineRefreshCache");
+
+    if (start) {
+      start.disabled = running || ready;
+      start.textContent = ready ? "Offline Ready" : running ? "Preparing..." : "Prepare Offline Use";
+    }
+
+    if (refresh) {
+      refresh.disabled = running || !navigator.onLine;
+    }
+  }
+
+  function updateOfflinePill() {
+    createOfflineUi();
+
+    const pill = byId("rdmOfflineStatusPill");
+    const text = byId("rdmOfflineStatusText");
+    if (!pill || !text) return;
+
+    const online = navigator.onLine;
+    const ready = isCacheComplete();
+
+    pill.classList.toggle("offline", !online);
+    pill.classList.toggle("not-ready", !ready);
+
+    if (online && ready) text.textContent = "Online • Offline Ready";
+    else if (!online && ready) text.textContent = "Offline • Ready";
+    else if (online && !ready) text.textContent = "Online • Offline Setup Needed";
+    else text.textContent = "Offline • Setup Not Complete";
+
+    if (cacheRunActive) return;
+
+    if (!ready && !online) {
+      setMessage("Connect to the internet to finish preparing Iron Sharpener for offline use.");
+      setProgress(0, "Offline setup has not completed yet.");
+      setActionButtons({ running: false, ready: false });
+      openCachePanel(true);
+    } else if (ready) {
+      const status = readStatus();
+      const cached = status?.cached || 0;
+      const skipped = status?.skipped || 0;
+      const failed = status?.failed || 0;
+      setMessage("Iron Sharpener is ready for offline use on this device.");
+      setProgress(100, `Cached ${cached.toLocaleString()} files. Skipped ${skipped.toLocaleString()} optional missing files. Failed ${failed.toLocaleString()}.`);
+      setActionButtons({ running: false, ready: true });
+    } else {
+      setMessage("Prepare Scripture and study resources for offline use. Stay connected until this completes.");
+      setProgress(0, "Ready to begin offline setup.");
+      setActionButtons({ running: false, ready: false });
+      const hidden = localStorage.getItem(HIDE_KEY) === "1";
+      if (!hidden) openCachePanel(true);
+    }
+  }
+
+  async function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) {
+      setMessage("This browser does not support service workers, so full offline mode is unavailable here.");
+      return false;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.register("./service-worker.js");
+      if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      return true;
+    } catch (error) {
+      console.warn("Iron Sharpener service worker registration failed:", error);
+      setMessage("The offline service worker could not be registered. Make sure service-worker.js is uploaded beside index.html.");
+      return false;
+    }
+  }
+
+  function addUrl(set, url) {
+    const clean = safeText(url);
+    if (!clean || clean.includes("undefined") || clean.includes("null")) return;
+    set.add(clean.replace(/^\.\//, ""));
+  }
+
+  function primaryFileName(value) {
+    const file = safeText(value);
+    if (!file) return "";
+    return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
+  }
+
+  async function tryJson(url) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function buildOfflineUrlList() {
+    const urls = new Set();
+    const bookList = Array.isArray(window.books) ? window.books : (typeof books !== "undefined" ? books : []);
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    [
+      "./",
+      "index.html",
+      "manifest.json",
+      "assets/iron-sharpener-logo.png",
+      "service-worker.js"
+    ].forEach(url => addUrl(urls, url));
+
+    bookList.forEach(([book, chapterCount]) => {
+      for (let chapter = 1; chapter <= Number(chapterCount || 0); chapter++) {
+        addUrl(urls, `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`);
+      }
+
+      addUrl(urls, `bible/resources/commentaries/matthew-henry/${book}.json`);
+      addUrl(urls, `bible/resources/commentaries/jfb/${book}.json`);
+      addUrl(urls, `bible/resources/book-overviews/${book}.json`);
+      addUrl(urls, `bible/resources/internal-cross-references/${book}.json`);
+      addUrl(urls, `bible/resources/backgrounds/by-reference/${book}.json`);
+    });
+
+    letters.forEach(letter => {
+      addUrl(urls, `bible/resources/eastons/${letter}.json`);
+      addUrl(urls, `bible/resources/smiths/${letter}.json`);
+    });
+
+    const doctrineIndexes = [
+      "index.json",
+      "index-2a-additions.json",
+      "index-2b-2c-3-additions.json",
+      "index-4-5-6-additions.json",
+      "index-7-8-additions.json",
+      "index-9-10-additions.json",
+      "index-11-12-additions.json",
+      "doctrine-registry.json"
+    ];
+    doctrineIndexes.forEach(file => addUrl(urls, `bible/resources/doctrine/${file}`));
+
+    addUrl(urls, "bible/resources/topics/index.json");
+    addUrl(urls, "bible/resources/backgrounds/index.json");
+
+    const naveIndex = await tryJson("bible/resources/topics/index.json");
+    const naveTopics = Array.isArray(naveIndex?.topics) ? naveIndex.topics : (Array.isArray(naveIndex) ? naveIndex : []);
+    naveTopics.forEach(item => {
+      const file = primaryFileName(item?.file || item?.id || item);
+      if (file) addUrl(urls, `bible/resources/topics/${file}`);
+    });
+
+    const doctrineRegistry = await tryJson("bible/resources/doctrine/doctrine-registry.json");
+    if (Array.isArray(doctrineRegistry)) {
+      doctrineRegistry.forEach(item => {
+        const file = primaryFileName(item?.file || item?.id || item?.title || item);
+        if (file) addUrl(urls, `bible/resources/doctrine/${file}`);
+      });
+    }
+
+    const backgroundsIndex = await tryJson("bible/resources/backgrounds/index.json");
+    if (Array.isArray(backgroundsIndex)) {
+      backgroundsIndex.forEach(item => {
+        const file = safeText(item?.file || (item?.id ? `topics/${item.id}.json` : ""));
+        if (file) addUrl(urls, `bible/resources/backgrounds/${file.replace(/^\/+/, "")}`);
+      });
+    }
+
+    return Array.from(urls);
+  }
+
+  async function cacheOneUrl(cache, url) {
+    const requestUrl = url.startsWith("./") ? url : `./${url}`;
+    try {
+      const response = await fetch(requestUrl, { cache: "reload" });
+
+      if (!response || !response.ok) {
+        if (response && response.status === 404) return "skipped";
+        return "failed";
+      }
+
+      await cache.put(requestUrl, response.clone());
+      if (!url.startsWith("./")) {
+        try { await cache.put(url, response.clone()); } catch (_) {}
+      }
+      return "cached";
+    } catch (error) {
+      console.warn("Offline cache fetch failed:", url, error);
+      return navigator.onLine ? "failed" : "stopped";
+    }
+  }
+
+  async function runWithConcurrency(items, limit, worker) {
+    let index = 0;
+    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (index < items.length) {
+        const currentIndex = index++;
+        await worker(items[currentIndex], currentIndex);
+      }
+    });
+    await Promise.all(runners);
+  }
+
+  async function startOfflineCaching({ force = false, manual = false } = {}) {
+    createOfflineUi();
+
+    if (cacheRunActive) return;
+
+    if (!navigator.onLine) {
+      openCachePanel(true);
+      setMessage("You are offline. Connect to the internet to prepare or refresh the offline cache.");
+      setProgress(0, "Waiting for internet connection.");
+      setActionButtons({ running: false, ready: isCacheComplete() });
+      return;
+    }
+
+    if (!force && isCacheComplete()) {
+      updateOfflinePill();
+      if (manual) openCachePanel(true);
+      return;
+    }
+
+    if (!("caches" in window)) {
+      openCachePanel(true);
+      setMessage("This browser does not support the Cache API required for full offline setup.");
+      setProgress(0, "Offline cache unavailable in this browser.");
+      return;
+    }
+
+    cacheRunActive = true;
+    openCachePanel(true);
+    setActionButtons({ running: true, ready: false });
+    setMessage("Preparing Iron Sharpener for offline use. Please stay connected until this completes.");
+    setProgress(1, "Building resource list...");
+
+    await registerServiceWorker();
+
+    let urls = [];
+    try {
+      urls = await buildOfflineUrlList();
+    } catch (error) {
+      console.warn("Could not build offline cache list:", error);
+      cacheRunActive = false;
+      setMessage("Could not build the offline resource list. Try again while connected.");
+      setProgress(0, "Offline setup did not complete.");
+      setActionButtons({ running: false, ready: false });
+      updateOfflinePill();
+      return;
+    }
+
+    const cache = await caches.open(CACHE_NAME);
+    let completed = 0;
+    let cached = 0;
+    let skipped = 0;
+    let failed = 0;
+    let stopped = false;
+    const total = urls.length || 1;
+
+    setMessage(`Preparing ${total.toLocaleString()} Scripture and study resource files for offline use.`);
+
+    await runWithConcurrency(urls, MAX_CONCURRENT_FETCHES, async (url) => {
+      if (stopped) return;
+      const result = await cacheOneUrl(cache, url);
+      completed += 1;
+
+      if (result === "cached") cached += 1;
+      else if (result === "skipped") skipped += 1;
+      else if (result === "stopped") stopped = true;
+      else failed += 1;
+
+      const percent = Math.round((completed / total) * 100);
+      if (completed === total || completed % 10 === 0) {
+        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${cached.toLocaleString()} cached • ${skipped.toLocaleString()} optional skipped • ${failed.toLocaleString()} failed`);
+      }
+    });
+
+    cacheRunActive = false;
+
+    const complete = !stopped;
+    lastCacheSummary = {
+      version: CACHE_VERSION,
+      complete,
+      completedAt: new Date().toISOString(),
+      total,
+      cached,
+      skipped,
+      failed
+    };
+    writeStatus(lastCacheSummary);
+
+    if (complete) {
+      setMessage("Iron Sharpener is ready for offline use on this device.");
+      setProgress(100, `${cached.toLocaleString()} files cached. ${skipped.toLocaleString()} optional missing files skipped. ${failed.toLocaleString()} failed.`);
+    } else {
+      setMessage("Offline setup paused because the connection was lost. It can resume when you are back online.");
+      setProgress(Math.round((completed / total) * 100), `${completed.toLocaleString()} of ${total.toLocaleString()} checked before connection stopped.`);
+    }
+
+    setActionButtons({ running: false, ready: complete });
+    updateOfflinePill();
+  }
+
+  async function initOfflineReady() {
+    createOfflineUi();
+    updateOfflinePill();
+    await registerServiceWorker();
+    updateOfflinePill();
+
+    window.addEventListener("online", () => {
+      updateOfflinePill();
+      if (!isCacheComplete()) {
+        setTimeout(() => startOfflineCaching({ force: false, manual: false }), 1200);
+      }
+    });
+
+    window.addEventListener("offline", updateOfflinePill);
+
+    if (!isCacheComplete() && navigator.onLine) {
+      setTimeout(() => startOfflineCaching({ force: false, manual: false }), 1600);
+    }
+  }
+
+  window.rdmStartOfflineCache = startOfflineCaching;
+  window.rdmOfflineCacheStatus = () => readStatus() || lastCacheSummary;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initOfflineReady);
+  } else {
+    initOfflineReady();
+  }
 })();
 </script>
 
