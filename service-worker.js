@@ -1,9 +1,9 @@
-/* Iron Sharpener service worker — v26 public offline/UI lock
+/* Iron Sharpener service worker — v26 public dark-only button/offline hide lock
    Goal: keep the app shell/index.html network-first while preserving stable
    cache-first behavior for same-origin Scripture/resource JSON and assets.
    This prevents older cached UI from being served offline after an update. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v26-public-lock-20260626";
-const IRON_SHARPENER_OLD_CACHES = ["iron-sharpener-offline-v15"];
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v26-public-lock-20260626-darkonly";
+const IRON_SHARPENER_OLD_CACHES = ["iron-sharpener-offline-v26-public-lock-20260626", "iron-sharpener-offline-v15"];
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 const CORE_ASSETS = [
   "./index.html",
