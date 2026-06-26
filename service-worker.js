@@ -1,5 +1,6 @@
-/* Iron Sharpener service worker — v19 gentle/offline-safe update
-   Keeps the existing cache name so already-cached Scripture/resources are preserved. */
+/* Iron Sharpener service worker — v20 stability cache
+   Important fix: JSON/resource requests never fall back to index.html.
+   Only page navigation gets the app-shell fallback. */
 const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v15";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
@@ -35,9 +36,8 @@ self.addEventListener("message", (event) => {
   }
 });
 
-function shouldHandle(request) {
+function sameOriginGet(request) {
   if (!request || request.method !== "GET") return false;
-
   try {
     const url = new URL(request.url);
     return url.origin === self.location.origin;
@@ -46,63 +46,36 @@ function shouldHandle(request) {
   }
 }
 
+function isNavigationRequest(request) {
+  if (request.mode === "navigate") return true;
+  try {
+    const url = new URL(request.url);
+    return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+  } catch (_) {
+    return false;
+  }
+}
+
 async function putIfGood(cache, request, response) {
-  if (response && response.ok && response.type !== "opaque") {
-    cache.put(request, response.clone()).catch(() => undefined);
-  }
-}
+  if (!response || !response.ok || response.type === "opaque") return;
 
-async function cacheFallback(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
-  const root = await caches.match("./");
-  if (root) return root;
-
-  const index = await caches.match("./index.html");
-  if (index) return index;
-
-  return null;
-}
-
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
+  // Do not cache an HTML protection page as a JSON resource.
   try {
-    const response = await fetch(request);
-    if (response && response.ok) {
-      const cache = await caches.open(IRON_SHARPENER_CACHE);
-      await putIfGood(cache, request, response);
-    }
-    return response;
-  } catch (error) {
-    const fallback = await cacheFallback(request);
-    if (fallback) return fallback;
-    throw error;
-  }
+    const url = new URL(request.url);
+    const contentType = response.headers.get("content-type") || "";
+    if (url.pathname.endsWith(".json") && contentType && !contentType.includes("json")) return;
+  } catch (_) {}
+
+  cache.put(request, response.clone()).catch(() => undefined);
 }
 
-async function networkFirstResource(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  try {
-    const response = await fetch(request);
-
-    // v19: if GitHub Pages returns a throttle/error page, use the offline cache instead.
-    if (!response || !response.ok) {
-      const cached = await caches.match(request);
-      if (cached) return cached;
-      return response;
-    }
-
-    await putIfGood(cache, request, response);
-    return response;
-  } catch (error) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    throw error;
-  }
+async function navigationFallback() {
+  return (
+    await caches.match("./index.html") ||
+    await caches.match("index.html") ||
+    await caches.match("./") ||
+    null
+  );
 }
 
 async function navigationNetworkFirst(request) {
@@ -110,39 +83,75 @@ async function navigationNetworkFirst(request) {
 
   try {
     const response = await fetch(request);
-
-    // v19: never show a GitHub Pages throttling/error document if a good app shell is cached.
-    if (!response || !response.ok) {
-      const fallback = await cacheFallback(request);
-      if (fallback) return fallback;
+    if (response && response.ok) {
+      await putIfGood(cache, request, response);
       return response;
     }
 
-    await putIfGood(cache, request, response);
-    return response;
-  } catch (error) {
-    const fallback = await cacheFallback(request);
+    const fallback = await navigationFallback();
     if (fallback) return fallback;
-    throw error;
+    return response || new Response("Iron Sharpener is unavailable offline.", { status: 503 });
+  } catch (_) {
+    const fallback = await navigationFallback();
+    if (fallback) return fallback;
+    return new Response("Iron Sharpener is unavailable offline.", { status: 503 });
+  }
+}
+
+async function resourceCacheFirst(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) await putIfGood(cache, request, response);
+    return response;
+  } catch (_) {
+    // Critical fix: do not return index.html for JSON/assets.
+    return new Response("Offline resource not cached.", {
+      status: 504,
+      statusText: "Offline resource not cached"
+    });
+  }
+}
+
+async function resourceNetworkFirstExactCache(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      await putIfGood(cache, request, response);
+      return response;
+    }
+
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    return response || new Response("Resource unavailable.", { status: 503 });
+  } catch (_) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    return new Response("Offline resource not cached.", {
+      status: 504,
+      statusText: "Offline resource not cached"
+    });
   }
 }
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (!shouldHandle(request)) return;
+  if (!sameOriginGet(request)) return;
 
-  const url = new URL(request.url);
-  const isNavigation = request.mode === "navigate" || url.pathname.endsWith("/") || url.pathname.endsWith("index.html");
-
-  if (isNavigation) {
+  if (isNavigationRequest(request)) {
     event.respondWith(navigationNetworkFirst(request));
     return;
   }
 
   if (request.cache === "reload" || request.cache === "no-store") {
-    event.respondWith(networkFirstResource(request));
+    event.respondWith(resourceNetworkFirstExactCache(request));
     return;
   }
 
-  event.respondWith(cacheFirst(request));
+  event.respondWith(resourceCacheFirst(request));
 });
