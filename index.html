@@ -14928,7 +14928,8 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
   const CACHE_NAME = "iron-sharpener-offline-v15";
   const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
   const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v15";
-  const MAX_CONCURRENT_FETCHES = 6;
+  const MAX_CONCURRENT_FETCHES = 1;
+  const GENTLE_CACHE_DELAY_MS = 35;
 
   let cacheRunActive = false;
   let lastCacheSummary = null;
@@ -15109,6 +15110,10 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
     return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
   }
 
+  function gentleWait(ms = GENTLE_CACHE_DELAY_MS) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async function tryJson(url) {
     try {
       const response = await fetch(url, { cache: "no-store" });
@@ -15277,7 +15282,7 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
     let stopped = false;
     const total = urls.length || 1;
 
-    setMessage(`Preparing ${total.toLocaleString()} Scripture and study resource files for offline use.`);
+    setMessage(`Gently checking ${total.toLocaleString()} Scripture and study resource files. Already-cached files are not downloaded again.`);
 
     await runWithConcurrency(urls, MAX_CONCURRENT_FETCHES, async (url) => {
       if (stopped) return;
@@ -15290,7 +15295,7 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
       else failed += 1;
 
       const percent = Math.round((completed / total) * 100);
-      if (completed === total || completed % 10 === 0) {
+      if (completed === total || completed % 50 === 0) {
         setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${cached.toLocaleString()} cached • ${skipped.toLocaleString()} optional skipped • ${failed.toLocaleString()} failed`);
       }
     });
@@ -15329,15 +15334,18 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
 
     window.addEventListener("online", () => {
       updateOfflinePill();
+      // v19: do not auto-download thousands of files in the background.
+      // The user starts the gentle cache preparation manually.
       if (!isCacheComplete()) {
-        setTimeout(() => startOfflineCaching({ force: false, manual: false }), 1200);
+        openCachePanel(true);
       }
     });
 
     window.addEventListener("offline", updateOfflinePill);
 
     if (!isCacheComplete() && navigator.onLine) {
-      setTimeout(() => startOfflineCaching({ force: false, manual: false }), 1600);
+      // v19: show the setup panel, but do not automatically start a heavy cache run.
+      setTimeout(() => openCachePanel(true), 600);
     }
   }
 
@@ -15692,7 +15700,8 @@ body.dark #rdmOfflineDetails {
   const get = (id) => document.getElementById(id);
   const STORAGE_STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
   const CACHE_NAME = "iron-sharpener-offline-v15";
-  const MAX_CONCURRENT_FETCHES = 6;
+  const MAX_CONCURRENT_FETCHES = 1;
+  const GENTLE_CACHE_DELAY_MS = 35;
 
   function safeText(value) {
     return String(value == null ? "" : value).trim();
@@ -16037,8 +16046,18 @@ body.dark #rdmOfflineDetails {
 
   async function cacheOneUrlV17(cache, url) {
     const requestUrl = url.startsWith("./") ? url : `./${url}`;
+
     try {
-      const response = await fetch(requestUrl, { cache: "reload" });
+      // v19 gentle mode: never hammer the network for files already cached.
+      // This turns Refresh Cache into a verify/repair pass instead of 7,000+ forced downloads.
+      const alreadyCached = await caches.match(requestUrl) || await caches.match(url);
+      if (alreadyCached) {
+        return { result: "cached", url, status: "already cached" };
+      }
+
+      await gentleWait();
+
+      const response = await fetch(requestUrl, { cache: "no-cache" });
       if (!response || !response.ok) {
         const status = response ? `${response.status} ${response.statusText || ""}`.trim() : "no response";
         if (response && response.status === 404) return { result: "skipped", url, status };
@@ -16049,7 +16068,7 @@ body.dark #rdmOfflineDetails {
       if (!url.startsWith("./")) {
         try { await cache.put(url, response.clone()); } catch (_) {}
       }
-      return { result: "cached", url };
+      return { result: "cached", url, status: "downloaded" };
     } catch (error) {
       return { result: navigator.onLine ? "failed" : "stopped", url, status: error?.message || "fetch error" };
     }
@@ -16087,7 +16106,7 @@ body.dark #rdmOfflineDetails {
 
     enhancedCacheRunning = true;
     setOfflineButtons(true);
-    setMessage("Preparing Iron Sharpener for offline use and recording exact cache details.");
+    setMessage("Gently checking Iron Sharpener files for offline use without overloading the browser.");
     setProgress(1, "Building detailed resource list...");
     setOfflineDetails({ skippedUrls: [], failedUrls: [] });
 
@@ -16111,7 +16130,7 @@ body.dark #rdmOfflineDetails {
     const failedUrls = [];
     let stopped = false;
 
-    setMessage(`Preparing ${total.toLocaleString()} Scripture and study resource files for offline use.`);
+    setMessage(`Gently checking ${total.toLocaleString()} Scripture and study resource files. Already-cached files are not downloaded again.`);
 
     await runWithConcurrency(urls, MAX_CONCURRENT_FETCHES, async (url) => {
       if (stopped) return;
@@ -16126,14 +16145,14 @@ body.dark #rdmOfflineDetails {
 
       const percent = Math.round((completed / total) * 100);
       if (completed === total || completed % 10 === 0) {
-        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${cached.toLocaleString()} cached • ${skippedUrls.length.toLocaleString()} optional skipped • ${failedUrls.length.toLocaleString()} failed`);
+        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked gently • ${cached.toLocaleString()} ready • ${skippedUrls.length.toLocaleString()} optional skipped • ${failedUrls.length.toLocaleString()} failed`);
       }
     });
 
     enhancedCacheRunning = false;
 
     const summary = {
-      version: "iron-sharpener-offline-v17-diagnostics",
+      version: "iron-sharpener-offline-v19-gentle-cache",
       complete: !stopped,
       completedAt: new Date().toISOString(),
       total,
@@ -16204,5 +16223,8 @@ body.dark #rdmOfflineDetails {
 
 
 <!-- Patch 18 — Smart Commentary fallback: quick Commentary opens Matthew Henry first, then JFB if Matthew Henry is unavailable -->
+
+<!-- Patch 19 — Gentle offline cache mode: prevents forced 7,000+ file re-downloads and reduces GitHub Pages throttling/browser freeze risk -->
+
 </body>
 </html>
