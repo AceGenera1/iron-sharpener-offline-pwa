@@ -1,0 +1,52 @@
+name: Import Nave Topics ZIP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-naves:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Import Nave topic files
+        run: |
+          set -e
+
+          ZIP="$(find . -type f -name 'naves-topical-bible-95-file-upload-batches.zip' | head -n 1)"
+
+          if [ -z "$ZIP" ]; then
+            echo "ERROR: Nave ZIP not found."
+            echo "Upload naves-topical-bible-95-file-upload-batches.zip to the repo root first."
+            exit 1
+          fi
+
+          echo "Using ZIP: $ZIP"
+
+          rm -rf /tmp/rdm-naves
+          mkdir -p /tmp/rdm-naves
+          unzip -q "$ZIP" -d /tmp/rdm-naves
+
+          mkdir -p bible/resources/topics
+
+          find /tmp/rdm-naves -type f -name "*.json" -print0 | while IFS= read -r -d '' file; do
+            cp "$file" "bible/resources/topics/$(basename "$file")"
+          done
+
+          rm -f "$ZIP"
+
+      - name: Commit Nave topics
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add bible/resources/topics
+          git add -u
+
+          git diff --cached --quiet || git commit -m "Import Nave topical Bible database"
+          git push
