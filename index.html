@@ -2546,7 +2546,7 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
 
   <button type="button" class="tool-option helper-option" id="openStudyResourcesFromTools">
   <strong>Study Resources</strong>
-  <span>Open offline study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.</span>
+  <span>Open study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.</span>
 </button>
 
       <div class="teacher-pop-note">
@@ -4620,7 +4620,7 @@ async function loadPassage() {
     }));
   } catch (error) {
     passage.innerHTML = `
-      <p class="verse">Could not load this passage from the local offline Bible files.</p>
+      <p class="verse">Could not load this passage from the local Bible files.</p>
       <p class="verse" style="font-size:18px">${error.message}</p>
     `;
   }
@@ -13975,6 +13975,563 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
 
   setTimeout(install, 300);
   setTimeout(install, 1200);
+})();
+</script>
+
+
+<!-- =========================================================
+     RDM IRON SHARPENER — v13 Study Resource Back Button + Nave Rank
+     Base: user-updated script with resource wording adjusted.
+     Purpose:
+     1) Keep scripture-navigation back control in the Study Resources key.
+     2) Only show Teaching Cross References back buttons when the click
+        actually came from Teaching Cross References.
+     3) Keep Nave's full-index search with direct-topic ranking so Prayer,
+        Repentance, and Zechariah surface correctly.
+     ========================================================= -->
+<style id="rdm-v13-study-resource-back-style">
+/* Legacy teaching-cross-reference back buttons stay hidden unless v13 marks
+   them as actively tied to a Teaching Cross References navigation. */
+#backToPreviousPassage:not(.rdm-teaching-back-active),
+#obsBackToPreviousPassage:not(.rdm-teaching-back-active),
+#navesBackToPreviousPassage {
+  display: none !important;
+}
+
+#backToPreviousPassage.rdm-teaching-back-active,
+#obsBackToPreviousPassage.rdm-teaching-back-active {
+  display: inline-flex !important;
+}
+
+/* Study Resources key is now the normal/global place for returning from any
+   scripture opened through Study Resources, Backgrounds, Doctrine, Nave,
+   dictionaries, commentary, or key Scripture buttons. */
+#studyResourcesKey .study-resource-back-btn {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border: 1.8px solid rgba(248,217,135,.90) !important;
+  border-style: solid !important;
+  font-weight: 900 !important;
+}
+
+body.dark #studyResourcesKey .study-resource-back-btn {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border: 2px solid rgba(255,241,192,.90) !important;
+  text-shadow: none !important;
+  box-shadow: 0 0 12px rgba(248,217,135,.22) !important;
+}
+</style>
+
+<script id="rdm-v13-study-resource-back-naves-rank">
+(function () {
+  if (window.__rdmV13StudyResourceBackNavesRank) return;
+  window.__rdmV13StudyResourceBackNavesRank = true;
+
+  const bookNames = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+
+  const backStack = window.__rdmCrossReferenceBackStack || [];
+  window.__rdmCrossReferenceBackStack = backStack;
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function esc(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function clean(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[’']/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function titleWithoutParentheses(value) {
+    return clean(String(value || "").replace(/\([^)]*\)/g, ""));
+  }
+
+  function currentState() {
+    const start = get("start")?.value || "1";
+    return {
+      book: get("book")?.value || "Genesis",
+      chapter: get("chapter")?.value || "1",
+      start,
+      end: get("end")?.value || start,
+      range: get("rangeSize")?.value || "5"
+    };
+  }
+
+  function sameState(a, b) {
+    return !!a && !!b &&
+      String(a.book) === String(b.book) &&
+      String(a.chapter) === String(b.chapter) &&
+      String(a.start) === String(b.start) &&
+      String(a.end) === String(b.end);
+  }
+
+  function parseReference(ref) {
+    const raw = String(ref || "").replace(/\s+/g, " ").trim();
+    if (!raw) return null;
+
+    const sortedBooks = bookNames.slice().sort((a, b) => b.length - a.length);
+    const book = sortedBooks.find(name => raw.toLowerCase().startsWith(name.toLowerCase() + " "));
+    if (!book) return null;
+
+    const rest = raw.slice(book.length).trim();
+    const match = rest.match(/^(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
+    if (!match) return null;
+
+    const chapter = String(parseInt(match[1], 10));
+    const hasVerse = !!match[2];
+    const start = hasVerse ? String(parseInt(match[2], 10)) : "1";
+    const end = match[3] ? String(parseInt(match[3], 10)) : start;
+
+    return {
+      book,
+      chapter,
+      start,
+      end,
+      range: hasVerse ? (get("rangeSize")?.value || "5") : "full",
+      fullChapter: !hasVerse
+    };
+  }
+
+  function setPreviousPassageBindings(state) {
+    try { previousPassageState = state; } catch (_) {}
+    try { window.previousPassageState = state; } catch (_) {}
+  }
+
+  function hideTeachingBackButtons() {
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
+      const btn = get(id);
+      if (!btn) return;
+      btn.classList.remove("rdm-teaching-back-active");
+      btn.style.display = "none";
+    });
+  }
+
+  function showTeachingBackButton(origin) {
+    hideTeachingBackButtons();
+
+    const id = origin === "obsTeachingCrossRefs"
+      ? "obsBackToPreviousPassage"
+      : origin === "mainTeachingCrossRefs"
+        ? "backToPreviousPassage"
+        : "";
+
+    const btn = id ? get(id) : null;
+    if (!btn) return;
+
+    btn.classList.add("rdm-teaching-back-active");
+    btn.style.display = "inline-flex";
+  }
+
+  function detectScriptureClickOrigin(target) {
+    const button = target?.closest?.(".cross-ref-link");
+    if (!button) return "";
+
+    if (button.closest("#crossRefLinks")) {
+      return "mainTeachingCrossRefs";
+    }
+
+    const obsPanel = button.closest("#obsCrossRefsPanel");
+    if (obsPanel) {
+      const title = String(get("obsCrossRefsTitle")?.textContent || "").toLowerCase();
+      let active = "";
+      try { active = String(activeResourcePanel || "").toLowerCase(); } catch (_) {}
+      if (title.includes("teaching cross references") || active.includes("personalcrossrefs")) {
+        return "obsTeachingCrossRefs";
+      }
+    }
+
+    return "studyResources";
+  }
+
+  document.addEventListener("click", event => {
+    const origin = detectScriptureClickOrigin(event.target);
+    if (origin) {
+      window.__rdmLastScriptureReferenceOrigin = origin;
+    }
+  }, true);
+
+  function maxVerseFor(book, chapter) {
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
+      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
+      if (value) return String(value);
+    } catch (_) {}
+
+    const endSel = get("end");
+    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
+  }
+
+  function setPassageState(state) {
+    if (!state) return;
+
+    const bookSel = get("book");
+    const chapSel = get("chapter");
+    const startSel = get("start");
+    const endSel = get("end");
+    const rangeSel = get("rangeSize");
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = state.book;
+    if (typeof fillChapters === "function") fillChapters();
+
+    chapSel.value = String(state.chapter);
+    if (typeof fillVerses === "function") fillVerses();
+
+    if (state.fullChapter || state.range === "full") {
+      rangeSel.value = "full";
+      startSel.value = "1";
+      endSel.value = maxVerseFor(state.book, state.chapter);
+    } else {
+      rangeSel.value = state.range || localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
+      startSel.value = String(state.start);
+      endSel.value = String(state.end || state.start);
+    }
+
+    if (typeof loadPassage === "function") loadPassage();
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+  }
+
+  function goBackOneStudyResourceStep() {
+    const previous = backStack.pop();
+    if (!previous) return;
+    hideTeachingBackButtons();
+    setPreviousPassageBindings(backStack[backStack.length - 1] || null);
+    setPassageState(previous);
+  }
+
+  window.rdmGoBackOneStudyResourceStep = goBackOneStudyResourceStep;
+
+  window.goToScriptureReference = function goToScriptureReferenceV13(ref, options = {}) {
+    const parsed = parseReference(ref);
+    if (!parsed) return;
+
+    const origin = options.origin || window.__rdmLastScriptureReferenceOrigin || "studyResources";
+    window.__rdmLastScriptureReferenceOrigin = "";
+
+    const current = currentState();
+
+    if (!sameState(current, parsed)) {
+      backStack.push(current);
+      setPreviousPassageBindings(current);
+    }
+
+    setPassageState(parsed);
+
+    if (origin === "mainTeachingCrossRefs" || origin === "obsTeachingCrossRefs") {
+      showTeachingBackButton(origin);
+    } else {
+      hideTeachingBackButtons();
+    }
+  };
+
+  try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
+
+  function wireBackButton(id, origin) {
+    const oldButton = get(id);
+    if (!oldButton) return;
+
+    const newButton = oldButton.cloneNode(true);
+    newButton.id = oldButton.id;
+    newButton.className = oldButton.className;
+    oldButton.replaceWith(newButton);
+
+    newButton.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      goBackOneStudyResourceStep();
+
+      if (backStack.length && origin) {
+        showTeachingBackButton(origin);
+      } else {
+        hideTeachingBackButtons();
+      }
+    };
+  }
+
+  wireBackButton("backToPreviousPassage", "mainTeachingCrossRefs");
+  wireBackButton("obsBackToPreviousPassage", "obsTeachingCrossRefs");
+  hideTeachingBackButtons();
+
+  function safePanel(title, html, key, options) {
+    if (typeof window.openResourceInstancePanel === "function") {
+      return window.openResourceInstancePanel(title, html, "Nave's Topical Bible", key, options || {});
+    }
+
+    const panel = document.createElement("div");
+    panel.className = "resource-instance-panel";
+    panel.innerHTML = `<div class="teacher-pop-head drag-handle"><h3>${esc(title)}</h3><button class="teacher-pop-close secondary" type="button">Close</button></div><div class="resource-panel-body">${html}</div>`;
+    document.body.appendChild(panel);
+    const close = panel.querySelector(".teacher-pop-close");
+    if (close) close.onclick = () => panel.remove();
+    return panel;
+  }
+
+  async function loadNavesIndexV13() {
+    if (typeof window.loadNavesIndexFullV11 === "function") {
+      return await window.loadNavesIndexFullV11();
+    }
+
+    if (window.__rdmNavesIndexFullV13) return window.__rdmNavesIndexFullV13;
+
+    try {
+      const response = await fetch("bible/resources/topics/index.json", { cache: "no-store" });
+      if (!response.ok) throw new Error(`Nave's index not found: ${response.status}`);
+      const data = await response.json();
+      const topics = Array.isArray(data) ? data : (Array.isArray(data.topics) ? data.topics : []);
+      window.__rdmNavesIndexFullV13 = topics;
+      return topics;
+    } catch (error) {
+      console.warn("Nave's index load error:", error);
+      window.__rdmNavesIndexFullV13 = [];
+      return [];
+    }
+  }
+
+  async function loadNavesTopicV13(topicFile) {
+    if (typeof window.loadNavesTopic === "function") {
+      const loaded = await window.loadNavesTopic(topicFile);
+      if (loaded) return loaded;
+    }
+
+    const file = String(topicFile || "").replace(/\.json$/i, "").trim();
+    if (!file) return null;
+
+    try {
+      const response = await fetch(`bible/resources/topics/${encodeURIComponent(file)}.json`, { cache: "no-store" });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.warn("Nave's topic not found:", file, error);
+      return null;
+    }
+  }
+
+  function referenceButtons(refs) {
+    return (refs || []).map(ref => `
+      <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:7px;">
+        ${esc(ref)}
+      </button>
+    `).join("");
+  }
+
+  function renderNavesTopicHtml(topic) {
+    const references = Array.isArray(topic.references) ? topic.references : [];
+    const subtopics = topic.subtopics && typeof topic.subtopics === "object" ? topic.subtopics : {};
+    const sourceLines = Array.isArray(topic.sourceLines) ? topic.sourceLines : [];
+
+    const mainRefs = references.length ? `
+      <details open style="margin-bottom:12px;">
+        <summary style="font:900 14px Arial,sans-serif;cursor:pointer;">Main References (${references.length})</summary>
+        <div style="margin-top:8px;">${referenceButtons(references)}</div>
+      </details>
+    ` : "";
+
+    const subtopicHtml = Object.keys(subtopics).length ? Object.keys(subtopics).map(label => {
+      const refs = Array.isArray(subtopics[label]) ? subtopics[label] : [];
+      return `
+        <details style="margin-top:8px;">
+          <summary style="font:900 14px Arial,sans-serif;cursor:pointer;">${esc(label)} (${refs.length})</summary>
+          <div style="margin-top:8px;">${referenceButtons(refs)}</div>
+        </details>
+      `;
+    }).join("") : "";
+
+    const fallbackLines = (!references.length && !Object.keys(subtopics).length && sourceLines.length) ? `
+      <h4>Topic Notes</h4>
+      <ul style="font:800 14px Arial,sans-serif;line-height:1.55;padding-left:20px;">
+        ${sourceLines.slice(0, 80).map(line => `<li>${esc(String(line).replace(/^[-.]+\s*/, ""))}</li>`).join("")}
+      </ul>
+    ` : "";
+
+    return `
+      <h4>${esc(topic.title || "Nave's Topic")}</h4>
+      ${mainRefs}
+      ${subtopicHtml}
+      ${fallbackLines || ""}
+      ${(!references.length && !Object.keys(subtopics).length && !fallbackLines) ? `<p style="font:800 14px Arial,sans-serif;">No references found for this topic.</p>` : ""}
+    `;
+  }
+
+  function displayNaveTitle(item) {
+    const file = String(item && item.file || "");
+    if (file === "zechariah-zecharias") return "Zechariah (OT entries; also Zecharias)";
+    if (file === "zacharias-zechariah") return "Zacharias (NT entry; also Zechariah)";
+    return String(item && (item.title || item.file) || "Nave Topic");
+  }
+
+  function displayNaveSubtitle(item) {
+    const file = String(item && item.file || "");
+    if (file === "prayer") return "Primary Nave topic";
+    if (file === "repentance") return "Primary Nave topic";
+    if (file === "zechariah-zecharias") return "Old Testament name entries and prophet-related references";
+    if (file === "zacharias-zechariah") return "New Testament Zacharias, father of John the Baptist";
+    return "";
+  }
+
+  function scoreNaveMatch(item, query) {
+    const q = clean(query);
+    const title = clean(item.title || "");
+    const file = clean(item.file || "");
+    const bareTitle = titleWithoutParentheses(item.title || "");
+    const search = clean(item.search || "");
+    const haystack = clean(`${item.title || ""} ${item.file || ""} ${item.search || ""}`);
+
+    if (!q || !haystack.includes(q)) return null;
+
+    let score = 1000;
+
+    if (title === q || file === q || bareTitle === q) score = 0;
+    else if (title.startsWith(q + " ") || file.startsWith(q + " ") || bareTitle.startsWith(q + " ")) score = 10;
+    else if (title.includes(q) || file.includes(q) || bareTitle.includes(q)) score = 20;
+    else if (new RegExp(`(^| )${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}( |$)`).test(search)) score = 40;
+    else score = 80;
+
+    if (q === "prayer" && file === "prayer") score = -100;
+    if (q === "repentance" && file === "repentance") score = -100;
+    if (q === "zechariah" && file === "zechariah zecharias") score = -100;
+    if (q === "zechariah" && file === "zacharias zechariah") score = -90;
+    if (q === "zacharias" && file === "zacharias zechariah") score = -100;
+    if (q === "zacharias" && file === "zechariah zecharias") score = -90;
+
+    return {
+      item,
+      score,
+      titleLength: title.length || 999,
+      subtopics: Number(item.subtopics || 0),
+      title
+    };
+  }
+
+  async function openNavesResourceFullV13(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    try { activeResourcePanel = "naves"; } catch (_) {}
+    try { window.activeResourcePanel = "naves"; } catch (_) {}
+
+    const panel = safePanel(
+      "Nave's Topical Bible",
+      `
+        <input class="naves-search-box-v13" type="text" placeholder="Search topics like faith, prayer, repentance, zechariah..." style="margin-bottom:10px;">
+        <div class="naves-results-v13"><p style="font:800 14px Arial,sans-serif;">Loading Nave's Topical Bible index...</p></div>
+      `,
+      "naves-search-full-v13",
+      { updateExisting: true }
+    );
+
+    const searchBox = panel.querySelector(".naves-search-box-v13");
+    const results = panel.querySelector(".naves-results-v13");
+    const index = await loadNavesIndexV13();
+
+    function renderResults(query) {
+      const q = clean(query);
+
+      if (!q) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Type a topic above to search ${index.length.toLocaleString()} Nave's topics.</p>`;
+        return;
+      }
+
+      if (q.length < 2) {
+        results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Keep typing at least 2 letters...</p>`;
+        return;
+      }
+
+      const matches = index
+        .map(item => scoreNaveMatch(item, q))
+        .filter(Boolean)
+        .sort((a, b) =>
+          (a.score - b.score) ||
+          (a.titleLength - b.titleLength) ||
+          (b.subtopics - a.subtopics) ||
+          a.title.localeCompare(b.title)
+        )
+        .slice(0, 35)
+        .map(match => match.item);
+
+      results.innerHTML = matches.length ? matches.map(item => {
+        const subtitle = displayNaveSubtitle(item);
+        return `
+          <button type="button" class="naves-topic-btn-v13" data-file="${esc(item.file)}" style="width:100%;margin-bottom:8px;">
+            <span style="display:block;font-weight:900;">${esc(displayNaveTitle(item))}</span>
+            ${subtitle ? `<span style="display:block;font-size:12px;font-weight:800;opacity:.86;margin-top:3px;">${esc(subtitle)}</span>` : ""}
+          </button>
+        `;
+      }).join("") : `<p style="font:800 14px Arial,sans-serif;">No topic found.</p>`;
+
+      results.querySelectorAll(".naves-topic-btn-v13").forEach(button => {
+        button.onclick = async () => {
+          const topic = await loadNavesTopicV13(button.dataset.file);
+          if (!topic) {
+            results.innerHTML = `<p style="font:800 14px Arial,sans-serif;">Unable to load this Nave's topic.</p>`;
+            return;
+          }
+
+          safePanel(
+            topic.title || button.textContent.trim(),
+            renderNavesTopicHtml(topic),
+            `naves-topic-full-v13-${button.dataset.file}`,
+            { updateExisting: true }
+          );
+        };
+      });
+    }
+
+    if (searchBox) {
+      searchBox.oninput = () => renderResults(searchBox.value);
+      searchBox.focus({ preventScroll: true });
+    }
+
+    renderResults("");
+  }
+
+  function replaceButtonHandler(id, handler) {
+    const oldButton = get(id);
+    if (!oldButton || oldButton.dataset.rdmNavesRankV13 === "1") return;
+
+    const newButton = oldButton.cloneNode(true);
+    newButton.dataset.rdmNavesRankV13 = "1";
+    newButton.dataset.rdmNavesRankV12 = "1";
+    newButton.dataset.rdmNavesFullV11 = "1";
+    oldButton.replaceWith(newButton);
+    newButton.onclick = handler;
+  }
+
+  function install() {
+    replaceButtonHandler("openNavesResource", openNavesResourceFullV13);
+    hideTeachingBackButtons();
+  }
+
+  window.openNavesResourceFullV13 = openNavesResourceFullV13;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install);
+  } else {
+    install();
+  }
+
+  setTimeout(install, 300);
+  setTimeout(install, 1200);
+  setTimeout(install, 2600);
 })();
 </script>
 
