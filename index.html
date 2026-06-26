@@ -17549,213 +17549,21 @@ body.dark .verse.copy-selected {
 })();
 </script>
 
-
-
-<!-- Patch 27 — v26 public offline/UI lock: OBS button color + newest offline shell sync -->
-<style id="rdm-v27-public-offline-ui-lock">
-/* OBS Focus final button lock: all focus-toolbar buttons and Leave Focus stay bold gold/green in cream and dark mode. */
-html.obs #obsToolBar,
-html.obs .obs-tool-bar {
-  background: rgba(32, 61, 57, .98) !important;
-  border: 2px solid #d7a84f !important;
-  box-shadow: 0 14px 38px rgba(0,0,0,.42) !important;
-}
-
-html.obs #obsToolBar button,
-html.obs .obs-tool-bar button,
-html.obs .obs-tool-bar #obsShowNavigator,
-html.obs .obs-tool-bar #obsOpenTeacherTools,
-html.obs .obs-tool-bar #obsShowTeachingNote,
-html.obs .obs-tool-bar #obsShowApplicationNote,
-html.obs .obs-tool-bar #obsShowTeachingMethod,
-html.obs .obs-tool-bar #ironPromptPanelBtn,
-html.obs .obs-tool-bar #obsShowCrossRefs,
-html.obs .obs-tool-bar #obsClearMarks,
-html.obs .obs-tool-bar #obsResetPanels,
-html.obs .obs-tool-bar #obsToolsMenuBtn,
-html.obs #obsBtn,
-html.obs .actions #obsBtn {
-  display: inline-flex !important;
-  background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
-  background-color: #d7a84f !important;
-  color: #203D39 !important;
-  border: 1.8px solid #fff1c0 !important;
-  box-shadow: 0 8px 18px rgba(0,0,0,.24) !important;
-  text-shadow: none !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
-  filter: none !important;
-}
-
-html.obs #obsToolBar button:hover,
-html.obs .obs-tool-bar button:hover,
-html.obs #obsBtn:hover,
-html.obs .actions #obsBtn:hover {
-  background: linear-gradient(180deg, #ffe49c 0%, #dca942 100%) !important;
-  color: #203D39 !important;
-  opacity: 1 !important;
-  filter: brightness(1.03) !important;
-}
-
-html.obs .obs-tool-bar.collapsed #obsToolsMenuBtn,
-html.obs .obs-tool-bar.drawer-open #obsToolsMenuBtn {
-  display: inline-flex !important;
-}
-</style>
-<script id="rdm-v27-public-offline-ui-lock">
-(function rdmV27PublicOfflineUiLock() {
-  if (window.__rdmV27PublicOfflineUiLock) return;
-  window.__rdmV27PublicOfflineUiLock = true;
-
-  const NEW_CACHE_NAME = "iron-sharpener-offline-v26-public-lock-20260626";
-  const OLD_CACHE_NAMES = ["iron-sharpener-offline-v15"];
-  const NEW_STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v26";
-  const OLD_STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
-  const NEW_VERSION = "iron-sharpener-offline-v26-public-lock-20260626";
-  const CACHE_LOCK_MARKER = "rdm-v27-public-offline-ui-lock";
-
-  function readJson(key) {
-    try { return JSON.parse(localStorage.getItem(key) || "null"); }
-    catch (_) { return null; }
-  }
-
-  function writeJson(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
-  }
-
-  function readyCount(status) {
-    const total = Number(status && status.total || 0);
-    const skipped = Number(status && status.skipped || 0);
-    const failed = Number(status && status.failed || 0);
-    return Math.max(
-      Number(status && status.cached || 0),
-      Number(status && status.ready || 0),
-      Number(status && status.alreadyCached || 0) + Number(status && status.downloaded || 0),
-      total - skipped - failed
-    );
-  }
-
-  function migrateOldOfflineStatus() {
-    const current = readJson(NEW_STATUS_KEY);
-    if (current && current.complete === true) return;
-
-    const old = readJson(OLD_STATUS_KEY);
-    if (!old || old.complete !== true || readyCount(old) <= 0) return;
-
-    writeJson(NEW_STATUS_KEY, {
-      ...old,
-      version: NEW_VERSION,
-      migratedFrom: old.version || "iron-sharpener-offline-v15",
-      migratedAt: new Date().toISOString()
-    });
-  }
-
-  function responseFromHtml(htmlText) {
-    return new Response(htmlText, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store"
-      }
-    });
-  }
-
-  async function putShellHtml(cache, htmlText) {
-    await cache.put("./index.html", responseFromHtml(htmlText));
-    await cache.put("index.html", responseFromHtml(htmlText));
-    await cache.put("./", responseFromHtml(htmlText));
-  }
-
-  async function cacheFreshShellInto(cacheName) {
-    if (!("caches" in window) || !navigator.onLine) return false;
-
-    const cache = await caches.open(cacheName);
-    const bust = "rdm-shell-lock=" + encodeURIComponent(NEW_VERSION) + "-" + Date.now();
-    const response = await fetch("./index.html?" + bust, { cache: "no-store" });
-    if (!response || !response.ok) return false;
-
-    const htmlText = await response.text();
-    if (!htmlText.includes(CACHE_LOCK_MARKER) || !htmlText.includes("Copy Scripture")) return false;
-
-    await putShellHtml(cache, htmlText);
-
-    const coreFiles = [
-      "./manifest.json",
-      "./assets/iron-sharpener-logo.png",
-      "./service-worker.js"
-    ];
-
-    for (const url of coreFiles) {
-      try {
-        const fileResponse = await fetch(url + "?" + bust, { cache: "no-store" });
-        if (fileResponse && fileResponse.ok) {
-          await cache.put(url, fileResponse.clone());
-          await cache.put(url.replace(/^\.\//, ""), fileResponse.clone());
-        }
-      } catch (_) {}
-    }
-
-    return true;
-  }
-
-  async function refreshServiceWorkerAndShell() {
-    migrateOldOfflineStatus();
-
-    if ("serviceWorker" in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.register("./service-worker.js", { updateViaCache: "none" });
-        try { await registration.update(); } catch (_) {}
-        if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
-      } catch (error) {
-        console.warn("Iron Sharpener v26 lock service worker refresh failed:", error);
-      }
-    }
-
-    try {
-      await cacheFreshShellInto(NEW_CACHE_NAME);
-      for (const oldName of OLD_CACHE_NAMES) await cacheFreshShellInto(oldName);
-    } catch (error) {
-      console.warn("Iron Sharpener v26 lock shell cache refresh failed:", error);
-    }
-  }
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      try {
-        if (sessionStorage.getItem("ironSharpenerUnified.v26ControllerReloaded") === "1") return;
-        sessionStorage.setItem("ironSharpenerUnified.v26ControllerReloaded", "1");
-        if (navigator.onLine) window.location.reload();
-      } catch (_) {}
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", refreshServiceWorkerAndShell);
-  } else {
-    refreshServiceWorkerAndShell();
-  }
-
-  window.rdmLockNewestOfflineShell = refreshServiceWorkerAndShell;
-})();
-</script>
-
-
-<!-- Patch 28 — v26 dark-only gold/green buttons + Offline Ready hide lock -->
-<style id="rdm-v28-dark-only-button-and-offline-hide-lock">
+<!-- Patch 29 — Stability rescue: dark-only gold/green buttons + offline panel hide lock -->
+<style id="rdm-v29-stability-dark-only-buttons">
 /*
-  Final visual separation:
-  - Cream mode uses the brownish-red/cream button system only.
-  - Dark mode uses the forest-green/gold system only.
-  - All target buttons are forced to full opacity so they cannot appear faded.
+  v29 final guard:
+  - Cream mode uses the reddish-brown ministry button system.
+  - Dark mode/OBS Focus uses the forest-green + gold system only.
+  - No polling loops, no repeated shell-refresh script, and no teaching/resource logic changes.
 */
 
-html.obs body:not(.dark) #obsToolBar,
-html.obs body:not(.dark) .obs-tool-bar {
-  background: rgba(58, 43, 31, .98) !important;
-  border: 2px solid #8A5A13 !important;
-  box-shadow: 0 14px 38px rgba(70, 38, 12, .34) !important;
-}
-
+/* Cream mode: keep OBS/primary action buttons brownish-red, never green/gold. */
+body:not(.dark) #obsBtn,
+body:not(.dark) .actions #obsBtn,
+body:not(.dark) #fsBtn,
+html.obs body:not(.dark) #obsBtn,
+html.obs body:not(.dark) .actions #obsBtn,
 html.obs body:not(.dark) #obsToolBar button,
 html.obs body:not(.dark) .obs-tool-bar button,
 html.obs body:not(.dark) .obs-tool-bar #obsShowNavigator,
@@ -17768,9 +17576,11 @@ html.obs body:not(.dark) .obs-tool-bar #obsShowCrossRefs,
 html.obs body:not(.dark) .obs-tool-bar #obsClearMarks,
 html.obs body:not(.dark) .obs-tool-bar #obsResetPanels,
 html.obs body:not(.dark) .obs-tool-bar #obsToolsMenuBtn,
-html.obs body:not(.dark) #obsBtn,
-html.obs body:not(.dark) .actions #obsBtn,
-body:not(.dark) #obsBtn {
+body:not(.dark) #rdmOfflineStatusPill,
+body:not(.dark) .rdm-offline-status-pill,
+body:not(.dark) #rdmOfflineCachePanel .rdm-offline-cache-actions button,
+body:not(.dark) #rdmOfflineStartCache,
+body:not(.dark) #rdmOfflineRefreshCache {
   display: inline-flex !important;
   background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
   background-color: #7A4C06 !important;
@@ -17783,24 +17593,48 @@ body:not(.dark) #obsBtn {
   filter: none !important;
 }
 
-html.obs body:not(.dark) #obsToolBar button:hover,
-html.obs body:not(.dark) .obs-tool-bar button:hover,
+body:not(.dark) #obsBtn:hover,
+body:not(.dark) .actions #obsBtn:hover,
+body:not(.dark) #fsBtn:hover,
 html.obs body:not(.dark) #obsBtn:hover,
 html.obs body:not(.dark) .actions #obsBtn:hover,
-body:not(.dark) #obsBtn:hover {
+html.obs body:not(.dark) #obsToolBar button:hover,
+html.obs body:not(.dark) .obs-tool-bar button:hover,
+body:not(.dark) #rdmOfflineStatusPill:hover,
+body:not(.dark) .rdm-offline-status-pill:hover,
+body:not(.dark) #rdmOfflineCachePanel .rdm-offline-cache-actions button:hover {
   background: linear-gradient(180deg, #9A6618 0%, #7A4C06 100%) !important;
   color: #FFF8EA !important;
   opacity: 1 !important;
   filter: brightness(1.03) !important;
 }
 
+html.obs body:not(.dark) #obsToolBar,
+html.obs body:not(.dark) .obs-tool-bar {
+  background: rgba(58, 43, 31, .98) !important;
+  border: 2px solid #8A5A13 !important;
+  box-shadow: 0 14px 38px rgba(70, 38, 12, .34) !important;
+}
+
+body:not(.dark) #rdmOfflineStatusPill .rdm-offline-status-dot,
+body:not(.dark) .rdm-offline-status-pill .rdm-offline-status-dot {
+  background: #FFF8EA !important;
+  box-shadow: 0 0 0 3px rgba(255,248,234,.22) !important;
+}
+
+/* Dark mode: original forest-green container + bold gold buttons only here. */
 html.obs body.dark #obsToolBar,
 html.obs body.dark .obs-tool-bar {
-  background: rgba(32, 61, 57, .98) !important;
+  background: rgba(41,72,67,.98) !important;
   border: 2px solid #d7a84f !important;
   box-shadow: 0 14px 38px rgba(0,0,0,.42), 0 0 22px rgba(248,217,135,.14) !important;
 }
 
+body.dark #obsBtn,
+body.dark .actions #obsBtn,
+body.dark #fsBtn,
+html.obs body.dark #obsBtn,
+html.obs body.dark .actions #obsBtn,
 html.obs body.dark #obsToolBar button,
 html.obs body.dark .obs-tool-bar button,
 html.obs body.dark .obs-tool-bar #obsShowNavigator,
@@ -17813,9 +17647,11 @@ html.obs body.dark .obs-tool-bar #obsShowCrossRefs,
 html.obs body.dark .obs-tool-bar #obsClearMarks,
 html.obs body.dark .obs-tool-bar #obsResetPanels,
 html.obs body.dark .obs-tool-bar #obsToolsMenuBtn,
-html.obs body.dark #obsBtn,
-html.obs body.dark .actions #obsBtn,
-body.dark #obsBtn {
+body.dark #rdmOfflineStatusPill,
+body.dark .rdm-offline-status-pill,
+body.dark #rdmOfflineCachePanel .rdm-offline-cache-actions button,
+body.dark #rdmOfflineStartCache,
+body.dark #rdmOfflineRefreshCache {
   display: inline-flex !important;
   background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
   background-color: #d7a84f !important;
@@ -17828,53 +17664,20 @@ body.dark #obsBtn {
   filter: none !important;
 }
 
-html.obs body.dark #obsToolBar button:hover,
-html.obs body.dark .obs-tool-bar button:hover,
+body.dark #obsBtn:hover,
+body.dark .actions #obsBtn:hover,
+body.dark #fsBtn:hover,
 html.obs body.dark #obsBtn:hover,
 html.obs body.dark .actions #obsBtn:hover,
-body.dark #obsBtn:hover {
+html.obs body.dark #obsToolBar button:hover,
+html.obs body.dark .obs-tool-bar button:hover,
+body.dark #rdmOfflineStatusPill:hover,
+body.dark .rdm-offline-status-pill:hover,
+body.dark #rdmOfflineCachePanel .rdm-offline-cache-actions button:hover {
   background: linear-gradient(180deg, #ffe49c 0%, #dca942 100%) !important;
   color: #203D39 !important;
   opacity: 1 !important;
   filter: brightness(1.04) !important;
-}
-
-html.obs .obs-tool-bar.collapsed #obsToolsMenuBtn,
-html.obs .obs-tool-bar.drawer-open #obsToolsMenuBtn {
-  display: inline-flex !important;
-}
-
-/* Offline Ready pill: cream mode is brownish-red, dark mode is gold/green. */
-body:not(.dark) #rdmOfflineStatusPill,
-body:not(.dark) .rdm-offline-status-pill {
-  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
-  background-color: #7A4C06 !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: 0 10px 24px rgba(70, 38, 12, .24) !important;
-  text-shadow: none !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
-  filter: none !important;
-}
-
-body:not(.dark) #rdmOfflineStatusPill .rdm-offline-status-dot,
-body:not(.dark) .rdm-offline-status-pill .rdm-offline-status-dot {
-  background: #FFF8EA !important;
-  box-shadow: 0 0 0 3px rgba(255,248,234,.22) !important;
-}
-
-body.dark #rdmOfflineStatusPill,
-body.dark .rdm-offline-status-pill {
-  background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
-  background-color: #d7a84f !important;
-  color: #203D39 !important;
-  border: 1.8px solid #fff1c0 !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,.30), 0 0 16px rgba(248,217,135,.24) !important;
-  text-shadow: none !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
-  filter: none !important;
 }
 
 body.dark #rdmOfflineStatusPill .rdm-offline-status-dot,
@@ -17883,156 +17686,112 @@ body.dark .rdm-offline-status-pill .rdm-offline-status-dot {
   box-shadow: 0 0 0 3px rgba(32,61,57,.22) !important;
 }
 
-body:not(.dark) #rdmOfflineCachePanel .rdm-offline-cache-actions button,
-body:not(.dark) #rdmOfflineStartCache.rdm-offline-ready-ack,
-body:not(.dark) #rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
-body:not(.dark) #rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
-  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
-  background-color: #7A4C06 !important;
-  color: #FFF8EA !important;
-  border: 1.8px solid #7A4C06 !important;
-  box-shadow: none !important;
+/* Browser disabled-state must never fade these final buttons. */
+#rdmOfflineStatusPill,
+#rdmOfflineStartCache,
+#rdmOfflineRefreshCache,
+#obsBtn,
+#fsBtn,
+#obsToolBar button,
+.obs-tool-bar button,
+#rdmOfflineStatusPill:disabled,
+#rdmOfflineStartCache:disabled,
+#rdmOfflineRefreshCache:disabled,
+#obsBtn:disabled,
+#fsBtn:disabled,
+#obsToolBar button:disabled,
+.obs-tool-bar button:disabled {
   opacity: 1 !important;
   filter: none !important;
-  pointer-events: auto !important;
-  cursor: pointer !important;
 }
 
-body.dark #rdmOfflineCachePanel .rdm-offline-cache-actions button,
-body.dark #rdmOfflineStartCache.rdm-offline-ready-ack,
-body.dark #rdmOfflineStartCache.rdm-offline-ready-ack[disabled],
-body.dark #rdmOfflineStartCache.rdm-offline-ready-ack:disabled {
-  background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
-  background-color: #d7a84f !important;
-  color: #203D39 !important;
-  border: 1.8px solid #fff1c0 !important;
-  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
-  opacity: 1 !important;
-  filter: none !important;
-  pointer-events: auto !important;
-  cursor: pointer !important;
+html.obs .obs-tool-bar.collapsed #obsToolsMenuBtn,
+html.obs .obs-tool-bar.drawer-open #obsToolsMenuBtn {
+  display: inline-flex !important;
 }
 </style>
-<script id="rdm-v28-dark-only-button-and-offline-hide-lock">
-(function rdmV28DarkOnlyButtonAndOfflineHideLock() {
-  if (window.__rdmV28DarkOnlyButtonAndOfflineHideLock) return;
-  window.__rdmV28DarkOnlyButtonAndOfflineHideLock = true;
+
+<script id="rdm-v29-offline-panel-stability-guard">
+(function rdmV29OfflinePanelStabilityGuard() {
+  if (window.__rdmV29OfflinePanelStabilityGuard) return;
+  window.__rdmV29OfflinePanelStabilityGuard = true;
 
   const HIDE_KEY = "ironSharpenerUnified.offlineCachePanelHidden.v26";
   const get = (id) => document.getElementById(id);
+  let enforcing = false;
 
-  function isPanelHiddenByUser() {
+  function hiddenByUser() {
     try { return localStorage.getItem(HIDE_KEY) === "1"; }
     catch (_) { return false; }
   }
 
-  function markPanelHidden() {
-    try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) {}
+  function setHiddenByUser(value) {
+    try {
+      if (value) localStorage.setItem(HIDE_KEY, "1");
+      else localStorage.removeItem(HIDE_KEY);
+    } catch (_) {}
   }
 
-  function markPanelAllowedOpen() {
-    try { localStorage.removeItem(HIDE_KEY); } catch (_) {}
+  function isActiveCacheRun() {
+    const progress = `${get("rdmOfflineStartCache")?.textContent || ""} ${get("rdmOfflineProgressText")?.textContent || ""}`;
+    return /preparing|building|checking|downloading|caching/i.test(progress);
   }
 
-  function isCachingActive() {
-    const start = get("rdmOfflineStartCache");
-    const progress = get("rdmOfflineProgressText");
-    const text = `${start?.textContent || ""} ${progress?.textContent || ""}`;
-    return /preparing|checking|caching|downloading|building|scanning/i.test(text);
-  }
-
-  function closeOfflinePanel() {
+  function closePanel() {
     const panel = get("rdmOfflineCachePanel");
-    if (!panel) return;
+    if (!panel || enforcing) return;
+    enforcing = true;
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
+    enforcing = false;
   }
 
-  function enforceOfflinePanelHidden() {
-    const panel = get("rdmOfflineCachePanel");
-    if (!panel) return;
-
-    if (isPanelHiddenByUser() && !isCachingActive()) {
-      closeOfflinePanel();
-    }
+  function enforceHidden() {
+    if (hiddenByUser() && !isActiveCacheRun()) closePanel();
   }
 
   document.addEventListener("click", function(event) {
-    const closeBtn = event.target?.closest?.("#rdmOfflinePanelClose");
-    const readyAck = event.target?.closest?.("#rdmOfflineStartCache.rdm-offline-ready-ack");
-    const pill = event.target?.closest?.("#rdmOfflineStatusPill");
-
-    if (closeBtn || readyAck) {
-      markPanelHidden();
-      closeOfflinePanel();
-      setTimeout(enforceOfflinePanelHidden, 0);
-      setTimeout(enforceOfflinePanelHidden, 80);
-      setTimeout(enforceOfflinePanelHidden, 300);
+    if (event.target && event.target.closest && event.target.closest("#rdmOfflinePanelClose")) {
+      setHiddenByUser(true);
+      closePanel();
+      setTimeout(enforceHidden, 60);
+      setTimeout(enforceHidden, 250);
       return;
     }
 
-    if (pill) {
-      markPanelAllowedOpen();
+    if (event.target && event.target.closest && event.target.closest("#rdmOfflineStatusPill")) {
+      setHiddenByUser(false);
     }
   }, true);
 
-  function watchPanel() {
+  function attachObserver() {
     const panel = get("rdmOfflineCachePanel");
-    if (!panel || panel.dataset.rdmV28HideObserver === "1") return;
-
-    panel.dataset.rdmV28HideObserver = "1";
-    const observer = new MutationObserver(enforceOfflinePanelHidden);
-    observer.observe(panel, { attributes: true, attributeFilter: ["class", "style", "aria-hidden"] });
-    enforceOfflinePanelHidden();
-  }
-
-  function normalizeButtonOpacity() {
-    [
-      "rdmOfflineStatusPill",
-      "rdmOfflineStartCache",
-      "obsBtn",
-      "obsToolsMenuBtn",
-      "obsShowNavigator",
-      "obsOpenTeacherTools",
-      "obsShowTeachingNote",
-      "obsShowApplicationNote",
-      "obsShowTeachingMethod",
-      "ironPromptPanelBtn",
-      "obsShowCrossRefs",
-      "obsClearMarks",
-      "obsResetPanels"
-    ].forEach((id) => {
-      const el = get(id);
-      if (!el) return;
-      el.style.opacity = "1";
-      el.style.filter = "none";
-    });
+    if (!panel || panel.dataset.rdmV29Observer === "1") return;
+    panel.dataset.rdmV29Observer = "1";
+    new MutationObserver(function() {
+      if (!enforcing) enforceHidden();
+    }).observe(panel, { attributes: true, attributeFilter: ["class", "aria-hidden"] });
   }
 
   function run() {
-    watchPanel();
-    enforceOfflinePanelHidden();
-    normalizeButtonOpacity();
+    attachObserver();
+    enforceHidden();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", function() {
       run();
-      setTimeout(run, 250);
-      setTimeout(run, 1000);
-      setTimeout(run, 2500);
+      setTimeout(run, 300);
+      setTimeout(run, 1200);
     });
   } else {
     run();
-    setTimeout(run, 250);
-    setTimeout(run, 1000);
-    setTimeout(run, 2500);
+    setTimeout(run, 300);
+    setTimeout(run, 1200);
   }
 
   window.addEventListener("online", run);
   window.addEventListener("offline", run);
-  document.addEventListener("visibilitychange", run);
-  setInterval(run, 500);
 })();
 </script>
 
