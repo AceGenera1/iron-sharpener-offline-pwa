@@ -12717,7 +12717,7 @@ body.dark .backgrounds-back-btn {
         <span class="study-resources-help-wrap" tabindex="0" role="button" aria-label="How this study resources bar works">
           <span class="study-resources-eye info-icon" aria-hidden="true">i</span>
           <span class="study-resources-help-tooltip">
-            This bar shows quick resources for the passage you are currently viewing. Backgrounds appears only when Bible Backgrounds &amp; Customs are mapped to this exact verse range. Built-In Cross References appears only when the internal WEB-generated reference database has links for this passage. Commentary, Book Overview, and More Study Tools remain available for deeper study.
+            This bar shows quick resources for the passage you are currently viewing. Backgrounds appears only when Bible Backgrounds &amp; Customs are mapped to this exact verse range. Commentary appears when Matthew Henry or Jamieson-Fausset-Brown has notes for this exact passage. Built-In Cross References appears only when the internal WEB-generated reference database has links for this passage. Book Overview and More Study Tools remain available for deeper study.
           </span>
         </span>
       </div>
@@ -15642,5 +15642,567 @@ html.obs #internalCrossRefsPanel.open.rd-drag-positioned {
 })();
 </script>
 
+
+
+<!-- Patch 17 — Commentary availability + offline cache diagnostics -->
+<style id="rdm-v17-commentary-cache-diagnostics">
+.rdm-commentary-unavailable {
+  display: none !important;
+}
+
+#rdmOfflineDetails {
+  margin-top: 10px;
+  border: 1px solid rgba(215,168,79,.62);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: rgba(255,250,240,.10);
+  color: inherit;
+  font: 800 12px Arial, sans-serif;
+  line-height: 1.45;
+}
+
+#rdmOfflineDetails summary {
+  cursor: pointer;
+  color: inherit;
+  font-weight: 900;
+}
+
+#rdmOfflineDetails ul {
+  margin: 8px 0 0 18px;
+  padding: 0;
+}
+
+#rdmOfflineDetails li {
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
+}
+
+body:not(.dark) #rdmOfflineDetails {
+  background: rgba(255,250,240,.64);
+  color: #2B394F;
+}
+
+body.dark #rdmOfflineDetails {
+  background: rgba(0,0,0,.12);
+  color: #fff6d9;
+}
+</style>
+<script id="rdm-v17-commentary-cache-diagnostics">
+(function rdmV17CommentaryAvailabilityAndCacheDiagnostics() {
+  const get = (id) => document.getElementById(id);
+  const STORAGE_STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v15";
+  const CACHE_NAME = "iron-sharpener-offline-v15";
+  const MAX_CONCURRENT_FETCHES = 6;
+
+  function safeText(value) {
+    return String(value == null ? "" : value).trim();
+  }
+
+  function clean(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function currentPassageState() {
+    const start = parseInt(get("start")?.value, 10) || 1;
+    const end = parseInt(get("end")?.value, 10) || start;
+    return {
+      book: get("book")?.value || "",
+      chapter: get("chapter")?.value || "",
+      start,
+      end
+    };
+  }
+
+  function stateKey(state) {
+    return `${state.book}|${state.chapter}|${state.start}|${state.end}`;
+  }
+
+  function entryHasContent(entry) {
+    if (!entry) return false;
+    if (Array.isArray(entry)) return entry.some(entryHasContent);
+    return !!clean(entry.content || entry.text || entry.title || "");
+  }
+
+  function commentaryHasRange(data, state) {
+    if (!data || typeof data !== "object") return false;
+    for (let v = state.start; v <= state.end; v++) {
+      if (entryHasContent(data[`${state.book} ${state.chapter}:${v}`])) return true;
+    }
+    return false;
+  }
+
+  async function getCommentaryData(kind, book) {
+    try {
+      if (kind === "mh" && typeof loadMatthewHenryCommentary === "function") {
+        return await loadMatthewHenryCommentary(book);
+      }
+      if (kind === "jfb" && typeof loadJfbCommentary === "function") {
+        return await loadJfbCommentary(book);
+      }
+    } catch (error) {
+      console.warn("Commentary availability check failed:", kind, error);
+    }
+    return {};
+  }
+
+  const commentaryAvailabilityCache = new Map();
+
+  async function getCommentaryAvailability(force = false) {
+    const state = currentPassageState();
+    const key = stateKey(state);
+    if (!force && commentaryAvailabilityCache.has(key)) return commentaryAvailabilityCache.get(key);
+
+    const [mhData, jfbData] = await Promise.all([
+      getCommentaryData("mh", state.book),
+      getCommentaryData("jfb", state.book)
+    ]);
+
+    const availability = {
+      key,
+      mh: commentaryHasRange(mhData, state),
+      jfb: commentaryHasRange(jfbData, state)
+    };
+
+    commentaryAvailabilityCache.set(key, availability);
+    window.rdmCurrentCommentaryAvailability = availability;
+    return availability;
+  }
+
+  function setUnavailable(element, unavailable) {
+    if (!element) return;
+    element.classList.toggle("rdm-commentary-unavailable", !!unavailable);
+    if (unavailable) {
+      element.setAttribute("aria-hidden", "true");
+      element.setAttribute("tabindex", "-1");
+    } else {
+      element.removeAttribute("aria-hidden");
+      element.removeAttribute("tabindex");
+    }
+  }
+
+  function closestToolCard(id) {
+    const button = get(id);
+    return button || null;
+  }
+
+  function updateStudyResourcesTooltip() {
+    const tip = document.querySelector("#studyResourcesKey .study-resources-help-tooltip");
+    if (!tip) return;
+    tip.innerHTML = "This bar shows quick resources for the passage you are currently viewing. Backgrounds appears only when Bible Backgrounds &amp; Customs are mapped to this exact verse range. Commentary appears only when Matthew Henry or Jamieson-Fausset-Brown has commentary available for this exact passage. Built-In Cross References appears only when the internal WEB-generated reference database has links for this passage. Book Overview and More Study Tools remain available for deeper study.";
+  }
+
+  async function applyCommentaryAvailability(force = false) {
+    const availability = await getCommentaryAvailability(force);
+
+    const quickCommentary = document.querySelector('#studyResourcesKey [data-study-key-action="commentary"]');
+    const hasAnyCommentary = !!(availability.mh || availability.jfb);
+
+    setUnavailable(quickCommentary, !hasAnyCommentary);
+
+    if (quickCommentary) {
+      quickCommentary.dataset.commentarySource = availability.mh ? "mh" : (availability.jfb ? "jfb" : "");
+      quickCommentary.title = availability.mh
+        ? "Open Matthew Henry commentary for this passage."
+        : (availability.jfb ? "Open Jamieson-Fausset-Brown commentary for this passage." : "No commentary available for this passage.");
+    }
+
+    setUnavailable(closestToolCard("openCommentariesResource"), !availability.mh);
+    setUnavailable(closestToolCard("openJfbResource"), !availability.jfb);
+
+    updateStudyResourcesTooltip();
+  }
+
+  document.addEventListener("click", async (event) => {
+    const quickCommentary = event.target.closest('#studyResourcesKey [data-study-key-action="commentary"]');
+    const mhButton = event.target.closest('#openCommentariesResource');
+    const jfbButton = event.target.closest('#openJfbResource');
+
+    if (!quickCommentary && !mhButton && !jfbButton) return;
+
+    const availability = await getCommentaryAvailability();
+
+    if (quickCommentary) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (availability.mh && get("openCommentariesResource")) {
+        get("openCommentariesResource").click();
+        return;
+      }
+
+      if (availability.jfb && get("openJfbResource")) {
+        get("openJfbResource").click();
+        return;
+      }
+
+      setUnavailable(quickCommentary, true);
+      return;
+    }
+
+    if (mhButton && !availability.mh) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      setUnavailable(mhButton, true);
+      return;
+    }
+
+    if (jfbButton && !availability.jfb) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      setUnavailable(jfbButton, true);
+    }
+  }, true);
+
+  function scheduleCommentaryAvailabilityRefresh(force = false) {
+    setTimeout(() => applyCommentaryAvailability(force), 180);
+    setTimeout(() => applyCommentaryAvailability(force), 650);
+  }
+
+  ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
+    get(id)?.addEventListener("change", () => {
+      commentaryAvailabilityCache.clear();
+      scheduleCommentaryAvailabilityRefresh(true);
+    });
+  });
+
+  ["loadBtn", "nextBtn", "prevBtn", "obsLoadPassage"].forEach(id => {
+    get(id)?.addEventListener("click", () => {
+      commentaryAvailabilityCache.clear();
+      scheduleCommentaryAvailabilityRefresh(true);
+    });
+  });
+
+  const studyKeyObserver = new MutationObserver(() => scheduleCommentaryAvailabilityRefresh(false));
+  if (document.body) {
+    studyKeyObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function ensureOfflineDetailsBox() {
+    const panel = get("rdmOfflineCachePanel");
+    if (!panel) return null;
+
+    let details = get("rdmOfflineDetails");
+    if (details) return details;
+
+    const actions = panel.querySelector(".rdm-offline-cache-actions");
+    details = document.createElement("details");
+    details.id = "rdmOfflineDetails";
+    details.innerHTML = '<summary>Cache details</summary><div id="rdmOfflineDetailsBody">No detailed cache report yet.</div>';
+
+    if (actions) actions.insertAdjacentElement("beforebegin", details);
+    else panel.appendChild(details);
+
+    return details;
+  }
+
+  function setOfflineDetails(summary) {
+    const details = ensureOfflineDetailsBox();
+    const body = get("rdmOfflineDetailsBody");
+    if (!details || !body) return;
+
+    const skipped = Array.isArray(summary?.skippedUrls) ? summary.skippedUrls : [];
+    const failed = Array.isArray(summary?.failedUrls) ? summary.failedUrls : [];
+
+    if (!skipped.length && !failed.length) {
+      details.open = false;
+      body.innerHTML = "No missing or failed files were reported.";
+      return;
+    }
+
+    details.open = failed.length > 0;
+
+    const failedHtml = failed.length ? `
+      <strong>Failed files (${failed.length})</strong>
+      <ul>${failed.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>
+    ` : "<strong>Failed files (0)</strong><br>No failed files reported.";
+
+    const skippedHtml = skipped.length ? `
+      <strong>Optional missing files (${skipped.length})</strong>
+      <ul>${skipped.map(item => `<li>${safeText(item.url)}${item.status ? ` — ${safeText(item.status)}` : ""}</li>`).join("")}</ul>
+    ` : "<strong>Optional missing files (0)</strong><br>No optional missing files reported.";
+
+    body.innerHTML = `${failedHtml}<div style="height:9px"></div>${skippedHtml}`;
+  }
+
+  function setProgress(percent, text) {
+    const bar = get("rdmOfflineProgressBar");
+    const progressText = get("rdmOfflineProgressText");
+    if (bar) bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    if (progressText) progressText.textContent = text;
+  }
+
+  function setMessage(message) {
+    const box = get("rdmOfflineCacheMessage");
+    if (box) box.textContent = message;
+  }
+
+  function setOfflineButtons(running) {
+    const start = get("rdmOfflineStartCache");
+    const refresh = get("rdmOfflineRefreshCache");
+    if (start) {
+      start.disabled = running;
+      start.textContent = running ? "Preparing..." : "Offline Ready";
+    }
+    if (refresh) refresh.disabled = running || !navigator.onLine;
+  }
+
+  function addUrl(set, url) {
+    const cleanUrl = safeText(url);
+    if (!cleanUrl || cleanUrl.includes("undefined") || cleanUrl.includes("null")) return;
+    set.add(cleanUrl.replace(/^\.\//, ""));
+  }
+
+  function primaryFileName(value) {
+    const file = safeText(value);
+    if (!file) return "";
+    return file.replace(/^\/+/, "").replace(/\.json$/i, "") + ".json";
+  }
+
+  async function tryJson(url) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function buildOfflineUrlListV17() {
+    const urls = new Set();
+    const bookList = Array.isArray(window.books) ? window.books : (typeof books !== "undefined" ? books : []);
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    ["./", "index.html", "manifest.json", "assets/iron-sharpener-logo.png", "service-worker.js"].forEach(url => addUrl(urls, url));
+
+    bookList.forEach(([book, chapterCount]) => {
+      for (let chapter = 1; chapter <= Number(chapterCount || 0); chapter++) {
+        addUrl(urls, `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`);
+      }
+
+      addUrl(urls, `bible/resources/commentaries/matthew-henry/${book}.json`);
+      addUrl(urls, `bible/resources/commentaries/jfb/${book}.json`);
+      addUrl(urls, `bible/resources/book-overviews/${book}.json`);
+      addUrl(urls, `bible/resources/internal-cross-references/${book}.json`);
+      addUrl(urls, `bible/resources/backgrounds/by-reference/${book}.json`);
+    });
+
+    letters.forEach(letter => {
+      addUrl(urls, `bible/resources/eastons/${letter}.json`);
+      addUrl(urls, `bible/resources/smiths/${letter}.json`);
+    });
+
+    [
+      "index.json",
+      "index-2a-additions.json",
+      "index-2b-2c-3-additions.json",
+      "index-4-5-6-additions.json",
+      "index-7-8-additions.json",
+      "index-9-10-additions.json",
+      "index-11-12-additions.json",
+      "doctrine-registry.json"
+    ].forEach(file => addUrl(urls, `bible/resources/doctrine/${file}`));
+
+    addUrl(urls, "bible/resources/topics/index.json");
+    addUrl(urls, "bible/resources/backgrounds/index.json");
+
+    const naveIndex = await tryJson("bible/resources/topics/index.json");
+    const naveTopics = Array.isArray(naveIndex?.topics) ? naveIndex.topics : (Array.isArray(naveIndex) ? naveIndex : []);
+    naveTopics.forEach(item => {
+      const file = primaryFileName(item?.file || item?.id || item);
+      if (file) addUrl(urls, `bible/resources/topics/${file}`);
+    });
+
+    const doctrineRegistry = await tryJson("bible/resources/doctrine/doctrine-registry.json");
+    if (Array.isArray(doctrineRegistry)) {
+      doctrineRegistry.forEach(item => {
+        const file = primaryFileName(item?.file || item?.id || item?.title || item);
+        if (file) addUrl(urls, `bible/resources/doctrine/${file}`);
+      });
+    }
+
+    const backgroundsIndex = await tryJson("bible/resources/backgrounds/index.json");
+    if (Array.isArray(backgroundsIndex)) {
+      backgroundsIndex.forEach(item => {
+        const file = safeText(item?.file || (item?.id ? `topics/${item.id}.json` : ""));
+        if (file) addUrl(urls, `bible/resources/backgrounds/${file.replace(/^\/+/, "")}`);
+      });
+    }
+
+    return Array.from(urls);
+  }
+
+  async function cacheOneUrlV17(cache, url) {
+    const requestUrl = url.startsWith("./") ? url : `./${url}`;
+    try {
+      const response = await fetch(requestUrl, { cache: "reload" });
+      if (!response || !response.ok) {
+        const status = response ? `${response.status} ${response.statusText || ""}`.trim() : "no response";
+        if (response && response.status === 404) return { result: "skipped", url, status };
+        return { result: "failed", url, status };
+      }
+
+      await cache.put(requestUrl, response.clone());
+      if (!url.startsWith("./")) {
+        try { await cache.put(url, response.clone()); } catch (_) {}
+      }
+      return { result: "cached", url };
+    } catch (error) {
+      return { result: navigator.onLine ? "failed" : "stopped", url, status: error?.message || "fetch error" };
+    }
+  }
+
+  async function runWithConcurrency(items, limit, worker) {
+    let index = 0;
+    const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (index < items.length) {
+        const currentIndex = index++;
+        await worker(items[currentIndex], currentIndex);
+      }
+    });
+    await Promise.all(runners);
+  }
+
+  let enhancedCacheRunning = false;
+
+  async function startOfflineCachingWithDiagnostics({ force = true } = {}) {
+    if (enhancedCacheRunning) return;
+
+    ensureOfflineDetailsBox();
+
+    if (!navigator.onLine) {
+      setMessage("You are offline. Connect to the internet to prepare or refresh the offline cache.");
+      setProgress(0, "Waiting for internet connection.");
+      return;
+    }
+
+    if (!("caches" in window)) {
+      setMessage("This browser does not support the Cache API required for full offline setup.");
+      setProgress(0, "Offline cache unavailable in this browser.");
+      return;
+    }
+
+    enhancedCacheRunning = true;
+    setOfflineButtons(true);
+    setMessage("Preparing Iron Sharpener for offline use and recording exact cache details.");
+    setProgress(1, "Building detailed resource list...");
+    setOfflineDetails({ skippedUrls: [], failedUrls: [] });
+
+    let urls = [];
+    try {
+      urls = await buildOfflineUrlListV17();
+    } catch (error) {
+      enhancedCacheRunning = false;
+      setOfflineButtons(false);
+      setMessage("Could not build the offline resource list. Try again while connected.");
+      setProgress(0, "Offline setup did not complete.");
+      setOfflineDetails({ failedUrls: [{ url: "resource-list-build", status: error?.message || "error" }] });
+      return;
+    }
+
+    const cache = await caches.open(CACHE_NAME);
+    const total = urls.length || 1;
+    let completed = 0;
+    let cached = 0;
+    const skippedUrls = [];
+    const failedUrls = [];
+    let stopped = false;
+
+    setMessage(`Preparing ${total.toLocaleString()} Scripture and study resource files for offline use.`);
+
+    await runWithConcurrency(urls, MAX_CONCURRENT_FETCHES, async (url) => {
+      if (stopped) return;
+
+      const result = await cacheOneUrlV17(cache, url);
+      completed += 1;
+
+      if (result.result === "cached") cached += 1;
+      else if (result.result === "skipped") skippedUrls.push({ url: result.url, status: result.status || "404" });
+      else if (result.result === "stopped") stopped = true;
+      else failedUrls.push({ url: result.url, status: result.status || "failed" });
+
+      const percent = Math.round((completed / total) * 100);
+      if (completed === total || completed % 10 === 0) {
+        setProgress(percent, `${completed.toLocaleString()} of ${total.toLocaleString()} checked • ${cached.toLocaleString()} cached • ${skippedUrls.length.toLocaleString()} optional skipped • ${failedUrls.length.toLocaleString()} failed`);
+      }
+    });
+
+    enhancedCacheRunning = false;
+
+    const summary = {
+      version: "iron-sharpener-offline-v17-diagnostics",
+      complete: !stopped,
+      completedAt: new Date().toISOString(),
+      total,
+      cached,
+      skipped: skippedUrls.length,
+      failed: failedUrls.length,
+      skippedUrls,
+      failedUrls
+    };
+
+    localStorage.setItem(STORAGE_STATUS_KEY, JSON.stringify(summary));
+    window.rdmOfflineCacheLastDetailedStatus = summary;
+    window.rdmOfflineCacheStatus = () => summary;
+
+    if (!stopped) {
+      setMessage(failedUrls.length ? "Iron Sharpener cache finished, but review the failed file details below." : "Iron Sharpener is ready for offline use on this device.");
+      setProgress(100, `${cached.toLocaleString()} files cached. ${skippedUrls.length.toLocaleString()} optional missing files skipped. ${failedUrls.length.toLocaleString()} failed.`);
+    } else {
+      setMessage("Offline setup paused because the connection was lost. It can resume when you are back online.");
+      setProgress(Math.round((completed / total) * 100), `${completed.toLocaleString()} of ${total.toLocaleString()} checked before connection stopped.`);
+    }
+
+    setOfflineDetails(summary);
+    setOfflineButtons(false);
+  }
+
+  function installEnhancedOfflineButtons() {
+    ["rdmOfflineStartCache", "rdmOfflineRefreshCache"].forEach(id => {
+      const oldButton = get(id);
+      if (!oldButton || oldButton.dataset.rdmV17Enhanced === "1") return;
+      const newButton = oldButton.cloneNode(true);
+      newButton.dataset.rdmV17Enhanced = "1";
+      newButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        startOfflineCachingWithDiagnostics({ force: true });
+      });
+      oldButton.replaceWith(newButton);
+    });
+
+    const saved = (() => {
+      try { return JSON.parse(localStorage.getItem(STORAGE_STATUS_KEY) || "null"); }
+      catch (_) { return null; }
+    })();
+    if (saved && (Array.isArray(saved.failedUrls) || Array.isArray(saved.skippedUrls))) {
+      setOfflineDetails(saved);
+    } else {
+      ensureOfflineDetailsBox();
+    }
+  }
+
+  window.rdmStartOfflineCacheWithDiagnostics = startOfflineCachingWithDiagnostics;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      scheduleCommentaryAvailabilityRefresh(true);
+      setTimeout(installEnhancedOfflineButtons, 350);
+      setTimeout(installEnhancedOfflineButtons, 1200);
+    });
+  } else {
+    scheduleCommentaryAvailabilityRefresh(true);
+    setTimeout(installEnhancedOfflineButtons, 350);
+    setTimeout(installEnhancedOfflineButtons, 1200);
+  }
+})();
+</script>
+
+
+<!-- Patch 18 — Smart Commentary fallback: quick Commentary opens Matthew Henry first, then JFB if Matthew Henry is unavailable -->
 </body>
 </html>
