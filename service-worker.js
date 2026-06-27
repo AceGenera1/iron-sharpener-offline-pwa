@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v30 blank-page rescue
+/* Iron Sharpener service worker — v31 lightweight offline tracker
    Safe app-shell recovery: never serve old cached HTML, but keep old JSON/resource
    caches available so offline Scripture and study resources are preserved. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v30-rescue-20260626";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v31-tracker-20260627";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 const CORE_ASSETS = ["./index.html", "./manifest.json", "./assets/iron-sharpener-logo.png"];
 
