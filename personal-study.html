@@ -536,7 +536,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v32.1-guided-freewrite-copy-fix";
+  const VERSION = "v32.2-guided-freewrite-stability-polish";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -1883,6 +1883,43 @@ const verseCounts = {
   function cleanText(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
   function escapeHtml(value) { return String(value || "").replace(/[&<>"\']/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch])); }
 
+  const QUICK_PROMPT_TEXTS = new Set([
+    "What word, phrase, command, promise, warning, or repeated idea stands out in this passage?",
+    "What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?",
+    "Lord, what are You confronting, comforting, correcting, exposing, strengthening, or encouraging in me?",
+    "Lord, turn this truth into confession, thanksgiving, surrender, request, and praise.",
+    "What is one faithful next step I can take today?",
+    "Lord, what do You want me to bring before You right now?"
+  ]);
+
+  function scrubPromptOnlyText(value) {
+    const cleaned = String(value || "").trim();
+    return QUICK_PROMPT_TEXTS.has(cleaned) ? "" : value;
+  }
+
+  function insertTextAtCursor(el, textToInsert) {
+    if (!el || !textToInsert) return;
+    const start = typeof el.selectionStart === "number" ? el.selectionStart : el.value.length;
+    const end = typeof el.selectionEnd === "number" ? el.selectionEnd : el.value.length;
+    const before = el.value.slice(0, start);
+    const after = el.value.slice(end);
+    const spacerBefore = before && !before.endsWith("\n") ? "\n\n" : "";
+    const spacerAfter = after && !after.startsWith("\n") ? "\n\n" : "";
+    el.value = before + spacerBefore + textToInsert + spacerAfter + after;
+    const pos = (before + spacerBefore + textToInsert).length;
+    el.focus();
+    try { el.setSelectionRange(pos, pos); } catch (_) {}
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function activeWritingField() {
+    const active = document.activeElement;
+    if (active && (active.tagName === "TEXTAREA" || active.tagName === "INPUT") && fields.includes(active.id)) return active;
+    const visible = Array.from(document.querySelectorAll(".journalMode.active .guidePanel.active textarea, .journalMode.active textarea")).find((el) => el.offsetParent !== null);
+    return visible || $("freewrite") || $("observe");
+  }
+
+
   function openDb() {
     return new Promise((resolve) => {
       if (!("indexedDB" in window)) { resolve(null); return; }
@@ -1984,20 +2021,46 @@ const verseCounts = {
     return start === end ? `${book} ${chapter}:${start}` : `${book} ${chapter}:${start}-${end}`;
   }
 
+  function bibleFileCandidates(book, chapter) {
+    const padded = String(chapter).padStart(2, "0");
+    const plain = String(parseInt(chapter, 10));
+    const names = Array.from(new Set([padded, plain]));
+    const bases = ["./bible/web", "bible/web", "/bible/web", "../bible/web"];
+    const paths = [];
+    bases.forEach((base) => names.forEach((name) => paths.push(`${base}/${book}/${name}.json`)));
+    return Array.from(new Set(paths));
+  }
+
+  async function fetchBibleChapter(book, chapter) {
+    const attempted = bibleFileCandidates(book, chapter);
+    let lastError = null;
+    for (const path of attempted) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) { lastError = new Error(path); continue; }
+        const data = await response.json();
+        return { data, path, attempted };
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    const error = lastError || new Error("Bible chapter not found");
+    error.attempted = attempted;
+    throw error;
+  }
+
   async function loadPassage() {
     syncEndMinimum();
     const book = $("book").value;
     const chapter = $("chapter").value;
     const start = parseInt($("start").value, 10);
     const end = parseInt($("end").value, 10);
-    const path = `bible/web/${book}/${String(chapter).padStart(2, "0")}.json`;
     $("referenceTitle").textContent = currentReference();
     $("passage").innerHTML = `<p class="empty">Loading ${escapeHtml(currentReference())}…</p>`;
     try {
-      const response = await fetch(path);
-      if (!response.ok) throw new Error(path);
-      const data = await response.json();
-      currentPassageVerses = (data.verses || []).filter((verse) => verse.verse >= start && verse.verse <= end);
+      const result = await fetchBibleChapter(book, chapter);
+      const data = result.data;
+      currentPassageVerses = (data.verses || []).filter((verse) => Number(verse.verse) >= start && Number(verse.verse) <= end);
       if (!currentPassageVerses.length) throw new Error("No verses found.");
       $("referenceTitle").textContent = currentReference();
       $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}"><span class="vnum">${verse.verse}</span>${escapeHtml(cleanText(verse.text))}</p>`).join("");
@@ -2006,7 +2069,8 @@ const verseCounts = {
       autosaveDraft();
     } catch (error) {
       currentPassageVerses = [];
-      $("passage").innerHTML = `<p class="empty">This passage could not load. Make sure the WEB Bible files are available at <strong>${escapeHtml(path)}</strong>, or prepare offline files again while online.</p>`;
+      const tried = (error.attempted || bibleFileCandidates(book, chapter)).slice(0, 4).join(", ");
+      $("passage").innerHTML = `<p class="empty">This passage could not load. Make sure the WEB Bible files are present in the same repo at <strong>bible/web/${escapeHtml(book)}/${escapeHtml(String(chapter).padStart(2, "0"))}.json</strong>. Tried: ${escapeHtml(tried)}.</p>`;
     }
   }
 
@@ -2059,16 +2123,16 @@ const verseCounts = {
     }
     $("entryDate").value = entry.studyDate || todayIso();
     $("entryTitle").value = entry.title || "";
-    $("observe").value = entry.notes?.observe || "";
-    $("understand").value = entry.notes?.understand || "";
-    $("heart").value = entry.notes?.heart || "";
-    $("feetQuestions").value = entry.notes?.feetQuestions || "";
-    $("feetSensed").value = entry.notes?.feetSensed || "";
-    $("feetTesting").value = entry.notes?.feetTesting || "";
-    $("freewrite").value = entry.notes?.freewrite || "";
-    $("prayer").value = entry.notes?.prayer || "";
-    $("walk").value = entry.notes?.walk || "";
-    $("remember").value = entry.notes?.remember || "";
+    $("observe").value = scrubPromptOnlyText(entry.notes?.observe || "");
+    $("understand").value = scrubPromptOnlyText(entry.notes?.understand || "");
+    $("heart").value = scrubPromptOnlyText(entry.notes?.heart || "");
+    $("feetQuestions").value = scrubPromptOnlyText(entry.notes?.feetQuestions || "");
+    $("feetSensed").value = scrubPromptOnlyText(entry.notes?.feetSensed || "");
+    $("feetTesting").value = scrubPromptOnlyText(entry.notes?.feetTesting || "");
+    $("freewrite").value = scrubPromptOnlyText(entry.notes?.freewrite || "");
+    $("prayer").value = scrubPromptOnlyText(entry.notes?.prayer || "");
+    $("walk").value = scrubPromptOnlyText(entry.notes?.walk || "");
+    $("remember").value = scrubPromptOnlyText(entry.notes?.remember || "");
     $("tags").value = entry.tags || "";
     $("favoriteEntry").checked = !!entry.favorite;
     $("reviewLater").checked = !!entry.reviewLater;
@@ -2141,16 +2205,16 @@ const verseCounts = {
       }
       $("entryDate").value = draft.studyDate || todayIso();
       $("entryTitle").value = draft.title || "";
-      $("observe").value = draft.notes?.observe || "";
-      $("understand").value = draft.notes?.understand || "";
-      $("heart").value = draft.notes?.heart || "";
-      $("feetQuestions").value = draft.notes?.feetQuestions || "";
-      $("feetSensed").value = draft.notes?.feetSensed || "";
-      $("feetTesting").value = draft.notes?.feetTesting || "";
-      $("freewrite").value = draft.notes?.freewrite || "";
-      $("prayer").value = draft.notes?.prayer || "";
-      $("walk").value = draft.notes?.walk || "";
-      $("remember").value = draft.notes?.remember || "";
+      $("observe").value = scrubPromptOnlyText(draft.notes?.observe || "");
+      $("understand").value = scrubPromptOnlyText(draft.notes?.understand || "");
+      $("heart").value = scrubPromptOnlyText(draft.notes?.heart || "");
+      $("feetQuestions").value = scrubPromptOnlyText(draft.notes?.feetQuestions || "");
+      $("feetSensed").value = scrubPromptOnlyText(draft.notes?.feetSensed || "");
+      $("feetTesting").value = scrubPromptOnlyText(draft.notes?.feetTesting || "");
+      $("freewrite").value = scrubPromptOnlyText(draft.notes?.freewrite || "");
+      $("prayer").value = scrubPromptOnlyText(draft.notes?.prayer || "");
+      $("walk").value = scrubPromptOnlyText(draft.notes?.walk || "");
+      $("remember").value = scrubPromptOnlyText(draft.notes?.remember || "");
       $("tags").value = draft.tags || "";
       $("favoriteEntry").checked = !!draft.favorite;
       $("reviewLater").checked = !!draft.reviewLater;
@@ -2343,14 +2407,13 @@ const verseCounts = {
     $("refreshHistoryBtn").addEventListener("click", renderHistory);
     $("historySearch").addEventListener("input", renderHistory);
     document.querySelectorAll(".filterBtn").forEach((btn) => btn.addEventListener("click", () => { historyFilter = btn.dataset.filter || "all"; renderHistory(); }));
+    document.querySelectorAll(".quickPromptBtn").forEach((btn) => btn.addEventListener("mousedown", (event) => event.preventDefault()));
     document.querySelectorAll(".quickPromptBtn").forEach((btn) => btn.addEventListener("click", () => {
-      const target = $(btn.dataset.target);
-      if (!target) return;
       const prompt = btn.dataset.prompt || "";
-      if (btn.dataset.target === "freewrite") { document.querySelector('.modeTab[data-mode="freewrite"]')?.click(); }
-      if (btn.dataset.target === "feetQuestions") { document.querySelector('.modeTab[data-mode="guided"]')?.click(); document.querySelector('.stepTab[data-step="feet"]')?.click(); }
-      if (prompt) target.value = target.value.trim() ? `${target.value.trim()}\n\n${prompt}` : prompt;
-      target.focus();
+      if (btn.dataset.target === "freewrite") document.querySelector('.modeTab[data-mode="freewrite"]')?.click();
+      const target = activeWritingField() || $(btn.dataset.target);
+      if (prompt && target) insertTextAtCursor(target, prompt);
+      if (target) target.focus();
       autosaveDraft();
     }));
     document.querySelectorAll(".modeTab").forEach((btn) => btn.addEventListener("click", () => {
