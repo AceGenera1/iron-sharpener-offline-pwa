@@ -148,7 +148,11 @@
     color: var(--ink);
   }
   body.dark .privacy { background: rgba(255,249,241,.06); }
-  .layout { display: grid; grid-template-columns: minmax(330px, .92fr) minmax(420px, 1.25fr) minmax(280px, .72fr); gap: 16px; align-items: start; }
+  .layout { display: grid; grid-template-columns: minmax(280px, .72fr) minmax(520px, 1.42fr) minmax(380px, 1fr); grid-template-areas: "history scripture journal"; gap: 16px; align-items: start; }
+  .historyCard { grid-area: history; }
+  .scriptureCard { grid-area: scripture; }
+  .journalCard { grid-area: journal; }
+  .scriptureCard .passage { max-height: 66vh; }
   .card { background: rgba(255,249,241,.88); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   body.dark .card { background: rgba(29,45,68,.94); }
   .cardHead { padding: 16px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(220,232,242,.45); }
@@ -301,6 +305,10 @@
   .wordToken.wordMarkHighlight { background: rgba(217,160,123,.38); }
   .wordToken.wordMarkUnderline { text-decoration-line: underline; text-decoration-thickness: 3px; text-decoration-color: var(--soft-copper); text-underline-offset: 4px; }
   .wordToken.wordMarkCircle { box-shadow: inset 0 0 0 2px rgba(217,160,123,.78); border-radius: 999px; padding: 2px 5px; margin: 0 1px; }
+  .inline-underline { text-decoration: underline; text-decoration-thickness: 4px; text-decoration-color: var(--soft-copper); text-underline-offset: 6px; border-radius: 4px; }
+  .inline-circle { display: inline-block; border: 3px solid var(--soft-copper); border-radius: 999px; padding: 0 7px 1px; margin: 0 2px; line-height: 1.15; }
+  .inline-highlight { background: rgba(217,160,123,.38); border-radius: 5px; padding: 0 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+
   .markingHint {
     margin: 8px 0 0;
     color: var(--dust);
@@ -347,69 +355,100 @@
 
 
 
-  .studyToolsPanel {
+  /* v36 mirrored Scripture Study Mode floating panels */
+  .studyToolsPanel,
+  .resourceFloatPanel {
     display: none;
     position: fixed;
-    inset: clamp(12px, 3vw, 34px);
-    z-index: 1000;
-    background: rgba(255,249,241,.97);
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    box-shadow: 0 28px 80px rgba(0,0,0,.35);
-    overflow: hidden;
+    right: 22px;
+    top: 118px;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    z-index: 10050;
+    border: 2px solid var(--soft-copper);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98));
+    color: var(--ink);
+    box-shadow: 0 24px 70px rgba(0,0,0,.38);
+    padding: 18px;
   }
-  body.dark .studyToolsPanel { background: rgba(22,34,52,.98); }
-  .studyToolsPanel.open { display: grid; grid-template-rows: auto 1fr; }
-  .studyToolsHead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 16px 18px;
-    background: linear-gradient(135deg, var(--deep), var(--water));
-    color: #FFF9F1;
-    border-bottom: 1px solid rgba(255,249,241,.16);
+  body.dark .studyToolsPanel,
+  body.dark .resourceFloatPanel {
+    background: linear-gradient(180deg, #355070, #1D2D44);
+    color: #F8F4EC;
+    border-color: rgba(217,160,123,.88);
+    box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
   }
-  .studyToolsHead h2 { margin: 0; color: #FFF9F1; font-size: 22px; letter-spacing: -.02em; }
-  .studyToolsHead p { margin: 4px 0 0; color: rgba(255,249,241,.82); font-size: 13px; line-height: 1.35; }
-  .studyToolsBody {
-    display: grid;
-    grid-template-columns: minmax(260px, 360px) 1fr;
-    min-height: 0;
+  .studyToolsPanel.open,
+  .resourceFloatPanel.open { display: block; }
+  .studyToolsHead,
+  .resourceFloatHead {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    border-bottom:1px solid var(--soft-copper);
+    padding-bottom:10px;
+    margin-bottom:14px;
+    background: transparent;
+    color: inherit;
   }
-  .studyToolsMenu {
-    padding: 16px;
-    border-right: 1px solid var(--line);
-    overflow: auto;
-    background: rgba(220,232,242,.35);
-  }
-  body.dark .studyToolsMenu { background: rgba(255,249,241,.035); }
-  .studyToolGroup { margin-bottom: 16px; }
+  .studyToolsHead h2,
+  .resourceFloatHead h2 { margin:0; color:var(--deep); font-size:23px; letter-spacing:.01em; }
+  body.dark .studyToolsHead h2,
+  body.dark .resourceFloatHead h2 { color:var(--soft-copper); }
+  .studyToolsHead p { margin:4px 0 0; color:var(--dust); font-size:13px; line-height:1.35; }
+  .studyToolsBody { display:block; min-height:0; }
+  .studyToolsMenu { padding:0; border-right:0; overflow:visible; background:transparent; }
+  .studyToolGroup { margin:16px 0 0; }
+  .studyToolGroup:first-child { margin-top:0; }
   .studyToolGroup h3 {
     margin: 0 0 9px;
-    color: var(--deep);
-    font-size: 14px;
+    color: var(--copper);
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: .08em;
   }
-  body.dark .studyToolGroup h3 { color: var(--sky); }
+  body.dark .studyToolGroup h3 { color: var(--soft-copper); }
+  .studyToolsMenu .studyToolGroup { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .studyToolsMenu .studyToolGroup h3,
+  .studyToolsMenu .studyToolSearch,
+  .studyToolsMenu .markingHint { grid-column:1/-1; }
   .studyToolBtn {
     width: 100%;
+    min-height: 64px;
     text-align: left;
     display: block;
-    margin-bottom: 8px;
+    margin: 0;
     box-shadow: none;
     background: rgba(255,255,255,.62);
     color: var(--deep);
     border: 1px solid var(--line);
     line-height: 1.25;
   }
-  body.dark .studyToolBtn { background: rgba(255,249,241,.06); color: var(--ink); }
-  .studyToolSearch { display: grid; gap: 8px; margin: 8px 0 10px; }
-  .studyToolsResults { padding: 18px; overflow: auto; min-height: 0; }
+  body.dark .studyToolBtn { background: rgba(255,249,241,.06); color: var(--ink); border-color: rgba(217,160,123,.35); }
+  .studyToolBtn:hover,
+  .studyToolBtn.markActive {
+    background: linear-gradient(180deg, var(--soft-copper), var(--copper));
+    color: #FFF9F1;
+    border-color: rgba(255,249,241,.28);
+  }
+  body.dark .studyToolBtn.markActive,
+  body.dark .studyToolBtn:hover { color:#162234; }
+  .studyToolSearch { display:grid; gap:8px; margin:0; }
+  .studyToolSearch .studyToolBtn { min-height: 50px; }
+  .studyToolsResults { display:none; }
+  .resourceFloatPanel {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(760px, calc(100vw - 32px));
+    z-index: 10060;
+  }
   .resourceResult {
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: 16px;
     padding: 15px;
     background: rgba(255,255,255,.52);
     margin-bottom: 12px;
@@ -417,31 +456,14 @@
   }
   body.dark .resourceResult { background: rgba(255,249,241,.055); }
   .resourceResult h3, .resourceResult h4 { margin: 0 0 8px; color: var(--deep); }
-  body.dark .resourceResult h3, body.dark .resourceResult h4 { color: var(--ink); }
+  body.dark .resourceResult h3, body.dark .resourceResult h4 { color: var(--soft-copper); }
   .resourceResult p { margin: 0 0 10px; }
   .resourceResult ul { margin: 8px 0 0; padding-left: 20px; }
-  .footer {
-    margin-top: 24px;
-    color: var(--ink);
-    text-align: center;
-    font-size: 14px;
-    line-height: 1.6;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    background: rgba(255,249,241,.78);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-  }
-  body.dark .footer { color: var(--ink); background: rgba(255,249,241,.055); }
-  .footer strong { color: var(--deep); font-size: 16px; }
-  body.dark .footer strong { color: var(--soft-copper); }
-  .footer .footerVerse { color: var(--dust); font-weight: 800; margin-top: 6px; }
-
   .hiddenFile { display:none; }
   @media (max-width: 1180px) {
-    .layout { grid-template-columns: 1fr 1fr; }
-    .historyCard { grid-column: 1 / -1; }
-    .passage { max-height: 44vh; }
+    .layout { grid-template-columns: 1fr 1fr; grid-template-areas: "scripture journal" "history history"; }
+    .historyCard { grid-column: auto; }
+    .passage { max-height: 52vh; }
   }
   @media (max-width: 780px) {
     .shell { width: min(100% - 18px, 680px); padding-top: 9px; }
@@ -449,7 +471,7 @@
     .logoWrap { margin: 0 auto; }
     .heroActions { justify-content: center; max-width: none; }
     .verseCard { margin: 0 auto; border-left: 0; border-top: 4px solid var(--soft-copper); padding: 13px 0 0; }
-    .layout { grid-template-columns: 1fr; }
+    .layout { grid-template-columns: 1fr; grid-template-areas: "scripture" "journal" "history"; }
     .gridControls { grid-template-columns: 1fr 1fr; }
     .cardHead { align-items:flex-start; flex-direction: column; }
     button { width: auto; }
@@ -521,15 +543,19 @@
           </div>
         </div>
       </aside>
-      <div class="studyToolsResults" id="studyToolsResults">
-        <div class="resourceResult">
-          <h3>Open a study tool</h3>
-          <p>Select a tool on the left. Results stay inside this Disciple Journal panel so your journal entry remains safe and untouched.</p>
-        </div>
-      </div>
+
     </div>
   </section>
 
+  <section class="resourceFloatPanel" id="resourceFloatPanel" aria-hidden="true">
+    <div class="resourceFloatHead">
+      <h2 id="resourceFloatTitle">Study Resource</h2>
+      <button class="secondary" id="closeResourceFloatBtn" type="button">Close</button>
+    </div>
+    <div id="studyToolsResults">
+      <div class="resourceResult"><h3>Open a study tool</h3><p>Select a resource from Study Tools.</p></div>
+    </div>
+  </section>
 
   <main class="layout">
     <section class="card scriptureCard">
@@ -712,7 +738,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v35-disciple-journal-word-marking-journal-export";
+  const VERSION = "v36-disciple-journal-mirrored-study-tools-layout";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -2533,6 +2559,38 @@ const verseCounts = {
     return `${markModeLabel()} ${current[markMode] ? "added" : "removed"}`;
   }
 
+  function selectedWordTokensInVerse(verseEl) {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return [];
+    const range = selection.getRangeAt(0);
+    if (!verseEl.contains(range.commonAncestorContainer)) return [];
+    return Array.from(verseEl.querySelectorAll(".wordToken[data-verse][data-word]")).filter((token) => {
+      try { return range.intersectsNode(token); } catch (_) { return false; }
+    });
+  }
+
+  function applyMarkToSelection(verseEl) {
+    const tokens = selectedWordTokensInVerse(verseEl);
+    if (!tokens.length || !markMode) return false;
+    const marks = getVerseMarks();
+    tokens.forEach((token) => {
+      const key = wordMarkKey(token.dataset.verse, token.dataset.word);
+      if (markMode === "erase") {
+        delete marks[key];
+        return;
+      }
+      const current = marks[key] || {};
+      current[markMode] = true;
+      marks[key] = current;
+    });
+    saveVerseMarks(marks);
+    applySavedMarks();
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+    setStatus(`${markModeLabel()} applied to selected text`);
+    return true;
+  }
+
   function applyMarkToWord(wordEl) {
     if (!wordEl || !markMode) return;
     const message = toggleMarkRecord(wordMarkKey(wordEl.dataset.verse, wordEl.dataset.word));
@@ -2583,6 +2641,7 @@ const verseCounts = {
     const wordEl = event.target.closest(".wordToken[data-verse][data-word]");
     const verseEl = event.target.closest(".verse[data-verse]");
     if (!verseEl) return;
+    if (markMode && applyMarkToSelection(verseEl)) return;
     if (markMode && wordEl) { applyMarkToWord(wordEl); return; }
     const verseNum = parseInt(verseEl.dataset.verse, 10);
     if (!Number.isFinite(verseNum)) return;
@@ -2784,8 +2843,22 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
   function setStudyToolsResult(title, html) {
     const target = $("studyToolsResults");
+    const panel = $("resourceFloatPanel");
+    const heading = $("resourceFloatTitle");
     if (!target) return;
+    if (heading) heading.textContent = title || "Study Resource";
     target.innerHTML = `<div class="resourceResult"><h3>${escapeHtml(title)}</h3>${html}</div>`;
+    if (panel) {
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+    }
+  }
+
+  function closeResourceFloat() {
+    const panel = $("resourceFloatPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
   }
 
   function normalizeResourceText(value) {
@@ -2952,6 +3025,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     $("studyModeBtn").addEventListener("click", openStudyMode);
     $("openStudyToolsBtn").addEventListener("click", openStudyTools);
     $("closeStudyToolsBtn").addEventListener("click", closeStudyTools);
+    $("closeResourceFloatBtn")?.addEventListener("click", closeResourceFloat);
     $("toolPassageSummary").addEventListener("click", openPassageSnapshot);
     $("toolCrossRefs").addEventListener("click", openCrossRefsTool);
     $("toolCommentary").addEventListener("click", openCommentaryTool);
