@@ -365,6 +365,7 @@
 
   /* v36 mirrored Scripture Study Mode floating panels */
   .studyToolsPanel,
+  .markToolsPanel,
   .resourceFloatPanel {
     display: none;
     position: fixed;
@@ -382,6 +383,7 @@
     padding: 18px;
   }
   body.dark .studyToolsPanel,
+  body.dark .markToolsPanel,
   body.dark .resourceFloatPanel {
     background: linear-gradient(180deg, #355070, #1D2D44);
     color: #F8F4EC;
@@ -389,8 +391,10 @@
     box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
   }
   .studyToolsPanel.open,
+  .markToolsPanel.open,
   .resourceFloatPanel.open { display: block; }
   .studyToolsHead,
+  .markToolsHead,
   .resourceFloatHead {
     display:flex;
     justify-content:space-between;
@@ -403,8 +407,10 @@
     color: inherit;
   }
   .studyToolsHead h2,
+  .markToolsHead h2,
   .resourceFloatHead h2 { margin:0; color:var(--deep); font-size:23px; letter-spacing:.01em; }
   body.dark .studyToolsHead h2,
+  body.dark .markToolsHead h2,
   body.dark .resourceFloatHead h2 { color:var(--soft-copper); }
   .studyToolsHead p { margin:4px 0 0; color:var(--dust); font-size:13px; line-height:1.35; }
   .studyToolsBody { display:block; min-height:0; }
@@ -467,6 +473,48 @@
   body.dark .resourceResult h3, body.dark .resourceResult h4 { color: var(--soft-copper); }
   .resourceResult p { margin: 0 0 10px; }
   .resourceResult ul { margin: 8px 0 0; padding-left: 20px; }
+
+  .markToolsPanel {
+    display: none;
+    position: fixed;
+    right: 22px;
+    top: 118px;
+    width: min(520px, calc(100vw - 32px));
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    z-index: 10055;
+    border: 2px solid var(--soft-copper);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98));
+    color: var(--ink);
+    box-shadow: 0 24px 70px rgba(0,0,0,.38);
+    padding: 18px;
+    resize: both;
+    min-width: 320px;
+    min-height: 220px;
+  }
+  body.dark .markToolsPanel {
+    background: linear-gradient(180deg, #355070, #1D2D44);
+    color: #F8F4EC;
+    border-color: rgba(217,160,123,.88);
+    box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
+  }
+  .markToolsHead {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    border-bottom:1px solid var(--soft-copper);
+    padding-bottom:10px;
+    margin-bottom:14px;
+  }
+  .markToolsBody { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .markToolsBody .markingHint { grid-column:1/-1; }
+  .lookupBox { display:grid; gap:10px; }
+  .lookupBox input { width:100%; }
+  .lookupActions { display:flex; gap:8px; flex-wrap:wrap; }
+  .lookupActions button { box-shadow:none; }
+
   .hiddenFile { display:none; }
   @media (max-width: 1180px) {
     .layout { grid-template-columns: 1fr 1fr; grid-template-areas: "scripture journal" "history history"; }
@@ -657,6 +705,7 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
 
 /* v38 — Disciple Journal mirrored resource panel behavior */
 .studyToolsPanel,
+.markToolsPanel,
 .resourceFloatPanel,
 #internalCrossRefsPanel.internal-crossrefs-panel,
 .resource-instance-panel {
@@ -667,6 +716,7 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
   max-height: calc(100vh - 24px);
 }
 .studyToolsHead,
+.markToolsHead,
 .resourceFloatHead,
 #internalCrossRefsPanel .teacher-pop-head,
 .resource-instance-panel .resourceFloatHead,
@@ -723,6 +773,7 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
 }
 @media (max-width: 780px) {
   .studyToolsPanel,
+  .markToolsPanel,
   .resourceFloatPanel,
   #internalCrossRefsPanel.internal-crossrefs-panel,
   .resource-instance-panel {
@@ -826,24 +877,36 @@ body.dark .commentary-entry h4 { color: var(--soft-copper); }
           <button class="studyToolBtn" id="toolJfb" type="button">Jamieson-Fausset-Brown Commentary</button>
         </div>
         <div class="studyToolGroup">
-          <h3>Scripture Marking</h3>
-          <button class="studyToolBtn markToolBtn" id="markHighlightBtn" type="button" data-mark="highlight">Highlight Text</button>
-          <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Text</button>
-          <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Text</button>
-          <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Marks</button>
-          <button class="studyToolBtn" id="markClearPassageBtn" type="button">Clear Marks in Passage</button>
-          <button class="studyToolBtn" id="markStopBtn" type="button">Stop Marking</button>
-          <p class="markingHint">Choose a marking tool, then click a word or a verse in the Scripture panel. Marks are saved on this device.</p>
-        </div>
-        <div class="studyToolGroup">
-          <h3>Study Helps</h3>
+          <h3>Word &amp; Topic Helps</h3>
           <button class="studyToolBtn" id="toolEastons" type="button">Easton's Bible Dictionary</button>
           <button class="studyToolBtn" id="toolSmiths" type="button">Smith's Bible Dictionary</button>
           <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
+        </div>
+        <div class="studyToolGroup">
+          <h3>Doctrine</h3>
           <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
         </div>
       </aside>
 
+    </div>
+  </section>
+
+  <section class="markToolsPanel" id="markToolsPanel" aria-hidden="true">
+    <div class="markToolsHead drag-handle" data-drag-handle="markToolsPanel">
+      <div>
+        <h2>Scripture Marking</h2>
+        <p>Choose a marking tool, then select words or click verses in the Scripture panel.</p>
+      </div>
+      <button class="secondary" id="closeMarkToolsBtn" type="button">Close</button>
+    </div>
+    <div class="markToolsBody">
+      <button class="studyToolBtn markToolBtn" id="markHighlightBtn" type="button" data-mark="highlight">Highlight Text</button>
+      <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Text</button>
+      <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Text</button>
+      <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Marks</button>
+      <button class="studyToolBtn" id="markClearPassageBtn" type="button">Clear Marks in Passage</button>
+      <button class="studyToolBtn" id="markStopBtn" type="button">Stop Marking</button>
+      <p class="markingHint">Select a word or phrase first, then choose Highlight, Underline, or Circle. Or choose a tool and click a whole verse. Marks are saved on this device.</p>
     </div>
   </section>
 
@@ -861,6 +924,7 @@ body.dark .commentary-entry h4 { color: var(--soft-copper); }
     <section class="card scriptureCard">
       <div class="cardHead"><h2>Scripture Passage</h2>
         <div class="scriptureHeadActions">
+          <button class="secondary" id="openMarkToolsBtn" type="button">Mark Scripture</button>
           <button class="secondary" id="openStudyToolsBtn" type="button">Study Tools</button>
           <div class="copyMenuWrap">
             <button class="secondary" id="copyScriptureBtn" type="button" aria-expanded="false">Copy Scripture</button>
@@ -3234,6 +3298,7 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
 
 /* v38 — Disciple Journal mirrored resource panel behavior */
 .studyToolsPanel,
+.markToolsPanel,
 .resourceFloatPanel,
 #internalCrossRefsPanel.internal-crossrefs-panel,
 .resource-instance-panel {
@@ -3244,6 +3309,7 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
   max-height: calc(100vh - 24px);
 }
 .studyToolsHead,
+.markToolsHead,
 .resourceFloatHead,
 #internalCrossRefsPanel .teacher-pop-head,
 .resource-instance-panel .resourceFloatHead,
@@ -3300,6 +3366,7 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
 }
 @media (max-width: 780px) {
   .studyToolsPanel,
+  .markToolsPanel,
   .resourceFloatPanel,
   #internalCrossRefsPanel.internal-crossrefs-panel,
   .resource-instance-panel {
@@ -3425,6 +3492,20 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
   function closeStudyTools() {
     const panel = $("studyToolsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  }
+
+  function openMarkTools() {
+    const panel = $("markToolsPanel");
+    if (!panel) return;
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  function closeMarkTools() {
+    const panel = $("markToolsPanel");
     if (!panel) return;
     panel.classList.remove("open");
     panel.setAttribute("aria-hidden", "true");
@@ -3666,45 +3747,76 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
 
   function requestStudyTerm(label) {
-    const selected = currentSearchTermOrSelection();
-    if (selected) return selected;
-    const value = window.prompt(`${label}: enter a word or topic to search.`);
-    return cleanText(value || "");
+    return currentSearchTermOrSelection();
   }
 
-  async function openDictionarySource(title, folder) {
-    const term = requestStudyTerm(title);
-    if (!term) { setStudyToolsResult(title, `<p class="empty">Select a word in Scripture or enter a word to search.</p>`); return; }
+  function renderLookupBox(title, placeholder, onSearchName) {
+    return `
+      <div class="lookupBox">
+        <p class="empty">Select a word in Scripture first, or type a word/topic below.</p>
+        <input id="resourceLookupInput" placeholder="${escapeHtml(placeholder)}" />
+        <div class="lookupActions">
+          <button class="secondary" type="button" onclick="window.${onSearchName}(document.getElementById('resourceLookupInput')?.value || '')">Search</button>
+        </div>
+      </div>`;
+  }
+
+  async function searchDictionarySource(title, folder, rawTerm) {
+    const term = cleanText(rawTerm || "");
+    if (!term) { setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel")); return; }
     const letter = term[0].toLowerCase();
     const data = await fetchJsonAny([
       `bible/resources/${folder}/${letter}.json`,
       `./bible/resources/${folder}/${letter}.json`,
       `bible/resources/${folder}/${encodeURIComponent(letter)}.json`
     ]);
-    if (!data) { setStudyToolsResult(title, `<p class="empty">No ${escapeHtml(title)} files loaded for ${escapeHtml(term)}.</p>`); return; }
+    if (!data) { setStudyToolsResult(`${title}: ${term}`, `<p class="empty">No ${escapeHtml(title)} files loaded for ${escapeHtml(term)}.</p>`); return; }
     setStudyToolsResult(`${title}: ${term}`, renderMatches(collectMatches(data, [term], 16), `No ${title} match found for ${term}.`));
   }
+
+  async function openDictionarySource(title, folder) {
+    const term = requestStudyTerm(title);
+    if (term) return searchDictionarySource(title, folder, term);
+    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel"));
+  }
+
+  window.searchEastonsFromPanel = (term) => searchDictionarySource("Easton's Bible Dictionary", "eastons", term);
+  window.searchSmithsFromPanel = (term) => searchDictionarySource("Smith's Bible Dictionary", "smiths", term);
 
   async function openEastonsTool() { await openDictionarySource("Easton's Bible Dictionary", "eastons"); }
   async function openSmithsTool() { await openDictionarySource("Smith's Bible Dictionary", "smiths"); }
 
-  async function openNaveTool() {
-    const term = requestStudyTerm("Nave's Topical Bible");
-    if (!term) { setStudyToolsResult("Nave's Topical Bible", `<p class="empty">Select a word in Scripture or enter a topic to search.</p>`); return; }
+  async function searchNaveFromPanel(termRaw) {
+    const term = cleanText(termRaw || "");
+    if (!term) { setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel")); return; }
     const file = slugify(term);
     const data = await fetchJsonAny([`bible/resources/topics/${file}.json`, `./bible/resources/topics/${file}.json`, `bible/resources/naves/${file}.json`]);
     setStudyToolsResult(`Nave's Topic: ${term}`, data ? normalizeResourceText(data) : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`);
   }
 
-  async function openDoctrineTool() {
-    const term = requestStudyTerm("Biblical Doctrine");
-    if (!term) { setStudyToolsResult("Biblical Doctrine", `<p class="empty">Select a word in Scripture or enter a doctrine/topic to search.</p>`); return; }
+  async function openNaveTool() {
+    const term = requestStudyTerm("Nave's Topical Bible");
+    if (term) return searchNaveFromPanel(term);
+    setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
+  }
+  window.searchNaveFromPanel = searchNaveFromPanel;
+
+  async function searchDoctrineFromPanel(termRaw) {
+    const term = cleanText(termRaw || "");
+    if (!term) { setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel")); return; }
     const slug = slugify(term);
     const direct = await fetchJsonAny([`bible/resources/doctrine/${slug}.json`, `./bible/resources/doctrine/${slug}.json`]);
     if (direct) { setStudyToolsResult(`Doctrine: ${term}`, normalizeResourceText(direct)); return; }
     const registry = await fetchJsonAny([`bible/resources/doctrine/doctrine-registry.json`, `./bible/resources/doctrine/doctrine-registry.json`, `bible/resources/doctrine/index.json`]);
     setStudyToolsResult(`Doctrine Search: ${term}`, registry ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`) : `<p class="empty">No doctrine registry loaded.</p>`);
   }
+
+  async function openDoctrineTool() {
+    const term = requestStudyTerm("Biblical Doctrine");
+    if (term) return searchDoctrineFromPanel(term);
+    setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
+  }
+  window.searchDoctrineFromPanel = searchDoctrineFromPanel;
 
 
 
@@ -4180,6 +4292,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
   function setupExistingFloatingPanels() {
     makePanelDraggable($("studyToolsPanel"), document.querySelector("#studyToolsPanel .studyToolsHead"));
+    makePanelDraggable($("markToolsPanel"), document.querySelector("#markToolsPanel .markToolsHead"));
     makePanelDraggable($("resourceFloatPanel"), document.querySelector("#resourceFloatPanel .resourceFloatHead"));
     makePanelDraggable($("internalCrossRefsPanel"), document.querySelector("#internalCrossRefsPanel .teacher-pop-head"));
     document.querySelectorAll(".resource-instance-panel").forEach((panel) => makePanelDraggable(panel, panel.querySelector(".resourceFloatHead")));
@@ -4211,6 +4324,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   function bindEvents() {
     setupExistingFloatingPanels();
     $("studyModeBtn").addEventListener("click", openStudyMode);
+    $("openMarkToolsBtn").addEventListener("click", openMarkTools);
+    $("closeMarkToolsBtn").addEventListener("click", closeMarkTools);
     $("openStudyToolsBtn").addEventListener("click", openStudyTools);
     $("closeStudyToolsBtn").addEventListener("click", closeStudyTools);
     $("closeResourceFloatBtn")?.addEventListener("click", closeResourceFloat);
