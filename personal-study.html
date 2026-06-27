@@ -3555,6 +3555,15 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     openResourceInstancePanel(title, html);
   }
 
+  function focusLookupInputForTitle(title, selectText = false) {
+    const panel = document.getElementById(resourcePanelId(title));
+    const input = panel?.querySelector('[data-lookup-input]');
+    if (input) {
+      input.focus({ preventScroll: true });
+      if (selectText) input.select?.();
+    }
+  }
+
   function closeResourceFloat() {
     const panel = $("resourceFloatPanel");
     if (!panel) return;
@@ -3775,14 +3784,15 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
 
   function renderLookupBox(title, placeholder, onSearchName, initialValue = "") {
+    const safeSearchName = String(onSearchName || "").replace(/[^A-Za-z0-9_$]/g, "");
     return `
-      <div class="lookupBox resource-search-panel">
+      <div class="lookupBox resource-search-panel" data-resource-search="${escapeHtml(title)}">
         <p class="empty">Select a word in Scripture first, or type a word/topic below.</p>
-        <input id="resourceLookupInput" value="${escapeHtml(initialValue)}" placeholder="${escapeHtml(placeholder)}" />
+        <input data-lookup-input="true" value="${escapeHtml(initialValue)}" placeholder="${escapeHtml(placeholder)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.closest('.lookupBox')?.querySelector('[data-lookup-search]')?.click();}" />
         <div class="lookupActions">
-          <button class="secondary" type="button" onclick="window.${onSearchName}(document.getElementById('resourceLookupInput')?.value || '')">Search</button>
+          <button class="secondary" data-lookup-search="true" type="button" onclick="window.${safeSearchName}(this.closest('.lookupBox')?.querySelector('[data-lookup-input]')?.value || '')">Search</button>
         </div>
-        <div class="lookupResults" id="resourceLookupResults"></div>
+        <div class="lookupResults" data-lookup-results="true"></div>
       </div>`;
   }
 
@@ -3817,7 +3827,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
     if (!term) {
       setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName));
-      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      setTimeout(() => focusLookupInputForTitle(title), 30);
       return;
     }
 
@@ -3826,8 +3836,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
     if (!data || typeof data !== "object") {
       setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
-        '<div class="lookupResults" id="resourceLookupResults"></div>',
-        `<div class="lookupResults" id="resourceLookupResults"><p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(term)}.</p></div>`
+        '<div class="lookupResults" data-lookup-results="true"></div>',
+        `<div class="lookupResults" data-lookup-results="true"><p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(term)}.</p></div>`
       ));
       return;
     }
@@ -3851,8 +3861,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       : `<p class="empty">No ${escapeHtml(title)} match found for ${escapeHtml(term)}.</p>`;
 
     setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
-      '<div class="lookupResults" id="resourceLookupResults"></div>',
-      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+      '<div class="lookupResults" data-lookup-results="true"></div>',
+      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
     ));
 
     setTimeout(() => {
@@ -3863,8 +3873,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
           openResourceInstancePanel(item?.title || key || title, normalizeDictionaryEntry(item, key));
         });
       });
-      const box = document.getElementById("resourceLookupInput");
-      if (box) { box.focus({ preventScroll: true }); box.select?.(); }
+      focusLookupInputForTitle(title, true);
     }, 30);
   }
 
@@ -3872,7 +3881,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     const term = requestStudyTerm(title);
     if (term) return searchDictionarySource(title, folder, term);
     setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", dictionaryPanelSearchName(folder)));
-    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+    setTimeout(() => focusLookupInputForTitle(title), 30);
   }
 
   window.searchEastonsFromPanel = (term) => searchDictionarySource("Easton's Bible Dictionary", "eastons", term);
@@ -3902,7 +3911,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     const term = cleanText(termRaw || "");
     if (!term) {
       setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
-      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      setTimeout(() => focusLookupInputForTitle("Nave\'s Topical Bible"), 30);
       return;
     }
 
@@ -3925,8 +3934,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
     window.__naveSearchCache = Object.fromEntries(found.map(x => [x.file, x.data]));
     setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel", term).replace(
-      '<div class="lookupResults" id="resourceLookupResults"></div>',
-      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+      '<div class="lookupResults" data-lookup-results="true"></div>',
+      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
     ));
 
     setTimeout(() => {
@@ -3937,8 +3946,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
           openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", normalizeResourceText(data));
         });
       });
-      const box = document.getElementById("resourceLookupInput");
-      if (box) { box.focus({ preventScroll: true }); box.select?.(); }
+      focusLookupInputForTitle("Nave\'s Topical Bible", true);
     }, 30);
   }
 
@@ -3946,7 +3954,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     const term = requestStudyTerm("Nave's Topical Bible");
     if (term) return searchNaveFromPanel(term);
     setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
-    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+    setTimeout(() => focusLookupInputForTitle("Nave\'s Topical Bible"), 30);
   }
   window.searchNaveFromPanel = searchNaveFromPanel;
 
@@ -3954,7 +3962,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     const term = cleanText(termRaw || "");
     if (!term) {
       setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
-      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      setTimeout(() => focusLookupInputForTitle("Biblical Doctrine"), 30);
       return;
     }
 
@@ -3969,8 +3977,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`)
       : `<p class="empty">No doctrine registry loaded.</p>`;
     setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel", term).replace(
-      '<div class="lookupResults" id="resourceLookupResults"></div>',
-      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+      '<div class="lookupResults" data-lookup-results="true"></div>',
+      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
     ));
   }
 
@@ -3978,7 +3986,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     const term = requestStudyTerm("Biblical Doctrine");
     if (term) return searchDoctrineFromPanel(term);
     setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
-    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+    setTimeout(() => focusLookupInputForTitle("Biblical Doctrine"), 30);
   }
   window.searchDoctrineFromPanel = searchDoctrineFromPanel;
 
