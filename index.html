@@ -15892,7 +15892,197 @@ html.obs body.dark .obs-tool-bar button:hover {
   opacity: 1 !important;
   filter: none !important;
 }
-</style><script id="rdm-v30-silent-service-worker-register">
+</style>
+<!-- Patch 31 — Lightweight Offline Tracker: status pill only, no menu, no polling loop -->
+<style id="rdm-v31-lightweight-offline-tracker-style">
+#rdmOfflineTrackerV31 {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 76000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1.8px solid #7A4C06;
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%);
+  color: #FFF8EA;
+  font: 900 12px Arial, sans-serif;
+  letter-spacing: .25px;
+  box-shadow: 0 10px 24px rgba(70,40,0,.16);
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  user-select: none;
+  pointer-events: auto;
+}
+
+#rdmOfflineTrackerV31 .rdm-offline-tracker-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: #3fb377;
+  box-shadow: 0 0 0 3px rgba(63,179,119,.18);
+}
+
+#rdmOfflineTrackerV31.offline .rdm-offline-tracker-dot {
+  background: #d99f31;
+  box-shadow: 0 0 0 3px rgba(217,159,49,.22);
+}
+
+#rdmOfflineTrackerV31.not-ready .rdm-offline-tracker-dot {
+  background: #d44d4d;
+  box-shadow: 0 0 0 3px rgba(212,77,77,.18);
+}
+
+body.dark #rdmOfflineTrackerV31 {
+  background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
+  color: #203D39 !important;
+  border: 2px solid #fff1c0 !important;
+  box-shadow: 0 0 14px rgba(248,217,135,.20), 0 10px 24px rgba(0,0,0,.28) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+html.obs #rdmOfflineTrackerV31 {
+  display: none !important;
+}
+
+@media (max-width: 650px) {
+  #rdmOfflineTrackerV31 {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+</style>
+<script id="rdm-v31-lightweight-offline-tracker">
+(function rdmV31LightweightOfflineTracker() {
+  if (window.__rdmV31LightweightOfflineTracker) return;
+  window.__rdmV31LightweightOfflineTracker = true;
+
+  var CACHE_PREFIX = "iron-sharpener-offline-";
+
+  function getTracker() {
+    return document.getElementById("rdmOfflineTrackerV31");
+  }
+
+  function ensureTracker() {
+    var existing = getTracker();
+    if (existing) return existing;
+
+    var tracker = document.createElement("div");
+    tracker.id = "rdmOfflineTrackerV31";
+    tracker.setAttribute("role", "status");
+    tracker.setAttribute("aria-live", "polite");
+    tracker.setAttribute("title", "Iron Sharpener offline status. Click to recheck.");
+    tracker.innerHTML = '<span class="rdm-offline-tracker-dot" aria-hidden="true"></span><span id="rdmOfflineTrackerTextV31">Checking offline status…</span>';
+    tracker.addEventListener("click", function () { updateTracker(true); });
+    document.body.appendChild(tracker);
+    return tracker;
+  }
+
+  function setTrackerState(text, stateClass) {
+    var tracker = ensureTracker();
+    var label = document.getElementById("rdmOfflineTrackerTextV31");
+    tracker.classList.remove("offline", "not-ready");
+    if (stateClass) tracker.classList.add(stateClass);
+    if (label) label.textContent = text;
+  }
+
+  function candidateShellUrls() {
+    var here = new URL(window.location.href);
+    var base = new URL("./", here.href);
+    return [
+      new URL("./index.html", base.href).href,
+      new URL("index.html", base.href).href,
+      new URL("./", base.href).href,
+      base.href,
+      "./index.html",
+      "index.html",
+      "./"
+    ];
+  }
+
+  async function cacheHasShell(cache) {
+    var candidates = candidateShellUrls();
+    for (var i = 0; i < candidates.length; i++) {
+      try {
+        if (await cache.match(candidates[i])) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  async function hasOfflineShell() {
+    if (!("caches" in window)) return false;
+    try {
+      var names = await caches.keys();
+      for (var i = 0; i < names.length; i++) {
+        if (String(names[i]).indexOf(CACHE_PREFIX) !== 0) continue;
+        try {
+          var cache = await caches.open(names[i]);
+          if (await cacheHasShell(cache)) return true;
+        } catch (_) {}
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  async function updateTracker(userRequested) {
+    var online = navigator.onLine !== false;
+
+    if (!("serviceWorker" in navigator) || !("caches" in window)) {
+      setTrackerState(online ? "Online" : "Offline", online ? "not-ready" : "offline");
+      return;
+    }
+
+    try {
+      if (online && navigator.serviceWorker.ready) {
+        await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise(function (resolve) { setTimeout(resolve, userRequested ? 900 : 350); })
+        ]);
+      }
+    } catch (_) {}
+
+    var ready = await hasOfflineShell();
+
+    if (ready && online) {
+      setTrackerState("Online • Offline Ready", "");
+    } else if (ready && !online) {
+      setTrackerState("Offline • Ready", "offline");
+    } else if (online) {
+      setTrackerState("Online • Preparing Offline", "not-ready");
+    } else {
+      setTrackerState("Offline • Not Ready", "not-ready");
+    }
+  }
+
+  function start() {
+    ensureTracker();
+    updateTracker(false);
+    setTimeout(function () { updateTracker(false); }, 1200);
+  }
+
+  window.addEventListener("online", function () { updateTracker(false); });
+  window.addEventListener("offline", function () { updateTracker(false); });
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("controllerchange", function () { updateTracker(false); });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})();
+</script>
+<script id="rdm-v30-silent-service-worker-register">
 (function rdmV30SilentServiceWorkerRegister() {
   if (window.__rdmV30SilentServiceWorkerRegister) return;
   window.__rdmV30SilentServiceWorkerRegister = true;
