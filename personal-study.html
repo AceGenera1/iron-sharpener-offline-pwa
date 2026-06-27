@@ -170,6 +170,8 @@
     outline: none;
   }
   body.dark select, body.dark input, body.dark textarea { background: rgba(255,249,241,.08); color: var(--ink); }
+  select option { background: var(--paper); color: var(--ink); }
+  body.dark select option { background: #243447; color: #F8F4EC; }
   textarea { resize: vertical; min-height: 92px; line-height: 1.5; }
   .miniActions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
   .reference { font-weight: 900; font-size: 22px; color: var(--deep); margin: 0 0 7px; }
@@ -534,7 +536,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v32-guided-freewrite-at-his-feet";
+  const VERSION = "v32.1-guided-freewrite-copy-fix";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -2161,8 +2163,94 @@ const verseCounts = {
     const text = `${currentReference()} (WEB)\n` + currentPassageVerses.map((verse) => `${verse.verse}. ${cleanText(verse.text)}`).join("\n");
     try { await navigator.clipboard.writeText(text); setStatus("Passage copied"); }
     catch (_) { setStatus("Copy unavailable"); }
+    closeCopyMenu();
   }
 
+  function closeCopyMenu() {
+    const menu = $("copyScriptureMenu");
+    const btn = $("copyScriptureBtn");
+    if (menu) menu.classList.remove("open");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+
+  function setCopyMode(mode) {
+    copyMode = mode;
+    if (mode === "single") {
+      selectedVerseNumbers.clear();
+      document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
+      $("copyHint").textContent = "Copy Single Verse mode: click one verse to copy it.";
+      setStatus("Click one verse");
+    }
+    if (mode === "multi") {
+      $("copyHint").textContent = "Copy Multiple Verses mode: click verses to build and copy one combined selection.";
+      setStatus("Select verses");
+    }
+    closeCopyMenu();
+  }
+
+  function clearCopySelection() {
+    selectedVerseNumbers.clear();
+    document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
+    copyMode = null;
+    const hint = $("copyHint");
+    if (hint) hint.textContent = "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
+    closeCopyMenu();
+  }
+
+  function selectedReference(numbers) {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const sorted = [...numbers].sort((a, b) => a - b);
+    if (!sorted.length) return currentReference();
+    const contiguous = sorted.every((num, index) => index === 0 || num === sorted[index - 1] + 1);
+    if (sorted.length === 1) return `${book} ${chapter}:${sorted[0]}`;
+    return contiguous ? `${book} ${chapter}:${sorted[0]}-${sorted[sorted.length - 1]}` : `${book} ${chapter}:${sorted.join(",")}`;
+  }
+
+  async function copySelectedVerses(numbers) {
+    const sorted = [...numbers].sort((a, b) => a - b);
+    const selected = currentPassageVerses.filter((verse) => sorted.includes(Number(verse.verse)));
+    if (!selected.length) return;
+    const text = `${selectedReference(sorted)} (WEB)\n` + selected.map((verse) => `${verse.verse}. ${cleanText(verse.text)}`).join("\n");
+    try { await navigator.clipboard.writeText(text); setStatus(selected.length === 1 ? "Verse copied" : "Selected verses copied"); }
+    catch (_) { setStatus("Copy unavailable"); }
+  }
+
+  async function handleVerseCopyClick(event) {
+    const verseEl = event.target.closest(".verse[data-verse]");
+    if (!verseEl || !copyMode) return;
+    const verseNum = parseInt(verseEl.dataset.verse, 10);
+    if (!Number.isFinite(verseNum)) return;
+
+    if (copyMode === "single") {
+      selectedVerseNumbers.clear();
+      document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
+      selectedVerseNumbers.add(verseNum);
+      verseEl.classList.add("selectedVerse");
+      await copySelectedVerses(selectedVerseNumbers);
+      copyMode = null;
+      const hint = $("copyHint");
+      if (hint) hint.textContent = "Single verse copied. Use Copy Scripture for another copy option.";
+      return;
+    }
+
+    if (copyMode === "multi") {
+      if (selectedVerseNumbers.has(verseNum)) {
+        selectedVerseNumbers.delete(verseNum);
+        verseEl.classList.remove("selectedVerse");
+      } else {
+        selectedVerseNumbers.add(verseNum);
+        verseEl.classList.add("selectedVerse");
+      }
+      if (selectedVerseNumbers.size) {
+        await copySelectedVerses(selectedVerseNumbers);
+        const hint = $("copyHint");
+        if (hint) hint.textContent = `${selectedVerseNumbers.size} verse${selectedVerseNumbers.size === 1 ? "" : "s"} selected and copied. Keep clicking to adjust selection.`;
+      } else {
+        setStatus("Selection cleared");
+      }
+    }
+  }
 
   async function copyEntry() {
     const entry = collectEntry();
