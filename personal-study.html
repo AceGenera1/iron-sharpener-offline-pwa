@@ -296,6 +296,11 @@
     border-radius: 999px;
   }
   .verse.markingSelectable { cursor: pointer; }
+  .verse.markingSelectable .wordToken { cursor: pointer; }
+  .wordToken { border-radius: 7px; padding: 1px 2px; margin: 0 -1px; transition: background .12s ease, box-shadow .12s ease; }
+  .wordToken.wordMarkHighlight { background: rgba(217,160,123,.38); }
+  .wordToken.wordMarkUnderline { text-decoration-line: underline; text-decoration-thickness: 3px; text-decoration-color: var(--soft-copper); text-underline-offset: 4px; }
+  .wordToken.wordMarkCircle { box-shadow: inset 0 0 0 2px rgba(217,160,123,.78); border-radius: 999px; padding: 2px 5px; margin: 0 1px; }
   .markingHint {
     margin: 8px 0 0;
     color: var(--dust);
@@ -498,13 +503,13 @@
         </div>
         <div class="studyToolGroup">
           <h3>Scripture Marking</h3>
-          <button class="studyToolBtn markToolBtn" id="markHighlightBtn" type="button" data-mark="highlight">Highlight Verses</button>
-          <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Verses</button>
-          <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Verses</button>
-          <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Verse Marks</button>
+          <button class="studyToolBtn markToolBtn" id="markHighlightBtn" type="button" data-mark="highlight">Highlight Text</button>
+          <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Text</button>
+          <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Text</button>
+          <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Marks</button>
           <button class="studyToolBtn" id="markClearPassageBtn" type="button">Clear Marks in Passage</button>
           <button class="studyToolBtn" id="markStopBtn" type="button">Stop Marking</button>
-          <p class="markingHint">Choose a marking tool, then click verses in the Scripture panel. Marks are saved on this device.</p>
+          <p class="markingHint">Choose a marking tool, then click a word or a verse in the Scripture panel. Marks are saved on this device.</p>
         </div>
         <div class="studyToolGroup">
           <h3>Search Helps</h3>
@@ -565,7 +570,7 @@
         <div class="journalStack">
           <div class="prompt">
             <label for="entryTitle">Entry Title</label>
-            <input id="entryTitle" placeholder="Example: Sitting at His feet" />
+            <input id="entryTitle" placeholder="Optional" />
           </div>
 
           <div class="modeTabs" aria-label="Journal mode">
@@ -664,7 +669,7 @@
           <button class="secondary" id="copyEntryBtn" type="button">Copy Entry</button>
           <button class="secondary" id="exportBtn" type="button">Export Backup</button>
           <button class="secondary" id="importBtn" type="button">Import Backup</button>
-          <input class="hiddenFile" id="importFile" type="file" accept="application/json,.json" />
+          <input class="hiddenFile" id="importFile" type="file" accept="text/html,application/json,.html,.json,.isjournal" />
           <button class="danger" id="deleteBtn" type="button">Delete</button>
           <span class="status" id="status">Ready</span>
         </div>
@@ -707,7 +712,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v34-disciple-journal-study-tools-marking";
+  const VERSION = "v35-disciple-journal-word-marking-journal-export";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -2222,6 +2227,17 @@ const verseCounts = {
     throw error;
   }
 
+  function renderVerseText(verse) {
+    const pieces = String(cleanText(verse.text)).split(/(\s+)/);
+    let wordIndex = 0;
+    return pieces.map((piece) => {
+      if (!piece) return "";
+      if (/^\s+$/.test(piece)) return escapeHtml(piece);
+      wordIndex += 1;
+      return `<span class="wordToken" data-verse="${escapeHtml(verse.verse)}" data-word="${wordIndex}">${escapeHtml(piece)}</span>`;
+    }).join("");
+  }
+
   async function loadPassage() {
     syncEndMinimum();
     const book = $("book").value;
@@ -2236,7 +2252,7 @@ const verseCounts = {
       currentPassageVerses = (data.verses || []).filter((verse) => Number(verse.verse) >= start && Number(verse.verse) <= end);
       if (!currentPassageVerses.length) throw new Error("No verses found.");
       $("referenceTitle").textContent = currentReference();
-      $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}"><span class="vnum">${verse.verse}</span>${escapeHtml(cleanText(verse.text))}</p>`).join("");
+      $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}"><span class="vnum">${verse.verse}</span>${renderVerseText(verse)}</p>`).join("");
       applySavedMarks();
       clearCopySelection();
       localStorage.setItem("ironSharpenerDiscipleJournal.lastRef", JSON.stringify({ book, chapter, start, end }));
@@ -2259,7 +2275,7 @@ const verseCounts = {
       studyDate: $("entryDate").value || todayIso(),
       reference: currentReference(),
       ref: { book: $("book").value, chapter: $("chapter").value, start: $("start").value, end: $("end").value },
-      title: values.entryTitle || currentReference(),
+      title: values.entryTitle || "",
       notes: { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite },
       tags: values.tags,
       favorite: $("favoriteEntry")?.checked || false,
@@ -2296,7 +2312,7 @@ const verseCounts = {
       $("end").value = String(entry.ref.end || entry.ref.start || "1");
     }
     $("entryDate").value = entry.studyDate || todayIso();
-    $("entryTitle").value = entry.title || "";
+    $("entryTitle").value = entry.title && entry.title !== entry.reference ? entry.title : "";
     $("observe").value = scrubPromptOnlyText(entry.notes?.observe || "");
     $("understand").value = scrubPromptOnlyText(entry.notes?.understand || "");
     $("heart").value = scrubPromptOnlyText(entry.notes?.heart || "");
@@ -2378,7 +2394,7 @@ const verseCounts = {
         $("end").value = String(draft.ref.end || "5");
       }
       $("entryDate").value = draft.studyDate || todayIso();
-      $("entryTitle").value = draft.title || "";
+      $("entryTitle").value = draft.title && draft.title !== draft.reference ? draft.title : "";
       $("observe").value = scrubPromptOnlyText(draft.notes?.observe || "");
       $("understand").value = scrubPromptOnlyText(draft.notes?.understand || "");
       $("heart").value = scrubPromptOnlyText(draft.notes?.heart || "");
@@ -2456,8 +2472,8 @@ const verseCounts = {
 
   function markModeHint() {
     if (!markMode) return "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
-    if (markMode === "erase") return "Erase marks mode: click a marked verse to remove its highlight, underline, and circle.";
-    return `${markModeLabel()} mode: click verses to toggle this mark on or off.`;
+    if (markMode === "erase") return "Erase marks mode: click a marked word or verse to remove its highlight, underline, and circle.";
+    return `${markModeLabel()} mode: click a word to mark that word, or click the verse area to mark the whole verse.`;
   }
 
   function updateMarkButtons() {
@@ -2476,6 +2492,12 @@ const verseCounts = {
       el.classList.toggle("markCircle", !!data.circle);
       el.classList.toggle("markingSelectable", !!markMode);
     });
+    document.querySelectorAll(".wordToken[data-verse][data-word]").forEach((el) => {
+      const data = marks[wordMarkKey(el.dataset.verse, el.dataset.word)] || {};
+      el.classList.toggle("wordMarkHighlight", !!data.highlight);
+      el.classList.toggle("wordMarkUnderline", !!data.underline);
+      el.classList.toggle("wordMarkCircle", !!data.circle);
+    });
   }
 
   function setMarkMode(mode) {
@@ -2490,24 +2512,37 @@ const verseCounts = {
     }
   }
 
-  function applyMarkToVerse(verseEl) {
-    if (!verseEl || !markMode) return;
-    const key = verseMarkKey(verseEl.dataset.verse);
+  function wordMarkKey(verseNum, wordNum) {
+    return `${$("book").value}|${$("chapter").value}|${verseNum}|w${wordNum}`;
+  }
+
+  function toggleMarkRecord(key) {
     const marks = getVerseMarks();
     const current = marks[key] || {};
     if (markMode === "erase") {
       delete marks[key];
       saveVerseMarks(marks);
       applySavedMarks();
-      setStatus("Verse marks erased");
-      return;
+      return "Marks erased";
     }
     current[markMode] = !current[markMode];
     if (!current.highlight && !current.underline && !current.circle) delete marks[key];
     else marks[key] = current;
     saveVerseMarks(marks);
     applySavedMarks();
-    setStatus(`${markModeLabel()} ${current[markMode] ? "added" : "removed"}`);
+    return `${markModeLabel()} ${current[markMode] ? "added" : "removed"}`;
+  }
+
+  function applyMarkToWord(wordEl) {
+    if (!wordEl || !markMode) return;
+    const message = toggleMarkRecord(wordMarkKey(wordEl.dataset.verse, wordEl.dataset.word));
+    setStatus(message);
+  }
+
+  function applyMarkToVerse(verseEl) {
+    if (!verseEl || !markMode) return;
+    const message = toggleMarkRecord(verseMarkKey(verseEl.dataset.verse));
+    setStatus(message);
   }
 
   function clearMarksForCurrentPassage() {
@@ -2515,8 +2550,10 @@ const verseCounts = {
     const prefix = `${$("book").value}|${$("chapter").value}|`;
     let changed = 0;
     currentPassageVerses.forEach((verse) => {
-      const key = prefix + Number(verse.verse);
-      if (marks[key]) { delete marks[key]; changed++; }
+      const verseKey = prefix + Number(verse.verse);
+      if (marks[verseKey]) { delete marks[verseKey]; changed++; }
+      const wordPrefix = verseKey + "|";
+      Object.keys(marks).forEach((key) => { if (key.startsWith(wordPrefix)) { delete marks[key]; changed++; } });
     });
     saveVerseMarks(marks);
     applySavedMarks();
@@ -2543,8 +2580,10 @@ const verseCounts = {
   }
 
   async function handleVerseInteraction(event) {
+    const wordEl = event.target.closest(".wordToken[data-verse][data-word]");
     const verseEl = event.target.closest(".verse[data-verse]");
     if (!verseEl) return;
+    if (markMode && wordEl) { applyMarkToWord(wordEl); return; }
     const verseNum = parseInt(verseEl.dataset.verse, 10);
     if (!Number.isFinite(verseNum)) return;
 
@@ -2608,27 +2647,102 @@ const verseCounts = {
     catch (_) { setStatus("Copy unavailable"); }
   }
 
+  function entryDisplayTitle(entry) {
+    return entry.title || entry.reference || "Disciple Journal Entry";
+  }
+
+  function entryToPlainText(entry) {
+    const notes = entry.notes || {};
+    const lines = [
+      "Iron Sharpener: Disciple Journal",
+      entryDisplayTitle(entry),
+      `${entry.reference || ""} (WEB) • ${entry.studyDate || ""}`,
+      "",
+      notes.observe ? `Read & Observe:\n${notes.observe}\n` : "",
+      notes.understand ? `Reflect — Meaning:\n${notes.understand}\n` : "",
+      notes.heart ? `Reflect — Heart:\n${notes.heart}\n` : "",
+      notes.feetQuestions ? `At His Feet — Questions:\n${notes.feetQuestions}\n` : "",
+      notes.feetSensed ? `At His Feet — What I Sensed:\n${notes.feetSensed}\n` : "",
+      notes.feetTesting ? `At His Feet — Scripture / Testing:\n${notes.feetTesting}\n` : "",
+      notes.freewrite ? `Freewrite Journal:\n${notes.freewrite}\n` : "",
+      notes.prayer ? `Prayer Response:\n${notes.prayer}\n` : "",
+      notes.walk ? `Walk It Out:\n${notes.walk}\n` : "",
+      notes.remember ? `Remember / Revisit:\n${notes.remember}\n` : "",
+      entry.tags ? `Tags: ${entry.tags}` : "",
+      entry.favorite ? "Favorite: Yes" : "",
+      entry.reviewLater ? "Revisit Entry: Yes" : ""
+    ];
+    return lines.filter(Boolean).join("\n").trim();
+  }
+
+  function jsonForHtmlScript(value) {
+    return JSON.stringify(value).replace(/</g, "\\u003c");
+  }
+
+  function entryToHtmlBlock(entry) {
+    const notes = entry.notes || {};
+    const section = (title, body) => body ? `<section><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body).replace(/\n/g, "<br>")}</p></section>` : "";
+    return `<article class="entry">
+      <h2>${escapeHtml(entryDisplayTitle(entry))}</h2>
+      <p class="meta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")}</p>
+      ${section("Read & Observe", notes.observe)}
+      ${section("Reflect — Meaning", notes.understand)}
+      ${section("Reflect — Heart", notes.heart)}
+      ${section("At His Feet — Questions", notes.feetQuestions)}
+      ${section("At His Feet — What I Sensed", notes.feetSensed)}
+      ${section("At His Feet — Scripture / Testing", notes.feetTesting)}
+      ${section("Freewrite Journal", notes.freewrite)}
+      ${section("Prayer Response", notes.prayer)}
+      ${section("Walk It Out", notes.walk)}
+      ${section("Remember / Revisit", notes.remember)}
+      ${entry.tags ? `<p class="tags"><strong>Tags:</strong> ${escapeHtml(entry.tags)}</p>` : ""}
+      ${(entry.favorite || entry.reviewLater) ? `<p class="badges">${entry.favorite ? "Favorite" : ""}${entry.favorite && entry.reviewLater ? " • " : ""}${entry.reviewLater ? "Revisit Entry" : ""}</p>` : ""}
+    </article>`;
+  }
+
   async function exportBackup() {
     const entries = await getAllEntries();
     const backup = { app: "Iron Sharpener: Disciple Journal", version: VERSION, exportedAt: new Date().toISOString(), entries, verseMarks: getVerseMarks() };
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Iron Sharpener Disciple Journal Export</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#FAF4E8;color:#1D2D44;line-height:1.55;margin:0;padding:32px;}
+  .wrap{max-width:920px;margin:0 auto;background:#FFF9F1;border:1px solid #D9A07B;border-radius:22px;padding:28px;box-shadow:0 18px 45px rgba(29,45,68,.14);}
+  h1{margin:0 0 6px;font-size:32px;} .sub{color:#B97A56;font-weight:700;margin:0 0 20px;}
+  .entry{border-top:1px solid rgba(29,45,68,.16);padding-top:22px;margin-top:22px;} h2{margin-bottom:4px;} .meta{color:#5F6F82;font-weight:700;}
+  section{background:#fff;border:1px solid rgba(29,45,68,.12);border-radius:14px;padding:14px 16px;margin:12px 0;} h3{margin:0 0 6px;color:#355070;}
+  .tags,.badges{color:#B97A56;font-weight:700;} .note{font-size:13px;color:#5F6F82;margin-top:24px;}
+</style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
+${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
+<p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
+<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `iron-sharpener-disciple-journal-backup-${todayIso()}.json`;
+    a.download = `iron-sharpener-disciple-journal-${todayIso()}.html`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    setStatus("Backup exported");
+    setStatus("Journal exported");
+  }
+
+  function parseJournalImport(text) {
+    const trimmed = text.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) return JSON.parse(trimmed);
+    const doc = new DOMParser().parseFromString(text, "text/html");
+    const embedded = doc.getElementById("iron-sharpener-disciple-journal-data");
+    if (embedded && embedded.textContent) return JSON.parse(embedded.textContent);
+    throw new Error("This journal file does not contain import data.");
   }
 
   async function importBackupFile(file) {
     if (!file) return;
     const text = await file.text();
-    const parsed = JSON.parse(text);
+    const parsed = parseJournalImport(text);
     const entries = Array.isArray(parsed) ? parsed : parsed.entries;
-    if (!Array.isArray(entries)) throw new Error("Invalid backup file.");
+    if (!Array.isArray(entries)) throw new Error("Invalid journal import file.");
     for (const entry of entries) { if (entry && entry.id) await putEntry(entry); }
     if (parsed && parsed.verseMarks && typeof parsed.verseMarks === "object") {
       saveVerseMarks({ ...getVerseMarks(), ...parsed.verseMarks });
