@@ -734,6 +734,55 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
   }
 }
 
+
+
+/* v40 — Disciple Journal study-resource cleanup */
+body:not(.dark) #internalCrossRefsPanel.internal-crossrefs-panel,
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98)) !important;
+  color: var(--ink) !important;
+  border-color: var(--soft-copper) !important;
+}
+body.dark #internalCrossRefsPanel.internal-crossrefs-panel,
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355070, #1D2D44) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.88) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xref-verse,
+body:not(.dark) .resource-panel-body .resourceResult {
+  background: rgba(255,255,255,.42) !important;
+  border-color: rgba(217,160,123,.28) !important;
+}
+body.dark #internalCrossRefsPanel .internal-xref-verse,
+body.dark .resource-panel-body .resourceResult {
+  background: rgba(255,249,241,.055) !important;
+  border-color: rgba(217,160,123,.32) !important;
+}
+body.dark .verse.highlighted,
+body.dark .verse.highlight-gold {
+  background: linear-gradient(90deg, rgba(217,160,123,.34), rgba(217,160,123,.12)) !important;
+  border-left: 7px solid var(--soft-copper) !important;
+  outline: 1px solid rgba(217,160,123,.78) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 18px rgba(217,160,123,.12) !important;
+}
+.commentary-clean { display: grid; gap: 12px; }
+.commentary-entry {
+  border: 1px solid rgba(217,160,123,.26);
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,.30);
+}
+body.dark .commentary-entry { background: rgba(255,249,241,.045); border-color: rgba(217,160,123,.32); }
+.commentary-entry h4 {
+  margin: 0 0 7px;
+  color: var(--copper);
+  font-size: 15px;
+  font-weight: 900;
+}
+body.dark .commentary-entry h4 { color: var(--soft-copper); }
+.commentary-entry p { margin: 0; line-height: 1.58; }
+
 </style>
 </head>
 <body>
@@ -787,14 +836,11 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
           <p class="markingHint">Choose a marking tool, then click a word or a verse in the Scripture panel. Marks are saved on this device.</p>
         </div>
         <div class="studyToolGroup">
-          <h3>Search Helps</h3>
-          <div class="studyToolSearch">
-            <input id="studyToolSearchTerm" placeholder="Search word or topic" />
-            <button class="studyToolBtn" id="toolEastons" type="button">Easton's Bible Dictionary</button>
-            <button class="studyToolBtn" id="toolSmiths" type="button">Smith's Bible Dictionary</button>
-            <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
-            <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
-          </div>
+          <h3>Study Helps</h3>
+          <button class="studyToolBtn" id="toolEastons" type="button">Easton's Bible Dictionary</button>
+          <button class="studyToolBtn" id="toolSmiths" type="button">Smith's Bible Dictionary</button>
+          <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
+          <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
         </div>
       </aside>
 
@@ -3265,6 +3311,55 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
   }
 }
 
+
+
+/* v40 — Disciple Journal study-resource cleanup */
+body:not(.dark) #internalCrossRefsPanel.internal-crossrefs-panel,
+body:not(.dark) .resource-instance-panel {
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98)) !important;
+  color: var(--ink) !important;
+  border-color: var(--soft-copper) !important;
+}
+body.dark #internalCrossRefsPanel.internal-crossrefs-panel,
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355070, #1D2D44) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.88) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xref-verse,
+body:not(.dark) .resource-panel-body .resourceResult {
+  background: rgba(255,255,255,.42) !important;
+  border-color: rgba(217,160,123,.28) !important;
+}
+body.dark #internalCrossRefsPanel .internal-xref-verse,
+body.dark .resource-panel-body .resourceResult {
+  background: rgba(255,249,241,.055) !important;
+  border-color: rgba(217,160,123,.32) !important;
+}
+body.dark .verse.highlighted,
+body.dark .verse.highlight-gold {
+  background: linear-gradient(90deg, rgba(217,160,123,.34), rgba(217,160,123,.12)) !important;
+  border-left: 7px solid var(--soft-copper) !important;
+  outline: 1px solid rgba(217,160,123,.78) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 18px rgba(217,160,123,.12) !important;
+}
+.commentary-clean { display: grid; gap: 12px; }
+.commentary-entry {
+  border: 1px solid rgba(217,160,123,.26);
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,.30);
+}
+body.dark .commentary-entry { background: rgba(255,249,241,.045); border-color: rgba(217,160,123,.32); }
+.commentary-entry h4 {
+  margin: 0 0 7px;
+  color: var(--copper);
+  font-size: 15px;
+  font-weight: 900;
+}
+body.dark .commentary-entry h4 { color: var(--soft-copper); }
+.commentary-entry p { margin: 0; line-height: 1.58; }
+
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
@@ -3362,7 +3457,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       makePanelDraggable(panel, panel.querySelector(".resourceFloatHead"));
     }
     panel.querySelector(".resourceFloatHead h2").textContent = safeTitle;
-    panel.querySelector(".resource-panel-body").innerHTML = `<div class="resourceResult"><h3>${escapeHtml(safeTitle)}</h3>${html}</div>`;
+    panel.querySelector(".resource-panel-body").innerHTML = `<div class="resourceResult">${html}</div>`;
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     panel.style.zIndex = String(++floatingPanelZ);
@@ -3445,8 +3540,35 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
 
   function renderMatches(matches, emptyMessage) {
-    if (!matches.length) return `<p class="empty">${escapeHtml(emptyMessage)}</p>`;
-    return `<ul>` + matches.map(item => `<li><strong>${escapeHtml(item.path || "Result")}:</strong> ${escapeHtml(cleanText(item.value)).slice(0, 850)}</li>`).join("") + `</ul>`;
+    const cleaned = (matches || []).filter((item) => {
+      const path = String(item.path || "").toLowerCase();
+      return !/(^|›|\b)(source|sectionkey)\b/.test(path);
+    });
+    if (!cleaned.length) return `<p class="empty">${escapeHtml(emptyMessage)}</p>`;
+    return `<ul>` + cleaned.map(item => `<li><strong>${escapeHtml(item.path || "Result")}:</strong> ${escapeHtml(cleanText(item.value)).slice(0, 850)}</li>`).join("") + `</ul>`;
+  }
+
+  function renderCommentaryMatches(matches, emptyMessage) {
+    const contentItems = (matches || []).filter((item) => /(^|\s›\s)content$/i.test(String(item.path || "")) && cleanText(item.value));
+    const seen = new Set();
+    const entries = [];
+    for (const item of contentItems) {
+      const ref = String(item.path || "").replace(/\s*›\s*content$/i, "").trim() || "Commentary";
+      const text = cleanText(item.value);
+      const key = ref + "::" + text.slice(0, 160);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      entries.push({ ref, text });
+    }
+    if (!entries.length) {
+      const fallback = (matches || []).filter((item) => {
+        const path = String(item.path || "").toLowerCase();
+        return !/(^|›|\b)(title|source|sectionkey)\b/.test(path) && cleanText(item.value);
+      });
+      if (!fallback.length) return `<p class="empty">${escapeHtml(emptyMessage)}</p>`;
+      return `<div class="commentary-clean">` + fallback.slice(0, 12).map((item) => `<section class="commentary-entry"><h4>${escapeHtml(item.path || "Commentary")}</h4><p>${escapeHtml(cleanText(item.value))}</p></section>`).join("") + `</div>`;
+    }
+    return `<div class="commentary-clean">` + entries.slice(0, 18).map((item) => `<section class="commentary-entry"><h4>${escapeHtml(item.ref)}</h4><p>${escapeHtml(item.text)}</p></section>`).join("") + `</div>`;
   }
 
   async function openCrossRefsTool() {
@@ -3488,8 +3610,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       setStudyToolsResult(title, `<p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(book)}.</p>`);
       return;
     }
-    const matches = collectMatches(data, commentaryTermsForCurrentPassage(), 24);
-    setStudyToolsResult(title, renderMatches(matches, `No ${title} entry found for ${currentReference()} yet.`));
+    const matches = collectMatches(data, commentaryTermsForCurrentPassage(), 48);
+    setStudyToolsResult(title, renderCommentaryMatches(matches, `No ${title} entry found for ${currentReference()} yet.`));
   }
 
   async function openMatthewHenryTool() {
@@ -3540,12 +3662,19 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
 
   function currentSearchTermOrSelection() {
-    return cleanText($("studyToolSearchTerm")?.value || window.getSelection()?.toString() || "");
+    return cleanText(window.getSelection()?.toString() || "");
+  }
+
+  function requestStudyTerm(label) {
+    const selected = currentSearchTermOrSelection();
+    if (selected) return selected;
+    const value = window.prompt(`${label}: enter a word or topic to search.`);
+    return cleanText(value || "");
   }
 
   async function openDictionarySource(title, folder) {
-    const term = currentSearchTermOrSelection();
-    if (!term) { setStudyToolsResult(title, `<p class="empty">Enter a word or select text first.</p>`); return; }
+    const term = requestStudyTerm(title);
+    if (!term) { setStudyToolsResult(title, `<p class="empty">Select a word in Scripture or enter a word to search.</p>`); return; }
     const letter = term[0].toLowerCase();
     const data = await fetchJsonAny([
       `bible/resources/${folder}/${letter}.json`,
@@ -3560,16 +3689,16 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   async function openSmithsTool() { await openDictionarySource("Smith's Bible Dictionary", "smiths"); }
 
   async function openNaveTool() {
-    const term = cleanText($("studyToolSearchTerm")?.value || "");
-    if (!term) { setStudyToolsResult("Nave's Topical Bible", `<p class="empty">Enter a topic first.</p>`); return; }
+    const term = requestStudyTerm("Nave's Topical Bible");
+    if (!term) { setStudyToolsResult("Nave's Topical Bible", `<p class="empty">Select a word in Scripture or enter a topic to search.</p>`); return; }
     const file = slugify(term);
     const data = await fetchJsonAny([`bible/resources/topics/${file}.json`, `./bible/resources/topics/${file}.json`, `bible/resources/naves/${file}.json`]);
     setStudyToolsResult(`Nave's Topic: ${term}`, data ? normalizeResourceText(data) : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`);
   }
 
   async function openDoctrineTool() {
-    const term = cleanText($("studyToolSearchTerm")?.value || "");
-    if (!term) { setStudyToolsResult("Biblical Doctrine", `<p class="empty">Enter a doctrine or keyword first.</p>`); return; }
+    const term = requestStudyTerm("Biblical Doctrine");
+    if (!term) { setStudyToolsResult("Biblical Doctrine", `<p class="empty">Select a word in Scripture or enter a doctrine/topic to search.</p>`); return; }
     const slug = slugify(term);
     const direct = await fetchJsonAny([`bible/resources/doctrine/${slug}.json`, `./bible/resources/doctrine/${slug}.json`]);
     if (direct) { setStudyToolsResult(`Doctrine: ${term}`, normalizeResourceText(direct)); return; }
