@@ -214,6 +214,45 @@
   body.dark .entryItem strong { color: var(--ink); }
   .entryItem small { color: var(--dust); line-height: 1.4; }
   .empty { color: var(--dust); font-style: italic; line-height: 1.45; }
+
+  .historyFilters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+  .filterBtn { padding: 8px 10px; font-size: 13px; box-shadow: none; }
+  .filterBtn.active { background: var(--deep); color: #FFF9F1; border-color: var(--deep); }
+  body.dark .filterBtn.active { background: var(--soft-copper); color: #162234; border-color: var(--soft-copper); }
+  .checkGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 10px; }
+  .checkPill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    padding: 10px 11px;
+    background: rgba(255,255,255,.38);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 13px;
+  }
+  body.dark .checkPill { background: rgba(255,249,241,.055); }
+  .checkPill input { width: auto; accent-color: var(--copper); }
+  .sideBlock { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .sideBlock h4 { margin: 0 0 10px; color: var(--deep); font-size: 15px; }
+  body.dark .sideBlock h4 { color: var(--ink); }
+  .quickPrompts { display: grid; gap: 8px; }
+  .quickPromptBtn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 11px;
+    box-shadow: none;
+    background: rgba(220,232,242,.45);
+    color: var(--deep);
+    border: 1px solid var(--line);
+    font-size: 13px;
+  }
+  body.dark .quickPromptBtn { background: rgba(255,249,241,.055); color: var(--ink); }
+  .entryBadges { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+  .badge { display:inline-flex; align-items:center; border-radius:999px; padding:3px 7px; font-size:11px; font-weight:900; background: rgba(185,122,86,.12); color: var(--copper); border:1px solid rgba(185,122,86,.25); }
+  body.dark .badge { background: rgba(217,160,123,.10); color: var(--soft-copper); }
+
   .footer { margin-top: 18px; color: var(--dust); text-align: center; font-size: 13px; line-height: 1.5; }
   .hiddenFile { display:none; }
   @media (max-width: 1180px) {
@@ -232,6 +271,7 @@
     .cardHead { align-items:flex-start; flex-direction: column; }
     button { width: auto; }
     .saveBar { position: static; }
+    .checkGrid { grid-template-columns: 1fr; }
     .status { width: 100%; margin-left: 0; }
   }
 </style>
@@ -319,10 +359,15 @@
             <p>What truth do I need to carry with me? Add a memory verse, summary, or tags.</p>
             <textarea id="remember" placeholder="Truth to remember..."></textarea>
             <div style="margin-top:10px;"><label for="tags">Tags</label><input id="tags" placeholder="prayer, hope, obedience" /></div>
+            <div class="checkGrid">
+              <label class="checkPill" for="favoriteEntry"><input id="favoriteEntry" type="checkbox" /> Favorite</label>
+              <label class="checkPill" for="reviewLater"><input id="reviewLater" type="checkbox" /> Review Later</label>
+            </div>
           </div>
         </div>
         <div class="saveBar">
           <button class="primary" id="saveBtn" type="button">Save Entry</button>
+          <button class="secondary" id="copyEntryBtn" type="button">Copy Entry</button>
           <button class="secondary" id="exportBtn" type="button">Export Backup</button>
           <button class="secondary" id="importBtn" type="button">Import Backup</button>
           <input class="hiddenFile" id="importFile" type="file" accept="application/json,.json" />
@@ -336,7 +381,22 @@
       <div class="cardHead"><h3>Saved Study History</h3><button class="secondary" id="refreshHistoryBtn" type="button">Refresh</button></div>
       <div class="cardBody">
         <input class="historySearch" id="historySearch" placeholder="Search reference, title, notes, or tags" />
+        <div class="historyFilters" aria-label="Saved study filters">
+          <button class="secondary filterBtn active" id="filterAllBtn" type="button" data-filter="all">All</button>
+          <button class="secondary filterBtn" id="filterFavoritesBtn" type="button" data-filter="favorites">Favorites</button>
+          <button class="secondary filterBtn" id="filterReviewBtn" type="button" data-filter="review">Review Later</button>
+        </div>
         <div class="entryList" id="entryList"><p class="empty">No entries saved yet.</p></div>
+        <div class="sideBlock">
+          <h4>Quick Prompts</h4>
+          <div class="quickPrompts">
+            <button class="quickPromptBtn" type="button" data-target="observe" data-prompt="What word, phrase, command, promise, warning, or repeated idea stands out in this passage?">What stands out?</button>
+            <button class="quickPromptBtn" type="button" data-target="understand" data-prompt="What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?">What does it reveal?</button>
+            <button class="quickPromptBtn" type="button" data-target="heart" data-prompt="Lord, what are You confronting, comforting, correcting, exposing, strengthening, or encouraging in me?">Search my heart</button>
+            <button class="quickPromptBtn" type="button" data-target="prayer" data-prompt="Lord, turn this truth into confession, thanksgiving, surrender, request, and praise.">Turn it into prayer</button>
+            <button class="quickPromptBtn" type="button" data-target="walk" data-prompt="What is one faithful next step I can take today?">One faithful step</button>
+          </div>
+        </div>
       </div>
     </aside>
   </main>
@@ -350,7 +410,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v30-disciple-journal-foundation";
+  const VERSION = "v31-disciple-journal-history-review-tools";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -1684,6 +1744,7 @@ const verseCounts = {
   let db = null;
   let currentEntryId = null;
   let currentPassageVerses = [];
+  let historyFilter = "all";
 
   const $ = (id) => document.getElementById(id);
   const fields = ["entryTitle", "observe", "understand", "heart", "prayer", "walk", "remember", "tags"];
@@ -1833,7 +1894,9 @@ const verseCounts = {
       ref: { book: $("book").value, chapter: $("chapter").value, start: $("start").value, end: $("end").value },
       title: values.entryTitle || currentReference(),
       notes: { observe: values.observe, understand: values.understand, heart: values.heart, prayer: values.prayer, walk: values.walk, remember: values.remember },
-      tags: values.tags
+      tags: values.tags,
+      favorite: $("favoriteEntry")?.checked || false,
+      reviewLater: $("reviewLater")?.checked || false
     };
   }
 
@@ -1874,6 +1937,8 @@ const verseCounts = {
     $("walk").value = entry.notes?.walk || "";
     $("remember").value = entry.notes?.remember || "";
     $("tags").value = entry.tags || "";
+    $("favoriteEntry").checked = !!entry.favorite;
+    $("reviewLater").checked = !!entry.reviewLater;
     $("entryMode").textContent = "Editing saved entry";
     setStatus("Loaded");
     loadPassage();
@@ -1883,15 +1948,21 @@ const verseCounts = {
   async function renderHistory() {
     const query = $("historySearch").value.trim().toLowerCase();
     const all = await getAllEntries();
-    const filtered = query ? all.filter((entry) => JSON.stringify(entry).toLowerCase().includes(query)) : all;
+    document.querySelectorAll(".filterBtn").forEach((btn) => btn.classList.toggle("active", btn.dataset.filter === historyFilter));
+    let filtered = all;
+    if (historyFilter === "favorites") filtered = filtered.filter((entry) => !!entry.favorite);
+    if (historyFilter === "review") filtered = filtered.filter((entry) => !!entry.reviewLater);
+    if (query) filtered = filtered.filter((entry) => JSON.stringify(entry).toLowerCase().includes(query));
     const list = $("entryList");
     if (!filtered.length) {
-      list.innerHTML = `<p class="empty">${all.length ? "No entries match that search." : "No entries saved yet."}</p>`;
+      const filterText = historyFilter === "favorites" ? "No favorite entries yet." : historyFilter === "review" ? "No review-later entries yet." : "No entries saved yet.";
+      list.innerHTML = `<p class="empty">${all.length ? "No entries match that view." : filterText}</p>`;
       return;
     }
     list.innerHTML = filtered.map((entry) => {
       const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
-      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small></div>`;
+      const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Review Later</span>' : ''}`;
+      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}</div>`;
     }).join("");
     list.querySelectorAll(".entryItem").forEach((item) => {
       item.addEventListener("click", async () => {
@@ -1905,6 +1976,8 @@ const verseCounts = {
   function newEntry() {
     currentEntryId = null;
     fields.forEach((id) => $(id).value = "");
+    $("favoriteEntry").checked = false;
+    $("reviewLater").checked = false;
     $("entryDate").value = todayIso();
     $("entryMode").textContent = "New entry";
     setStatus("New entry ready");
@@ -1942,6 +2015,8 @@ const verseCounts = {
       $("walk").value = draft.notes?.walk || "";
       $("remember").value = draft.notes?.remember || "";
       $("tags").value = draft.tags || "";
+      $("favoriteEntry").checked = !!draft.favorite;
+      $("reviewLater").checked = !!draft.reviewLater;
       return true;
     } catch (_) { return false; }
   }
@@ -1950,6 +2025,30 @@ const verseCounts = {
     if (!currentPassageVerses.length) await loadPassage();
     const text = `${currentReference()} (WEB)\n` + currentPassageVerses.map((verse) => `${verse.verse}. ${cleanText(verse.text)}`).join("\n");
     try { await navigator.clipboard.writeText(text); setStatus("Passage copied"); }
+    catch (_) { setStatus("Copy unavailable"); }
+  }
+
+
+  async function copyEntry() {
+    const entry = collectEntry();
+    if (!currentPassageVerses.length) await loadPassage();
+    const passageText = currentPassageVerses.length
+      ? currentPassageVerses.map((verse) => `${verse.verse}. ${cleanText(verse.text)}`).join("\n")
+      : "";
+    const parts = [
+      `Iron Sharpener: Disciple Journal`,
+      `${entry.title || entry.reference}`,
+      `${entry.reference} (WEB) • ${entry.studyDate}`,
+      passageText ? `\nScripture:\n${passageText}` : "",
+      entry.notes.observe ? `\nRead & Observe:\n${entry.notes.observe}` : "",
+      entry.notes.understand ? `\nUnderstand the Meaning:\n${entry.notes.understand}` : "",
+      entry.notes.heart ? `\nExamine My Heart:\n${entry.notes.heart}` : "",
+      entry.notes.prayer ? `\nPrayer Response:\n${entry.notes.prayer}` : "",
+      entry.notes.walk ? `\nWalk It Out:\n${entry.notes.walk}` : "",
+      entry.notes.remember ? `\nRemember / Review:\n${entry.notes.remember}` : "",
+      entry.tags ? `\nTags: ${entry.tags}` : ""
+    ].filter(Boolean).join("\n");
+    try { await navigator.clipboard.writeText(parts); setStatus("Entry copied"); }
     catch (_) { setStatus("Copy unavailable"); }
   }
 
@@ -1993,6 +2092,7 @@ const verseCounts = {
     $("copyPassageBtn").addEventListener("click", copyPassage);
     $("newEntryBtn").addEventListener("click", newEntry);
     $("saveBtn").addEventListener("click", saveEntry);
+    $("copyEntryBtn").addEventListener("click", copyEntry);
     $("deleteBtn").addEventListener("click", async () => {
       if (!currentEntryId) { newEntry(); return; }
       if (!confirm("Delete this saved journal entry?")) return;
@@ -2010,8 +2110,18 @@ const verseCounts = {
     });
     $("refreshHistoryBtn").addEventListener("click", renderHistory);
     $("historySearch").addEventListener("input", renderHistory);
+    document.querySelectorAll(".filterBtn").forEach((btn) => btn.addEventListener("click", () => { historyFilter = btn.dataset.filter || "all"; renderHistory(); }));
+    document.querySelectorAll(".quickPromptBtn").forEach((btn) => btn.addEventListener("click", () => {
+      const target = $(btn.dataset.target);
+      if (!target) return;
+      const prompt = btn.dataset.prompt || "";
+      target.value = target.value.trim() ? `${target.value.trim()}\n\n${prompt}` : prompt;
+      target.focus();
+      autosaveDraft();
+    }));
     $("themeBtn").addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
     fields.concat(["entryDate"]).forEach((id) => $(id).addEventListener("input", () => { clearTimeout(window.__journalDraftTimer); window.__journalDraftTimer = setTimeout(autosaveDraft, 250); }));
+    ["favoriteEntry", "reviewLater"].forEach((id) => $(id).addEventListener("change", autosaveDraft));
   }
 
   async function init() {
