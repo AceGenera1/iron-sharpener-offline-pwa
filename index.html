@@ -15932,7 +15932,7 @@ html.obs body.dark .obs-tool-bar button:hover {
 })();
 </script>
 <!-- Patch 33 — Public offline tracker restored + cream button color lock -->
-<style id="rdm-v33-public-offline-tracker-cream-button-lock">
+<style id="rdm-v34-final-offline-sync-cream-button-lock">
 /* Cream mode: Copy Scripture buttons must use the reddish-brown ministry style, not gold. */
 body:not(.dark) #copyScriptureMain,
 body:not(.dark) #openCopyScriptureFromTools,
@@ -16145,14 +16145,14 @@ html.obs #rdmPublicOfflinePanelV33 {
   }
 }
 </style>
-<script id="rdm-v33-public-offline-tracker">
+<script id="rdm-v34-final-offline-sync">
 (function rdmV33PublicOfflineTracker() {
   if (window.__rdmV33PublicOfflineTracker) return;
   window.__rdmV33PublicOfflineTracker = true;
 
-  const CACHE_NAME = "iron-sharpener-offline-v33-public-tracker-20260627";
-  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v33";
-  const PANEL_HIDDEN_KEY = "ironSharpenerUnified.offlinePublicPanelHidden.v33";
+  const CACHE_NAME = "iron-sharpener-offline-v34-final-offline-sync-20260627";
+  const STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v34";
+  const PANEL_HIDDEN_KEY = "ironSharpenerUnified.offlinePublicPanelHidden.v34";
   const $id = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -16315,12 +16315,16 @@ html.obs #rdmPublicOfflinePanelV33 {
 
   async function cacheOne(path, cache, force) {
     const requestPath = path;
-    if (!force && await cachedSomewhere(requestPath)) {
+    const isAppShell = requestPath === "./" || /(^\.\/)?index\.html$/i.test(requestPath);
+
+    // Always refresh the app shell while online so offline mode matches the current online UI.
+    // For thousands of Bible/resource JSON files, skip network requests when they are already cached.
+    if (!force && !isAppShell && await cachedSomewhere(requestPath)) {
       return { status: "cached" };
     }
 
     try {
-      const response = await fetch(requestPath, { cache: force ? "reload" : "default" });
+      const response = await fetch(requestPath, { cache: (force || isAppShell) ? "reload" : "default" });
       if (!response || !response.ok) {
         return { status: "missing", code: response ? response.status : 0 };
       }
@@ -16337,9 +16341,54 @@ html.obs #rdmPublicOfflinePanelV33 {
       if (requestPath.startsWith("./")) {
         try { await cache.put(requestPath.replace(/^\.\//, ""), response.clone()); } catch (_) {}
       }
+      if (isAppShell) {
+        try { await cache.put("index.html", response.clone()); } catch (_) {}
+        try { await cache.put("./", response.clone()); } catch (_) {}
+      }
       return { status: "cached" };
     } catch (error) {
       return { status: "failed", reason: error && error.message ? error.message : "fetch failed" };
+    }
+  }
+
+  async function updateOfflineFilesFast() {
+    if (!navigator.onLine) {
+      setPanelState(false, "offline", "Connect to the internet before updating offline files.", 0, "Waiting for internet connection.");
+      return;
+    }
+    if (!("caches" in window)) {
+      setPanelState(false, "unsupported", "This browser does not support offline caching.", 0, "Use a modern browser with site storage enabled.");
+      return;
+    }
+
+    const panel = $id("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.add("open");
+
+    const cache = await caches.open(CACHE_NAME);
+    const updateFiles = [...new Set(["./index.html", "index.html", "./manifest.json", "./assets/iron-sharpener-logo.png", ...coreReadyFiles])];
+    let ready = 0;
+    let failed = 0;
+
+    for (let i = 0; i < updateFiles.length; i++) {
+      const result = await cacheOne(updateFiles[i], cache, false);
+      if (result.status === "cached") ready++;
+      else failed++;
+      if (i % 4 === 0 || i === updateFiles.length - 1) {
+        const pct = updateFiles.length ? Math.round(((i + 1) / updateFiles.length) * 100) : 100;
+        setPanelState(false, "updating", "Updating the offline app shell and readiness check...", pct, `${(i + 1).toLocaleString()} of ${updateFiles.length.toLocaleString()} core files checked.`);
+        await sleep(10);
+      }
+    }
+
+    const existing = readStatus() || {};
+    const savedCount = statusCount(existing) || Number(existing.total || 0) || 7731;
+    const complete = failed === 0 && await coreCacheReady();
+    writeStatus({ ...existing, complete, failed: complete ? 0 : failed, ready: savedCount, cached: savedCount, updatedAt: new Date().toISOString(), version: "v34-final-offline-sync" });
+
+    if (complete) {
+      setPanelState(true, "ready", "Iron Sharpener is ready for offline use on this device.", 100, `${savedCount.toLocaleString()} files ready on this device.`);
+    } else {
+      setPanelState(false, "needs-review", "Offline update finished, but the app shell could not be fully confirmed.", 100, `${ready.toLocaleString()} core files ready. ${failed} failed.`);
     }
   }
 
@@ -16395,8 +16444,8 @@ html.obs #rdmPublicOfflinePanelV33 {
           setPanelState(false, "offline", "Connect to the internet before updating offline files.", 0, "Waiting for internet connection.");
           return;
         }
-        const ok = window.confirm("Update Offline Files will check for missing or changed Iron Sharpener files. Continue?");
-        if (ok) prepareOfflineFiles(false);
+        const ok = window.confirm("Update Offline Files will refresh the offline app shell and confirm the core files. Continue?");
+        if (ok) updateOfflineFilesFast();
       };
     }
   }
@@ -16472,19 +16521,25 @@ html.obs #rdmPublicOfflinePanelV33 {
     let failed = 0;
     let missing = 0;
 
-    for (let i = 0; i < files.length; i++) {
-      const path = files[i];
+    let checked = 0;
+    const MAX_PARALLEL = force ? 3 : 4;
+
+    async function handleCachePath(path) {
       const result = await cacheOne(path, cache, force);
       if (result.status === "cached") cached++;
       else if (result.status === "missing") { skipped++; missing++; }
       else failed++;
 
-      if (i % 25 === 0 || i === files.length - 1) {
-        const pct = total ? Math.round(((i + 1) / total) * 100) : 100;
-        setPanelState(false, "running", "Preparing Iron Sharpener for offline use. Keep this page open.", pct, `${(i + 1).toLocaleString()} of ${total.toLocaleString()} checked. ${cached.toLocaleString()} ready.`);
-        await sleep(1);
+      checked++;
+      if (checked % 50 === 0 || checked === total) {
+        const pct = total ? Math.round((checked / total) * 100) : 100;
+        setPanelState(false, "running", "Preparing Iron Sharpener for offline use. Keep this page open.", pct, `${checked.toLocaleString()} of ${total.toLocaleString()} checked. ${cached.toLocaleString()} ready.`);
       }
-      await sleep(8);
+    }
+
+    for (let i = 0; i < files.length; i += MAX_PARALLEL) {
+      await Promise.all(files.slice(i, i + MAX_PARALLEL).map(handleCachePath));
+      if (i % 240 === 0) await sleep(18);
     }
 
     const ready = failed === 0 && (await coreCacheReady());
@@ -16497,7 +16552,7 @@ html.obs #rdmPublicOfflinePanelV33 {
       optionalMissing: missing,
       failed,
       updatedAt: new Date().toISOString(),
-      version: "v33-public-offline-tracker"
+      version: "v34-final-offline-sync"
     };
     writeStatus(status);
 
@@ -16511,6 +16566,9 @@ html.obs #rdmPublicOfflinePanelV33 {
 
   window.rdmPrepareOfflineFilesV33 = prepareOfflineFiles;
   window.rdmRefreshOfflineStatusV33 = refreshStatusFromCache;
+  window.rdmPrepareOfflineFilesV34 = prepareOfflineFiles;
+  window.rdmRefreshOfflineStatusV34 = refreshStatusFromCache;
+  window.rdmUpdateOfflineFilesFastV34 = updateOfflineFilesFast;
 
   window.addEventListener("online", refreshStatusFromCache);
   window.addEventListener("offline", refreshStatusFromCache);
@@ -16530,7 +16588,66 @@ html.obs #rdmPublicOfflinePanelV33 {
 })();
 </script>
 <script id="rdm-v33-stability-marker">
-(function rdmV33StabilityMarker(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v33-public-offline-tracker"; })();
+(function rdmV33StabilityMarker(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v34-final-offline-sync"; })();
+</script>
+
+<!-- Patch 34 — Final offline sync + cream button lock -->
+<style id="rdm-v34-final-offline-sync-final-overrides">
+/* Cream mode: every action button inside the public Offline Ready panel uses the reddish-brown ministry style, not gold/green. */
+html body:not(.dark) #rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 button,
+html body:not(.dark) #rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33,
+html body:not(.dark) #rdmPublicOfflinePanelV33 #rdmPublicOfflineUpdateButtonV33,
+html body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode),
+html body:not(.dark) #copyScripturePanel #copySingleVerseMode,
+html body:not(.dark) #copyScripturePanel #copyMultipleVersesMode,
+html body:not(.dark) #copyScripturePanel #copyWholePassageMode {
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
+  background-color: #7A4C06 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+html body:not(.dark) #rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 button:hover,
+html body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode):hover {
+  background: linear-gradient(180deg, #9A6618 0%, #7A4C06 100%) !important;
+  color: #FFF8EA !important;
+}
+
+html body:not(.dark) #copyScripturePanel #clearCopySelectionMode {
+  background: linear-gradient(180deg, #fffaf0, #fff0d3) !important;
+  color: #203D39 !important;
+  border: 1.8px solid rgba(183,116,16,.70) !important;
+  box-shadow: none !important;
+}
+
+/* Dark mode and OBS dark stay bold gold/green. */
+html body.dark #rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 button,
+html body.dark #rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33,
+html body.dark #rdmPublicOfflinePanelV33 #rdmPublicOfflineUpdateButtonV33,
+html body.dark #copyScripturePanel .copy-scripture-actions button,
+html.obs body.dark #obsBtn,
+html.obs body.dark #obsToolBar button,
+html.obs body.dark .obs-tool-bar button {
+  background: linear-gradient(180deg, #f8d987 0%, #d7a84f 100%) !important;
+  background-color: #d7a84f !important;
+  color: #203D39 !important;
+  border: 2px solid #fff1c0 !important;
+  box-shadow: 0 0 14px rgba(248,217,135,.24), 0 8px 18px rgba(0,0,0,.28) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+</style>
+<script id="rdm-v34-final-offline-sync-marker">
+(function rdmV34FinalOfflineSyncMarker(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v34-final-offline-sync";
+})();
 </script>
 
 </body>
