@@ -157,6 +157,14 @@
   body.dark .card { background: rgba(29,45,68,.94); }
   .cardHead { padding: 16px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(220,232,242,.45); }
   body.dark .cardHead { background: rgba(255,249,241,.04); }
+
+  .scriptureHeadActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
   .cardHead h2, .cardHead h3 { margin: 0; color: var(--deep); font-size: 19px; }
   body.dark .cardHead h2, body.dark .cardHead h3 { color: var(--ink); }
   .cardBody { padding: 16px 18px 18px; }
@@ -740,7 +748,6 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
     <div>
       <div class="heroActions">
         <button class="ghost" id="studyModeBtn" type="button">Scripture Study Mode</button>
-        <button class="ghost" id="openStudyToolsBtn" type="button">Study Tools</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
       <div class="verseCard">
@@ -764,9 +771,10 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
           <h3>Current Passage</h3>
           <button class="studyToolBtn" id="toolPassageSummary" type="button">Passage Snapshot</button>
           <button class="studyToolBtn" id="toolCrossRefs" type="button">Built-In Cross References</button>
-          <button class="studyToolBtn" id="toolCommentary" type="button">Commentary</button>
-          <button class="studyToolBtn" id="toolBackgrounds" type="button">Bible Backgrounds & Customs</button>
+          <button class="studyToolBtn" id="toolBackgrounds" type="button">Bible Backgrounds &amp; Customs</button>
           <button class="studyToolBtn" id="toolBookOverview" type="button">Book Overview</button>
+          <button class="studyToolBtn" id="toolMatthewHenry" type="button">Matthew Henry Commentary</button>
+          <button class="studyToolBtn" id="toolJfb" type="button">Jamieson-Fausset-Brown Commentary</button>
         </div>
         <div class="studyToolGroup">
           <h3>Scripture Marking</h3>
@@ -782,7 +790,8 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
           <h3>Search Helps</h3>
           <div class="studyToolSearch">
             <input id="studyToolSearchTerm" placeholder="Search word or topic" />
-            <button class="studyToolBtn" id="toolDictionary" type="button">Dictionary Lookup</button>
+            <button class="studyToolBtn" id="toolEastons" type="button">Easton's Bible Dictionary</button>
+            <button class="studyToolBtn" id="toolSmiths" type="button">Smith's Bible Dictionary</button>
             <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
             <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
           </div>
@@ -805,14 +814,17 @@ body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copp
   <main class="layout">
     <section class="card scriptureCard">
       <div class="cardHead"><h2>Scripture Passage</h2>
-        <div class="copyMenuWrap">
-          <button class="secondary" id="copyScriptureBtn" type="button" aria-expanded="false">Copy Scripture</button>
+        <div class="scriptureHeadActions">
+          <button class="secondary" id="openStudyToolsBtn" type="button">Study Tools</button>
+          <div class="copyMenuWrap">
+            <button class="secondary" id="copyScriptureBtn" type="button" aria-expanded="false">Copy Scripture</button>
           <div class="copyMenu" id="copyScriptureMenu" role="menu">
             <button class="secondary" id="copySingleBtn" type="button">Copy Single Verse</button>
             <button class="secondary" id="copyMultiBtn" type="button">Copy Multiple Verses</button>
             <button class="secondary" id="copyPassageBtn" type="button">Copy Passage</button>
             <button class="secondary" id="clearCopyBtn" type="button">Clear Copy Selection</button>
           </div>
+        </div>
         </div>
       </div>
       <div class="cardBody">
@@ -3454,17 +3466,48 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     setStudyToolsResult("Built-In Cross References", renderMatches(matches, `No cross references found for ${currentReference()} yet.`));
   }
 
-  async function openCommentaryTool() {
+  function commentaryTermsForCurrentPassage() {
     const book = $("book").value;
     const chapter = $("chapter").value;
-    const mh = await fetchJsonAny([`bible/resources/commentaries/matthew-henry/${book}.json`, `./bible/resources/commentaries/matthew-henry/${book}.json`, `bible/resources/commentaries/matthew-henry/${encodeURIComponent(book)}.json`]);
-    const jfb = await fetchJsonAny([`bible/resources/commentaries/jfb/${book}.json`, `./bible/resources/commentaries/jfb/${book}.json`, `bible/resources/commentaries/jfb/${encodeURIComponent(book)}.json`]);
-    const terms = [`${book} ${chapter}`, `chapter ${chapter}`, `ch ${chapter}`, `${chapter}:`];
-    let html = "";
-    if (mh) html += `<h4>Matthew Henry</h4>${renderMatches(collectMatches(mh, terms, 10), "No Matthew Henry entry found for this passage.")}`;
-    if (jfb) html += `<h4>Jamieson-Fausset-Brown</h4>${renderMatches(collectMatches(jfb, terms, 10), "No JFB entry found for this passage.")}`;
-    if (!html) html = `<p class="empty">No commentary files loaded for ${escapeHtml(book)}.</p>`;
-    setStudyToolsResult("Commentary", html);
+    const start = $("start").value;
+    const end = $("end").value;
+    return [
+      `${book} ${chapter}:${start}`,
+      `${book} ${chapter}`,
+      `${chapter}:${start}`,
+      `chapter ${chapter}`,
+      `ch ${chapter}`,
+      `${chapter}:`
+    ];
+  }
+
+  async function openCommentarySource(title, paths) {
+    const book = $("book").value;
+    const data = await fetchJsonAny(paths);
+    if (!data) {
+      setStudyToolsResult(title, `<p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(book)}.</p>`);
+      return;
+    }
+    const matches = collectMatches(data, commentaryTermsForCurrentPassage(), 24);
+    setStudyToolsResult(title, renderMatches(matches, `No ${title} entry found for ${currentReference()} yet.`));
+  }
+
+  async function openMatthewHenryTool() {
+    const book = $("book").value;
+    await openCommentarySource("Matthew Henry Commentary", [
+      `bible/resources/commentaries/matthew-henry/${book}.json`,
+      `./bible/resources/commentaries/matthew-henry/${book}.json`,
+      `bible/resources/commentaries/matthew-henry/${encodeURIComponent(book)}.json`
+    ]);
+  }
+
+  async function openJfbTool() {
+    const book = $("book").value;
+    await openCommentarySource("Jamieson-Fausset-Brown Commentary", [
+      `bible/resources/commentaries/jfb/${book}.json`,
+      `./bible/resources/commentaries/jfb/${book}.json`,
+      `bible/resources/commentaries/jfb/${encodeURIComponent(book)}.json`
+    ]);
   }
 
   async function openBackgroundsTool() {
@@ -3496,19 +3539,25 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     setStudyToolsResult(`${book} Overview`, data ? normalizeResourceText(data) : `<p class="empty">No book overview found for ${escapeHtml(book)} yet.</p>`);
   }
 
-  async function openDictionaryTool() {
-    const raw = $("studyToolSearchTerm")?.value || "";
-    const term = cleanText(raw || window.getSelection()?.toString() || "");
-    if (!term) { setStudyToolsResult("Dictionary Lookup", `<p class="empty">Enter a word or topic first.</p>`); return; }
-    const letter = term[0].toLowerCase();
-    const easton = await fetchJsonAny([`bible/resources/eastons/${letter}.json`, `./bible/resources/eastons/${letter}.json`]);
-    const smith = await fetchJsonAny([`bible/resources/smiths/${letter}.json`, `./bible/resources/smiths/${letter}.json`]);
-    let html = "";
-    if (easton) html += `<h4>Easton's Bible Dictionary</h4>${renderMatches(collectMatches(easton, [term], 8), "No Easton's match found.")}`;
-    if (smith) html += `<h4>Smith's Bible Dictionary</h4>${renderMatches(collectMatches(smith, [term], 8), "No Smith's match found.")}`;
-    if (!html) html = `<p class="empty">No dictionary files loaded for ${escapeHtml(term)}.</p>`;
-    setStudyToolsResult(`Dictionary: ${term}`, html);
+  function currentSearchTermOrSelection() {
+    return cleanText($("studyToolSearchTerm")?.value || window.getSelection()?.toString() || "");
   }
+
+  async function openDictionarySource(title, folder) {
+    const term = currentSearchTermOrSelection();
+    if (!term) { setStudyToolsResult(title, `<p class="empty">Enter a word or select text first.</p>`); return; }
+    const letter = term[0].toLowerCase();
+    const data = await fetchJsonAny([
+      `bible/resources/${folder}/${letter}.json`,
+      `./bible/resources/${folder}/${letter}.json`,
+      `bible/resources/${folder}/${encodeURIComponent(letter)}.json`
+    ]);
+    if (!data) { setStudyToolsResult(title, `<p class="empty">No ${escapeHtml(title)} files loaded for ${escapeHtml(term)}.</p>`); return; }
+    setStudyToolsResult(`${title}: ${term}`, renderMatches(collectMatches(data, [term], 16), `No ${title} match found for ${term}.`));
+  }
+
+  async function openEastonsTool() { await openDictionarySource("Easton's Bible Dictionary", "eastons"); }
+  async function openSmithsTool() { await openDictionarySource("Smith's Bible Dictionary", "smiths"); }
 
   async function openNaveTool() {
     const term = cleanText($("studyToolSearchTerm")?.value || "");
@@ -4016,7 +4065,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       const title = panel.querySelector(".resourceFloatHead h2")?.textContent || "";
       try {
         if (/Passage Snapshot/i.test(title)) await openPassageSnapshot();
-        else if (/Commentary/i.test(title)) await openCommentaryTool();
+        else if (/Matthew Henry/i.test(title)) await openMatthewHenryTool();
+        else if (/Jamieson|Fausset|Brown|JFB/i.test(title)) await openJfbTool();
         else if (/Backgrounds|Customs/i.test(title)) await openBackgroundsTool();
         else if (/Overview/i.test(title)) await openBookOverviewTool();
       } catch (_) {}
@@ -4037,13 +4087,15 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     $("closeResourceFloatBtn")?.addEventListener("click", closeResourceFloat);
     $("toolPassageSummary").addEventListener("click", openPassageSnapshot);
     $("toolCrossRefs").addEventListener("click", () => openInternalCrossReferences("passage"));
-    $("toolCommentary").addEventListener("click", openCommentaryTool);
+    $("toolMatthewHenry").addEventListener("click", openMatthewHenryTool);
+    $("toolJfb").addEventListener("click", openJfbTool);
     $("toolBackgrounds").addEventListener("click", openBackgroundsTool);
     $("toolBookOverview").addEventListener("click", openBookOverviewTool);
     document.querySelectorAll(".markToolBtn").forEach((btn) => btn.addEventListener("click", () => setMarkMode(btn.dataset.mark)));
     $("markClearPassageBtn").addEventListener("click", clearMarksForCurrentPassage);
     $("markStopBtn").addEventListener("click", () => setMarkMode(null));
-    $("toolDictionary").addEventListener("click", openDictionaryTool);
+    $("toolEastons").addEventListener("click", openEastonsTool);
+    $("toolSmiths").addEventListener("click", openSmithsTool);
     $("toolNave").addEventListener("click", openNaveTool);
     $("toolDoctrine").addEventListener("click", openDoctrineTool);
     window.addEventListener("beforeunload", saveCurrentDraftNow);
