@@ -1111,7 +1111,7 @@ body.dark .commentary-entry h4 { color: var(--soft-copper); }
 <script>
 (() => {
   "use strict";
-  const VERSION = "v37-disciple-journal-crossrefs-marking-mirror";
+  const VERSION = "v44-shared-study-resource-bridge";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -3796,6 +3796,10 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       </div>`;
   }
 
+  /* v44 — Shared Study Resource Bridge: dictionary/topical search mirror */
+  const RESOURCE_SEARCH_STATE = window.__discipleJournalResourceSearchState || {};
+  window.__discipleJournalResourceSearchState = RESOURCE_SEARCH_STATE;
+
   function dictionaryPanelSearchName(folder) {
     return folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel";
   }
@@ -3809,83 +3813,148 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       `bible/resources/${folder}/${lower}.json`,
       `./bible/resources/${folder}/${lower}.json`,
       `bible/resources/${folder}/${encodeURIComponent(upper)}.json`,
-      `bible/resources/${folder}/${encodeURIComponent(lower)}.json`
+      `./bible/resources/${folder}/${encodeURIComponent(upper)}.json`,
+      `bible/resources/${folder}/${encodeURIComponent(lower)}.json`,
+      `./bible/resources/${folder}/${encodeURIComponent(lower)}.json`
     ];
   }
 
   function normalizeDictionaryEntry(item, fallbackTitle = "Entry") {
     if (!item) return `<p class="empty">No entry found.</p>`;
-    if (typeof item === "string") return `<p>${item}</p>`;
+    if (typeof item === "string") return `<h3>${escapeHtml(fallbackTitle)}</h3><p>${escapeHtml(item)}</p>`;
     const title = escapeHtml(item.title || item.term || fallbackTitle);
     const content = item.content || item.text || item.definition || item.body || item.description || "";
     return `<h3>${title}</h3><div>${typeof content === "string" ? content : normalizeResourceText(content)}</div>`;
   }
 
-  async function searchDictionarySource(title, folder, rawTerm) {
-    const term = cleanText(rawTerm || "");
-    const searchName = dictionaryPanelSearchName(folder);
+  function getResourceState(key) {
+    if (!RESOURCE_SEARCH_STATE[key]) RESOURCE_SEARCH_STATE[key] = { letter: "", data: {}, terms: [], cache: {} };
+    return RESOURCE_SEARCH_STATE[key];
+  }
 
-    if (!term) {
-      setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName));
-      setTimeout(() => focusLookupInputForTitle(title), 30);
-      return;
-    }
+  function renderSearchShell(title, placeholder, initialValue = "") {
+    return `
+      <div class="lookupBox resource-search-panel" data-resource-title="${escapeHtml(title)}">
+        <p class="empty">Select a word in Scripture first, or type at least 3 letters below.</p>
+        <input data-lookup-input="true" value="${escapeHtml(initialValue)}" placeholder="${escapeHtml(placeholder)}" autocomplete="off" />
+        <div class="lookupActions">
+          <button class="secondary" data-lookup-search="true" type="button">Search</button>
+        </div>
+        <div class="lookupResults" data-lookup-results="true"></div>
+      </div>`;
+  }
 
-    const letter = term[0];
-    const data = await fetchJsonAny(dictionaryPaths(folder, letter));
+  function bindSearchPanel(title, runSearch, initialValue = "", autoRun = false) {
+    const panel = document.getElementById(resourcePanelId(title));
+    const input = panel?.querySelector('[data-lookup-input]');
+    const button = panel?.querySelector('[data-lookup-search]');
+    if (!panel || !input || !button) return;
 
-    if (!data || typeof data !== "object") {
-      setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
-        '<div class="lookupResults" data-lookup-results="true"></div>',
-        `<div class="lookupResults" data-lookup-results="true"><p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(term)}.</p></div>`
-      ));
-      return;
-    }
+    let timer = null;
+    const execute = () => runSearch(input.value || "");
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(execute, 120);
+    };
 
-    const q = term.toLowerCase();
-    const terms = Object.keys(data).sort();
-    const matches = terms.filter(key => {
-      const item = data[key];
-      const titleText = String(item?.title || key || "").toLowerCase();
-      const contentText = String(item?.content || item?.text || item?.definition || "").toLowerCase();
-      return key.toLowerCase().includes(q) || titleText.includes(q) || contentText.includes(q);
-    }).slice(0, 25);
-
-    const resultHtml = matches.length
-      ? `<div class="dictionary-results"><p><strong>${escapeHtml(title)} search:</strong> ${escapeHtml(term)}</p>${matches.map(key => {
-          const item = data[key] || {};
-          const label = escapeHtml(item.title || key);
-          const safeKey = escapeHtml(String(key));
-          return `<button type="button" class="dictionary-result-btn secondary" data-source="${escapeHtml(folder)}" data-key="${safeKey}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${label}</button>`;
-        }).join("")}</div>`
-      : `<p class="empty">No ${escapeHtml(title)} match found for ${escapeHtml(term)}.</p>`;
-
-    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
-      '<div class="lookupResults" data-lookup-results="true"></div>',
-      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
-    ));
+    input.oninput = schedule;
+    input.onkeydown = (event) => {
+      if (event.key === "Enter") { event.preventDefault(); execute(); }
+    };
+    button.onclick = execute;
 
     setTimeout(() => {
-      document.querySelectorAll(`.dictionary-result-btn[data-source="${CSS.escape(folder)}"]`).forEach(btn => {
-        btn.addEventListener("click", () => {
-          const key = btn.dataset.key;
-          const item = data[key];
-          openResourceInstancePanel(item?.title || key || title, normalizeDictionaryEntry(item, key));
-        });
-      });
-      focusLookupInputForTitle(title, true);
+      input.focus({ preventScroll: true });
+      if (initialValue) input.select?.();
+      if (autoRun && initialValue) execute();
     }, 30);
   }
 
-  async function openDictionarySource(title, folder) {
-    const term = requestStudyTerm(title);
-    if (term) return searchDictionarySource(title, folder, term);
-    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", dictionaryPanelSearchName(folder)));
-    setTimeout(() => focusLookupInputForTitle(title), 30);
+  function updateLookupResults(title, html) {
+    const panel = document.getElementById(resourcePanelId(title));
+    const results = panel?.querySelector('[data-lookup-results]');
+    if (results) results.innerHTML = html;
   }
 
-  window.searchEastonsFromPanel = (term) => searchDictionarySource("Easton's Bible Dictionary", "eastons", term);
-  window.searchSmithsFromPanel = (term) => searchDictionarySource("Smith's Bible Dictionary", "smiths", term);
+  async function loadDictionaryLetter(folder, letter) {
+    const state = getResourceState(folder);
+    const normalizedLetter = String(letter || "").charAt(0).toUpperCase();
+    if (!normalizedLetter) return { data: {}, terms: [] };
+    if (state.letter === normalizedLetter && state.data && Object.keys(state.data).length) return state;
+
+    state.letter = normalizedLetter;
+    state.data = await fetchJsonAny(dictionaryPaths(folder, normalizedLetter)) || {};
+    state.terms = Object.keys(state.data).sort((a, b) => String(a).localeCompare(String(b)));
+    return state;
+  }
+
+  function dictionarySearchScore(term, item, query) {
+    const q = String(query || "").toLowerCase().trim();
+    const key = String(term || "").toLowerCase();
+    const title = String(item?.title || term || "").toLowerCase();
+    const content = String(item?.content || item?.text || item?.definition || "").toLowerCase();
+    if (key === q || title === q) return 0;
+    if (key.startsWith(q) || title.startsWith(q)) return 1;
+    if (key.includes(q) || title.includes(q)) return 2;
+    if (content.includes(q)) return 3;
+    return 99;
+  }
+
+  async function runDictionarySearch(title, folder, rawTerm) {
+    const term = cleanText(rawTerm || "");
+    const q = term.toLowerCase();
+
+    if (!term) {
+      updateLookupResults(title, `<p class="empty">Type a word above to search ${escapeHtml(title)}.</p>`);
+      return;
+    }
+
+    if (q.length < 3) {
+      updateLookupResults(title, `<p class="empty">Keep typing at least 3 letters.</p>`);
+      return;
+    }
+
+    const state = await loadDictionaryLetter(folder, q.charAt(0));
+    if (!state.data || !Object.keys(state.data).length) {
+      updateLookupResults(title, `<p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(term)}.</p>`);
+      return;
+    }
+
+    const matches = state.terms
+      .map((key) => ({ key, item: state.data[key], score: dictionarySearchScore(key, state.data[key], q) }))
+      .filter((row) => row.score < 99)
+      .sort((a, b) => a.score - b.score || String(a.item?.title || a.key).localeCompare(String(b.item?.title || b.key)))
+      .slice(0, 24);
+
+    if (!matches.length) {
+      updateLookupResults(title, `<p class="empty">No ${escapeHtml(title)} entry found for ${escapeHtml(term)}.</p>`);
+      return;
+    }
+
+    updateLookupResults(title, `
+      <div class="dictionary-results">
+        <p><strong>${escapeHtml(title)} search:</strong> ${escapeHtml(term)}</p>
+        ${matches.map(({ key, item }) => `<button type="button" class="dictionary-result-btn secondary" data-source="${escapeHtml(folder)}" data-key="${escapeHtml(key)}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${escapeHtml(item?.title || key)}</button>`).join("")}
+      </div>`);
+
+    const panel = document.getElementById(resourcePanelId(title));
+    panel?.querySelectorAll(`.dictionary-result-btn[data-source="${folder}"]`).forEach((btn) => {
+      btn.onclick = () => {
+        const key = btn.dataset.key;
+        const item = getResourceState(folder).data[key];
+        openResourceInstancePanel(item?.title || key || title, normalizeDictionaryEntry(item, key));
+      };
+    });
+  }
+
+  async function openDictionarySource(title, folder) {
+    const selectedTerm = requestStudyTerm(title);
+    openResourceInstancePanel(title, renderSearchShell(title, folder === "eastons" ? "Search a word like faith, grace, Jerusalem..." : "Search a word like Paul, Jerusalem, Pharisee...", selectedTerm));
+    bindSearchPanel(title, (value) => runDictionarySearch(title, folder, value), selectedTerm, !!selectedTerm);
+  }
+
+  window.searchEastonsFromPanel = (term) => runDictionarySearch("Easton's Bible Dictionary", "eastons", term);
+  window.searchSmithsFromPanel = (term) => runDictionarySearch("Smith's Bible Dictionary", "smiths", term);
 
   async function openEastonsTool() { await openDictionarySource("Easton's Bible Dictionary", "eastons"); }
   async function openSmithsTool() { await openDictionarySource("Smith's Bible Dictionary", "smiths"); }
@@ -3907,54 +3976,60 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     ]);
   }
 
+  function scoreTopicFile(file, query) {
+    const f = String(file || "").toLowerCase();
+    const q = String(query || "").toLowerCase();
+    if (f === q || f.replace(/-/g, " ") === q) return 0;
+    if (f.startsWith(q) || f.replace(/-/g, " ").startsWith(q)) return 1;
+    if (f.includes(q) || f.replace(/-/g, " ").includes(q)) return 2;
+    return 99;
+  }
+
   async function searchNaveFromPanel(termRaw) {
+    const title = "Nave's Topical Bible";
     const term = cleanText(termRaw || "");
-    if (!term) {
-      setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
-      setTimeout(() => focusLookupInputForTitle("Nave\'s Topical Bible"), 30);
-      return;
-    }
-
     const q = term.toLowerCase();
-    const slug = slugify(term);
-    const candidates = Array.from(new Set([slug, ...NAVE_TOPIC_FILES.filter(f => f.includes(slug) || f.includes(q))]));
-    const found = [];
 
-    for (const file of candidates) {
+    if (!term) { updateLookupResults(title, `<p class="empty">Type a topic above to search Nave's Topical Bible.</p>`); return; }
+    if (q.length < 3) { updateLookupResults(title, `<p class="empty">Keep typing at least 3 letters.</p>`); return; }
+
+    const slug = slugify(term);
+    const candidates = NAVE_TOPIC_FILES
+      .map((file) => ({ file, score: Math.min(scoreTopicFile(file, q), scoreTopicFile(file, slug)) }))
+      .filter((row) => row.score < 99)
+      .sort((a, b) => a.score - b.score || a.file.localeCompare(b.file))
+      .slice(0, 20);
+
+    const found = [];
+    for (const { file } of candidates) {
       const data = await loadNaveTopicFile(file);
-      if (!data) continue;
-      const searchable = JSON.stringify(data).toLowerCase();
-      if (file.includes(slug) || searchable.includes(q)) found.push({ file, data });
-      if (found.length >= 12) break;
+      if (data) found.push({ file, data });
     }
 
-    const resultHtml = found.length
-      ? `<div class="dictionary-results"><p><strong>Nave's Topical Bible search:</strong> ${escapeHtml(term)}</p>${found.map(({file, data}) => `<button type="button" class="naves-result-btn secondary" data-file="${escapeHtml(file)}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${escapeHtml(data.title || data.topic || file.replace(/-/g, " "))}</button>`).join("")}</div>`
-      : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`;
+    if (!found.length) { updateLookupResults(title, `<p class="empty">No Nave's topic found for ${escapeHtml(term)}.</p>`); return; }
 
-    window.__naveSearchCache = Object.fromEntries(found.map(x => [x.file, x.data]));
-    setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel", term).replace(
-      '<div class="lookupResults" data-lookup-results="true"></div>',
-      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
-    ));
+    const cache = getResourceState("naves");
+    cache.cache = Object.fromEntries(found.map(x => [x.file, x.data]));
+    updateLookupResults(title, `
+      <div class="dictionary-results">
+        <p><strong>Nave's Topical Bible search:</strong> ${escapeHtml(term)}</p>
+        ${found.map(({file, data}) => `<button type="button" class="naves-result-btn secondary" data-file="${escapeHtml(file)}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${escapeHtml(data.title || data.topic || file.replace(/-/g, " "))}</button>`).join("")}
+      </div>`);
 
-    setTimeout(() => {
-      document.querySelectorAll(".naves-result-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const file = btn.dataset.file;
-          const data = window.__naveSearchCache?.[file];
-          openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", normalizeResourceText(data));
-        });
-      });
-      focusLookupInputForTitle("Nave\'s Topical Bible", true);
-    }, 30);
+    const panel = document.getElementById(resourcePanelId(title));
+    panel?.querySelectorAll(".naves-result-btn").forEach(btn => {
+      btn.onclick = () => {
+        const data = getResourceState("naves").cache?.[btn.dataset.file];
+        openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", normalizeResourceText(data));
+      };
+    });
   }
 
   async function openNaveTool() {
-    const term = requestStudyTerm("Nave's Topical Bible");
-    if (term) return searchNaveFromPanel(term);
-    setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
-    setTimeout(() => focusLookupInputForTitle("Nave\'s Topical Bible"), 30);
+    const title = "Nave's Topical Bible";
+    const selectedTerm = requestStudyTerm(title);
+    openResourceInstancePanel(title, renderSearchShell(title, "Search a topic like faith, prayer, forgiveness...", selectedTerm));
+    bindSearchPanel(title, searchNaveFromPanel, selectedTerm, !!selectedTerm);
   }
   window.searchNaveFromPanel = searchNaveFromPanel;
 
