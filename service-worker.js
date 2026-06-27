@@ -1,9 +1,9 @@
-/* Iron Sharpener service worker — v34 final offline sync
+/* Iron Sharpener service worker — v35 Disciple Journal foundation
    Safe app-shell recovery: never serve old cached HTML, but keep old JSON/resource
    caches available so offline Scripture and study resources are preserved. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v34-final-offline-sync-20260627";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v35-disciple-journal-20260627";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
-const CORE_ASSETS = ["./index.html", "./manifest.json", "./assets/iron-sharpener-logo.png"];
+const CORE_ASSETS = ["./index.html", "./personal-study.html", "./manifest.json", "./assets/iron-sharpener-logo.png", "./assets/disciple-journal-logo.png", "./assets/disciple-journal-icon-192.png", "./assets/disciple-journal-icon-512.png"];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -63,14 +63,28 @@ async function putIfGood(cache, request, response) {
   catch (_) { return false; }
 }
 
+function htmlCacheKeysForRequest(request) {
+  const keys = [];
+  try {
+    const url = typeof request === "string" ? new URL(request, self.location.href) : new URL(request.url);
+    let path = url.pathname.replace(/^\//, "") || "index.html";
+    if (path.endsWith("/")) path += "index.html";
+    keys.push(path, `./${path}`);
+    if (path === "index.html") keys.push("./", "/");
+  } catch (_) {
+    const text = String(request || "");
+    if (text) keys.push(text, text.replace(/^\.\//, ""), `./${text.replace(/^\.\//, "")}`);
+  }
+  return [...new Set(keys.filter(Boolean))];
+}
+
 async function cacheHtmlResponse(cache, response, request) {
   if (!response || !response.ok) return false;
   const type = response.headers.get("content-type") || "";
   if (type && !type.includes("html")) return false;
-  await putIfGood(cache, request, response);
-  await putIfGood(cache, "./index.html", response);
-  await putIfGood(cache, "index.html", response);
-  await putIfGood(cache, "./", response);
+  for (const key of htmlCacheKeysForRequest(request)) {
+    await putIfGood(cache, key, response);
+  }
   return true;
 }
 
@@ -84,8 +98,11 @@ async function cacheFreshCoreShell() {
     try {
       const response = await fetch(new Request(asset, { cache: "reload" }));
       if (response && response.ok) {
-        await putIfGood(cache, asset, response);
-        await putIfGood(cache, asset.replace(/^\.\//, ""), response);
+        if (asset.endsWith(".html")) await cacheHtmlResponse(cache, response, asset);
+        else {
+          await putIfGood(cache, asset, response);
+          await putIfGood(cache, asset.replace(/^\.\//, ""), response);
+        }
       }
     } catch (_) {}
   }
@@ -116,6 +133,10 @@ async function navigationNetworkFirst(request) {
       return response;
     }
   } catch (_) {}
+  for (const key of htmlCacheKeysForRequest(request)) {
+    const cached = await cache.match(key);
+    if (cached) return cached;
+  }
   return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
