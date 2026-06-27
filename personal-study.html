@@ -840,6 +840,56 @@ body.dark .commentary-entry h4 { color: var(--soft-copper); }
 .dictionary-result-btn, .naves-result-btn { text-align: left !important; }
 .resource-search-panel input { margin-top: 8px; }
 
+
+
+/* v45 — Nave's Topical Bible entry cleanup for Disciple Journal */
+.naves-topic-entry h3 {
+  margin: 0 0 18px;
+  color: var(--copper);
+  font-size: 24px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+body.dark .naves-topic-entry h3 { color: var(--soft-copper); }
+.nave-section {
+  margin: 10px 0 12px;
+  border: 1px solid rgba(217,160,123,.42);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.24);
+}
+body.dark .nave-section {
+  background: rgba(255,255,255,.045);
+  border-color: rgba(217,160,123,.48);
+}
+.nave-section summary {
+  cursor: pointer;
+  font: 900 16px Arial, sans-serif;
+  color: var(--ink);
+  padding: 4px 0;
+}
+body.dark .nave-section summary { color: #F8F4EC; }
+.nave-ref-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.nave-ref-btn.cross-ref-link {
+  width: 100%;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8A4A24, #6F3918) !important;
+  color: #FFF8EA !important;
+  border: 1.5px solid rgba(217,160,123,.95) !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+body.dark .nave-ref-btn.cross-ref-link {
+  background: rgba(255,255,255,.08) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.92) !important;
+}
+
 </style>
 </head>
 <body>
@@ -3433,6 +3483,56 @@ body.dark .commentary-entry { background: rgba(255,249,241,.045); border-color: 
 body.dark .commentary-entry h4 { color: var(--soft-copper); }
 .commentary-entry p { margin: 0; line-height: 1.58; }
 
+
+
+/* v45 — Nave's Topical Bible entry cleanup for Disciple Journal */
+.naves-topic-entry h3 {
+  margin: 0 0 18px;
+  color: var(--copper);
+  font-size: 24px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+body.dark .naves-topic-entry h3 { color: var(--soft-copper); }
+.nave-section {
+  margin: 10px 0 12px;
+  border: 1px solid rgba(217,160,123,.42);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.24);
+}
+body.dark .nave-section {
+  background: rgba(255,255,255,.045);
+  border-color: rgba(217,160,123,.48);
+}
+.nave-section summary {
+  cursor: pointer;
+  font: 900 16px Arial, sans-serif;
+  color: var(--ink);
+  padding: 4px 0;
+}
+body.dark .nave-section summary { color: #F8F4EC; }
+.nave-ref-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.nave-ref-btn.cross-ref-link {
+  width: 100%;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8A4A24, #6F3918) !important;
+  color: #FFF8EA !important;
+  border: 1.5px solid rgba(217,160,123,.95) !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+body.dark .nave-ref-btn.cross-ref-link {
+  background: rgba(255,255,255,.08) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.92) !important;
+}
+
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
@@ -3985,6 +4085,68 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     return 99;
   }
 
+
+  function normalizeNaveReference(ref) {
+    if (ref == null) return "";
+    if (typeof ref === "string" || typeof ref === "number") return cleanText(String(ref));
+    if (typeof ref === "object") {
+      return cleanText(ref.reference || ref.ref || ref.scripture || ref.verse || ref.text || "");
+    }
+    return cleanText(String(ref));
+  }
+
+  function renderNaveReferenceButtons(refs) {
+    const list = Array.isArray(refs) ? refs.map(normalizeNaveReference).filter(Boolean) : [];
+    if (!list.length) return `<p class="empty">No references listed for this section.</p>`;
+    return `<div class="nave-ref-list">${list.map(ref => `<button type="button" class="cross-ref-link nave-ref-btn" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join("")}</div>`;
+  }
+
+  function renderNaveTopic(topic) {
+    if (!topic || typeof topic !== "object") return `<p class="empty">No Nave's topic content found.</p>`;
+
+    const title = cleanText(topic.title || topic.topic || "Nave's Topic");
+    const pieces = [`<section class="naves-topic-entry"><h3>${escapeHtml(title).toUpperCase()}</h3>`];
+
+    if (Array.isArray(topic.references) && topic.references.length) {
+      pieces.push(`
+        <details class="nave-section" open>
+          <summary>Main References (${topic.references.length})</summary>
+          ${renderNaveReferenceButtons(topic.references)}
+        </details>`);
+    }
+
+    if (topic.subtopics && typeof topic.subtopics === "object") {
+      Object.entries(topic.subtopics).forEach(([heading, refs]) => {
+        const refCount = Array.isArray(refs) ? refs.length : 0;
+        pieces.push(`
+          <details class="nave-section">
+            <summary>${escapeHtml(String(heading || "Subtopic"))}${refCount ? ` (${refCount})` : ""}</summary>
+            ${renderNaveReferenceButtons(refs)}
+          </details>`);
+      });
+    }
+
+    if (pieces.length === 1) {
+      pieces.push(normalizeResourceText(topic));
+    }
+
+    pieces.push(`</section>`);
+    return pieces.join("");
+  }
+
+  function wireResourceScriptureLinks(panel) {
+    if (!panel) return;
+    panel.querySelectorAll(".cross-ref-link[data-ref]").forEach(btn => {
+      if (btn.dataset.scriptureLinkReady === "1") return;
+      btn.dataset.scriptureLinkReady = "1";
+      btn.addEventListener("click", (event) => {
+        event.preventDefault();
+        const ref = btn.dataset.ref || btn.textContent.trim();
+        if (ref) goToScriptureReference(ref);
+      });
+    });
+  }
+
   async function searchNaveFromPanel(termRaw) {
     const title = "Nave's Topical Bible";
     const term = cleanText(termRaw || "");
@@ -4020,7 +4182,8 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     panel?.querySelectorAll(".naves-result-btn").forEach(btn => {
       btn.onclick = () => {
         const data = getResourceState("naves").cache?.[btn.dataset.file];
-        openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", normalizeResourceText(data));
+        const topicPanel = openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", renderNaveTopic(data));
+        wireResourceScriptureLinks(topicPanel);
       };
     });
   }
