@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v32 stability lock
+/* Iron Sharpener service worker — v33 public offline tracker sync
    Safe app-shell recovery: never serve old cached HTML, but keep old JSON/resource
    caches available so offline Scripture and study resources are preserved. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v32-stability-lock-20260627";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v33-public-tracker-20260627";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 const CORE_ASSETS = ["./index.html", "./manifest.json", "./assets/iron-sharpener-logo.png"];
 
@@ -14,7 +14,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     await removeOldHtmlShellEntries();
     await self.clients.claim();
-    // v32: do not force client.navigate() during activation; the page updates on the next normal load.
+    // v33: keep activation gentle; the page updates on the next normal load.
   })());
 });
 
