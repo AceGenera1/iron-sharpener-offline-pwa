@@ -253,6 +253,61 @@
   .badge { display:inline-flex; align-items:center; border-radius:999px; padding:3px 7px; font-size:11px; font-weight:900; background: rgba(185,122,86,.12); color: var(--copper); border:1px solid rgba(185,122,86,.25); }
   body.dark .badge { background: rgba(217,160,123,.10); color: var(--soft-copper); }
 
+
+
+  .copyMenuWrap { position: relative; display: inline-flex; }
+  .copyMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    z-index: 30;
+    display: none;
+    gap: 7px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255,249,241,.98);
+    box-shadow: var(--shadow);
+  }
+  body.dark .copyMenu { background: rgba(22,34,52,.98); }
+  .copyMenu.open { display: grid; }
+  .copyMenu button { width: 100%; text-align: left; box-shadow: none; padding: 9px 10px; }
+  .copyHint { margin: 10px 0 0; color: var(--dust); font-size: 12px; font-weight: 800; line-height: 1.35; }
+  .verse.copySelectable { cursor: pointer; border: 1px solid transparent; }
+  .verse.selectedVerse { border-color: var(--soft-copper); background: rgba(217,160,123,.18); }
+  body.dark .verse.selectedVerse { background: rgba(217,160,123,.18); }
+
+  .modeTabs, .guideSteps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .modeTab, .stepTab { box-shadow: none; padding: 9px 11px; font-size: 13px; }
+  .modeTab.active, .stepTab.active { background: var(--deep); color: #FFF9F1; border-color: var(--deep); }
+  body.dark .modeTab.active, body.dark .stepTab.active { background: var(--soft-copper); color: #162234; border-color: var(--soft-copper); }
+  .journalMode { display: none; }
+  .journalMode.active { display: block; }
+  .guidePanel { display: none; }
+  .guidePanel.active { display: grid; gap: 12px; }
+  .modeIntro {
+    margin: 0 0 12px;
+    color: var(--dust);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+  .atFeet { border-left: 5px solid var(--soft-copper); background: linear-gradient(90deg, rgba(217,160,123,.14), rgba(255,255,255,.42)); }
+  body.dark .atFeet { background: rgba(255,249,241,.045); }
+  .guardrail {
+    margin: 0 0 10px;
+    padding: 10px 11px;
+    border-radius: 13px;
+    border: 1px solid rgba(217,160,123,.32);
+    background: rgba(217,160,123,.10);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  body.dark .guardrail { background: rgba(217,160,123,.10); }
+  .freewriteBox textarea { min-height: 360px; }
+
   .footer { margin-top: 18px; color: var(--dust); text-align: center; font-size: 13px; line-height: 1.5; }
   .hiddenFile { display:none; }
   @media (max-width: 1180px) {
@@ -301,7 +356,17 @@
 
   <main class="layout">
     <section class="card scriptureCard">
-      <div class="cardHead"><h2>Scripture Passage</h2><button class="secondary" id="copyPassageBtn" type="button">Copy Passage</button></div>
+      <div class="cardHead"><h2>Scripture Passage</h2>
+        <div class="copyMenuWrap">
+          <button class="secondary" id="copyScriptureBtn" type="button" aria-expanded="false">Copy Scripture</button>
+          <div class="copyMenu" id="copyScriptureMenu" role="menu">
+            <button class="secondary" id="copySingleBtn" type="button">Copy Single Verse</button>
+            <button class="secondary" id="copyMultiBtn" type="button">Copy Multiple Verses</button>
+            <button class="secondary" id="copyPassageBtn" type="button">Copy Passage</button>
+            <button class="secondary" id="clearCopyBtn" type="button">Clear Copy Selection</button>
+          </div>
+        </div>
+      </div>
       <div class="cardBody">
         <div class="gridControls">
           <div class="wide"><label for="book">Book</label><select id="book"></select></div>
@@ -318,6 +383,7 @@
         <p class="reference" id="referenceTitle">Loading…</p>
         <p class="translation">World English Bible — Public Domain</p>
         <div class="passage" id="passage"><p class="empty">Choose a passage and load it.</p></div>
+        <p class="copyHint" id="copyHint">Use Copy Scripture to copy one verse, selected verses, or the loaded passage.</p>
       </div>
     </section>
 
@@ -327,41 +393,97 @@
         <div class="journalStack">
           <div class="prompt">
             <label for="entryTitle">Entry Title</label>
-            <input id="entryTitle" placeholder="Example: Abiding in Christ" />
+            <input id="entryTitle" placeholder="Example: Sitting at His feet" />
           </div>
-          <div class="prompt observe">
-            <h3>Read & Observe</h3>
-            <p>What words, repeated ideas, commands, promises, warnings, or questions stand out?</p>
-            <textarea id="observe" placeholder="Write what you see in the text..."></textarea>
+
+          <div class="modeTabs" aria-label="Journal mode">
+            <button class="secondary modeTab active" type="button" data-mode="guided">Guided Study</button>
+            <button class="secondary modeTab" type="button" data-mode="freewrite">Freewrite</button>
           </div>
-          <div class="prompt understand">
-            <h3>Understand the Meaning</h3>
-            <p>What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?</p>
-            <textarea id="understand" placeholder="Write what the passage means in context..."></textarea>
+
+          <div class="journalMode active" id="guidedMode">
+            <p class="modeIntro">Move through the passage slowly: read the Word, reflect honestly, sit at His feet, pray, walk it out, and remember what the Lord showed you.</p>
+            <div class="guideSteps" aria-label="Guided journal steps">
+              <button class="secondary stepTab active" type="button" data-step="read">1. Read</button>
+              <button class="secondary stepTab" type="button" data-step="reflect">2. Reflect</button>
+              <button class="secondary stepTab" type="button" data-step="feet">3. At His Feet</button>
+              <button class="secondary stepTab" type="button" data-step="pray">4. Pray</button>
+              <button class="secondary stepTab" type="button" data-step="walk">5. Walk</button>
+              <button class="secondary stepTab" type="button" data-step="remember">6. Remember</button>
+            </div>
+
+            <div class="guidePanel active" data-panel="read">
+              <div class="prompt observe">
+                <h3>Read & Observe</h3>
+                <p>What words, repeated ideas, commands, promises, warnings, or questions stand out?</p>
+                <textarea id="observe" placeholder="Write what you see in the text..."></textarea>
+              </div>
+            </div>
+
+            <div class="guidePanel" data-panel="reflect">
+              <div class="prompt understand">
+                <h3>Understand the Meaning</h3>
+                <p>What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?</p>
+                <textarea id="understand" placeholder="Write what the passage means in context..."></textarea>
+              </div>
+              <div class="prompt heart">
+                <h3>Examine My Heart</h3>
+                <p>Where does this confront, comfort, correct, expose, strengthen, or encourage me?</p>
+                <textarea id="heart" placeholder="Respond honestly before the Lord..."></textarea>
+              </div>
+            </div>
+
+            <div class="guidePanel" data-panel="feet">
+              <div class="prompt atFeet">
+                <h3>At His Feet</h3>
+                <p>“Mary, who also sat at Jesus’ feet and heard his word.” — Luke 10:39</p>
+                <div class="guardrail"><strong>Discernment reminder:</strong> Be still before the Lord. Listen humbly. Test every impression by Scripture, the character of Christ, the fruit of the Spirit, and wise counsel. God will never lead against His Word.</div>
+                <label for="feetQuestions">Questions I am bringing before the Lord</label>
+                <textarea id="feetQuestions" placeholder="Lord, what do You want to show me? What am I carrying that I need to bring to You?"></textarea>
+                <div style="height:10px"></div>
+                <label for="feetSensed">What I sensed as I waited before Him</label>
+                <textarea id="feetSensed" placeholder="Write carefully and humbly what came to heart or mind as you waited before the Lord..."></textarea>
+                <div style="height:10px"></div>
+                <label for="feetTesting">Scripture, confirmation, or testing needed</label>
+                <textarea id="feetTesting" placeholder="What Scripture came to mind? What needs prayer, counsel, confirmation, or testing?"></textarea>
+              </div>
+            </div>
+
+            <div class="guidePanel" data-panel="pray">
+              <div class="prompt prayer">
+                <h3>Prayer Response</h3>
+                <p>Turn the passage into prayer: confession, thanksgiving, surrender, request, praise.</p>
+                <textarea id="prayer" placeholder="Lord..."></textarea>
+              </div>
+            </div>
+
+            <div class="guidePanel" data-panel="walk">
+              <div class="prompt walk">
+                <h3>Walk It Out</h3>
+                <p>What is one faithful next step of obedience, repentance, trust, reconciliation, or service?</p>
+                <textarea id="walk" placeholder="Today I will..."></textarea>
+              </div>
+            </div>
+
+            <div class="guidePanel" data-panel="remember">
+              <div class="prompt remember">
+                <h3>Remember / Revisit</h3>
+                <p>What truth do I need to carry with me? Add a memory verse, summary, or tags.</p>
+                <textarea id="remember" placeholder="Truth to remember..."></textarea>
+                <div style="margin-top:10px;"><label for="tags">Tags</label><input id="tags" placeholder="prayer, hope, obedience" /></div>
+                <div class="checkGrid">
+                  <label class="checkPill" for="favoriteEntry"><input id="favoriteEntry" type="checkbox" /> Favorite</label>
+                  <label class="checkPill" for="reviewLater"><input id="reviewLater" type="checkbox" /> Revisit Entry</label>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="prompt heart">
-            <h3>Examine My Heart</h3>
-            <p>Where does this confront, comfort, correct, expose, strengthen, or encourage me?</p>
-            <textarea id="heart" placeholder="Respond honestly before the Lord..."></textarea>
-          </div>
-          <div class="prompt prayer">
-            <h3>Prayer Response</h3>
-            <p>Turn the passage into prayer: confession, thanksgiving, surrender, request, praise.</p>
-            <textarea id="prayer" placeholder="Lord..."></textarea>
-          </div>
-          <div class="prompt walk">
-            <h3>Walk It Out</h3>
-            <p>What is one faithful next step of obedience, repentance, trust, reconciliation, or service?</p>
-            <textarea id="walk" placeholder="Today I will..."></textarea>
-          </div>
-          <div class="prompt remember">
-            <h3>Remember / Review</h3>
-            <p>What truth do I need to carry with me? Add a memory verse, summary, or tags.</p>
-            <textarea id="remember" placeholder="Truth to remember..."></textarea>
-            <div style="margin-top:10px;"><label for="tags">Tags</label><input id="tags" placeholder="prayer, hope, obedience" /></div>
-            <div class="checkGrid">
-              <label class="checkPill" for="favoriteEntry"><input id="favoriteEntry" type="checkbox" /> Favorite</label>
-              <label class="checkPill" for="reviewLater"><input id="reviewLater" type="checkbox" /> Review Later</label>
+
+          <div class="journalMode" id="freewriteMode">
+            <div class="prompt freewriteBox">
+              <h3>Freewrite Journal</h3>
+              <p>No prompts. No structure. Read the Word, sit with the Lord, and write freely as you feel led.</p>
+              <textarea id="freewrite" placeholder="Write freely here..."></textarea>
             </div>
           </div>
         </div>
@@ -384,7 +506,7 @@
         <div class="historyFilters" aria-label="Saved study filters">
           <button class="secondary filterBtn active" id="filterAllBtn" type="button" data-filter="all">All</button>
           <button class="secondary filterBtn" id="filterFavoritesBtn" type="button" data-filter="favorites">Favorites</button>
-          <button class="secondary filterBtn" id="filterReviewBtn" type="button" data-filter="review">Review Later</button>
+          <button class="secondary filterBtn" id="filterReviewBtn" type="button" data-filter="review">Revisit</button>
         </div>
         <div class="entryList" id="entryList"><p class="empty">No entries saved yet.</p></div>
         <div class="sideBlock">
@@ -395,6 +517,8 @@
             <button class="quickPromptBtn" type="button" data-target="heart" data-prompt="Lord, what are You confronting, comforting, correcting, exposing, strengthening, or encouraging in me?">Search my heart</button>
             <button class="quickPromptBtn" type="button" data-target="prayer" data-prompt="Lord, turn this truth into confession, thanksgiving, surrender, request, and praise.">Turn it into prayer</button>
             <button class="quickPromptBtn" type="button" data-target="walk" data-prompt="What is one faithful next step I can take today?">One faithful step</button>
+            <button class="quickPromptBtn" type="button" data-target="feetQuestions" data-prompt="Lord, what do You want me to bring before You right now?">At His feet</button>
+            <button class="quickPromptBtn" type="button" data-target="freewrite" data-prompt="">Freewrite space</button>
           </div>
         </div>
       </div>
@@ -410,7 +534,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v31-disciple-journal-history-review-tools";
+  const VERSION = "v32-guided-freewrite-at-his-feet";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -1744,10 +1868,12 @@ const verseCounts = {
   let db = null;
   let currentEntryId = null;
   let currentPassageVerses = [];
+  let copyMode = null;
+  let selectedCopyVerses = new Set();
   let historyFilter = "all";
 
   const $ = (id) => document.getElementById(id);
-  const fields = ["entryTitle", "observe", "understand", "heart", "prayer", "walk", "remember", "tags"];
+  const fields = ["entryTitle", "observe", "understand", "heart", "feetQuestions", "feetSensed", "feetTesting", "prayer", "walk", "remember", "tags", "freewrite"];
 
   function setStatus(message) { $("status").textContent = message; }
   function todayIso() { return new Date().toISOString().slice(0,10); }
@@ -1872,7 +1998,8 @@ const verseCounts = {
       currentPassageVerses = (data.verses || []).filter((verse) => verse.verse >= start && verse.verse <= end);
       if (!currentPassageVerses.length) throw new Error("No verses found.");
       $("referenceTitle").textContent = currentReference();
-      $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse"><span class="vnum">${verse.verse}</span>${escapeHtml(cleanText(verse.text))}</p>`).join("");
+      $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}"><span class="vnum">${verse.verse}</span>${escapeHtml(cleanText(verse.text))}</p>`).join("");
+      clearCopySelection();
       localStorage.setItem("ironSharpenerDiscipleJournal.lastRef", JSON.stringify({ book, chapter, start, end }));
       autosaveDraft();
     } catch (error) {
@@ -1893,7 +2020,7 @@ const verseCounts = {
       reference: currentReference(),
       ref: { book: $("book").value, chapter: $("chapter").value, start: $("start").value, end: $("end").value },
       title: values.entryTitle || currentReference(),
-      notes: { observe: values.observe, understand: values.understand, heart: values.heart, prayer: values.prayer, walk: values.walk, remember: values.remember },
+      notes: { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite },
       tags: values.tags,
       favorite: $("favoriteEntry")?.checked || false,
       reviewLater: $("reviewLater")?.checked || false
@@ -1933,6 +2060,10 @@ const verseCounts = {
     $("observe").value = entry.notes?.observe || "";
     $("understand").value = entry.notes?.understand || "";
     $("heart").value = entry.notes?.heart || "";
+    $("feetQuestions").value = entry.notes?.feetQuestions || "";
+    $("feetSensed").value = entry.notes?.feetSensed || "";
+    $("feetTesting").value = entry.notes?.feetTesting || "";
+    $("freewrite").value = entry.notes?.freewrite || "";
     $("prayer").value = entry.notes?.prayer || "";
     $("walk").value = entry.notes?.walk || "";
     $("remember").value = entry.notes?.remember || "";
@@ -1955,13 +2086,13 @@ const verseCounts = {
     if (query) filtered = filtered.filter((entry) => JSON.stringify(entry).toLowerCase().includes(query));
     const list = $("entryList");
     if (!filtered.length) {
-      const filterText = historyFilter === "favorites" ? "No favorite entries yet." : historyFilter === "review" ? "No review-later entries yet." : "No entries saved yet.";
+      const filterText = historyFilter === "favorites" ? "No favorite entries yet." : historyFilter === "review" ? "No revisit entries yet." : "No entries saved yet.";
       list.innerHTML = `<p class="empty">${all.length ? "No entries match that view." : filterText}</p>`;
       return;
     }
     list.innerHTML = filtered.map((entry) => {
-      const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
-      const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Review Later</span>' : ''}`;
+      const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.feetSensed, entry.notes?.freewrite, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
+      const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit</span>' : ''}`;
       return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}</div>`;
     }).join("");
     list.querySelectorAll(".entryItem").forEach((item) => {
@@ -2011,6 +2142,10 @@ const verseCounts = {
       $("observe").value = draft.notes?.observe || "";
       $("understand").value = draft.notes?.understand || "";
       $("heart").value = draft.notes?.heart || "";
+      $("feetQuestions").value = draft.notes?.feetQuestions || "";
+      $("feetSensed").value = draft.notes?.feetSensed || "";
+      $("feetTesting").value = draft.notes?.feetTesting || "";
+      $("freewrite").value = draft.notes?.freewrite || "";
       $("prayer").value = draft.notes?.prayer || "";
       $("walk").value = draft.notes?.walk || "";
       $("remember").value = draft.notes?.remember || "";
@@ -2043,9 +2178,13 @@ const verseCounts = {
       entry.notes.observe ? `\nRead & Observe:\n${entry.notes.observe}` : "",
       entry.notes.understand ? `\nUnderstand the Meaning:\n${entry.notes.understand}` : "",
       entry.notes.heart ? `\nExamine My Heart:\n${entry.notes.heart}` : "",
+      entry.notes.feetQuestions ? `\nAt His Feet — Questions:\n${entry.notes.feetQuestions}` : "",
+      entry.notes.feetSensed ? `\nAt His Feet — What I Sensed:\n${entry.notes.feetSensed}` : "",
+      entry.notes.feetTesting ? `\nAt His Feet — Scripture / Testing:\n${entry.notes.feetTesting}` : "",
+      entry.notes.freewrite ? `\nFreewrite Journal:\n${entry.notes.freewrite}` : "",
       entry.notes.prayer ? `\nPrayer Response:\n${entry.notes.prayer}` : "",
       entry.notes.walk ? `\nWalk It Out:\n${entry.notes.walk}` : "",
-      entry.notes.remember ? `\nRemember / Review:\n${entry.notes.remember}` : "",
+      entry.notes.remember ? `\nRemember / Revisit:\n${entry.notes.remember}` : "",
       entry.tags ? `\nTags: ${entry.tags}` : ""
     ].filter(Boolean).join("\n");
     try { await navigator.clipboard.writeText(parts); setStatus("Entry copied"); }
@@ -2089,7 +2228,12 @@ const verseCounts = {
     $("start").addEventListener("change", () => { syncEndMinimum(); loadPassage(); });
     $("end").addEventListener("change", () => { syncEndMinimum(); loadPassage(); });
     $("loadBtn").addEventListener("click", loadPassage);
+    $("copyScriptureBtn").addEventListener("click", () => { const menu = $("copyScriptureMenu"); const open = !menu.classList.contains("open"); menu.classList.toggle("open", open); $("copyScriptureBtn").setAttribute("aria-expanded", String(open)); });
+    $("copySingleBtn").addEventListener("click", () => setCopyMode("single"));
+    $("copyMultiBtn").addEventListener("click", () => setCopyMode("multi"));
     $("copyPassageBtn").addEventListener("click", copyPassage);
+    $("clearCopyBtn").addEventListener("click", clearCopySelection);
+    $("passage").addEventListener("click", handleVerseCopyClick);
     $("newEntryBtn").addEventListener("click", newEntry);
     $("saveBtn").addEventListener("click", saveEntry);
     $("copyEntryBtn").addEventListener("click", copyEntry);
@@ -2115,9 +2259,22 @@ const verseCounts = {
       const target = $(btn.dataset.target);
       if (!target) return;
       const prompt = btn.dataset.prompt || "";
-      target.value = target.value.trim() ? `${target.value.trim()}\n\n${prompt}` : prompt;
+      if (btn.dataset.target === "freewrite") { document.querySelector('.modeTab[data-mode="freewrite"]')?.click(); }
+      if (btn.dataset.target === "feetQuestions") { document.querySelector('.modeTab[data-mode="guided"]')?.click(); document.querySelector('.stepTab[data-step="feet"]')?.click(); }
+      if (prompt) target.value = target.value.trim() ? `${target.value.trim()}\n\n${prompt}` : prompt;
       target.focus();
       autosaveDraft();
+    }));
+    document.querySelectorAll(".modeTab").forEach((btn) => btn.addEventListener("click", () => {
+      const mode = btn.dataset.mode;
+      document.querySelectorAll(".modeTab").forEach((item) => item.classList.toggle("active", item === btn));
+      $("guidedMode").classList.toggle("active", mode === "guided");
+      $("freewriteMode").classList.toggle("active", mode === "freewrite");
+    }));
+    document.querySelectorAll(".stepTab").forEach((btn) => btn.addEventListener("click", () => {
+      const step = btn.dataset.step;
+      document.querySelectorAll(".stepTab").forEach((item) => item.classList.toggle("active", item === btn));
+      document.querySelectorAll(".guidePanel").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === step));
     }));
     $("themeBtn").addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
     fields.concat(["entryDate"]).forEach((id) => $(id).addEventListener("input", () => { clearTimeout(window.__journalDraftTimer); window.__journalDraftTimer = setTimeout(autosaveDraft, 250); }));
