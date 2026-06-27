@@ -2036,7 +2036,7 @@ const verseCounts = {
     let lastError = null;
     for (const path of attempted) {
       try {
-        const response = await fetch(path, { cache: "no-store" });
+        const response = await fetch(path);
         if (!response.ok) { lastError = new Error(path); continue; }
         const data = await response.json();
         return { data, path, attempted };
@@ -2240,7 +2240,7 @@ const verseCounts = {
   function setCopyMode(mode) {
     copyMode = mode;
     if (mode === "single") {
-      selectedVerseNumbers.clear();
+      selectedCopyVerses.clear();
       document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
       $("copyHint").textContent = "Copy Single Verse mode: click one verse to copy it.";
       setStatus("Click one verse");
@@ -2253,7 +2253,7 @@ const verseCounts = {
   }
 
   function clearCopySelection() {
-    selectedVerseNumbers.clear();
+    selectedCopyVerses.clear();
     document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
     copyMode = null;
     const hint = $("copyHint");
@@ -2287,11 +2287,11 @@ const verseCounts = {
     if (!Number.isFinite(verseNum)) return;
 
     if (copyMode === "single") {
-      selectedVerseNumbers.clear();
+      selectedCopyVerses.clear();
       document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
-      selectedVerseNumbers.add(verseNum);
+      selectedCopyVerses.add(verseNum);
       verseEl.classList.add("selectedVerse");
-      await copySelectedVerses(selectedVerseNumbers);
+      await copySelectedVerses(selectedCopyVerses);
       copyMode = null;
       const hint = $("copyHint");
       if (hint) hint.textContent = "Single verse copied. Use Copy Scripture for another copy option.";
@@ -2299,17 +2299,17 @@ const verseCounts = {
     }
 
     if (copyMode === "multi") {
-      if (selectedVerseNumbers.has(verseNum)) {
-        selectedVerseNumbers.delete(verseNum);
+      if (selectedCopyVerses.has(verseNum)) {
+        selectedCopyVerses.delete(verseNum);
         verseEl.classList.remove("selectedVerse");
       } else {
-        selectedVerseNumbers.add(verseNum);
+        selectedCopyVerses.add(verseNum);
         verseEl.classList.add("selectedVerse");
       }
-      if (selectedVerseNumbers.size) {
-        await copySelectedVerses(selectedVerseNumbers);
+      if (selectedCopyVerses.size) {
+        await copySelectedVerses(selectedCopyVerses);
         const hint = $("copyHint");
-        if (hint) hint.textContent = `${selectedVerseNumbers.size} verse${selectedVerseNumbers.size === 1 ? "" : "s"} selected and copied. Keep clicking to adjust selection.`;
+        if (hint) hint.textContent = `${selectedCopyVerses.size} verse${selectedCopyVerses.size === 1 ? "" : "s"} selected and copied. Keep clicking to adjust selection.`;
       } else {
         setStatus("Selection cleared");
       }
