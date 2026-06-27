@@ -279,6 +279,36 @@
   .verse.copySelectable { cursor: pointer; border: 1px solid transparent; }
   .verse.selectedVerse { border-color: var(--soft-copper); background: rgba(217,160,123,.18); }
   body.dark .verse.selectedVerse { background: rgba(217,160,123,.18); }
+  .verse.markHighlight {
+    background: linear-gradient(90deg, rgba(217,160,123,.28), rgba(217,160,123,.10));
+    border-color: rgba(217,160,123,.55);
+  }
+  body.dark .verse.markHighlight { background: linear-gradient(90deg, rgba(217,160,123,.25), rgba(217,160,123,.08)); }
+  .verse.markUnderline {
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--soft-copper);
+    text-underline-offset: 5px;
+  }
+  .verse.markCircle {
+    box-shadow: inset 0 0 0 2px rgba(217,160,123,.75);
+    border-color: rgba(217,160,123,.45);
+    border-radius: 999px;
+  }
+  .verse.markingSelectable { cursor: pointer; }
+  .markingHint {
+    margin: 8px 0 0;
+    color: var(--dust);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  .studyToolBtn.markActive {
+    background: linear-gradient(180deg, var(--soft-copper), var(--copper));
+    color: #FFF9F1;
+    border-color: rgba(255,249,241,.28);
+  }
+  body.dark .studyToolBtn.markActive { color: #162234; }
 
   .modeTabs, .guideSteps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .modeTab, .stepTab { box-shadow: none; padding: 9px 11px; font-size: 13px; }
@@ -310,7 +340,98 @@
   body.dark .guardrail { background: rgba(217,160,123,.10); }
   .freewriteBox textarea { min-height: 360px; }
 
-  .footer { margin-top: 18px; color: var(--dust); text-align: center; font-size: 13px; line-height: 1.5; }
+
+
+  .studyToolsPanel {
+    display: none;
+    position: fixed;
+    inset: clamp(12px, 3vw, 34px);
+    z-index: 1000;
+    background: rgba(255,249,241,.97);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 28px 80px rgba(0,0,0,.35);
+    overflow: hidden;
+  }
+  body.dark .studyToolsPanel { background: rgba(22,34,52,.98); }
+  .studyToolsPanel.open { display: grid; grid-template-rows: auto 1fr; }
+  .studyToolsHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, var(--deep), var(--water));
+    color: #FFF9F1;
+    border-bottom: 1px solid rgba(255,249,241,.16);
+  }
+  .studyToolsHead h2 { margin: 0; color: #FFF9F1; font-size: 22px; letter-spacing: -.02em; }
+  .studyToolsHead p { margin: 4px 0 0; color: rgba(255,249,241,.82); font-size: 13px; line-height: 1.35; }
+  .studyToolsBody {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    min-height: 0;
+  }
+  .studyToolsMenu {
+    padding: 16px;
+    border-right: 1px solid var(--line);
+    overflow: auto;
+    background: rgba(220,232,242,.35);
+  }
+  body.dark .studyToolsMenu { background: rgba(255,249,241,.035); }
+  .studyToolGroup { margin-bottom: 16px; }
+  .studyToolGroup h3 {
+    margin: 0 0 9px;
+    color: var(--deep);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  body.dark .studyToolGroup h3 { color: var(--sky); }
+  .studyToolBtn {
+    width: 100%;
+    text-align: left;
+    display: block;
+    margin-bottom: 8px;
+    box-shadow: none;
+    background: rgba(255,255,255,.62);
+    color: var(--deep);
+    border: 1px solid var(--line);
+    line-height: 1.25;
+  }
+  body.dark .studyToolBtn { background: rgba(255,249,241,.06); color: var(--ink); }
+  .studyToolSearch { display: grid; gap: 8px; margin: 8px 0 10px; }
+  .studyToolsResults { padding: 18px; overflow: auto; min-height: 0; }
+  .resourceResult {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 15px;
+    background: rgba(255,255,255,.52);
+    margin-bottom: 12px;
+    line-height: 1.55;
+  }
+  body.dark .resourceResult { background: rgba(255,249,241,.055); }
+  .resourceResult h3, .resourceResult h4 { margin: 0 0 8px; color: var(--deep); }
+  body.dark .resourceResult h3, body.dark .resourceResult h4 { color: var(--ink); }
+  .resourceResult p { margin: 0 0 10px; }
+  .resourceResult ul { margin: 8px 0 0; padding-left: 20px; }
+  .footer {
+    margin-top: 24px;
+    color: var(--ink);
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: rgba(255,249,241,.78);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  body.dark .footer { color: var(--ink); background: rgba(255,249,241,.055); }
+  .footer strong { color: var(--deep); font-size: 16px; }
+  body.dark .footer strong { color: var(--soft-copper); }
+  .footer .footerVerse { color: var(--dust); font-weight: 800; margin-top: 6px; }
+
   .hiddenFile { display:none; }
   @media (max-width: 1180px) {
     .layout { grid-template-columns: 1fr 1fr; }
@@ -330,6 +451,8 @@
     .saveBar { position: static; }
     .checkGrid { grid-template-columns: 1fr; }
     .status { width: 100%; margin-left: 0; }
+    .studyToolsBody { grid-template-columns: 1fr; }
+    .studyToolsMenu { border-right: 0; border-bottom: 1px solid var(--line); max-height: 42vh; }
   }
 </style>
 </head>
@@ -344,7 +467,8 @@
     </div>
     <div>
       <div class="heroActions">
-        <button class="ghost" type="button" onclick="window.location.href='./index.html'">Teaching Tool</button>
+        <button class="ghost" id="studyModeBtn" type="button">Scripture Study Mode</button>
+        <button class="ghost" id="openStudyToolsBtn" type="button">Study Tools</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
       <div class="verseCard">
@@ -354,7 +478,53 @@
     </div>
   </header>
 
-  <div class="privacy"><strong>Private/local-first:</strong> Journal entries are saved in this browser on this device. Use Export Backup to keep a copy before clearing site data.</div>
+  <section class="studyToolsPanel" id="studyToolsPanel" aria-hidden="true">
+    <div class="studyToolsHead">
+      <div>
+        <h2>Study Tools</h2>
+        <p>Use these helps for personal Bible study. Keep Scripture first, then use resources to clarify, connect, and apply.</p>
+      </div>
+      <button class="ghost" id="closeStudyToolsBtn" type="button">Close</button>
+    </div>
+    <div class="studyToolsBody">
+      <aside class="studyToolsMenu">
+        <div class="studyToolGroup">
+          <h3>Current Passage</h3>
+          <button class="studyToolBtn" id="toolPassageSummary" type="button">Passage Snapshot</button>
+          <button class="studyToolBtn" id="toolCrossRefs" type="button">Built-In Cross References</button>
+          <button class="studyToolBtn" id="toolCommentary" type="button">Commentary</button>
+          <button class="studyToolBtn" id="toolBackgrounds" type="button">Bible Backgrounds & Customs</button>
+          <button class="studyToolBtn" id="toolBookOverview" type="button">Book Overview</button>
+        </div>
+        <div class="studyToolGroup">
+          <h3>Scripture Marking</h3>
+          <button class="studyToolBtn markToolBtn" id="markHighlightBtn" type="button" data-mark="highlight">Highlight Verses</button>
+          <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Verses</button>
+          <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Verses</button>
+          <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Verse Marks</button>
+          <button class="studyToolBtn" id="markClearPassageBtn" type="button">Clear Marks in Passage</button>
+          <button class="studyToolBtn" id="markStopBtn" type="button">Stop Marking</button>
+          <p class="markingHint">Choose a marking tool, then click verses in the Scripture panel. Marks are saved on this device.</p>
+        </div>
+        <div class="studyToolGroup">
+          <h3>Search Helps</h3>
+          <div class="studyToolSearch">
+            <input id="studyToolSearchTerm" placeholder="Search word or topic" />
+            <button class="studyToolBtn" id="toolDictionary" type="button">Dictionary Lookup</button>
+            <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
+            <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
+          </div>
+        </div>
+      </aside>
+      <div class="studyToolsResults" id="studyToolsResults">
+        <div class="resourceResult">
+          <h3>Open a study tool</h3>
+          <p>Select a tool on the left. Results stay inside this Disciple Journal panel so your journal entry remains safe and untouched.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
   <main class="layout">
     <section class="card scriptureCard">
@@ -529,14 +699,15 @@
 
   <footer class="footer">
     <strong>Iron Sharpener™: Disciple Journal</strong><br />
-    Scripture text: World English Bible (WEB), public domain. Created for private study, prayer, and discipleship by Restored Daily Ministries™.
+    Created for private Scripture study, prayer, listening before the Lord, and Spirit-led discipleship.
+    <div class="footerVerse">World English Bible (WEB) scripture text is public domain. Restored Daily Ministries™.</div>
   </footer>
 </div>
 
 <script>
 (() => {
   "use strict";
-  const VERSION = "v32.2-guided-freewrite-stability-polish";
+  const VERSION = "v34-disciple-journal-study-tools-marking";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -1867,10 +2038,12 @@ const verseCounts = {
   const STORE = "entries";
   const DRAFT_KEY = "ironSharpenerDiscipleJournal.draft";
   const THEME_KEY = "ironSharpenerDiscipleJournal.theme";
+  const MARKS_KEY = "ironSharpenerDiscipleJournal.verseMarks";
   let db = null;
   let currentEntryId = null;
   let currentPassageVerses = [];
   let copyMode = null;
+  let markMode = null;
   let selectedCopyVerses = new Set();
   let historyFilter = "all";
 
@@ -2064,6 +2237,7 @@ const verseCounts = {
       if (!currentPassageVerses.length) throw new Error("No verses found.");
       $("referenceTitle").textContent = currentReference();
       $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}"><span class="vnum">${verse.verse}</span>${escapeHtml(cleanText(verse.text))}</p>`).join("");
+      applySavedMarks();
       clearCopySelection();
       localStorage.setItem("ironSharpenerDiscipleJournal.lastRef", JSON.stringify({ book, chapter, start, end }));
       autosaveDraft();
@@ -2257,8 +2431,96 @@ const verseCounts = {
     document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
     copyMode = null;
     const hint = $("copyHint");
-    if (hint) hint.textContent = "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
+    if (hint) hint.textContent = markMode ? markModeHint() : "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
     closeCopyMenu();
+  }
+
+  function getVerseMarks() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(MARKS_KEY) || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (_) { return {}; }
+  }
+
+  function saveVerseMarks(marks) {
+    localStorage.setItem(MARKS_KEY, JSON.stringify(marks || {}));
+  }
+
+  function verseMarkKey(verseNum) {
+    return `${$("book").value}|${$("chapter").value}|${verseNum}`;
+  }
+
+  function markModeLabel(mode = markMode) {
+    return mode === "highlight" ? "Highlight" : mode === "underline" ? "Underline" : mode === "circle" ? "Circle" : mode === "erase" ? "Erase" : "Mark";
+  }
+
+  function markModeHint() {
+    if (!markMode) return "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
+    if (markMode === "erase") return "Erase marks mode: click a marked verse to remove its highlight, underline, and circle.";
+    return `${markModeLabel()} mode: click verses to toggle this mark on or off.`;
+  }
+
+  function updateMarkButtons() {
+    document.querySelectorAll(".markToolBtn").forEach((btn) => btn.classList.toggle("markActive", btn.dataset.mark === markMode));
+    document.querySelectorAll(".verse").forEach((el) => el.classList.toggle("markingSelectable", !!markMode));
+    const hint = $("copyHint");
+    if (hint) hint.textContent = markModeHint();
+  }
+
+  function applySavedMarks() {
+    const marks = getVerseMarks();
+    document.querySelectorAll(".verse[data-verse]").forEach((el) => {
+      const data = marks[verseMarkKey(el.dataset.verse)] || {};
+      el.classList.toggle("markHighlight", !!data.highlight);
+      el.classList.toggle("markUnderline", !!data.underline);
+      el.classList.toggle("markCircle", !!data.circle);
+      el.classList.toggle("markingSelectable", !!markMode);
+    });
+  }
+
+  function setMarkMode(mode) {
+    clearCopySelection();
+    markMode = mode || null;
+    updateMarkButtons();
+    if (markMode) {
+      closeStudyTools();
+      setStatus(`${markModeLabel()} mode`);
+    } else {
+      setStatus("Marking off");
+    }
+  }
+
+  function applyMarkToVerse(verseEl) {
+    if (!verseEl || !markMode) return;
+    const key = verseMarkKey(verseEl.dataset.verse);
+    const marks = getVerseMarks();
+    const current = marks[key] || {};
+    if (markMode === "erase") {
+      delete marks[key];
+      saveVerseMarks(marks);
+      applySavedMarks();
+      setStatus("Verse marks erased");
+      return;
+    }
+    current[markMode] = !current[markMode];
+    if (!current.highlight && !current.underline && !current.circle) delete marks[key];
+    else marks[key] = current;
+    saveVerseMarks(marks);
+    applySavedMarks();
+    setStatus(`${markModeLabel()} ${current[markMode] ? "added" : "removed"}`);
+  }
+
+  function clearMarksForCurrentPassage() {
+    const marks = getVerseMarks();
+    const prefix = `${$("book").value}|${$("chapter").value}|`;
+    let changed = 0;
+    currentPassageVerses.forEach((verse) => {
+      const key = prefix + Number(verse.verse);
+      if (marks[key]) { delete marks[key]; changed++; }
+    });
+    saveVerseMarks(marks);
+    applySavedMarks();
+    setStatus(changed ? "Passage marks cleared" : "No passage marks found");
   }
 
   function selectedReference(numbers) {
@@ -2280,9 +2542,9 @@ const verseCounts = {
     catch (_) { setStatus("Copy unavailable"); }
   }
 
-  async function handleVerseCopyClick(event) {
+  async function handleVerseInteraction(event) {
     const verseEl = event.target.closest(".verse[data-verse]");
-    if (!verseEl || !copyMode) return;
+    if (!verseEl) return;
     const verseNum = parseInt(verseEl.dataset.verse, 10);
     if (!Number.isFinite(verseNum)) return;
 
@@ -2313,7 +2575,10 @@ const verseCounts = {
       } else {
         setStatus("Selection cleared");
       }
+      return;
     }
+
+    if (markMode) applyMarkToVerse(verseEl);
   }
 
   async function copyEntry() {
@@ -2345,7 +2610,7 @@ const verseCounts = {
 
   async function exportBackup() {
     const entries = await getAllEntries();
-    const backup = { app: "Iron Sharpener: Disciple Journal", version: VERSION, exportedAt: new Date().toISOString(), entries };
+    const backup = { app: "Iron Sharpener: Disciple Journal", version: VERSION, exportedAt: new Date().toISOString(), entries, verseMarks: getVerseMarks() };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2365,6 +2630,10 @@ const verseCounts = {
     const entries = Array.isArray(parsed) ? parsed : parsed.entries;
     if (!Array.isArray(entries)) throw new Error("Invalid backup file.");
     for (const entry of entries) { if (entry && entry.id) await putEntry(entry); }
+    if (parsed && parsed.verseMarks && typeof parsed.verseMarks === "object") {
+      saveVerseMarks({ ...getVerseMarks(), ...parsed.verseMarks });
+      applySavedMarks();
+    }
     await renderHistory();
     setStatus(`Imported ${entries.length} entries`);
   }
@@ -2374,7 +2643,213 @@ const verseCounts = {
     localStorage.setItem(THEME_KEY, theme);
   }
 
+
+  function saveCurrentDraftNow() {
+    try { autosaveDraft(); } catch (_) {}
+  }
+
+  function openStudyMode() {
+    saveCurrentDraftNow();
+    window.location.href = "./index.html";
+  }
+
+  function openStudyTools() {
+    saveCurrentDraftNow();
+    const panel = $("studyToolsPanel");
+    if (!panel) return;
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  function closeStudyTools() {
+    const panel = $("studyToolsPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  }
+
+  function setStudyToolsResult(title, html) {
+    const target = $("studyToolsResults");
+    if (!target) return;
+    target.innerHTML = `<div class="resourceResult"><h3>${escapeHtml(title)}</h3>${html}</div>`;
+  }
+
+  function normalizeResourceText(value) {
+    if (value == null) return "";
+    if (typeof value === "string" || typeof value === "number") return escapeHtml(value);
+    if (Array.isArray(value)) return value.map(normalizeResourceText).filter(Boolean).join("<br>");
+    if (typeof value === "object") {
+      return Object.entries(value).map(([key, val]) => {
+        if (val == null || val === "") return "";
+        return `<p><strong>${escapeHtml(key.replace(/([A-Z])/g, " $1"))}:</strong> ${normalizeResourceText(val)}</p>`;
+      }).filter(Boolean).join("");
+    }
+    return escapeHtml(String(value));
+  }
+
+  async function fetchJsonAny(paths) {
+    for (const path of paths) {
+      try {
+        const response = await fetch(path);
+        if (!response.ok) continue;
+        return await response.json();
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  function slugify(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  function currentPassageTextHtml() {
+    if (!currentPassageVerses.length) return `<p class="empty">Load a passage first.</p>`;
+    return `<p><strong>${escapeHtml(currentReference())} (WEB)</strong></p><ul>` +
+      currentPassageVerses.map(v => `<li><strong>${escapeHtml(v.verse)}.</strong> ${escapeHtml(cleanText(v.text))}</li>`).join("") +
+      `</ul>`;
+  }
+
+  async function openPassageSnapshot() {
+    if (!currentPassageVerses.length) await loadPassage();
+    setStudyToolsResult("Passage Snapshot", currentPassageTextHtml() + `<p><strong>Journal rhythm:</strong> Read, Reflect, At His Feet, Pray, Walk, Remember.</p>`);
+  }
+
+  function collectMatches(node, terms, max = 30, path = []) {
+    const matches = [];
+    const textTerms = terms.map(t => String(t || "").toLowerCase()).filter(Boolean);
+    function walk(value, keyPath) {
+      if (matches.length >= max) return;
+      if (value == null) return;
+      if (typeof value === "string" || typeof value === "number") {
+        const text = String(value);
+        const haystack = (keyPath.join(" ") + " " + text).toLowerCase();
+        if (textTerms.some(t => haystack.includes(t))) matches.push({ path: keyPath.join(" › "), value: text });
+        return;
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => walk(item, keyPath.concat(String(index + 1))));
+        return;
+      }
+      if (typeof value === "object") {
+        Object.entries(value).forEach(([key, val]) => walk(val, keyPath.concat(key)));
+      }
+    }
+    walk(node, path);
+    return matches;
+  }
+
+  function renderMatches(matches, emptyMessage) {
+    if (!matches.length) return `<p class="empty">${escapeHtml(emptyMessage)}</p>`;
+    return `<ul>` + matches.map(item => `<li><strong>${escapeHtml(item.path || "Result")}:</strong> ${escapeHtml(cleanText(item.value)).slice(0, 850)}</li>`).join("") + `</ul>`;
+  }
+
+  async function openCrossRefsTool() {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const start = parseInt($("start").value, 10);
+    const end = parseInt($("end").value, 10);
+    const data = await fetchJsonAny([
+      `bible/resources/internal-cross-references/${book}.json`,
+      `./bible/resources/internal-cross-references/${book}.json`,
+      `bible/resources/internal-cross-references/${encodeURIComponent(book)}.json`
+    ]);
+    if (!data) { setStudyToolsResult("Built-In Cross References", `<p class="empty">No cross-reference file loaded for ${escapeHtml(book)}.</p>`); return; }
+    const terms = [];
+    for (let v = start; v <= end; v++) terms.push(`${book} ${chapter}:${v}`, `${chapter}:${v}`, `${chapter}.${v}`);
+    const matches = collectMatches(data, terms, 40);
+    setStudyToolsResult("Built-In Cross References", renderMatches(matches, `No cross references found for ${currentReference()} yet.`));
+  }
+
+  async function openCommentaryTool() {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const mh = await fetchJsonAny([`bible/resources/commentaries/matthew-henry/${book}.json`, `./bible/resources/commentaries/matthew-henry/${book}.json`, `bible/resources/commentaries/matthew-henry/${encodeURIComponent(book)}.json`]);
+    const jfb = await fetchJsonAny([`bible/resources/commentaries/jfb/${book}.json`, `./bible/resources/commentaries/jfb/${book}.json`, `bible/resources/commentaries/jfb/${encodeURIComponent(book)}.json`]);
+    const terms = [`${book} ${chapter}`, `chapter ${chapter}`, `ch ${chapter}`, `${chapter}:`];
+    let html = "";
+    if (mh) html += `<h4>Matthew Henry</h4>${renderMatches(collectMatches(mh, terms, 10), "No Matthew Henry entry found for this passage.")}`;
+    if (jfb) html += `<h4>Jamieson-Fausset-Brown</h4>${renderMatches(collectMatches(jfb, terms, 10), "No JFB entry found for this passage.")}`;
+    if (!html) html = `<p class="empty">No commentary files loaded for ${escapeHtml(book)}.</p>`;
+    setStudyToolsResult("Commentary", html);
+  }
+
+  async function openBackgroundsTool() {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const data = await fetchJsonAny([
+      `bible/resources/backgrounds/${book}.json`,
+      `./bible/resources/backgrounds/${book}.json`,
+      `bible/resources/bible-backgrounds/${book}.json`,
+      `bible/resources/backgrounds/index.json`,
+      `bible/resources/backgrounds/backgrounds-index.json`
+    ]);
+    if (!data) { setStudyToolsResult("Bible Backgrounds & Customs", `<p class="empty">No background file loaded for ${escapeHtml(book)}.</p>`); return; }
+    const terms = [`${book} ${chapter}`, `${book}`, `chapter ${chapter}`, `${chapter}:`];
+    setStudyToolsResult("Bible Backgrounds & Customs", renderMatches(collectMatches(data, terms, 30), `No background topics found for ${currentReference()} yet.`));
+  }
+
+  async function openBookOverviewTool() {
+    const book = $("book").value;
+    const encoded = encodeURIComponent(book);
+    const slug = slugify(book);
+    const data = await fetchJsonAny([
+      `bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/${encoded}.json`,
+      `bible/resources/book-overviews/${slug}.json`,
+      `bible/resources/book-overview/${book}.json`,
+      `bible/resources/overviews/${book}.json`
+    ]);
+    setStudyToolsResult(`${book} Overview`, data ? normalizeResourceText(data) : `<p class="empty">No book overview found for ${escapeHtml(book)} yet.</p>`);
+  }
+
+  async function openDictionaryTool() {
+    const raw = $("studyToolSearchTerm")?.value || "";
+    const term = cleanText(raw || window.getSelection()?.toString() || "");
+    if (!term) { setStudyToolsResult("Dictionary Lookup", `<p class="empty">Enter a word or topic first.</p>`); return; }
+    const letter = term[0].toLowerCase();
+    const easton = await fetchJsonAny([`bible/resources/eastons/${letter}.json`, `./bible/resources/eastons/${letter}.json`]);
+    const smith = await fetchJsonAny([`bible/resources/smiths/${letter}.json`, `./bible/resources/smiths/${letter}.json`]);
+    let html = "";
+    if (easton) html += `<h4>Easton's Bible Dictionary</h4>${renderMatches(collectMatches(easton, [term], 8), "No Easton's match found.")}`;
+    if (smith) html += `<h4>Smith's Bible Dictionary</h4>${renderMatches(collectMatches(smith, [term], 8), "No Smith's match found.")}`;
+    if (!html) html = `<p class="empty">No dictionary files loaded for ${escapeHtml(term)}.</p>`;
+    setStudyToolsResult(`Dictionary: ${term}`, html);
+  }
+
+  async function openNaveTool() {
+    const term = cleanText($("studyToolSearchTerm")?.value || "");
+    if (!term) { setStudyToolsResult("Nave's Topical Bible", `<p class="empty">Enter a topic first.</p>`); return; }
+    const file = slugify(term);
+    const data = await fetchJsonAny([`bible/resources/topics/${file}.json`, `./bible/resources/topics/${file}.json`, `bible/resources/naves/${file}.json`]);
+    setStudyToolsResult(`Nave's Topic: ${term}`, data ? normalizeResourceText(data) : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`);
+  }
+
+  async function openDoctrineTool() {
+    const term = cleanText($("studyToolSearchTerm")?.value || "");
+    if (!term) { setStudyToolsResult("Biblical Doctrine", `<p class="empty">Enter a doctrine or keyword first.</p>`); return; }
+    const slug = slugify(term);
+    const direct = await fetchJsonAny([`bible/resources/doctrine/${slug}.json`, `./bible/resources/doctrine/${slug}.json`]);
+    if (direct) { setStudyToolsResult(`Doctrine: ${term}`, normalizeResourceText(direct)); return; }
+    const registry = await fetchJsonAny([`bible/resources/doctrine/doctrine-registry.json`, `./bible/resources/doctrine/doctrine-registry.json`, `bible/resources/doctrine/index.json`]);
+    setStudyToolsResult(`Doctrine Search: ${term}`, registry ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`) : `<p class="empty">No doctrine registry loaded.</p>`);
+  }
+
   function bindEvents() {
+    $("studyModeBtn").addEventListener("click", openStudyMode);
+    $("openStudyToolsBtn").addEventListener("click", openStudyTools);
+    $("closeStudyToolsBtn").addEventListener("click", closeStudyTools);
+    $("toolPassageSummary").addEventListener("click", openPassageSnapshot);
+    $("toolCrossRefs").addEventListener("click", openCrossRefsTool);
+    $("toolCommentary").addEventListener("click", openCommentaryTool);
+    $("toolBackgrounds").addEventListener("click", openBackgroundsTool);
+    $("toolBookOverview").addEventListener("click", openBookOverviewTool);
+    document.querySelectorAll(".markToolBtn").forEach((btn) => btn.addEventListener("click", () => setMarkMode(btn.dataset.mark)));
+    $("markClearPassageBtn").addEventListener("click", clearMarksForCurrentPassage);
+    $("markStopBtn").addEventListener("click", () => setMarkMode(null));
+    $("toolDictionary").addEventListener("click", openDictionaryTool);
+    $("toolNave").addEventListener("click", openNaveTool);
+    $("toolDoctrine").addEventListener("click", openDoctrineTool);
+    window.addEventListener("beforeunload", saveCurrentDraftNow);
     $("book").addEventListener("change", () => { populateChapters(); loadPassage(); });
     $("chapter").addEventListener("change", () => { populateVerses(); loadPassage(); });
     $("start").addEventListener("change", () => { syncEndMinimum(); loadPassage(); });
@@ -2385,7 +2860,7 @@ const verseCounts = {
     $("copyMultiBtn").addEventListener("click", () => setCopyMode("multi"));
     $("copyPassageBtn").addEventListener("click", copyPassage);
     $("clearCopyBtn").addEventListener("click", clearCopySelection);
-    $("passage").addEventListener("click", handleVerseCopyClick);
+    $("passage").addEventListener("click", handleVerseInteraction);
     $("newEntryBtn").addEventListener("click", newEntry);
     $("saveBtn").addEventListener("click", saveEntry);
     $("copyEntryBtn").addEventListener("click", copyEntry);
