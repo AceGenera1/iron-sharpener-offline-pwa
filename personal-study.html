@@ -834,6 +834,12 @@ body.dark .commentary-entry { background: rgba(255,249,241,.045); border-color: 
 body.dark .commentary-entry h4 { color: var(--soft-copper); }
 .commentary-entry p { margin: 0; line-height: 1.58; }
 
+
+/* v42 — dictionary/topical search stays inside one panel */
+.lookupResults { margin-top: 12px; }
+.dictionary-result-btn, .naves-result-btn { text-align: left !important; }
+.resource-search-panel input { margin-top: 8px; }
+
 </style>
 </head>
 <body>
@@ -3750,34 +3756,123 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     return currentSearchTermOrSelection();
   }
 
-  function renderLookupBox(title, placeholder, onSearchName) {
+  function getSelectedScriptureText() {
+    const selection = window.getSelection();
+    const text = cleanText(selection?.toString() || "");
+    if (!text) return "";
+    const passageEl = $("passage");
+    if (!passageEl || !selection.rangeCount) return text;
+    const range = selection.getRangeAt(0);
+    return passageEl.contains(range.commonAncestorContainer) ? text : "";
+  }
+
+  function currentSearchTermOrSelection() {
+    return getSelectedScriptureText();
+  }
+
+  function requestStudyTerm(label) {
+    return currentSearchTermOrSelection();
+  }
+
+  function renderLookupBox(title, placeholder, onSearchName, initialValue = "") {
     return `
-      <div class="lookupBox">
+      <div class="lookupBox resource-search-panel">
         <p class="empty">Select a word in Scripture first, or type a word/topic below.</p>
-        <input id="resourceLookupInput" placeholder="${escapeHtml(placeholder)}" />
+        <input id="resourceLookupInput" value="${escapeHtml(initialValue)}" placeholder="${escapeHtml(placeholder)}" />
         <div class="lookupActions">
           <button class="secondary" type="button" onclick="window.${onSearchName}(document.getElementById('resourceLookupInput')?.value || '')">Search</button>
         </div>
+        <div class="lookupResults" id="resourceLookupResults"></div>
       </div>`;
+  }
+
+  function dictionaryPanelSearchName(folder) {
+    return folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel";
+  }
+
+  function dictionaryPaths(folder, letter) {
+    const lower = String(letter || "").toLowerCase();
+    const upper = String(letter || "").toUpperCase();
+    return [
+      `bible/resources/${folder}/${upper}.json`,
+      `./bible/resources/${folder}/${upper}.json`,
+      `bible/resources/${folder}/${lower}.json`,
+      `./bible/resources/${folder}/${lower}.json`,
+      `bible/resources/${folder}/${encodeURIComponent(upper)}.json`,
+      `bible/resources/${folder}/${encodeURIComponent(lower)}.json`
+    ];
+  }
+
+  function normalizeDictionaryEntry(item, fallbackTitle = "Entry") {
+    if (!item) return `<p class="empty">No entry found.</p>`;
+    if (typeof item === "string") return `<p>${item}</p>`;
+    const title = escapeHtml(item.title || item.term || fallbackTitle);
+    const content = item.content || item.text || item.definition || item.body || item.description || "";
+    return `<h3>${title}</h3><div>${typeof content === "string" ? content : normalizeResourceText(content)}</div>`;
   }
 
   async function searchDictionarySource(title, folder, rawTerm) {
     const term = cleanText(rawTerm || "");
-    if (!term) { setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel")); return; }
-    const letter = term[0].toLowerCase();
-    const data = await fetchJsonAny([
-      `bible/resources/${folder}/${letter}.json`,
-      `./bible/resources/${folder}/${letter}.json`,
-      `bible/resources/${folder}/${encodeURIComponent(letter)}.json`
-    ]);
-    if (!data) { setStudyToolsResult(`${title}: ${term}`, `<p class="empty">No ${escapeHtml(title)} files loaded for ${escapeHtml(term)}.</p>`); return; }
-    setStudyToolsResult(`${title}: ${term}`, renderMatches(collectMatches(data, [term], 16), `No ${title} match found for ${term}.`));
+    const searchName = dictionaryPanelSearchName(folder);
+
+    if (!term) {
+      setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName));
+      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      return;
+    }
+
+    const letter = term[0];
+    const data = await fetchJsonAny(dictionaryPaths(folder, letter));
+
+    if (!data || typeof data !== "object") {
+      setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
+        '<div class="lookupResults" id="resourceLookupResults"></div>',
+        `<div class="lookupResults" id="resourceLookupResults"><p class="empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(term)}.</p></div>`
+      ));
+      return;
+    }
+
+    const q = term.toLowerCase();
+    const terms = Object.keys(data).sort();
+    const matches = terms.filter(key => {
+      const item = data[key];
+      const titleText = String(item?.title || key || "").toLowerCase();
+      const contentText = String(item?.content || item?.text || item?.definition || "").toLowerCase();
+      return key.toLowerCase().includes(q) || titleText.includes(q) || contentText.includes(q);
+    }).slice(0, 25);
+
+    const resultHtml = matches.length
+      ? `<div class="dictionary-results"><p><strong>${escapeHtml(title)} search:</strong> ${escapeHtml(term)}</p>${matches.map(key => {
+          const item = data[key] || {};
+          const label = escapeHtml(item.title || key);
+          const safeKey = escapeHtml(String(key));
+          return `<button type="button" class="dictionary-result-btn secondary" data-source="${escapeHtml(folder)}" data-key="${safeKey}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${label}</button>`;
+        }).join("")}</div>`
+      : `<p class="empty">No ${escapeHtml(title)} match found for ${escapeHtml(term)}.</p>`;
+
+    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", searchName, term).replace(
+      '<div class="lookupResults" id="resourceLookupResults"></div>',
+      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+    ));
+
+    setTimeout(() => {
+      document.querySelectorAll(`.dictionary-result-btn[data-source="${CSS.escape(folder)}"]`).forEach(btn => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.key;
+          const item = data[key];
+          openResourceInstancePanel(item?.title || key || title, normalizeDictionaryEntry(item, key));
+        });
+      });
+      const box = document.getElementById("resourceLookupInput");
+      if (box) { box.focus({ preventScroll: true }); box.select?.(); }
+    }, 30);
   }
 
   async function openDictionarySource(title, folder) {
     const term = requestStudyTerm(title);
     if (term) return searchDictionarySource(title, folder, term);
-    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", folder === "eastons" ? "searchEastonsFromPanel" : "searchSmithsFromPanel"));
+    setStudyToolsResult(title, renderLookupBox(title, "Enter a word to search", dictionaryPanelSearchName(folder)));
+    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
   }
 
   window.searchEastonsFromPanel = (term) => searchDictionarySource("Easton's Bible Dictionary", "eastons", term);
@@ -3786,38 +3881,106 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   async function openEastonsTool() { await openDictionarySource("Easton's Bible Dictionary", "eastons"); }
   async function openSmithsTool() { await openDictionarySource("Smith's Bible Dictionary", "smiths"); }
 
+  const NAVE_TOPIC_FILES = [
+    "baptism", "christ", "church", "communion", "cross", "deliverance", "discipleship", "evangelism",
+    "faith", "fasting", "fear-of-the-lord", "forgiveness", "gospel", "grace", "holy-spirit",
+    "prayer", "repentance", "salvation", "worship"
+  ];
+
+  async function loadNaveTopicFile(file) {
+    return await fetchJsonAny([
+      `bible/resources/topics/${file}.json`,
+      `./bible/resources/topics/${file}.json`,
+      `bible/resources/naves/${file}.json`,
+      `./bible/resources/naves/${file}.json`,
+      `bible/resources/nave/${file}.json`,
+      `./bible/resources/nave/${file}.json`
+    ]);
+  }
+
   async function searchNaveFromPanel(termRaw) {
     const term = cleanText(termRaw || "");
-    if (!term) { setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel")); return; }
-    const file = slugify(term);
-    const data = await fetchJsonAny([`bible/resources/topics/${file}.json`, `./bible/resources/topics/${file}.json`, `bible/resources/naves/${file}.json`]);
-    setStudyToolsResult(`Nave's Topic: ${term}`, data ? normalizeResourceText(data) : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`);
+    if (!term) {
+      setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
+      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      return;
+    }
+
+    const q = term.toLowerCase();
+    const slug = slugify(term);
+    const candidates = Array.from(new Set([slug, ...NAVE_TOPIC_FILES.filter(f => f.includes(slug) || f.includes(q))]));
+    const found = [];
+
+    for (const file of candidates) {
+      const data = await loadNaveTopicFile(file);
+      if (!data) continue;
+      const searchable = JSON.stringify(data).toLowerCase();
+      if (file.includes(slug) || searchable.includes(q)) found.push({ file, data });
+      if (found.length >= 12) break;
+    }
+
+    const resultHtml = found.length
+      ? `<div class="dictionary-results"><p><strong>Nave's Topical Bible search:</strong> ${escapeHtml(term)}</p>${found.map(({file, data}) => `<button type="button" class="naves-result-btn secondary" data-file="${escapeHtml(file)}" style="width:100%;margin-bottom:8px;justify-content:flex-start;">${escapeHtml(data.title || data.topic || file.replace(/-/g, " "))}</button>`).join("")}</div>`
+      : `<p class="empty">No Nave's topic file found for ${escapeHtml(term)}.</p>`;
+
+    window.__naveSearchCache = Object.fromEntries(found.map(x => [x.file, x.data]));
+    setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel", term).replace(
+      '<div class="lookupResults" id="resourceLookupResults"></div>',
+      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+    ));
+
+    setTimeout(() => {
+      document.querySelectorAll(".naves-result-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const file = btn.dataset.file;
+          const data = window.__naveSearchCache?.[file];
+          openResourceInstancePanel(data?.title || data?.topic || "Nave's Topical Bible", normalizeResourceText(data));
+        });
+      });
+      const box = document.getElementById("resourceLookupInput");
+      if (box) { box.focus({ preventScroll: true }); box.select?.(); }
+    }, 30);
   }
 
   async function openNaveTool() {
     const term = requestStudyTerm("Nave's Topical Bible");
     if (term) return searchNaveFromPanel(term);
     setStudyToolsResult("Nave's Topical Bible", renderLookupBox("Nave's Topical Bible", "Enter a topic to search", "searchNaveFromPanel"));
+    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
   }
   window.searchNaveFromPanel = searchNaveFromPanel;
 
   async function searchDoctrineFromPanel(termRaw) {
     const term = cleanText(termRaw || "");
-    if (!term) { setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel")); return; }
+    if (!term) {
+      setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
+      setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
+      return;
+    }
+
     const slug = slugify(term);
     const direct = await fetchJsonAny([`bible/resources/doctrine/${slug}.json`, `./bible/resources/doctrine/${slug}.json`]);
-    if (direct) { setStudyToolsResult(`Doctrine: ${term}`, normalizeResourceText(direct)); return; }
-    const registry = await fetchJsonAny([`bible/resources/doctrine/doctrine-registry.json`, `./bible/resources/doctrine/doctrine-registry.json`, `bible/resources/doctrine/index.json`]);
-    setStudyToolsResult(`Doctrine Search: ${term}`, registry ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`) : `<p class="empty">No doctrine registry loaded.</p>`);
+    if (direct) {
+      setStudyToolsResult("Biblical Doctrine", `<div class="dictionary-results"><p><strong>Doctrine search:</strong> ${escapeHtml(term)}</p>${normalizeResourceText(direct)}</div>`);
+      return;
+    }
+    const registry = await fetchJsonAny([`bible/resources/doctrine/doctrine-registry.json`, `./bible/resources/doctrine/doctrine-registry.json`, `bible/resources/doctrine/index.json`, `./bible/resources/doctrine/index.json`]);
+    const resultHtml = registry
+      ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`)
+      : `<p class="empty">No doctrine registry loaded.</p>`;
+    setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel", term).replace(
+      '<div class="lookupResults" id="resourceLookupResults"></div>',
+      `<div class="lookupResults" id="resourceLookupResults">${resultHtml}</div>`
+    ));
   }
 
   async function openDoctrineTool() {
     const term = requestStudyTerm("Biblical Doctrine");
     if (term) return searchDoctrineFromPanel(term);
     setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
+    setTimeout(() => document.getElementById("resourceLookupInput")?.focus({ preventScroll: true }), 30);
   }
   window.searchDoctrineFromPanel = searchDoctrineFromPanel;
-
 
 
   /* v37 — Mirror main Scripture Study selected-text marking behavior */
