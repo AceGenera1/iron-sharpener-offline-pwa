@@ -645,6 +645,87 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
   font-style:italic;
 }
 
+
+
+/* v38 — Disciple Journal mirrored resource panel behavior */
+.studyToolsPanel,
+.resourceFloatPanel,
+#internalCrossRefsPanel.internal-crossrefs-panel,
+.resource-instance-panel {
+  resize: both;
+  min-width: 340px;
+  min-height: 220px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+}
+.studyToolsHead,
+.resourceFloatHead,
+#internalCrossRefsPanel .teacher-pop-head,
+.resource-instance-panel .resourceFloatHead,
+.drag-handle {
+  cursor: move;
+  user-select: none;
+}
+.resource-instance-panel {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 118px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+  z-index: 10060;
+  border: 2px solid var(--soft-copper);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98));
+  color: var(--ink);
+  box-shadow: 0 24px 70px rgba(0,0,0,.38);
+  padding: 18px;
+}
+.resource-instance-panel.open { display: block; }
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355070, #1D2D44);
+  color: #F8F4EC;
+  border-color: rgba(217,160,123,.88);
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
+}
+.resource-instance-panel .resourceFloatHead {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--soft-copper);
+  padding-bottom:10px;
+  margin-bottom:14px;
+}
+.resource-instance-panel .resourceFloatHead h2 {
+  margin:0;
+  color:var(--copper);
+  font-size:23px;
+  letter-spacing:.01em;
+}
+body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copper); }
+.resource-panel-body { line-height:1.55; }
+.resource-panel-body .resourceResult { margin-bottom: 0; }
+.resource-panel-body button.cross-ref-link,
+.resource-panel-body .internal-xref-link,
+.resource-panel-body button {
+  max-width: 100%;
+}
+@media (max-width: 780px) {
+  .studyToolsPanel,
+  .resourceFloatPanel,
+  #internalCrossRefsPanel.internal-crossrefs-panel,
+  .resource-instance-panel {
+    left: 12px !important;
+    right: 12px !important;
+    top: 92px !important;
+    width: auto !important;
+    transform: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2688,7 +2769,6 @@ const verseCounts = {
     markMode = mode || null;
     updateMarkButtons();
     if (markMode) {
-      closeStudyTools();
       setStatus(`${markModeLabel()} mode`);
     } else {
       setStatus("Marking off");
@@ -3092,6 +3172,87 @@ body.dark #internalCrossRefsPanel .internal-xref-link {
   font-style:italic;
 }
 
+
+
+/* v38 — Disciple Journal mirrored resource panel behavior */
+.studyToolsPanel,
+.resourceFloatPanel,
+#internalCrossRefsPanel.internal-crossrefs-panel,
+.resource-instance-panel {
+  resize: both;
+  min-width: 340px;
+  min-height: 220px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+}
+.studyToolsHead,
+.resourceFloatHead,
+#internalCrossRefsPanel .teacher-pop-head,
+.resource-instance-panel .resourceFloatHead,
+.drag-handle {
+  cursor: move;
+  user-select: none;
+}
+.resource-instance-panel {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 118px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+  z-index: 10060;
+  border: 2px solid var(--soft-copper);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98));
+  color: var(--ink);
+  box-shadow: 0 24px 70px rgba(0,0,0,.38);
+  padding: 18px;
+}
+.resource-instance-panel.open { display: block; }
+body.dark .resource-instance-panel {
+  background: linear-gradient(180deg, #355070, #1D2D44);
+  color: #F8F4EC;
+  border-color: rgba(217,160,123,.88);
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
+}
+.resource-instance-panel .resourceFloatHead {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--soft-copper);
+  padding-bottom:10px;
+  margin-bottom:14px;
+}
+.resource-instance-panel .resourceFloatHead h2 {
+  margin:0;
+  color:var(--copper);
+  font-size:23px;
+  letter-spacing:.01em;
+}
+body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copper); }
+.resource-panel-body { line-height:1.55; }
+.resource-panel-body .resourceResult { margin-bottom: 0; }
+.resource-panel-body button.cross-ref-link,
+.resource-panel-body .internal-xref-link,
+.resource-panel-body button {
+  max-width: 100%;
+}
+@media (max-width: 780px) {
+  .studyToolsPanel,
+  .resourceFloatPanel,
+  #internalCrossRefsPanel.internal-crossrefs-panel,
+  .resource-instance-panel {
+    left: 12px !important;
+    right: 12px !important;
+    top: 92px !important;
+    width: auto !important;
+    transform: none !important;
+  }
+}
+
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
@@ -3162,17 +3323,42 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     panel.setAttribute("aria-hidden", "true");
   }
 
-  function setStudyToolsResult(title, html) {
-    const target = $("studyToolsResults");
-    const panel = $("resourceFloatPanel");
-    const heading = $("resourceFloatTitle");
-    if (!target) return;
-    if (heading) heading.textContent = title || "Study Resource";
-    target.innerHTML = `<div class="resourceResult"><h3>${escapeHtml(title)}</h3>${html}</div>`;
-    if (panel) {
-      panel.classList.add("open");
-      panel.setAttribute("aria-hidden", "false");
+  function resourcePanelId(title) {
+    return "resourcePanel_" + String(title || "resource").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  }
+
+  function openResourceInstancePanel(title, html) {
+    const safeTitle = title || "Study Resource";
+    const id = resourcePanelId(safeTitle);
+    let panel = document.getElementById(id);
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.id = id;
+      panel.className = "resource-instance-panel";
+      panel.setAttribute("aria-hidden", "true");
+      panel.innerHTML = `
+        <div class="resourceFloatHead drag-handle" data-drag-handle="${id}">
+          <h2></h2>
+          <button class="secondary resource-close" type="button">Close</button>
+        </div>
+        <div class="resource-panel-body"></div>`;
+      document.body.appendChild(panel);
+      panel.querySelector(".resource-close")?.addEventListener("click", () => {
+        panel.classList.remove("open");
+        panel.setAttribute("aria-hidden", "true");
+      });
+      makePanelDraggable(panel, panel.querySelector(".resourceFloatHead"));
     }
+    panel.querySelector(".resourceFloatHead h2").textContent = safeTitle;
+    panel.querySelector(".resource-panel-body").innerHTML = `<div class="resourceResult"><h3>${escapeHtml(safeTitle)}</h3>${html}</div>`;
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.zIndex = String(++floatingPanelZ);
+    return panel;
+  }
+
+  function setStudyToolsResult(title, html) {
+    openResourceInstancePanel(title, html);
   }
 
   function closeResourceFloat() {
@@ -3431,7 +3617,6 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     markMode = mode || null;
     updateMarkButtons();
     if (markMode) {
-      closeStudyTools();
       setStatus(`${markModeLabel()} mode`);
     } else {
       setStatus("Marking off");
@@ -3670,7 +3855,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     panel.className = "internal-crossrefs-panel";
     panel.setAttribute("aria-hidden", "true");
     panel.innerHTML = `
-      <div class="teacher-pop-head">
+      <div class="teacher-pop-head drag-handle" data-drag-handle="internalCrossRefsPanel">
         <h3>Built-In Cross References</h3>
         <button id="closeInternalCrossRefs" class="secondary" type="button">Close</button>
       </div>
@@ -3689,6 +3874,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     $("internalXrefsPassageMode")?.addEventListener("click", () => { internalXrefMode = "passage"; internalXrefVisibleLimit = INTERNAL_XREF_CHUNK_SIZE; renderInternalCrossReferences(); });
     $("internalXrefsChapterMode")?.addEventListener("click", () => { internalXrefMode = "chapter"; internalXrefVisibleLimit = INTERNAL_XREF_CHUNK_SIZE; renderInternalCrossReferences(); });
     $("internalXrefSearch")?.addEventListener("input", () => { internalXrefVisibleLimit = INTERNAL_XREF_CHUNK_SIZE; renderInternalCrossReferences(); });
+    makePanelDraggable(panel, panel.querySelector(".teacher-pop-head"));
     panel.addEventListener("click", event => {
       const more = event.target.closest("#internalXrefsShowMore");
       if (more) { event.preventDefault(); internalXrefVisibleLimit += INTERNAL_XREF_CHUNK_SIZE; renderInternalCrossReferences(); return; }
@@ -3733,13 +3919,13 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
 
   async function openInternalCrossReferences(scope = "passage") {
-    closeStudyTools();
     internalXrefMode = scope || "passage";
     internalXrefVisibleLimit = INTERNAL_XREF_CHUNK_SIZE;
     const panel = ensureInternalCrossRefsPanel();
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     panel.style.zIndex = String(++internalXrefZ);
+    makePanelDraggable(panel, panel.querySelector(".teacher-pop-head"));
     await renderInternalCrossReferences();
   }
 
@@ -3767,7 +3953,84 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   window.renderInternalCrossReferences = renderInternalCrossReferences;
   window.closeInternalCrossReferences = closeInternalCrossReferences;
   window.goToScriptureReference = goToScriptureReference;
+
+  let floatingPanelZ = 10080;
+
+  function makePanelDraggable(panel, handle) {
+    if (!panel || !handle || panel.dataset.draggableReady === "1") return;
+    panel.dataset.draggableReady = "1";
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button, input, textarea, select, a")) return;
+      dragging = true;
+      panel.style.zIndex = String(++floatingPanelZ);
+      const rect = panel.getBoundingClientRect();
+      panel.style.left = rect.left + "px";
+      panel.style.top = rect.top + "px";
+      panel.style.right = "auto";
+      panel.style.bottom = "auto";
+      panel.style.transform = "none";
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+      try { handle.setPointerCapture(event.pointerId); } catch (_) {}
+      event.preventDefault();
+    });
+
+    handle.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      const nextLeft = Math.max(8, Math.min(window.innerWidth - 80, startLeft + event.clientX - startX));
+      const nextTop = Math.max(8, Math.min(window.innerHeight - 80, startTop + event.clientY - startY));
+      panel.style.left = nextLeft + "px";
+      panel.style.top = nextTop + "px";
+    });
+
+    function stopDrag(event) {
+      if (!dragging) return;
+      dragging = false;
+      try { handle.releasePointerCapture(event.pointerId); } catch (_) {}
+    }
+    handle.addEventListener("pointerup", stopDrag);
+    handle.addEventListener("pointercancel", stopDrag);
+  }
+
+  function setupExistingFloatingPanels() {
+    makePanelDraggable($("studyToolsPanel"), document.querySelector("#studyToolsPanel .studyToolsHead"));
+    makePanelDraggable($("resourceFloatPanel"), document.querySelector("#resourceFloatPanel .resourceFloatHead"));
+    makePanelDraggable($("internalCrossRefsPanel"), document.querySelector("#internalCrossRefsPanel .teacher-pop-head"));
+    document.querySelectorAll(".resource-instance-panel").forEach((panel) => makePanelDraggable(panel, panel.querySelector(".resourceFloatHead")));
+  }
+
+  async function refreshOpenStudyPanelsForCurrentPassage() {
+    if ($("internalCrossRefsPanel")?.classList.contains("open")) {
+      try { await renderInternalCrossReferences(); } catch (_) {}
+    }
+    const activeResourcePanels = Array.from(document.querySelectorAll(".resource-instance-panel.open"));
+    for (const panel of activeResourcePanels) {
+      const title = panel.querySelector(".resourceFloatHead h2")?.textContent || "";
+      try {
+        if (/Passage Snapshot/i.test(title)) await openPassageSnapshot();
+        else if (/Commentary/i.test(title)) await openCommentaryTool();
+        else if (/Backgrounds|Customs/i.test(title)) await openBackgroundsTool();
+        else if (/Overview/i.test(title)) await openBookOverviewTool();
+      } catch (_) {}
+    }
+  }
+
+  const __discipleJournalBaseLoadPassage = loadPassage;
+  loadPassage = async function() {
+    await __discipleJournalBaseLoadPassage();
+    await refreshOpenStudyPanelsForCurrentPassage();
+  };
+
   function bindEvents() {
+    setupExistingFloatingPanels();
     $("studyModeBtn").addEventListener("click", openStudyMode);
     $("openStudyToolsBtn").addEventListener("click", openStudyTools);
     $("closeStudyToolsBtn").addEventListener("click", closeStudyTools);
