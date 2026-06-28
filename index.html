@@ -19753,5 +19753,325 @@ body:not(.dark) #openCopyScriptureFromTools:focus-visible {
 })();
 </script>
 
+
+<!-- Patch 46 — Disciple Maker Mobile App Shell Polish -->
+<style id="rdm-v46-mobile-app-shell-polish">
+/*
+   v46 — Disciple Maker Mobile App Shell Polish
+   Scope: mobile/tablet app-shell presentation only.
+   Locked desktop, OBS Focus, Scripture loading, Offline Ready, Study Tools,
+   Scripture Back behavior, and saved notes are preserved.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  --rdm-mobile-nav-height: calc(74px + env(safe-area-inset-bottom, 0px));
+  --rdm-mobile-header-height: calc(76px + env(safe-area-inset-top, 0px));
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215,168,79,.16);
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .shell {
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 18px) !important;
+}
+
+/* App-like top bar: compact, sticky, and readable without changing desktop. */
+html:not(.obs) body.rdm-mobile-app-shell .hero {
+  min-height: var(--rdm-mobile-header-height) !important;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px !important;
+  gap: 9px !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.18) !important;
+  backdrop-filter: blur(12px);
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+  width: 54px !important;
+  height: 54px !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+  max-width: 100% !important;
+  color: #f8d987 !important;
+  opacity: .98 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell h1 {
+  font-size: clamp(26px, 7.1vw, 39px) !important;
+  text-shadow: 0 4px 12px rgba(0,0,0,.28) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+  min-width: 58px !important;
+  min-height: 40px !important;
+  padding: 8px 11px !important;
+  font-size: 12px !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
+}
+
+/* Keep Scripture first and make the reading surface feel like an app page. */
+html:not(.obs) body.rdm-mobile-app-shell .layout {
+  padding-top: 12px !important;
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 34px) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .scripture {
+  border-radius: 20px !important;
+  padding: 22px 17px 24px !important;
+  border-width: 1.5px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .ref {
+  padding-right: 72px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #scriptureBackBtn {
+  min-height: 36px !important;
+  padding: 7px 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  max-width: min(52vw, 220px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .verse {
+  margin-bottom: 18px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .vnum {
+  min-width: 26px !important;
+  height: 26px !important;
+}
+
+/* Bottom navigation: five true app tabs after Resources was removed. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  min-height: var(--rdm-mobile-nav-height) !important;
+  padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
+  display: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+  min-height: 56px !important;
+  border-radius: 16px !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button:active {
+  transform: translateY(1px) scale(.99) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-nav-icon {
+  font-size: 17px !important;
+}
+
+/* Offline Ready stays available without covering the main tabs. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePillV33,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-status-pill {
+  bottom: calc(var(--rdm-mobile-nav-height) + 10px) !important;
+  left: 14px !important;
+  right: 14px !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePanelV33,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
+  bottom: calc(var(--rdm-mobile-nav-height) + 58px) !important;
+  max-height: calc(100dvh - var(--rdm-mobile-nav-height) - 86px) !important;
+  border-radius: 18px !important;
+}
+
+/* Passage and Notes screens: full app screens with comfortable touch controls. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open {
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  bottom: var(--rdm-mobile-nav-height) !important;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 22px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
+  position: sticky !important;
+  top: calc(-16px - env(safe-area-inset-top, 0px)) !important;
+  z-index: 3 !important;
+  margin: 0 -16px 4px !important;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 12px !important;
+  background: linear-gradient(180deg, rgba(255,250,240,.98), rgba(255,241,208,.96)) !important;
+  box-shadow: 0 8px 18px rgba(70,40,0,.08) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark .rdm-mobile-sheet-head {
+  background: linear-gradient(180deg, rgba(53,90,84,.98), rgba(41,72,67,.96)) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-close {
+  min-width: 82px !important;
+  min-height: 42px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls > div {
+  width: 100% !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open select,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open input,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open button {
+  min-height: 52px !important;
+  font-size: 16px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open #loadBtn {
+  width: 100% !important;
+  margin-top: 4px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side .panel {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open textarea {
+  min-height: 170px !important;
+}
+
+/* Full-screen mobile panels get a more native-feeling close/header area. */
+html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open {
+  bottom: var(--rdm-mobile-nav-height) !important;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 24px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid,
+html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid.three,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-options {
+  grid-template-columns: 1fr !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open button,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open button,
+html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open button,
+html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open button,
+html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
+  min-height: 48px !important;
+}
+
+/* Phone-specific tightening. */
+@media (max-width: 430px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 48px minmax(0, 1fr) auto !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap { width: 48px !important; height: 48px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .logo { width: 46px !important; height: 46px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow { font-size: 9px !important; letter-spacing: 2px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell h1 { font-size: clamp(24px, 7.4vw, 32px) !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .scripture { padding: 20px 15px 22px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .verse { font-size: clamp(20px, 5.75vw, 24px) !important; line-height: 1.55 !important; }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button { font-size: 9.5px !important; }
+}
+
+/* Tablet touch devices: keep the app feel but avoid stretched controls. */
+@media (min-width: 760px) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    width: min(720px, calc(100vw - 28px)) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(760px, calc(100vw - 28px)) !important;
+    border-left: 2px solid var(--gold) !important;
+    border-right: 2px solid var(--gold) !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+}
+</style>
+<script id="rdm-v46-mobile-app-shell-polish">
+(function rdmV46MobileAppShellPolish(){
+  if (window.__rdmV46MobileAppShellPolish) return;
+  window.__rdmV46MobileAppShellPolish = true;
+
+  const get = (id) => document.getElementById(id);
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs");
+  }
+
+  function syncMobileShellState(){
+    if (!document.body) return;
+    const isSheetOpen = document.body.classList.contains("rdm-mobile-passage-open") || document.body.classList.contains("rdm-mobile-notes-open");
+    document.body.classList.toggle("rdm-mobile-sheet-open", isMobileShell() && isSheetOpen);
+
+    const nav = get("rdmMobileAppNav");
+    if (nav) {
+      nav.querySelectorAll('button[data-rdm-mobile-action="resources"]').forEach((button) => button.remove());
+      nav.style.setProperty("grid-template-columns", "repeat(5, minmax(0, 1fr))", "important");
+    }
+  }
+
+  function closeMobileSheetsOnly(){
+    if (!document.body) return;
+    document.body.classList.remove("rdm-mobile-passage-open", "rdm-mobile-notes-open", "rdm-mobile-sheet-open");
+  }
+
+  function start(){
+    syncMobileShellState();
+    setTimeout(syncMobileShellState, 250);
+    setTimeout(syncMobileShellState, 900);
+  }
+
+  document.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+    const navButton = event.target.closest('#rdmMobileAppNav button[data-rdm-mobile-action]');
+    if (navButton) setTimeout(syncMobileShellState, 0);
+    if (event.target.closest('[data-rdm-mobile-close]')) setTimeout(syncMobileShellState, 0);
+  }, true);
+
+  document.addEventListener("keydown", function(event){
+    if (event.key !== "Escape" || !isMobileShell()) return;
+    closeMobileSheetsOnly();
+    setTimeout(syncMobileShellState, 0);
+  });
+
+  ["resize", "orientationchange", "online", "offline"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(syncMobileShellState, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.rdmV46SyncMobileShellState = syncMobileShellState;
+})();
+</script>
+<script id="rdm-v46-mobile-shell-marker">
+(function rdmV46Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v46-mobile-app-shell-polish";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v46-mobile-app-shell-polish";
+})();
+</script>
+
 </body>
 </html>
