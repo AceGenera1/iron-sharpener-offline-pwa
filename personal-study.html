@@ -2807,7 +2807,7 @@ body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,5
 <script>
 (() => {
   "use strict";
-  const VERSION = "v74-top-new-entry-button";
+  const VERSION = "v75-safe-new-entry-mode-preserve";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4654,7 +4654,27 @@ const verseCounts = {
     });
   }
 
-  function newEntry() {
+  function entryHasMeaningfulContent(entry) {
+    const notes = entry?.notes || {};
+    const noteValues = [
+      notes.observe,
+      notes.understand,
+      notes.heart,
+      notes.feetQuestions,
+      notes.feetSensed,
+      notes.feetTesting,
+      notes.prayer,
+      notes.walk,
+      notes.remember,
+      notes.freewrite
+    ];
+    return !!cleanText(entry?.title || "")
+      || noteValues.some((value) => !!cleanText(scrubPromptOnlyText(value || "")))
+      || !!entry?.favorite
+      || !!entry?.reviewLater;
+  }
+
+  function resetEntryFields(modeToUse = "guided", statusText = "New entry ready") {
     currentEntryId = null;
     editingSavedEntry = false;
     fields.forEach((id) => { if ($(id)) $(id).value = ""; });
@@ -4663,11 +4683,27 @@ const verseCounts = {
     if ($("freewriteFavoriteEntry")) $("freewriteFavoriteEntry").checked = false;
     if ($("freewriteReviewLater")) $("freewriteReviewLater").checked = false;
     $("entryDate").value = todayIso();
-    setJournalMode("guided");
-    editingSavedEntry = false;
+    setJournalMode(modeToUse === "freewrite" ? "freewrite" : "guided");
     $("entryMode").textContent = "New entry";
-    setStatus("New entry ready");
+    setStatus(statusText);
     localStorage.removeItem(DRAFT_KEY);
+  }
+
+  async function newEntry() {
+    const modeToKeep = currentJournalMode();
+    let savedCurrentEntry = false;
+    try {
+      const currentEntry = collectEntry();
+      if (entryHasMeaningfulContent(currentEntry)) {
+        await saveEntry();
+        savedCurrentEntry = true;
+      }
+    } catch (error) {
+      console.error("Could not save current entry before starting a new one", error);
+      setStatus("Could not save current entry");
+      return;
+    }
+    resetEntryFields(modeToKeep, savedCurrentEntry ? "Current entry saved. New entry ready" : "New entry ready");
   }
 
   function autosaveDraft() {
@@ -7029,10 +7065,10 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     $("saveBtn").addEventListener("click", saveEntry);
     $("copyEntryBtn").addEventListener("click", copyEntry);
     $("deleteBtn").addEventListener("click", async () => {
-      if (!currentEntryId) { newEntry(); return; }
+      if (!currentEntryId) { resetEntryFields(currentJournalMode()); return; }
       if (!confirm("Delete this saved journal entry?")) return;
       await deleteEntry(currentEntryId);
-      newEntry();
+      resetEntryFields(currentJournalMode());
       await renderHistory();
       setStatus("Deleted");
     });
