@@ -2554,6 +2554,81 @@ body.dark .scriptureCard .verse:not(.selectedVerse):not(.highlighted):not(.highl
   background: rgba(255,249,241,.05) !important;
 }
 
+
+/* v79 — Muted Text Readability Polish
+   Makes helper text, placeholders, saved-entry previews, and instructional text
+   easier to read in both light and dark mode without changing layout or behavior. */
+:root {
+  --journal-muted-strong: #5F7898;
+  --journal-muted-soft: #6F84A0;
+  --journal-placeholder: #6D7F96;
+}
+body.dark {
+  --journal-muted-strong: #C8D6E8;
+  --journal-muted-soft: #B6C7DC;
+  --journal-placeholder: rgba(248,244,236,.72);
+}
+.prompt p,
+.modeIntro,
+.entryItem small,
+.translation,
+.copyHint,
+.markingHint,
+.readerSub,
+.readerMeta,
+.readerCount,
+.empty,
+.resource-clean-empty {
+  color: var(--journal-muted-strong) !important;
+  opacity: 1 !important;
+}
+.prompt p,
+.modeIntro,
+.entryItem small {
+  font-weight: 800 !important;
+}
+.translation,
+.copyHint,
+.markingHint,
+.readerSub,
+.readerMeta,
+.readerCount {
+  font-weight: 850 !important;
+}
+input::placeholder,
+textarea::placeholder,
+.historySearch::placeholder,
+.backgrounds-search-box::placeholder,
+.internal-xrefs-search::placeholder {
+  color: var(--journal-placeholder) !important;
+  opacity: 1 !important;
+}
+body.dark input::placeholder,
+body.dark textarea::placeholder,
+body.dark .historySearch::placeholder,
+body.dark .backgrounds-search-box::placeholder,
+body.dark .internal-xrefs-search::placeholder {
+  color: var(--journal-placeholder) !important;
+  opacity: 1 !important;
+}
+body.dark .prompt p,
+body.dark .modeIntro,
+body.dark .entryItem small,
+body.dark .translation,
+body.dark .copyHint,
+body.dark .markingHint,
+body.dark .readerSub,
+body.dark .readerMeta,
+body.dark .readerCount,
+body.dark .empty,
+body.dark .resource-clean-empty {
+  color: var(--journal-muted-strong) !important;
+  opacity: 1 !important;
+}
+.entryItem small {
+  line-height: 1.48 !important;
+}
+
 </style>
 </head>
 <body>
@@ -2909,7 +2984,7 @@ body.dark .scriptureCard .verse:not(.selectedVerse):not(.highlighted):not(.highl
 <script>
 (() => {
   "use strict";
-  const VERSION = "v78-clean-scripture-reading-surface";
+  const VERSION = "v79-muted-text-readability-polish";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
