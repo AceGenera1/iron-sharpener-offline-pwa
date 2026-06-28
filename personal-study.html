@@ -2381,7 +2381,7 @@ body.dark .freewriteMetaBox {
 }
 
 
-/* v70 — Mode-aware copy + no visible tags */
+/* v71 — Clean copy entry + hidden tags preserved */
 #tags,
 label[for="tags"],
 #freewriteTags,
@@ -2658,7 +2658,7 @@ label[for="freewriteTags"] {
             <div class="guidePanel" data-panel="remember">
               <div class="prompt remember">
                 <h3>Remember / Revisit</h3>
-                <p>What truth do I need to carry with me? Add a memory verse, summary, or tags.</p>
+                <p>What truth do I need to carry with me? Add a memory verse or summary.</p>
                 <textarea id="remember" placeholder="Truth to remember..."></textarea>
                 <div style="margin-top:10px;"><label for="tags">Tags</label><input id="tags" placeholder="prayer, hope, obedience" /></div>
                 <div class="checkGrid">
@@ -2706,7 +2706,7 @@ label[for="freewriteTags"] {
     <aside class="card historyCard">
       <div class="cardHead"><h3>Saved Study History</h3><div class="historyHeadActions"><button class="secondary" id="readJournalBtn" type="button">Read Journal</button><button class="secondary" id="refreshHistoryBtn" type="button">Refresh</button></div></div>
       <div class="cardBody">
-        <input class="historySearch" id="historySearch" placeholder="Search reference, title, notes, or tags" />
+        <input class="historySearch" id="historySearch" placeholder="Search reference, title, or notes" />
         <div class="historyFilters" aria-label="Saved study filters">
           <button class="secondary filterBtn active" id="filterAllBtn" type="button" data-filter="all">All</button>
           <button class="secondary filterBtn" id="filterFavoritesBtn" type="button" data-filter="favorites">Favorites</button>
@@ -2746,7 +2746,7 @@ label[for="freewriteTags"] {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v70-mode-aware-copy-clean-journal-output";
+  const VERSION = "v71-copy-entry-clean-history-actions";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4385,40 +4385,42 @@ const verseCounts = {
     list.innerHTML = filtered.map((entry) => {
       const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.feetSensed, entry.notes?.freewrite, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
       const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit</span>' : ''}`;
-      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button></div></div>`;
+      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button></div></div>`;
     }).join("");
-    list.querySelectorAll(".entryItem").forEach((item) => {
-      item.addEventListener("click", async (event) => {
-        if (event.target.closest("button")) return;
-        const entries = await getAllEntries();
-        const entry = entries.find((candidate) => candidate.id === item.dataset.id);
-        if (entry) openJournalReader([entry], 0, "single");
-      });
-    });
-    list.querySelectorAll(".editEntryBtn").forEach((btn) => {
-      btn.addEventListener("click", async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const entries = await getAllEntries();
-        const entry = entries.find((candidate) => candidate.id === btn.dataset.id);
-        if (entry) applyEntry(entry, true);
-      });
-    });
-    list.querySelectorAll(".readEntryBtn").forEach((btn) => {
-      btn.addEventListener("click", async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const entries = await getAllEntries();
-        const entry = entries.find((candidate) => candidate.id === btn.dataset.id);
-        if (entry) openJournalReader([entry], 0, "single");
-      });
-    });
-    list.querySelectorAll(".exportEntryBtn").forEach((btn) => {
-      btn.addEventListener("click", async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        await exportSavedEntryById(btn.dataset.id);
-      });
+    initHistoryEntryActions();
+  }
+
+  async function getHistoryEntryById(entryId) {
+    const entries = await getAllEntries();
+    return entries.find((candidate) => String(candidate.id) === String(entryId));
+  }
+
+  function initHistoryEntryActions() {
+    const list = $("entryList");
+    if (!list || list.dataset.historyActionsReady === "true") return;
+    list.dataset.historyActionsReady = "true";
+    list.addEventListener("click", async (event) => {
+      const readBtn = event.target.closest(".readEntryBtn");
+      const editBtn = event.target.closest(".editEntryBtn");
+      const item = event.target.closest(".entryItem");
+      if (!item || !list.contains(item)) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      const target = readBtn || editBtn || item;
+      const entryId = target.dataset.id || item.dataset.id;
+      const entry = await getHistoryEntryById(entryId);
+      if (!entry) {
+        setStatus("Entry not found");
+        return;
+      }
+
+      if (editBtn) {
+        applyEntry(entry, true);
+        return;
+      }
+
+      openJournalReader([entry], 0, "single");
     });
   }
 
@@ -4941,11 +4943,7 @@ const verseCounts = {
 
   async function copyEntry() {
     const entry = collectEntry();
-    if (!currentPassageVerses.length) await loadPassage();
-    const passageText = currentPassageVerses.length
-      ? currentPassageVerses.map((verse) => `${verse.verse}. ${cleanText(verse.text)}`).join("\n")
-      : "";
-    const text = buildEntryCopyText(entry, { includeScripture: true, passageText });
+    const text = buildEntryCopyText(entry);
     try { await navigator.clipboard.writeText(text); setStatus(entryReaderMode(entry) === "freewrite" ? "Freewrite entry copied" : "Guided study entry copied"); }
     catch (_) { setStatus("Copy unavailable"); }
   }
@@ -5024,11 +5022,11 @@ const verseCounts = {
   .entry{border-top:1px solid var(--line);padding-top:22px;margin-top:22px;} h2{margin-bottom:4px;color:var(--deep);} .meta{color:var(--muted);font-weight:800;}
   section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0;} h3{margin:0 0 6px;color:var(--copper);}
   .freewrite-export p{font-size:17px;line-height:1.75;white-space:pre-wrap;} section p{white-space:pre-wrap;}
-  .tags{color:var(--copper);font-weight:800;} .badges{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;}
   .badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800;background:rgba(217,160,123,.14);color:var(--copper);border:1px solid rgba(185,122,86,.30)}
   .note{font-size:13px;color:var(--muted);margin-top:24px;}
   @media (max-width:700px){body{padding:14px;}.wrap{padding:18px;border-radius:18px;}h1{font-size:27px;}}
-  @media print{body,body.export-dark{background:#fff!important;color:#1D2D44!important;padding:0!important;}.wrap{background:#fff!important;color:#1D2D44!important;border:0!important;box-shadow:none!important;max-width:none!important;}section{background:#fff!important;color:#1D2D44!important;border:1px solid rgba(29,45,68,.18)!important;}h1,h2{color:#1D2D44!important;}h3,.sub,.tags{color:#8A4A28!important;}.meta,.note{color:#5F6F82!important;}}
+  @media print{body,body.export-dark{background:#fff!important;color:#1D2D44!important;padding:0!important;}.wrap{background:#fff!important;color:#1D2D44!important;border:0!important;box-shadow:none!important;max-width:none!important;}section{background:#fff!important;color:#1D2D44!important;border:1px solid rgba(29,45,68,.18)!important;}h1,h2{color:#1D2D44!important;}h3,.sub{color:#8A4A28!important;}.meta{color:#5F6F82!important;}}
 </style></head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
@@ -6943,6 +6941,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     });
     $("refreshHistoryBtn").addEventListener("click", renderHistory);
     $("historySearch").addEventListener("input", renderHistory);
+    initHistoryEntryActions();
     document.querySelectorAll(".filterBtn").forEach((btn) => btn.addEventListener("click", () => { historyFilter = btn.dataset.filter || "all"; renderHistory(); }));
     document.querySelectorAll(".quickPromptBtn").forEach((btn) => btn.addEventListener("mousedown", (event) => event.preventDefault()));
     document.querySelectorAll(".quickPromptBtn").forEach((btn) => btn.addEventListener("click", () => {
