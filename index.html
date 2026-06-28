@@ -20073,5 +20073,371 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
 })();
 </script>
 
+
+<!-- Patch 47 — Mobile Phone UX Corrections -->
+<style id="rdm-v47-mobile-phone-ux-corrections">
+/*
+   v47 — Mobile Phone UX Corrections
+   Scope: mobile app-shell only. Desktop, OBS Focus, Scripture loading,
+   locked Back behavior, marking tools, Offline Ready, and core notes data are preserved.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  --rdm-mobile-nav-height: calc(78px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Cream mode mobile header must match the Disciple Maker cream/brown desktop palette. */
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .hero {
+  background: linear-gradient(90deg, rgba(44,36,28,.99), rgba(70,60,46,.99), rgba(44,36,28,.99)) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .hero::before {
+  background:
+    radial-gradient(circle at 13% 48%, rgba(244,199,108,.14), transparent 22%),
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,.05), transparent 30%) !important;
+}
+
+/* Let the mobile screen breathe beneath the Offline Ready chip and bottom app nav. */
+html:not(.obs) body.rdm-mobile-app-shell .layout {
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 92px) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell .scripture {
+  overflow: visible !important;
+}
+
+/* Previous / Next should never float over Scripture text on phones. */
+html:not(.obs) body.rdm-mobile-app-shell .nav-row {
+  position: static !important;
+  bottom: auto !important;
+  z-index: auto !important;
+  margin: 34px 0 14px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell .nav-row button {
+  min-height: 56px !important;
+  font-size: 16px !important;
+  border-radius: 18px !important;
+}
+
+/* Bottom app nav: equal, device-aware tabs that fill the phone width cleanly. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: clamp(5px, 1.25vw, 9px) !important;
+  padding: 8px clamp(8px, 2.2vw, 14px) calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+  min-width: 0 !important;
+  min-height: 60px !important;
+  padding: 7px 3px !important;
+  border-radius: 17px !important;
+  font-size: clamp(9.6px, 2.45vw, 11px) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-nav-icon {
+  font-size: clamp(16px, 4.1vw, 19px) !important;
+}
+
+/* Notes tab becomes an accordion-style app page. Teacher Tools stays in Tools, not Notes. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  gap: 14px !important;
+  padding-bottom: 30px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel:first-of-type {
+  display: none !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card {
+  border-radius: 20px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 28px rgba(70,40,0,.09) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card {
+  box-shadow: 0 12px 30px rgba(0,0,0,.26) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 76px !important;
+  padding: 18px 18px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  border-bottom: 0 !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  margin: 0 !important;
+  font-size: clamp(22px, 6.4vw, 31px) !important;
+  line-height: 1.06 !important;
+  letter-spacing: 2.2px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+  content: "Open";
+  flex: 0 0 auto;
+  border: 1.5px solid var(--gold);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255,250,240,.72);
+  color: #203D39;
+  font: 900 12px Arial, sans-serif;
+  letter-spacing: .2px;
+}
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+  background: rgba(248,217,135,.12);
+  color: #fff6d9;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title {
+  border-bottom: 1.5px solid var(--gold) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title::after {
+  content: "Close";
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > :not(.panel-title) {
+  display: none !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open {
+  padding-bottom: 18px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > textarea,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .cross-ref-links,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .teaching-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .application-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .notes-save-status,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > #backToPreviousPassage {
+  margin-left: 18px !important;
+  margin-right: 18px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open textarea {
+  min-height: min(38vh, 280px) !important;
+  margin-top: 16px !important;
+  margin-bottom: 12px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .teaching-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .application-note-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .teaching-note-actions button,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .application-note-actions button {
+  width: 100% !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+}
+
+/* Study resource results should feel like one full app page, not stacked desktop popups. */
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open {
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: var(--rdm-mobile-nav-height) !important;
+  width: auto !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+  transform: none !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open .teacher-pop-head,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .floating-panel-head {
+  position: sticky !important;
+  top: calc(-16px - env(safe-area-inset-top, 0px)) !important;
+  z-index: 4 !important;
+  background: inherit !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open p,
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open li {
+  font-size: clamp(18px, 4.2vw, 22px) !important;
+  line-height: 1.55 !important;
+}
+
+/* Large phone / tablet viewport classes are added by the v47 script below. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-large-phone .verse {
+  font-size: clamp(22px, 5.7vw, 27px) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-small-phone .verse {
+  font-size: clamp(19px, 5.4vw, 23px) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-tablet .scripture {
+  max-width: 980px !important;
+}
+
+@media (max-width: 390px) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+    min-height: 56px !important;
+    font-size: 9.2px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-nav-icon {
+    font-size: 15px !important;
+  }
+}
+</style>
+<script id="rdm-v47-mobile-phone-ux-corrections">
+(function rdmV47MobilePhoneUxCorrections(){
+  if (window.__rdmV47MobilePhoneUxCorrections) return;
+  window.__rdmV47MobilePhoneUxCorrections = true;
+
+  const get = (id) => document.getElementById(id);
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs");
+  }
+
+  function viewportSize(){
+    const vv = window.visualViewport;
+    const width = Math.round((vv && vv.width) || window.innerWidth || document.documentElement.clientWidth || 0);
+    const height = Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 0);
+    return { width, height };
+  }
+
+  function syncDeviceClasses(){
+    if (!document.body) return;
+    const enabled = isMobileShell();
+    const size = viewportSize();
+    const shortSide = Math.min(size.width, size.height);
+    const longSide = Math.max(size.width, size.height);
+    const isPhone = enabled && shortSide < 600;
+    const isSmallPhone = isPhone && shortSide < 390;
+    const isLargePhone = isPhone && shortSide >= 390;
+    const isTablet = enabled && shortSide >= 600 && shortSide < 1180;
+
+    document.body.classList.toggle("rdm-mobile-phone", isPhone);
+    document.body.classList.toggle("rdm-mobile-small-phone", isSmallPhone);
+    document.body.classList.toggle("rdm-mobile-large-phone", isLargePhone);
+    document.body.classList.toggle("rdm-mobile-tablet", isTablet);
+    document.body.classList.toggle("rdm-mobile-landscape", enabled && size.width > size.height);
+    document.body.dataset.rdmMobileViewport = enabled ? `${size.width}x${size.height}` : "";
+  }
+
+  function setupNotesAccordion(){
+    const side = document.querySelector(".side");
+    if (!side || side.dataset.rdmV47NotesReady === "true") return;
+    side.dataset.rdmV47NotesReady = "true";
+
+    const panels = Array.from(side.querySelectorAll(":scope > .panel"));
+    panels.forEach((panel, index) => {
+      if (index === 0) {
+        panel.classList.add("rdm-mobile-tools-card");
+        return;
+      }
+      panel.classList.add("rdm-mobile-note-card");
+      const title = panel.querySelector(":scope > .panel-title");
+      if (!title) return;
+      title.setAttribute("role", "button");
+      title.setAttribute("tabindex", "0");
+      title.setAttribute("aria-expanded", "false");
+    });
+
+    function togglePanel(panel){
+      if (!isMobileShell() || !document.body.classList.contains("rdm-mobile-notes-open")) return;
+      if (!panel || !panel.classList.contains("rdm-mobile-note-card")) return;
+      const opening = !panel.classList.contains("rdm-mobile-note-open");
+      side.querySelectorAll(":scope > .panel.rdm-mobile-note-card").forEach((item) => {
+        item.classList.remove("rdm-mobile-note-open");
+        item.querySelector(":scope > .panel-title")?.setAttribute("aria-expanded", "false");
+      });
+      if (opening) {
+        panel.classList.add("rdm-mobile-note-open");
+        panel.querySelector(":scope > .panel-title")?.setAttribute("aria-expanded", "true");
+        setTimeout(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
+      }
+    }
+
+    side.addEventListener("click", function(event){
+      const title = event.target.closest(".panel.rdm-mobile-note-card > .panel-title");
+      if (!title || !side.contains(title)) return;
+      if (event.target.closest(".info-wrap, .tooltip")) return;
+      event.preventDefault();
+      togglePanel(title.closest(".panel.rdm-mobile-note-card"));
+    }, true);
+
+    side.addEventListener("keydown", function(event){
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const title = event.target.closest(".panel.rdm-mobile-note-card > .panel-title");
+      if (!title) return;
+      event.preventDefault();
+      togglePanel(title.closest(".panel.rdm-mobile-note-card"));
+    });
+  }
+
+  function closeOtherResourcePages(activePanel){
+    if (!isMobileShell() || !activePanel) return;
+    if (!activePanel.classList.contains("resource-instance-panel")) return;
+    document.querySelectorAll(".resource-instance-panel.open").forEach((panel) => {
+      if (panel === activePanel) return;
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+    });
+  }
+
+  function syncResourcePageMode(){
+    if (!document.body) return;
+    if (!isMobileShell()) {
+      document.body.classList.remove("rdm-mobile-resource-page-open");
+      return;
+    }
+    const openResource = document.querySelector(".resource-instance-panel.open");
+    document.body.classList.toggle("rdm-mobile-resource-page-open", !!openResource);
+    if (openResource) closeOtherResourcePages(openResource);
+  }
+
+  function syncAll(){
+    syncDeviceClasses();
+    setupNotesAccordion();
+    syncResourcePageMode();
+  }
+
+  const observer = new MutationObserver(function(mutations){
+    let shouldSync = false;
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes" && mutation.attributeName === "class") shouldSync = true;
+      if (mutation.type === "childList") shouldSync = true;
+      if (shouldSync) break;
+    }
+    if (shouldSync) setTimeout(syncAll, 0);
+  });
+
+  document.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+    const navButton = event.target.closest('#rdmMobileAppNav button[data-rdm-mobile-action]');
+    if (navButton && navButton.dataset.rdmMobileAction === "notes") {
+      setTimeout(function(){
+        document.querySelectorAll(".side > .panel.rdm-mobile-note-card").forEach((panel) => {
+          panel.classList.remove("rdm-mobile-note-open");
+          panel.querySelector(":scope > .panel-title")?.setAttribute("aria-expanded", "false");
+        });
+      }, 20);
+    }
+    setTimeout(syncAll, 0);
+  }, true);
+
+  ["resize", "orientationchange", "online", "offline"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(syncAll, name === "orientationchange" ? 260 : 0); });
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", function(){ setTimeout(syncAll, 0); });
+  }
+
+  function start(){
+    setupNotesAccordion();
+    syncAll();
+    try { observer.observe(document.body, { attributes: true, attributeFilter: ["class"], childList: true, subtree: true }); } catch (_) {}
+    setTimeout(syncAll, 250);
+    setTimeout(syncAll, 900);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.rdmV47SyncMobilePhoneUx = syncAll;
+})();
+</script>
+<script id="rdm-v47-mobile-shell-marker">
+(function rdmV47Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v47-mobile-phone-ux-corrections";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v47-mobile-phone-ux-corrections";
+})();
+</script>
+
 </body>
 </html>
