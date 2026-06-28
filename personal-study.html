@@ -6236,6 +6236,237 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     });
   };
 
+
+
+  /* v52 — Bible Backgrounds exact-map bridge + stronger fallback
+     Goal: use the same by-reference data already in the repo, but tolerate
+     every reasonable map shape/key style so Disciple Journal does not miss
+     existing Backgrounds & Customs cards. */
+  function bgRefSlugV52(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/psalm\b/g, "psalms")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function bgCurrentStateV52() {
+    const book = $("book")?.value || "Genesis";
+    const chapter = $("chapter")?.value || "1";
+    const start = parseInt($("start")?.value || "1", 10) || 1;
+    const end = parseInt($("end")?.value || String(start), 10) || start;
+    return { book, chapter: String(chapter), start, end };
+  }
+
+  function bgReferenceVariantsV52(book, chapter, verse) {
+    const b = String(book || "").trim();
+    const c = String(chapter || "").trim();
+    const v = String(verse || "").trim();
+    return [
+      `${b} ${c}:${v}`,
+      `${b}.${c}.${v}`,
+      `${b} ${c}.${v}`,
+      `${b}_${c}_${v}`,
+      `${b}-${c}-${v}`,
+      `${c}:${v}`,
+      `${c}.${v}`,
+      `${c}_${v}`,
+      `${c}-${v}`
+    ];
+  }
+
+  function bgAllCurrentReferenceKeysV52() {
+    const state = bgCurrentStateV52();
+    const chapterMax = verseCounts?.[state.book]?.[parseInt(state.chapter, 10) - 1] || state.end;
+    const keys = [
+      `${state.book} ${state.chapter}:${state.start}-${state.end}`,
+      `${state.book} ${state.chapter}:1-${chapterMax}`,
+      `${state.book} ${state.chapter}`,
+      state.book
+    ];
+    for (let v = state.start; v <= state.end; v += 1) {
+      keys.push(...bgReferenceVariantsV52(state.book, state.chapter, v));
+    }
+    return [...new Set(keys.filter(Boolean))];
+  }
+
+  function bgExtractIdsV52(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap(bgExtractIdsV52);
+    }
+
+    if (typeof value === "string") {
+      return [bgSlug(value.replace(/^topics\//i, "").replace(/\.json$/i, ""))].filter(Boolean);
+    }
+
+    if (typeof value === "object") {
+      const direct = value.id || value.topic || value.topicId || value.file || value.filename || value.slug;
+      if (direct) return bgExtractIdsV52(direct);
+
+      const bucket = value.topics || value.backgrounds || value.cards || value.items || value.topicIds || value.ids || value.entries;
+      if (bucket) return bgExtractIdsV52(bucket);
+
+      // Some maps are shaped like { "genealogies": true, "temple": true }.
+      const boolKeys = Object.entries(value)
+        .filter(([, val]) => val === true || val === 1 || val === "true")
+        .map(([key]) => bgSlug(key));
+      if (boolKeys.length) return boolKeys;
+
+      // Last resort: walk object values, but avoid pulling Bible references as topic IDs.
+      return Object.entries(value).flatMap(([key, val]) => {
+        if (/reference|verse|chapter|book/i.test(key)) return [];
+        return bgExtractIdsV52(val);
+      });
+    }
+
+    return [];
+  }
+
+  function bgEntryReferencesV52(key, value) {
+    const refs = [key];
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      ["reference", "ref", "verse", "key", "scripture", "passage"].forEach((prop) => {
+        if (value[prop]) refs.push(...(Array.isArray(value[prop]) ? value[prop] : [value[prop]]));
+      });
+      if (Array.isArray(value.references)) refs.push(...value.references);
+    }
+    return refs.map(String).filter(Boolean);
+  }
+
+  function bgMapEntriesV52(map) {
+    if (!map) return [];
+    if (Array.isArray(map)) {
+      return map.map((item, i) => ({ key: item?.reference || item?.ref || item?.key || item?.passage || String(i), value: item }));
+    }
+    if (Array.isArray(map.items)) return bgMapEntriesV52(map.items);
+    if (Array.isArray(map.references)) return bgMapEntriesV52(map.references);
+    if (map.byReference && typeof map.byReference === "object") return bgMapEntriesV52(map.byReference);
+    if (map.referencesByVerse && typeof map.referencesByVerse === "object") return bgMapEntriesV52(map.referencesByVerse);
+    if (typeof map === "object") return Object.entries(map).map(([key, value]) => ({ key, value }));
+    return [];
+  }
+
+  function bgFindMappedIdsV52(map, mode = "exact") {
+    const state = bgCurrentStateV52();
+    const wanted = new Set(bgAllCurrentReferenceKeysV52().map(bgRefSlugV52));
+    const exactVerseWanted = new Set();
+    for (let v = state.start; v <= state.end; v += 1) {
+      bgReferenceVariantsV52(state.book, state.chapter, v).forEach((key) => exactVerseWanted.add(bgRefSlugV52(key)));
+    }
+    const chapterSlug = bgRefSlugV52(`${state.book} ${state.chapter}`);
+    const bookSlug = bgRefSlugV52(state.book);
+
+    const ids = [];
+    for (const entry of bgMapEntriesV52(map)) {
+      const refs = bgEntryReferencesV52(entry.key, entry.value);
+      const refSlugs = refs.map(bgRefSlugV52);
+      let match = false;
+
+      if (mode === "exact") {
+        match = refSlugs.some((slug) => wanted.has(slug) || exactVerseWanted.has(slug));
+      } else if (mode === "chapter") {
+        match = refSlugs.some((slug) => slug.startsWith(chapterSlug + "-") || slug === chapterSlug);
+      } else if (mode === "book") {
+        match = refSlugs.some((slug) => slug.startsWith(bookSlug + "-") || slug === bookSlug);
+      }
+
+      if (match) bgExtractIdsV52(entry.value).forEach((id) => ids.push(id));
+    }
+
+    return [...new Set(ids.filter(Boolean))];
+  }
+
+  function bgItemsFromIdsV52(index, ids) {
+    return [...new Set(ids)].map((id) => {
+      const cleanId = bgSlug(id);
+      return index.find((item) =>
+        bgSlug(item.id) === cleanId ||
+        bgSlug(item.file) === cleanId ||
+        bgSlug(String(item.file || "").replace(/\.json$/i, "")) === cleanId ||
+        bgSlug(item.title) === cleanId
+      ) || { id: cleanId, file: `${cleanId}.json`, title: cleanId.replace(/-/g, " "), summary: "" };
+    });
+  }
+
+  function bgIndexFallbackItemsV52(index, mode = "book") {
+    const state = bgCurrentStateV52();
+    const terms = [
+      `${state.book} ${state.chapter}`,
+      state.book,
+      bgSlug(`${state.book} ${state.chapter}`),
+      bgSlug(state.book)
+    ].map(String);
+
+    return (index || [])
+      .map((item) => {
+        const search = String(item._search || [item.title, item.id, item.file, item.category, item.summary, ...(item.tags || []), ...(item.searchTerms || [])].join(" ")).toLowerCase();
+        const slugSearch = String(item._slugSearch || bgSlug(search));
+        let score = 0;
+        if (search.includes(String(state.book).toLowerCase())) score += 20;
+        if (slugSearch.includes(bgSlug(state.book))) score += 20;
+        if (search.includes(`${String(state.book).toLowerCase()} ${state.chapter}`) || slugSearch.includes(bgSlug(`${state.book} ${state.chapter}`))) score += 35;
+        return { item, score };
+      })
+      .filter((row) => row.score > 0)
+      .sort((a, b) => b.score - a.score || String(a.item.title).localeCompare(String(b.item.title)))
+      .slice(0, mode === "chapter" ? 12 : 8)
+      .map((row) => row.item);
+  }
+
+  function bgSectionHtmlV52(title, items, emptyText, open = true) {
+    return `
+      <details class="backgrounds-current" ${open ? "open" : ""} style="margin-bottom:12px;">
+        <summary style="cursor:pointer;font-weight:900;margin-bottom:8px;">${escapeHtml(title)} (${items.length})</summary>
+        <div style="margin-top:8px;">${items.length ? renderBackgroundTopicButtonsDJ(items) : `<p class="empty">${escapeHtml(emptyText)}</p>`}</div>
+      </details>
+    `;
+  }
+
+  buildBackgroundHomeHtmlDJ = async function buildBackgroundHomeHtmlDJV52() {
+    const index = await loadBackgroundIndexDJ();
+    const map = await loadBackgroundMapDJ($("book").value);
+
+    const exactItems = bgItemsFromIdsV52(index, bgFindMappedIdsV52(map, "exact"));
+    const chapterItems = bgItemsFromIdsV52(index, bgFindMappedIdsV52(map, "chapter"))
+      .filter((item) => !exactItems.some((x) => bgSlug(x.id) === bgSlug(item.id)));
+    const bookItems = bgItemsFromIdsV52(index, bgFindMappedIdsV52(map, "book"))
+      .filter((item) => !exactItems.concat(chapterItems).some((x) => bgSlug(x.id) === bgSlug(item.id)));
+
+    const fallbackChapter = !exactItems.length && !chapterItems.length ? bgIndexFallbackItemsV52(index, "chapter") : [];
+    const fallbackBook = !exactItems.length && !chapterItems.length && !fallbackChapter.length ? bgIndexFallbackItemsV52(index, "book") : [];
+
+    const anyMapped = exactItems.length || chapterItems.length || bookItems.length || fallbackChapter.length || fallbackBook.length;
+
+    return `
+      <div class="backgrounds-home-v51 backgrounds-home-v52">
+        <div class="backgrounds-intro" style="margin-bottom:12px;">
+          <p style="font-weight:900;line-height:1.45;margin:0;">
+            Bible Backgrounds &amp; Customs for <strong>${escapeHtml(bgStateLabel())}</strong>.
+          </p>
+        </div>
+
+        ${exactItems.length ? bgSectionHtmlV52("Current Passage Backgrounds", exactItems, "No exact background cards mapped to this passage yet.", true) : ""}
+        ${chapterItems.length ? bgSectionHtmlV52("Related Chapter Backgrounds", chapterItems, "No chapter background cards found.", !exactItems.length) : ""}
+        ${bookItems.length ? bgSectionHtmlV52("Related Book Backgrounds", bookItems, "No book background cards found.", !exactItems.length && !chapterItems.length) : ""}
+        ${fallbackChapter.length ? bgSectionHtmlV52("Related Chapter Backgrounds", fallbackChapter, "No chapter background cards found.", true) : ""}
+        ${fallbackBook.length ? bgSectionHtmlV52("Related Book Backgrounds", fallbackBook, "No book background cards found.", true) : ""}
+
+        ${!anyMapped ? `
+          <div class="backgrounds-clean-empty" style="margin-bottom:12px;">
+            No background card is linked to this exact passage, chapter, or book yet. Search the full Bible Backgrounds &amp; Customs library below.
+          </div>
+        ` : ""}
+
+        ${backgroundSuggestionChipsV51()}
+        <input class="backgrounds-search-box" type="search" placeholder="Search background topics like Sabbath, temple, wells, shepherds...">
+        <div class="backgrounds-results"></div>
+      </div>
+    `;
+  };
+
+
   document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
