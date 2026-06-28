@@ -19622,5 +19622,136 @@ body:not(.dark) #openCopyScriptureFromTools:focus-visible {
 })();
 </script>
 
+
+<!-- Patch 45 — Persistent Scripture Back target label -->
+<script id="rdm-v45-persistent-scripture-back-target-label">
+(function rdmV45PersistentScriptureBackTargetLabel(){
+  if (window.__rdmV45PersistentScriptureBackTargetLabel) return;
+  window.__rdmV45PersistentScriptureBackTargetLabel = true;
+
+  function get(id) { return document.getElementById(id); }
+
+  function normalizeState(state) {
+    if (!state) return null;
+    const start = String(state.start || "1");
+    return {
+      book: String(state.book || "").trim() || "Scripture",
+      chapter: String(state.chapter || "").trim() || "1",
+      start,
+      end: String(state.end || start)
+    };
+  }
+
+  function stateLabel(state) {
+    const s = normalizeState(state);
+    if (!s) return "";
+    return s.start === s.end ? `${s.book} ${s.chapter}:${s.start}` : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
+  }
+
+  function nextBackTarget() {
+    const stacks = [
+      window.__rdmScriptureBackStackV42,
+      window.__rdmCrossReferenceBackStack,
+      window.__rdmScriptureBackStackV41
+    ];
+
+    for (const stack of stacks) {
+      if (Array.isArray(stack) && stack.length) {
+        const target = normalizeState(stack[stack.length - 1]);
+        if (target) return target;
+      }
+    }
+
+    try {
+      if (typeof previousPassageState !== "undefined" && previousPassageState) return normalizeState(previousPassageState);
+    } catch (_) {}
+
+    return normalizeState(window.previousPassageState);
+  }
+
+  function desiredBackText() {
+    const label = stateLabel(nextBackTarget());
+    return label ? `← Back to ${label}` : "← Back";
+  }
+
+  function applyBackLabel() {
+    const button = get("scriptureBackBtn");
+    if (!button) return;
+
+    const text = desiredBackText();
+    if (button.textContent !== text) button.textContent = text;
+
+    const targetText = text.replace(/^←\s*Back(?:\s*to\s*)?/, "").trim();
+    if (targetText && targetText !== text) {
+      button.title = `Back to ${targetText}`;
+      button.setAttribute("aria-label", `Back to ${targetText}`);
+    } else {
+      button.title = "No previous Scripture passage yet";
+      button.setAttribute("aria-label", "Back to previous Scripture passage");
+    }
+  }
+
+  function scheduleBackLabel() {
+    applyBackLabel();
+    requestAnimationFrame(applyBackLabel);
+    setTimeout(applyBackLabel, 40);
+    setTimeout(applyBackLabel, 160);
+    setTimeout(applyBackLabel, 420);
+    setTimeout(applyBackLabel, 760);
+  }
+
+  function observeButton() {
+    const button = get("scriptureBackBtn");
+    if (!button || button.__rdmV45BackLabelObserver) return;
+
+    const observer = new MutationObserver(function(){
+      const expected = desiredBackText();
+      if (button.textContent !== expected) {
+        setTimeout(applyBackLabel, 0);
+      }
+    });
+
+    observer.observe(button, { childList: true, characterData: true, subtree: true });
+    button.__rdmV45BackLabelObserver = observer;
+    scheduleBackLabel();
+  }
+
+  const previousUpdateV42 = window.rdmUpdateScriptureBackButtonV42;
+  if (typeof previousUpdateV42 === "function" && !previousUpdateV42.__rdmV45Wrapped) {
+    const wrapped = function rdmV45UpdateScriptureBackButtonPersistentLabel() {
+      const result = previousUpdateV42.apply(this, arguments);
+      scheduleBackLabel();
+      return result;
+    };
+    wrapped.__rdmV45Wrapped = true;
+    window.rdmUpdateScriptureBackButtonV42 = wrapped;
+  }
+
+  ["click", "change", "input"].forEach(function(eventName) {
+    document.addEventListener(eventName, function(event) {
+      if (eventName === "input" && !event.target?.matches?.("#book,#chapter,#start,#end,#rangeSize")) return;
+      scheduleBackLabel();
+    }, true);
+  });
+
+  function start() {
+    observeButton();
+    scheduleBackLabel();
+    setTimeout(function(){ observeButton(); scheduleBackLabel(); }, 120);
+    setTimeout(function(){ observeButton(); scheduleBackLabel(); }, 650);
+    setTimeout(function(){ observeButton(); scheduleBackLabel(); }, 1600);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
+</script>
+<script id="rdm-v45-mobile-shell-marker">
+(function rdmV45Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v45-persistent-scripture-back-label";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v45-persistent-scripture-back-label";
+})();
+</script>
+
 </body>
 </html>
