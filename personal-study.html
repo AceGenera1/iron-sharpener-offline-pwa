@@ -2312,7 +2312,7 @@ body.dark .readerSection h3 { color: var(--soft-copper); }
 
 
 
-/* v65 — Freewrite Reader + Metadata Polish */
+/* v66 — Freewrite Reader + Metadata Polish */
 .freewriteMetaBox {
   margin-top: 12px;
   padding: 12px;
@@ -2683,7 +2683,7 @@ body.dark .freewriteMetaBox {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v65-freewrite-reader-polish";
+  const VERSION = "v66-save-as-new-edit-mode";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4017,6 +4017,7 @@ const verseCounts = {
   const MARKS_KEY = "ironSharpenerDiscipleJournal.verseMarks";
   let db = null;
   let currentEntryId = null;
+  let editingSavedEntry = false;
   let currentPassageVerses = [];
   let copyMode = null;
   let markMode = null;
@@ -4231,10 +4232,11 @@ const verseCounts = {
   function collectEntry() {
     const now = new Date().toISOString();
     const values = Object.fromEntries(fields.map((id) => [id, $(id).value.trim()]));
+    const shouldUpdateExisting = editingSavedEntry && !!currentEntryId;
     return {
-      id: currentEntryId || makeId(),
+      id: shouldUpdateExisting ? currentEntryId : makeId(),
       version: VERSION,
-      createdAt: currentEntryId ? undefined : now,
+      createdAt: shouldUpdateExisting ? undefined : now,
       updatedAt: now,
       studyDate: $("entryDate").value || todayIso(),
       reference: currentReference(),
@@ -4249,7 +4251,7 @@ const verseCounts = {
   }
 
   async function saveEntry() {
-    const existingId = currentEntryId;
+    const existingId = editingSavedEntry ? currentEntryId : null;
     const entry = collectEntry();
     if (existingId) {
       const all = await getAllEntries();
@@ -4260,14 +4262,16 @@ const verseCounts = {
     }
     await putEntry(entry);
     currentEntryId = entry.id;
-    $("entryMode").textContent = "Saved entry";
-    setStatus("Saved");
+    editingSavedEntry = true;
+    $("entryMode").textContent = "Editing saved entry";
+    setStatus(existingId ? "Updated saved entry" : "Saved new entry");
     localStorage.removeItem(DRAFT_KEY);
     await renderHistory();
   }
 
-  function applyEntry(entry) {
-    currentEntryId = entry.id;
+  function applyEntry(entry, asEdit = true) {
+    currentEntryId = asEdit ? entry.id : null;
+    editingSavedEntry = !!asEdit;
     if (entry.ref) {
       $("book").value = entry.ref.book || "John";
       populateChapters();
@@ -4295,8 +4299,8 @@ const verseCounts = {
     if ($("freewriteFavoriteEntry")) $("freewriteFavoriteEntry").checked = !!entry.favorite;
     if ($("freewriteReviewLater")) $("freewriteReviewLater").checked = !!entry.reviewLater;
     setJournalMode(entryReaderMode(entry));
-    $("entryMode").textContent = "Editing saved entry";
-    setStatus("Loaded");
+    $("entryMode").textContent = asEdit ? "Editing saved entry" : "Loaded as new entry";
+    setStatus(asEdit ? "Loaded for editing" : "Loaded as new entry");
     loadPassage();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -4325,7 +4329,7 @@ const verseCounts = {
         if (event.target.closest("button")) return;
         const entries = await getAllEntries();
         const entry = entries.find((candidate) => candidate.id === item.dataset.id);
-        if (entry) applyEntry(entry);
+        if (entry) openJournalReader([entry], 0, "single");
       });
     });
     list.querySelectorAll(".editEntryBtn").forEach((btn) => {
@@ -4334,7 +4338,7 @@ const verseCounts = {
         event.stopPropagation();
         const entries = await getAllEntries();
         const entry = entries.find((candidate) => candidate.id === btn.dataset.id);
-        if (entry) applyEntry(entry);
+        if (entry) applyEntry(entry, true);
       });
     });
     list.querySelectorAll(".readEntryBtn").forEach((btn) => {
@@ -4491,7 +4495,7 @@ const verseCounts = {
       const entry = readerEntries[readerIndex];
       if (!entry) return;
       closeJournalReader();
-      applyEntry(entry);
+      applyEntry(entry, true);
     };
     if ($("readerCopyBtn")) $("readerCopyBtn").onclick = async () => {
       const entry = readerEntries[readerIndex];
@@ -4515,6 +4519,7 @@ const verseCounts = {
 
   function newEntry() {
     currentEntryId = null;
+    editingSavedEntry = false;
     fields.forEach((id) => { if ($(id)) $(id).value = ""; });
     $("favoriteEntry").checked = false;
     $("reviewLater").checked = false;
@@ -4522,6 +4527,7 @@ const verseCounts = {
     if ($("freewriteReviewLater")) $("freewriteReviewLater").checked = false;
     $("entryDate").value = todayIso();
     setJournalMode("guided");
+    editingSavedEntry = false;
     $("entryMode").textContent = "New entry";
     setStatus("New entry ready");
     localStorage.removeItem(DRAFT_KEY);
@@ -4530,6 +4536,7 @@ const verseCounts = {
   function autosaveDraft() {
     const draft = collectEntry();
     draft.id = currentEntryId;
+    draft.editingSavedEntry = editingSavedEntry;
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     setStatus(currentEntryId ? "Draft updated" : "Draft ready");
   }
@@ -4541,6 +4548,7 @@ const verseCounts = {
       const draft = JSON.parse(raw);
       if (!draft || (!draft.title && !Object.values(draft.notes || {}).some(Boolean))) return false;
       currentEntryId = draft.id || null;
+      editingSavedEntry = !!draft.editingSavedEntry && !!currentEntryId;
       if (draft.ref) {
         $("book").value = draft.ref.book || "John";
         populateChapters();
@@ -5474,7 +5482,7 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
 
 
 
-/* v65 — Freewrite Reader + Metadata Polish */
+/* v66 — Freewrite Reader + Metadata Polish */
 .freewriteMetaBox {
   margin-top: 12px;
   padding: 12px;
