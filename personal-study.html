@@ -2051,6 +2051,47 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn:hover
   }
 }
 
+
+/* v61 — Back to Previous Scripture behavior + Disciple Journal styling */
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
+  display: none !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  display: inline-flex !important;
+  grid-column: 1 / -1 !important;
+  justify-self: end !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 34px !important;
+  padding: 8px 15px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
+  color: #203D39 !important;
+  border: 1.5px solid rgba(217,160,123,.95) !important;
+  box-shadow: 0 7px 18px rgba(32,61,57,.14) !important;
+  opacity: 1 !important;
+}
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
+  color: #203D39 !important;
+  border-color: rgba(248,217,135,.92) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.22), 0 0 14px rgba(248,217,135,.12) !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover,
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover {
+  background: linear-gradient(180deg, #FFE8A7, #E7AA80) !important;
+  transform: translateY(-1px);
+}
+@media (max-width: 650px) {
+  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4914,6 +4955,47 @@ body.dark .verse.highlight-blue{background:linear-gradient(90deg,rgba(92,145,230
 body.dark .inline-highlight-blue,body.dark .inline-highlight-green,body.dark .inline-highlight-red,body.dark .inline-highlight-purple,body.dark .inline-highlight-amber{color:#fff8ef}
 @media(max-width:650px){.markColorGrid,.markBasicGrid{grid-template-columns:1fr!important}.markColorBtn{min-height:106px!important}}
 
+
+/* v61 — Back to Previous Scripture behavior + Disciple Journal styling */
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
+  display: none !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  display: inline-flex !important;
+  grid-column: 1 / -1 !important;
+  justify-self: end !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 34px !important;
+  padding: 8px 15px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
+  color: #203D39 !important;
+  border: 1.5px solid rgba(217,160,123,.95) !important;
+  box-shadow: 0 7px 18px rgba(32,61,57,.14) !important;
+  opacity: 1 !important;
+}
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
+  color: #203D39 !important;
+  border-color: rgba(248,217,135,.92) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.22), 0 0 14px rgba(248,217,135,.12) !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover,
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover {
+  background: linear-gradient(180deg, #FFE8A7, #E7AA80) !important;
+  transform: translateY(-1px);
+}
+@media (max-width: 650px) {
+  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
+
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
@@ -6613,18 +6695,107 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     }
   }
 
+  let discipleJournalLastLoadedScriptureState = null;
+  let discipleJournalPreviousScriptureState = null;
+  let discipleJournalRestoringPreviousScripture = false;
+
+  function getCurrentScriptureState() {
+    return {
+      book: $("book")?.value || "",
+      chapter: $("chapter")?.value || "1",
+      start: $("start")?.value || "1",
+      end: $("end")?.value || $("start")?.value || "1"
+    };
+  }
+
+  function scriptureStateKey(state) {
+    if (!state) return "";
+    return `${state.book}|${state.chapter}|${state.start}|${state.end}`;
+  }
+
+  function scriptureRefFromState(state) {
+    if (!state) return "Scripture";
+    const start = parseInt(state.start || "1", 10);
+    const end = parseInt(state.end || state.start || "1", 10);
+    return start === end
+      ? `${state.book} ${state.chapter}:${start}`
+      : `${state.book} ${state.chapter}:${start}-${end}`;
+  }
+
+  function updateBackToScriptureButton() {
+    const btn = $("backToScriptureBtn");
+    if (!btn) return;
+
+    if (!discipleJournalPreviousScriptureState) {
+      btn.classList.remove("has-back-target");
+      btn.setAttribute("aria-hidden", "true");
+      btn.textContent = "← Back to Scripture";
+      return;
+    }
+
+    btn.classList.add("has-back-target");
+    btn.setAttribute("aria-hidden", "false");
+    btn.textContent = `← Back to ${scriptureRefFromState(discipleJournalPreviousScriptureState)}`;
+  }
+
+  function rememberPreviousScriptureState(state) {
+    if (!state) return;
+    const current = getCurrentScriptureState();
+    if (scriptureStateKey(state) === scriptureStateKey(current)) return;
+    discipleJournalPreviousScriptureState = { ...state };
+    updateBackToScriptureButton();
+  }
+
+  async function restorePreviousScriptureState() {
+    if (!discipleJournalPreviousScriptureState) {
+      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    const target = { ...discipleJournalPreviousScriptureState };
+    discipleJournalPreviousScriptureState = null;
+    updateBackToScriptureButton();
+
+    saveCurrentDraftNow();
+    discipleJournalRestoringPreviousScripture = true;
+
+    try {
+      $("book").value = target.book;
+      populateChapters();
+      $("chapter").value = String(target.chapter || "1");
+      populateVerses();
+      $("start").value = String(target.start || "1");
+      $("end").value = String(target.end || target.start || "1");
+      await loadPassage();
+      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } finally {
+      discipleJournalRestoringPreviousScripture = false;
+      updateBackToScriptureButton();
+    }
+  }
+
   const __discipleJournalBaseLoadPassage = loadPassage;
   loadPassage = async function() {
+    const nextState = getCurrentScriptureState();
+
+    if (
+      !discipleJournalRestoringPreviousScripture &&
+      discipleJournalLastLoadedScriptureState &&
+      scriptureStateKey(discipleJournalLastLoadedScriptureState) !== scriptureStateKey(nextState)
+    ) {
+      rememberPreviousScriptureState(discipleJournalLastLoadedScriptureState);
+    }
+
     await __discipleJournalBaseLoadPassage();
+    discipleJournalLastLoadedScriptureState = { ...nextState };
+    updateBackToScriptureButton();
     await refreshOpenStudyPanelsForCurrentPassage();
   };
 
   function bindEvents() {
     setupExistingFloatingPanels();
     $("studyModeBtn").addEventListener("click", openStudyMode);
-    $("backToScriptureBtn")?.addEventListener("click", () => {
-      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    $("backToScriptureBtn")?.addEventListener("click", restorePreviousScriptureState);
     $("openMarkToolsBtn").addEventListener("click", openMarkTools);
     $("closeMarkToolsBtn").addEventListener("click", closeMarkTools);
     $("openStudyToolsBtn").addEventListener("click", openStudyTools);
