@@ -2013,6 +2013,44 @@ body.dark .verse.highlight-blue{background:linear-gradient(90deg,rgba(92,145,230
 body.dark .inline-highlight-blue,body.dark .inline-highlight-green,body.dark .inline-highlight-red,body.dark .inline-highlight-purple,body.dark .inline-highlight-amber{color:#fff8ef}
 @media(max-width:650px){.markColorGrid,.markBasicGrid{grid-template-columns:1fr!important}.markColorBtn{min-height:106px!important}}
 
+
+
+/* v60 — Back to Scripture repositioned into Scripture workspace */
+.heroActions #backToScriptureBtn { display: none !important; }
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
+  grid-column: 1 / -1 !important;
+  justify-self: end !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 34px !important;
+  padding: 7px 13px !important;
+  font-size: 13px !important;
+  line-height: 1.1 !important;
+  border-radius: 999px !important;
+  background: rgba(217,160,123,.10) !important;
+  color: var(--deep) !important;
+  border: 1px solid rgba(217,160,123,.72) !important;
+  box-shadow: none !important;
+  opacity: .96 !important;
+}
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
+  background: rgba(217,160,123,.13) !important;
+  color: var(--ink) !important;
+  border-color: rgba(217,160,123,.86) !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn:hover,
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn:hover {
+  background: rgba(217,160,123,.20) !important;
+  opacity: 1 !important;
+}
+@media (max-width: 650px) {
+  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2026,7 +2064,6 @@ body.dark .inline-highlight-blue,body.dark .inline-highlight-green,body.dark .in
     </div>
     <div>
       <div class="heroActions">
-        <button class="ghost" id="backToScriptureBtn" type="button">Back to Scripture</button>
         <button class="ghost" id="studyModeBtn" type="button">Disciple Maker Mode</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
@@ -2136,6 +2173,7 @@ body.dark .inline-highlight-blue,body.dark .inline-highlight-green,body.dark .in
     <section class="card scriptureCard">
       <div class="cardHead"><h2>Scripture Passage</h2>
         <div class="scriptureHeadActions">
+          <button class="secondary backScriptureInlineBtn" id="backToScriptureBtn" type="button">← Back to Scripture</button>
           <button class="secondary" id="openMarkToolsBtn" type="button">Mark Scripture</button>
           <button class="secondary" id="openStudyToolsBtn" type="button">Study Tools</button>
           <div class="copyMenuWrap">
