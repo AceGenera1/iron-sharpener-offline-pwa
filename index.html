@@ -21675,5 +21675,361 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side:has(.panel.
 })();
 </script>
 
+
+
+<!-- Patch 54 — Mobile Header, Notes Cards, Blank Reset, and Offline Badge Refinement -->
+<style id="rdm-v54-mobile-header-notes-reset-offline-polish">
+/*
+   v54 — Mobile shell refinement.
+   Scope: mobile app shell only. No desktop, OBS Focus, Scripture loading,
+   marking, copy, resources, or offline engine logic is changed.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  --rdm-mobile-nav-height: calc(88px + env(safe-area-inset-bottom, 0px));
+  --rdm-v54-notes-side-pad: clamp(18px, 4.8vw, 30px);
+  --rdm-v54-note-title-size: clamp(25px, 6.6vw, 34px);
+}
+
+/* Header: keep the tool name readable and stop the theme button from covering it. */
+html:not(.obs) body.rdm-mobile-app-shell .hero {
+  grid-template-columns: 54px minmax(0, 1fr) 78px !important;
+  align-items: center !important;
+  column-gap: 10px !important;
+  min-height: calc(92px + env(safe-area-inset-top, 0px)) !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 10px 10px 12px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .hero-main {
+  min-width: 0 !important;
+  text-align: left !important;
+  overflow: visible !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo {
+  width: 50px !important;
+  height: 50px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+  font-size: clamp(8px, 2.05vw, 9.5px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: clamp(1.2px, .45vw, 2px) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 0 3px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell h1 {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  font-size: clamp(24px, 6.2vw, 31px) !important;
+  line-height: .88 !important;
+  letter-spacing: .8px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+  justify-self: end !important;
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  min-height: 48px !important;
+  padding: 8px 6px !important;
+  border-radius: 18px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 374px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 48px minmax(0, 1fr) 70px !important;
+    column-gap: 8px !important;
+    padding-left: 9px !important;
+    padding-right: 8px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap { width: 47px !important; height: 47px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .logo { width: 45px !important; height: 45px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell h1 { font-size: 22px !important; letter-spacing: .45px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Notes list: use a reliable two-column card header that cannot clip the labels. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  width: 100% !important;
+  max-width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+  gap: clamp(18px, 4.6vw, 24px) !important;
+  padding-left: var(--rdm-v54-notes-side-pad) !important;
+  padding-right: var(--rdm-v54-notes-side-pad) !important;
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 28px) !important;
+  overflow-x: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) clamp(82px, 22vw, 98px) !important;
+  align-items: center !important;
+  gap: clamp(8px, 2.2vw, 12px) !important;
+  width: 100% !important;
+  min-height: 128px !important;
+  padding: 20px clamp(14px, 4vw, 20px) !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  display: block !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: var(--rdm-v54-note-title-size) !important;
+  line-height: 1.03 !important;
+  letter-spacing: 1.2px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+  box-sizing: border-box !important;
+  width: clamp(82px, 22vw, 98px) !important;
+  min-width: clamp(82px, 22vw, 98px) !important;
+  max-width: clamp(82px, 22vw, 98px) !important;
+  min-height: 58px !important;
+  padding: 8px 8px !important;
+  border-radius: 999px !important;
+  font-size: clamp(15px, 4vw, 17px) !important;
+  line-height: 1 !important;
+}
+
+/* The open editor remains clean and keeps only the action needed to show the presentation card. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title {
+  min-height: 132px !important;
+  border-bottom: 2px solid var(--gold) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > textarea {
+  width: calc(100% - 40px) !important;
+  min-height: min(48dvh, 390px) !important;
+  margin: 20px 20px 18px !important;
+  padding: 18px !important;
+  box-sizing: border-box !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideApplicationNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallApplicationNote {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Strong blank-screen guard: when no note is open, the chooser cards must be visible. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open.rdm-mobile-note-list-mode .side > .panel.rdm-mobile-note-card,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open:not(.rdm-mobile-note-expanded) .side > .panel.rdm-mobile-note-card {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open.rdm-mobile-note-list-mode .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > :not(.panel-title),
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open:not(.rdm-mobile-note-expanded) .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > :not(.panel-title) {
+  display: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open.rdm-mobile-note-list-mode .side > .panel.rdm-mobile-note-card > .panel-title,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open:not(.rdm-mobile-note-expanded) .side > .panel.rdm-mobile-note-card > .panel-title {
+  display: grid !important;
+}
+
+/* If a note is open, hide the other chooser cards. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open.rdm-mobile-note-expanded:not(.rdm-mobile-note-list-mode) .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open),
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side:has(.panel.rdm-mobile-note-card.rdm-mobile-note-open) > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) {
+  display: none !important;
+}
+
+/* Offline status: keep it visible, but stop it from covering Scripture text like a full-width banner. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePillV33,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-status-pill {
+  left: auto !important;
+  right: 12px !important;
+  bottom: calc(var(--rdm-mobile-nav-height) + 10px) !important;
+  width: auto !important;
+  max-width: min(210px, calc(100vw - 24px)) !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  font-size: clamp(11px, 3vw, 13px) !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  justify-content: center !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePillV33 .rdm-offline-status-dot,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-status-dot {
+  flex: 0 0 auto !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .layout {
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 112px) !important;
+}
+
+@media (max-width: 390px) {
+  html:not(.obs) body.rdm-mobile-app-shell {
+    --rdm-v54-notes-side-pad: 16px;
+    --rdm-v54-note-title-size: clamp(23px, 6.25vw, 28px);
+  }
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title {
+    grid-template-columns: minmax(0, 1fr) 82px !important;
+    min-height: 126px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 82px !important;
+    font-size: 15px !important;
+  }
+}
+</style>
+<script id="rdm-v54-mobile-header-notes-reset-offline-polish">
+(function rdmV54MobileHeaderNotesResetOfflinePolish(){
+  if (window.__rdmV54MobileHeaderNotesResetOfflinePolish) return;
+  window.__rdmV54MobileHeaderNotesResetOfflinePolish = true;
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs");
+  }
+
+  function normalizeTitle(text){
+    return (text || "").replace(/\s+/g, " ").trim();
+  }
+
+  function applyMobileNoteTitles(){
+    if (!isMobileShell()) return;
+    const replacements = new Map([
+      ["Teaching Notes", "Teaching Notes"],
+      ["Teaching Cross References", "Cross References"],
+      ["Application & Prayer", "Application & Prayer"],
+      ["Clip / Timestamp Notes", "Clip Notes"]
+    ]);
+
+    document.querySelectorAll(".side > .panel.rdm-mobile-note-card > .panel-title h3").forEach(function(title){
+      if (!title.dataset.rdmOriginalTitle) title.dataset.rdmOriginalTitle = normalizeTitle(title.textContent);
+      const original = title.dataset.rdmOriginalTitle;
+      const replacement = replacements.get(original);
+      if (replacement && normalizeTitle(title.textContent) !== replacement) title.textContent = replacement;
+    });
+  }
+
+  function syncNoteListMode(){
+    if (!document.body) return;
+    if (!isMobileShell() || !document.body.classList.contains("rdm-mobile-notes-open")) {
+      document.body.classList.remove("rdm-mobile-note-list-mode");
+      return;
+    }
+
+    applyMobileNoteTitles();
+
+    const openPanels = document.querySelectorAll(".side > .panel.rdm-mobile-note-card.rdm-mobile-note-open");
+    const hasOpen = openPanels.length > 0;
+    document.body.classList.toggle("rdm-mobile-note-expanded", hasOpen);
+    document.body.classList.toggle("rdm-mobile-note-list-mode", !hasOpen);
+
+    document.querySelectorAll(".side > .panel.rdm-mobile-note-card").forEach(function(panel){
+      const header = panel.querySelector(":scope > .panel-title");
+      if (header) header.setAttribute("aria-expanded", panel.classList.contains("rdm-mobile-note-open") ? "true" : "false");
+      if (!hasOpen) {
+        panel.style.removeProperty("display");
+        panel.style.removeProperty("visibility");
+      }
+    });
+  }
+
+  function scheduleSync(){
+    setTimeout(syncNoteListMode, 0);
+    setTimeout(syncNoteListMode, 60);
+    setTimeout(syncNoteListMode, 180);
+    setTimeout(syncNoteListMode, 360);
+  }
+
+  window.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+    if (event.target.closest(".side > .panel.rdm-mobile-note-card > .panel-title") ||
+        event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action]") ||
+        event.target.closest("[data-rdm-mobile-close]") ||
+        event.target.closest("#closeTeachingPresentation") ||
+        event.target.closest("#closeApplicationPresentation")) {
+      scheduleSync();
+    }
+  }, true);
+
+  window.addEventListener("keydown", function(event){
+    if ((event.key === "Enter" || event.key === " ") && isMobileShell()) scheduleSync();
+    if (event.key === "Escape" && isMobileShell()) scheduleSync();
+  }, true);
+
+  ["resize", "orientationchange"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(syncNoteListMode, name === "orientationchange" ? 260 : 0); });
+  });
+
+  function start(){
+    applyMobileNoteTitles();
+    syncNoteListMode();
+    setTimeout(function(){ applyMobileNoteTitles(); syncNoteListMode(); }, 250);
+    setTimeout(function(){ applyMobileNoteTitles(); syncNoteListMode(); }, 900);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.rdmV54SyncMobileNotesListMode = syncNoteListMode;
+})();
+</script>
+<script id="rdm-v54-mobile-shell-marker">
+(function rdmV54Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v54-mobile-header-notes-reset-offline-polish";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v54-mobile-header-notes-reset-offline-polish";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
+
 </body>
 </html>
