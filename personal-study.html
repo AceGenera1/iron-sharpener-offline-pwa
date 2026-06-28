@@ -2392,6 +2392,46 @@ label[for="freewriteTags"] {
   display: none !important;
 }
 
+
+/* v72 — Color-aware underline and circle marks */
+.markColorBtn.selectedMarkColor:not(.markActive) {
+  outline: 2px solid var(--soft-copper) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(217,160,123,.16) !important;
+}
+body.dark .markColorBtn.selectedMarkColor:not(.markActive) {
+  box-shadow: 0 0 0 4px rgba(217,160,123,.20), 0 0 16px rgba(217,160,123,.13) !important;
+}
+.verse.underlined.underline-gold { text-decoration-color: var(--soft-copper) !important; }
+.verse.underlined.underline-blue { text-decoration-color: #5C91E6 !important; }
+.verse.underlined.underline-green { text-decoration-color: #4DBB83 !important; }
+.verse.underlined.underline-red { text-decoration-color: #DD4D4D !important; }
+.verse.underlined.underline-purple { text-decoration-color: #9D63D6 !important; }
+.verse.underlined.underline-amber { text-decoration-color: #F28B33 !important; }
+.verse.circled.circle-gold { outline-color: rgba(217,160,123,.78) !important; }
+.verse.circled.circle-blue { outline-color: rgba(92,145,230,.78) !important; }
+.verse.circled.circle-green { outline-color: rgba(77,187,131,.78) !important; }
+.verse.circled.circle-red { outline-color: rgba(221,77,77,.78) !important; }
+.verse.circled.circle-purple { outline-color: rgba(157,99,214,.78) !important; }
+.verse.circled.circle-amber { outline-color: rgba(242,139,51,.80) !important; }
+.inline-underline.inline-mark-gold { text-decoration-color: var(--soft-copper) !important; }
+.inline-underline.inline-mark-blue { text-decoration-color: #5C91E6 !important; }
+.inline-underline.inline-mark-green { text-decoration-color: #4DBB83 !important; }
+.inline-underline.inline-mark-red { text-decoration-color: #DD4D4D !important; }
+.inline-underline.inline-mark-purple { text-decoration-color: #9D63D6 !important; }
+.inline-underline.inline-mark-amber { text-decoration-color: #F28B33 !important; }
+.inline-circle.inline-mark-gold { border-color: var(--soft-copper) !important; }
+.inline-circle.inline-mark-blue { border-color: #5C91E6 !important; }
+.inline-circle.inline-mark-green { border-color: #4DBB83 !important; }
+.inline-circle.inline-mark-red { border-color: #DD4D4D !important; }
+.inline-circle.inline-mark-purple { border-color: #9D63D6 !important; }
+.inline-circle.inline-mark-amber { border-color: #F28B33 !important; }
+body.dark .inline-circle.inline-mark-blue { box-shadow: 0 0 12px rgba(92,145,230,.16); }
+body.dark .inline-circle.inline-mark-green { box-shadow: 0 0 12px rgba(77,187,131,.16); }
+body.dark .inline-circle.inline-mark-red { box-shadow: 0 0 12px rgba(221,77,77,.16); }
+body.dark .inline-circle.inline-mark-purple { box-shadow: 0 0 12px rgba(157,99,214,.16); }
+body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,51,.16); }
+
 </style>
 </head>
 <body>
@@ -2746,7 +2786,7 @@ label[for="freewriteTags"] {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v71-copy-entry-clean-history-actions";
+  const VERSION = "v72-color-aware-underline-circle";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4084,6 +4124,7 @@ const verseCounts = {
   let currentPassageVerses = [];
   let copyMode = null;
   let markMode = null;
+  let activeMarkColor = "highlight-gold";
   let selectedCopyVerses = new Set();
   let historyFilter = "all";
 
@@ -6317,6 +6358,32 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     return `${$("book").value}|${$("chapter").value}|${verseNum}`;
   }
 
+  const MARK_COLOR_NAMES = ["gold", "blue", "green", "red", "purple", "amber"];
+
+  function normalizeMarkColor(value) {
+    if (value === true || value === "highlight" || value === "gold") return "highlight-gold";
+    const raw = String(value || "").trim();
+    if (raw.startsWith("highlight-") && MARK_COLOR_NAMES.includes(raw.replace("highlight-", ""))) return raw;
+    if (MARK_COLOR_NAMES.includes(raw)) return `highlight-${raw}`;
+    return "highlight-gold";
+  }
+
+  function markColorName(value = activeMarkColor) {
+    return normalizeMarkColor(value).replace("highlight-", "");
+  }
+
+  function markColorLabel(value = activeMarkColor) {
+    const labels = { gold: "Gold", blue: "Blue", green: "Green", red: "Red", purple: "Purple", amber: "Amber" };
+    return labels[markColorName(value)] || "Gold";
+  }
+
+  function removeMarkColorClasses(el) {
+    if (!el || !el.classList) return;
+    MARK_COLOR_NAMES.forEach((name) => {
+      el.classList.remove(`underline-${name}`, `circle-${name}`);
+    });
+  }
+
   function markModeLabel(mode = markMode) {
     const labels = {
       "highlight": "Gold Highlight", "highlight-gold": "Gold Highlight", "highlight-blue": "Blue Highlight",
@@ -6329,11 +6396,16 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   function markModeHint() {
     if (!markMode) return "Use Copy Scripture to copy one verse, selected verses, or the loaded passage.";
     if (markMode === "erase") return "Erase marks mode: click a marked word, phrase, or verse to remove its marks.";
+    if (markMode === "underline") return `Underline mode (${markColorLabel()}): select text first, then click inside that verse; or click a verse to underline it.`;
+    if (markMode === "circle") return `Circle mode (${markColorLabel()}): select text first, then click inside that verse; or click a verse to circle it.`;
     return `${markModeLabel()} mode: select a word or phrase first, then click inside that verse; or click a verse to mark the whole verse.`;
   }
 
   function updateMarkButtons() {
-    document.querySelectorAll(".markToolBtn").forEach((btn) => btn.classList.toggle("markActive", btn.dataset.mark === markMode));
+    document.querySelectorAll(".markToolBtn").forEach((btn) => {
+      btn.classList.toggle("markActive", btn.dataset.mark === markMode);
+      btn.classList.toggle("selectedMarkColor", btn.dataset.mark === activeMarkColor && markMode !== activeMarkColor);
+    });
     document.querySelectorAll(".verse").forEach((el) => el.classList.toggle("markingSelectable", !!markMode));
     const hint = $("copyHint");
     if (hint) hint.textContent = markModeHint();
@@ -6345,13 +6417,22 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     document.querySelectorAll(".verse[data-verse]").forEach((verse) => {
       const data = marks[verseMarkKey(verse.dataset.verse)] || {};
       highlightClasses.forEach(cls => verse.classList.remove(cls));
-      const savedHighlight = data.highlight === true ? "highlight-gold" : (typeof data.highlight === "string" ? data.highlight : "");
+      removeMarkColorClasses(verse);
+      const savedHighlight = data.highlight === true ? "highlight-gold" : (typeof data.highlight === "string" ? normalizeMarkColor(data.highlight) : "");
       if (savedHighlight) {
         verse.classList.add(savedHighlight);
         if (savedHighlight === "highlight-gold") verse.classList.add("highlighted");
       }
-      verse.classList.toggle("underlined", !!data.underline);
-      verse.classList.toggle("circled", !!data.circle);
+      if (data.underline) {
+        verse.classList.add("underlined", `underline-${markColorName(data.underline)}`);
+      } else {
+        verse.classList.remove("underlined");
+      }
+      if (data.circle) {
+        verse.classList.add("circled", `circle-${markColorName(data.circle)}`);
+      } else {
+        verse.classList.remove("circled");
+      }
       verse.classList.toggle("markingSelectable", !!markMode);
       if (data.inlineHtml) verse.innerHTML = data.inlineHtml;
     });
@@ -6359,10 +6440,12 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
   function setMarkMode(mode) {
     clearCopySelection();
+    if (mode && String(mode).startsWith("highlight")) activeMarkColor = normalizeMarkColor(mode);
     markMode = mode || null;
     updateMarkButtons();
     if (markMode) {
-      setStatus(`${markModeLabel()} mode`);
+      if (markMode === "underline" || markMode === "circle") setStatus(`${markModeLabel()} mode (${markColorLabel()})`);
+      else setStatus(`${markModeLabel()} mode`);
     } else {
       setStatus("Marking off");
     }
@@ -6387,14 +6470,19 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       delete marks[key];
       saveVerseMarks(marks);
       verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled");
+      removeMarkColorClasses(verse);
       removeInlineMarksFromVerse(verse);
       applySavedMarks();
       setStatus("Marks erased");
       return;
     }
     if (markMode && markMode.startsWith("highlight")) {
-      const selectedColor = markMode === "highlight" ? "highlight-gold" : markMode;
-      current.highlight = current.highlight === selectedColor ? false : selectedColor;
+      const selectedColor = normalizeMarkColor(markMode);
+      activeMarkColor = selectedColor;
+      current.highlight = normalizeMarkColor(current.highlight) === selectedColor && current.highlight ? false : selectedColor;
+    } else if (markMode === "underline" || markMode === "circle") {
+      const selectedColor = normalizeMarkColor(activeMarkColor);
+      current[markMode] = current[markMode] && normalizeMarkColor(current[markMode]) === selectedColor ? false : selectedColor;
     } else {
       current[markMode] = !current[markMode];
     }
@@ -6404,16 +6492,26 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     saveVerseMarks(marks);
     applySavedMarks();
     const markAdded = markMode && markMode.startsWith("highlight") ? !!current.highlight : !!current[markMode];
-    setStatus(`${markModeLabel()} ${markAdded ? "added" : "removed"}`);
+    const colorText = markMode === "underline" || markMode === "circle" ? ` (${markColorLabel(current[markMode] || activeMarkColor)})` : "";
+    setStatus(`${markModeLabel()}${colorText} ${markAdded ? "added" : "removed"}`);
   }
 
   function applyMarkToSelection(verse) {
     if (!markMode || markMode === "erase") return false;
-    const className = (markMode && markMode.startsWith("highlight")) ? `inline-${markMode === "highlight" ? "highlight-gold" : markMode}` : markMode === "underline" ? "inline-underline" : markMode === "circle" ? "inline-circle" : "";
+    let className = "";
+    if (markMode && markMode.startsWith("highlight")) {
+      activeMarkColor = normalizeMarkColor(markMode);
+      className = `inline-${activeMarkColor}`;
+    } else if (markMode === "underline") {
+      className = `inline-underline inline-mark-${markColorName(activeMarkColor)}`;
+    } else if (markMode === "circle") {
+      className = `inline-circle inline-mark-${markColorName(activeMarkColor)}`;
+    }
     if (!className) return false;
     if (!wrapSelectedTextInVerse(verse, className)) return false;
     saveCurrentVerseInlineHtml(verse);
-    setStatus(`${markModeLabel()} applied to selected text`);
+    const colorText = markMode === "underline" || markMode === "circle" ? ` (${markColorLabel()})` : "";
+    setStatus(`${markModeLabel()}${colorText} applied to selected text`);
     return true;
   }
 
@@ -6471,6 +6569,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     saveVerseMarks(marks);
     document.querySelectorAll(".verse").forEach((verse) => {
       verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled");
+      removeMarkColorClasses(verse);
       removeInlineMarksFromVerse(verse);
     });
     applySavedMarks();
