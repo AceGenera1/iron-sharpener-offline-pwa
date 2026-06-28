@@ -288,7 +288,7 @@
   .copyMenu.open { display: grid; }
   .copyMenu button { width: 100%; text-align: left; box-shadow: none; padding: 9px 10px; }
 
-/* v67 — Journal Export Options */
+/* v68 — Remove Individual Entry Export */
 .exportMenuWrap {
   position: relative;
   display: inline-flex;
@@ -2734,7 +2734,7 @@ body.dark .freewriteMetaBox {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v67-journal-export-options";
+  const VERSION = "v68-remove-individual-entry-export";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4373,7 +4373,7 @@ const verseCounts = {
     list.innerHTML = filtered.map((entry) => {
       const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.feetSensed, entry.notes?.freewrite, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
       const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit</span>' : ''}`;
-      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button><button class="secondary exportEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Export</button></div></div>`;
+      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button></div></div>`;
     }).join("");
     list.querySelectorAll(".entryItem").forEach((item) => {
       item.addEventListener("click", async (event) => {
