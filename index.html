@@ -17278,9 +17278,15 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
 
   function applyMobileShellMode() {
     if (!document.body) return;
-    ensureMobileShellDom();
 
     const enabled = mobileShellShouldRun();
+
+    // v38 stability: only create mobile-only DOM on touch/mobile devices.
+    // Desktop keeps the original PC layout without inserted mobile controls.
+    if (enabled) {
+      ensureMobileShellDom();
+    }
+
     document.body.classList.toggle("rdm-mobile-app-shell", enabled);
 
     if (!enabled) {
@@ -17310,7 +17316,7 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
   });
 
   function start() {
-    ensureMobileShellDom();
+    // v38 stability: do not inject mobile UI on desktop during startup.
     applyMobileShellMode();
     try { classObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] }); } catch (_) {}
   }
@@ -17395,7 +17401,8 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile
   const get = (id) => document.getElementById(id);
 
   function removeStudyResourcesKey() {
-    document.querySelectorAll("#studyResourcesKey").forEach((key) => key.remove());
+    // v38 stability: do not remove/recreate this node in a loop.
+    // CSS hides the passage-level quick bar while the original resource system remains intact.
   }
 
   function ensureObsToolButton(id, text, afterId, handler) {
@@ -17491,15 +17498,10 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile
     simplifyMobileNav();
   }
 
-  const observer = new MutationObserver(function() {
-    runCleanup();
-  });
-
   function start() {
+    // v38 stability: run once instead of watching the whole page.
+    // The previous body-wide MutationObserver could fire repeatedly while other panels updated.
     runCleanup();
-    try {
-      observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
-    } catch (_) {}
   }
 
   document.addEventListener("click", function(event) {
@@ -17585,13 +17587,9 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
   }
 
   function start(){
+    // v38 stability: one-time desktop cleanup. Avoid a body-class observer competing
+    // with the mobile shell class toggles on some browsers.
     enforceDesktopShellIsolation();
-    try {
-      new MutationObserver(enforceDesktopShellIsolation).observe(document.body, {
-        attributes: true,
-        attributeFilter: ["class"]
-      });
-    } catch (_) {}
   }
 
   if (DESKTOP_POINTER_QUERY && typeof DESKTOP_POINTER_QUERY.addEventListener === "function") {
@@ -17617,6 +17615,14 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
 })();
 </script>
 
+
+<!-- Patch 38 — Desktop Stability Fix for Mobile Shell -->
+<script id="rdm-v38-desktop-stability-mobile-shell-marker">
+(function rdmV38DesktopStabilityMobileShellMarker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v38-desktop-stability-mobile-shell";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v38-desktop-stability-mobile-shell";
+})();
+</script>
 
 </body>
 </html>
