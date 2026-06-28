@@ -1310,6 +1310,136 @@ body.dark .backgrounds-home summary {
   color: var(--soft-copper);
 }
 
+
+
+/* v51 — Disciple Journal Backgrounds theme + Disciple Maker Mode polish */
+.backgrounds-resource-panel,
+.background-topic-panel {
+  border-color: var(--soft-copper) !important;
+}
+body:not(.dark) .backgrounds-resource-panel,
+body:not(.dark) .background-topic-panel {
+  background:
+    radial-gradient(circle at top left, rgba(220,232,242,.46), transparent 30rem),
+    linear-gradient(180deg, #FFF9F1 0%, #F7EFE3 100%) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 24px 70px rgba(29,45,68,.18) !important;
+}
+body.dark .backgrounds-resource-panel,
+body.dark .background-topic-panel {
+  background:
+    radial-gradient(circle at top left, rgba(175,199,217,.12), transparent 30rem),
+    linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
+  color: #F8F4EC !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14) !important;
+}
+.backgrounds-resource-panel .resourceResult,
+.background-topic-panel .resourceResult {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.backgrounds-home-v51 .backgrounds-intro,
+.backgrounds-home-v51 .backgrounds-clean-empty,
+.background-topic-card {
+  border: 1px solid rgba(217,160,123,.30) !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.46) !important;
+  padding: 14px 15px !important;
+  color: var(--ink) !important;
+}
+body.dark .backgrounds-home-v51 .backgrounds-intro,
+body.dark .backgrounds-home-v51 .backgrounds-clean-empty,
+body.dark .background-topic-card {
+  background: rgba(255,249,241,.055) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.34) !important;
+}
+.backgrounds-home-v51 summary,
+.backgrounds-home-v51 h4,
+.background-topic-card h4 {
+  color: var(--copper) !important;
+  letter-spacing: .02em;
+}
+body.dark .backgrounds-home-v51 summary,
+body.dark .backgrounds-home-v51 h4,
+body.dark .background-topic-card h4 {
+  color: var(--soft-copper) !important;
+}
+.backgrounds-home-v51 .backgrounds-search-box {
+  background: rgba(255,255,255,.62) !important;
+  color: var(--ink) !important;
+  border: 1.5px solid rgba(217,160,123,.42) !important;
+  border-radius: 13px !important;
+  padding: 12px 14px !important;
+}
+body.dark .backgrounds-home-v51 .backgrounds-search-box {
+  background: rgba(255,249,241,.08) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.46) !important;
+}
+.backgrounds-suggestion-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.backgrounds-suggestion-chip,
+.backgrounds-back-btn,
+.rdm-background-topic-btn,
+.study-background-topic-btn,
+.background-topic-card .cross-ref-link,
+.background-topic-card .nave-ref-btn {
+  background: rgba(255,255,255,.62) !important;
+  color: var(--deep) !important;
+  border: 1.5px solid var(--soft-copper) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+.rdm-background-topic-btn,
+.study-background-topic-btn {
+  border-radius: 14px !important;
+  text-align: left !important;
+  padding: 12px 14px !important;
+}
+.backgrounds-suggestion-chip:hover,
+.backgrounds-back-btn:hover,
+.rdm-background-topic-btn:hover,
+.study-background-topic-btn:hover,
+.background-topic-card .cross-ref-link:hover,
+.background-topic-card .nave-ref-btn:hover {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+  opacity: 1 !important;
+}
+body.dark .backgrounds-suggestion-chip,
+body.dark .backgrounds-back-btn,
+body.dark .rdm-background-topic-btn,
+body.dark .study-background-topic-btn,
+body.dark .background-topic-card .cross-ref-link,
+body.dark .background-topic-card .nave-ref-btn {
+  background: rgba(255,249,241,.08) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.54) !important;
+}
+body.dark .backgrounds-suggestion-chip:hover,
+body.dark .backgrounds-back-btn:hover,
+body.dark .rdm-background-topic-btn:hover,
+body.dark .study-background-topic-btn:hover,
+body.dark .background-topic-card .cross-ref-link:hover,
+body.dark .background-topic-card .nave-ref-btn:hover {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+}
+.backgrounds-home-v51 .empty {
+  color: var(--dust) !important;
+  font-style: italic;
+}
+body.dark .backgrounds-home-v51 .empty { color: rgba(248,244,236,.74) !important; }
+
 </style>
 </head>
 <body>
@@ -1323,7 +1453,7 @@ body.dark .backgrounds-home summary {
     </div>
     <div>
       <div class="heroActions">
-        <button class="ghost" id="studyModeBtn" type="button">Scripture Study Mode</button>
+        <button class="ghost" id="studyModeBtn" type="button">Disciple Maker Mode</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
       <div class="verseCard">
@@ -5835,6 +5965,276 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       try { navigator.serviceWorker.register("./service-worker.js"); } catch (_) {}
     }
   }
+
+
+
+  /* v51 — Backgrounds & Customs bridge cleanup + Disciple Maker wording */
+  function bgDeepTextV51(value) {
+    if (value == null) return "";
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) return value.map(bgDeepTextV51).join(" ");
+    if (typeof value === "object") return Object.values(value).map(bgDeepTextV51).join(" ");
+    return String(value);
+  }
+
+  function normalizeBackgroundIndexItemV51(item) {
+    const raw = item || {};
+    const id = raw.id || raw.topicId || raw.slug || bgSlug(raw.file || raw.filename || raw.title);
+    const file = raw.file || raw.filename || `${id}.json`;
+    const searchBag = [
+      raw.title,
+      id,
+      file,
+      raw.category,
+      raw.summary,
+      raw.background,
+      raw.teachingHelp,
+      ...(Array.isArray(raw.tags) ? raw.tags : []),
+      ...(Array.isArray(raw.searchTerms) ? raw.searchTerms : []),
+      ...(Array.isArray(raw.search_terms) ? raw.search_terms : []),
+      ...(Array.isArray(raw.terms) ? raw.terms : []),
+      ...(Array.isArray(raw.keywords) ? raw.keywords : []),
+      bgDeepTextV51(raw)
+    ].join(" ");
+
+    return {
+      ...raw,
+      id,
+      file,
+      title: raw.title || String(id).replace(/-/g, " "),
+      summary: raw.summary || "",
+      category: raw.category || "Uncategorized",
+      _search: cleanText(searchBag).toLowerCase(),
+      _slugSearch: bgSlug(searchBag)
+    };
+  }
+
+  function normalizeBackgroundIndexDataV51(data) {
+    const raw = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.topics)
+        ? data.topics
+        : Array.isArray(data?.items)
+          ? data.items
+          : Array.isArray(data?.backgrounds)
+            ? data.backgrounds
+            : data && typeof data === "object"
+              ? Object.values(data)
+              : [];
+    return raw.map(normalizeBackgroundIndexItemV51);
+  }
+
+  loadBackgroundIndexDJ = async function loadBackgroundIndexDJV51() {
+    const data = await fetchJsonAny([
+      "bible/resources/backgrounds/index.json",
+      "./bible/resources/backgrounds/index.json",
+      "bible/resources/backgrounds/backgrounds-index.json",
+      "./bible/resources/backgrounds/backgrounds-index.json",
+      "bible/resources/backgrounds/registry.json",
+      "bible/resources/backgrounds/backgrounds-registry.json",
+      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
+    ]);
+    return normalizeBackgroundIndexDataV51(data);
+  };
+
+  loadBackgroundMapDJ = async function loadBackgroundMapDJV51(bookName) {
+    const book = String(bookName || "").trim();
+    const encoded = encodeURIComponent(book);
+    const dashed = book.replace(/\s+/g, "-");
+    const underscored = book.replace(/\s+/g, "_");
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/by-reference/${book}.json`,
+      `./bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/by-reference/${encoded}.json`,
+      `bible/resources/backgrounds/by-reference/${dashed}.json`,
+      `bible/resources/backgrounds/by-reference/${underscored}.json`,
+      `bible/resources/backgrounds/by-reference/${book.toLowerCase()}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
+    ]) || {};
+  };
+
+  function normalizeMappedBackgroundIdsV51(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.flatMap(normalizeMappedBackgroundIdsV51);
+    if (typeof value === "string") return [bgSlug(value.replace(/^topics\//i, "").replace(/\.json$/i, ""))];
+    if (typeof value === "object") {
+      return normalizeMappedBackgroundIdsV51(value.id || value.topic || value.topicId || value.file || value.filename || value.topics || value.backgrounds);
+    }
+    return [];
+  }
+
+  function bgLookupKeysV51() {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const start = parseInt($("start").value, 10) || 1;
+    const end = parseInt($("end").value, 10) || start;
+    const keys = [
+      `${book} ${chapter}:${start}-${end}`,
+      `${book} ${chapter}`,
+      `${book} ${chapter}:1-${verseCounts?.[book]?.[parseInt(chapter, 10)-1] || end}`,
+      book
+    ];
+    for (let verse = start; verse <= end; verse += 1) keys.push(`${book} ${chapter}:${verse}`);
+    return [...new Set(keys)];
+  }
+
+  function backgroundItemsForCurrentPassageV51(index, map) {
+    const ids = [];
+    bgLookupKeysV51().forEach((key) => {
+      normalizeMappedBackgroundIdsV51(map?.[key]).forEach((id) => ids.push(id));
+    });
+    const uniqueIds = [...new Set(ids)];
+    return uniqueIds.map((id) => index.find((item) =>
+      bgSlug(item.id) === id ||
+      bgSlug(item.file) === id ||
+      bgSlug(String(item.file || "").replace(/\.json$/i, "")) === id
+    ) || { id, file: `${id}.json`, title: id.replace(/-/g, " "), summary: "" });
+  }
+
+  function backgroundSuggestionChipsV51() {
+    const words = ["Sabbath", "Temple", "Shepherd", "Wells", "Passover", "Sacrifice", "Priests", "Synagogue", "Covenant", "Roman"];
+    return `<div class="backgrounds-suggestion-row">${words.map((word) => `<button type="button" class="backgrounds-suggestion-chip" data-bg-search="${escapeHtml(word)}">${escapeHtml(word)}</button>`).join("")}</div>`;
+  }
+
+  findBackgroundMatchesDJ = function findBackgroundMatchesDJV51(index, query) {
+    const q = cleanText(query || "").toLowerCase();
+    if (!q) return [];
+    const qSlug = bgSlug(q);
+    const aliases = {
+      sabb: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
+      sabbath: ["sabbath", "sabbaths", "sabbath-day", "sabbath-commerce"],
+      temple: ["temple", "tabernacle", "priest", "priests", "worship", "sacrifice"],
+      shepherd: ["shepherd", "shepherds", "sheep", "flock", "pasture", "rod", "staff"],
+      wells: ["well", "wells", "water", "cistern", "spring"],
+      well: ["well", "wells", "water", "cistern", "spring"],
+      passover: ["passover", "feast", "feasts", "lamb"],
+      priest: ["priest", "priests", "temple", "sacrifice", "offering"],
+      priests: ["priest", "priests", "temple", "sacrifice", "offering"],
+      synagogue: ["synagogue", "teaching", "sabbath"],
+      covenant: ["covenant", "promise", "circumcision"],
+      roman: ["roman", "rome", "empire", "centurion"]
+    };
+    const terms = [q, qSlug, ...(aliases[q] || [])].map(String);
+
+    return index
+      .map((item) => {
+        const search = item._search || cleanText([item.title, item.id, item.file, item.category, item.summary, item.background, item.teachingHelp, ...(item.tags || []), ...(item.searchTerms || [])].join(" ")).toLowerCase();
+        const slugSearch = item._slugSearch || bgSlug(search);
+        const title = String(item.title || "").toLowerCase();
+        const itemSlug = bgSlug(item.id || item.file || item.title);
+        let score = 0;
+        if (title === q || itemSlug === qSlug) score += 100;
+        if (title.startsWith(q) || itemSlug.startsWith(qSlug)) score += 70;
+        if (terms.some(term => search.includes(term) || slugSearch.includes(bgSlug(term)))) score += 40;
+        if (String(item.category || "").toLowerCase().includes(q)) score += 12;
+        return { item, score };
+      })
+      .filter(row => row.score > 0)
+      .sort((a, b) => b.score - a.score || String(a.item.title).localeCompare(String(b.item.title)))
+      .slice(0, 30)
+      .map(row => row.item);
+  };
+
+  buildBackgroundHomeHtmlDJ = async function buildBackgroundHomeHtmlDJV51() {
+    const index = await loadBackgroundIndexDJ();
+    const map = await loadBackgroundMapDJ($("book").value);
+    const currentItems = backgroundItemsForCurrentPassageV51(index, map);
+    return `
+      <div class="backgrounds-home-v51">
+        <div class="backgrounds-intro" style="margin-bottom:12px;">
+          <p style="font-weight:900;line-height:1.45;margin:0;">
+            Bible Backgrounds &amp; Customs for <strong>${escapeHtml(bgStateLabel())}</strong>.
+          </p>
+        </div>
+        ${currentItems.length ? `
+          <details class="backgrounds-current" open style="margin-bottom:12px;">
+            <summary style="cursor:pointer;font-weight:900;margin-bottom:8px;">Current Passage Backgrounds (${currentItems.length})</summary>
+            <div style="margin-top:8px;">${renderBackgroundTopicButtonsDJ(currentItems)}</div>
+          </details>
+        ` : `
+          <div class="backgrounds-clean-empty" style="margin-bottom:12px;">
+            No exact background card is linked to this passage yet. Search the full Bible Backgrounds &amp; Customs library below.
+          </div>
+        `}
+        ${backgroundSuggestionChipsV51()}
+        <input class="backgrounds-search-box" type="search" placeholder="Search background topics like Sabbath, temple, wells, shepherds...">
+        <div class="backgrounds-results"></div>
+      </div>
+    `;
+  };
+
+  openBackgroundTopicDJ = async function openBackgroundTopicDJV51(idOrFile) {
+    const topic = await loadBackgroundTopicDJ(idOrFile);
+    const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
+    const panel = openResourceInstancePanel(title, renderBackgroundTopicCardDJ(topic));
+    panel?.classList.add("background-topic-panel");
+  };
+
+  openBackgroundsTool = async function openBackgroundsToolV51(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+    const panel = openResourceInstancePanel("Bible Backgrounds & Customs", await buildBackgroundHomeHtmlDJ());
+    panel?.classList.add("backgrounds-resource-panel");
+    const index = await loadBackgroundIndexDJ();
+    const searchBox = panel?.querySelector(".backgrounds-search-box");
+    const results = panel?.querySelector(".backgrounds-results");
+    const current = panel?.querySelector(".backgrounds-current");
+
+    async function runSearch(value) {
+      const query = String(value || "").trim();
+      if (!query) {
+        if (results) results.innerHTML = "";
+        if (current) current.open = true;
+        return;
+      }
+      if (current) current.open = false;
+      results.innerHTML = `
+        <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+          ← Back to Current Passage Backgrounds
+        </button>
+        <h4>Search Results</h4>
+        ${renderBackgroundTopicButtonsDJ(findBackgroundMatchesDJ(index, query))}
+      `;
+    }
+
+    if (searchBox && results) {
+      let timer = null;
+      searchBox.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => runSearch(searchBox.value), 120);
+      });
+    }
+
+    panel?.addEventListener("click", async (clickEvent) => {
+      const topicBtn = clickEvent.target.closest(".rdm-background-topic-btn, .study-background-topic-btn");
+      const backBtn = clickEvent.target.closest(".backgrounds-back-btn");
+      const chip = clickEvent.target.closest(".backgrounds-suggestion-chip");
+      if (topicBtn) {
+        clickEvent.preventDefault();
+        await openBackgroundTopicDJ(topicBtn.dataset.topicId || topicBtn.textContent.trim());
+        return;
+      }
+      if (backBtn) {
+        clickEvent.preventDefault();
+        if (searchBox) searchBox.value = "";
+        if (results) results.innerHTML = "";
+        if (current) current.open = true;
+        return;
+      }
+      if (chip) {
+        clickEvent.preventDefault();
+        if (searchBox) {
+          searchBox.value = chip.dataset.bgSearch || chip.textContent.trim();
+          await runSearch(searchBox.value);
+          searchBox.focus();
+        }
+      }
+    });
+  };
 
   document.addEventListener("DOMContentLoaded", init);
 })();
