@@ -2512,6 +2512,20 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
   border-color: rgba(217,160,123,.48);
 }
 
+
+
+/* v77 — Disciple Maker-style independent mark stacking for Disciple Journal */
+.inline-underline,
+.inline-underline[style*="--dj-underline-color"] { text-decoration-color: var(--dj-underline-color, var(--soft-copper)) !important; }
+.inline-circle,
+.inline-circle[style*="--dj-circle-color"] { border-color: var(--dj-circle-color, var(--soft-copper)) !important; }
+.inline-box,
+.inline-box[style*="--dj-box-color"] { border-color: var(--dj-box-color, var(--soft-copper)) !important; }
+body.dark .inline-circle,
+body.dark .inline-circle[style*="--dj-circle-color"] { box-shadow: 0 0 12px var(--dj-circle-glow, rgba(217,160,123,.16)) !important; }
+body.dark .inline-box,
+body.dark .inline-box[style*="--dj-box-color"] { box-shadow: 0 0 12px var(--dj-box-glow, rgba(217,160,123,.16)) !important; }
+
 </style>
 </head>
 <body>
@@ -2867,7 +2881,7 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v76-box-marking-flexible-colors";
+  const VERSION = "v77-disciple-maker-mark-stack-mirror";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -7954,6 +7968,193 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if ($("openJfbResource")) $("openJfbResource").onclick = openJfbTool;
   if ($("openBookOverviewResource")) $("openBookOverviewResource").onclick = openBookOverviewTool;
 
+
+
+
+  /* v77 — Mirror Disciple Maker mark stacking behavior inside Disciple Journal */
+  function markColorHex(value = activeMarkColor) {
+    const hex = {
+      gold: "#D9A07B",
+      blue: "#5C91E6",
+      green: "#4DBB83",
+      red: "#DD4D4D",
+      purple: "#9D63D6",
+      amber: "#F28B33"
+    };
+    return hex[markColorName(value)] || hex.gold;
+  }
+
+  function markColorGlow(value = activeMarkColor) {
+    const glow = {
+      gold: "rgba(217,160,123,.16)",
+      blue: "rgba(92,145,230,.16)",
+      green: "rgba(77,187,131,.16)",
+      red: "rgba(221,77,77,.16)",
+      purple: "rgba(157,99,214,.16)",
+      amber: "rgba(242,139,51,.16)"
+    };
+    return glow[markColorName(value)] || glow.gold;
+  }
+
+  function isInlineMarkElement(el) {
+    return !!el?.closest?.(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber");
+  }
+
+  function nearestInlineMarkElement(el) {
+    return el?.closest?.(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber") || null;
+  }
+
+  function applyIndependentInlineColor(el, tool, color = activeMarkColor) {
+    if (!el || !tool) return;
+    const colorName = markColorName(color);
+    const colorValue = markColorHex(color);
+    const glowValue = markColorGlow(color);
+
+    if (tool === "underline") {
+      el.classList.add("inline-underline");
+      el.style.setProperty("--dj-underline-color", colorValue);
+      el.dataset.djUnderlineColor = colorName;
+    }
+    if (tool === "circle") {
+      el.classList.add("inline-circle");
+      el.style.setProperty("--dj-circle-color", colorValue);
+      el.style.setProperty("--dj-circle-glow", glowValue);
+      el.dataset.djCircleColor = colorName;
+    }
+    if (tool === "box") {
+      el.classList.add("inline-box");
+      el.style.setProperty("--dj-box-color", colorValue);
+      el.style.setProperty("--dj-box-glow", glowValue);
+      el.dataset.djBoxColor = colorName;
+    }
+
+    // Keep the old class shape too, so older saved marks and CSS remain compatible.
+    if (tool === "underline" || tool === "circle" || tool === "box") {
+      el.classList.add(`inline-mark-${colorName}`);
+    }
+  }
+
+  function replaceInlineHighlightColor(el, color = activeMarkColor) {
+    if (!el) return;
+    MARK_COLOR_NAMES.forEach((name) => el.classList.remove(`inline-highlight-${name}`));
+    el.classList.add(`inline-${normalizeMarkColor(color)}`);
+  }
+
+  function markExistingInlineElement(el, verse) {
+    if (!el || !markMode || !verse) return false;
+
+    if (markMode === "erase") {
+      const parent = el.parentNode;
+      if (!parent) return false;
+      while (el.firstChild) parent.insertBefore(el.firstChild, el);
+      parent.removeChild(el);
+      parent.normalize();
+      saveCurrentVerseInlineHtml(verse);
+      setStatus("Inline mark erased");
+      return true;
+    }
+
+    if (markMode.startsWith("highlight")) {
+      activeMarkColor = normalizeMarkColor(markMode);
+      replaceInlineHighlightColor(el, activeMarkColor);
+      saveCurrentVerseInlineHtml(verse);
+      setStatus(`${markModeLabel()} applied to selected text`);
+      updateMarkButtons();
+      return true;
+    }
+
+    if (["underline", "circle", "box"].includes(markMode)) {
+      applyIndependentInlineColor(el, markMode, activeMarkColor);
+      saveCurrentVerseInlineHtml(verse);
+      setStatus(`${markModeLabel()} (${markColorLabel()}) applied to selected text`);
+      updateMarkButtons();
+      return true;
+    }
+
+    return false;
+  }
+
+  function wrapSelectedTextInVerseV77(verse, mode) {
+    const range = getSelectionRangeInsideVerse(verse);
+    if (!range || !mode || mode === "erase") return false;
+
+    const span = document.createElement("span");
+    if (mode.startsWith("highlight")) {
+      activeMarkColor = normalizeMarkColor(mode);
+      span.className = `inline-${activeMarkColor}`;
+    } else if (["underline", "circle", "box"].includes(mode)) {
+      span.className = mode === "underline" ? "inline-underline" : mode === "circle" ? "inline-circle" : "inline-box";
+      applyIndependentInlineColor(span, mode, activeMarkColor);
+    } else {
+      return false;
+    }
+
+    try {
+      range.surroundContents(span);
+    } catch (_) {
+      const contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+    }
+
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+    saveCurrentVerseInlineHtml(verse);
+    setStatus(["underline", "circle", "box"].includes(mode)
+      ? `${markModeLabel()} (${markColorLabel()}) applied to selected text`
+      : `${markModeLabel()} applied to selected text`);
+    updateMarkButtons();
+    return true;
+  }
+
+  async function handleVerseInteractionV77(event) {
+    const verseEl = event.target.closest(".verse[data-verse]");
+    if (!verseEl) return;
+
+    if (markMode) {
+      if (markMode !== "erase" && wrapSelectedTextInVerseV77(verseEl, markMode)) return;
+
+      const inlineTarget = nearestInlineMarkElement(event.target);
+      if (inlineTarget && verseEl.contains(inlineTarget) && markExistingInlineElement(inlineTarget, verseEl)) return;
+
+      toggleWholeVerseMark(verseEl);
+      return;
+    }
+
+    const verseNum = parseInt(verseEl.dataset.verse, 10);
+    if (!Number.isFinite(verseNum)) return;
+
+    if (copyMode === "single") {
+      selectedCopyVerses.clear();
+      document.querySelectorAll(".verse.selectedVerse").forEach((el) => el.classList.remove("selectedVerse"));
+      selectedCopyVerses.add(verseNum);
+      verseEl.classList.add("selectedVerse");
+      await copySelectedVerses(selectedCopyVerses);
+      copyMode = null;
+      const hint = $("copyHint");
+      if (hint) hint.textContent = "Single verse copied. Use Copy Scripture for another copy option.";
+      return;
+    }
+
+    if (copyMode === "multi") {
+      if (selectedCopyVerses.has(verseNum)) {
+        selectedCopyVerses.delete(verseNum);
+        verseEl.classList.remove("selectedVerse");
+      } else {
+        selectedCopyVerses.add(verseNum);
+        verseEl.classList.add("selectedVerse");
+      }
+      if (selectedCopyVerses.size) {
+        await copySelectedVerses(selectedCopyVerses);
+        const hint = $("copyHint");
+        if (hint) hint.textContent = `${selectedCopyVerses.size} verse${selectedCopyVerses.size === 1 ? "" : "s"} selected and copied. Keep clicking to adjust selection.`;
+      } else {
+        setStatus("Selection cleared");
+      }
+    }
+  }
+
+  handleVerseInteraction = handleVerseInteractionV77;
 
   document.addEventListener("DOMContentLoaded", init);
 })();
