@@ -1550,6 +1550,18 @@ body.dark .resource-panel-body .naves-result-btn {
 .overview-card p,
 .overview-card ul { margin: 0 !important; }
 
+
+/* v54 Resource Title Cleanup — avoid duplicate inner resource titles */
+.resource-panel-body .single-title-resource-content > h1:first-child,
+.resource-panel-body .single-title-resource-content > h2:first-child,
+.resource-panel-body .single-title-resource-content > h3:first-child {
+  display: none !important;
+}
+.resource-panel-body .naves-topic-entry > h3:first-child,
+.resource-panel-body .doctrine-topic-entry > h3:first-child {
+  display: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -4281,6 +4293,18 @@ body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
   }
 }
 
+
+/* v54 Resource Title Cleanup — avoid duplicate inner resource titles */
+.resource-panel-body .single-title-resource-content > h1:first-child,
+.resource-panel-body .single-title-resource-content > h2:first-child,
+.resource-panel-body .single-title-resource-content > h3:first-child {
+  display: none !important;
+}
+.resource-panel-body .naves-topic-entry > h3:first-child,
+.resource-panel-body .doctrine-topic-entry > h3:first-child {
+  display: none !important;
+}
+
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
@@ -4856,10 +4880,9 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
   function normalizeDictionaryEntry(item, fallbackTitle = "Entry") {
     if (!item) return `<p class="empty">No entry found.</p>`;
-    if (typeof item === "string") return `<h3>${escapeHtml(fallbackTitle)}</h3><p>${escapeHtml(item)}</p>`;
-    const title = escapeHtml(item.title || item.term || fallbackTitle);
+    if (typeof item === "string") return `<p>${escapeHtml(item)}</p>`;
     const content = item.content || item.text || item.definition || item.body || item.description || "";
-    return `<h3>${title}</h3><div>${typeof content === "string" ? content : normalizeResourceText(content)}</div>`;
+    return `<div class="single-title-resource-content">${typeof content === "string" ? content : normalizeResourceText(content)}</div>`;
   }
 
   function getResourceState(key) {
@@ -5040,7 +5063,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     if (!topic || typeof topic !== "object") return `<p class="empty">No Nave's topic content found.</p>`;
 
     const title = cleanText(topic.title || topic.topic || "Nave's Topic");
-    const pieces = [`<section class="naves-topic-entry"><h3>${escapeHtml(title).toUpperCase()}</h3>`];
+    const pieces = [`<section class="naves-topic-entry">`];
 
     if (Array.isArray(topic.references) && topic.references.length) {
       pieces.push(`
@@ -5335,8 +5358,6 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
     return `
       <section class="doctrine-topic-entry">
-        <h3>${escapeHtml(doctrine.title || "Biblical Doctrine").toUpperCase()}</h3>
-
         ${doctrine.definition ? `<section class="doctrine-section"><h3>Definition</h3>${normalizeDoctrineParagraph(doctrine.definition)}</section>` : ""}
         ${doctrine.christFocus ? `<section class="doctrine-section"><h3>Christ Focus</h3>${normalizeDoctrineParagraph(doctrine.christFocus)}</section>` : ""}
         ${renderDoctrineKeyScriptures(doctrine.keyScriptures)}
