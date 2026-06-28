@@ -1440,6 +1440,116 @@ body.dark .background-topic-card .nave-ref-btn:hover {
 }
 body.dark .backgrounds-home-v51 .empty { color: rgba(248,244,236,.74) !important; }
 
+
+
+/* v53 — Unified Disciple Journal resource panel style */
+.resource-instance-panel .resourceResult {
+  border: 1px solid rgba(217,160,123,.30) !important;
+  border-radius: 16px !important;
+  padding: 14px !important;
+  background: rgba(255,255,255,.30) !important;
+}
+body:not(.dark) .resource-instance-panel .resourceResult {
+  background: linear-gradient(180deg, rgba(255,255,255,.46), rgba(255,249,241,.72)) !important;
+  color: var(--ink) !important;
+  border-color: rgba(217,160,123,.36) !important;
+}
+body.dark .resource-instance-panel .resourceResult {
+  background: rgba(255,249,241,.055) !important;
+  color: #FFF9F1 !important;
+  border-color: rgba(217,160,123,.38) !important;
+}
+.resource-panel-body h3,
+.resource-panel-body h4,
+.resource-panel-body summary {
+  color: var(--copper) !important;
+  font-weight: 900 !important;
+}
+body.dark .resource-panel-body h3,
+body.dark .resource-panel-body h4,
+body.dark .resource-panel-body summary {
+  color: var(--soft-copper) !important;
+}
+.resource-panel-body p,
+.resource-panel-body li {
+  font-weight: 650;
+  line-height: 1.58;
+}
+.resource-clean-intro,
+.resource-clean-empty,
+.resource-card,
+.commentary-entry,
+.overview-card {
+  border: 1px solid rgba(217,160,123,.30) !important;
+  border-radius: 15px !important;
+  padding: 13px 14px !important;
+  margin: 0 0 12px !important;
+  background: rgba(255,255,255,.32) !important;
+}
+body.dark .resource-clean-intro,
+body.dark .resource-clean-empty,
+body.dark .resource-card,
+body.dark .commentary-entry,
+body.dark .overview-card {
+  background: rgba(255,249,241,.055) !important;
+  border-color: rgba(217,160,123,.36) !important;
+}
+.resource-clean-empty { font-style: italic; color: var(--dust); }
+.resource-button-row,
+.overview-grid,
+.commentary-clean {
+  display: grid;
+  gap: 12px;
+}
+.overview-grid.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 760px) {
+  .overview-grid.two-col { grid-template-columns: 1fr; }
+}
+.resource-panel-body button.cross-ref-link,
+.resource-panel-body .nave-ref-btn,
+.resource-panel-body .rdm-background-topic-btn,
+.resource-panel-body .doctrine-topic-btn,
+.resource-panel-body .doctrine-category-btn,
+.resource-panel-body .dictionary-result-btn,
+.resource-panel-body .naves-result-btn {
+  background: rgba(217,160,123,.18) !important;
+  color: var(--deep) !important;
+  border: 1.5px solid var(--soft-copper) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+body.dark .resource-panel-body button.cross-ref-link,
+body.dark .resource-panel-body .nave-ref-btn,
+body.dark .resource-panel-body .rdm-background-topic-btn,
+body.dark .resource-panel-body .doctrine-topic-btn,
+body.dark .resource-panel-body .doctrine-category-btn,
+body.dark .resource-panel-body .dictionary-result-btn,
+body.dark .resource-panel-body .naves-result-btn {
+  background: rgba(217,160,123,.14) !important;
+  color: #FFF9F1 !important;
+  border-color: var(--soft-copper) !important;
+}
+.resource-panel-body button.cross-ref-link:hover,
+.resource-panel-body .nave-ref-btn:hover,
+.resource-panel-body .rdm-background-topic-btn:hover,
+.resource-panel-body .doctrine-topic-btn:hover,
+.resource-panel-body .doctrine-category-btn:hover,
+.resource-panel-body .dictionary-result-btn:hover,
+.resource-panel-body .naves-result-btn:hover {
+  background: var(--soft-copper) !important;
+  color: var(--deep) !important;
+}
+.commentary-entry h4,
+.overview-card h4 {
+  margin: 0 0 8px !important;
+  font-size: 15px !important;
+}
+.commentary-entry p,
+.overview-card p,
+.overview-card ul { margin: 0 !important; }
+
 </style>
 </head>
 <body>
@@ -6465,6 +6575,186 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       </div>
     `;
   };
+
+
+
+
+  /* v53 — Resource panel content unification: commentary + book overview */
+  function djIsBlank(value) {
+    if (value == null) return true;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "object") return Object.keys(value).length === 0;
+    return !String(value).trim();
+  }
+
+  function djCleanResourceValue(value) {
+    if (value == null) return "";
+    if (typeof value === "string" || typeof value === "number") return escapeHtml(cleanText(String(value)));
+    if (Array.isArray(value)) {
+      return `<ul>${value.filter(v => !djIsBlank(v)).map(v => `<li>${djCleanResourceValue(v)}</li>`).join("")}</ul>`;
+    }
+    if (typeof value === "object") {
+      return Object.entries(value)
+        .filter(([key, val]) => !/^(source|sectionKey|id|file)$/i.test(key) && !djIsBlank(val))
+        .map(([key, val]) => `<div class="overview-card"><h4>${escapeHtml(key.replace(/([A-Z])/g, " $1"))}</h4><p>${djCleanResourceValue(val)}</p></div>`)
+        .join("");
+    }
+    return escapeHtml(String(value));
+  }
+
+  function djCommentaryItemFromValue(value, fallbackTitle) {
+    if (!value) return null;
+    if (typeof value === "string") return { title: fallbackTitle, content: value };
+    if (typeof value === "object") {
+      const title = cleanText(value.title || fallbackTitle || "Commentary");
+      const content = cleanText(value.content || value.text || value.body || value.commentary || "");
+      if (!content) return null;
+      return { title, content };
+    }
+    return null;
+  }
+
+  function djFindCommentaryEntries(data, label) {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    const start = parseInt($("start").value, 10) || 1;
+    const end = parseInt($("end").value, 10) || start;
+    const candidates = [];
+    const seen = new Set();
+
+    function add(item, fallbackTitle) {
+      const normalized = djCommentaryItemFromValue(item, fallbackTitle);
+      if (!normalized) return;
+      const key = `${normalized.title}|||${normalized.content.slice(0, 180)}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      candidates.push(normalized);
+    }
+
+    for (let v = start; v <= end; v += 1) {
+      const keys = [
+        `${book} ${chapter}:${v}`,
+        `${book} ${chapter}.${v}`,
+        `${chapter}:${v}`,
+        `${chapter}.${v}`,
+        String(v)
+      ];
+      keys.forEach(key => add(data?.[key], `${book} ${chapter}:${v}`));
+    }
+
+    if (!candidates.length) {
+      const terms = commentaryTermsForCurrentPassage();
+      const matches = collectMatches(data, terms, 60);
+      const contentMatches = matches.filter(item => /content$/i.test(String(item.path || "")) && cleanText(item.value));
+      contentMatches.forEach(item => {
+        const title = String(item.path || "").replace(/\s*›\s*content$/i, "").trim() || label;
+        add({ title, content: item.value }, title);
+      });
+    }
+
+    return candidates.slice(0, 18);
+  }
+
+  function djRenderCommentaryPanel(label, entries) {
+    if (!entries.length) {
+      return `<div class="resource-clean-empty">No ${escapeHtml(label)} entry found for ${escapeHtml(currentReference())} yet.</div>`;
+    }
+    return `
+      <div class="resource-clean-intro">
+        <strong>${escapeHtml(label)} for ${escapeHtml(currentReference())}</strong>
+      </div>
+      <div class="commentary-clean">
+        ${entries.map(entry => `
+          <section class="commentary-entry">
+            <h4>${escapeHtml(entry.title || label)}</h4>
+            <p>${escapeHtml(entry.content)}</p>
+          </section>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  openCommentarySource = async function openCommentarySourceV53(title, paths) {
+    const book = $("book").value;
+    const data = await fetchJsonAny(paths);
+    if (!data) {
+      setStudyToolsResult(title, `<div class="resource-clean-empty">No ${escapeHtml(title)} file loaded for ${escapeHtml(book)}.</div>`);
+      return;
+    }
+    const entries = djFindCommentaryEntries(data, title);
+    setStudyToolsResult(`${title} — ${currentReference()}`, djRenderCommentaryPanel(title, entries));
+  };
+
+  openMatthewHenryTool = async function openMatthewHenryToolV53() {
+    const book = $("book").value;
+    await openCommentarySource("Matthew Henry Commentary", [
+      `bible/resources/commentaries/matthew-henry/${book}.json`,
+      `./bible/resources/commentaries/matthew-henry/${book}.json`,
+      `bible/resources/commentaries/matthew-henry/${encodeURIComponent(book)}.json`
+    ]);
+  };
+
+  openJfbTool = async function openJfbToolV53() {
+    const book = $("book").value;
+    await openCommentarySource("Jamieson-Fausset-Brown Commentary", [
+      `bible/resources/commentaries/jfb/${book}.json`,
+      `./bible/resources/commentaries/jfb/${book}.json`,
+      `bible/resources/commentaries/jfb/${encodeURIComponent(book)}.json`,
+      `bible/resources/commentaries/jfb/bible/resources/commentaries/jfb/${book}.json`
+    ]);
+  };
+
+  function djOverviewSection(title, value) {
+    if (djIsBlank(value)) return "";
+    return `<section class="overview-card"><h4>${escapeHtml(title)}</h4>${Array.isArray(value) ? djCleanResourceValue(value) : `<p>${djCleanResourceValue(value)}</p>`}</section>`;
+  }
+
+  function djRenderBookOverview(book, overview) {
+    if (!overview) return `<div class="resource-clean-empty">No book overview found for ${escapeHtml(book)} yet.</div>`;
+    const sections = [
+      djOverviewSection("Author", overview.author),
+      djOverviewSection("Date", overview.date),
+      djOverviewSection("Audience", overview.audience),
+      djOverviewSection("Historical Setting", overview.historicalSetting || overview.setting),
+      djOverviewSection("Major Themes", overview.themes || overview.majorThemes),
+      djOverviewSection("Key Verse", overview.keyVerse),
+      djOverviewSection("Christ Focus", overview.christFocus),
+      djOverviewSection("Outline", overview.outline)
+    ].filter(Boolean);
+
+    const known = new Set(["title","author","date","audience","historicalSetting","setting","themes","majorThemes","keyVerse","christFocus","outline"]);
+    const extras = Object.entries(overview || {})
+      .filter(([key, val]) => !known.has(key) && !/^(source|sectionKey|id|file)$/i.test(key) && !djIsBlank(val))
+      .map(([key, val]) => djOverviewSection(key.replace(/([A-Z])/g, " $1"), val));
+
+    return `
+      <div class="resource-clean-intro">
+        <strong>${escapeHtml(overview.title || `${book} Overview`)}</strong>
+      </div>
+      <div class="overview-grid two-col">
+        ${sections.concat(extras).join("") || `<div class="resource-clean-empty">Book overview data is present but could not be displayed cleanly.</div>`}
+      </div>
+    `;
+  }
+
+  openBookOverviewTool = async function openBookOverviewToolV53() {
+    const book = $("book").value;
+    const encoded = encodeURIComponent(book);
+    const slug = slugify(book);
+    const data = await fetchJsonAny([
+      `bible/resources/book-overviews/${book}.json`,
+      `./bible/resources/book-overviews/${book}.json`,
+      `bible/resources/book-overviews/${encoded}.json`,
+      `bible/resources/book-overviews/${slug}.json`,
+      `bible/resources/book-overview/${book}.json`,
+      `bible/resources/overviews/${book}.json`
+    ]);
+    setStudyToolsResult(`${book} Overview`, djRenderBookOverview(book, data));
+  };
+
+  if ($("openCommentariesResource")) $("openCommentariesResource").onclick = openMatthewHenryTool;
+  if ($("openJfbResource")) $("openJfbResource").onclick = openJfbTool;
+  if ($("openBookOverviewResource")) $("openBookOverviewResource").onclick = openBookOverviewTool;
 
 
   document.addEventListener("DOMContentLoaded", init);
