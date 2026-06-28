@@ -16668,5 +16668,867 @@ html.obs body.dark .obs-tool-bar button {
 })();
 </script>
 
+
+
+<!-- Patch 35 — Main Iron Sharpener Mobile App Shell -->
+<style id="rdm-v35-mobile-app-shell">
+/*
+   Patch 35 — Main Iron Sharpener Mobile App Shell
+   Scope: phone/tablet installed-web-app experience only.
+   Desktop, OBS Focus, offline caching, Scripture loading, resources, marks,
+   notes, and locked Disciple Journal v75 are preserved.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  padding: 0 !important;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow-x: hidden !important;
+  background: linear-gradient(180deg, #fff9ec 0%, #fff2d5 100%) !important;
+  background-color: #fff9ec !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark {
+  background: #203D39 !important;
+  background-color: #203D39 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .shell {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .hero {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 74000 !important;
+  display: grid !important;
+  grid-template-columns: 62px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: auto !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px !important;
+  border-bottom: 2px solid var(--gold) !important;
+  background: linear-gradient(90deg, rgba(23,43,41,.99), rgba(41,72,67,.99), rgba(23,43,41,.99)) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+  width: 58px !important;
+  height: 58px !important;
+  margin: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .logo {
+  width: 56px !important;
+  height: 56px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .hero-main {
+  text-align: left !important;
+  min-width: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+  font-size: 10px !important;
+  letter-spacing: 2.6px !important;
+  line-height: 1.1 !important;
+  margin: 0 0 2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell h1 {
+  font-size: clamp(27px, 7.6vw, 42px) !important;
+  line-height: .92 !important;
+  letter-spacing: .5px !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .subtitle {
+  display: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .hero .actions,
+html:not(.obs) body.rdm-mobile-app-shell .verse-card,
+html:not(.obs) body.rdm-mobile-app-shell .ribbon {
+  display: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+  display: inline-flex !important;
+  min-width: 54px !important;
+  min-height: 44px !important;
+  padding: 8px 10px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  white-space: nowrap !important;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+  color: #203D39 !important;
+  border: 1.8px solid var(--gold) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.16) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileThemeToggle {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border-color: #fff1c0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .layout {
+  display: block !important;
+  padding: 12px 12px calc(102px + env(safe-area-inset-bottom, 0px)) !important;
+  gap: 0 !important;
+  min-height: calc(100vh - 88px) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .scripture {
+  width: 100% !important;
+  min-height: calc(100svh - 205px) !important;
+  border-radius: 18px !important;
+  padding: 24px 18px 22px !important;
+  box-shadow: 0 12px 32px rgba(70,40,0,.09) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .ref {
+  font-size: clamp(24px, 7vw, 34px) !important;
+  letter-spacing: 2.8px !important;
+  line-height: 1.12 !important;
+  overflow-wrap: anywhere !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .source {
+  font-size: 10.5px !important;
+  letter-spacing: 2.2px !important;
+  line-height: 1.3 !important;
+  margin-bottom: 18px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .verse {
+  font-size: clamp(21px, 5.7vw, 28px) !important;
+  line-height: 1.56 !important;
+  overflow-wrap: break-word !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .nav-row {
+  position: sticky !important;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 10 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-top: 24px !important;
+  padding: 10px 0 0 !important;
+  background: linear-gradient(180deg, transparent, rgba(255,249,236,.94) 20%, rgba(255,249,236,.98)) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark .nav-row {
+  background: linear-gradient(180deg, transparent, rgba(32,61,57,.94) 20%, rgba(32,61,57,.98)) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .nav-row button {
+  min-height: 48px !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+}
+
+/* Passage and notes become app sheets instead of stacked desktop dashboard sections. */
+html:not(.obs) body.rdm-mobile-app-shell .controls,
+html:not(.obs) body.rdm-mobile-app-shell .side {
+  display: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-content: start !important;
+  position: fixed !important;
+  inset: 0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0 !important;
+  z-index: 80050 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 22px !important;
+  background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
+  border: 0 !important;
+  gap: 14px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-passage-open .controls {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  display: flex !important;
+  flex-direction: column !important;
+  position: fixed !important;
+  inset: 0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0 !important;
+  z-index: 80050 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 14px 22px !important;
+  background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
+  gap: 12px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side {
+  background: linear-gradient(180deg, #203D39, #172B29) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin: 0 0 4px !important;
+  padding: 0 0 12px !important;
+  border-bottom: 1.5px solid var(--gold) !important;
+  grid-column: 1 / -1 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head strong {
+  color: #7A4C06 !important;
+  font: 900 20px Georgia, "Times New Roman", serif !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark .rdm-mobile-sheet-head strong {
+  color: #ffe08c !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-close {
+  min-height: 40px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .panel {
+  border-radius: 16px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell textarea {
+  min-height: 140px !important;
+}
+
+/* Floating panels become full app screens on mobile/tablet. */
+html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open,
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel {
+  position: fixed !important;
+  inset: 0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  transform: none !important;
+  resize: none !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-radius: 0 !important;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 24px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  z-index: 81050 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .teacher-pop-head,
+html:not(.obs) body.rdm-mobile-app-shell .floating-crossrefs-header,
+html:not(.obs) body.rdm-mobile-app-shell .floating-panel-head,
+html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel .teacher-pop-head {
+  position: sticky !important;
+  top: calc(-18px - env(safe-area-inset-top, 0px)) !important;
+  z-index: 2 !important;
+  padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+  background: inherit !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .tool-options,
+html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-options,
+html:not(.obs) body.rdm-mobile-app-shell .tool-options.tool-colors {
+  grid-template-columns: 1fr !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .tool-option {
+  min-height: auto !important;
+  padding: 13px 14px !important;
+  border-radius: 16px !important;
+}
+
+/* Bottom app navigation */
+#rdmMobileAppNav {
+  display: none;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 79000;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px));
+  border-top: 2px solid var(--gold);
+  background: rgba(255,249,236,.98);
+  box-shadow: 0 -12px 28px rgba(0,0,0,.15);
+  backdrop-filter: blur(10px);
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav {
+  background: rgba(23,43,41,.98);
+  box-shadow: 0 -12px 28px rgba(0,0,0,.34);
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: 6px 3px !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  font: 900 10px Arial, sans-serif !important;
+  letter-spacing: .1px !important;
+  line-height: 1.08 !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  text-align: center !important;
+  white-space: normal !important;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+  color: #203D39 !important;
+  border: 1.4px solid rgba(122,76,6,.32) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav button {
+  background: linear-gradient(180deg, rgba(248,217,135,.18), rgba(248,217,135,.08)) !important;
+  color: #fff6d9 !important;
+  border-color: rgba(248,217,135,.45) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button.active {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border-color: #7A4C06 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav button.active {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border-color: #fff1c0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-nav-icon {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Keep Offline Ready visible but out of the bottom app nav. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePillV33,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-status-pill {
+  left: 12px !important;
+  right: 12px !important;
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+  justify-content: center !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePanelV33,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
+  left: 12px !important;
+  right: 12px !important;
+  bottom: calc(128px + env(safe-area-inset-bottom, 0px)) !important;
+  width: auto !important;
+  max-height: calc(100vh - 172px) !important;
+  overflow-y: auto !important;
+}
+
+@media (min-width: 760px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 74px minmax(0, 1fr) auto !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .logo {
+    width: 68px !important;
+    height: 68px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .layout {
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture {
+    max-width: 980px !important;
+    margin: 0 auto !important;
+    padding: 34px 44px 28px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(760px, calc(100vw - 28px)) !important;
+    border: 2px solid var(--gold) !important;
+    border-bottom: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+}
+</style>
+<script id="rdm-v35-mobile-app-shell">
+(function rdmV35MobileAppShell() {
+  if (window.__rdmV35MobileAppShell) return;
+  window.__rdmV35MobileAppShell = true;
+
+  const MOBILE_QUERY = window.matchMedia("(max-width: 1180px), (hover: none) and (pointer: coarse)");
+  const get = (id) => document.getElementById(id);
+
+  function isObsMode() {
+    return document.documentElement.classList.contains("obs");
+  }
+
+  function mobileShellShouldRun() {
+    return !!(MOBILE_QUERY && MOBILE_QUERY.matches && !isObsMode());
+  }
+
+  function closeMobileSheets() {
+    document.body.classList.remove("rdm-mobile-passage-open", "rdm-mobile-notes-open");
+    updateActiveNav("scripture");
+  }
+
+  function closeFloatingPanelsForMobile() {
+    [
+      "teacherToolsPanel",
+      "studyResourcesPanel",
+      "obsCrossRefsPanel",
+      "obsNavigatorPanel",
+      "teachingMethodPanel",
+      "ironPromptPanel"
+    ].forEach((id) => {
+      const panel = get(id);
+      if (!panel) return;
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+      panel.style.removeProperty("--drag-left");
+      panel.style.removeProperty("--drag-top");
+      panel.style.left = "";
+      panel.style.right = "";
+      panel.style.top = "";
+      panel.style.bottom = "";
+      panel.style.transform = "";
+    });
+  }
+
+  function updateActiveNav(action) {
+    const nav = get("rdmMobileAppNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.rdmMobileAction === action);
+    });
+  }
+
+  function addSheetHeader(container, title) {
+    if (!container || container.querySelector(":scope > .rdm-mobile-sheet-head")) return;
+    const header = document.createElement("div");
+    header.className = "rdm-mobile-sheet-head";
+    header.innerHTML = `
+      <strong>${title}</strong>
+      <button type="button" class="secondary rdm-mobile-sheet-close" data-rdm-mobile-close="1">Close</button>
+    `;
+    container.insertBefore(header, container.firstChild);
+  }
+
+  function ensureThemeToggle() {
+    if (get("rdmMobileThemeToggle")) return;
+    const hero = document.querySelector(".hero");
+    if (!hero) return;
+
+    const btn = document.createElement("button");
+    btn.id = "rdmMobileThemeToggle";
+    btn.type = "button";
+    btn.textContent = document.body.classList.contains("dark") ? "Cream" : "Dark";
+    btn.setAttribute("aria-label", "Toggle cream or dark mode");
+    btn.onclick = function () {
+      const original = get("themeBtn");
+      if (original) original.click();
+      else if (typeof setThemeMode === "function") {
+        setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
+      }
+      setTimeout(updateThemeToggle, 0);
+    };
+    hero.appendChild(btn);
+  }
+
+  function updateThemeToggle() {
+    const btn = get("rdmMobileThemeToggle");
+    if (!btn) return;
+    btn.textContent = document.body.classList.contains("dark") ? "Cream" : "Dark";
+  }
+
+  function ensureBottomNav() {
+    if (get("rdmMobileAppNav")) return;
+
+    const nav = document.createElement("nav");
+    nav.id = "rdmMobileAppNav";
+    nav.setAttribute("aria-label", "Iron Sharpener mobile navigation");
+    nav.innerHTML = `
+      <button type="button" data-rdm-mobile-action="scripture"><span class="rdm-mobile-nav-icon">📖</span><span>Scripture</span></button>
+      <button type="button" data-rdm-mobile-action="passage"><span class="rdm-mobile-nav-icon">☰</span><span>Passage</span></button>
+      <button type="button" data-rdm-mobile-action="tools"><span class="rdm-mobile-nav-icon">⚔</span><span>Tools</span></button>
+      <button type="button" data-rdm-mobile-action="notes"><span class="rdm-mobile-nav-icon">✎</span><span>Notes</span></button>
+      <button type="button" data-rdm-mobile-action="resources"><span class="rdm-mobile-nav-icon">◈</span><span>Resources</span></button>
+      <button type="button" data-rdm-mobile-action="journal"><span class="rdm-mobile-nav-icon">✚</span><span>Journal</span></button>
+    `;
+
+    nav.addEventListener("click", function (event) {
+      const button = event.target.closest("button[data-rdm-mobile-action]");
+      if (!button) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const action = button.dataset.rdmMobileAction;
+      if (!document.body.classList.contains("rdm-mobile-app-shell")) return;
+
+      if (action === "scripture") {
+        closeMobileSheets();
+        closeFloatingPanelsForMobile();
+        document.querySelector("#scriptureBox")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        updateActiveNav("scripture");
+        return;
+      }
+
+      if (action === "passage") {
+        closeFloatingPanelsForMobile();
+        document.body.classList.remove("rdm-mobile-notes-open");
+        document.body.classList.add("rdm-mobile-passage-open");
+        updateActiveNav("passage");
+        return;
+      }
+
+      if (action === "tools") {
+        closeMobileSheets();
+        if (typeof openTeacherTools === "function") openTeacherTools();
+        else get("openTeacherTools")?.click();
+        updateActiveNav("tools");
+        return;
+      }
+
+      if (action === "notes") {
+        closeFloatingPanelsForMobile();
+        document.body.classList.remove("rdm-mobile-passage-open");
+        document.body.classList.add("rdm-mobile-notes-open");
+        updateActiveNav("notes");
+        return;
+      }
+
+      if (action === "resources") {
+        closeMobileSheets();
+        if (typeof openStudyResourcesPanel === "function") openStudyResourcesPanel();
+        else get("openStudyResourcesFromTools")?.click();
+        updateActiveNav("resources");
+        return;
+      }
+
+      if (action === "journal") {
+        try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+        window.location.href = "./personal-study.html";
+      }
+    });
+
+    document.body.appendChild(nav);
+    updateActiveNav("scripture");
+  }
+
+  function ensureMobileShellDom() {
+    addSheetHeader(document.querySelector(".controls"), "Passage Navigator");
+    addSheetHeader(document.querySelector(".side"), "Teaching Notes");
+    ensureThemeToggle();
+    ensureBottomNav();
+  }
+
+  function applyMobileShellMode() {
+    if (!document.body) return;
+    ensureMobileShellDom();
+
+    const enabled = mobileShellShouldRun();
+    document.body.classList.toggle("rdm-mobile-app-shell", enabled);
+
+    if (!enabled) {
+      document.body.classList.remove("rdm-mobile-passage-open", "rdm-mobile-notes-open");
+      closeFloatingPanelsForMobile();
+    }
+
+    updateThemeToggle();
+  }
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest("[data-rdm-mobile-close]")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    closeMobileSheets();
+    document.querySelector("#scriptureBox")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, true);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    if (!document.body.classList.contains("rdm-mobile-app-shell")) return;
+    closeMobileSheets();
+  });
+
+  const classObserver = new MutationObserver(function () {
+    applyMobileShellMode();
+  });
+
+  function start() {
+    ensureMobileShellDom();
+    applyMobileShellMode();
+    try { classObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] }); } catch (_) {}
+  }
+
+  if (MOBILE_QUERY && typeof MOBILE_QUERY.addEventListener === "function") {
+    MOBILE_QUERY.addEventListener("change", applyMobileShellMode);
+  } else if (MOBILE_QUERY && typeof MOBILE_QUERY.addListener === "function") {
+    MOBILE_QUERY.addListener(applyMobileShellMode);
+  }
+
+  window.addEventListener("resize", applyMobileShellMode);
+  window.addEventListener("orientationchange", function () { setTimeout(applyMobileShellMode, 250); });
+  window.addEventListener("online", applyMobileShellMode);
+  window.addEventListener("offline", applyMobileShellMode);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+
+  window.rdmApplyMobileAppShellV35 = applyMobileShellMode;
+})();
+</script>
+<script id="rdm-v35-mobile-app-shell-marker">
+(function rdmV35MobileAppShellMarker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v35-mobile-app-shell";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v35-mobile-app-shell";
+})();
+</script>
+
+
+<!-- Patch 36 — Simplified Mobile Shell + OBS Resources Buttons -->
+<style id="rdm-v36-simplified-mobile-shell-resources-cleanup">
+/*
+   Patch 36 — Simplified Main Iron Sharpener shell
+   Scope: remove the Study Resources for this passage quick panel/bar from PC and mobile,
+   keep full Study Resources available through Teacher Tools, and restore OBS quick buttons.
+   Desktop teaching layout, OBS Focus, offline ready, Scripture loading, copy tools,
+   Study Resources panels, and locked Disciple Journal v75 remain preserved.
+*/
+
+/* Remove the passage-level Study Resources quick bar everywhere. */
+#studyResourcesKey {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep new OBS buttons visually consistent with the existing OBS Tools drawer. */
+html.obs .obs-tool-bar #obsShowInternalCrossRefs,
+html.obs .obs-tool-bar #obsShowStudyResources {
+  display: inline-flex !important;
+  background: linear-gradient(#f8d987, #d99f31) !important;
+  color: #203D39 !important;
+  border: 1.5px solid var(--gold) !important;
+}
+
+/* Preserve collapsed drawer behavior. */
+html.obs .obs-tool-bar.collapsed #obsShowInternalCrossRefs,
+html.obs .obs-tool-bar.collapsed #obsShowStudyResources {
+  display: none !important;
+}
+
+/* v36 simplified mobile nav: no separate Resources tab in Disciple Maker mode. */
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
+  display: none !important;
+}
+</style>
+<script id="rdm-v36-simplified-mobile-shell-resources-cleanup">
+(function rdmV36SimplifiedMobileShellResourcesCleanup() {
+  if (window.__rdmV36SimplifiedMobileShellResourcesCleanup) return;
+  window.__rdmV36SimplifiedMobileShellResourcesCleanup = true;
+
+  const get = (id) => document.getElementById(id);
+
+  function removeStudyResourcesKey() {
+    document.querySelectorAll("#studyResourcesKey").forEach((key) => key.remove());
+  }
+
+  function ensureObsToolButton(id, text, afterId, handler) {
+    const bar = get("obsToolBar");
+    if (!bar) return null;
+
+    let button = get(id);
+    if (!button) {
+      button = document.createElement("button");
+      button.id = id;
+      button.type = "button";
+      button.textContent = text;
+
+      const anchor = get(afterId) || get("obsShowCrossRefs") || get("ironPromptPanelBtn") || get("obsToolsMenuBtn");
+      if (anchor && anchor.parentElement === bar) {
+        anchor.insertAdjacentElement("afterend", button);
+      } else {
+        bar.insertBefore(button, get("obsToolsMenuBtn") || null);
+      }
+    }
+
+    button.onclick = function(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      handler();
+    };
+
+    return button;
+  }
+
+  function openBuiltInCrossReferencesFromObs() {
+    if (typeof window.openInternalCrossReferences === "function") {
+      window.openInternalCrossReferences("passage");
+      return;
+    }
+
+    if (typeof openInternalCrossReferences === "function") {
+      openInternalCrossReferences("passage");
+      return;
+    }
+
+    get("openInternalCrossRefs")?.click();
+  }
+
+  function openStudyResourcesFromObs() {
+    if (typeof window.openStudyResourcesPanel === "function") {
+      window.openStudyResourcesPanel();
+      return;
+    }
+
+    if (typeof openStudyResourcesPanel === "function") {
+      openStudyResourcesPanel();
+      return;
+    }
+
+    get("openStudyResourcesFromTools")?.click();
+  }
+
+  function ensureObsResourceButtons() {
+    ensureObsToolButton(
+      "obsShowInternalCrossRefs",
+      "Built-In Cross References",
+      "obsShowCrossRefs",
+      openBuiltInCrossReferencesFromObs
+    );
+
+    ensureObsToolButton(
+      "obsShowStudyResources",
+      "Study Resources",
+      "obsShowInternalCrossRefs",
+      openStudyResourcesFromObs
+    );
+  }
+
+  function simplifyMobileNav() {
+    const nav = get("rdmMobileAppNav");
+    if (!nav) return;
+
+    nav.querySelectorAll('button[data-rdm-mobile-action="resources"]').forEach((button) => {
+      button.remove();
+    });
+
+    if (!nav.querySelector("button.active")) {
+      nav.querySelector('button[data-rdm-mobile-action="scripture"]')?.classList.add("active");
+    }
+  }
+
+  function runCleanup() {
+    removeStudyResourcesKey();
+    ensureObsResourceButtons();
+    simplifyMobileNav();
+  }
+
+  const observer = new MutationObserver(function() {
+    runCleanup();
+  });
+
+  function start() {
+    runCleanup();
+    try {
+      observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
+    } catch (_) {}
+  }
+
+  document.addEventListener("click", function(event) {
+    if (!event.target.closest("#studyResourcesKey")) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  window.addEventListener("load", function() {
+    setTimeout(runCleanup, 0);
+    setTimeout(runCleanup, 250);
+    setTimeout(runCleanup, 900);
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+
+  window.rdmV36RunResourcesCleanup = runCleanup;
+})();
+</script>
+<script id="rdm-v36-simplified-mobile-shell-marker">
+(function rdmV36SimplifiedMobileShellMarker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v36-simplified-mobile-shell";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v36-simplified-mobile-shell";
+})();
+</script>
+
 </body>
 </html>
