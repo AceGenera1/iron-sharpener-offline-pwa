@@ -18114,5 +18114,405 @@ html.obs #scriptureBackBtn {
 })();
 </script>
 
+
+
+<!-- Patch 40 — Always-Visible Scripture Back + Disciple Journal Mark Consistency -->
+<style id="rdm-v40-always-scripture-back-journal-mark-style">
+/*
+   Patch 40 — keeps the working v39 mark behavior, but makes the Scripture Back button
+   permanent in the Scripture box, available in OBS Focus, and visually consistent.
+   Also adds Disciple Journal-compatible mark color classes alongside the v39 classes.
+*/
+#scriptureBox {
+  position: relative !important;
+}
+
+#scriptureBackBtn,
+#scriptureBackBtn.rdm-scripture-back-visible {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 250 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 36px !important;
+  padding: 8px 13px !important;
+  border-radius: 999px !important;
+  font: 900 12px Arial, sans-serif !important;
+  line-height: 1.1 !important;
+  letter-spacing: .2px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.14) !important;
+}
+
+html.obs #scriptureBackBtn,
+html.obs #scriptureBackBtn.rdm-scripture-back-visible {
+  display: inline-flex !important;
+}
+
+body:not(.dark) #scriptureBackBtn {
+  background: linear-gradient(180deg, #FFF8EA, #F3E7C8) !important;
+  color: #10223C !important;
+  border: 1.8px solid #D7A84F !important;
+}
+
+body.dark #scriptureBackBtn,
+html.obs body.dark #scriptureBackBtn {
+  background: linear-gradient(180deg, #F8D987, #D7A84F) !important;
+  color: #203D39 !important;
+  border: 1.8px solid rgba(255,241,192,.90) !important;
+}
+
+#scriptureBackBtn:hover,
+#scriptureBackBtn:focus-visible {
+  transform: translateY(-1px) !important;
+  opacity: 1 !important;
+}
+
+#scriptureBox .ref,
+#scriptureBox #refTitle {
+  padding-right: 92px !important;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  #scriptureBackBtn,
+  #scriptureBackBtn.rdm-scripture-back-visible {
+    top: 12px !important;
+    right: 12px !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+  #scriptureBox .ref,
+  #scriptureBox #refTitle {
+    padding-right: 78px !important;
+  }
+}
+
+/* Disciple Journal-compatible color classes for the Disciple Maker marking system. */
+.verse.underlined.underline-gold { text-decoration-color: var(--rdm-mark-gold, #d7a84f) !important; }
+.verse.underlined.underline-blue { text-decoration-color: var(--rdm-mark-blue, #4f8fe8) !important; }
+.verse.underlined.underline-green { text-decoration-color: var(--rdm-mark-green, #3fb377) !important; }
+.verse.underlined.underline-red { text-decoration-color: var(--rdm-mark-red, #d44d4d) !important; }
+.verse.underlined.underline-purple { text-decoration-color: var(--rdm-mark-purple, #9a65d8) !important; }
+.verse.underlined.underline-amber { text-decoration-color: var(--rdm-mark-amber, #e8842d) !important; }
+
+.verse.circled.circle-gold { outline-color: var(--rdm-mark-gold-soft, rgba(215,168,79,.78)) !important; }
+.verse.circled.circle-blue { outline-color: var(--rdm-mark-blue-soft, rgba(79,143,232,.78)) !important; }
+.verse.circled.circle-green { outline-color: var(--rdm-mark-green-soft, rgba(63,179,119,.78)) !important; }
+.verse.circled.circle-red { outline-color: var(--rdm-mark-red-soft, rgba(212,77,77,.76)) !important; }
+.verse.circled.circle-purple { outline-color: var(--rdm-mark-purple-soft, rgba(154,101,216,.78)) !important; }
+.verse.circled.circle-amber { outline-color: var(--rdm-mark-amber-soft, rgba(232,132,45,.78)) !important; }
+
+.verse.boxed.box-gold { border-color: var(--rdm-mark-gold, #d7a84f) !important; }
+.verse.boxed.box-blue { border-color: var(--rdm-mark-blue, #4f8fe8) !important; }
+.verse.boxed.box-green { border-color: var(--rdm-mark-green, #3fb377) !important; }
+.verse.boxed.box-red { border-color: var(--rdm-mark-red, #d44d4d) !important; }
+.verse.boxed.box-purple { border-color: var(--rdm-mark-purple, #9a65d8) !important; }
+.verse.boxed.box-amber { border-color: var(--rdm-mark-amber, #e8842d) !important; }
+
+.inline-underline.inline-mark-gold { text-decoration-color: var(--rdm-mark-gold, #d7a84f) !important; }
+.inline-underline.inline-mark-blue { text-decoration-color: var(--rdm-mark-blue, #4f8fe8) !important; }
+.inline-underline.inline-mark-green { text-decoration-color: var(--rdm-mark-green, #3fb377) !important; }
+.inline-underline.inline-mark-red { text-decoration-color: var(--rdm-mark-red, #d44d4d) !important; }
+.inline-underline.inline-mark-purple { text-decoration-color: var(--rdm-mark-purple, #9a65d8) !important; }
+.inline-underline.inline-mark-amber { text-decoration-color: var(--rdm-mark-amber, #e8842d) !important; }
+
+.inline-circle.inline-mark-gold,
+.inline-box.inline-mark-gold { border-color: var(--rdm-mark-gold, #d7a84f) !important; }
+.inline-circle.inline-mark-blue,
+.inline-box.inline-mark-blue { border-color: var(--rdm-mark-blue, #4f8fe8) !important; }
+.inline-circle.inline-mark-green,
+.inline-box.inline-mark-green { border-color: var(--rdm-mark-green, #3fb377) !important; }
+.inline-circle.inline-mark-red,
+.inline-box.inline-mark-red { border-color: var(--rdm-mark-red, #d44d4d) !important; }
+.inline-circle.inline-mark-purple,
+.inline-box.inline-mark-purple { border-color: var(--rdm-mark-purple, #9a65d8) !important; }
+.inline-circle.inline-mark-amber,
+.inline-box.inline-mark-amber { border-color: var(--rdm-mark-amber, #e8842d) !important; }
+</style>
+<script id="rdm-v40-always-scripture-back-journal-mark-script">
+(function rdmV40AlwaysBackAndJournalMarkConsistency(){
+  if (window.__rdmV40AlwaysBackAndJournalMarkConsistency) return;
+  window.__rdmV40AlwaysBackAndJournalMarkConsistency = true;
+
+  const COLORS = ["gold", "blue", "green", "red", "purple", "amber"];
+  const STORAGE_KEY = "ironSharpenerUnified.selectedTeachingMarkColor";
+
+  function get(id) { return document.getElementById(id); }
+  function cleanColor(value) {
+    const text = String(value || "").replace(/^highlight-/, "").trim();
+    return COLORS.includes(text) ? text : "gold";
+  }
+  function getSelectedMarkColor() {
+    return cleanColor(window.__rdmSelectedTeachingMarkColor || localStorage.getItem(STORAGE_KEY) || "gold");
+  }
+  function setSelectedMarkColor(color) {
+    const cleaned = cleanColor(color);
+    window.__rdmSelectedTeachingMarkColor = cleaned;
+    try { localStorage.setItem(STORAGE_KEY, cleaned); } catch (_) {}
+    return cleaned;
+  }
+  function currentState() {
+    const start = get("start")?.value || "1";
+    return {
+      book: get("book")?.value || "Genesis",
+      chapter: get("chapter")?.value || "1",
+      start,
+      end: get("end")?.value || start,
+      range: get("rangeSize")?.value || "5"
+    };
+  }
+  function sameState(a, b) {
+    return !!a && !!b &&
+      String(a.book) === String(b.book) &&
+      String(a.chapter) === String(b.chapter) &&
+      String(a.start) === String(b.start) &&
+      String(a.end) === String(b.end);
+  }
+  function stateLabel(state) {
+    if (!state) return "← Back";
+    const start = String(state.start || "1");
+    const end = String(state.end || start);
+    return start === end
+      ? `← ${state.book || "Scripture"} ${state.chapter || ""}:${start}`
+      : `← ${state.book || "Scripture"} ${state.chapter || ""}:${start}-${end}`;
+  }
+  function maxVerseFor(book, chapter) {
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
+      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
+      if (value) return String(value);
+    } catch (_) {}
+    const endSel = get("end");
+    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
+  }
+  function setPreviousPassageBindings(state) {
+    try { previousPassageState = state; } catch (_) {}
+    try { window.previousPassageState = state; } catch (_) {}
+  }
+  function setPassageStateWithoutPushing(state) {
+    if (!state) return;
+    const bookSel = get("book");
+    const chapSel = get("chapter");
+    const startSel = get("start");
+    const endSel = get("end");
+    const rangeSel = get("rangeSize");
+    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    bookSel.value = state.book || bookSel.value;
+    if (typeof fillChapters === "function") fillChapters();
+    chapSel.value = String(state.chapter || chapSel.value || "1");
+    if (typeof fillVerses === "function") fillVerses();
+
+    if (state.range === "full" || state.fullChapter === true) {
+      rangeSel.value = "full";
+      startSel.value = "1";
+      endSel.value = maxVerseFor(bookSel.value, chapSel.value);
+    } else {
+      rangeSel.value = String(state.range || rangeSel.value || "5");
+      startSel.value = String(state.start || "1");
+      endSel.value = String(state.end || state.start || "1");
+    }
+
+    if (typeof loadPassage === "function") loadPassage();
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+  }
+  function backStack() {
+    if (!Array.isArray(window.__rdmCrossReferenceBackStack)) window.__rdmCrossReferenceBackStack = [];
+    return window.__rdmCrossReferenceBackStack;
+  }
+  function hasBackTarget() {
+    const stack = backStack();
+    if (stack.length) return true;
+    try { if (typeof previousPassageState !== "undefined" && previousPassageState) return true; } catch (_) {}
+    return !!window.previousPassageState;
+  }
+  function nextBackTarget() {
+    const stack = backStack();
+    return stack[stack.length - 1] || window.previousPassageState || null;
+  }
+  function createBackButton() {
+    const scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+    let button = get("scriptureBackBtn");
+    if (!button) {
+      button = document.createElement("button");
+      button.id = "scriptureBackBtn";
+      button.type = "button";
+      button.className = "secondary rdm-scripture-back-visible";
+      scriptureBox.insertAdjacentElement("afterbegin", button);
+    }
+    button.classList.add("rdm-scripture-back-visible");
+    button.setAttribute("aria-label", "Back to previous Scripture passage");
+    button.onclick = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      goBackOneScriptureStep();
+    };
+    updateBackButton();
+    return button;
+  }
+  function updateBackButton() {
+    const button = get("scriptureBackBtn");
+    if (!button) return;
+    const target = nextBackTarget();
+    button.classList.add("rdm-scripture-back-visible");
+    button.textContent = target ? "← Back" : "← Back";
+    button.title = target ? `Back to ${stateLabel(target).replace(/^←\s*/, "")}` : "No previous Scripture passage yet";
+  }
+  function goBackOneScriptureStep() {
+    const stack = backStack();
+    let previous = stack.pop() || null;
+    if (!previous) {
+      try { previous = (typeof previousPassageState !== "undefined" && previousPassageState) ? previousPassageState : null; } catch (_) {}
+      previous = previous || window.previousPassageState || null;
+    }
+    if (!previous) {
+      updateBackButton();
+      return;
+    }
+
+    const current = currentState();
+    if (sameState(current, previous) && stack.length) previous = stack.pop();
+    setPreviousPassageBindings(stack[stack.length - 1] || null);
+    setPassageStateWithoutPushing(previous);
+
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
+      const btn = get(id);
+      if (btn) btn.style.display = "none";
+    });
+
+    setTimeout(updateBackButton, 80);
+    setTimeout(updateBackButton, 350);
+  }
+
+  window.rdmGoBackOneStudyResourceStep = goBackOneScriptureStep;
+  window.rdmUpdateScriptureBackButtonV40 = updateBackButton;
+
+  const previousGoTo = typeof window.goToScriptureReference === "function" ? window.goToScriptureReference : null;
+  if (previousGoTo && !previousGoTo.__rdmV40Wrapped) {
+    const wrapped = function rdmV40GoToScriptureReference(ref, options) {
+      const result = previousGoTo.apply(this, arguments);
+      setTimeout(function(){ createBackButton(); updateBackButton(); }, 80);
+      setTimeout(updateBackButton, 350);
+      return result;
+    };
+    wrapped.__rdmV40Wrapped = true;
+    window.goToScriptureReference = wrapped;
+    try { goToScriptureReference = wrapped; } catch (_) {}
+  }
+
+  const previousSetTool = typeof setTool === "function" ? setTool : null;
+  if (previousSetTool && !previousSetTool.__rdmV40Wrapped) {
+    const wrappedSetTool = function rdmV40SetToolJournalColorMatch(toolName) {
+      if (String(toolName || "").startsWith("highlight-")) setSelectedMarkColor(toolName);
+      const result = previousSetTool.apply(this, arguments);
+      applyJournalCompatibleClassesToExistingMarks();
+      return result;
+    };
+    wrappedSetTool.__rdmV40Wrapped = true;
+    setTool = wrappedSetTool;
+  }
+
+  function addJournalColorClass(element, tool, color) {
+    if (!element || !tool) return;
+    const cleaned = cleanColor(color);
+    const prefix = tool === "box" ? "box-" : `${tool}-`;
+    COLORS.forEach(c => element.classList.remove(`${prefix}${c}`));
+    element.classList.add(`${prefix}${cleaned}`);
+  }
+  function addRdmAndJournalClass(element, tool, color) {
+    if (!element) return;
+    const cleaned = cleanColor(color);
+    COLORS.forEach(c => {
+      element.classList.remove(`rdm-${tool}-${c}`);
+      element.classList.remove(tool === "box" ? `box-${c}` : `${tool}-${c}`);
+    });
+    element.classList.add(`rdm-${tool}-${cleaned}`);
+    addJournalColorClass(element, tool, cleaned);
+  }
+  function addInlineJournalColorClass(element, color) {
+    if (!element) return;
+    const cleaned = cleanColor(color);
+    COLORS.forEach(c => element.classList.remove(`inline-mark-${c}`, `rdm-inline-mark-${c}`));
+    element.classList.add(`rdm-inline-mark-${cleaned}`, `inline-mark-${cleaned}`);
+  }
+  function applyJournalCompatibleClassesToExistingMarks() {
+    const savedColor = getSelectedMarkColor();
+    document.querySelectorAll("#passage .verse[data-v]").forEach(verse => {
+      if (verse.classList.contains("underlined")) {
+        const found = Array.from(verse.classList).find(c => /^rdm-underline-/.test(c) || /^underline-/.test(c));
+        const color = found ? cleanColor(found.split("-").pop()) : savedColor;
+        addRdmAndJournalClass(verse, "underline", color);
+      }
+      if (verse.classList.contains("circled")) {
+        const found = Array.from(verse.classList).find(c => /^rdm-circle-/.test(c) || /^circle-/.test(c));
+        const color = found ? cleanColor(found.split("-").pop()) : savedColor;
+        addRdmAndJournalClass(verse, "circle", color);
+      }
+      if (verse.classList.contains("boxed")) {
+        const found = Array.from(verse.classList).find(c => /^rdm-box-/.test(c) || /^box-/.test(c));
+        const color = found ? cleanColor(found.split("-").pop()) : savedColor;
+        addRdmAndJournalClass(verse, "box", color);
+      }
+      verse.querySelectorAll(".inline-underline, .inline-circle, .inline-box").forEach(mark => {
+        const found = Array.from(mark.classList).find(c => /^rdm-inline-mark-/.test(c) || /^inline-mark-/.test(c));
+        addInlineJournalColorClass(mark, found ? cleanColor(found.split("-").pop()) : savedColor);
+      });
+    });
+  }
+
+  const previousSaveMarks = typeof saveMarks === "function" ? saveMarks : null;
+  if (previousSaveMarks && !previousSaveMarks.__rdmV40Wrapped) {
+    const wrappedSaveMarks = function rdmV40SaveMarksWithJournalClasses() {
+      applyJournalCompatibleClassesToExistingMarks();
+      return previousSaveMarks.apply(this, arguments);
+    };
+    wrappedSaveMarks.__rdmV40Wrapped = true;
+    saveMarks = wrappedSaveMarks;
+  }
+
+  const previousRestoreMarks = typeof restoreMarks === "function" ? restoreMarks : null;
+  if (previousRestoreMarks && !previousRestoreMarks.__rdmV40Wrapped) {
+    const wrappedRestoreMarks = function rdmV40RestoreMarksWithJournalClasses() {
+      const result = previousRestoreMarks.apply(this, arguments);
+      applyJournalCompatibleClassesToExistingMarks();
+      return result;
+    };
+    wrappedRestoreMarks.__rdmV40Wrapped = true;
+    restoreMarks = wrappedRestoreMarks;
+  }
+
+  document.addEventListener("click", function(event) {
+    if (event.target?.closest?.(".tool-option[data-tool], .cross-ref-link, .doctrine-topic-btn, .doctrine-related-topic-btn, .naves-topic-btn, .naves-topic-btn-v11, .internal-xref-link")) {
+      setTimeout(function(){ createBackButton(); updateBackButton(); applyJournalCompatibleClassesToExistingMarks(); }, 120);
+      setTimeout(updateBackButton, 420);
+    }
+  }, true);
+
+  function start() {
+    createBackButton();
+    applyJournalCompatibleClassesToExistingMarks();
+    setTimeout(updateBackButton, 100);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
+</script>
+<script id="rdm-v40-mobile-shell-marker">
+(function rdmV40Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v40-always-scripture-back-journal-mark-consistency";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v40-always-scripture-back-journal-mark-consistency";
+})();
+</script>
+
 </body>
 </html>
