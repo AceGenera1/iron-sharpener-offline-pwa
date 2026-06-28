@@ -2155,6 +2155,117 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
     width: 100% !important;
   }
 }
+
+
+/* v63 — Journal Reader Mode */
+.journalReaderPanel {
+  display: none;
+  position: fixed;
+  inset: 24px;
+  z-index: 98000;
+  border: 2px solid var(--copper);
+  border-radius: 24px;
+  background: rgba(255, 249, 241, .98);
+  color: var(--ink);
+  box-shadow: 0 28px 80px rgba(29,45,68,.30);
+  overflow: hidden;
+}
+.journalReaderPanel.open { display: grid; grid-template-rows: auto minmax(0,1fr) auto; }
+.readerHead {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 22px;
+  border-bottom:1px solid var(--soft-copper);
+  background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,249,241,.90));
+}
+.readerHead h2 { margin: 0; color: var(--clay); font-size: 28px; line-height:1.1; }
+.readerSub { margin: 4px 0 0; color: var(--dust); font-weight:800; font-size:13px; }
+.readerHeadActions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.readerBody {
+  overflow:auto;
+  padding: 26px;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(217,160,123,.16), transparent 26%),
+    linear-gradient(180deg, #fffaf4, #fbf1e4);
+}
+.readerPaper {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid rgba(217,160,123,.55);
+  border-radius: 20px;
+  background: rgba(255,255,255,.62);
+  box-shadow: 0 18px 45px rgba(29,45,68,.13);
+  padding: 30px;
+}
+.readerPaperTitle { margin:0 0 6px; font-size:34px; color: var(--deep); line-height:1.08; }
+.readerMeta { margin:0 0 18px; color: var(--dust); font-weight:900; }
+.readerBadges { display:flex; gap:8px; flex-wrap:wrap; margin: 0 0 20px; }
+.readerSection {
+  border-left: 5px solid var(--soft-copper);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  background: rgba(255,249,241,.74);
+}
+.readerSection h3 { margin:0 0 8px; color: var(--copper); font-size:18px; }
+.readerSection p { margin:0; white-space:pre-wrap; line-height:1.65; font-size:16px; }
+.readerTags { margin-top:18px; font-weight:900; color: var(--dust); }
+.readerFoot {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding: 14px 22px;
+  border-top:1px solid var(--soft-copper);
+  background: rgba(255,249,241,.96);
+}
+.readerNav { display:flex; gap:10px; flex-wrap:wrap; }
+.readerCount { color: var(--dust); font-weight:900; font-size:13px; }
+.historyHeadActions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+.entryActions { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.entryActions button { padding: 7px 10px; font-size: 12px; min-height: 34px; border-radius: 11px; }
+.entryActions .readEntryBtn { background: linear-gradient(180deg, var(--soft-copper), var(--copper)); color:#fff; }
+body.dark .journalReaderPanel {
+  background: rgba(29,45,68,.98);
+  color: var(--cream);
+  box-shadow: 0 28px 80px rgba(0,0,0,.55);
+}
+body.dark .readerHead,
+body.dark .readerFoot {
+  background: linear-gradient(180deg, rgba(61,91,123,.95), rgba(38,60,88,.98));
+  border-color: rgba(217,160,123,.7);
+}
+body.dark .readerHead h2 { color: var(--soft-copper); }
+body.dark .readerSub,
+body.dark .readerCount,
+body.dark .readerMeta,
+body.dark .readerTags { color: var(--muted); }
+body.dark .readerBody {
+  background:
+    radial-gradient(circle at 15% 0%, rgba(217,160,123,.14), transparent 27%),
+    linear-gradient(180deg, #1d2d44, #142238);
+}
+body.dark .readerPaper {
+  background: rgba(61,91,123,.58);
+  border-color: rgba(217,160,123,.55);
+  box-shadow: 0 18px 45px rgba(0,0,0,.28);
+}
+body.dark .readerPaperTitle { color: #fff8ed; }
+body.dark .readerSection { background: rgba(255,249,241,.055); border-left-color: var(--soft-copper); }
+body.dark .readerSection h3 { color: var(--soft-copper); }
+@media (max-width: 760px) {
+  .journalReaderPanel { inset: 8px; border-radius: 18px; }
+  .readerHead, .readerFoot { padding: 13px; }
+  .readerHead { flex-direction: column; }
+  .readerHeadActions, .readerNav { width:100%; }
+  .readerHeadActions button, .readerNav button { flex:1 1 auto; }
+  .readerBody { padding: 14px; }
+  .readerPaper { padding: 18px; }
+  .readerPaperTitle { font-size: 27px; }
+}
+
 </style>
 </head>
 <body>
@@ -2270,6 +2381,34 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
     </div>
     <div id="studyToolsResults">
       <div class="resourceResult"><h3>Open a study tool</h3><p>Select a resource from Study Tools.</p></div>
+    </div>
+  </section>
+
+
+
+  <section class="journalReaderPanel" id="journalReaderPanel" aria-hidden="true">
+    <div class="readerHead">
+      <div>
+        <h2 id="readerPanelTitle">Journal Entry</h2>
+        <p class="readerSub" id="readerPanelMeta">Read what the Lord has been showing you.</p>
+      </div>
+      <div class="readerHeadActions">
+        <button class="secondary" id="readerEditBtn" type="button">Edit Entry</button>
+        <button class="secondary" id="readerCopyBtn" type="button">Copy Entry</button>
+        <button class="secondary" id="closeReaderBtn" type="button">Close</button>
+      </div>
+    </div>
+    <div class="readerBody">
+      <article class="readerPaper" id="readerPaper">
+        <p class="empty">Choose a saved entry to read.</p>
+      </article>
+    </div>
+    <div class="readerFoot">
+      <div class="readerNav">
+        <button class="secondary" id="readerPrevBtn" type="button">‹ Previous Entry</button>
+        <button class="secondary" id="readerNextBtn" type="button">Next Entry ›</button>
+      </div>
+      <span class="readerCount" id="readerCount">0 of 0</span>
     </div>
   </section>
 
@@ -2424,7 +2563,7 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
     </section>
 
     <aside class="card historyCard">
-      <div class="cardHead"><h3>Saved Study History</h3><button class="secondary" id="refreshHistoryBtn" type="button">Refresh</button></div>
+      <div class="cardHead"><h3>Saved Study History</h3><div class="historyHeadActions"><button class="secondary" id="readJournalBtn" type="button">Read Journal</button><button class="secondary" id="refreshHistoryBtn" type="button">Refresh</button></div></div>
       <div class="cardBody">
         <input class="historySearch" id="historySearch" placeholder="Search reference, title, notes, or tags" />
         <div class="historyFilters" aria-label="Saved study filters">
@@ -2466,7 +2605,7 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
 <script>
 (() => {
   "use strict";
-  const VERSION = "v59-highlight-colors-back-to-scripture";
+  const VERSION = "v63-journal-reader-mode";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4096,14 +4235,159 @@ const verseCounts = {
     list.innerHTML = filtered.map((entry) => {
       const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.feetSensed, entry.notes?.freewrite, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
       const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit</span>' : ''}`;
-      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}</div>`;
+      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button></div></div>`;
     }).join("");
     list.querySelectorAll(".entryItem").forEach((item) => {
-      item.addEventListener("click", async () => {
+      item.addEventListener("click", async (event) => {
+        if (event.target.closest("button")) return;
         const entries = await getAllEntries();
         const entry = entries.find((candidate) => candidate.id === item.dataset.id);
         if (entry) applyEntry(entry);
       });
+    });
+    list.querySelectorAll(".editEntryBtn").forEach((btn) => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const entries = await getAllEntries();
+        const entry = entries.find((candidate) => candidate.id === btn.dataset.id);
+        if (entry) applyEntry(entry);
+      });
+    });
+    list.querySelectorAll(".readEntryBtn").forEach((btn) => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const entries = await getFilteredEntriesForReader();
+        const index = entries.findIndex((candidate) => candidate.id === btn.dataset.id);
+        openJournalReader(entries, Math.max(0, index));
+      });
+    });
+  }
+
+
+  let readerEntries = [];
+  let readerIndex = -1;
+
+  async function getFilteredEntriesForReader() {
+    const queryEl = $("historySearch");
+    const query = queryEl ? queryEl.value.trim().toLowerCase() : "";
+    const all = await getAllEntries();
+    let filtered = all;
+    if (historyFilter === "favorites") filtered = filtered.filter((entry) => !!entry.favorite);
+    if (historyFilter === "review") filtered = filtered.filter((entry) => !!entry.reviewLater);
+    if (query) filtered = filtered.filter((entry) => JSON.stringify(entry).toLowerCase().includes(query));
+    return filtered;
+  }
+
+  function readerSection(title, body) {
+    const cleaned = scrubPromptOnlyText(body || "").trim();
+    if (!cleaned) return "";
+    return `<section class="readerSection"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(cleaned)}</p></section>`;
+  }
+
+  function readerEntryHtml(entry) {
+    if (!entry) return `<p class="empty">Choose a saved entry to read.</p>`;
+    const notes = entry.notes || {};
+    const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit Entry</span>' : ''}`;
+    const sections = [
+      readerSection("Read & Observe", notes.observe),
+      readerSection("Understand the Meaning", notes.understand),
+      readerSection("Examine My Heart", notes.heart),
+      readerSection("At His Feet — Questions", notes.feetQuestions),
+      readerSection("At His Feet — What I Sensed", notes.feetSensed),
+      readerSection("At His Feet — Scripture / Testing", notes.feetTesting),
+      readerSection("Freewrite Journal", notes.freewrite),
+      readerSection("Prayer Response", notes.prayer),
+      readerSection("Walk It Out", notes.walk),
+      readerSection("Remember / Revisit", notes.remember)
+    ].filter(Boolean).join("");
+
+    return `
+      <h1 class="readerPaperTitle">${escapeHtml(entryDisplayTitle(entry))}</h1>
+      <p class="readerMeta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")}</p>
+      ${badges ? `<div class="readerBadges">${badges}</div>` : ""}
+      ${sections || `<section class="readerSection"><h3>Journal Entry</h3><p>No written notes have been saved in this entry yet.</p></section>`}
+      ${entry.tags ? `<p class="readerTags">Tags: ${escapeHtml(entry.tags)}</p>` : ""}
+    `;
+  }
+
+  function renderJournalReader() {
+    const panel = $("journalReaderPanel");
+    const paper = $("readerPaper");
+    const title = $("readerPanelTitle");
+    const meta = $("readerPanelMeta");
+    const count = $("readerCount");
+    const prev = $("readerPrevBtn");
+    const next = $("readerNextBtn");
+    const entry = readerEntries[readerIndex];
+
+    if (!panel || !paper) return;
+    paper.innerHTML = readerEntryHtml(entry);
+
+    if (title) title.textContent = entry ? entryDisplayTitle(entry) : "Journal Entry";
+    if (meta) meta.textContent = entry ? `${entry.reference || ""} • ${entry.studyDate || ""}` : "Read what the Lord has been showing you.";
+    if (count) count.textContent = readerEntries.length ? `${readerIndex + 1} of ${readerEntries.length}` : "0 of 0";
+    if (prev) prev.disabled = readerIndex <= 0;
+    if (next) next.disabled = readerIndex >= readerEntries.length - 1;
+  }
+
+  function openJournalReader(entries, index = 0) {
+    readerEntries = Array.isArray(entries) ? entries : [];
+    readerIndex = Math.min(Math.max(index, 0), Math.max(readerEntries.length - 1, 0));
+    const panel = $("journalReaderPanel");
+    if (!panel) return;
+    renderJournalReader();
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  function closeJournalReader() {
+    const panel = $("journalReaderPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  }
+
+  function initJournalReader() {
+    const readJournalBtn = $("readJournalBtn");
+    if (readJournalBtn) {
+      readJournalBtn.onclick = async () => {
+        const entries = await getFilteredEntriesForReader();
+        if (!entries.length) {
+          setStatus("No saved entries to read");
+          return;
+        }
+        openJournalReader(entries, 0);
+      };
+    }
+
+    if ($("closeReaderBtn")) $("closeReaderBtn").onclick = closeJournalReader;
+    if ($("readerPrevBtn")) $("readerPrevBtn").onclick = () => { if (readerIndex > 0) { readerIndex -= 1; renderJournalReader(); } };
+    if ($("readerNextBtn")) $("readerNextBtn").onclick = () => { if (readerIndex < readerEntries.length - 1) { readerIndex += 1; renderJournalReader(); } };
+    if ($("readerEditBtn")) $("readerEditBtn").onclick = () => {
+      const entry = readerEntries[readerIndex];
+      if (!entry) return;
+      closeJournalReader();
+      applyEntry(entry);
+    };
+    if ($("readerCopyBtn")) $("readerCopyBtn").onclick = async () => {
+      const entry = readerEntries[readerIndex];
+      if (!entry) return;
+      try {
+        await navigator.clipboard.writeText(entryToPlainText(entry));
+        setStatus("Entry copied");
+      } catch (_) {
+        setStatus("Copy unavailable");
+      }
+    };
+
+    document.addEventListener("keydown", (event) => {
+      const panel = $("journalReaderPanel");
+      if (!panel || !panel.classList.contains("open")) return;
+      if (event.key === "Escape") closeJournalReader();
+      if (event.key === "ArrowLeft" && readerIndex > 0) { readerIndex -= 1; renderJournalReader(); }
+      if (event.key === "ArrowRight" && readerIndex < readerEntries.length - 1) { readerIndex += 1; renderJournalReader(); }
     });
   }
 
@@ -6953,6 +7237,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     db = await openDb();
     restoreDraft();
     await loadPassage();
+    initJournalReader();
     await renderHistory();
     if ("serviceWorker" in navigator) {
       try { navigator.serviceWorker.register("./service-worker.js"); } catch (_) {}
