@@ -2092,6 +2092,69 @@ body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-b
   }
 }
 
+
+
+/* v62 — Back to Previous Scripture theme match
+   Keeps the working v61 behavior, but makes the button visually belong
+   to Disciple Journal light/dark instead of using the brighter gold pill. */
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  grid-column: 1 / -1 !important;
+  justify-self: end !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 32px !important;
+  padding: 7px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(255,249,241,.98), rgba(248,239,225,.94)) !important;
+  color: #172B29 !important;
+  border: 1.5px solid rgba(217,160,123,.95) !important;
+  box-shadow: 0 8px 18px rgba(29,45,68,.10) !important;
+  opacity: 1 !important;
+}
+
+body:not(.dark) .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
+  color: #10223C !important;
+  border-color: rgba(217,160,123,.92) !important;
+  box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
+}
+
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.94) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
+}
+
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover,
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:focus-visible {
+  background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
+  color: #10223C !important;
+  border-color: rgba(217,160,123,1) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
+}
+
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover,
+body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:focus-visible {
+  background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
+  color: #FFF9F1 !important;
+  border-color: rgba(248,217,135,.92) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
+}
+
+@media (max-width: 650px) {
+  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
 </style>
 </head>
 <body>
