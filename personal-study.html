@@ -287,6 +287,50 @@
   body.dark .copyMenu { background: rgba(22,34,52,.98); }
   .copyMenu.open { display: grid; }
   .copyMenu button { width: 100%; text-align: left; box-shadow: none; padding: 9px 10px; }
+
+/* v67 — Journal Export Options */
+.exportMenuWrap {
+  position: relative;
+  display: inline-flex;
+}
+.exportMenu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 230px;
+  z-index: 40;
+  display: none;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,249,241,.98);
+  box-shadow: var(--shadow);
+}
+body.dark .exportMenu {
+  background: rgba(22,34,52,.98);
+}
+.exportMenu.open {
+  display: grid;
+}
+.exportMenu button {
+  width: 100%;
+  text-align: left;
+  box-shadow: none;
+  padding: 9px 10px;
+}
+.entryActions .exportEntryBtn {
+  background: rgba(255,249,241,.52);
+}
+body.dark .entryActions .exportEntryBtn {
+  background: rgba(255,249,241,.07);
+}
+@media (max-width:650px) {
+  .exportMenuWrap { width: 100%; }
+  .exportMenuWrap > button { width: 100%; }
+  .exportMenu { left: 0; right: 0; min-width: 0; }
+}
+
   .copyHint { margin: 10px 0 0; color: var(--dust); font-size: 12px; font-weight: 800; line-height: 1.35; }
   .verse.copySelectable { cursor: pointer; border: 1px solid transparent; }
   .verse.selectedVerse { border-color: var(--soft-copper); background: rgba(217,160,123,.18); }
@@ -2465,6 +2509,7 @@ body.dark .freewriteMetaBox {
       <div class="readerHeadActions">
         <button class="secondary" id="readerEditBtn" type="button">Edit Entry</button>
         <button class="secondary" id="readerCopyBtn" type="button">Copy Entry</button>
+        <button class="secondary" id="readerExportBtn" type="button">Export Entry</button>
         <button class="secondary" id="closeReaderBtn" type="button">Close</button>
       </div>
     </div>
@@ -2631,7 +2676,13 @@ body.dark .freewriteMetaBox {
         <div class="saveBar">
           <button class="primary" id="saveBtn" type="button">Save Entry</button>
           <button class="secondary" id="copyEntryBtn" type="button">Copy Entry</button>
-          <button class="secondary" id="exportBtn" type="button">Export Backup</button>
+          <div class="exportMenuWrap">
+            <button class="secondary" id="exportBtn" type="button" aria-expanded="false">Export Journal</button>
+            <div class="exportMenu" id="exportMenu" role="menu">
+              <button class="secondary" id="exportCurrentBtn" type="button">Export Current Entry</button>
+              <button class="secondary" id="exportAllBtn" type="button">Export All Entries</button>
+            </div>
+          </div>
           <button class="secondary" id="importBtn" type="button">Import Backup</button>
           <input class="hiddenFile" id="importFile" type="file" accept="text/html,application/json,.html,.json,.isjournal" />
           <button class="danger" id="deleteBtn" type="button">Delete</button>
@@ -2683,7 +2734,7 @@ body.dark .freewriteMetaBox {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v66-save-as-new-edit-mode";
+  const VERSION = "v67-journal-export-options";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4322,7 +4373,7 @@ const verseCounts = {
     list.innerHTML = filtered.map((entry) => {
       const preview = [entry.notes?.observe, entry.notes?.heart, entry.notes?.feetSensed, entry.notes?.freewrite, entry.notes?.walk].filter(Boolean).join(" ").slice(0, 120);
       const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit</span>' : ''}`;
-      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button></div></div>`;
+      return `<div class="entryItem" data-id="${escapeHtml(entry.id)}"><strong>${escapeHtml(entry.title || entry.reference)}</strong><small>${escapeHtml(entry.reference)} • ${escapeHtml(entry.studyDate || "")}<br>${escapeHtml(preview || entry.tags || "Saved study entry")}</small>${badges ? `<div class="entryBadges">${badges}</div>` : ""}<div class="entryActions"><button class="secondary readEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Read</button><button class="secondary editEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Edit</button><button class="secondary exportEntryBtn" type="button" data-id="${escapeHtml(entry.id)}">Export</button></div></div>`;
     }).join("");
     list.querySelectorAll(".entryItem").forEach((item) => {
       item.addEventListener("click", async (event) => {
@@ -4348,6 +4399,13 @@ const verseCounts = {
         const entries = await getAllEntries();
         const entry = entries.find((candidate) => candidate.id === btn.dataset.id);
         if (entry) openJournalReader([entry], 0, "single");
+      });
+    });
+    list.querySelectorAll(".exportEntryBtn").forEach((btn) => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        await exportSavedEntryById(btn.dataset.id);
       });
     });
   }
@@ -4506,6 +4564,11 @@ const verseCounts = {
       } catch (_) {
         setStatus("Copy unavailable");
       }
+    };
+    if ($("readerExportBtn")) $("readerExportBtn").onclick = async () => {
+      const entry = readerEntries[readerIndex];
+      if (!entry) return;
+      await exportEntries([entry], { single: true });
     };
 
     document.addEventListener("keydown", (event) => {
@@ -4856,27 +4919,42 @@ const verseCounts = {
     return entry.title || entry.reference || "Disciple Journal Entry";
   }
 
+  function entryModeLabel(entry) {
+    return entryReaderMode(entry) === "freewrite" ? "Freewrite" : "Guided Study";
+  }
+
   function entryToPlainText(entry) {
     const notes = entry.notes || {};
+    const mode = entryReaderMode(entry);
     const lines = [
       "Iron Sharpener: Disciple Journal",
       entryDisplayTitle(entry),
-      `${entry.reference || ""} (WEB) • ${entry.studyDate || ""}`,
-      "",
-      notes.observe ? `Read & Observe:\n${notes.observe}\n` : "",
-      notes.understand ? `Reflect — Meaning:\n${notes.understand}\n` : "",
-      notes.heart ? `Reflect — Heart:\n${notes.heart}\n` : "",
-      notes.feetQuestions ? `At His Feet — Questions:\n${notes.feetQuestions}\n` : "",
-      notes.feetSensed ? `At His Feet — What I Sensed:\n${notes.feetSensed}\n` : "",
-      notes.feetTesting ? `At His Feet — Scripture / Testing:\n${notes.feetTesting}\n` : "",
-      notes.freewrite ? `Freewrite Journal:\n${notes.freewrite}\n` : "",
-      notes.prayer ? `Prayer Response:\n${notes.prayer}\n` : "",
-      notes.walk ? `Walk It Out:\n${notes.walk}\n` : "",
-      notes.remember ? `Remember / Revisit:\n${notes.remember}\n` : "",
-      entry.tags ? `Tags: ${entry.tags}` : "",
-      entry.favorite ? "Favorite: Yes" : "",
-      entry.reviewLater ? "Revisit Entry: Yes" : ""
+      `${entry.reference || ""} (WEB) • ${entry.studyDate || ""} • ${entryModeLabel(entry)}`,
+      ""
     ];
+
+    if (mode === "freewrite") {
+      if (notes.freewrite) lines.push(notes.freewrite, "");
+    } else {
+      [
+        ["Read & Observe", notes.observe],
+        ["Reflect — Meaning", notes.understand],
+        ["Reflect — Heart", notes.heart],
+        ["At His Feet — Questions", notes.feetQuestions],
+        ["At His Feet — What I Sensed", notes.feetSensed],
+        ["At His Feet — Scripture / Testing", notes.feetTesting],
+        ["Prayer Response", notes.prayer],
+        ["Walk It Out", notes.walk],
+        ["Remember / Revisit", notes.remember],
+        ["Freewrite Journal", notes.freewrite]
+      ].forEach(([title, body]) => {
+        if (body) lines.push(`${title}:\n${body}\n`);
+      });
+    }
+
+    if (entry.tags) lines.push(`Tags: ${entry.tags}`);
+    if (entry.favorite) lines.push("Favorite: Yes");
+    if (entry.reviewLater) lines.push("Revisit Entry: Yes");
     return lines.filter(Boolean).join("\n").trim();
   }
 
@@ -4886,640 +4964,124 @@ const verseCounts = {
 
   function entryToHtmlBlock(entry) {
     const notes = entry.notes || {};
-    const section = (title, body) => body ? `<section><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body).replace(/\n/g, "<br>")}</p></section>` : "";
-    return `<article class="entry">
+    const mode = entryReaderMode(entry);
+    const section = (title, body, extraClass = "") => body ? `<section class="${escapeHtml(extraClass)}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body).replace(/\n/g, "<br>")}</p></section>` : "";
+    const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit Entry</span>' : ''}`;
+
+    const bodyHtml = mode === "freewrite"
+      ? (notes.freewrite ? `<section class="freewrite-export"><p>${escapeHtml(notes.freewrite).replace(/\n/g, "<br>")}</p></section>` : `<section><p>No freewrite text saved.</p></section>`)
+      : [
+          section("Read & Observe", notes.observe),
+          section("Reflect — Meaning", notes.understand),
+          section("Reflect — Heart", notes.heart),
+          section("At His Feet — Questions", notes.feetQuestions),
+          section("At His Feet — What I Sensed", notes.feetSensed),
+          section("At His Feet — Scripture / Testing", notes.feetTesting),
+          section("Prayer Response", notes.prayer),
+          section("Walk It Out", notes.walk),
+          section("Remember / Revisit", notes.remember),
+          guidedNotesHaveContent(notes) ? section("Freewrite Journal", notes.freewrite) : ""
+        ].filter(Boolean).join("") || `<section><p>No written notes have been saved in this entry yet.</p></section>`;
+
+    return `<article class="entry ${mode === "freewrite" ? "freewrite-entry" : "guided-entry"}">
       <h2>${escapeHtml(entryDisplayTitle(entry))}</h2>
-      <p class="meta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")}</p>
-      ${section("Read & Observe", notes.observe)}
-      ${section("Reflect — Meaning", notes.understand)}
-      ${section("Reflect — Heart", notes.heart)}
-      ${section("At His Feet — Questions", notes.feetQuestions)}
-      ${section("At His Feet — What I Sensed", notes.feetSensed)}
-      ${section("At His Feet — Scripture / Testing", notes.feetTesting)}
-      ${section("Freewrite Journal", notes.freewrite)}
-      ${section("Prayer Response", notes.prayer)}
-      ${section("Walk It Out", notes.walk)}
-      ${section("Remember / Revisit", notes.remember)}
+      <p class="meta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")} • ${escapeHtml(entryModeLabel(entry))}</p>
+      ${badges ? `<div class="badges">${badges}</div>` : ""}
+      ${bodyHtml}
       ${entry.tags ? `<p class="tags"><strong>Tags:</strong> ${escapeHtml(entry.tags)}</p>` : ""}
-      ${(entry.favorite || entry.reviewLater) ? `<p class="badges">${entry.favorite ? "Favorite" : ""}${entry.favorite && entry.reviewLater ? " • " : ""}${entry.reviewLater ? "Revisit Entry" : ""}</p>` : ""}
     </article>`;
   }
 
-  async function exportBackup() {
-    const entries = await getAllEntries();
-    const backup = { app: "Iron Sharpener: Disciple Journal", version: VERSION, exportedAt: new Date().toISOString(), entries, verseMarks: getVerseMarks() };
-    const html = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Iron Sharpener Disciple Journal Export</title>
+  function buildJournalExportHtml(entries, options = {}) {
+    const entryList = Array.isArray(entries) ? entries : [];
+    const backup = {
+      app: "Iron Sharpener: Disciple Journal",
+      version: VERSION,
+      exportedAt: new Date().toISOString(),
+      exportType: options.single ? "single-entry" : "all-entries",
+      entries: entryList,
+      verseMarks: getVerseMarks()
+    };
+
+    const titleText = options.single ? "Iron Sharpener: Disciple Journal Entry" : "Iron Sharpener: Disciple Journal";
+    const subText = options.single ? "Single Journal Entry Export" : "Full Journal Export";
+
+    return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(titleText)}</title>
 <style>
   body{font-family:Arial,Helvetica,sans-serif;background:#FAF4E8;color:#1D2D44;line-height:1.55;margin:0;padding:32px;}
   .wrap{max-width:920px;margin:0 auto;background:#FFF9F1;border:1px solid #D9A07B;border-radius:22px;padding:28px;box-shadow:0 18px 45px rgba(29,45,68,.14);}
   h1{margin:0 0 6px;font-size:32px;} .sub{color:#B97A56;font-weight:700;margin:0 0 20px;}
   .entry{border-top:1px solid rgba(29,45,68,.16);padding-top:22px;margin-top:22px;} h2{margin-bottom:4px;} .meta{color:#5F6F82;font-weight:700;}
   section{background:#fff;border:1px solid rgba(29,45,68,.12);border-radius:14px;padding:14px 16px;margin:12px 0;} h3{margin:0 0 6px;color:#355070;}
-  .tags,.badges{color:#B97A56;font-weight:700;} .note{font-size:13px;color:#5F6F82;margin-top:24px;}
-
-
-/* v37 — True mirrored Scripture Study panel behavior (Disciple Journal skin) */
-/* Main-style verse and inline marking behavior */
-.verse.highlighted,
-.verse.highlight-gold {
-  background: linear-gradient(90deg, rgba(217,160,123,.40), rgba(217,160,123,.13));
-  border-left: 7px solid var(--soft-copper);
-  outline: 1px solid rgba(217,160,123,.72);
-  border-radius: 13px;
-  padding: 11px 12px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), 0 4px 14px rgba(217,160,123,.10);
-}
-.verse.underlined {
-  text-decoration: underline;
-  text-decoration-thickness: 4px;
-  text-decoration-color: var(--soft-copper);
-  text-underline-offset: 7px;
-}
-.verse.circled {
-  outline: 4px solid rgba(217,160,123,.72);
-  outline-offset: 4px;
-  border-radius: 999px;
-  padding: 11px 16px;
-}
-.inline-highlight-gold {
-  display: inline;
-  border-radius: 5px;
-  padding: 0 3px;
-  background: rgba(217,160,123,.42);
-  box-shadow: inset 0 -2px 0 rgba(217,160,123,.78);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-.inline-underline {
-  text-decoration: underline;
-  text-decoration-thickness: 4px;
-  text-decoration-color: var(--soft-copper);
-  text-underline-offset: 6px;
-  border-radius: 4px;
-}
-.inline-circle {
-  display: inline-block;
-  border: 3px solid var(--soft-copper);
-  border-radius: 999px;
-  padding: 0 7px 1px;
-  margin: 0 2px;
-  line-height: 1.15;
-}
-body.dark .inline-highlight-gold { background: rgba(217,160,123,.36); color:#fff8ef; }
-body.dark .inline-underline { text-decoration-color: var(--soft-copper); }
-body.dark .inline-circle { border-color: var(--soft-copper); box-shadow: 0 0 12px rgba(217,160,123,.16); }
-
-/* Main-style Built-In Cross References panel, adapted to Disciple Journal palette */
-#internalCrossRefsPanel.internal-crossrefs-panel {
-  display: none;
-  position: fixed;
-  right: 22px;
-  top: 118px;
-  width: min(720px, calc(100vw - 32px));
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-  z-index: 88000;
-  border: 2px solid var(--soft-copper);
-  border-radius: 18px;
-  background: linear-gradient(180deg, #FFF9F1, #FAF4E8);
-  color: var(--ink);
-  box-shadow: 0 24px 70px rgba(0,0,0,.30);
-  padding: 18px;
-  resize: both;
-}
-#internalCrossRefsPanel.internal-crossrefs-panel.open { display: block; }
-body.dark #internalCrossRefsPanel.internal-crossrefs-panel {
-  background: linear-gradient(180deg, #243447, #1D2D44);
-  color: #F8F4EC;
-  box-shadow: 0 24px 70px rgba(0,0,0,.50);
-}
-#internalCrossRefsPanel .teacher-pop-head {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  border-bottom:1px solid var(--soft-copper);
-  padding-bottom:10px;
-  margin-bottom:14px;
-}
-#internalCrossRefsPanel .teacher-pop-head h3 {
-  margin:0;
-  color:var(--copper);
-  font-size:23px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-body.dark #internalCrossRefsPanel .teacher-pop-head h3 { color:var(--soft-copper); }
-#internalCrossRefsPanel .internal-xrefs-controls {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin: 0 0 10px;
-}
-#internalCrossRefsPanel .internal-xrefs-controls button,
-#internalXrefsShowMore {
-  background: linear-gradient(180deg, #8A4A28, #6F341C) !important;
-  color:#FFF9F1 !important;
-  border:1px solid var(--soft-copper) !important;
-  box-shadow:none !important;
-}
-#internalCrossRefsPanel .active-internal-xref-mode {
-  outline: 2px solid var(--soft-copper);
-  box-shadow: 0 0 0 3px rgba(217,160,123,.18) !important;
-}
-#internalCrossRefsPanel .internal-xrefs-search {
-  width:100%;
-  margin-bottom:12px;
-}
-#internalCrossRefsPanel .internal-xrefs-summary {
-  border:1px solid rgba(217,160,123,.35);
-  border-radius:13px;
-  padding:12px;
-  margin:0 0 12px;
-  color:#8A4A28;
-  background:rgba(217,160,123,.10);
-  font-weight:800;
-}
-body.dark #internalCrossRefsPanel .internal-xrefs-summary { color:var(--soft-copper); }
-#internalCrossRefsPanel .internal-xref-verse {
-  border:1px solid rgba(217,160,123,.30);
-  border-radius:14px;
-  padding:12px;
-  margin:0 0 12px;
-  background:rgba(255,255,255,.28);
-}
-body.dark #internalCrossRefsPanel .internal-xref-verse { background:rgba(255,249,241,.045); }
-#internalCrossRefsPanel .internal-xref-verse h4 {
-  margin:0 0 8px;
-  color:#8A4A28;
-  font:900 14px Arial, sans-serif;
-}
-body.dark #internalCrossRefsPanel .internal-xref-verse h4 { color:var(--soft-copper); }
-#internalCrossRefsPanel .internal-xref-buttons {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-#internalCrossRefsPanel .internal-xref-link {
-  border:1.5px solid var(--soft-copper) !important;
-  border-radius:999px !important;
-  padding:8px 12px !important;
-  background:#FFF9F1 !important;
-  color:var(--deep) !important;
-  font:800 13px Arial, sans-serif !important;
-  cursor:pointer !important;
-  box-shadow:none !important;
-}
-body.dark #internalCrossRefsPanel .internal-xref-link {
-  background:rgba(255,249,241,.08) !important;
-  color:#FFF9F1 !important;
-}
-#internalCrossRefsPanel .internal-xref-empty {
-  padding:14px;
-  color:var(--dust);
-  font-style:italic;
-}
-
-
-
-/* v38 — Disciple Journal mirrored resource panel behavior */
-.studyToolsPanel,
-.markToolsPanel,
-.resourceFloatPanel,
-#internalCrossRefsPanel.internal-crossrefs-panel,
-.resource-instance-panel {
-  resize: both;
-  min-width: 340px;
-  min-height: 220px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 24px);
-}
-.studyToolsHead,
-.markToolsHead,
-.resourceFloatHead,
-#internalCrossRefsPanel .teacher-pop-head,
-.resource-instance-panel .resourceFloatHead,
-.drag-handle {
-  cursor: move;
-  user-select: none;
-}
-.resource-instance-panel {
-  display: none;
-  position: fixed;
-  left: 50%;
-  top: 118px;
-  transform: translateX(-50%);
-  width: min(760px, calc(100vw - 32px));
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-  z-index: 10060;
-  border: 2px solid var(--soft-copper);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98));
-  color: var(--ink);
-  box-shadow: 0 24px 70px rgba(0,0,0,.38);
-  padding: 18px;
-}
-.resource-instance-panel.open { display: block; }
-body.dark .resource-instance-panel {
-  background: linear-gradient(180deg, #355070, #1D2D44);
-  color: #F8F4EC;
-  border-color: rgba(217,160,123,.88);
-  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14);
-}
-.resource-instance-panel .resourceFloatHead {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  border-bottom:1px solid var(--soft-copper);
-  padding-bottom:10px;
-  margin-bottom:14px;
-}
-.resource-instance-panel .resourceFloatHead h2 {
-  margin:0;
-  color:var(--copper);
-  font-size:23px;
-  letter-spacing:.01em;
-}
-body.dark .resource-instance-panel .resourceFloatHead h2 { color:var(--soft-copper); }
-.resource-panel-body { line-height:1.55; }
-.resource-panel-body .resourceResult { margin-bottom: 0; }
-.resource-panel-body button.cross-ref-link,
-.resource-panel-body .internal-xref-link,
-.resource-panel-body button {
-  max-width: 100%;
-}
-@media (max-width: 780px) {
-  .studyToolsPanel,
-  .markToolsPanel,
-  .resourceFloatPanel,
-  #internalCrossRefsPanel.internal-crossrefs-panel,
-  .resource-instance-panel {
-    left: 12px !important;
-    right: 12px !important;
-    top: 92px !important;
-    width: auto !important;
-    transform: none !important;
-  }
-}
-
-
-
-/* v40 — Disciple Journal study-resource cleanup */
-body:not(.dark) #internalCrossRefsPanel.internal-crossrefs-panel,
-body:not(.dark) .resource-instance-panel {
-  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98)) !important;
-  color: var(--ink) !important;
-  border-color: var(--soft-copper) !important;
-}
-body.dark #internalCrossRefsPanel.internal-crossrefs-panel,
-body.dark .resource-instance-panel {
-  background: linear-gradient(180deg, #355070, #1D2D44) !important;
-  color: #F8F4EC !important;
-  border-color: rgba(217,160,123,.88) !important;
-}
-body:not(.dark) #internalCrossRefsPanel .internal-xref-verse,
-body:not(.dark) .resource-panel-body .resourceResult {
-  background: rgba(255,255,255,.42) !important;
-  border-color: rgba(217,160,123,.28) !important;
-}
-body.dark #internalCrossRefsPanel .internal-xref-verse,
-body.dark .resource-panel-body .resourceResult {
-  background: rgba(255,249,241,.055) !important;
-  border-color: rgba(217,160,123,.32) !important;
-}
-body.dark .verse.highlighted,
-body.dark .verse.highlight-gold {
-  background: linear-gradient(90deg, rgba(217,160,123,.34), rgba(217,160,123,.12)) !important;
-  border-left: 7px solid var(--soft-copper) !important;
-  outline: 1px solid rgba(217,160,123,.78) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 18px rgba(217,160,123,.12) !important;
-}
-.commentary-clean { display: grid; gap: 12px; }
-.commentary-entry {
-  border: 1px solid rgba(217,160,123,.26);
-  border-radius: 14px;
-  padding: 13px 14px;
-  background: rgba(255,255,255,.30);
-}
-body.dark .commentary-entry { background: rgba(255,249,241,.045); border-color: rgba(217,160,123,.32); }
-.commentary-entry h4 {
-  margin: 0 0 7px;
-  color: var(--copper);
-  font-size: 15px;
-  font-weight: 900;
-}
-body.dark .commentary-entry h4 { color: var(--soft-copper); }
-.commentary-entry p { margin: 0; line-height: 1.58; }
-
-
-
-/* v46 — Doctrine moved into Study Tools current passage area; Passage Snapshot removed */
-.naves-topic-entry h3 {
-  margin: 0 0 18px;
-  color: var(--copper);
-  font-size: 24px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-body.dark .naves-topic-entry h3 { color: var(--soft-copper); }
-.nave-section {
-  margin: 10px 0 12px;
-  border: 1px solid rgba(217,160,123,.42);
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255,255,255,.24);
-}
-body.dark .nave-section {
-  background: rgba(255,255,255,.045);
-  border-color: rgba(217,160,123,.48);
-}
-.nave-section summary {
-  cursor: pointer;
-  font: 900 16px Arial, sans-serif;
-  color: var(--ink);
-  padding: 4px 0;
-}
-body.dark .nave-section summary { color: #F8F4EC; }
-.nave-ref-list {
-  display: grid;
-  gap: 8px;
-  margin-top: 10px;
-}
-.nave-ref-btn.cross-ref-link {
-  width: 100%;
-  justify-content: center;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #8A4A24, #6F3918) !important;
-  color: #FFF8EA !important;
-  border: 1.5px solid rgba(217,160,123,.95) !important;
-  font-weight: 900 !important;
-  box-shadow: none !important;
-}
-body.dark .nave-ref-btn.cross-ref-link {
-  background: rgba(255,255,255,.08) !important;
-  color: #F8F4EC !important;
-  border-color: rgba(217,160,123,.92) !important;
-}
-
-
-
-/* v48 — Descriptive Study Resources panel for Disciple Journal */
-.studyToolsPanel {
-  width: min(720px, calc(100vw - 32px));
-}
-.studyToolsMenu.descriptiveResourceGrid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px !important;
-  padding: 0 !important;
-  border-right: 0 !important;
-  overflow: visible !important;
-}
-.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
-  min-height: 136px;
-  height: 100%;
-  padding: 15px 16px;
-  display: flex !important;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 10px;
-  text-align: left !important;
-  border-radius: 14px;
-  background: rgba(255,255,255,.66);
-  border: 1px solid rgba(217,160,123,.42);
-}
-.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
-  display: block;
-  color: var(--deep);
-  font-size: 16px;
-  line-height: 1.16;
-  font-weight: 900;
-}
-.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
-  display: block;
-  color: var(--ink);
-  font-size: 14px;
-  line-height: 1.42;
-  font-weight: 800;
-  opacity: .94;
-}
-.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
-.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
-  color: #FFF9F1 !important;
-}
-body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
-  background: rgba(255,249,241,.06);
-  border-color: rgba(217,160,123,.35);
-}
-body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
-  color: #F8F4EC;
-}
-body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
-  color: rgba(248,244,236,.82);
-}
-body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
-body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
-  color: #162234 !important;
-}
-@media (max-width: 650px) {
-  .studyToolsPanel { width: auto; }
-  .studyToolsMenu.descriptiveResourceGrid {
-    grid-template-columns: 1fr !important;
-  }
-  .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
-    min-height: 116px;
-  }
-}
-
-
-/* v54 Resource Title Cleanup — avoid duplicate inner resource titles */
-.resource-panel-body .single-title-resource-content > h1:first-child,
-.resource-panel-body .single-title-resource-content > h2:first-child,
-.resource-panel-body .single-title-resource-content > h3:first-child {
-  display: none !important;
-}
-.resource-panel-body .naves-topic-entry > h3:first-child,
-.resource-panel-body .doctrine-topic-entry > h3:first-child {
-  display: none !important;
-}
-
-
-/* v57 — Scripture header button fit + footer readability final polish */
-.scriptureCard .cardHead {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  align-items: stretch !important;
-  gap: 12px !important;
-}
-
-.scriptureCard .cardHead h2 {
-  width: 100% !important;
-  min-width: 0 !important;
-  line-height: 1.15 !important;
-  margin: 0 !important;
-}
-
-.scriptureHeadActions {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-
-.scriptureHeadActions > button,
-.scriptureHeadActions .copyMenuWrap,
-.scriptureHeadActions .copyMenuWrap > button {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-.scriptureHeadActions > button,
-.scriptureHeadActions .copyMenuWrap > button {
-  min-height: 50px !important;
-  padding: 10px 8px !important;
-  font-size: clamp(13px, 1.05vw, 16px) !important;
-  line-height: 1.1 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: clip !important;
-}
-
-@media (min-width: 980px) {
-  .scriptureCard .cardHead {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-@media (max-width: 520px) {
-  .scriptureHeadActions {
-    grid-template-columns: 1fr !important;
-  }
-  .scriptureHeadActions > button,
-  .scriptureHeadActions .copyMenuWrap > button {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
-.journalFooter {
-  overflow: hidden !important;
-  text-wrap: balance;
-}
-
-.footerBrand strong,
-.footerPurpose,
-.footerVerse {
-  overflow-wrap: anywhere !important;
-}
-
-
-/* v59 — Full Highlight Color Menu + Back to Scripture */
-.heroActions #backToScriptureBtn{background:rgba(255,249,241,.10)!important;border-color:rgba(217,160,123,.78)!important;}
-body:not(.dark) .heroActions #backToScriptureBtn{background:#FFF9F1!important;color:var(--deep)!important;}
-.markToolsBodyV59{grid-template-columns:1fr!important;gap:16px!important;}
-.markToolSection{display:grid;gap:10px;}
-.markToolSection h3{margin:0;color:var(--copper);font:900 13px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;}
-body.dark .markToolSection h3{color:var(--soft-copper);}
-.markColorGrid,.markBasicGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-.markColorBtn{min-height:128px!important;align-items:flex-start!important;justify-content:flex-start!important;text-align:left!important;display:grid!important;grid-template-columns:18px 1fr!important;grid-template-areas:'sw title' '. desc'!important;column-gap:8px!important;row-gap:5px!important;}
-.markColorBtn .markSwatch{grid-area:sw;margin-top:2px}.markColorBtn strong{grid-area:title;display:block;font-size:16px;line-height:1.15}.markColorBtn small{grid-area:desc;display:block;font-size:12.5px;line-height:1.38;font-weight:800;opacity:.95}
-.markSwatch{width:15px;height:15px;border-radius:50%;display:inline-block;box-shadow:0 0 0 2px rgba(255,255,255,.14)}.markSwatch.gold{background:#D9A07B}.markSwatch.blue{background:#5C91E6}.markSwatch.green{background:#4DBB83}.markSwatch.red{background:#DD4D4D}.markSwatch.purple{background:#9D63D6}.markSwatch.amber{background:#F28B33}
-.verse.highlight-blue,.verse.highlight-green,.verse.highlight-red,.verse.highlight-purple,.verse.highlight-amber{border-radius:13px;padding:11px 12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 4px 14px rgba(29,45,68,.08)}
-.verse.highlight-blue{background:linear-gradient(90deg,rgba(92,145,230,.32),rgba(92,145,230,.12));border-left:7px solid #5C91E6;outline:1px solid rgba(92,145,230,.58)}.verse.highlight-green{background:linear-gradient(90deg,rgba(77,187,131,.32),rgba(77,187,131,.12));border-left:7px solid #4DBB83;outline:1px solid rgba(77,187,131,.58)}.verse.highlight-red{background:linear-gradient(90deg,rgba(221,77,77,.30),rgba(221,77,77,.11));border-left:7px solid #DD4D4D;outline:1px solid rgba(221,77,77,.56)}.verse.highlight-purple{background:linear-gradient(90deg,rgba(157,99,214,.31),rgba(157,99,214,.12));border-left:7px solid #9D63D6;outline:1px solid rgba(157,99,214,.56)}.verse.highlight-amber{background:linear-gradient(90deg,rgba(242,139,51,.34),rgba(242,139,51,.13));border-left:7px solid #F28B33;outline:1px solid rgba(242,139,51,.58)}
-.inline-highlight-blue,.inline-highlight-green,.inline-highlight-red,.inline-highlight-purple,.inline-highlight-amber{display:inline;border-radius:5px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}.inline-highlight-blue{background:rgba(92,145,230,.35);box-shadow:inset 0 -2px 0 rgba(92,145,230,.72)}.inline-highlight-green{background:rgba(77,187,131,.35);box-shadow:inset 0 -2px 0 rgba(77,187,131,.72)}.inline-highlight-red{background:rgba(221,77,77,.32);box-shadow:inset 0 -2px 0 rgba(221,77,77,.72)}.inline-highlight-purple{background:rgba(157,99,214,.34);box-shadow:inset 0 -2px 0 rgba(157,99,214,.72)}.inline-highlight-amber{background:rgba(242,139,51,.35);box-shadow:inset 0 -2px 0 rgba(242,139,51,.72)}
-body.dark .verse.highlight-blue{background:linear-gradient(90deg,rgba(92,145,230,.35),rgba(92,145,230,.12))}body.dark .verse.highlight-green{background:linear-gradient(90deg,rgba(77,187,131,.35),rgba(77,187,131,.12))}body.dark .verse.highlight-red{background:linear-gradient(90deg,rgba(221,77,77,.33),rgba(221,77,77,.11))}body.dark .verse.highlight-purple{background:linear-gradient(90deg,rgba(157,99,214,.35),rgba(157,99,214,.12))}body.dark .verse.highlight-amber{background:linear-gradient(90deg,rgba(242,139,51,.36),rgba(242,139,51,.13))}
-body.dark .inline-highlight-blue,body.dark .inline-highlight-green,body.dark .inline-highlight-red,body.dark .inline-highlight-purple,body.dark .inline-highlight-amber{color:#fff8ef}
-@media(max-width:650px){.markColorGrid,.markBasicGrid{grid-template-columns:1fr!important}.markColorBtn{min-height:106px!important}}
-
-
-/* v61 — Back to Previous Scripture behavior + Disciple Journal styling */
-.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn {
-  display: none !important;
-}
-.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
-  display: inline-flex !important;
-  grid-column: 1 / -1 !important;
-  justify-self: end !important;
-  width: auto !important;
-  max-width: 100% !important;
-  min-height: 34px !important;
-  padding: 8px 15px !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  line-height: 1.1 !important;
-  border-radius: 999px !important;
-  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
-  color: #203D39 !important;
-  border: 1.5px solid rgba(217,160,123,.95) !important;
-  box-shadow: 0 7px 18px rgba(32,61,57,.14) !important;
-  opacity: 1 !important;
-}
-body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
-  background: linear-gradient(180deg, #F8D987, #D9A07B) !important;
-  color: #203D39 !important;
-  border-color: rgba(248,217,135,.92) !important;
-  box-shadow: 0 7px 18px rgba(0,0,0,.22), 0 0 14px rgba(248,217,135,.12) !important;
-}
-.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover,
-body.dark .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:hover {
-  background: linear-gradient(180deg, #FFE8A7, #E7AA80) !important;
-  transform: translateY(-1px);
-}
-@media (max-width: 650px) {
-  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
-    justify-self: stretch !important;
-    width: 100% !important;
-  }
-}
-
-
-
-/* v66 — Freewrite Reader + Metadata Polish */
-.freewriteMetaBox {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(255,249,241,.72);
-}
-.freewriteMetaBox .checkGrid { margin-top: 10px; }
-body.dark .freewriteMetaBox {
-  background: rgba(255,249,241,.055);
-  border-color: rgba(237,168,115,.42);
-}
-.readerPaper.freewriteReaderPaper .readerSection.freewriteContentOnly h3 {
-  display: none !important;
-}
-.readerPaper.freewriteReaderPaper .readerSection.freewriteContentOnly {
-  margin-top: 22px;
-}
-.readerPaper.freewriteReaderPaper .readerSection.freewriteContentOnly p {
-  font-size: 17px;
-  line-height: 1.75;
-}
-
-</style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
-${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
+  .freewrite-export p{font-size:17px;line-height:1.75;white-space:pre-wrap;} section p{white-space:pre-wrap;}
+  .tags{color:#B97A56;font-weight:700;} .badges{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;}
+  .badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800;background:#FFF1E7;color:#B97A56;border:1px solid rgba(185,122,86,.25)}
+  .note{font-size:13px;color:#5F6F82;margin-top:24px;}
+</style></head><body><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
+${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <p class="note">This file is readable as a journal document and can also be imported back into Iron Sharpener: Disciple Journal.</p>
 <${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
+  }
+
+  function safeFileName(value) {
+    return String(value || "journal-entry")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "journal-entry";
+  }
+
+  function downloadHtmlFile(html, filename) {
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `iron-sharpener-disciple-journal-${todayIso()}.html`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    setStatus("Journal exported");
+  }
+
+  async function exportEntries(entries, options = {}) {
+    const entryList = Array.isArray(entries) ? entries.filter(Boolean) : [];
+    if (!entryList.length) {
+      setStatus("No journal entry to export");
+      return;
+    }
+
+    const html = buildJournalExportHtml(entryList, options);
+    const fileBase = options.single
+      ? `iron-sharpener-disciple-journal-${safeFileName(entryDisplayTitle(entryList[0]))}-${todayIso()}`
+      : `iron-sharpener-disciple-journal-all-entries-${todayIso()}`;
+
+    downloadHtmlFile(html, `${fileBase}.html`);
+    setStatus(options.single ? "Entry exported" : "Full journal exported");
+  }
+
+  async function exportCurrentEntry() {
+    const entry = collectEntry();
+    entry.createdAt = entry.createdAt || entry.updatedAt || new Date().toISOString();
+    await exportEntries([entry], { single: true });
+  }
+
+  async function exportAllJournalEntries() {
+    const entries = await getAllEntries();
+    await exportEntries(entries, { single: false });
+  }
+
+  async function exportSavedEntryById(entryId) {
+    const entry = await getEntry(entryId);
+    if (!entry) {
+      setStatus("Entry not found");
+      return;
+    }
+    await exportEntries([entry], { single: true });
+  }
+
+  async function exportBackup() {
+    await exportAllJournalEntries();
   }
 
   function parseJournalImport(text) {
@@ -7346,7 +6908,23 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       await renderHistory();
       setStatus("Deleted");
     });
-    $("exportBtn").addEventListener("click", exportBackup);
+    $("exportBtn").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const menu = $("exportMenu");
+      const isOpen = menu?.classList.contains("open");
+      document.querySelectorAll(".exportMenu.open").forEach(item => item.classList.remove("open"));
+      if (menu) menu.classList.toggle("open", !isOpen);
+      $("exportBtn").setAttribute("aria-expanded", String(!isOpen));
+    });
+    $("exportCurrentBtn")?.addEventListener("click", async () => { $("exportMenu")?.classList.remove("open"); await exportCurrentEntry(); });
+    $("exportAllBtn")?.addEventListener("click", async () => { $("exportMenu")?.classList.remove("open"); await exportAllJournalEntries(); });
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".exportMenuWrap")) {
+        $("exportMenu")?.classList.remove("open");
+        $("exportBtn")?.setAttribute("aria-expanded", "false");
+      }
+    });
     $("importBtn").addEventListener("click", () => $("importFile").click());
     $("importFile").addEventListener("change", async (event) => {
       try { await importBackupFile(event.target.files[0]); }
