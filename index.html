@@ -17108,7 +17108,7 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
   if (window.__rdmV35MobileAppShell) return;
   window.__rdmV35MobileAppShell = true;
 
-  const MOBILE_QUERY = window.matchMedia("(max-width: 1180px), (hover: none) and (pointer: coarse)");
+  const MOBILE_QUERY = window.matchMedia("(hover: none) and (pointer: coarse)");
   const get = (id) => document.getElementById(id);
 
   function isObsMode() {
@@ -17529,6 +17529,94 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v36-simplified-mobile-shell";
 })();
 </script>
+
+<!-- Patch 37 — Desktop Isolation for Mobile App Shell -->
+<style id="rdm-v37-desktop-mobile-shell-isolation">
+/*
+   Patch 37 — Desktop Isolation for Mobile App Shell
+   Scope: PC/desktop cleanup only. Mobile/tablet app shell remains active only on
+   touch-first devices. This hides the mobile-only DOM pieces when the desktop
+   teaching layout is active, preventing extra Cream, Close, Passage Navigator,
+   and Teaching Notes controls from appearing on PC.
+*/
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmMobileThemeToggle,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmMobileAppNav,
+html:not(.obs) body:not(.rdm-mobile-app-shell) .rdm-mobile-sheet-head,
+html.obs #rdmMobileThemeToggle,
+html.obs #rdmMobileAppNav,
+html.obs .rdm-mobile-sheet-head {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+  display: inline-flex !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+  display: flex !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
+  display: flex !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+</style>
+<script id="rdm-v37-desktop-mobile-shell-isolation">
+(function rdmV37DesktopMobileShellIsolation(){
+  if (window.__rdmV37DesktopMobileShellIsolation) return;
+  window.__rdmV37DesktopMobileShellIsolation = true;
+
+  const DESKTOP_POINTER_QUERY = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+  function isDesktopPointer(){
+    return !!(DESKTOP_POINTER_QUERY && DESKTOP_POINTER_QUERY.matches);
+  }
+
+  function enforceDesktopShellIsolation(){
+    if (!document.body || !isDesktopPointer()) return;
+    document.body.classList.remove("rdm-mobile-app-shell", "rdm-mobile-passage-open", "rdm-mobile-notes-open");
+  }
+
+  function start(){
+    enforceDesktopShellIsolation();
+    try {
+      new MutationObserver(enforceDesktopShellIsolation).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    } catch (_) {}
+  }
+
+  if (DESKTOP_POINTER_QUERY && typeof DESKTOP_POINTER_QUERY.addEventListener === "function") {
+    DESKTOP_POINTER_QUERY.addEventListener("change", enforceDesktopShellIsolation);
+  } else if (DESKTOP_POINTER_QUERY && typeof DESKTOP_POINTER_QUERY.addListener === "function") {
+    DESKTOP_POINTER_QUERY.addListener(enforceDesktopShellIsolation);
+  }
+
+  window.addEventListener("resize", enforceDesktopShellIsolation);
+  window.addEventListener("orientationchange", function(){ setTimeout(enforceDesktopShellIsolation, 250); });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();
+</script>
+<script id="rdm-v37-desktop-mobile-shell-marker">
+(function rdmV37DesktopMobileShellMarker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v37-desktop-isolation-mobile-shell";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v37-desktop-isolation-mobile-shell";
+})();
+</script>
+
 
 </body>
 </html>
