@@ -1164,6 +1164,152 @@ body.dark #internalCrossRefsPanel .internal-xref-link:focus-visible {
   color: #162234 !important;
 }
 
+
+
+/* v50 — Disciple Journal Cross References + Backgrounds polish */
+#internalCrossRefsPanel.internal-crossrefs-panel {
+  border-color: var(--soft-copper) !important;
+}
+body:not(.dark) #internalCrossRefsPanel.internal-crossrefs-panel {
+  background:
+    radial-gradient(circle at top left, rgba(220,232,242,.32), transparent 28rem),
+    linear-gradient(180deg, #FFF9F1 0%, #FAF4E8 100%) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 24px 70px rgba(29,45,68,.18) !important;
+}
+body.dark #internalCrossRefsPanel.internal-crossrefs-panel {
+  background:
+    radial-gradient(circle at top left, rgba(175,199,217,.12), transparent 28rem),
+    linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
+  color: #F8F4EC !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.50) !important;
+}
+#internalCrossRefsPanel .internal-xrefs-controls button,
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-controls button,
+body.dark #internalCrossRefsPanel .internal-xrefs-controls button,
+#internalXrefsShowMore,
+body:not(.dark) #internalXrefsShowMore,
+body.dark #internalXrefsShowMore {
+  background: linear-gradient(180deg, #F0B58E 0%, #D99168 100%) !important;
+  color: #162234 !important;
+  border: 1.5px solid #F4C7A8 !important;
+  box-shadow: 0 10px 22px rgba(29,45,68,.14) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+#internalCrossRefsPanel .internal-xrefs-controls button:hover,
+#internalXrefsShowMore:hover {
+  background: linear-gradient(180deg, #F7C6A4 0%, #D9A07B 100%) !important;
+  color: #162234 !important;
+  opacity: 1 !important;
+}
+#internalCrossRefsPanel .active-internal-xref-mode,
+body.dark #internalCrossRefsPanel .active-internal-xref-mode {
+  outline: 2px solid rgba(255,249,241,.85) !important;
+  box-shadow: 0 0 0 4px rgba(217,160,123,.28), 0 12px 24px rgba(29,45,68,.14) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .teacher-pop-head,
+body:not(.dark) #internalCrossRefsPanel .resourceFloatHead {
+  border-bottom-color: rgba(217,160,123,.72) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-summary,
+body:not(.dark) #internalCrossRefsPanel .internal-xref-verse,
+body:not(.dark) #internalCrossRefsPanel .internal-xref-empty {
+  background: rgba(255,255,255,.62) !important;
+  color: var(--ink) !important;
+  border: 1px solid rgba(217,160,123,.34) !important;
+  box-shadow: none !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-summary,
+body:not(.dark) #internalCrossRefsPanel .internal-xref-verse h4 {
+  color: var(--copper) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xref-link {
+  background: rgba(255,249,241,.9) !important;
+  color: var(--deep) !important;
+  border: 1.5px solid var(--soft-copper) !important;
+  box-shadow: none !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xref-link:hover,
+body:not(.dark) #internalCrossRefsPanel .internal-xref-link:focus-visible {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+}
+body.dark #internalCrossRefsPanel .internal-xref-link:hover,
+body.dark #internalCrossRefsPanel .internal-xref-link:focus-visible {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-search {
+  background: rgba(255,255,255,.74) !important;
+  color: var(--ink) !important;
+  border-color: rgba(217,160,123,.42) !important;
+}
+body:not(.dark) #internalCrossRefsPanel .internal-xrefs-search::placeholder { color: rgba(47,58,74,.56) !important; }
+body.dark #internalCrossRefsPanel .internal-xrefs-search::placeholder { color: rgba(248,244,236,.48) !important; }
+
+.backgrounds-home p,
+.background-topic-card p,
+.background-topic-card li {
+  color: inherit;
+}
+.backgrounds-search-box {
+  width: 100%;
+  border-radius: 13px;
+  border: 1px solid rgba(217,160,123,.42);
+  background: rgba(255,255,255,.64);
+  color: var(--ink);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+body.dark .backgrounds-search-box {
+  background: rgba(255,249,241,.08);
+  color: #F8F4EC;
+  border-color: rgba(217,160,123,.38);
+}
+.rdm-background-topic-btn,
+.study-background-topic-btn,
+.backgrounds-back-btn {
+  border-radius: 13px !important;
+  padding: 12px 13px !important;
+  background: rgba(255,249,241,.84) !important;
+  color: var(--deep) !important;
+  border: 1.5px solid rgba(217,160,123,.62) !important;
+  box-shadow: none !important;
+  text-align: left !important;
+  font-weight: 900 !important;
+}
+.rdm-background-topic-btn:hover,
+.study-background-topic-btn:hover,
+.backgrounds-back-btn:hover {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+  opacity: 1 !important;
+}
+body.dark .rdm-background-topic-btn,
+body.dark .study-background-topic-btn,
+body.dark .backgrounds-back-btn {
+  background: rgba(255,249,241,.08) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.48) !important;
+}
+body.dark .rdm-background-topic-btn:hover,
+body.dark .study-background-topic-btn:hover,
+body.dark .backgrounds-back-btn:hover {
+  background: linear-gradient(180deg, #F0B58E, #D99168) !important;
+  color: #162234 !important;
+}
+.background-topic-card h4,
+.backgrounds-home h4,
+.backgrounds-home summary {
+  color: var(--copper);
+}
+body.dark .background-topic-card h4,
+body.dark .backgrounds-home h4,
+body.dark .backgrounds-home summary {
+  color: var(--soft-copper);
+}
+
 </style>
 </head>
 <body>
@@ -4007,6 +4153,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     }
     panel.querySelector(".resourceFloatHead h2").textContent = safeTitle;
     panel.querySelector(".resource-panel-body").innerHTML = `<div class="resourceResult">${html}</div>`;
+    if (typeof wireResourceScriptureLinks === "function") wireResourceScriptureLinks(panel);
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     panel.style.zIndex = String(++floatingPanelZ);
@@ -4190,19 +4337,205 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
     ]);
   }
 
-  async function openBackgroundsTool() {
+  function bgSlug(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function bgStateLabel() {
+    return currentReference();
+  }
+
+  function bgVerseKeys() {
     const book = $("book").value;
     const chapter = $("chapter").value;
+    const start = parseInt($("start").value, 10) || 1;
+    const end = parseInt($("end").value, 10) || start;
+    const keys = [];
+    for (let verse = start; verse <= end; verse += 1) {
+      keys.push(`${book} ${chapter}:${verse}`);
+    }
+    return keys;
+  }
+
+  function normalizeBackgroundIndexItem(item) {
+    const raw = item || {};
+    const id = raw.id || bgSlug(raw.file || raw.title);
+    return {
+      id,
+      file: raw.file || `${id}.json`,
+      title: raw.title || String(id).replace(/-/g, " "),
+      summary: raw.summary || "",
+      category: raw.category || "Uncategorized",
+      tags: Array.isArray(raw.tags) ? raw.tags : [],
+      searchTerms: Array.isArray(raw.searchTerms) ? raw.searchTerms : []
+    };
+  }
+
+  async function loadBackgroundIndexDJ() {
     const data = await fetchJsonAny([
-      `bible/resources/backgrounds/${book}.json`,
-      `./bible/resources/backgrounds/${book}.json`,
-      `bible/resources/bible-backgrounds/${book}.json`,
-      `bible/resources/backgrounds/index.json`,
-      `bible/resources/backgrounds/backgrounds-index.json`
+      "bible/resources/backgrounds/index.json",
+      "./bible/resources/backgrounds/index.json",
+      "bible/resources/backgrounds/bible/resources/backgrounds/index.json"
     ]);
-    if (!data) { setStudyToolsResult("Bible Backgrounds & Customs", `<p class="empty">No background file loaded for ${escapeHtml(book)}.</p>`); return; }
-    const terms = [`${book} ${chapter}`, `${book}`, `chapter ${chapter}`, `${chapter}:`];
-    setStudyToolsResult("Bible Backgrounds & Customs", renderMatches(collectMatches(data, terms, 30), `No background topics found for ${currentReference()} yet.`));
+    return Array.isArray(data) ? data.map(normalizeBackgroundIndexItem) : [];
+  }
+
+  async function loadBackgroundMapDJ(bookName) {
+    const book = String(bookName || "").trim();
+    const encoded = encodeURIComponent(book);
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/by-reference/${book}.json`,
+      `./bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/by-reference/${encoded}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${book}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/by-reference/${encoded}.json`
+    ]) || {};
+  }
+
+  async function loadBackgroundTopicDJ(idOrFile) {
+    const raw = String(idOrFile || "").replace(/^topics\//i, "").replace(/\.json$/i, "").trim();
+    const id = bgSlug(raw);
+    return await fetchJsonAny([
+      `bible/resources/backgrounds/topics/${raw}.json`,
+      `./bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/topics/${id}.json`,
+      `bible/resources/backgrounds/topics/${encodeURIComponent(raw)}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${raw}.json`,
+      `bible/resources/backgrounds/bible/resources/backgrounds/topics/${id}.json`
+    ]);
+  }
+
+  function renderBackgroundTopicButtonsDJ(items) {
+    if (!items.length) {
+      return `<p class="empty">No background cards mapped to this exact passage yet. Search is still available.</p>`;
+    }
+    return items.map(item => `
+      <button type="button" class="rdm-background-topic-btn" data-topic-id="${escapeHtml(item.id || item.file || item.title)}" style="width:100%;margin-bottom:8px;">
+        <strong>${escapeHtml(item.title || item.id)}</strong>
+        ${item.summary ? `<span style="display:block;font-size:12px;margin-top:4px;font-weight:800;line-height:1.35;">${escapeHtml(item.summary)}</span>` : ""}
+      </button>
+    `).join("");
+  }
+
+  function findBackgroundMatchesDJ(index, query) {
+    const q = String(query || "").toLowerCase().trim();
+    if (!q) return [];
+    return index.filter(item => [
+      item.title,
+      item.id,
+      item.category,
+      item.summary,
+      ...(Array.isArray(item.tags) ? item.tags : []),
+      ...(Array.isArray(item.searchTerms) ? item.searchTerms : [])
+    ].join(" ").toLowerCase().includes(q)).slice(0, 30);
+  }
+
+  function renderBackgroundTopicCardDJ(topic) {
+    if (!topic) return `<p class="empty">Background topic could not be loaded.</p>`;
+    const keyScriptures = Array.isArray(topic.keyScriptures) ? topic.keyScriptures : [];
+    return `
+      <div class="background-topic-card">
+        ${topic.summary ? `<h4>Summary</h4><p>${escapeHtml(topic.summary)}</p>` : ""}
+        ${topic.background ? `<h4>Background</h4><p>${escapeHtml(topic.background)}</p>` : ""}
+        ${topic.teachingHelp ? `<h4>Teaching Help</h4><p>${escapeHtml(topic.teachingHelp)}</p>` : ""}
+        ${keyScriptures.length ? `
+          <h4>Key Scriptures</h4>
+          <div class="nave-ref-list">
+            ${keyScriptures.map(ref => `<button type="button" class="cross-ref-link nave-ref-btn" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>`).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  async function openBackgroundTopicDJ(idOrFile) {
+    const topic = await loadBackgroundTopicDJ(idOrFile);
+    const title = topic?.title || String(idOrFile || "Background Topic").replace(/-/g, " ");
+    openResourceInstancePanel(title, renderBackgroundTopicCardDJ(topic));
+  }
+
+  async function buildBackgroundHomeHtmlDJ() {
+    const index = await loadBackgroundIndexDJ();
+    const map = await loadBackgroundMapDJ($("book").value);
+    const ids = [];
+    bgVerseKeys().forEach(key => {
+      const mapped = map?.[key];
+      if (Array.isArray(mapped)) mapped.forEach(id => ids.push(bgSlug(id)));
+      else if (typeof mapped === "string") ids.push(bgSlug(mapped));
+    });
+    const uniqueIds = [...new Set(ids)];
+    const currentItems = uniqueIds.map(id => {
+      return index.find(item => bgSlug(item.id) === id || bgSlug(item.file) === id) || { id, title: id.replace(/-/g, " "), summary: "" };
+    });
+    return `
+      <div class="backgrounds-home">
+        <p style="font-weight:800;line-height:1.45;margin-top:0;">
+          Background notes for <strong>${escapeHtml(bgStateLabel())}</strong>, plus searchable Bible customs and ancient-context topics.
+        </p>
+        <details class="backgrounds-current" open style="margin-bottom:12px;">
+          <summary style="cursor:pointer;font-weight:900;margin-bottom:8px;">
+            Current Passage Backgrounds (${currentItems.length})
+          </summary>
+          <div style="margin-top:8px;">
+            ${renderBackgroundTopicButtonsDJ(currentItems)}
+          </div>
+        </details>
+        <input class="backgrounds-search-box" type="text" placeholder="Search background topics like Sabbath, temple, wells, shepherds...">
+        <div class="backgrounds-results"></div>
+      </div>
+    `;
+  }
+
+  async function openBackgroundsTool(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const panel = openResourceInstancePanel(
+      "Bible Backgrounds & Customs",
+      await buildBackgroundHomeHtmlDJ()
+    );
+    const index = await loadBackgroundIndexDJ();
+    const searchBox = panel?.querySelector(".backgrounds-search-box");
+    const results = panel?.querySelector(".backgrounds-results");
+    const current = panel?.querySelector(".backgrounds-current");
+    if (searchBox && results) {
+      searchBox.addEventListener("input", () => {
+        const value = searchBox.value || "";
+        if (!value.trim()) {
+          results.innerHTML = "";
+          if (current) current.open = true;
+          return;
+        }
+        if (current) current.open = false;
+        results.innerHTML = `
+          <button type="button" class="backgrounds-back-btn" style="width:100%;margin-bottom:10px;">
+            ← Back to Current Passage Backgrounds
+          </button>
+          <h4>Search Results</h4>
+          ${renderBackgroundTopicButtonsDJ(findBackgroundMatchesDJ(index, value))}
+        `;
+      });
+    }
+    panel?.addEventListener("click", async (clickEvent) => {
+      const back = clickEvent.target.closest(".backgrounds-back-btn");
+      if (back) {
+        clickEvent.preventDefault();
+        if (searchBox) searchBox.value = "";
+        if (results) results.innerHTML = "";
+        if (current) current.open = true;
+        return;
+      }
+      const topicBtn = clickEvent.target.closest(".rdm-background-topic-btn, .study-background-topic-btn");
+      if (!topicBtn) return;
+      clickEvent.preventDefault();
+      await openBackgroundTopicDJ(topicBtn.dataset.topicId || topicBtn.textContent.trim());
+    });
   }
 
   async function openBookOverviewTool() {
