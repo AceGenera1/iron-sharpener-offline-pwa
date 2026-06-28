@@ -19484,8 +19484,141 @@ html.obs body:not(.dark) #openCopyScriptureFromTools:hover * {
 </style>
 <script id="rdm-v43-copy-hover-marker">
 (function rdmV43CopyHoverMarker(){
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v43-copy-hover-lock-journal-box-companion";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v43-copy-hover-lock-journal-box-companion";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v44-copy-hover-back-target-label";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v44-copy-hover-back-target-label";
+})();
+</script>
+
+
+
+<!-- Patch 44 — Copy Scripture cream card lock + Back target label -->
+<style id="rdm-v44-copy-card-back-label-style">
+/* v44 — The Teacher Tools Copy Scripture card must stay in the Disciple Maker cream palette. */
+body:not(.dark) #openCopyScriptureFromTools,
+body:not(.dark) button#openCopyScriptureFromTools.tool-option,
+body:not(.dark) .tool-option#openCopyScriptureFromTools,
+body:not(.dark) #openCopyScriptureFromTools:hover,
+body:not(.dark) #openCopyScriptureFromTools:focus-visible,
+body:not(.dark) button#openCopyScriptureFromTools.tool-option:hover,
+body:not(.dark) button#openCopyScriptureFromTools.tool-option:focus-visible,
+html.obs body:not(.dark) #openCopyScriptureFromTools,
+html.obs body:not(.dark) #openCopyScriptureFromTools:hover,
+html.obs body:not(.dark) #openCopyScriptureFromTools:focus-visible {
+  background: linear-gradient(180deg, #fffaf0 0%, #fff4df 100%) !important;
+  background-color: #fffaf0 !important;
+  color: #203D39 !important;
+  border: 1.5px solid rgba(183,116,16,.36) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+body:not(.dark) #openCopyScriptureFromTools strong,
+body:not(.dark) #openCopyScriptureFromTools:hover strong,
+body:not(.dark) #openCopyScriptureFromTools:focus-visible strong,
+html.obs body:not(.dark) #openCopyScriptureFromTools strong,
+html.obs body:not(.dark) #openCopyScriptureFromTools:hover strong {
+  color: #203D39 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+body:not(.dark) #openCopyScriptureFromTools span,
+body:not(.dark) #openCopyScriptureFromTools:hover span,
+body:not(.dark) #openCopyScriptureFromTools:focus-visible span,
+html.obs body:not(.dark) #openCopyScriptureFromTools span,
+html.obs body:not(.dark) #openCopyScriptureFromTools:hover span {
+  color: #2B394F !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+body:not(.dark) #openCopyScriptureFromTools:hover,
+body:not(.dark) #openCopyScriptureFromTools:focus-visible {
+  border-color: rgba(183,116,16,.58) !important;
+  transform: translateY(-1px) !important;
+}
+</style>
+<script id="rdm-v44-back-target-label">
+(function rdmV44BackTargetLabel(){
+  if (window.__rdmV44BackTargetLabel) return;
+  window.__rdmV44BackTargetLabel = true;
+
+  function get(id) { return document.getElementById(id); }
+  function normalizeState(state) {
+    if (!state) return null;
+    const start = String(state.start || "1");
+    return {
+      book: String(state.book || "").trim() || "Scripture",
+      chapter: String(state.chapter || "").trim() || "1",
+      start,
+      end: String(state.end || start)
+    };
+  }
+  function labelForState(state) {
+    const s = normalizeState(state);
+    if (!s) return "";
+    return s.start === s.end ? `${s.book} ${s.chapter}:${s.start}` : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
+  }
+  function nextTarget() {
+    const sources = [
+      window.__rdmScriptureBackStackV42,
+      window.__rdmCrossReferenceBackStack,
+      window.__rdmScriptureBackStackV41
+    ];
+    for (const source of sources) {
+      if (Array.isArray(source) && source.length) {
+        const found = normalizeState(source[source.length - 1]);
+        if (found) return found;
+      }
+    }
+    try {
+      if (typeof previousPassageState !== "undefined" && previousPassageState) return normalizeState(previousPassageState);
+    } catch (_) {}
+    return normalizeState(window.previousPassageState);
+  }
+  function applyBackTargetLabel() {
+    const button = get("scriptureBackBtn");
+    if (!button) return;
+    const target = nextTarget();
+    const targetLabel = labelForState(target);
+    button.textContent = targetLabel ? `← Back to ${targetLabel}` : "← Back";
+    button.title = targetLabel ? `Back to ${targetLabel}` : "No previous Scripture passage yet";
+    button.setAttribute("aria-label", targetLabel ? `Back to ${targetLabel}` : "Back to previous Scripture passage");
+  }
+
+  const previousUpdateV42 = window.rdmUpdateScriptureBackButtonV42;
+  if (typeof previousUpdateV42 === "function" && !previousUpdateV42.__rdmV44Wrapped) {
+    const wrapped = function rdmV44UpdateBackButtonWithTargetLabel() {
+      const result = previousUpdateV42.apply(this, arguments);
+      applyBackTargetLabel();
+      return result;
+    };
+    wrapped.__rdmV44Wrapped = true;
+    window.rdmUpdateScriptureBackButtonV42 = wrapped;
+  }
+
+  ["click", "change", "input"].forEach((eventName) => {
+    document.addEventListener(eventName, function(event) {
+      if (eventName === "input" && !event.target?.matches?.("#book,#chapter,#start,#end,#rangeSize")) return;
+      setTimeout(applyBackTargetLabel, 40);
+      setTimeout(applyBackTargetLabel, 220);
+    }, true);
+  });
+
+  function start() {
+    applyBackTargetLabel();
+    setTimeout(applyBackTargetLabel, 120);
+    setTimeout(applyBackTargetLabel, 600);
+    setTimeout(applyBackTargetLabel, 1400);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
+</script>
+<script id="rdm-v44-mobile-shell-marker">
+(function rdmV44Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v44-copy-hover-back-target-label";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v44-copy-hover-back-target-label";
 })();
 </script>
 
