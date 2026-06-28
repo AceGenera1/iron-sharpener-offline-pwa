@@ -1758,6 +1758,242 @@ body.dark .footerVerse {
   overflow-wrap: anywhere !important;
 }
 
+
+
+/* =========================================================
+   v58 — Copy Scripture + Scripture Marking Menu Style Match
+   Keeps behavior intact; aligns these menus with Disciple Journal
+   Study Tools panel styling in both light and dark modes.
+   ========================================================= */
+.copyMenuWrap {
+  position: relative !important;
+  isolation: isolate;
+}
+
+.copyMenu {
+  position: absolute !important;
+  top: calc(100% + 10px) !important;
+  right: 0 !important;
+  left: auto !important;
+  min-width: 270px !important;
+  width: min(320px, calc(100vw - 32px)) !important;
+  z-index: 10080 !important;
+  display: none;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  padding: 14px !important;
+  border: 2px solid var(--soft-copper) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98)) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.30) inset !important;
+}
+
+.copyMenu::before {
+  content: "Copy Scripture";
+  display: block;
+  padding: 0 0 10px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--soft-copper);
+  color: var(--copper);
+  font: 900 17px Georgia, "Times New Roman", serif;
+  letter-spacing: .01em;
+}
+
+.copyMenu.open { display: grid !important; }
+
+.copyMenu button {
+  width: 100% !important;
+  min-height: 54px !important;
+  padding: 12px 14px !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(217,160,123,.42) !important;
+  background: rgba(255,255,255,.66) !important;
+  color: var(--deep) !important;
+  box-shadow: none !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+}
+
+.copyMenu button:hover,
+.copyMenu button:focus-visible {
+  background: linear-gradient(180deg, #D9A07B, #B97A56) !important;
+  color: #FFF9F1 !important;
+  border-color: #B97A56 !important;
+  box-shadow: 0 14px 26px rgba(185,122,86,.22) !important;
+  opacity: 1 !important;
+}
+
+body.dark .copyMenu {
+  background: linear-gradient(180deg, #355070, #1D2D44) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.88) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14) !important;
+}
+
+body.dark .copyMenu::before {
+  color: var(--soft-copper) !important;
+  border-bottom-color: rgba(217,160,123,.82) !important;
+}
+
+body.dark .copyMenu button {
+  background: rgba(255,249,241,.06) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.35) !important;
+}
+
+body.dark .copyMenu button:hover,
+body.dark .copyMenu button:focus-visible {
+  background: linear-gradient(180deg, #D9A07B, #B97A56) !important;
+  color: #162234 !important;
+  border-color: rgba(255,249,241,.32) !important;
+  box-shadow: 0 16px 30px rgba(0,0,0,.30), 0 0 18px rgba(217,160,123,.18) !important;
+}
+
+.markToolsPanel {
+  border: 2px solid var(--soft-copper) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(255,249,241,.99), rgba(250,244,232,.98)) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.30) inset !important;
+}
+
+.markToolsHead {
+  align-items: flex-start !important;
+  border-bottom: 1px solid var(--soft-copper) !important;
+  background: transparent !important;
+}
+
+.markToolsHead h2 {
+  color: var(--copper) !important;
+  font: 900 24px Georgia, "Times New Roman", serif !important;
+  margin: 0 0 6px !important;
+  line-height: 1.1 !important;
+}
+
+.markToolsHead p {
+  margin: 0 !important;
+  color: var(--ink) !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  opacity: .92 !important;
+}
+
+.markToolsBody {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.markToolsBody .studyToolBtn {
+  min-height: 72px !important;
+  padding: 14px 15px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(217,160,123,.42) !important;
+  background: rgba(255,255,255,.66) !important;
+  color: var(--deep) !important;
+  box-shadow: none !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+}
+
+.markToolsBody .studyToolBtn:hover,
+.markToolsBody .studyToolBtn:focus-visible,
+.markToolsBody .studyToolBtn.markActive {
+  background: linear-gradient(180deg, #D9A07B, #B97A56) !important;
+  color: #FFF9F1 !important;
+  border-color: #B97A56 !important;
+  box-shadow: 0 14px 26px rgba(185,122,86,.22) !important;
+  opacity: 1 !important;
+}
+
+.markToolsBody .markingHint {
+  grid-column: 1 / -1 !important;
+  margin: 2px 0 0 !important;
+  padding: 13px 14px !important;
+  border: 1px solid rgba(217,160,123,.32) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.46) !important;
+  color: var(--dust) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.38 !important;
+}
+
+.markToolsPanel #closeMarkToolsBtn,
+.copyMenu .secondary {
+  opacity: 1 !important;
+}
+
+body.dark .markToolsPanel {
+  background: linear-gradient(180deg, #355070, #1D2D44) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.88) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(217,160,123,.14) !important;
+}
+
+body.dark .markToolsHead {
+  border-bottom-color: rgba(217,160,123,.82) !important;
+}
+
+body.dark .markToolsHead h2 {
+  color: var(--soft-copper) !important;
+}
+
+body.dark .markToolsHead p {
+  color: #F8F4EC !important;
+  opacity: .96 !important;
+}
+
+body.dark .markToolsBody .studyToolBtn {
+  background: rgba(255,249,241,.06) !important;
+  color: #F8F4EC !important;
+  border-color: rgba(217,160,123,.35) !important;
+}
+
+body.dark .markToolsBody .studyToolBtn:hover,
+body.dark .markToolsBody .studyToolBtn:focus-visible,
+body.dark .markToolsBody .studyToolBtn.markActive {
+  background: linear-gradient(180deg, #D9A07B, #B97A56) !important;
+  color: #162234 !important;
+  border-color: rgba(255,249,241,.32) !important;
+  box-shadow: 0 16px 30px rgba(0,0,0,.30), 0 0 18px rgba(217,160,123,.18) !important;
+}
+
+body.dark .markToolsBody .markingHint {
+  background: rgba(255,249,241,.06) !important;
+  border-color: rgba(217,160,123,.35) !important;
+  color: rgba(248,244,236,.82) !important;
+}
+
+@media (max-width: 650px) {
+  .copyMenu {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: auto !important;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .markToolsPanel {
+    left: 12px !important;
+    right: 12px !important;
+    top: 86px !important;
+    width: auto !important;
+    max-height: calc(100vh - 112px) !important;
+  }
+
+  .markToolsBody {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 </style>
 </head>
 <body>
