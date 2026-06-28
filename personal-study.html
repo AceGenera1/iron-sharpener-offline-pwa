@@ -2453,6 +2453,65 @@ body.dark .inline-circle.inline-mark-red { box-shadow: 0 0 12px rgba(221,77,77,.
 body.dark .inline-circle.inline-mark-purple { box-shadow: 0 0 12px rgba(157,99,214,.16); }
 body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,51,.16); }
 
+
+
+/* v76 — Box text marking + full flexible color stacking */
+.verse.boxed {
+  border: 3px solid var(--soft-copper);
+  border-radius: 13px;
+  padding: 11px 16px;
+  outline-offset: 3px;
+}
+.verse.boxed.box-gold { border-color: var(--soft-copper) !important; }
+.verse.boxed.box-blue { border-color: #5C91E6 !important; }
+.verse.boxed.box-green { border-color: #4DBB83 !important; }
+.verse.boxed.box-red { border-color: #DD4D4D !important; }
+.verse.boxed.box-purple { border-color: #9D63D6 !important; }
+.verse.boxed.box-amber { border-color: #F28B33 !important; }
+.inline-box {
+  display: inline-block;
+  border: 3px solid var(--soft-copper);
+  border-radius: 7px;
+  padding: 0 6px 1px;
+  margin: 0 2px;
+  line-height: 1.15;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
+}
+.inline-box.inline-mark-gold { border-color: var(--soft-copper) !important; }
+.inline-box.inline-mark-blue { border-color: #5C91E6 !important; }
+.inline-box.inline-mark-green { border-color: #4DBB83 !important; }
+.inline-box.inline-mark-red { border-color: #DD4D4D !important; }
+.inline-box.inline-mark-purple { border-color: #9D63D6 !important; }
+.inline-box.inline-mark-amber { border-color: #F28B33 !important; }
+body.dark .inline-box.inline-mark-gold { box-shadow: 0 0 12px rgba(217,160,123,.16); }
+body.dark .inline-box.inline-mark-blue { box-shadow: 0 0 12px rgba(92,145,230,.16); }
+body.dark .inline-box.inline-mark-green { box-shadow: 0 0 12px rgba(77,187,131,.16); }
+body.dark .inline-box.inline-mark-red { box-shadow: 0 0 12px rgba(221,77,77,.16); }
+body.dark .inline-box.inline-mark-purple { box-shadow: 0 0 12px rgba(157,99,214,.16); }
+body.dark .inline-box.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,51,.16); }
+.markToolBtn[data-mark="underline"].markActive::after,
+.markToolBtn[data-mark="circle"].markActive::after,
+.markToolBtn[data-mark="box"].markActive::after {
+  content: "Using " attr(data-mark-color-label);
+  display: inline-flex;
+  margin-top: 9px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,249,241,.78);
+  color: var(--deep);
+  border: 1px solid rgba(217,160,123,.40);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+body.dark .markToolBtn[data-mark="underline"].markActive::after,
+body.dark .markToolBtn[data-mark="circle"].markActive::after,
+body.dark .markToolBtn[data-mark="box"].markActive::after {
+  background: rgba(255,249,241,.12);
+  color: #F8F4EC;
+  border-color: rgba(217,160,123,.48);
+}
+
 </style>
 </head>
 <body>
@@ -2552,12 +2611,13 @@ body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,5
         <div class="markBasicGrid">
           <button class="studyToolBtn markToolBtn" id="markUnderlineBtn" type="button" data-mark="underline">Underline Text</button>
           <button class="studyToolBtn markToolBtn" id="markCircleBtn" type="button" data-mark="circle">Circle Text</button>
+          <button class="studyToolBtn markToolBtn" id="markBoxBtn" type="button" data-mark="box">Box Text</button>
           <button class="studyToolBtn markToolBtn" id="markEraseBtn" type="button" data-mark="erase">Erase Marks</button>
           <button class="studyToolBtn" id="markClearPassageBtn" type="button">Clear Marks in Passage</button>
           <button class="studyToolBtn" id="markStopBtn" type="button">Stop Marking</button>
         </div>
       </div>
-      <p class="markingHint">Select a word or phrase first, then choose a highlight color, underline, or circle. Or choose a tool and click a whole verse. Marks are saved on this device.</p>
+      <p class="markingHint">Select a word or phrase first, then choose a highlight color, underline, circle, or box. Or choose a tool and click a whole verse. Marks are saved on this device.</p>
     </div>
   </section>
 
@@ -2807,7 +2867,7 @@ body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,5
 <script>
 (() => {
   "use strict";
-  const VERSION = "v75-safe-new-entry-mode-preserve";
+  const VERSION = "v76-box-marking-flexible-colors";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4811,7 +4871,7 @@ const verseCounts = {
     const labels = {
       "highlight": "Gold Highlight", "highlight-gold": "Gold Highlight", "highlight-blue": "Blue Highlight",
       "highlight-green": "Green Highlight", "highlight-red": "Red Highlight", "highlight-purple": "Purple Highlight",
-      "highlight-amber": "Amber Highlight", "underline": "Underline", "circle": "Circle", "erase": "Erase"
+      "highlight-amber": "Amber Highlight", "underline": "Underline", "circle": "Circle", "box": "Box", "erase": "Erase"
     };
     return labels[mode] || "Mark";
   }
@@ -5123,6 +5183,65 @@ const verseCounts = {
   .note{font-size:13px;color:var(--muted);margin-top:24px;}
   @media (max-width:700px){body{padding:14px;}.wrap{padding:18px;border-radius:18px;}h1{font-size:27px;}}
   @media print{body,body.export-dark{background:#fff!important;color:#1D2D44!important;padding:0!important;}.wrap{background:#fff!important;color:#1D2D44!important;border:0!important;box-shadow:none!important;max-width:none!important;}section{background:#fff!important;color:#1D2D44!important;border:1px solid rgba(29,45,68,.18)!important;}h1,h2{color:#1D2D44!important;}h3,.sub{color:#8A4A28!important;}.meta{color:#5F6F82!important;}}
+
+
+/* v76 — Box text marking + full flexible color stacking */
+.verse.boxed {
+  border: 3px solid var(--soft-copper);
+  border-radius: 13px;
+  padding: 11px 16px;
+  outline-offset: 3px;
+}
+.verse.boxed.box-gold { border-color: var(--soft-copper) !important; }
+.verse.boxed.box-blue { border-color: #5C91E6 !important; }
+.verse.boxed.box-green { border-color: #4DBB83 !important; }
+.verse.boxed.box-red { border-color: #DD4D4D !important; }
+.verse.boxed.box-purple { border-color: #9D63D6 !important; }
+.verse.boxed.box-amber { border-color: #F28B33 !important; }
+.inline-box {
+  display: inline-block;
+  border: 3px solid var(--soft-copper);
+  border-radius: 7px;
+  padding: 0 6px 1px;
+  margin: 0 2px;
+  line-height: 1.15;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
+}
+.inline-box.inline-mark-gold { border-color: var(--soft-copper) !important; }
+.inline-box.inline-mark-blue { border-color: #5C91E6 !important; }
+.inline-box.inline-mark-green { border-color: #4DBB83 !important; }
+.inline-box.inline-mark-red { border-color: #DD4D4D !important; }
+.inline-box.inline-mark-purple { border-color: #9D63D6 !important; }
+.inline-box.inline-mark-amber { border-color: #F28B33 !important; }
+body.dark .inline-box.inline-mark-gold { box-shadow: 0 0 12px rgba(217,160,123,.16); }
+body.dark .inline-box.inline-mark-blue { box-shadow: 0 0 12px rgba(92,145,230,.16); }
+body.dark .inline-box.inline-mark-green { box-shadow: 0 0 12px rgba(77,187,131,.16); }
+body.dark .inline-box.inline-mark-red { box-shadow: 0 0 12px rgba(221,77,77,.16); }
+body.dark .inline-box.inline-mark-purple { box-shadow: 0 0 12px rgba(157,99,214,.16); }
+body.dark .inline-box.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,51,.16); }
+.markToolBtn[data-mark="underline"].markActive::after,
+.markToolBtn[data-mark="circle"].markActive::after,
+.markToolBtn[data-mark="box"].markActive::after {
+  content: "Using " attr(data-mark-color-label);
+  display: inline-flex;
+  margin-top: 9px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,249,241,.78);
+  color: var(--deep);
+  border: 1px solid rgba(217,160,123,.40);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+body.dark .markToolBtn[data-mark="underline"].markActive::after,
+body.dark .markToolBtn[data-mark="circle"].markActive::after,
+body.dark .markToolBtn[data-mark="box"].markActive::after {
+  background: rgba(255,249,241,.12);
+  color: #F8F4EC;
+  border-color: rgba(217,160,123,.48);
+}
+
 </style></head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
@@ -6390,7 +6509,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   }
 
   function removeInlineMarksFromVerse(verse) {
-    verse.querySelectorAll(".inline-underline, .inline-circle, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber").forEach((span) => {
+    verse.querySelectorAll(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber").forEach((span) => {
       const parent = span.parentNode;
       while (span.firstChild) parent.insertBefore(span.firstChild, span);
       parent.removeChild(span);
@@ -6435,7 +6554,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   function removeMarkColorClasses(el) {
     if (!el || !el.classList) return;
     MARK_COLOR_NAMES.forEach((name) => {
-      el.classList.remove(`underline-${name}`, `circle-${name}`);
+      el.classList.remove(`underline-${name}`, `circle-${name}`, `box-${name}`);
     });
   }
 
@@ -6443,7 +6562,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     const labels = {
       "highlight": "Gold Highlight", "highlight-gold": "Gold Highlight", "highlight-blue": "Blue Highlight",
       "highlight-green": "Green Highlight", "highlight-red": "Red Highlight", "highlight-purple": "Purple Highlight",
-      "highlight-amber": "Amber Highlight", "underline": "Underline", "circle": "Circle", "erase": "Erase"
+      "highlight-amber": "Amber Highlight", "underline": "Underline", "circle": "Circle", "box": "Box", "erase": "Erase"
     };
     return labels[mode] || "Mark";
   }
@@ -6453,6 +6572,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     if (markMode === "erase") return "Erase marks mode: click a marked word, phrase, or verse to remove its marks.";
     if (markMode === "underline") return `Underline mode (${markColorLabel()}): select text first, then click inside that verse; or click a verse to underline it.`;
     if (markMode === "circle") return `Circle mode (${markColorLabel()}): select text first, then click inside that verse; or click a verse to circle it.`;
+    if (markMode === "box") return `Box mode (${markColorLabel()}): select text first, then click inside that verse; or click a verse to box it.`;
     return `${markModeLabel()} mode: select a word or phrase first, then click inside that verse; or click a verse to mark the whole verse.`;
   }
 
@@ -6460,6 +6580,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     document.querySelectorAll(".markToolBtn").forEach((btn) => {
       btn.classList.toggle("markActive", btn.dataset.mark === markMode);
       btn.classList.toggle("selectedMarkColor", btn.dataset.mark === activeMarkColor && markMode !== activeMarkColor);
+      if (["underline", "circle", "box"].includes(btn.dataset.mark)) btn.dataset.markColorLabel = markColorLabel();
     });
     document.querySelectorAll(".verse").forEach((el) => el.classList.toggle("markingSelectable", !!markMode));
     const hint = $("copyHint");
@@ -6488,6 +6609,11 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       } else {
         verse.classList.remove("circled");
       }
+      if (data.box) {
+        verse.classList.add("boxed", `box-${markColorName(data.box)}`);
+      } else {
+        verse.classList.remove("boxed");
+      }
       verse.classList.toggle("markingSelectable", !!markMode);
       if (data.inlineHtml) verse.innerHTML = data.inlineHtml;
     });
@@ -6499,7 +6625,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     markMode = mode || null;
     updateMarkButtons();
     if (markMode) {
-      if (markMode === "underline" || markMode === "circle") setStatus(`${markModeLabel()} mode (${markColorLabel()})`);
+      if (markMode === "underline" || markMode === "circle" || markMode === "box") setStatus(`${markModeLabel()} mode (${markColorLabel()})`);
       else setStatus(`${markModeLabel()} mode`);
     } else {
       setStatus("Marking off");
@@ -6510,9 +6636,9 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     const marks = getVerseMarks();
     const key = verseMarkKey(verse.dataset.verse);
     const current = marks[key] || {};
-    if (verse.querySelector(".inline-underline, .inline-circle, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber")) current.inlineHtml = verse.innerHTML;
+    if (verse.querySelector(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber")) current.inlineHtml = verse.innerHTML;
     else delete current.inlineHtml;
-    if (!current.highlight && !current.underline && !current.circle && !current.inlineHtml) delete marks[key];
+    if (!current.highlight && !current.underline && !current.circle && !current.box && !current.inlineHtml) delete marks[key];
     else marks[key] = current;
     saveVerseMarks(marks);
   }
@@ -6524,7 +6650,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     if (markMode === "erase") {
       delete marks[key];
       saveVerseMarks(marks);
-      verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled");
+      verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled", "boxed");
       removeMarkColorClasses(verse);
       removeInlineMarksFromVerse(verse);
       applySavedMarks();
@@ -6535,19 +6661,19 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       const selectedColor = normalizeMarkColor(markMode);
       activeMarkColor = selectedColor;
       current.highlight = normalizeMarkColor(current.highlight) === selectedColor && current.highlight ? false : selectedColor;
-    } else if (markMode === "underline" || markMode === "circle") {
+    } else if (markMode === "underline" || markMode === "circle" || markMode === "box") {
       const selectedColor = normalizeMarkColor(activeMarkColor);
       current[markMode] = current[markMode] && normalizeMarkColor(current[markMode]) === selectedColor ? false : selectedColor;
     } else {
       current[markMode] = !current[markMode];
     }
-    if (verse.querySelector(".inline-underline, .inline-circle, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber")) current.inlineHtml = verse.innerHTML;
-    if (!current.highlight && !current.underline && !current.circle && !current.inlineHtml) delete marks[key];
+    if (verse.querySelector(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber")) current.inlineHtml = verse.innerHTML;
+    if (!current.highlight && !current.underline && !current.circle && !current.box && !current.inlineHtml) delete marks[key];
     else marks[key] = current;
     saveVerseMarks(marks);
     applySavedMarks();
     const markAdded = markMode && markMode.startsWith("highlight") ? !!current.highlight : !!current[markMode];
-    const colorText = markMode === "underline" || markMode === "circle" ? ` (${markColorLabel(current[markMode] || activeMarkColor)})` : "";
+    const colorText = markMode === "underline" || markMode === "circle" || markMode === "box" ? ` (${markColorLabel(current[markMode] || activeMarkColor)})` : "";
     setStatus(`${markModeLabel()}${colorText} ${markAdded ? "added" : "removed"}`);
   }
 
@@ -6561,11 +6687,13 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       className = `inline-underline inline-mark-${markColorName(activeMarkColor)}`;
     } else if (markMode === "circle") {
       className = `inline-circle inline-mark-${markColorName(activeMarkColor)}`;
+    } else if (markMode === "box") {
+      className = `inline-box inline-mark-${markColorName(activeMarkColor)}`;
     }
     if (!className) return false;
     if (!wrapSelectedTextInVerse(verse, className)) return false;
     saveCurrentVerseInlineHtml(verse);
-    const colorText = markMode === "underline" || markMode === "circle" ? ` (${markColorLabel()})` : "";
+    const colorText = markMode === "underline" || markMode === "circle" || markMode === "box" ? ` (${markColorLabel()})` : "";
     setStatus(`${markModeLabel()}${colorText} applied to selected text`);
     return true;
   }
@@ -6623,7 +6751,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     });
     saveVerseMarks(marks);
     document.querySelectorAll(".verse").forEach((verse) => {
-      verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled");
+      verse.classList.remove("highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber", "underlined", "circled", "boxed");
       removeMarkColorClasses(verse);
       removeInlineMarksFromVerse(verse);
     });
