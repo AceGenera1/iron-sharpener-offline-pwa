@@ -17624,5 +17624,495 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-mobile-sheet-head {
 })();
 </script>
 
+
+<!-- Patch 39 — Color-Aware Teaching Marks + Scripture Back Button -->
+<style id="rdm-v39-color-aware-marks-scripture-back-style">
+/*
+   Patch 39 — Disciple Maker teaching mark color memory + Scripture Back button
+   Scope: main Iron Sharpener / Disciple Maker mode. Keeps desktop, OBS, Offline Ready,
+   Study Resources through Teacher Tools, and the v38 mobile shell intact.
+*/
+:root {
+  --rdm-mark-gold: #d7a84f;
+  --rdm-mark-blue: #4f8fe8;
+  --rdm-mark-green: #3fb377;
+  --rdm-mark-red: #d44d4d;
+  --rdm-mark-purple: #9a65d8;
+  --rdm-mark-amber: #e8842d;
+  --rdm-mark-gold-soft: rgba(215,168,79,.78);
+  --rdm-mark-blue-soft: rgba(79,143,232,.78);
+  --rdm-mark-green-soft: rgba(63,179,119,.78);
+  --rdm-mark-red-soft: rgba(212,77,77,.76);
+  --rdm-mark-purple-soft: rgba(154,101,216,.78);
+  --rdm-mark-amber-soft: rgba(232,132,45,.78);
+}
+
+/* Whole-verse underline colors */
+.verse.underlined.rdm-underline-gold { text-decoration-color: var(--rdm-mark-gold) !important; }
+.verse.underlined.rdm-underline-blue { text-decoration-color: var(--rdm-mark-blue) !important; }
+.verse.underlined.rdm-underline-green { text-decoration-color: var(--rdm-mark-green) !important; }
+.verse.underlined.rdm-underline-red { text-decoration-color: var(--rdm-mark-red) !important; }
+.verse.underlined.rdm-underline-purple { text-decoration-color: var(--rdm-mark-purple) !important; }
+.verse.underlined.rdm-underline-amber { text-decoration-color: var(--rdm-mark-amber) !important; }
+
+/* Whole-verse circle colors */
+.verse.circled.rdm-circle-gold { outline-color: var(--rdm-mark-gold-soft) !important; }
+.verse.circled.rdm-circle-blue { outline-color: var(--rdm-mark-blue-soft) !important; }
+.verse.circled.rdm-circle-green { outline-color: var(--rdm-mark-green-soft) !important; }
+.verse.circled.rdm-circle-red { outline-color: var(--rdm-mark-red-soft) !important; }
+.verse.circled.rdm-circle-purple { outline-color: var(--rdm-mark-purple-soft) !important; }
+.verse.circled.rdm-circle-amber { outline-color: var(--rdm-mark-amber-soft) !important; }
+
+/* Whole-verse box colors */
+.verse.boxed.rdm-box-gold { border-color: var(--rdm-mark-gold) !important; }
+.verse.boxed.rdm-box-blue { border-color: var(--rdm-mark-blue) !important; }
+.verse.boxed.rdm-box-green { border-color: var(--rdm-mark-green) !important; }
+.verse.boxed.rdm-box-red { border-color: var(--rdm-mark-red) !important; }
+.verse.boxed.rdm-box-purple { border-color: var(--rdm-mark-purple) !important; }
+.verse.boxed.rdm-box-amber { border-color: var(--rdm-mark-amber) !important; }
+
+/* Word/phrase underline colors */
+.inline-underline.rdm-inline-mark-gold { text-decoration-color: var(--rdm-mark-gold) !important; }
+.inline-underline.rdm-inline-mark-blue { text-decoration-color: var(--rdm-mark-blue) !important; }
+.inline-underline.rdm-inline-mark-green { text-decoration-color: var(--rdm-mark-green) !important; }
+.inline-underline.rdm-inline-mark-red { text-decoration-color: var(--rdm-mark-red) !important; }
+.inline-underline.rdm-inline-mark-purple { text-decoration-color: var(--rdm-mark-purple) !important; }
+.inline-underline.rdm-inline-mark-amber { text-decoration-color: var(--rdm-mark-amber) !important; }
+
+/* Word/phrase circle and box colors */
+.inline-circle.rdm-inline-mark-gold,
+.inline-box.rdm-inline-mark-gold { border-color: var(--rdm-mark-gold) !important; }
+.inline-circle.rdm-inline-mark-blue,
+.inline-box.rdm-inline-mark-blue { border-color: var(--rdm-mark-blue) !important; }
+.inline-circle.rdm-inline-mark-green,
+.inline-box.rdm-inline-mark-green { border-color: var(--rdm-mark-green) !important; }
+.inline-circle.rdm-inline-mark-red,
+.inline-box.rdm-inline-mark-red { border-color: var(--rdm-mark-red) !important; }
+.inline-circle.rdm-inline-mark-purple,
+.inline-box.rdm-inline-mark-purple { border-color: var(--rdm-mark-purple) !important; }
+.inline-circle.rdm-inline-mark-amber,
+.inline-box.rdm-inline-mark-amber { border-color: var(--rdm-mark-amber) !important; }
+
+body.dark .inline-circle.rdm-inline-mark-gold,
+body.dark .inline-box.rdm-inline-mark-gold { box-shadow: 0 0 12px rgba(215,168,79,.18) !important; }
+body.dark .inline-circle.rdm-inline-mark-blue,
+body.dark .inline-box.rdm-inline-mark-blue { box-shadow: 0 0 12px rgba(79,143,232,.20) !important; }
+body.dark .inline-circle.rdm-inline-mark-green,
+body.dark .inline-box.rdm-inline-mark-green { box-shadow: 0 0 12px rgba(63,179,119,.20) !important; }
+body.dark .inline-circle.rdm-inline-mark-red,
+body.dark .inline-box.rdm-inline-mark-red { box-shadow: 0 0 12px rgba(212,77,77,.20) !important; }
+body.dark .inline-circle.rdm-inline-mark-purple,
+body.dark .inline-box.rdm-inline-mark-purple { box-shadow: 0 0 12px rgba(154,101,216,.20) !important; }
+body.dark .inline-circle.rdm-inline-mark-amber,
+body.dark .inline-box.rdm-inline-mark-amber { box-shadow: 0 0 12px rgba(232,132,45,.20) !important; }
+
+#scriptureBox {
+  position: relative;
+}
+
+#scriptureBackBtn {
+  display: none;
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 15;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font: 900 12px Arial, sans-serif;
+  letter-spacing: .2px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+}
+
+#scriptureBackBtn.rdm-scripture-back-visible {
+  display: inline-flex;
+}
+
+body:not(.dark) #scriptureBackBtn {
+  background: linear-gradient(180deg, #8A5A13, #6F4307) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+}
+
+body.dark #scriptureBackBtn {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border: 1.8px solid rgba(255,241,192,.90) !important;
+}
+
+html.obs #scriptureBackBtn {
+  display: none !important;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  #scriptureBackBtn {
+    top: 12px;
+    right: 12px;
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  #scriptureBox:has(#scriptureBackBtn.rdm-scripture-back-visible) .ref {
+    padding-right: 74px;
+  }
+}
+</style>
+<script id="rdm-v39-color-aware-marks-scripture-back-script">
+(function rdmV39ColorAwareMarksAndScriptureBack(){
+  if (window.__rdmV39ColorAwareMarksAndScriptureBack) return;
+  window.__rdmV39ColorAwareMarksAndScriptureBack = true;
+
+  const STORAGE_KEY = "ironSharpenerUnified.selectedTeachingMarkColor";
+  const COLORS = ["gold", "blue", "green", "red", "purple", "amber"];
+  const TOOL_CLASS = { underline: "underlined", circle: "circled", box: "boxed" };
+  const INLINE_CLASS = { underline: "inline-underline", circle: "inline-circle", box: "inline-box" };
+
+  function get(id) {
+    return document.getElementById(id);
+  }
+
+  function cleanColor(value) {
+    return COLORS.includes(String(value || "").trim()) ? String(value).trim() : "gold";
+  }
+
+  function colorFromTool(toolName) {
+    const match = String(toolName || "").match(/^highlight-(gold|blue|green|red|purple|amber)$/);
+    return match ? match[1] : "";
+  }
+
+  function getSelectedMarkColor() {
+    return cleanColor(window.__rdmSelectedTeachingMarkColor || localStorage.getItem(STORAGE_KEY) || "gold");
+  }
+
+  function setSelectedMarkColor(color) {
+    const cleaned = cleanColor(color);
+    window.__rdmSelectedTeachingMarkColor = cleaned;
+    try { localStorage.setItem(STORAGE_KEY, cleaned); } catch (_) {}
+    return cleaned;
+  }
+
+  setSelectedMarkColor(getSelectedMarkColor());
+
+  function colorClassFor(toolName, color) {
+    return `rdm-${toolName}-${cleanColor(color)}`;
+  }
+
+  function removeToolColorClasses(element, toolName) {
+    if (!element) return;
+    const prefix = `rdm-${toolName}-`;
+    Array.from(element.classList || []).forEach(className => {
+      if (className.startsWith(prefix)) element.classList.remove(className);
+    });
+  }
+
+  function removeAllTeachingColorClasses(element) {
+    if (!element) return;
+    Array.from(element.classList || []).forEach(className => {
+      if (/^rdm-(underline|circle|box)-/.test(className)) element.classList.remove(className);
+    });
+  }
+
+  function selectedRangeInsideVerse(verse) {
+    if (typeof getSelectionRangeInsideVerse === "function") {
+      return getSelectionRangeInsideVerse(verse);
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null;
+
+    const range = selection.getRangeAt(0);
+    if (!verse || !verse.contains(range.commonAncestorContainer)) return null;
+    if (!String(selection.toString() || "").trim()) return null;
+
+    return range;
+  }
+
+  function wrapSelectedTextWithColor(verse, baseClass, color) {
+    const range = selectedRangeInsideVerse(verse);
+    if (!range) return false;
+
+    const span = document.createElement("span");
+    span.className = `${baseClass} rdm-inline-mark-${cleanColor(color)}`;
+
+    try {
+      range.surroundContents(span);
+    } catch (_) {
+      const contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+    }
+
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+
+    return true;
+  }
+
+  function applyColoredTeachingMark(verse, toolName) {
+    if (!verse || !TOOL_CLASS[toolName]) return false;
+
+    const color = getSelectedMarkColor();
+    const inlineBase = INLINE_CLASS[toolName];
+
+    if (inlineBase && wrapSelectedTextWithColor(verse, inlineBase, color)) {
+      if (typeof saveMarks === "function") saveMarks();
+      return true;
+    }
+
+    const wholeClass = TOOL_CLASS[toolName];
+    const colorClass = colorClassFor(toolName, color);
+    const alreadySame = verse.classList.contains(wholeClass) && verse.classList.contains(colorClass);
+
+    removeToolColorClasses(verse, toolName);
+
+    if (alreadySame) {
+      verse.classList.remove(wholeClass);
+    } else {
+      verse.classList.add(wholeClass, colorClass);
+    }
+
+    if (typeof saveMarks === "function") saveMarks();
+    return true;
+  }
+
+  function readSavedMarks() {
+    try {
+      if (typeof passageKey === "function") {
+        return JSON.parse(localStorage.getItem(passageKey()) || "{}");
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  function colorForVerseTool(verse, toolName) {
+    if (!verse) return "gold";
+    const prefix = `rdm-${toolName}-`;
+    const found = Array.from(verse.classList || []).find(className => className.startsWith(prefix));
+    return found ? cleanColor(found.slice(prefix.length)) : "gold";
+  }
+
+  const previousSetTool = typeof setTool === "function" ? setTool : null;
+  if (previousSetTool) {
+    setTool = function rdmV39SetToolColorAware(toolName) {
+      const color = colorFromTool(toolName);
+      if (color) setSelectedMarkColor(color);
+      return previousSetTool.apply(this, arguments);
+    };
+  }
+
+  const previousUseActiveTool = typeof useActiveTool === "function" ? useActiveTool : null;
+  if (previousUseActiveTool) {
+    useActiveTool = function rdmV39UseActiveToolColorAware(verse) {
+      if (window.rdmCopyScriptureMode) {
+        return previousUseActiveTool.apply(this, arguments);
+      }
+
+      if (activeTool === "underline" || activeTool === "circle" || activeTool === "box") {
+        return applyColoredTeachingMark(verse, activeTool);
+      }
+
+      if (activeTool === "erase") {
+        const result = previousUseActiveTool.apply(this, arguments);
+        removeAllTeachingColorClasses(verse);
+        if (typeof saveMarks === "function") saveMarks();
+        return result;
+      }
+
+      return previousUseActiveTool.apply(this, arguments);
+    };
+  }
+
+  const previousGetCurrentMarks = typeof getCurrentMarks === "function" ? getCurrentMarks : null;
+  if (previousGetCurrentMarks) {
+    getCurrentMarks = function rdmV39GetCurrentMarksColorAware() {
+      const marks = previousGetCurrentMarks.apply(this, arguments) || {};
+      marks.markColors = marks.markColors || {};
+      marks.markColors.underline = {};
+      marks.markColors.circle = {};
+      marks.markColors.box = {};
+
+      document.querySelectorAll("#passage .verse[data-v]").forEach(verse => {
+        const v = verse.dataset.v;
+        if (verse.classList.contains("underlined")) marks.markColors.underline[v] = colorForVerseTool(verse, "underline");
+        if (verse.classList.contains("circled")) marks.markColors.circle[v] = colorForVerseTool(verse, "circle");
+        if (verse.classList.contains("boxed")) marks.markColors.box[v] = colorForVerseTool(verse, "box");
+      });
+
+      return marks;
+    };
+  }
+
+  const previousRestoreMarks = typeof restoreMarks === "function" ? restoreMarks : null;
+  if (previousRestoreMarks) {
+    restoreMarks = function rdmV39RestoreMarksColorAware() {
+      const result = previousRestoreMarks.apply(this, arguments);
+      const saved = readSavedMarks();
+      const markColors = saved.markColors || {};
+
+      document.querySelectorAll("#passage .verse[data-v]").forEach(verse => {
+        const v = verse.dataset.v;
+
+        if (verse.classList.contains("underlined")) {
+          removeToolColorClasses(verse, "underline");
+          verse.classList.add(colorClassFor("underline", markColors.underline?.[v] || "gold"));
+        }
+
+        if (verse.classList.contains("circled")) {
+          removeToolColorClasses(verse, "circle");
+          verse.classList.add(colorClassFor("circle", markColors.circle?.[v] || "gold"));
+        }
+
+        if (verse.classList.contains("boxed")) {
+          removeToolColorClasses(verse, "box");
+          verse.classList.add(colorClassFor("box", markColors.box?.[v] || "gold"));
+        }
+      });
+
+      return result;
+    };
+  }
+
+  const previousClearMarks = typeof clearMarks === "function" ? clearMarks : null;
+  if (previousClearMarks) {
+    clearMarks = function rdmV39ClearMarksColorAware() {
+      const result = previousClearMarks.apply(this, arguments);
+      document.querySelectorAll("#passage .verse[data-v]").forEach(removeAllTeachingColorClasses);
+      return result;
+    };
+  }
+
+  function createScriptureBackButton() {
+    const scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+
+    let button = get("scriptureBackBtn");
+    if (button) return button;
+
+    button = document.createElement("button");
+    button.id = "scriptureBackBtn";
+    button.type = "button";
+    button.className = "secondary";
+    button.textContent = "← Back";
+    button.setAttribute("aria-label", "Back to previous Scripture passage");
+    scriptureBox.insertAdjacentElement("afterbegin", button);
+
+    button.onclick = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (typeof window.rdmGoBackOneStudyResourceStep === "function") {
+        window.rdmGoBackOneStudyResourceStep();
+      } else if (typeof previousPassageState !== "undefined" && previousPassageState && typeof loadPassage === "function") {
+        const state = previousPassageState;
+        if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+        const bookSel = get("book");
+        const chapSel = get("chapter");
+        const startSel = get("start");
+        const endSel = get("end");
+        const rangeSel = get("rangeSize");
+        if (bookSel && chapSel && startSel && endSel && rangeSel) {
+          bookSel.value = state.book;
+          if (typeof fillChapters === "function") fillChapters();
+          chapSel.value = state.chapter;
+          if (typeof fillVerses === "function") fillVerses();
+          startSel.value = state.start;
+          endSel.value = state.end;
+          rangeSel.value = state.range;
+          previousPassageState = null;
+          try { window.previousPassageState = null; } catch (_) {}
+          loadPassage();
+        }
+      }
+
+      setTimeout(updateScriptureBackButton, 120);
+      setTimeout(updateScriptureBackButton, 350);
+    };
+
+    return button;
+  }
+
+  function hasBackTarget() {
+    const stack = window.__rdmCrossReferenceBackStack || [];
+    if (stack.length) return true;
+
+    try {
+      if (typeof previousPassageState !== "undefined" && previousPassageState) return true;
+    } catch (_) {}
+
+    return !!window.previousPassageState;
+  }
+
+  function previousBackLabel() {
+    const stack = window.__rdmCrossReferenceBackStack || [];
+    const state = stack[stack.length - 1] || window.previousPassageState;
+    if (!state) return "← Back";
+    const start = String(state.start || "1");
+    const end = String(state.end || start);
+    const ref = start === end
+      ? `${state.book || "Scripture"} ${state.chapter || ""}:${start}`
+      : `${state.book || "Scripture"} ${state.chapter || ""}:${start}-${end}`;
+    return `← Back`;
+  }
+
+  function updateScriptureBackButton() {
+    const button = createScriptureBackButton();
+    if (!button) return;
+
+    const visible = hasBackTarget();
+    button.classList.toggle("rdm-scripture-back-visible", visible);
+    button.textContent = previousBackLabel();
+  }
+
+  const previousGoTo = typeof window.goToScriptureReference === "function" ? window.goToScriptureReference : null;
+  if (previousGoTo) {
+    window.goToScriptureReference = function rdmV39GoToScriptureReferenceWithBackButton() {
+      const result = previousGoTo.apply(this, arguments);
+      setTimeout(updateScriptureBackButton, 80);
+      setTimeout(updateScriptureBackButton, 300);
+      return result;
+    };
+    try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
+  }
+
+  const previousLoadPassage = typeof loadPassage === "function" ? loadPassage : null;
+  if (previousLoadPassage) {
+    loadPassage = function rdmV39LoadPassageWithBackButton() {
+      const result = previousLoadPassage.apply(this, arguments);
+      Promise.resolve(result).finally(() => {
+        setTimeout(updateScriptureBackButton, 80);
+      });
+      return result;
+    };
+  }
+
+  document.addEventListener("click", function(event) {
+    if (event.target?.closest?.(".cross-ref-link, .doctrine-topic-btn, .doctrine-related-topic-btn, .naves-topic-btn, .naves-topic-btn-v11")) {
+      setTimeout(updateScriptureBackButton, 160);
+      setTimeout(updateScriptureBackButton, 450);
+    }
+  }, true);
+
+  function start() {
+    createScriptureBackButton();
+    updateScriptureBackButton();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+
+  window.rdmUpdateScriptureBackButtonV39 = updateScriptureBackButton;
+})();
+</script>
+<script id="rdm-v39-mobile-shell-marker">
+(function rdmV39Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v39-color-aware-marks-scripture-back";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v39-color-aware-marks-scripture-back";
+})();
+</script>
+
 </body>
 </html>
