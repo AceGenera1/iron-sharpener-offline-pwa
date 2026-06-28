@@ -956,6 +956,77 @@ body.dark .doctrine-section {
   opacity: .95;
 }
 
+
+
+/* v48 — Descriptive Study Resources panel for Disciple Journal */
+.studyToolsPanel {
+  width: min(720px, calc(100vw - 32px));
+}
+.studyToolsMenu.descriptiveResourceGrid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px !important;
+  padding: 0 !important;
+  border-right: 0 !important;
+  overflow: visible !important;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+  min-height: 136px;
+  height: 100%;
+  padding: 15px 16px;
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left !important;
+  border-radius: 14px;
+  background: rgba(255,255,255,.66);
+  border: 1px solid rgba(217,160,123,.42);
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
+  display: block;
+  color: var(--deep);
+  font-size: 16px;
+  line-height: 1.16;
+  font-weight: 900;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.42;
+  font-weight: 800;
+  opacity: .94;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
+  color: #FFF9F1 !important;
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+  background: rgba(255,249,241,.06);
+  border-color: rgba(217,160,123,.35);
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
+  color: #F8F4EC;
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
+  color: rgba(248,244,236,.82);
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
+  color: #162234 !important;
+}
+@media (max-width: 650px) {
+  .studyToolsPanel { width: auto; }
+  .studyToolsMenu.descriptiveResourceGrid {
+    grid-template-columns: 1fr !important;
+  }
+  .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+    min-height: 116px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -988,22 +1059,43 @@ body.dark .doctrine-section {
       <button class="ghost" id="closeStudyToolsBtn" type="button">Close</button>
     </div>
     <div class="studyToolsBody">
-      <aside class="studyToolsMenu">
-        <div class="studyToolGroup">
-          <h3>Current Passage</h3>
-          <button class="studyToolBtn" id="toolDoctrine" type="button">Biblical Doctrine</button>
-          <button class="studyToolBtn" id="toolCrossRefs" type="button">Built-In Cross References</button>
-          <button class="studyToolBtn" id="toolBackgrounds" type="button">Bible Backgrounds &amp; Customs</button>
-          <button class="studyToolBtn" id="toolBookOverview" type="button">Book Overview</button>
-          <button class="studyToolBtn" id="toolMatthewHenry" type="button">Matthew Henry Commentary</button>
-          <button class="studyToolBtn" id="toolJfb" type="button">Jamieson-Fausset-Brown Commentary</button>
-        </div>
-        <div class="studyToolGroup">
-          <h3>Word &amp; Topic Helps</h3>
-          <button class="studyToolBtn" id="toolEastons" type="button">Easton's Bible Dictionary</button>
-          <button class="studyToolBtn" id="toolSmiths" type="button">Smith's Bible Dictionary</button>
-          <button class="studyToolBtn" id="toolNave" type="button">Nave's Topical Bible</button>
-        </div>
+      <aside class="studyToolsMenu descriptiveResourceGrid">
+        <button class="studyToolBtn resourceCardBtn" id="toolDoctrine" type="button">
+          <strong>Biblical Doctrine</strong>
+          <span>Open Scripture-centered doctrine topics for deeper study, discipleship, and biblical understanding.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolCrossRefs" type="button">
+          <strong>Built-In Cross References</strong>
+          <span>Trace related Scriptures for the selected passage with clean, clickable reference buttons.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolBackgrounds" type="button">
+          <strong>Bible Backgrounds &amp; Customs</strong>
+          <span>Search ancient customs, feasts, worship, daily life, places, and historical background.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolBookOverview" type="button">
+          <strong>Book Overview</strong>
+          <span>View author, setting, themes, Christ focus, and outline for the current Bible book.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolMatthewHenry" type="button">
+          <strong>Matthew Henry Commentary</strong>
+          <span>Open warm, devotional, pastoral commentary for the selected passage, helpful for application and heart-focused study.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolJfb" type="button">
+          <strong>Jamieson-Fausset-Brown Commentary</strong>
+          <span>Open concise verse-by-verse commentary with historical, grammatical, and cross-reference insight.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolEastons" type="button">
+          <strong>Easton's Bible Dictionary</strong>
+          <span>Look up Bible words, people, places, and themes with concise dictionary explanations.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolSmiths" type="button">
+          <strong>Smith's Bible Dictionary</strong>
+          <span>Search historical Bible dictionary entries for people, places, customs, geography, and ancient-world background.</span>
+        </button>
+        <button class="studyToolBtn resourceCardBtn" id="toolNave" type="button">
+          <strong>Nave's Topical Bible</strong>
+          <span>Find Bible topics with grouped Scripture references so you can trace themes across Scripture.</span>
+        </button>
       </aside>
 
     </div>
@@ -3593,6 +3685,77 @@ body.dark .nave-ref-btn.cross-ref-link {
   background: rgba(255,255,255,.08) !important;
   color: #F8F4EC !important;
   border-color: rgba(217,160,123,.92) !important;
+}
+
+
+
+/* v48 — Descriptive Study Resources panel for Disciple Journal */
+.studyToolsPanel {
+  width: min(720px, calc(100vw - 32px));
+}
+.studyToolsMenu.descriptiveResourceGrid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px !important;
+  padding: 0 !important;
+  border-right: 0 !important;
+  overflow: visible !important;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+  min-height: 136px;
+  height: 100%;
+  padding: 15px 16px;
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left !important;
+  border-radius: 14px;
+  background: rgba(255,255,255,.66);
+  border: 1px solid rgba(217,160,123,.42);
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
+  display: block;
+  color: var(--deep);
+  font-size: 16px;
+  line-height: 1.16;
+  font-weight: 900;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.42;
+  font-weight: 800;
+  opacity: .94;
+}
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
+.studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
+  color: #FFF9F1 !important;
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+  background: rgba(255,249,241,.06);
+  border-color: rgba(217,160,123,.35);
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn strong {
+  color: #F8F4EC;
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn span {
+  color: rgba(248,244,236,.82);
+}
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover strong,
+body.dark .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn:hover span {
+  color: #162234 !important;
+}
+@media (max-width: 650px) {
+  .studyToolsPanel { width: auto; }
+  .studyToolsMenu.descriptiveResourceGrid {
+    grid-template-columns: 1fr !important;
+  }
+  .studyToolsMenu.descriptiveResourceGrid .resourceCardBtn {
+    min-height: 116px;
+  }
 }
 
 </style></head><body><div class="wrap"><h1>Iron Sharpener: Disciple Journal</h1><p class="sub">Journal Export • ${escapeHtml(new Date().toLocaleString())}</p>
