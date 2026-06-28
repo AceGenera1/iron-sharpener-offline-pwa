@@ -6600,6 +6600,7 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
 
 
 
+  /* v55 — Commentary title final cleanup: no duplicate commentary intro title */
   /* v53 — Resource panel content unification: commentary + book overview */
   function djIsBlank(value) {
     if (value == null) return true;
@@ -6681,13 +6682,10 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
       return `<div class="resource-clean-empty">No ${escapeHtml(label)} entry found for ${escapeHtml(currentReference())} yet.</div>`;
     }
     return `
-      <div class="resource-clean-intro">
-        <strong>${escapeHtml(label)} for ${escapeHtml(currentReference())}</strong>
-      </div>
       <div class="commentary-clean">
         ${entries.map(entry => `
           <section class="commentary-entry">
-            <h4>${escapeHtml(entry.title || label)}</h4>
+            <h4>${escapeHtml(entry.title || currentReference())}</h4>
             <p>${escapeHtml(entry.content)}</p>
           </section>
         `).join("")}
