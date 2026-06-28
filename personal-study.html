@@ -158,6 +158,27 @@
   .cardHead { padding: 16px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(220,232,242,.45); }
   body.dark .cardHead { background: rgba(255,249,241,.04); }
 
+  .journalGuideHeadActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .journalTopNewEntryBtn {
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    box-shadow: none;
+    font-size: 13px;
+    line-height: 1.1;
+    white-space: nowrap;
+    opacity: 1;
+  }
+  .entryModeStatus {
+    display: none !important;
+  }
+
   .scriptureHeadActions {
     display: flex;
     align-items: center;
@@ -2618,7 +2639,7 @@ body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,5
     </section>
 
     <section class="card journalCard">
-      <div class="cardHead"><h2>Personal Study Guide</h2><span id="entryMode" class="translation">New entry</span></div>
+      <div class="cardHead journalGuideHead"><h2>Personal Study Guide</h2><div class="journalGuideHeadActions"><button class="secondary journalTopNewEntryBtn" id="journalTopNewEntryBtn" type="button">New Entry</button><span id="entryMode" class="translation entryModeStatus">New entry</span></div></div>
       <div class="cardBody">
         <div class="journalStack">
           <div class="prompt">
@@ -2786,7 +2807,7 @@ body.dark .inline-circle.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,5
 <script>
 (() => {
   "use strict";
-  const VERSION = "v73-guided-export-no-freewrite";
+  const VERSION = "v74-top-new-entry-button";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -7003,6 +7024,8 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     $("clearCopyBtn").addEventListener("click", clearCopySelection);
     $("passage").addEventListener("click", handleVerseInteraction);
     $("newEntryBtn").addEventListener("click", newEntry);
+    const journalTopNewEntryBtn = $("journalTopNewEntryBtn");
+    if (journalTopNewEntryBtn) journalTopNewEntryBtn.addEventListener("click", newEntry);
     $("saveBtn").addEventListener("click", saveEntry);
     $("copyEntryBtn").addEventListener("click", copyEntry);
     $("deleteBtn").addEventListener("click", async () => {
