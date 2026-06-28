@@ -19346,5 +19346,148 @@ body.dark .tool-option.rdm-color-aware-basic-tool.rdm-color-aware-active-tool {
 })();
 </script>
 
+
+
+<!-- Patch 43 — Disciple Maker copy hover lock + Journal box marking companion release -->
+<style id="rdm-v43-copy-scripture-cream-hover-lock">
+/* v43 — Cream mode Copy Scripture hover must stay in the Disciple Maker cream/brown palette. */
+body:not(.dark) #copyScriptureMain,
+body:not(.dark) #copyScriptureMainBtn,
+body:not(.dark) #copyScriptureOpenBtn,
+body:not(.dark) #openCopyScriptureFromTools,
+body:not(.dark) .copy-scripture-single-button,
+html.obs body:not(.dark) #copyScriptureMain,
+html.obs body:not(.dark) #copyScriptureMainBtn,
+html.obs body:not(.dark) #copyScriptureOpenBtn,
+html.obs body:not(.dark) #openCopyScriptureFromTools,
+html.obs body:not(.dark) .copy-scripture-single-button {
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
+  background-color: #7A4C06 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+body:not(.dark) #copyScriptureMain:hover,
+body:not(.dark) #copyScriptureMainBtn:hover,
+body:not(.dark) #copyScriptureOpenBtn:hover,
+body:not(.dark) #openCopyScriptureFromTools:hover,
+body:not(.dark) .copy-scripture-single-button:hover,
+body:not(.dark) #copyScriptureMain:focus-visible,
+body:not(.dark) #copyScriptureMainBtn:focus-visible,
+body:not(.dark) #copyScriptureOpenBtn:focus-visible,
+body:not(.dark) #openCopyScriptureFromTools:focus-visible,
+body:not(.dark) .copy-scripture-single-button:focus-visible,
+html.obs body:not(.dark) #copyScriptureMain:hover,
+html.obs body:not(.dark) #copyScriptureMainBtn:hover,
+html.obs body:not(.dark) #copyScriptureOpenBtn:hover,
+html.obs body:not(.dark) #openCopyScriptureFromTools:hover,
+html.obs body:not(.dark) .copy-scripture-single-button:hover {
+  background: linear-gradient(180deg, #9A6618 0%, #7A4C06 100%) !important;
+  background-color: #7A4C06 !important;
+  color: #FFF8EA !important;
+  border-color: #7A4C06 !important;
+  box-shadow: 0 10px 22px rgba(122,76,6,.18) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  outline-color: rgba(122,76,6,.35) !important;
+}
+
+body:not(.dark) #copyScripturePanel,
+html.obs body:not(.dark) #copyScripturePanel {
+  background: linear-gradient(180deg, #FFF8EA 0%, #F5EBD6 100%) !important;
+  color: #10223C !important;
+  border-color: rgba(138,90,19,.55) !important;
+}
+
+body:not(.dark) #copyScripturePanel .teacher-pop-head,
+html.obs body:not(.dark) #copyScripturePanel .teacher-pop-head {
+  border-bottom-color: rgba(138,90,19,.55) !important;
+}
+
+body:not(.dark) #copyScripturePanel .teacher-pop-head h3,
+html.obs body:not(.dark) #copyScripturePanel .teacher-pop-head h3 {
+  color: #6F4307 !important;
+}
+
+body:not(.dark) #copyScripturePanel .copy-scripture-help,
+html.obs body:not(.dark) #copyScripturePanel .copy-scripture-help {
+  background: rgba(255,248,234,.72) !important;
+  color: #10223C !important;
+  border-color: rgba(138,90,19,.30) !important;
+}
+
+body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode),
+html.obs body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode) {
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
+  background-color: #7A4C06 !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode):hover,
+body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode):focus-visible,
+html.obs body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode):hover,
+html.obs body:not(.dark) #copyScripturePanel .copy-scripture-actions button:not(#clearCopySelectionMode):focus-visible {
+  background: linear-gradient(180deg, #9A6618 0%, #7A4C06 100%) !important;
+  color: #FFF8EA !important;
+  border-color: #7A4C06 !important;
+  box-shadow: 0 10px 22px rgba(122,76,6,.18) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+body:not(.dark) #copyScripturePanel #clearCopySelectionMode,
+body:not(.dark) #copyScripturePanel #closeCopyScripturePanel,
+html.obs body:not(.dark) #copyScripturePanel #clearCopySelectionMode,
+html.obs body:not(.dark) #copyScripturePanel #closeCopyScripturePanel {
+  background: linear-gradient(180deg, #FFF8EA 0%, #F3E7C8 100%) !important;
+  color: #6F4307 !important;
+  border: 1.8px solid rgba(138,90,19,.65) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+body:not(.dark) #copyScripturePanel #clearCopySelectionMode:hover,
+body:not(.dark) #copyScripturePanel #closeCopyScripturePanel:hover,
+body:not(.dark) #copyScripturePanel #clearCopySelectionMode:focus-visible,
+body:not(.dark) #copyScripturePanel #closeCopyScripturePanel:focus-visible,
+html.obs body:not(.dark) #copyScripturePanel #clearCopySelectionMode:hover,
+html.obs body:not(.dark) #copyScripturePanel #closeCopyScripturePanel:hover {
+  background: linear-gradient(180deg, #FFFDF7 0%, #F5E7C4 100%) !important;
+  color: #6F4307 !important;
+  border-color: #8A5A13 !important;
+  box-shadow: 0 8px 18px rgba(122,76,6,.12) !important;
+  opacity: 1 !important;
+}
+
+/* Prevent inherited blue/teal hover text in Cream mode copy controls. */
+body:not(.dark) #copyScripturePanel button:hover *,
+body:not(.dark) #copyScripturePanel button:focus-visible *,
+body:not(.dark) #copyScriptureMain:hover *,
+body:not(.dark) #openCopyScriptureFromTools:hover *,
+html.obs body:not(.dark) #copyScripturePanel button:hover *,
+html.obs body:not(.dark) #copyScriptureMain:hover *,
+html.obs body:not(.dark) #openCopyScriptureFromTools:hover * {
+  color: inherit !important;
+  text-shadow: none !important;
+}
+</style>
+<script id="rdm-v43-copy-hover-marker">
+(function rdmV43CopyHoverMarker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v43-copy-hover-lock-journal-box-companion";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v43-copy-hover-lock-journal-box-companion";
+})();
+</script>
+
 </body>
 </html>
