@@ -18978,5 +18978,373 @@ body.dark .tool-option.rdm-color-aware-basic-tool.rdm-color-aware-active-tool {
 })();
 </script>
 
+
+<!-- Patch 42 — Scripture Back History Detection Fix -->
+<script id="rdm-v42-scripture-back-history-detection-fix">
+(function rdmV42ScriptureBackHistoryDetectionFix(){
+  if (window.__rdmV42ScriptureBackHistoryDetectionFix) return;
+  window.__rdmV42ScriptureBackHistoryDetectionFix = true;
+
+  const STACK_NAME = "__rdmScriptureBackStackV42";
+  const LAST_NAME = "__rdmLastLoadedScriptureStateV42";
+  let navigatingBack = false;
+  let lastLoadedState = null;
+
+  function get(id) { return document.getElementById(id); }
+
+  function controlsReady() {
+    return !!(get("book") && get("chapter") && get("start") && get("end"));
+  }
+
+  function normalizeState(state) {
+    if (!state) return null;
+    const start = String(state.start || "1");
+    return {
+      book: String(state.book || "Genesis"),
+      chapter: String(state.chapter || "1"),
+      start,
+      end: String(state.end || start),
+      range: String(state.range || get("rangeSize")?.value || "5")
+    };
+  }
+
+  function currentState() {
+    if (!controlsReady()) return null;
+    const start = get("start")?.value || "1";
+    return normalizeState({
+      book: get("book")?.value || "Genesis",
+      chapter: get("chapter")?.value || "1",
+      start,
+      end: get("end")?.value || start,
+      range: get("rangeSize")?.value || "5"
+    });
+  }
+
+  function sameState(a, b) {
+    a = normalizeState(a);
+    b = normalizeState(b);
+    return !!a && !!b &&
+      a.book === b.book &&
+      a.chapter === b.chapter &&
+      a.start === b.start &&
+      a.end === b.end;
+  }
+
+  function stack() {
+    if (!Array.isArray(window[STACK_NAME])) window[STACK_NAME] = [];
+    return window[STACK_NAME];
+  }
+
+  function storedLastRef() {
+    try {
+      const raw = localStorage.getItem("ironSharpenerUnified.lastRef");
+      return raw ? normalizeState(JSON.parse(raw)) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setPreviousState(state) {
+    const normalized = normalizeState(state);
+    try { previousPassageState = normalized; } catch (_) {}
+    try { window.previousPassageState = normalized; } catch (_) {}
+  }
+
+  function syncLegacyStack() {
+    const list = stack();
+    window.__rdmCrossReferenceBackStack = list.slice();
+    window.__rdmScriptureBackStackV41 = list.slice();
+    setPreviousState(list[list.length - 1] || null);
+  }
+
+  function pushState(state, reason) {
+    const normalized = normalizeState(state);
+    const current = currentState();
+    if (!normalized || !current) return;
+    if (sameState(normalized, current)) return;
+
+    const list = stack();
+    if (list.length && sameState(list[list.length - 1], normalized)) {
+      syncLegacyStack();
+      updateBackButton();
+      return;
+    }
+
+    list.push(normalized);
+    while (list.length > 60) list.shift();
+    window.__rdmLastScriptureBackReason = reason || "change";
+    syncLegacyStack();
+    updateBackButton();
+  }
+
+  function stateLabel(state) {
+    const normalized = normalizeState(state);
+    if (!normalized) return "Back";
+    return normalized.start === normalized.end
+      ? `${normalized.book} ${normalized.chapter}:${normalized.start}`
+      : `${normalized.book} ${normalized.chapter}:${normalized.start}-${normalized.end}`;
+  }
+
+  function importLegacyTargetsIfNeeded() {
+    const list = stack();
+    if (list.length) return;
+
+    const candidates = [];
+    if (Array.isArray(window.__rdmScriptureBackStackV41)) candidates.push(...window.__rdmScriptureBackStackV41);
+    if (Array.isArray(window.__rdmCrossReferenceBackStack)) candidates.push(...window.__rdmCrossReferenceBackStack);
+    try { if (typeof previousPassageState !== "undefined" && previousPassageState) candidates.push(previousPassageState); } catch (_) {}
+    if (window.previousPassageState) candidates.push(window.previousPassageState);
+
+    candidates.map(normalizeState).filter(Boolean).forEach(candidate => {
+      if (!sameState(candidate, currentState()) && !list.some(existing => sameState(existing, candidate))) list.push(candidate);
+    });
+    syncLegacyStack();
+  }
+
+  function nextBackTarget() {
+    importLegacyTargetsIfNeeded();
+    const list = stack();
+    return list.length ? normalizeState(list[list.length - 1]) : null;
+  }
+
+  function maxVerseFor(book, chapter) {
+    try {
+      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
+      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
+      if (value) return String(value);
+    } catch (_) {}
+    const endSel = get("end");
+    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
+  }
+
+  function ensureBackButton() {
+    const scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+
+    let button = get("scriptureBackBtn");
+    if (button && !button.__rdmV42CleanButton) {
+      const replacement = button.cloneNode(false);
+      replacement.textContent = "← Back";
+      replacement.id = "scriptureBackBtn";
+      replacement.type = "button";
+      replacement.className = button.className || "secondary rdm-scripture-back-visible";
+      button.replaceWith(replacement);
+      button = replacement;
+    }
+
+    if (!button) {
+      button = document.createElement("button");
+      button.id = "scriptureBackBtn";
+      button.type = "button";
+      button.className = "secondary rdm-scripture-back-visible";
+      scriptureBox.insertAdjacentElement("afterbegin", button);
+    }
+
+    button.__rdmV42CleanButton = true;
+    button.classList.add("rdm-scripture-back-visible");
+    button.textContent = "← Back";
+    button.setAttribute("aria-label", "Back to previous Scripture passage");
+    button.onclick = handleBackClick;
+    if (!button.__rdmV42Listener) {
+      button.addEventListener("click", handleBackClick, true);
+      button.__rdmV42Listener = true;
+    }
+    updateBackButton();
+    return button;
+  }
+
+  function updateBackButton() {
+    const button = get("scriptureBackBtn");
+    if (!button) return;
+    const target = nextBackTarget();
+    button.classList.add("rdm-scripture-back-visible");
+    button.classList.toggle("rdm-no-back-target", !target);
+    button.textContent = "← Back";
+    button.title = target ? `Back to ${stateLabel(target)}` : "No previous Scripture passage yet";
+  }
+
+  function rememberLoadedState(state) {
+    const normalized = normalizeState(state);
+    if (!normalized) return;
+    lastLoadedState = normalized;
+    window[LAST_NAME] = normalized;
+    updateBackButton();
+  }
+
+  function initLastLoadedState() {
+    if (lastLoadedState) return;
+    lastLoadedState = normalizeState(window[LAST_NAME]) || storedLastRef() || currentState();
+    window[LAST_NAME] = lastLoadedState;
+  }
+
+  function beforePassageLoad(reason) {
+    initLastLoadedState();
+    const target = currentState();
+    if (!target) return;
+    if (!navigatingBack && lastLoadedState && !sameState(lastLoadedState, target)) {
+      pushState(lastLoadedState, reason || "loadPassage");
+    }
+  }
+
+  function afterPassageLoad() {
+    rememberLoadedState(currentState());
+    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 60);
+  }
+
+  function wrapLoadPassage() {
+    const existing = (typeof loadPassage === "function" ? loadPassage : null) || (typeof window.loadPassage === "function" ? window.loadPassage : null);
+    if (typeof existing !== "function" || existing.__rdmV42Wrapped) return;
+
+    const wrapped = function rdmV42LoadPassageHistoryWrapper() {
+      beforePassageLoad("loadPassage");
+      let result;
+      try {
+        result = existing.apply(this, arguments);
+      } catch (error) {
+        afterPassageLoad();
+        throw error;
+      }
+
+      if (result && typeof result.then === "function") {
+        return result.finally(afterPassageLoad);
+      }
+      afterPassageLoad();
+      return result;
+    };
+
+    wrapped.__rdmV42Wrapped = true;
+    window.loadPassage = wrapped;
+    try { loadPassage = wrapped; } catch (_) {}
+  }
+
+  function wrapDirectScriptureNavigation() {
+    const existing = (typeof goToScriptureReference === "function" ? goToScriptureReference : null) || (typeof window.goToScriptureReference === "function" ? window.goToScriptureReference : null);
+    if (typeof existing !== "function" || existing.__rdmV42Wrapped) return;
+
+    const wrapped = function rdmV42GoToScriptureReferenceWrapper() {
+      initLastLoadedState();
+      const before = currentState() || lastLoadedState;
+      const result = existing.apply(this, arguments);
+      if (!navigatingBack && before) pushState(before, "goToScriptureReference");
+      setTimeout(function(){ ensureBackButton(); updateBackButton(); }, 80);
+      setTimeout(updateBackButton, 350);
+      return result;
+    };
+
+    wrapped.__rdmV42Wrapped = true;
+    try { goToScriptureReference = wrapped; } catch (_) {}
+    window.goToScriptureReference = wrapped;
+  }
+
+  function applyState(state) {
+    const normalized = normalizeState(state);
+    if (!normalized || !controlsReady()) return;
+
+    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+    const bookSel = get("book");
+    const chapSel = get("chapter");
+    const startSel = get("start");
+    const endSel = get("end");
+    const rangeSel = get("rangeSize");
+
+    bookSel.value = normalized.book;
+    if (typeof fillChapters === "function") fillChapters();
+    chapSel.value = normalized.chapter;
+    if (typeof fillVerses === "function") fillVerses();
+
+    if (normalized.range === "full") {
+      rangeSel.value = "full";
+      startSel.value = "1";
+      endSel.value = maxVerseFor(normalized.book, normalized.chapter);
+    } else {
+      rangeSel.value = normalized.range || rangeSel.value || "5";
+      startSel.value = normalized.start;
+      endSel.value = normalized.end;
+    }
+
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
+      const button = get(id);
+      if (button) button.style.display = "none";
+    });
+
+    if (typeof loadPassage === "function") loadPassage();
+  }
+
+  function goBackOneStep() {
+    const list = stack();
+    let target = normalizeState(list.pop());
+    const current = currentState();
+
+    while (target && current && sameState(target, current) && list.length) {
+      target = normalizeState(list.pop());
+    }
+
+    if (!target) {
+      syncLegacyStack();
+      updateBackButton();
+      return;
+    }
+
+    navigatingBack = true;
+    syncLegacyStack();
+    applyState(target);
+    rememberLoadedState(target);
+    setTimeout(function(){
+      navigatingBack = false;
+      syncLegacyStack();
+      updateBackButton();
+    }, 140);
+    setTimeout(updateBackButton, 480);
+  }
+
+  function handleBackClick(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    }
+    goBackOneStep();
+  }
+
+  function watchControls() {
+    ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
+      const el = get(id);
+      if (!el || el.__rdmV42BackWatch) return;
+      el.__rdmV42BackWatch = true;
+      el.addEventListener("change", function(){
+        setTimeout(function(){ ensureBackButton(); updateBackButton(); }, 80);
+        setTimeout(updateBackButton, 380);
+      }, true);
+    });
+  }
+
+  function install() {
+    initLastLoadedState();
+    importLegacyTargetsIfNeeded();
+    ensureBackButton();
+    wrapLoadPassage();
+    wrapDirectScriptureNavigation();
+    watchControls();
+
+    window.rdmGoBackOneStudyResourceStep = goBackOneStep;
+    window.rdmGoBackOneScriptureStep = goBackOneStep;
+    window.rdmUpdateScriptureBackButtonV42 = updateBackButton;
+
+    setTimeout(function(){ ensureBackButton(); updateBackButton(); }, 120);
+    setTimeout(function(){ ensureBackButton(); updateBackButton(); }, 600);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+</script>
+<script id="rdm-v42-mobile-shell-marker">
+(function rdmV42Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v42-scripture-back-history-detection-fix";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v42-scripture-back-history-detection-fix";
+})();
+</script>
+
 </body>
 </html>
