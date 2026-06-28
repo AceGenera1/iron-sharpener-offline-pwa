@@ -890,6 +890,72 @@ body.dark .nave-ref-btn.cross-ref-link {
   border-color: rgba(217,160,123,.92) !important;
 }
 
+
+
+/* v47 — Biblical Doctrine mirror cleanup */
+.doctrine-category-browser {
+  margin-top: 10px;
+}
+.doctrine-category-browser summary {
+  cursor: pointer;
+  font: 900 16px Arial, sans-serif;
+  color: var(--ink);
+  margin: 8px 0 10px;
+}
+body.dark .doctrine-category-browser summary {
+  color: #F8F4EC;
+}
+.doctrine-category-list,
+.doctrine-topic-list,
+.doctrine-related-list {
+  display: grid;
+  gap: 8px;
+}
+.doctrine-panel-heading {
+  margin: 4px 0 12px !important;
+  color: var(--copper) !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+body.dark .doctrine-panel-heading {
+  color: var(--soft-copper) !important;
+}
+.doctrine-topic-entry h3 {
+  margin: 0 0 18px;
+  color: var(--copper);
+  font-size: 24px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+body.dark .doctrine-topic-entry h3 {
+  color: var(--soft-copper);
+}
+.doctrine-section {
+  margin: 10px 0 12px;
+  border: 1px solid rgba(217,160,123,.42);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,.24);
+}
+body.dark .doctrine-section {
+  background: rgba(255,255,255,.045);
+  border-color: rgba(217,160,123,.48);
+}
+.doctrine-section h3 {
+  margin: 0 0 8px !important;
+  font-size: 18px !important;
+  letter-spacing: .04em !important;
+}
+.doctrine-scripture-item {
+  display: grid;
+  gap: 6px;
+}
+.doctrine-scripture-item p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  opacity: .95;
+}
+
 </style>
 </head>
 <body>
@@ -4192,37 +4258,346 @@ ${entries.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</
   }
   window.searchNaveFromPanel = searchNaveFromPanel;
 
+  function makeDoctrineId(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function makeDoctrineTitle(value) {
+    return String(value || "")
+      .replace(/\.json$/i, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, ch => ch.toUpperCase());
+  }
+
+  function normalizeDoctrineRegistryItem(item) {
+    if (!item) return null;
+
+    if (typeof item === "string") {
+      const file = item.replace(/\.json$/i, "");
+      return {
+        file,
+        id: makeDoctrineId(file),
+        title: makeDoctrineTitle(file),
+        category: "All Doctrine Topics",
+        tags: [],
+        searchTerms: []
+      };
+    }
+
+    if (typeof item === "object") {
+      const rawFile = String(item.file || item.filename || item.path || item.id || item.slug || item.title || "").replace(/\.json$/i, "");
+      const title = item.title || makeDoctrineTitle(rawFile);
+      return {
+        ...item,
+        file: rawFile,
+        id: item.id || makeDoctrineId(rawFile || title),
+        title,
+        category: item.category || item.group || item.section || "Uncategorized",
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        searchTerms: Array.isArray(item.searchTerms) ? item.searchTerms : []
+      };
+    }
+
+    return null;
+  }
+
+  async function loadDoctrineRegistryBridge() {
+    const state = getResourceState("doctrine");
+    if (Array.isArray(state.registry) && state.registry.length) return state.registry;
+
+    const registrySources = [
+      "bible/resources/doctrine/doctrine-registry.json",
+      "./bible/resources/doctrine/doctrine-registry.json",
+      "bible/resources/doctrine/index.json",
+      "./bible/resources/doctrine/index.json",
+      "bible/resources/doctrine/index-2a-additions.json",
+      "./bible/resources/doctrine/index-2a-additions.json",
+      "bible/resources/doctrine/index-2b-2c-3-additions.json",
+      "./bible/resources/doctrine/index-2b-2c-3-additions.json",
+      "bible/resources/doctrine/index-4-5-6-additions.json",
+      "./bible/resources/doctrine/index-4-5-6-additions.json",
+      "bible/resources/doctrine/index-7-8-additions.json",
+      "./bible/resources/doctrine/index-7-8-additions.json",
+      "bible/resources/doctrine/index-9-10-additions.json",
+      "./bible/resources/doctrine/index-9-10-additions.json",
+      "bible/resources/doctrine/index-11-12-additions.json",
+      "./bible/resources/doctrine/index-11-12-additions.json"
+    ];
+
+    const gathered = [];
+    for (const path of registrySources) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) continue;
+        const data = await response.json();
+        if (Array.isArray(data)) gathered.push(...data);
+      } catch (_) {}
+    }
+
+    const seen = new Set();
+    state.registry = gathered
+      .map(normalizeDoctrineRegistryItem)
+      .filter(Boolean)
+      .filter(item => {
+        const key = makeDoctrineId(item.file || item.id || item.title);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => String(a.title).localeCompare(String(b.title)));
+
+    return state.registry;
+  }
+
+  async function loadDoctrineTopicBridge(fileOrTitle) {
+    const raw = String(fileOrTitle || "").replace(/\.json$/i, "").trim();
+    const slug = makeDoctrineId(raw);
+    const possible = [...new Set([raw, slug, raw.toLowerCase(), raw.replace(/\s+/g, "-"), encodeURIComponent(raw)].filter(Boolean))];
+
+    for (const name of possible) {
+      const data = await fetchJsonAny([
+        `bible/resources/doctrine/${name}.json`,
+        `./bible/resources/doctrine/${name}.json`
+      ]);
+      if (data) {
+        return {
+          ...data,
+          id: data.id || slug,
+          title: data.title || makeDoctrineTitle(raw)
+        };
+      }
+    }
+
+    return null;
+  }
+
+  function doctrineSearchScore(item, query) {
+    const q = String(query || "").toLowerCase().trim();
+    const title = String(item.title || "").toLowerCase();
+    const id = String(item.id || "").toLowerCase();
+    const file = String(item.file || "").replace(/\.json$/i, "").toLowerCase();
+    const category = String(item.category || "").toLowerCase();
+    const tags = [...(item.tags || []), ...(item.searchTerms || [])].join(" ").toLowerCase();
+
+    if (title === q || id === q || file === q) return 0;
+    if (title.startsWith(q) || id.startsWith(q) || file.startsWith(q)) return 1;
+    if (title.includes(q) || id.includes(q) || file.includes(q)) return 2;
+    if (tags.includes(q)) return 3;
+    if (category.includes(q)) return 4;
+    return 99;
+  }
+
+  function renderDoctrineTopicButtons(items, headingText = "") {
+    if (!items.length) return `<p class="empty">No doctrine topic found.</p>`;
+    return `
+      ${headingText ? `<h3 class="doctrine-panel-heading">${escapeHtml(headingText)}</h3>` : ""}
+      <div class="doctrine-topic-list">
+        ${items.map(item => `
+          <button type="button" class="dictionary-result-btn doctrine-topic-btn secondary" data-file="${escapeHtml(item.file || item.id || item.title)}">
+            ${escapeHtml(item.title || makeDoctrineTitle(item.file))}
+          </button>
+        `).join("")}
+      </div>`;
+  }
+
+  function renderDoctrineHome(registry) {
+    const categories = [...new Set(registry.map(item => item.category || "Uncategorized"))].sort((a, b) => a.localeCompare(b));
+    return `
+      <div class="lookupBox resource-search-panel doctrine-search-panel" data-resource-title="Biblical Doctrine">
+        <input data-lookup-input="true" placeholder="Search doctrine topics like salvation, scripture, prayer..." autocomplete="off" />
+        <div class="lookupResults doctrine-live-results" data-lookup-results="true"></div>
+        <details class="doctrine-category-browser" open>
+          <summary>Browse by Category</summary>
+          <div class="doctrine-category-list">
+            ${categories.map(category => `
+              <button type="button" class="dictionary-result-btn doctrine-category-btn secondary" data-category="${escapeHtml(category)}">
+                ${escapeHtml(category)}
+              </button>
+            `).join("")}
+          </div>
+        </details>
+      </div>`;
+  }
+
+  function normalizeDoctrineParagraph(value) {
+    if (!value) return "";
+    if (Array.isArray(value)) return value.map(normalizeDoctrineParagraph).filter(Boolean).join("");
+    if (typeof value === "object") return normalizeResourceText(value);
+    return `<p>${escapeHtml(String(value))}</p>`;
+  }
+
+  function renderDoctrineKeyScriptures(keyScriptures) {
+    if (!Array.isArray(keyScriptures) || !keyScriptures.length) return "";
+    return `
+      <section class="doctrine-section">
+        <h3>Key Scriptures</h3>
+        <div class="nave-ref-list doctrine-scripture-list">
+          ${keyScriptures.map(item => {
+            const ref = typeof item === "string" ? item : (item.reference || item.ref || item.scripture || "");
+            const text = typeof item === "object" ? (item.text || item.note || item.explanation || "") : "";
+            return `
+              <div class="doctrine-scripture-item">
+                <button type="button" class="cross-ref-link nave-ref-btn" data-ref="${escapeHtml(ref)}">${escapeHtml(ref)}</button>
+                ${text ? `<p>${escapeHtml(text)}</p>` : ""}
+              </div>`;
+          }).join("")}
+        </div>
+      </section>`;
+  }
+
+  function renderDoctrineTopic(doctrine) {
+    if (!doctrine || typeof doctrine !== "object") return `<p class="empty">Doctrine topic could not be loaded.</p>`;
+
+    const sections = Array.isArray(doctrine.studySections) ? doctrine.studySections : (Array.isArray(doctrine.sections) ? doctrine.sections : []);
+    const summary = doctrine.doctrineSummary || doctrine.summary || doctrine.inSummary || doctrine.doctrineInSummary;
+    const matters = doctrine.whyThisMatters || doctrine.whyItMatters || doctrine.pastoralHelp;
+    const application = doctrine.application || doctrine.discipleshipApplication || doctrine.discipleshipAndApplication;
+
+    return `
+      <section class="doctrine-topic-entry">
+        <h3>${escapeHtml(doctrine.title || "Biblical Doctrine").toUpperCase()}</h3>
+
+        ${doctrine.definition ? `<section class="doctrine-section"><h3>Definition</h3>${normalizeDoctrineParagraph(doctrine.definition)}</section>` : ""}
+        ${doctrine.christFocus ? `<section class="doctrine-section"><h3>Christ Focus</h3>${normalizeDoctrineParagraph(doctrine.christFocus)}</section>` : ""}
+        ${renderDoctrineKeyScriptures(doctrine.keyScriptures)}
+        ${summary ? `<section class="doctrine-section"><h3>Doctrine in Summary</h3>${normalizeDoctrineParagraph(summary)}</section>` : ""}
+        ${matters ? `<section class="doctrine-section"><h3>Why This Matters</h3>${normalizeDoctrineParagraph(matters)}</section>` : ""}
+        ${application ? `<section class="doctrine-section"><h3>Discipleship & Application</h3>${normalizeDoctrineParagraph(application)}</section>` : ""}
+
+        ${sections.length ? sections.map(section => `
+          <details class="nave-section doctrine-section" open>
+            <summary>${escapeHtml(section.heading || section.title || "Doctrine Section")}</summary>
+            <div>${typeof section.content === "string" ? section.content : normalizeResourceText(section.content || section)}</div>
+          </details>`).join("") : ""}
+
+        ${Array.isArray(doctrine.relatedTopics) && doctrine.relatedTopics.length ? `
+          <section class="doctrine-section">
+            <h3>Related Topics</h3>
+            <div class="doctrine-related-list">
+              ${doctrine.relatedTopics.map(topic => `<button type="button" class="dictionary-result-btn doctrine-related-topic-btn secondary" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join("")}
+            </div>
+          </section>` : ""}
+      </section>`;
+  }
+
+  function wireDoctrinePanel(panel) {
+    if (!panel) return;
+    wireResourceScriptureLinks(panel);
+    panel.querySelectorAll(".doctrine-related-topic-btn[data-topic]").forEach(btn => {
+      if (btn.dataset.doctrineRelatedReady === "1") return;
+      btn.dataset.doctrineRelatedReady = "1";
+      btn.addEventListener("click", async () => {
+        const topic = btn.dataset.topic || btn.textContent;
+        const registry = await loadDoctrineRegistryBridge();
+        const wanted = makeDoctrineId(topic);
+        const match = registry.find(item => makeDoctrineId(item.title) === wanted || makeDoctrineId(item.id) === wanted || makeDoctrineId(item.file) === wanted)
+          || registry.find(item => makeDoctrineId(item.title).includes(wanted));
+        const data = await loadDoctrineTopicBridge(match?.file || topic);
+        const topicPanel = openResourceInstancePanel(data?.title || topic, renderDoctrineTopic(data));
+        wireDoctrinePanel(topicPanel);
+      });
+    });
+  }
+
+  async function openDoctrineTopicFromRegistry(item) {
+    const data = await loadDoctrineTopicBridge(item?.file || item?.id || item?.title || "");
+    const panel = openResourceInstancePanel(data?.title || item?.title || "Biblical Doctrine", data ? renderDoctrineTopic(data) : `<p class="empty">Doctrine topic could not be loaded.</p>`);
+    wireDoctrinePanel(panel);
+  }
+
+  function bindDoctrinePanel(registry) {
+    const title = "Biblical Doctrine";
+    const panel = document.getElementById(resourcePanelId(title));
+    const input = panel?.querySelector('[data-lookup-input]');
+    const results = panel?.querySelector('[data-lookup-results]');
+    const browser = panel?.querySelector('.doctrine-category-browser');
+    if (!panel || !input || !results) return;
+
+    function renderResultsForItems(items, headingText) {
+      results.innerHTML = renderDoctrineTopicButtons(items, headingText);
+      results.querySelectorAll(".doctrine-topic-btn[data-file]").forEach(btn => {
+        btn.onclick = async () => {
+          const file = btn.dataset.file;
+          const item = registry.find(row => String(row.file) === file || String(row.id) === file || String(row.title) === file) || { file, title: btn.textContent.trim() };
+          await openDoctrineTopicFromRegistry(item);
+        };
+      });
+    }
+
+    function runSearch() {
+      const q = cleanText(input.value || "");
+      if (!q) {
+        results.innerHTML = "";
+        if (browser) browser.open = true;
+        return;
+      }
+      const matches = registry
+        .map(item => ({ item, score: doctrineSearchScore(item, q) }))
+        .filter(row => row.score < 99)
+        .sort((a, b) => a.score - b.score || String(a.item.title).localeCompare(String(b.item.title)))
+        .slice(0, 30)
+        .map(row => row.item);
+      if (browser) browser.open = false;
+      renderResultsForItems(matches, "Search Results");
+    }
+
+    let timer = null;
+    input.oninput = () => {
+      clearTimeout(timer);
+      timer = setTimeout(runSearch, 120);
+    };
+    input.onkeydown = event => {
+      if (event.key === "Enter") { event.preventDefault(); runSearch(); }
+    };
+
+    panel.querySelectorAll(".doctrine-category-btn[data-category]").forEach(btn => {
+      btn.onclick = () => {
+        const category = btn.dataset.category;
+        input.value = "";
+        if (browser) browser.open = false;
+        const items = registry.filter(item => (item.category || "Uncategorized") === category);
+        renderResultsForItems(items, category);
+      };
+    });
+  }
+
   async function searchDoctrineFromPanel(termRaw) {
+    const title = "Biblical Doctrine";
+    const registry = await loadDoctrineRegistryBridge();
     const term = cleanText(termRaw || "");
-    if (!term) {
-      setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
-      setTimeout(() => focusLookupInputForTitle("Biblical Doctrine"), 30);
+
+    if (!registry.length) {
+      openResourceInstancePanel(title, `<p class="empty">No doctrine registry loaded.</p>`);
       return;
     }
 
-    const slug = slugify(term);
-    const direct = await fetchJsonAny([`bible/resources/doctrine/${slug}.json`, `./bible/resources/doctrine/${slug}.json`]);
-    if (direct) {
-      setStudyToolsResult("Biblical Doctrine", `<div class="dictionary-results"><p><strong>Doctrine search:</strong> ${escapeHtml(term)}</p>${normalizeResourceText(direct)}</div>`);
-      return;
+    const panel = openResourceInstancePanel(title, renderDoctrineHome(registry));
+    bindDoctrinePanel(registry);
+
+    if (term) {
+      const input = panel.querySelector('[data-lookup-input]');
+      if (input) {
+        input.value = term;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    } else {
+      setTimeout(() => focusLookupInputForTitle(title), 30);
     }
-    const registry = await fetchJsonAny([`bible/resources/doctrine/doctrine-registry.json`, `./bible/resources/doctrine/doctrine-registry.json`, `bible/resources/doctrine/index.json`, `./bible/resources/doctrine/index.json`]);
-    const resultHtml = registry
-      ? renderMatches(collectMatches(registry, [term], 20), `No doctrine match found for ${term}.`)
-      : `<p class="empty">No doctrine registry loaded.</p>`;
-    setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel", term).replace(
-      '<div class="lookupResults" data-lookup-results="true"></div>',
-      `<div class="lookupResults" data-lookup-results="true">${resultHtml}</div>`
-    ));
   }
 
   async function openDoctrineTool() {
     const term = requestStudyTerm("Biblical Doctrine");
-    if (term) return searchDoctrineFromPanel(term);
-    setStudyToolsResult("Biblical Doctrine", renderLookupBox("Biblical Doctrine", "Enter a doctrine/topic to search", "searchDoctrineFromPanel"));
-    setTimeout(() => focusLookupInputForTitle("Biblical Doctrine"), 30);
+    await searchDoctrineFromPanel(term || "");
   }
   window.searchDoctrineFromPanel = searchDoctrineFromPanel;
+
 
 
   /* v37 — Mirror main Scripture Study selected-text marking behavior */
