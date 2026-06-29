@@ -3627,6 +3627,36 @@ body.dark .resource-clean-empty {
 }
 </style>
 
+
+
+<style id="rdm-v101-scripture-section-clean-final-style">
+/* =========================================================
+   v101 — Scripture section cleanup on safe v99 cross-reference base
+   Scope: mobile/tablet shell only.
+   Purpose: remove the extra Load Passage / New Entry action row from
+   the Scripture tab while preserving all v99 Built-In Cross References behavior.
+   ========================================================= */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  body .scriptureCard .miniActions,
+  body.rdm-dj-mobile-shell .scriptureCard .miniActions,
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="scripture"] .scriptureCard .miniActions {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body .scriptureCard .miniActions + hr,
+  body.rdm-dj-mobile-shell .scriptureCard .miniActions + hr {
+    margin-top: 10px !important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -10472,6 +10502,57 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   }, true);
 
   window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v99-crossrefs-close-on-bottom-nav-final';
+})();
+</script>
+
+
+<script id="rdm-v101-scripture-section-clean-final-script">
+(function rdmV101ScriptureSectionCleanFinal(){
+  if (window.__rdmV101ScriptureSectionCleanFinal) return;
+  window.__rdmV101ScriptureSectionCleanFinal = true;
+
+  function mobileLike(){
+    return !!(window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+  }
+
+  function cleanScriptureActionRow(){
+    var actions = document.querySelector('.scriptureCard .miniActions');
+    if (!actions) return;
+
+    if (mobileLike()) {
+      actions.setAttribute('aria-hidden', 'true');
+      actions.dataset.rdmV101Hidden = 'true';
+      actions.style.setProperty('display', 'none', 'important');
+      actions.style.setProperty('visibility', 'hidden', 'important');
+      actions.style.setProperty('height', '0', 'important');
+      actions.style.setProperty('max-height', '0', 'important');
+      actions.style.setProperty('margin', '0', 'important');
+      actions.style.setProperty('padding', '0', 'important');
+      actions.style.setProperty('overflow', 'hidden', 'important');
+      actions.style.setProperty('pointer-events', 'none', 'important');
+    } else if (actions.dataset.rdmV101Hidden === 'true') {
+      actions.removeAttribute('aria-hidden');
+      delete actions.dataset.rdmV101Hidden;
+      ['display','visibility','height','max-height','margin','padding','overflow','pointer-events'].forEach(function(prop){
+        actions.style.removeProperty(prop);
+      });
+    }
+  }
+
+  function pulseClean(){
+    [0, 60, 200, 600].forEach(function(delay){ setTimeout(cleanScriptureActionRow, delay); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pulseClean, { once: true });
+  } else {
+    pulseClean();
+  }
+
+  window.addEventListener('resize', function(){ setTimeout(cleanScriptureActionRow, 80); }, { passive: true });
+  window.addEventListener('orientationchange', function(){ setTimeout(cleanScriptureActionRow, 160); }, { passive: true });
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v101-crossrefs-locked-scripture-clean-final';
 })();
 </script>
 </body>
