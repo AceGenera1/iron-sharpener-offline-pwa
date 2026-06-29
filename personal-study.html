@@ -10098,241 +10098,9 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
 
 
-<script id="rdm-v93-built-in-crossrefs-safe-final">
-(function(){
-  if (window.__rdmV93BuiltInCrossRefsSafeFinal) return;
-  window.__rdmV93BuiltInCrossRefsSafeFinal = true;
 
-  function isMobileShell(){
-    return !!(document.body && document.body.classList.contains('rdm-dj-mobile-shell')) ||
-      window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches;
-  }
+<!-- v95: removed v93 individual cross-reference Scripture panel interceptor. -->
 
-  function escapeHtml(value){
-    return String(value == null ? '' : value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function bookNames(){
-    var select = document.getElementById('book');
-    if (select && select.options && select.options.length) {
-      return Array.from(select.options).map(function(option){ return option.value || option.textContent || ''; }).filter(Boolean);
-    }
-    return [
-      'Song of Solomon','1 Thessalonians','2 Thessalonians','1 Corinthians','2 Corinthians','1 Chronicles','2 Chronicles',
-      '1 Samuel','2 Samuel','1 Kings','2 Kings','1 Timothy','2 Timothy','1 Peter','2 Peter','1 John','2 John','3 John',
-      'Deuteronomy','Ecclesiastes','Lamentations','Philippians','Colossians','Revelation','Genesis','Exodus','Leviticus',
-      'Numbers','Joshua','Judges','Ruth','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Isaiah','Jeremiah','Ezekiel',
-      'Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah',
-      'Malachi','Matthew','Mark','Luke','John','Acts','Romans','Galatians','Ephesians','Titus','Philemon','Hebrews','James','Jude'
-    ];
-  }
-
-  function parseRef(ref){
-    var cleaned = String(ref || '').replace(/\s+/g, ' ').trim();
-    if (!cleaned) return null;
-    var books = bookNames().sort(function(a,b){ return b.length - a.length; });
-    for (var i = 0; i < books.length; i++) {
-      var book = books[i];
-      if (!book) continue;
-      if (cleaned.toLowerCase().indexOf(book.toLowerCase() + ' ') !== 0) continue;
-      var rest = cleaned.slice(book.length).trim();
-      var match = rest.match(/^(\d+)\s*:\s*(\d+)(?:\s*-\s*(\d+))?/);
-      if (!match) return null;
-      var chapter = parseInt(match[1], 10);
-      var start = parseInt(match[2], 10);
-      var end = match[3] ? parseInt(match[3], 10) : start;
-      if (!chapter || !start) return null;
-      if (!end || end < start) end = start;
-      return { book: book, chapter: chapter, start: start, end: end, label: cleaned };
-    }
-    return null;
-  }
-
-  function bibleFileCandidates(book, chapter){
-    var padded = String(chapter).padStart(2, '0');
-    var plain = String(parseInt(chapter, 10));
-    var names = Array.from(new Set([padded, plain]));
-    var bases = ['./bible/web', 'bible/web', '/bible/web', '../bible/web'];
-    var paths = [];
-    bases.forEach(function(base){
-      names.forEach(function(name){ paths.push(base + '/' + book + '/' + name + '.json'); });
-    });
-    return Array.from(new Set(paths));
-  }
-
-  async function fetchBibleChapter(book, chapter){
-    var paths = bibleFileCandidates(book, chapter);
-    var lastError = null;
-    for (var i = 0; i < paths.length; i++) {
-      try {
-        var response = await fetch(paths[i]);
-        if (!response.ok) { lastError = new Error(paths[i]); continue; }
-        return await response.json();
-      } catch (error) {
-        lastError = error;
-      }
-    }
-    throw (lastError || new Error('Bible chapter not found'));
-  }
-
-  function cleanText(value){
-    return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
-  }
-
-  function ensureXrefScripturePanel(){
-    var panel = document.getElementById('rdmDjBuiltInCrossRefScripturePanel');
-    if (panel) return panel;
-    panel = document.createElement('section');
-    panel.id = 'rdmDjBuiltInCrossRefScripturePanel';
-    panel.className = 'resource-instance-panel';
-    panel.setAttribute('aria-hidden', 'true');
-
-    var head = document.createElement('div');
-    head.className = 'resourceFloatHead';
-
-    var title = document.createElement('h2');
-    title.id = 'rdmDjBuiltInCrossRefScriptureTitle';
-    title.textContent = 'Scripture Reference';
-
-    var close = document.createElement('button');
-    close.className = 'secondary resource-close';
-    close.type = 'button';
-    close.textContent = 'Close';
-    close.addEventListener('click', function(){
-      panel.classList.remove('open', 'rdm-dj-v88-full-panel');
-      panel.setAttribute('aria-hidden', 'true');
-      panel.style.display = '';
-      schedulePanelNormalize();
-    });
-
-    head.appendChild(title);
-    head.appendChild(close);
-
-    var body = document.createElement('div');
-    body.className = 'resource-panel-body';
-    body.id = 'rdmDjBuiltInCrossRefScriptureBody';
-
-    panel.appendChild(head);
-    panel.appendChild(body);
-    document.body.appendChild(panel);
-    return panel;
-  }
-
-  function schedulePanelNormalize(){
-    [0, 60, 180, 420].forEach(function(delay){
-      setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, delay);
-    });
-  }
-
-  function forceFullPanel(panel){
-    if (!panel) return;
-    panel.classList.add('open', 'rdm-dj-v88-full-panel');
-    panel.setAttribute('aria-hidden', 'false');
-    panel.style.display = 'flex';
-    panel.style.flexDirection = 'column';
-    panel.style.position = 'fixed';
-    panel.style.left = '0';
-    panel.style.right = '0';
-    panel.style.top = '0';
-    panel.style.bottom = 'var(--dj-mobile-nav-height, 86px)';
-    panel.style.width = '100vw';
-    panel.style.maxWidth = '100vw';
-    panel.style.height = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
-    panel.style.maxHeight = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
-    panel.style.transform = 'none';
-    panel.style.overflow = 'hidden';
-    panel.style.zIndex = '2147482400';
-    schedulePanelNormalize();
-  }
-
-  async function openBuiltInCrossRefScripturePanel(ref){
-    var parsed = parseRef(ref);
-    var panel = ensureXrefScripturePanel();
-    var title = document.getElementById('rdmDjBuiltInCrossRefScriptureTitle');
-    var body = document.getElementById('rdmDjBuiltInCrossRefScriptureBody');
-    if (title) title.textContent = parsed ? parsed.label : String(ref || 'Scripture Reference');
-    if (!body) return;
-
-    forceFullPanel(panel);
-    body.textContent = '';
-    var loading = document.createElement('div');
-    loading.className = 'resourceResult';
-    loading.textContent = 'Loading ' + (parsed ? parsed.label : ref) + '…';
-    body.appendChild(loading);
-
-    if (!parsed) {
-      loading.textContent = 'That reference could not be opened.';
-      return;
-    }
-
-    try {
-      var data = await fetchBibleChapter(parsed.book, parsed.chapter);
-      var verses = Array.isArray(data.verses) ? data.verses.filter(function(verse){
-        var n = Number(verse.verse);
-        return n >= parsed.start && n <= parsed.end;
-      }) : [];
-      body.textContent = '';
-      var result = document.createElement('div');
-      result.className = 'resourceResult';
-
-      var refTitle = document.createElement('h3');
-      refTitle.textContent = parsed.label + ' (WEB)';
-      result.appendChild(refTitle);
-
-      var translation = document.createElement('p');
-      translation.className = 'translation';
-      translation.textContent = 'World English Bible — Public Domain';
-      result.appendChild(translation);
-
-      if (!verses.length) {
-        var empty = document.createElement('p');
-        empty.className = 'empty';
-        empty.textContent = 'No verses were found for this reference.';
-        result.appendChild(empty);
-      } else {
-        verses.forEach(function(verse){
-          var p = document.createElement('p');
-          p.className = 'verse';
-          var num = document.createElement('span');
-          num.className = 'vnum';
-          num.textContent = String(verse.verse);
-          p.appendChild(num);
-          p.appendChild(document.createTextNode(cleanText(verse.text)));
-          result.appendChild(p);
-        });
-      }
-      body.appendChild(result);
-      forceFullPanel(panel);
-    } catch (error) {
-      body.textContent = '';
-      var fail = document.createElement('div');
-      fail.className = 'resourceResult';
-      fail.innerHTML = '<p class="empty">This reference could not load from the local WEB Bible files.</p>';
-      body.appendChild(fail);
-    }
-  }
-
-  document.addEventListener('click', function(event){
-    if (!isMobileShell()) return;
-    var panel = document.getElementById('internalCrossRefsPanel');
-    if (!panel || !panel.classList.contains('open')) return;
-    var button = event.target && event.target.closest ? event.target.closest('#internalCrossRefsPanel .internal-xref-link') : null;
-    if (!button) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    var ref = button.getAttribute('data-ref') || button.textContent || '';
-    openBuiltInCrossRefScripturePanel(ref.trim());
-  }, true);
-
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v93-built-in-crossrefs-safe-final';
-})();
-</script>
 
 
 <style id="rdm-v94-dj-crossrefs-unfreeze-panel-style">
@@ -10452,6 +10220,127 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ wrapOpenFunction(); pulseNormalize(); }); else { wrapOpenFunction(); pulseNormalize(); }
   setTimeout(wrapOpenFunction, 300); setTimeout(wrapOpenFunction, 1000);
   window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v94-journal-crossrefs-unfreeze-panel-fix';
+})();
+</script>
+
+
+
+<script id="rdm-v95-built-in-crossrefs-original-behavior-final">
+(function rdmV95BuiltInCrossRefsOriginalBehaviorFinal(){
+  if (window.__rdmV95BuiltInCrossRefsOriginalBehaviorFinal) return;
+  window.__rdmV95BuiltInCrossRefsOriginalBehaviorFinal = true;
+
+  function get(id){ return document.getElementById(id); }
+  function isMobileShell(){
+    return !!(document.body && document.body.classList.contains('rdm-dj-mobile-shell')) ||
+      (window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+  }
+
+  function setMobileScriptureView(){
+    if (!document.body) return;
+    document.body.setAttribute('data-dj-mobile-view', 'scripture');
+    var nav = get('rdmDjMobileNav');
+    if (nav) {
+      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
+        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'scripture');
+      });
+    }
+  }
+
+  function closePanelHard(panel){
+    if (!panel) return;
+    panel.classList.remove('open', 'rdm-dj-v88-full-panel', 'rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.style.display = 'none';
+    panel.style.removeProperty('left');
+    panel.style.removeProperty('right');
+    panel.style.removeProperty('top');
+    panel.style.removeProperty('bottom');
+    panel.style.removeProperty('width');
+    panel.style.removeProperty('max-width');
+    panel.style.removeProperty('min-width');
+    panel.style.removeProperty('height');
+    panel.style.removeProperty('max-height');
+    panel.style.removeProperty('min-height');
+    panel.style.removeProperty('transform');
+    panel.style.removeProperty('resize');
+    panel.style.removeProperty('overflow');
+    panel.style.removeProperty('z-index');
+    panel.style.removeProperty('flex-direction');
+  }
+
+  function clearPanelLockIfNoneOpen(){
+    setTimeout(function(){
+      var stillOpen = document.querySelector(
+        '#studyToolsPanel.open, #markToolsPanel.open, #resourceFloatPanel.open, #internalCrossRefsPanel.open, .resource-instance-panel.open, .backgrounds-resource-panel.open, .background-topic-panel.open, #journalReaderPanel.open'
+      );
+      if (!stillOpen && document.body) {
+        document.documentElement.classList.remove('rdm-dj-v88-panel-open', 'rdm-dj-panel-scroll-locked');
+        document.body.classList.remove('rdm-dj-v88-panel-open', 'rdm-dj-mobile-panel-locked');
+      }
+    }, 0);
+  }
+
+  function closeBuiltInCrossRefs(){
+    closePanelHard(get('internalCrossRefsPanel'));
+    closePanelHard(get('rdmDjBuiltInCrossRefScripturePanel'));
+    clearPanelLockIfNoneOpen();
+  }
+
+  function openReferenceInMainScripture(ref){
+    if (!ref) return;
+
+    closeBuiltInCrossRefs();
+    setMobileScriptureView();
+
+    // Return to the original Journal behavior: a Built-In Cross References click
+    // navigates the main Scripture tool and lets the Scripture Back stack handle return.
+    if (typeof window.goToScriptureReference === 'function') {
+      window.goToScriptureReference(ref);
+    }
+
+    setTimeout(function(){
+      setMobileScriptureView();
+      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { window.scrollTo(0, 0); }
+    }, 40);
+  }
+
+  document.addEventListener('click', function(event){
+    var closeButton = event.target && event.target.closest ? event.target.closest('#closeInternalCrossRefs') : null;
+    if (closeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      closeBuiltInCrossRefs();
+      setMobileScriptureView();
+      return;
+    }
+
+    var refButton = event.target && event.target.closest ? event.target.closest('#internalCrossRefsPanel .internal-xref-link') : null;
+    if (!refButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    var ref = refButton.getAttribute('data-ref') || refButton.textContent || '';
+    openReferenceInMainScripture(ref.trim());
+  }, true);
+
+  // Make the public close function match the hard mobile close behavior without
+  // disturbing desktop use.
+  var originalClose = window.closeInternalCrossReferences;
+  window.closeInternalCrossReferences = function(){
+    if (isMobileShell()) {
+      closeBuiltInCrossRefs();
+      setMobileScriptureView();
+      return;
+    }
+    if (typeof originalClose === 'function') return originalClose.apply(this, arguments);
+    closeBuiltInCrossRefs();
+  };
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v95-built-in-crossrefs-original-behavior-final';
 })();
 </script>
 
