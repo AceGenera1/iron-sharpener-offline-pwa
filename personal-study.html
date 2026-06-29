@@ -3288,65 +3288,16 @@ body.dark .resource-clean-empty {
 }
 
 
-
 /* =========================================================
-   v89 — FINAL SAFE MOBILE PANEL LOCK + IMPORT CLEANUP
-   Base: v86 safe rollback. Scope: mobile shell only for panels;
-   Import Backup hidden everywhere. No desktop layout/script edits.
+   v87 — Mobile full-screen panel hard lock + stacked Scripture Back
+   Scope: mobile/iPad panel fit only. Keeps locked copy, marks, date,
+   journal save/edit, and resource functionality intact.
    ========================================================= */
-#importBtn,
-#importFile {
-  display: none !important;
-}
-
-@media (max-width: 1180px), (pointer: coarse) {
-  body.rdm-dj-mobile-shell {
-    --dj-v89-panel-bottom: calc(var(--dj-mobile-nav-height, 82px) + env(safe-area-inset-bottom, 0px));
-  }
-
-  html.rdm-dj-v89-panel-locked,
-  body.rdm-dj-v89-panel-locked {
+@media (max-width: 900px), (pointer: coarse) {
+  html.rdm-dj-panel-scroll-locked,
+  body.rdm-dj-mobile-panel-locked {
     overflow: hidden !important;
     overscroll-behavior: none !important;
-  }
-
-  /* Disciple Maker-style full app-page panels: fixed to the viewport,
-     above the mobile nav, with the panel itself scrolling internally. */
-  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel,
-  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel,
-  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel.internal-crossrefs-panel,
-  body.rdm-dj-mobile-shell .resource-instance-panel,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel,
-  body.rdm-dj-mobile-shell .background-topic-panel {
-    position: fixed !important;
-    inset: 0 0 var(--dj-v89-panel-bottom) 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: var(--dj-v89-panel-bottom) !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: auto !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    transform: none !important;
-    resize: none !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
-    touch-action: pan-y !important;
-    border-radius: 0 !important;
-    border-left: 0 !important;
-    border-right: 0 !important;
-    border-top: 0 !important;
-    margin: 0 !important;
-    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 18px !important;
-    box-shadow: none !important;
-    opacity: 1 !important;
-    isolation: isolate !important;
   }
 
   body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
@@ -3357,52 +3308,49 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
   body.rdm-dj-mobile-shell .background-topic-panel.open {
     display: block !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel,
-  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel,
-  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel.internal-crossrefs-panel,
-  body.rdm-dj-mobile-shell .resource-instance-panel,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel,
-  body.rdm-dj-mobile-shell .background-topic-panel {
-    z-index: 92000 !important;
-  }
-
-  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel.internal-crossrefs-panel,
-  body.rdm-dj-mobile-shell .resource-instance-panel,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel,
-  body.rdm-dj-mobile-shell .background-topic-panel {
-    z-index: 94000 !important;
-  }
-
-  /* Fully opaque panel surfaces so Scripture/resources behind cannot bleed through. */
-  body.rdm-dj-mobile-shell:not(.dark) #studyToolsPanel.studyToolsPanel,
-  body.rdm-dj-mobile-shell:not(.dark) #markToolsPanel.markToolsPanel,
-  body.rdm-dj-mobile-shell:not(.dark) #resourceFloatPanel.resourceFloatPanel,
-  body.rdm-dj-mobile-shell:not(.dark) #internalCrossRefsPanel.internal-crossrefs-panel,
-  body.rdm-dj-mobile-shell:not(.dark) .resource-instance-panel,
-  body.rdm-dj-mobile-shell:not(.dark) .backgrounds-resource-panel,
-  body.rdm-dj-mobile-shell:not(.dark) .background-topic-panel {
-    background: #FFF9F1 !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--dj-mobile-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 16px !important;
+    z-index: 89600 !important;
+    background:
+      radial-gradient(circle at top left, rgba(220,232,242,.54), transparent 30rem),
+      linear-gradient(180deg, #FFF9F1 0%, #FAF4E8 100%) !important;
     color: var(--ink) !important;
-    border-color: var(--soft-copper) !important;
+    box-shadow: none !important;
   }
 
-  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel,
-  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel,
-  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel,
-  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.internal-crossrefs-panel,
-  body.rdm-dj-mobile-shell.dark .resource-instance-panel,
-  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel,
-  body.rdm-dj-mobile-shell.dark .background-topic-panel {
-    background: #1D2D44 !important;
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.open,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.internal-crossrefs-panel.open,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel.open,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.open,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel.open {
+    background:
+      radial-gradient(circle at top left, rgba(175,199,217,.12), transparent 30rem),
+      linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
     color: #F8F4EC !important;
-    border-color: rgba(217,160,123,.88) !important;
   }
 
-  /* Sticky panel headers stay visible without letting the old screen show behind them. */
   body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead,
   body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead,
   body.rdm-dj-mobile-shell #resourceFloatPanel .resourceFloatHead,
@@ -3412,22 +3360,211 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .background-topic-panel .resourceFloatHead {
     position: sticky !important;
     top: calc(-14px - env(safe-area-inset-top, 0px)) !important;
-    z-index: 12 !important;
+    z-index: 10 !important;
     margin: calc(-14px - env(safe-area-inset-top, 0px)) -14px 16px !important;
     padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 12px !important;
     border-bottom: 1.5px solid var(--soft-copper) !important;
-    opacity: 1 !important;
-    box-shadow: none !important;
+    background: inherit !important;
   }
 
-  body.rdm-dj-mobile-shell:not(.dark) #studyToolsPanel .studyToolsHead,
-  body.rdm-dj-mobile-shell:not(.dark) #markToolsPanel .markToolsHead,
-  body.rdm-dj-mobile-shell:not(.dark) #resourceFloatPanel .resourceFloatHead,
-  body.rdm-dj-mobile-shell:not(.dark) .resource-instance-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell:not(.dark) #internalCrossRefsPanel .teacher-pop-head,
-  body.rdm-dj-mobile-shell:not(.dark) .backgrounds-resource-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell:not(.dark) .background-topic-panel .resourceFloatHead {
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsBody,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBody,
+  body.rdm-dj-mobile-shell #studyToolsResults,
+  body.rdm-dj-mobile-shell .resource-panel-body,
+  body.rdm-dj-mobile-shell #internalCrossRefsResults,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-list {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBodyV59,
+  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-controls {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  body.rdm-dj-mobile-shell #resourceFloatPanel.open .resourceResult,
+  body.rdm-dj-mobile-shell .resource-instance-panel.open .resourceResult,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.open .internal-xrefs-summary,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.open .internal-xref-verse {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+
+
+/* =========================================================
+   v89 — Final reader double-header cleanup + Scripture Back polish
+   Scope: reader display + back button stability only.
+   ========================================================= */
+.readerPaper > .readerPaperTitle,
+.readerPaper > .readerMeta {
+  display: none !important;
+}
+.readerPaper > .readerBadges {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+.readerPaper > .readerSection:first-child,
+.readerPaper > .readerBadges + .readerSection {
+  margin-top: 0 !important;
+}
+
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+  min-height: 38px !important;
+  line-height: 1.12 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  transform: translateZ(0) !important;
+  will-change: auto !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: background .12s ease, box-shadow .12s ease, opacity .12s ease !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target:active {
+  transform: translateZ(0) scale(.99) !important;
+}
+.scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target.rdm-back-restoring {
+  pointer-events: none !important;
+  opacity: .82 !important;
+}
+@media (max-width: 650px), (pointer: coarse) {
+  .scriptureHeadActions #backToScriptureBtn.backScriptureInlineBtn.has-back-target {
+    width: 100% !important;
+    justify-self: stretch !important;
+    text-align: center !important;
+  }
+  .readerHead h2 {
+    overflow-wrap: anywhere !important;
+  }
+  .readerPanel .readerPaper,
+  .journalReaderPanel .readerPaper {
+    padding-top: 18px !important;
+  }
+}
+</style>
+
+
+<style id="rdm-v88-disciple-journal-final-full-panel-lock-style">
+/* =========================================================
+   v88 — Final Disciple Journal mobile panel lock
+   Pattern copied from the locked Disciple Maker mobile shell:
+   panels become full app pages fixed from the safe top to the bottom nav.
+   Scope: Study Tools chooser, Scripture Marking, and all resource panels.
+   ========================================================= */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-v88-panel-open,
+  body.rdm-dj-mobile-shell.rdm-dj-v88-panel-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
+  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .resource-instance-panel.open,
+  body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .background-topic-panel.open,
+  body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset: 0 0 var(--dj-mobile-nav-height, 86px) 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--dj-mobile-nav-height, 86px) !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
+    max-height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    z-index: 2147482000 !important;
+    opacity: 1 !important;
+    isolation: isolate !important;
+    box-shadow: none !important;
+    pointer-events: auto !important;
     background: #FFF9F1 !important;
+    color: var(--ink) !important;
+  }
+
+  @supports (height: 100dvh) {
+    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
+    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
+    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
+    body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .resource-instance-panel.open,
+    body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
+    body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .background-topic-panel.open,
+    body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
+      height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+      max-height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+    }
+  }
+
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.open,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.open,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel.open,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.open,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel.open,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel.rdm-dj-v88-full-panel {
+    background: linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
+    color: #F8F4EC !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead,
+  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceFloatHead,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell .background-topic-panel .resourceFloatHead {
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3 !important;
+    margin: 0 !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 18px 14px !important;
+    border-bottom: 1.5px solid var(--soft-copper) !important;
+    background: #FFF9F1 !important;
+    color: var(--ink) !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.05) !important;
   }
 
   body.rdm-dj-mobile-shell.dark #studyToolsPanel .studyToolsHead,
@@ -3437,29 +3574,59 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel .teacher-pop-head,
   body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel .resourceFloatHead,
   body.rdm-dj-mobile-shell.dark .background-topic-panel .resourceFloatHead {
-    background: #1D2D44 !important;
+    background: #355070 !important;
+    color: #F8F4EC !important;
   }
 
   body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsBody,
-  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu,
   body.rdm-dj-mobile-shell #markToolsPanel .markToolsBody,
-  body.rdm-dj-mobile-shell #resourceFloatPanel #studyToolsResults,
-  body.rdm-dj-mobile-shell .resource-instance-panel .resource-panel-body,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel #internalCrossRefsResults,
+  body.rdm-dj-mobile-shell #studyToolsResults,
+  body.rdm-dj-mobile-shell .resource-panel-body,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-body,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-list,
   body.rdm-dj-mobile-shell .backgrounds-resource-panel .resource-panel-body,
   body.rdm-dj-mobile-shell .background-topic-panel .resource-panel-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 16px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBodyV59,
+  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-controls {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .resourceCardBtn,
+  body.rdm-dj-mobile-shell #markToolsPanel .studyToolBtn,
+  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceResult,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceResult,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-summary,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xref-verse {
     width: 100% !important;
     max-width: none !important;
   }
 
-  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
-  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
-  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-controls {
-    grid-template-columns: 1fr !important;
+  body.rdm-dj-mobile-shell .rdm-dj-v88-hidden-behind-full-panel {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 </style>
+
 </head>
 <body>
 <div class="shell">
@@ -3815,7 +3982,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v86-mobile-safe-rollback-panel-date";
+  const VERSION = "v89-mobile-reader-back-polish-final";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -6248,9 +6415,299 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
   border-color: rgba(217,160,123,.48);
 }
 
-</style></head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
+</style>
+
+<style id="rdm-v88-disciple-journal-final-full-panel-lock-style">
+/* =========================================================
+   v88 — Final Disciple Journal mobile panel lock
+   Pattern copied from the locked Disciple Maker mobile shell:
+   panels become full app pages fixed from the safe top to the bottom nav.
+   Scope: Study Tools chooser, Scripture Marking, and all resource panels.
+   ========================================================= */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-v88-panel-open,
+  body.rdm-dj-mobile-shell.rdm-dj-v88-panel-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
+  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .resource-instance-panel.open,
+  body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell .background-topic-panel.open,
+  body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset: 0 0 var(--dj-mobile-nav-height, 86px) 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--dj-mobile-nav-height, 86px) !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
+    max-height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    z-index: 2147482000 !important;
+    opacity: 1 !important;
+    isolation: isolate !important;
+    box-shadow: none !important;
+    pointer-events: auto !important;
+    background: #FFF9F1 !important;
+    color: var(--ink) !important;
+  }
+
+  @supports (height: 100dvh) {
+    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
+    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
+    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
+    body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .resource-instance-panel.open,
+    body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
+    body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+    body.rdm-dj-mobile-shell .background-topic-panel.open,
+    body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
+      height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+      max-height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+    }
+  }
+
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.open,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.open,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.open,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel.open,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.open,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.rdm-dj-v88-full-panel,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel.open,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel.rdm-dj-v88-full-panel {
+    background: linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
+    color: #F8F4EC !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead,
+  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceFloatHead,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell .background-topic-panel .resourceFloatHead {
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3 !important;
+    margin: 0 !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 18px 14px !important;
+    border-bottom: 1.5px solid var(--soft-copper) !important;
+    background: #FFF9F1 !important;
+    color: var(--ink) !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.05) !important;
+  }
+
+  body.rdm-dj-mobile-shell.dark #studyToolsPanel .studyToolsHead,
+  body.rdm-dj-mobile-shell.dark #markToolsPanel .markToolsHead,
+  body.rdm-dj-mobile-shell.dark #resourceFloatPanel .resourceFloatHead,
+  body.rdm-dj-mobile-shell.dark .resource-instance-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel .teacher-pop-head,
+  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell.dark .background-topic-panel .resourceFloatHead {
+    background: #355070 !important;
+    color: #F8F4EC !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsBody,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBody,
+  body.rdm-dj-mobile-shell #studyToolsResults,
+  body.rdm-dj-mobile-shell .resource-panel-body,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-body,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-list,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resource-panel-body,
+  body.rdm-dj-mobile-shell .background-topic-panel .resource-panel-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 16px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBodyV59,
+  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-controls {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .resourceCardBtn,
+  body.rdm-dj-mobile-shell #markToolsPanel .studyToolBtn,
+  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceResult,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceResult,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-summary,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xref-verse {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.rdm-dj-mobile-shell .rdm-dj-v88-hidden-behind-full-panel {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+</style>
+
+</head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
-<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
+<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div>
+
+<script id="rdm-v88-disciple-journal-final-full-panel-lock-script">
+(function rdmV88DiscipleJournalFinalFullPanelLock(){
+  if (window.__rdmV88DiscipleJournalFinalFullPanelLock) return;
+  window.__rdmV88DiscipleJournalFinalFullPanelLock = true;
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains('rdm-dj-mobile-shell');
+  }
+
+  function panelList(){
+    return Array.from(document.querySelectorAll([
+      '#studyToolsPanel',
+      '#markToolsPanel',
+      '#resourceFloatPanel',
+      '#internalCrossRefsPanel',
+      '.resource-instance-panel',
+      '.backgrounds-resource-panel',
+      '.background-topic-panel'
+    ].join(',')));
+  }
+
+  function isOpenPanel(panel){
+    if (!panel) return false;
+    if (panel.classList.contains('open')) return true;
+    if (panel.getAttribute('aria-hidden') === 'false' && getComputedStyle(panel).display !== 'none') return true;
+    return false;
+  }
+
+  function normalizePanels(){
+    if (!document.body) return;
+    var mobile = isMobileShell();
+    var panels = panelList();
+    var openPanels = [];
+
+    panels.forEach(function(panel){
+      var open = mobile && isOpenPanel(panel);
+      panel.classList.toggle('rdm-dj-v88-full-panel', open);
+      panel.classList.remove('rdm-dj-v88-hidden-behind-full-panel');
+      if (open) {
+        openPanels.push(panel);
+        panel.style.left = '0';
+        panel.style.right = '0';
+        panel.style.top = '0';
+        panel.style.bottom = 'var(--dj-mobile-nav-height, 86px)';
+        panel.style.width = '100vw';
+        panel.style.maxWidth = '100vw';
+        panel.style.minWidth = '0';
+        panel.style.height = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+        panel.style.maxHeight = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+        panel.style.minHeight = '0';
+        panel.style.transform = 'none';
+        panel.style.resize = 'none';
+        panel.style.overflow = 'hidden';
+        panel.style.position = 'fixed';
+        panel.style.zIndex = String(2147482000 + openPanels.length);
+      } else if (!mobile) {
+        panel.classList.remove('rdm-dj-v88-full-panel','rdm-dj-v88-hidden-behind-full-panel');
+      }
+    });
+
+    // If a resource result is open, hide the chooser behind it. This mirrors the
+    // Disciple Maker mobile behavior where a resource result feels like its own page.
+    var frontResource = openPanels.find(function(panel){
+      return panel.classList.contains('resource-instance-panel') ||
+             panel.id === 'resourceFloatPanel' ||
+             panel.id === 'internalCrossRefsPanel' ||
+             panel.classList.contains('backgrounds-resource-panel') ||
+             panel.classList.contains('background-topic-panel');
+    });
+    if (frontResource) {
+      ['studyToolsPanel','markToolsPanel'].forEach(function(id){
+        var panel = document.getElementById(id);
+        if (panel && panel !== frontResource && panel.classList.contains('open')) {
+          panel.classList.add('rdm-dj-v88-hidden-behind-full-panel');
+        }
+      });
+    }
+
+    var any = openPanels.length > 0;
+    document.documentElement.classList.toggle('rdm-dj-v88-panel-open', any);
+    document.body.classList.toggle('rdm-dj-v88-panel-open', any);
+  }
+
+  function pulseNormalize(){
+    [0, 60, 180, 420, 800, 1400, 2400, 3600].forEach(function(delay){
+      setTimeout(normalizePanels, delay);
+    });
+  }
+
+  document.addEventListener('click', function(event){
+    if (!isMobileShell()) return;
+    pulseNormalize();
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if (event.key === 'Escape') pulseNormalize();
+  }, true);
+
+  window.addEventListener('resize', pulseNormalize, { passive: true });
+  window.addEventListener('orientationchange', pulseNormalize, { passive: true });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseNormalize);
+  else pulseNormalize();
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
+})();
+</script>
+
+</body></html>`;
   }
 
   function safeFileName(value) {
@@ -8064,8 +8521,9 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   }
 
   let discipleJournalLastLoadedScriptureState = null;
-  let discipleJournalPreviousScriptureState = null;
+  let discipleJournalScriptureBackStack = [];
   let discipleJournalRestoringPreviousScripture = false;
+  let discipleJournalBackButtonBusy = false;
 
   function getCurrentScriptureState() {
     return {
@@ -8094,7 +8552,11 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     const btn = $("backToScriptureBtn");
     if (!btn) return;
 
-    if (!discipleJournalPreviousScriptureState) {
+    const target = discipleJournalScriptureBackStack.length
+      ? discipleJournalScriptureBackStack[discipleJournalScriptureBackStack.length - 1]
+      : null;
+
+    if (!target) {
       btn.classList.remove("has-back-target");
       btn.setAttribute("aria-hidden", "true");
       btn.textContent = "← Back to Scripture";
@@ -8103,31 +8565,57 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
     btn.classList.add("has-back-target");
     btn.setAttribute("aria-hidden", "false");
-    btn.textContent = `← Back to ${scriptureRefFromState(discipleJournalPreviousScriptureState)}`;
+    btn.textContent = `← Back to ${scriptureRefFromState(target)}`;
   }
 
   function rememberPreviousScriptureState(state) {
     if (!state) return;
     const current = getCurrentScriptureState();
-    if (scriptureStateKey(state) === scriptureStateKey(current)) return;
-    discipleJournalPreviousScriptureState = { ...state };
-    updateBackToScriptureButton();
-  }
+    const stateKey = scriptureStateKey(state);
+    if (!stateKey || stateKey === scriptureStateKey(current)) return;
 
-  async function restorePreviousScriptureState() {
-    if (!discipleJournalPreviousScriptureState) {
-      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const lastStacked = discipleJournalScriptureBackStack.length
+      ? discipleJournalScriptureBackStack[discipleJournalScriptureBackStack.length - 1]
+      : null;
+
+    if (lastStacked && scriptureStateKey(lastStacked) === stateKey) {
+      updateBackToScriptureButton();
       return;
     }
 
-    const target = { ...discipleJournalPreviousScriptureState };
-    discipleJournalPreviousScriptureState = null;
+    discipleJournalScriptureBackStack.push({ ...state });
+    if (discipleJournalScriptureBackStack.length > 60) discipleJournalScriptureBackStack.shift();
+    updateBackToScriptureButton();
+  }
+
+  async function restorePreviousScriptureState(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+
+    const btn = $("backToScriptureBtn");
+    if (discipleJournalBackButtonBusy) return;
+
+    if (!discipleJournalScriptureBackStack.length) {
+      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "auto", block: "start" });
+      updateBackToScriptureButton();
+      return;
+    }
+
+    discipleJournalBackButtonBusy = true;
+    if (btn) btn.classList.add("rdm-back-restoring");
+
+    const target = { ...discipleJournalScriptureBackStack.pop() };
     updateBackToScriptureButton();
 
     saveCurrentDraftNow();
     discipleJournalRestoringPreviousScripture = true;
 
     try {
+      const currentBeforeRestore = getCurrentScriptureState();
+      if (!target.book || scriptureStateKey(target) === scriptureStateKey(currentBeforeRestore)) {
+        updateBackToScriptureButton();
+        return;
+      }
       $("book").value = target.book;
       populateChapters();
       $("chapter").value = String(target.chapter || "1");
@@ -8135,10 +8623,14 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       $("start").value = String(target.start || "1");
       $("end").value = String(target.end || target.start || "1");
       await loadPassage();
-      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "auto", block: "start" });
     } finally {
       discipleJournalRestoringPreviousScripture = false;
       updateBackToScriptureButton();
+      setTimeout(() => {
+        discipleJournalBackButtonBusy = false;
+        if (btn) btn.classList.remove("rdm-back-restoring");
+      }, 180);
     }
   }
 
@@ -9343,7 +9835,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v86-mobile-safe-rollback-panel-date";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v89-mobile-reader-back-polish-final";
 })();
 </script>
 
@@ -9401,20 +9893,20 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     }
   }, true);
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v86-mobile-safe-rollback-panel-date";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v89-mobile-reader-back-polish-final";
 })();
 </script>
 
 
 
-<script id="rdm-v86-disciple-journal-safe-panel-lock">
-(function rdmV86DiscipleJournalSafePanelLock(){
-  if (window.__rdmV86DiscipleJournalSafePanelLock) return;
-  window.__rdmV86DiscipleJournalSafePanelLock = true;
+<script id="rdm-v87-disciple-journal-panel-lock-back-stack">
+(function rdmV87DiscipleJournalPanelLockBackStack(){
+  if (window.__rdmV87DiscipleJournalPanelLockBackStack) return;
+  window.__rdmV87DiscipleJournalPanelLockBackStack = true;
 
   var savedScrollY = 0;
   function isMobileShell(){ return document.body && document.body.classList.contains('rdm-dj-mobile-shell'); }
-  function activeFullscreenPanel(){ return document.querySelector('#studyToolsPanel.open, #markToolsPanel.open'); }
+  function activeFullscreenPanel(){ return document.querySelector('#studyToolsPanel.open, #markToolsPanel.open, #resourceFloatPanel.open, #internalCrossRefsPanel.open, .resource-instance-panel.open, .backgrounds-resource-panel.open, .background-topic-panel.open'); }
 
   function lockPage(){
     if (!isMobileShell()) return;
@@ -9449,6 +9941,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   document.addEventListener('click', function(event){
     var target = event.target;
     if (!target || !isMobileShell()) return;
+    setTimeout(syncLock, 160);
     if (target.closest('#openStudyToolsBtn, #openMarkToolsBtn, #rdmDjMobileNav button[data-dj-action="tools"], #rdmDjMobileNav button[data-dj-action="mark"]')) {
       syncLock();
       return;
@@ -9467,165 +9960,141 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     else syncLock();
   }, { passive: true });
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v86-mobile-safe-rollback-panel-date';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
 })();
 </script>
 
 
 
-<script id="rdm-v89-safe-mobile-panels-backstack">
-(function rdmV89SafeMobilePanelsBackstack(){
-  if (window.__rdmV89SafeMobilePanelsBackstack) return;
-  window.__rdmV89SafeMobilePanelsBackstack = true;
+<script id="rdm-v88-disciple-journal-final-full-panel-lock-script">
+(function rdmV88DiscipleJournalFinalFullPanelLock(){
+  if (window.__rdmV88DiscipleJournalFinalFullPanelLock) return;
+  window.__rdmV88DiscipleJournalFinalFullPanelLock = true;
 
-  var savedScrollY = 0;
-  var restoring = false;
-  var lastState = null;
-  var backStack = [];
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains('rdm-dj-mobile-shell');
+  }
 
-  function get(id){ return document.getElementById(id); }
-  function isMobileShell(){ return document.body && document.body.classList.contains('rdm-dj-mobile-shell'); }
-  function activeFullPanel(){
-    return document.querySelector(
-      '#studyToolsPanel.open, #markToolsPanel.open, #resourceFloatPanel.open, ' +
-      '#internalCrossRefsPanel.open, .resource-instance-panel.open, ' +
-      '.backgrounds-resource-panel.open, .background-topic-panel.open'
-    );
+  function panelList(){
+    return Array.from(document.querySelectorAll([
+      '#studyToolsPanel',
+      '#markToolsPanel',
+      '#resourceFloatPanel',
+      '#internalCrossRefsPanel',
+      '.resource-instance-panel',
+      '.backgrounds-resource-panel',
+      '.background-topic-panel'
+    ].join(',')));
   }
-  function statesEqual(a,b){
-    if (!a || !b) return false;
-    return String(a.book) === String(b.book) && String(a.chapter) === String(b.chapter) && String(a.start) === String(b.start) && String(a.end) === String(b.end);
+
+  function isOpenPanel(panel){
+    if (!panel) return false;
+    if (panel.classList.contains('open')) return true;
+    if (panel.getAttribute('aria-hidden') === 'false' && getComputedStyle(panel).display !== 'none') return true;
+    return false;
   }
-  function readState(){
-    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
-    if (!book || !chapter || !start || !end) return null;
-    return { book: book.value, chapter: chapter.value, start: start.value, end: end.value || start.value };
-  }
-  function formatState(state){
-    if (!state) return 'Scripture';
-    var s = parseInt(state.start || '1', 10);
-    var e = parseInt(state.end || state.start || '1', 10);
-    return s === e ? (state.book + ' ' + state.chapter + ':' + s) : (state.book + ' ' + state.chapter + ':' + s + '-' + e);
-  }
-  function updateBackButton(){
-    var btn = get('backToScriptureBtn');
-    if (!btn) return;
-    var target = backStack.length ? backStack[backStack.length - 1] : null;
-    if (!target) {
-      btn.classList.remove('has-back-target');
-      btn.setAttribute('aria-hidden', 'true');
-      btn.textContent = '← Back to Scripture';
-      return;
-    }
-    btn.classList.add('has-back-target');
-    btn.setAttribute('aria-hidden', 'false');
-    btn.textContent = '← Back to ' + formatState(target);
-  }
-  function noteLoadedState(){
-    var current = readState();
-    if (!current) return;
-    if (!lastState) {
-      lastState = Object.assign({}, current);
-      updateBackButton();
-      return;
-    }
-    if (!restoring && !statesEqual(lastState, current)) {
-      if (!backStack.length || !statesEqual(backStack[backStack.length - 1], lastState)) {
-        backStack.push(Object.assign({}, lastState));
-        if (backStack.length > 40) backStack.shift();
+
+  function normalizePanels(){
+    if (!document.body) return;
+    var mobile = isMobileShell();
+    var panels = panelList();
+    var openPanels = [];
+
+    panels.forEach(function(panel){
+      var open = mobile && isOpenPanel(panel);
+      panel.classList.toggle('rdm-dj-v88-full-panel', open);
+      panel.classList.remove('rdm-dj-v88-hidden-behind-full-panel');
+      if (open) {
+        openPanels.push(panel);
+        panel.style.left = '0';
+        panel.style.right = '0';
+        panel.style.top = '0';
+        panel.style.bottom = 'var(--dj-mobile-nav-height, 86px)';
+        panel.style.width = '100vw';
+        panel.style.maxWidth = '100vw';
+        panel.style.minWidth = '0';
+        panel.style.height = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+        panel.style.maxHeight = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+        panel.style.minHeight = '0';
+        panel.style.transform = 'none';
+        panel.style.resize = 'none';
+        panel.style.overflow = 'hidden';
+        panel.style.position = 'fixed';
+        panel.style.zIndex = String(2147482000 + openPanels.length);
+      } else if (!mobile) {
+        panel.classList.remove('rdm-dj-v88-full-panel','rdm-dj-v88-hidden-behind-full-panel');
       }
-    }
-    lastState = Object.assign({}, current);
-    updateBackButton();
-  }
-  function applyState(target){
-    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end'), load = get('loadBtn');
-    if (!target || !book || !chapter || !start || !end || !load) return;
-    restoring = true;
-    try {
-      if (book.value !== String(target.book)) {
-        book.value = String(target.book);
-        book.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      setTimeout(function(){
-        if (chapter.value !== String(target.chapter)) {
-          chapter.value = String(target.chapter);
-          chapter.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // If a resource result is open, hide the chooser behind it. This mirrors the
+    // Disciple Maker mobile behavior where a resource result feels like its own page.
+    var frontResource = openPanels.find(function(panel){
+      return panel.classList.contains('resource-instance-panel') ||
+             panel.id === 'resourceFloatPanel' ||
+             panel.id === 'internalCrossRefsPanel' ||
+             panel.classList.contains('backgrounds-resource-panel') ||
+             panel.classList.contains('background-topic-panel');
+    });
+    if (frontResource) {
+      ['studyToolsPanel','markToolsPanel'].forEach(function(id){
+        var panel = document.getElementById(id);
+        if (panel && panel !== frontResource && panel.classList.contains('open')) {
+          panel.classList.add('rdm-dj-v88-hidden-behind-full-panel');
         }
-        setTimeout(function(){
-          start.value = String(target.start || '1');
-          end.value = String(target.end || target.start || '1');
-          load.click();
-          setTimeout(function(){
-            lastState = readState();
-            restoring = false;
-            updateBackButton();
-            try { document.querySelector('.scriptureCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {}
-          }, 550);
-        }, 80);
-      }, 80);
-    } catch (_) {
-      restoring = false;
-      updateBackButton();
+      });
     }
+
+    var any = openPanels.length > 0;
+    document.documentElement.classList.toggle('rdm-dj-v88-panel-open', any);
+    document.body.classList.toggle('rdm-dj-v88-panel-open', any);
   }
-  function handleBackClick(event){
-    var btn = event.target && event.target.closest ? event.target.closest('#backToScriptureBtn') : null;
-    if (!btn) return;
-    if (!backStack.length) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    var target = backStack.pop();
-    updateBackButton();
-    applyState(target);
+
+  function pulseNormalize(){
+    [0, 60, 180, 420, 800, 1400, 2400, 3600].forEach(function(delay){
+      setTimeout(normalizePanels, delay);
+    });
   }
-  function lockPage(){
+
+  document.addEventListener('click', function(event){
     if (!isMobileShell()) return;
-    if (document.body.classList.contains('rdm-dj-v89-panel-locked')) return;
-    savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    document.documentElement.classList.add('rdm-dj-v89-panel-locked');
-    document.body.classList.add('rdm-dj-v89-panel-locked');
-    document.body.style.position = 'fixed';
-    document.body.style.top = '-' + savedScrollY + 'px';
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
-  }
-  function unlockPage(){
-    if (!document.body.classList.contains('rdm-dj-v89-panel-locked')) return;
-    if (activeFullPanel()) return;
-    document.documentElement.classList.remove('rdm-dj-v89-panel-locked');
-    document.body.classList.remove('rdm-dj-v89-panel-locked');
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
-    try { window.scrollTo(0, savedScrollY || 0); } catch (_) {}
-  }
-  function syncPanelLock(){
-    if (!isMobileShell()) { unlockPage(); return; }
-    activeFullPanel() ? lockPage() : unlockPage();
-  }
-  function schedulePanelSync(){
-    [40, 180, 450].forEach(function(delay){ setTimeout(syncPanelLock, delay); });
-  }
-  function start(){
-    noteLoadedState();
-    var ref = get('referenceTitle');
-    if (ref && window.MutationObserver) {
-      new MutationObserver(function(){ setTimeout(noteLoadedState, 40); }).observe(ref, { childList: true, characterData: true, subtree: true });
-    }
-    var backBtn = get('backToScriptureBtn');
-    if (backBtn) backBtn.addEventListener('click', handleBackClick, true);
-    document.addEventListener('click', schedulePanelSync, true);
-    document.addEventListener('keydown', function(event){ if (event.key === 'Escape') setTimeout(unlockPage, 120); }, true);
-    window.addEventListener('resize', schedulePanelSync, { passive: true });
-    window.addEventListener('orientationchange', schedulePanelSync, { passive: true });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-final-safe-panels-backstack';
+    pulseNormalize();
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if (event.key === 'Escape') pulseNormalize();
+  }, true);
+
+  window.addEventListener('resize', pulseNormalize, { passive: true });
+  window.addEventListener('orientationchange', pulseNormalize, { passive: true });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseNormalize);
+  else pulseNormalize();
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
 })();
 </script>
+
+
+<script id="rdm-v89-reader-back-final-polish">
+(function(){
+  if (window.__rdmV89ReaderBackFinalPolish) return;
+  window.__rdmV89ReaderBackFinalPolish = true;
+  function cleanReaderDoubleHeader(){
+    try {
+      document.querySelectorAll('.readerPaper > .readerPaperTitle, .readerPaper > .readerMeta').forEach(function(el){
+        el.setAttribute('aria-hidden','true');
+      });
+    } catch(_) {}
+  }
+  ['readJournalBtn','readerPrevBtn','readerNextBtn','readerEditBtn','closeReaderBtn'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function(){ setTimeout(cleanReaderDoubleHeader, 60); }, { passive: true });
+  });
+  document.addEventListener('DOMContentLoaded', cleanReaderDoubleHeader, { once: true });
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
+})();
+</script>
+
 </body>
 </html>
