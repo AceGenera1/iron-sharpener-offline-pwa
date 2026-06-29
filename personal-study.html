@@ -2894,6 +2894,88 @@ body.dark .resource-clean-empty {
   }
 }
 
+
+/* =========================================================
+   v82 — Mobile resource full panels + Writing Prompts near Journal
+   Scope: mobile shell only. Keeps locked marking/highlighting intact.
+   ========================================================= */
+@media (max-width: 780px), (pointer: coarse) {
+  body.rdm-dj-mobile-shell .journalQuickPromptsBlock {
+    margin: 14px 0 0 !important;
+    padding: 14px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 18px !important;
+    background: rgba(255,255,255,.40) !important;
+  }
+  body.rdm-dj-mobile-shell.dark .journalQuickPromptsBlock {
+    background: rgba(255,249,241,.055) !important;
+    border-color: rgba(217,160,123,.34) !important;
+  }
+  body.rdm-dj-mobile-shell .journalQuickPromptsBlock h4 {
+    margin: 0 0 10px !important;
+    color: var(--deep) !important;
+    font-size: 16px !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+  }
+  body.rdm-dj-mobile-shell.dark .journalQuickPromptsBlock h4 {
+    color: var(--soft-copper) !important;
+  }
+  body.rdm-dj-mobile-shell .journalQuickPromptsBlock .quickPrompts {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Every opened study-resource result should behave like a full mobile panel above the nav. */
+  body.rdm-dj-mobile-shell .resourceFloatPanel,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.internal-crossrefs-panel,
+  body.rdm-dj-mobile-shell .resource-instance-panel,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel,
+  body.rdm-dj-mobile-shell .background-topic-panel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: calc(78px + env(safe-area-inset-top, 0px)) !important;
+    bottom: calc(var(--dj-mobile-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+    padding: 16px !important;
+    z-index: 88000 !important;
+  }
+  body.rdm-dj-mobile-shell .resourceFloatHead,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head {
+    position: sticky !important;
+    top: -16px !important;
+    z-index: 3 !important;
+    padding-top: 10px !important;
+    background: inherit !important;
+  }
+  body.rdm-dj-mobile-shell .resource-panel-body,
+  body.rdm-dj-mobile-shell #studyToolsResults,
+  body.rdm-dj-mobile-shell #internalCrossRefsResults {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  body.rdm-dj-mobile-shell .resource-panel-body .resourceResult,
+  body.rdm-dj-mobile-shell #studyToolsResults .resourceResult,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xref-verse,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-summary {
+    width: 100% !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3188,6 +3270,18 @@ body.dark .resource-clean-empty {
             </div>
           </div>
         </div>
+        <div class="sideBlock journalQuickPromptsBlock">
+          <h4>Writing Prompts</h4>
+          <div class="quickPrompts">
+            <button class="quickPromptBtn" type="button" data-target="observe" data-prompt="What word, phrase, command, promise, warning, or repeated idea stands out in this passage?">What stands out?</button>
+            <button class="quickPromptBtn" type="button" data-target="understand" data-prompt="What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?">What does it reveal?</button>
+            <button class="quickPromptBtn" type="button" data-target="heart" data-prompt="Lord, what are You confronting, comforting, correcting, exposing, strengthening, or encouraging in me?">Search my heart</button>
+            <button class="quickPromptBtn" type="button" data-target="prayer" data-prompt="Lord, turn this truth into confession, thanksgiving, surrender, request, and praise.">Turn it into prayer</button>
+            <button class="quickPromptBtn" type="button" data-target="walk" data-prompt="What is one faithful next step I can take today?">One faithful step</button>
+            <button class="quickPromptBtn" type="button" data-target="feetQuestions" data-prompt="Lord, what do You want me to bring before You right now?">At His feet</button>
+            <button class="quickPromptBtn" type="button" data-target="freewrite" data-prompt="">Freewrite space</button>
+          </div>
+        </div>
         <div class="saveBar">
           <button class="primary" id="saveBtn" type="button">Save Entry</button>
           <button class="secondary" id="copyEntryBtn" type="button">Copy Entry</button>
@@ -3216,18 +3310,7 @@ body.dark .resource-clean-empty {
           <button class="secondary filterBtn" id="filterReviewBtn" type="button" data-filter="review">Revisit</button>
         </div>
         <div class="entryList" id="entryList"><p class="empty">No entries saved yet.</p></div>
-        <div class="sideBlock">
-          <h4>Quick Prompts</h4>
-          <div class="quickPrompts">
-            <button class="quickPromptBtn" type="button" data-target="observe" data-prompt="What word, phrase, command, promise, warning, or repeated idea stands out in this passage?">What stands out?</button>
-            <button class="quickPromptBtn" type="button" data-target="understand" data-prompt="What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?">What does it reveal?</button>
-            <button class="quickPromptBtn" type="button" data-target="heart" data-prompt="Lord, what are You confronting, comforting, correcting, exposing, strengthening, or encouraging in me?">Search my heart</button>
-            <button class="quickPromptBtn" type="button" data-target="prayer" data-prompt="Lord, turn this truth into confession, thanksgiving, surrender, request, and praise.">Turn it into prayer</button>
-            <button class="quickPromptBtn" type="button" data-target="walk" data-prompt="What is one faithful next step I can take today?">One faithful step</button>
-            <button class="quickPromptBtn" type="button" data-target="feetQuestions" data-prompt="Lord, what do You want me to bring before You right now?">At His feet</button>
-            <button class="quickPromptBtn" type="button" data-target="freewrite" data-prompt="">Freewrite space</button>
-          </div>
-        </div>
+
       </div>
     </aside>
   </main>
@@ -3249,7 +3332,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v80-mobile-shell-foundation";
+  const VERSION = "v82-mobile-resources-full-prompts-near-journal";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -8719,7 +8802,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v81-mobile-journal-palette-selection-fix";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v82-mobile-resources-full-prompts-near-journal";
 })();
 </script>
 
