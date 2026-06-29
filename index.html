@@ -25891,5 +25891,103 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v74 — Mobile Scripture Back stable-slot visual cleanup -->
+<style id="rdm-v74-mobile-scripture-back-no-bounce-style">
+/*
+   v74 — Disciple Maker mobile Scripture Back no-bounce polish
+   Scope: mobile/tablet app shell only. Desktop and OBS remain untouched.
+   Keeps the working v73 mechanics, but prevents the Scripture navigator box
+   from flexing/popping by removing height/padding/margin transitions and
+   reserving a stable invisible button slot when no back target exists.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back {
+    display: flex !important;
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 42px !important;
+    max-height: 58px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-radius: 13px !important;
+    border-width: 1.5px !important;
+    font-size: clamp(12.5px, 3.25vw, 14.5px) !important;
+    line-height: 1.12 !important;
+    font-weight: 900 !important;
+    letter-spacing: .015em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    transform: none !important;
+    transition: opacity .14s ease, background-color .14s ease, border-color .14s ease, box-shadow .14s ease, color .14s ease, visibility 0s linear .14s !important;
+    will-change: opacity !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v71-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-no-back-target {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: none !important;
+    color: transparent !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    min-height: 42px !important;
+    max-height: 58px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-width: 1.5px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v71-has-back-target {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    min-height: 42px !important;
+    max-height: 58px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-width: 1.5px !important;
+    transition-delay: 0s !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v71-has-back-target {
+    background: linear-gradient(180deg, #f8d987 0%, #e4bd61 52%, #d7a84f 100%) !important;
+    color: #203D39 !important;
+    border: 1.5px solid rgba(255,241,192,.88) !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.12) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v71-has-back-target {
+    background: linear-gradient(180deg, #8A5A13 0%, #704407 100%) !important;
+    color: #FFF8EA !important;
+    border: 1.5px solid #7A4C06 !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.12) !important;
+  }
+}
+</style>
+<script id="rdm-v74-mobile-scripture-back-no-bounce-script">
+(function rdmV74MobileScriptureBackNoBounce(){
+  if (window.__rdmV74MobileScriptureBackNoBounce) return;
+  window.__rdmV74MobileScriptureBackNoBounce = true;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v74-mobile-scripture-back-no-bounce-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v74-mobile-scripture-back-no-bounce-final";
+})();
+</script>
+
 </body>
 </html>
