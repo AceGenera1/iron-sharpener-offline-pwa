@@ -9,19 +9,83 @@
 <meta name="theme-color" content="#203D39"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<script id="rdm-v80-splash-theme-early">
+<meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F4EFE3"/>
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#203D39"/>
+<script id="rdm-v81-splash-prepaint-earliest">
 (function(){
   try {
+    var root = document.documentElement;
+    root.classList.add("rdm-prepaint-splash");
     if (window.localStorage && localStorage.getItem("ironSharpenerUnified.theme") === "dark") {
-      document.documentElement.classList.add("rdm-splash-dark");
+      root.classList.add("rdm-splash-dark");
     }
-  } catch (error) {}
+  } catch (error) {
+    try { document.documentElement.classList.add("rdm-prepaint-splash"); } catch (ignored) {}
+  }
 })();
 </script>
+<style id="rdm-v81-instant-pwa-prepaint-style">
+/* v81 instant prepaint: shows identity before the body splash can render. */
+html,
+body {
+  background: #F4EFE3;
+}
+html.rdm-splash-dark,
+html.rdm-splash-dark body {
+  background: #203D39;
+}
+html.rdm-prepaint-splash::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483640;
+  min-height: 100vh;
+  min-height: 100dvh;
+  pointer-events: none;
+  background:
+    url("./assets/iron-sharpener-logo.png") center calc(50% - 112px) / 116px 116px no-repeat,
+    radial-gradient(circle at 50% 18%, rgba(248, 217, 135, .34), transparent 27%),
+    linear-gradient(145deg, #FFF8EA 0%, #F4EFE3 48%, #E1D2B7 100%);
+}
+html.rdm-prepaint-splash::after {
+  content: "RESTORED DAILY MINISTRIES\A IRON SHARPENER\A Daily Biblical Encouragement for a World in Need of Christ.";
+  position: fixed;
+  left: 18px;
+  right: 18px;
+  top: calc(50% + 18px);
+  z-index: 2147483641;
+  pointer-events: none;
+  color: #17312E;
+  text-align: center;
+  white-space: pre-line;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(15px, 3.4vw, 22px);
+  line-height: 1.55;
+  letter-spacing: .08em;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255,255,255,.58);
+}
+html.rdm-prepaint-splash.rdm-splash-dark::before {
+  background:
+    url("./assets/iron-sharpener-logo.png") center calc(50% - 112px) / 116px 116px no-repeat,
+    radial-gradient(circle at 50% 16%, rgba(248, 217, 135, .20), transparent 28%),
+    linear-gradient(145deg, #101A2E 0%, #172B29 46%, #203D39 100%);
+}
+html.rdm-prepaint-splash.rdm-splash-dark::after {
+  color: #FFF8EA;
+  text-shadow: 0 2px 14px rgba(0,0,0,.48);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.rdm-prepaint-splash::before,
+  html.rdm-prepaint-splash::after { transition: none !important; }
+}
+</style>
 <style id="rdm-v80-app-launch-splash-style">
 /* v80 launch splash: first-paint app identity while Iron Sharpener finishes loading. */
-html { background: #F4EFE3; }
-html.rdm-splash-dark { background: #203D39; }
+html, body { background: #F4EFE3; }
+html.rdm-splash-dark, html.rdm-splash-dark body { background: #203D39; }
 body.rdm-app-splash-active { overflow: hidden; }
 #rdmAppLaunchSplash {
   position: fixed;
@@ -25573,6 +25637,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       if (hidden) return;
       hidden = true;
       splash.classList.add("rdm-splash-hidden");
+      document.documentElement.classList.remove("rdm-prepaint-splash");
       if (document.body) document.body.classList.remove("rdm-app-splash-active");
       window.setTimeout(function(){
         if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
@@ -25593,7 +25658,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }, { once: true });
 
   window.setTimeout(hideSplash, maxVisibleMs);
-  window.__IRON_SHARPENER_APP_LAUNCH_SPLASH_VERSION = "v80-app-launch-splash-final";
+  window.__IRON_SHARPENER_APP_LAUNCH_SPLASH_VERSION = "v81-instant-app-splash-prepaint-final";
 })();
 </script>
 
