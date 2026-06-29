@@ -3982,7 +3982,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v90-pc-script-export-escape-fix";
+  const VERSION = "v89-mobile-reader-back-polish-final";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -6703,9 +6703,9 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseNormalize);
   else pulseNormalize();
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v90-pc-script-export-escape-fix';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
 })();
-<\/script>
+</script>
 
 </body></html>`;
   }
@@ -9835,7 +9835,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v90-pc-script-export-escape-fix";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v89-mobile-reader-back-polish-final";
 })();
 </script>
 
@@ -9893,7 +9893,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     }
   }, true);
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v90-pc-script-export-escape-fix";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v89-mobile-reader-back-polish-final";
 })();
 </script>
 
@@ -9960,7 +9960,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     else syncLock();
   }, { passive: true });
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v90-pc-script-export-escape-fix';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
 })();
 </script>
 
@@ -10070,7 +10070,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseNormalize);
   else pulseNormalize();
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v90-pc-script-export-escape-fix';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
 })();
 </script>
 
@@ -10092,7 +10092,143 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     el.addEventListener('click', function(){ setTimeout(cleanReaderDoubleHeader, 60); }, { passive: true });
   });
   document.addEventListener('DOMContentLoaded', cleanReaderDoubleHeader, { once: true });
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v90-pc-script-export-escape-fix';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v89-mobile-reader-back-polish-final';
+
+  /* v90 — Mobile Built-In Cross References open Scripture inside Tools panel
+     Keeps main Scripture passage unchanged when tapping built-in cross-reference links on mobile. */
+  function rdmDjIsMobileShellActive() {
+    return document.body.classList.contains('rdm-dj-mobile-shell') || window.matchMedia('(max-width: 900px)').matches;
+  }
+
+  function rdmDjVerseTextFromChapterData(data, verseNumber) {
+    const verses = Array.isArray(data?.verses) ? data.verses : [];
+    const found = verses.find((verse) => Number(verse.verse) === Number(verseNumber));
+    return found ? cleanText(found.text || '') : '';
+  }
+
+  async function openBuiltInCrossRefScripturePanel(ref) {
+    const parsed = internalParseRef(ref);
+    if (!parsed) {
+      setStatus('Reference could not be opened');
+      return;
+    }
+
+    const refLabel = parsed.start === parsed.end
+      ? `${parsed.book} ${parsed.chapter}:${parsed.start}`
+      : `${parsed.book} ${parsed.chapter}:${parsed.start}-${parsed.end}`;
+
+    const loadingPanel = openResourceInstancePanel(`Scripture Reference — ${refLabel}`, `<p class="empty">Loading ${escapeHtml(refLabel)}…</p>`);
+    loadingPanel.classList.add('rdm-dj-crossref-scripture-panel');
+
+    try {
+      const result = await fetchBibleChapter(parsed.book, parsed.chapter);
+      const pieces = [];
+      for (let v = Number(parsed.start); v <= Number(parsed.end); v += 1) {
+        const verseText = rdmDjVerseTextFromChapterData(result.data, v);
+        if (verseText) {
+          pieces.push(`<p class="xref-scripture-verse"><span class="xref-scripture-vnum">${escapeHtml(v)}</span>${escapeHtml(verseText)}</p>`);
+        }
+      }
+
+      const body = pieces.length
+        ? pieces.join('')
+        : `<p class="empty">No Scripture text was found for ${escapeHtml(refLabel)}.</p>`;
+
+      const html = `
+        <div class="xref-scripture-card">
+          <h3>${escapeHtml(refLabel)}</h3>
+          <p class="xref-scripture-source">World English Bible — Public Domain</p>
+          <div class="xref-scripture-text">${body}</div>
+        </div>`;
+
+      const panel = openResourceInstancePanel(`Scripture Reference — ${refLabel}`, html);
+      panel.classList.add('rdm-dj-crossref-scripture-panel');
+      setStatus(`Opened ${refLabel}`);
+    } catch (error) {
+      openResourceInstancePanel(`Scripture Reference — ${refLabel}`, `<p class="empty">${escapeHtml(refLabel)} could not load from the local WEB Bible files.</p>`).classList.add('rdm-dj-crossref-scripture-panel');
+      setStatus('Reference could not load');
+    }
+  }
+
+  document.addEventListener('click', function rdmDjBuiltInXrefPanelClickBridge(event) {
+    const refBtn = event.target.closest('#internalCrossRefsPanel .internal-xref-link[data-ref]');
+    if (!refBtn || !rdmDjIsMobileShellActive()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    openBuiltInCrossRefScripturePanel(refBtn.dataset.ref || refBtn.textContent.trim());
+  }, true);
+
+  const rdmDjV90Style = document.createElement('style');
+  rdmDjV90Style.textContent = `
+    .rdm-dj-crossref-scripture-panel .resource-panel-body .resourceResult {
+      padding: 0 !important;
+    }
+    .xref-scripture-card {
+      display: grid;
+      gap: 12px;
+      border: 1px solid rgba(217,160,123,.34);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,.36);
+    }
+    body.dark .xref-scripture-card {
+      background: rgba(255,249,241,.055);
+      border-color: rgba(217,160,123,.38);
+    }
+    .xref-scripture-card h3 {
+      margin: 0;
+      color: var(--copper);
+      font-size: 24px;
+      line-height: 1.15;
+    }
+    body.dark .xref-scripture-card h3 { color: var(--soft-copper); }
+    .xref-scripture-source {
+      margin: -4px 0 2px;
+      color: var(--journal-muted-strong, var(--dust));
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .xref-scripture-text {
+      display: grid;
+      gap: 12px;
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.6;
+      color: var(--ink);
+    }
+    .xref-scripture-verse {
+      margin: 0;
+    }
+    .xref-scripture-vnum {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      margin-right: 10px;
+      border-radius: 999px;
+      background: var(--deep);
+      color: #FFF9F1;
+      font-size: 12px;
+      font-weight: 900;
+      vertical-align: 3px;
+    }
+    body.dark .xref-scripture-vnum {
+      background: rgba(255,249,241,.10);
+      color: #F8F4EC;
+      border: 1px solid rgba(217,160,123,.45);
+    }
+    @media (max-width: 900px) {
+      body.rdm-dj-mobile-shell .rdm-dj-crossref-scripture-panel.open {
+        z-index: 2147483200 !important;
+      }
+      body.rdm-dj-mobile-shell .xref-scripture-card {
+        min-height: calc(100dvh - 180px);
+      }
+    }
+  `;
+  document.head.appendChild(rdmDjV90Style);
+
 })();
 </script>
 
