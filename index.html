@@ -6,6 +6,22 @@
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
 <link href="./manifest.json" rel="manifest"/>
+<style id="rdm-v79-first-paint-mobile-stability">
+/* v79 early paint guard: mobile-only visual stability before the later scripts finish loading. */
+html, body { background-color: #F4EFE3; }
+body.dark { background-color: #203D39; }
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body { background-color: #F4EFE3; }
+  html:not(.obs) body.dark { background-color: #203D39; }
+  html:not(.obs) #rdmMobileAppNav {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
+  html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
+    display: none !important;
+  }
+}
+</style>
 <style>
 
    :root {
@@ -16988,7 +17004,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   bottom: 0;
   z-index: 79000;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px));
   border-top: 2px solid var(--gold);
@@ -17202,10 +17218,8 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
     nav.setAttribute("aria-label", "Iron Sharpener mobile navigation");
     nav.innerHTML = `
       <button type="button" data-rdm-mobile-action="scripture"><span class="rdm-mobile-nav-icon">📖</span><span>Scripture</span></button>
-      <button type="button" data-rdm-mobile-action="passage"><span class="rdm-mobile-nav-icon">☰</span><span>Passage</span></button>
       <button type="button" data-rdm-mobile-action="tools"><span class="rdm-mobile-nav-icon">⚔</span><span>Tools</span></button>
       <button type="button" data-rdm-mobile-action="notes"><span class="rdm-mobile-nav-icon">✎</span><span>Notes</span></button>
-      <button type="button" data-rdm-mobile-action="resources"><span class="rdm-mobile-nav-icon">◈</span><span>Resources</span></button>
       <button type="button" data-rdm-mobile-action="journal"><span class="rdm-mobile-nav-icon">✚</span><span>Journal</span></button>
     `;
 
@@ -19851,7 +19865,7 @@ html:not(.obs) body.rdm-mobile-app-shell .vnum {
 
 /* Bottom navigation: five true app tabs after Resources was removed. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   min-height: var(--rdm-mobile-nav-height) !important;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -19994,7 +20008,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
 /* Tablet touch devices: keep the app feel but avoid stretched controls. */
 @media (min-width: 760px) {
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     width: min(720px, calc(100vw - 28px)) !important;
   }
   html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls,
@@ -20028,7 +20042,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
     const nav = get("rdmMobileAppNav");
     if (nav) {
       nav.querySelectorAll('button[data-rdm-mobile-action="resources"]').forEach((button) => button.remove());
-      nav.style.setProperty("grid-template-columns", "repeat(5, minmax(0, 1fr))", "important");
+      nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
     }
   }
 
@@ -20121,7 +20135,7 @@ html:not(.obs) body.rdm-mobile-app-shell .nav-row button {
 
 /* Bottom app nav: equal, device-aware tabs that fill the phone width cleanly. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: clamp(5px, 1.25vw, 9px) !important;
   padding: 8px clamp(8px, 2.2vw, 14px) calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -20964,7 +20978,7 @@ html:not(.obs) body.rdm-mobile-app-shell {
 /* Bottom app navigation must use the full phone width instead of clustering left. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   position: fixed !important;
   left: 0 !important;
   right: 0 !important;
@@ -25257,177 +25271,147 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 </script>
 
 
-<!-- v78 — Mobile return panel stability polish -->
-<style id="rdm-v78-mobile-return-panel-stability-style">
+<!-- v79 — Mobile startup Tools/nav stability lock -->
+<style id="rdm-v79-mobile-startup-tools-nav-stability-style">
 /*
-   v78 — Mobile return panel stability polish.
-   Scope: Disciple Maker mobile/tablet shell only.
-   Purpose: stop Tools/panel buttons from visually shrinking/expanding when returning from Disciple Journal.
-   Desktop, OBS, Scripture navigation, Journal v101, copy, resources, marks, and notes logic are untouched.
+   v79 — Disciple Maker mobile startup Tools/nav stability lock.
+   Built from locked v77.
+   Scope: mobile/tablet app shell only. Desktop, OBS, Scripture/back behavior, resources, notes, copy,
+   marking, offline, and locked Journal v101 are untouched.
 */
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell {
+    --rdm-mobile-visible-tabs: 4;
+  }
+
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    align-items: stretch !important;
-    contain: layout paint !important;
-    transform: translateZ(0);
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 60px !important;
-    min-height: 60px !important;
-    max-height: 60px !important;
-    box-sizing: border-box !important;
-    flex: 1 1 0 !important;
-    align-self: stretch !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open {
-    box-sizing: border-box !important;
-    contain: layout paint !important;
-    overscroll-behavior: contain !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid,
-  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid.three,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-options,
-  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open .tool-options,
-  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open .tool-options,
-  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open .tool-options {
     display: grid !important;
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     align-items: stretch !important;
-    gap: 10px !important;
     width: 100% !important;
+    max-width: none !important;
     box-sizing: border-box !important;
+    contain: layout paint !important;
   }
 
-  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button,
-  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open button {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="scripture"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="tools"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="notes"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
     width: 100% !important;
     min-width: 0 !important;
-    min-height: 48px !important;
+    max-width: none !important;
     box-sizing: border-box !important;
     align-self: stretch !important;
   }
 
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav *,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #teacherToolsPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #teacherToolsPanel.open *,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #studyResourcesPanel.open,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #studyResourcesPanel.open *,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing .resource-instance-panel.open,
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing .resource-instance-panel.open * {
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #rdmMobileAppNav,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #rdmMobileAppNav *,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #teacherToolsPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #teacherToolsPanel *,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #studyResourcesPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v79-startup-stable #studyResourcesPanel * {
     transition: none !important;
     animation: none !important;
   }
-
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav button:active {
-    transform: none !important;
-  }
 }
 </style>
-<script id="rdm-v78-mobile-return-panel-stability-script">
-(function rdmV78MobileReturnPanelStability(){
-  if (window.__rdmV78MobileReturnPanelStability) return;
-  window.__rdmV78MobileReturnPanelStability = true;
+<script id="rdm-v79-mobile-startup-tools-nav-stability-script">
+(function rdmV79MobileStartupToolsNavStability(){
+  if (window.__rdmV79MobileStartupToolsNavStability) return;
+  window.__rdmV79MobileStartupToolsNavStability = true;
 
-  const MOBILE_QUERY = window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)");
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
   const get = (id) => document.getElementById(id);
-  let releaseTimer = null;
 
   function isMobileShell(){
-    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs") && (!MOBILE_QUERY || MOBILE_QUERY.matches);
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
   }
 
-  function normalizePanelSizing(){
-    if (!isMobileShell()) return;
-
-    const nav = get("rdmMobileAppNav");
-    if (nav) {
-      nav.style.setProperty("grid-template-columns", "repeat(5, minmax(0, 1fr))", "important");
-      nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
-        btn.style.setProperty("height", "60px", "important");
-        btn.style.setProperty("min-height", "60px", "important");
-        btn.style.setProperty("max-height", "60px", "important");
-        btn.style.setProperty("min-width", "0", "important");
-      });
-    }
-
-    document.querySelectorAll("#teacherToolsPanel.open, #studyResourcesPanel.open, #obsCrossRefsPanel.open, #obsNavigatorPanel.open, #teachingMethodPanel.open, #ironPromptPanel.open, .resource-instance-panel.open").forEach(function(panel){
-      panel.classList.add("rdm-v78-panel-stable");
-      panel.style.removeProperty("transform");
-      panel.style.removeProperty("left");
-      panel.style.removeProperty("right");
-      panel.style.removeProperty("top");
-      panel.style.removeProperty("bottom");
-      panel.querySelectorAll("button").forEach(function(btn){
-        btn.style.setProperty("min-height", "48px", "important");
-        btn.style.setProperty("width", "100%", "important");
-      });
+  function removeRetiredTabs(nav){
+    if (!nav) return;
+    nav.querySelectorAll('button[data-rdm-mobile-action="passage"], button[data-rdm-mobile-action="resources"]').forEach(function(btn){
+      btn.remove();
     });
   }
 
-  function stabilizeReturn(){
+  function normalizeNav(){
     if (!isMobileShell()) return;
-    document.body.classList.add("rdm-v78-return-stabilizing");
-    normalizePanelSizing();
-    requestAnimationFrame(normalizePanelSizing);
-    setTimeout(normalizePanelSizing, 120);
-    setTimeout(normalizePanelSizing, 360);
-    clearTimeout(releaseTimer);
-    releaseTimer = setTimeout(function(){
-      if (document.body) document.body.classList.remove("rdm-v78-return-stabilizing");
-      normalizePanelSizing();
-    }, 620);
+    const nav = get("rdmMobileAppNav");
+    if (!nav) return;
+
+    removeRetiredTabs(nav);
+    nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
+
+    const validActions = new Set(["scripture", "tools", "notes", "journal"]);
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(btn){
+      if (!validActions.has(btn.dataset.rdmMobileAction)) {
+        btn.remove();
+        return;
+      }
+      btn.style.setProperty("min-width", "0", "important");
+      btn.style.setProperty("width", "100%", "important");
+    });
+
+    const active = nav.querySelector("button.active[data-rdm-mobile-action]");
+    if (!active || !validActions.has(active.dataset.rdmMobileAction)) {
+      nav.querySelector('button[data-rdm-mobile-action="scripture"]')?.classList.add("active");
+    }
+
+    document.body.classList.remove("rdm-mobile-passage-open");
   }
 
-  function markLeavingForJournal(event){
-    const target = event.target && event.target.closest ? event.target.closest('#discipleJournalBtn, #rdmMobileAppNav button[data-rdm-mobile-action="journal"]') : null;
-    if (!target) return;
-    try { sessionStorage.setItem("rdmV78ReturningFromJournal", "1"); } catch (_) {}
-  }
-
-  function handlePageShow(event){
-    let returning = false;
-    try {
-      returning = sessionStorage.getItem("rdmV78ReturningFromJournal") === "1";
-      if (returning) sessionStorage.removeItem("rdmV78ReturningFromJournal");
-    } catch (_) {}
-    if (event && event.persisted) returning = true;
-    if (returning || isMobileShell()) stabilizeReturn();
+  function stabilizeStartup(){
+    if (!isMobileShell()) return;
+    document.body.classList.add("rdm-v79-startup-stable");
+    normalizeNav();
+    setTimeout(function(){
+      normalizeNav();
+      if (document.body) document.body.classList.remove("rdm-v79-startup-stable");
+    }, 720);
   }
 
   function start(){
-    if (!isMobileShell()) return;
-    normalizePanelSizing();
+    normalizeNav();
+    stabilizeStartup();
   }
 
-  document.addEventListener("click", markLeavingForJournal, true);
-  window.addEventListener("pageshow", handlePageShow);
-  window.addEventListener("focus", function(){ if (isMobileShell()) stabilizeReturn(); });
-  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") stabilizeReturn(); });
+  document.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+    const navBtn = event.target && event.target.closest ? event.target.closest('#rdmMobileAppNav button[data-rdm-mobile-action]') : null;
+    if (navBtn) setTimeout(normalizeNav, 0);
+  }, true);
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 
-  window.rdmV78StabilizeMobileReturnPanels = stabilizeReturn;
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v78-mobile-return-panel-stability-final";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v78-mobile-return-panel-stability-final";
+  setTimeout(normalizeNav, 120);
+  setTimeout(normalizeNav, 520);
+  setTimeout(normalizeNav, 980);
+
+  window.addEventListener("pageshow", function(){ setTimeout(stabilizeStartup, 0); });
+  window.addEventListener("orientationchange", function(){ setTimeout(normalizeNav, 260); });
+
+  window.rdmV79NormalizeMobileNav = normalizeNav;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v79-mobile-startup-tools-nav-stability-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v79-mobile-startup-tools-nav-stability-final";
 })();
 </script>
 
