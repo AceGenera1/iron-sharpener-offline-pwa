@@ -23427,5 +23427,221 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v64 — Mobile word/phrase selection bridge for stackable tools -->
+<style id="rdm-v64-mobile-selection-bridge-style">
+/* Scope: mobile app shell only. Allow Scripture words to be selected for inline marks. */
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #passage,
+  html:not(.obs) body.rdm-mobile-app-shell #passage .verse,
+  html:not(.obs) body.rdm-mobile-app-shell #passage .verse * {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #passage .verse {
+    touch-action: auto !important;
+  }
+}
+</style>
+<script id="rdm-v64-mobile-selection-bridge-script">
+(function rdmV64MobileSelectionBridge(){
+  if (window.__rdmV64MobileSelectionBridge) return;
+  window.__rdmV64MobileSelectionBridge = true;
+
+  const COLORS = ["gold", "blue", "green", "red", "purple", "amber"];
+  const STORAGE_KEY = "ironSharpenerUnified.selectedTeachingMarkColor";
+  const CACHE_MAX_AGE_MS = 15000;
+  let cached = null;
+
+  function cleanColor(value) {
+    const text = String(value || "").replace(/^highlight-/, "").trim();
+    return COLORS.includes(text) ? text : "gold";
+  }
+
+  function getSelectedColor() {
+    try {
+      return cleanColor(window.__rdmSelectedTeachingMarkColor || localStorage.getItem(STORAGE_KEY) || "gold");
+    } catch (_) {
+      return "gold";
+    }
+  }
+
+  function inlineCapableTool(tool) {
+    return /^highlight-(gold|blue|green|red|purple|amber)$/.test(tool) || tool === "underline" || tool === "circle" || tool === "box";
+  }
+
+  function inlineClassForTool(tool) {
+    const highlight = String(tool || "").match(/^highlight-(gold|blue|green|red|purple|amber)$/);
+    if (highlight) return `inline-highlight-${highlight[1]}`;
+
+    const color = getSelectedColor();
+    if (tool === "underline") return `inline-underline rdm-inline-mark-${color} inline-mark-${color}`;
+    if (tool === "circle") return `inline-circle rdm-inline-mark-${color} inline-mark-${color}`;
+    if (tool === "box") return `inline-box rdm-inline-mark-${color} inline-mark-${color}`;
+    return "";
+  }
+
+  function currentTool() {
+    try { return String(activeTool || "highlight-gold"); } catch (_) { return "highlight-gold"; }
+  }
+
+  function selectionText(selection) {
+    return String(selection && selection.toString ? selection.toString() : "").replace(/\s+/g, " ").trim();
+  }
+
+  function rangeIntersectsVerse(range, verse) {
+    if (!range || !verse) return false;
+    try { return range.intersectsNode(verse); } catch (_) { return false; }
+  }
+
+  function rangeIsInsideVerse(range, verse) {
+    if (!range || !verse) return false;
+    return verse.contains(range.startContainer) && verse.contains(range.endContainer);
+  }
+
+  function verseForSelection(selection) {
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selectionText(selection)) return null;
+    const range = selection.getRangeAt(0);
+
+    const directNode = range.commonAncestorContainer && (range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement);
+    const directVerse = directNode && directNode.closest ? directNode.closest("#passage .verse[data-v]") : null;
+    if (directVerse && rangeIsInsideVerse(range, directVerse)) return directVerse;
+
+    const verses = Array.from(document.querySelectorAll("#passage .verse[data-v]"));
+    const touched = verses.filter((verse) => rangeIntersectsVerse(range, verse));
+    if (touched.length === 1 && rangeIsInsideVerse(range, touched[0])) return touched[0];
+    return null;
+  }
+
+  function rememberSelection() {
+    const selection = window.getSelection ? window.getSelection() : null;
+    const verse = verseForSelection(selection);
+    if (!verse) return;
+
+    try {
+      cached = {
+        verse,
+        verseNumber: verse.dataset.v || "",
+        range: selection.getRangeAt(0).cloneRange(),
+        text: selectionText(selection),
+        time: Date.now()
+      };
+      window.__rdmLastInlineTextSelection = cached;
+    } catch (_) {}
+  }
+
+  function cacheStillValid(verse) {
+    if (!cached || !cached.range || !cached.verse || !cached.text) return false;
+    if (Date.now() - cached.time > CACHE_MAX_AGE_MS) return false;
+    if (!document.body.contains(cached.verse)) return false;
+    if (verse && cached.verse !== verse) return false;
+    if (!rangeIsInsideVerse(cached.range, cached.verse)) return false;
+    return true;
+  }
+
+  function markStatus(text) {
+    const copyStatus = document.getElementById("copyStatus");
+    const teacherStatus = document.getElementById("teacherToolsStatusText");
+    if (copyStatus) copyStatus.textContent = text;
+    if (teacherStatus) teacherStatus.textContent = text;
+  }
+
+  function clearBrowserSelection() {
+    try {
+      const selection = window.getSelection && window.getSelection();
+      if (selection) selection.removeAllRanges();
+    } catch (_) {}
+  }
+
+  function applyCachedSelection(tool, verse) {
+    if (!inlineCapableTool(tool)) return false;
+    if (!cacheStillValid(verse || null)) return false;
+
+    const targetVerse = cached.verse;
+    const className = inlineClassForTool(tool);
+    if (!className) return false;
+
+    const span = document.createElement("span");
+    span.className = className;
+
+    try {
+      cached.range.surroundContents(span);
+    } catch (_) {
+      try {
+        const contents = cached.range.extractContents();
+        span.appendChild(contents);
+        cached.range.insertNode(span);
+      } catch (error) {
+        return false;
+      }
+    }
+
+    targetVerse.classList.add("rdm-stack-marked");
+    try { if (typeof saveMarks === "function") saveMarks(); } catch (_) {}
+    clearBrowserSelection();
+    cached = null;
+    window.__rdmLastInlineTextSelection = null;
+    markStatus("Selected text marked.");
+    return true;
+  }
+
+  function selectionCurrentlyInsideVerse(verse) {
+    const selection = window.getSelection ? window.getSelection() : null;
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selectionText(selection)) return false;
+    const currentVerse = verseForSelection(selection);
+    return !!currentVerse && (!verse || currentVerse === verse);
+  }
+
+  document.addEventListener("selectionchange", function(){
+    setTimeout(rememberSelection, 0);
+  }, false);
+
+  ["mouseup", "keyup", "touchend"].forEach((eventName) => {
+    document.addEventListener(eventName, function(event){
+      if (event.target && event.target.closest && event.target.closest("#passage")) {
+        setTimeout(rememberSelection, 35);
+        setTimeout(rememberSelection, 140);
+      }
+    }, true);
+  });
+
+  const previousUseActiveTool = typeof useActiveTool === "function" ? useActiveTool : null;
+  if (previousUseActiveTool && !previousUseActiveTool.__rdmV64SelectionBridge) {
+    const wrappedUseActiveTool = function rdmV64UseActiveToolSelectionBridge(verse) {
+      const tool = currentTool();
+
+      if (inlineCapableTool(tool) && !selectionCurrentlyInsideVerse(verse) && applyCachedSelection(tool, verse)) {
+        return;
+      }
+
+      return previousUseActiveTool.apply(this, arguments);
+    };
+    wrappedUseActiveTool.__rdmV64SelectionBridge = true;
+    try { useActiveTool = wrappedUseActiveTool; } catch (_) {}
+  }
+
+  const previousSetTool = typeof setTool === "function" ? setTool : null;
+  if (previousSetTool && !previousSetTool.__rdmV64SelectionBridge) {
+    const wrappedSetTool = function rdmV64SetToolSelectionBridge(toolName) {
+      const result = previousSetTool.apply(this, arguments);
+      setTimeout(function(){
+        const tool = String(toolName || currentTool());
+        if (inlineCapableTool(tool)) applyCachedSelection(tool, null);
+      }, 0);
+      return result;
+    };
+    wrappedSetTool.__rdmV64SelectionBridge = true;
+    try { setTool = wrappedSetTool; } catch (_) {}
+  }
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v64-mobile-tools-selection-bridge";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v64-mobile-tools-selection-bridge";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
+})();
+</script>
+
 </body>
 </html>
