@@ -3103,6 +3103,85 @@ body.dark .resource-clean-empty {
   }
 }
 
+
+
+/* =========================================================
+   v84 — Disciple Journal mobile study-tools full panel,
+   edit-return fix, date tighten, and mobile export cleanup.
+   Scope: mobile shell polish only.
+   Locked: marking/highlighting, resource function results, copy behavior,
+   journal save/new-entry behavior from v83.
+   ========================================================= */
+@media (max-width: 780px), (pointer: coarse) {
+  /* Tighten the Study Date input so it no longer looks oversized on iPad/mobile. */
+  body.rdm-dj-mobile-shell #entryDate {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 7px 10px !important;
+    line-height: 1.1 !important;
+    font-size: 16px !important;
+    border-radius: 13px !important;
+  }
+
+  /* The Study Tools chooser itself should be a full mobile panel, just like the opened resources. */
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--dj-mobile-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 16px !important;
+    z-index: 88400 !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead {
+    position: sticky !important;
+    top: calc(-14px - env(safe-area-inset-top, 0px)) !important;
+    z-index: 6 !important;
+    margin: calc(-14px - env(safe-area-inset-top, 0px)) -14px 16px !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 12px !important;
+    border-bottom: 1.5px solid var(--soft-copper) !important;
+    background: inherit !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead h2 {
+    font-size: clamp(23px, 6vw, 34px) !important;
+    line-height: 1.08 !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .resourceCardBtn {
+    width: 100% !important;
+  }
+
+  /* Mobile export can be unpredictable across iOS/Android file handlers, so keep it desktop-only. */
+  body.rdm-dj-mobile-shell .exportMenuWrap,
+  body.rdm-dj-mobile-shell #readerExportBtn,
+  body.rdm-dj-mobile-shell .exportEntryBtn {
+    display: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3459,7 +3538,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v83-mobile-final-panel-toast-entry-footer";
+  const VERSION = "v84-mobile-study-tools-full-edit-export-date";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -8987,7 +9066,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v83-mobile-final-panel-toast-entry-footer";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v84-mobile-study-tools-full-edit-export-date";
 })();
 </script>
 
@@ -9014,6 +9093,38 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       setTimeout(resetNavToCurrentView, 50);
     }
   }, true);
+})();
+</script>
+
+
+
+<script id="rdm-v84-disciple-journal-mobile-finish">
+(function rdmV84DiscipleJournalMobileFinish(){
+  if (window.__rdmV84DiscipleJournalMobileFinish) return;
+  window.__rdmV84DiscipleJournalMobileFinish = true;
+  function get(id){ return document.getElementById(id); }
+  function isMobileShell(){ return document.body.classList.contains("rdm-dj-mobile-shell"); }
+  function setMobileView(view){
+    if (!isMobileShell()) return;
+    var finalView = view || "journal";
+    document.body.setAttribute("data-dj-mobile-view", finalView);
+    var nav = get("rdmDjMobileNav");
+    if (nav) {
+      nav.querySelectorAll("button[data-dj-action]").forEach(function(button){
+        button.classList.toggle("active", button.getAttribute("data-dj-action") === finalView);
+      });
+    }
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (_) { window.scrollTo(0, 0); }
+  }
+
+  /* When a saved entry is edited from History or Reader, reveal the Journal screen after the existing editor logic runs. */
+  document.addEventListener("click", function(event){
+    if (event.target.closest(".editEntryBtn") || event.target.closest("#readerEditBtn")) {
+      setTimeout(function(){ setMobileView("journal"); }, 180);
+    }
+  }, true);
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v84-mobile-study-tools-full-edit-export-date";
 })();
 </script>
 
