@@ -22881,63 +22881,166 @@ html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-
 })();
 </script>
 
-</body>
-</html>
-<!-- Patch 60 — Mobile Footer Gap Hard Cleanup -->
-<style id="rdm-v60-mobile-footer-gap-hard-cleanup">
-/*
-   v60 — Scripture footer gap hard cleanup only.
-   Scope: mobile Scripture screen spacing below the footer.
-   Notes remain locked at v57. No changes to Notes, Passage, Tools,
-   Scripture loading, cross references, OBS, or desktop.
 
-   This patch removes the shell/body bottom reserve that was still leaving
-   a large cream/green blank area between the footer and the fixed bottom nav.
-*/
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) {
-  min-height: auto !important;
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
 
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .shell {
-  min-height: 0 !important;
-  height: auto !important;
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
+<!-- =========================================================
+     v62 — Mobile thin footer cleanup
+     Scope: mobile Scripture footer only.
+     Purpose: keep the Scripture screen tight, make the footer thin/readable,
+     and keep Offline Ready from covering the footer or Scripture.
+     Notes remain locked at v57. No changes to Notes, Passage, Tools,
+     Scripture loading, cross references, OBS, or desktop.
+     ========================================================= -->
+<style id="rdm-v62-mobile-thin-footer-cleanup">
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) {
+    min-height: auto !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
 
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .layout {
-  min-height: 0 !important;
-  padding-bottom: 8px !important;
-  margin-bottom: 0 !important;
-}
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .shell {
+    min-height: 0 !important;
+    height: auto !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
 
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .scripture {
-  margin-bottom: 0 !important;
-}
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .layout {
+    min-height: 0 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 0 !important;
+  }
 
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 14px !important;
-  padding-bottom: 18px !important;
-}
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .scripture {
+    margin-bottom: 0 !important;
+  }
 
-/* Keep Offline Ready available without reserving a large empty area for it. */
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) #rdmPublicOfflinePillV33,
-html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .rdm-offline-status-pill {
-  bottom: calc(var(--rdm-mobile-nav-height, 88px) + 8px) !important;
-  right: 10px !important;
-  left: auto !important;
-  max-width: min(205px, calc(100vw - 20px)) !important;
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+    display: block !important;
+    margin: 0 !important;
+    padding: 8px 12px calc(var(--rdm-mobile-nav-height, 88px) + 7px) !important;
+    border-top: 2px solid var(--gold) !important;
+    background: linear-gradient(180deg, #fffaf0 0%, #fff4d8 100%) !important;
+    color: #203D39 !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    line-height: 1.18 !important;
+    letter-spacing: .1px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open).dark .footer,
+  html:not(.obs) body.dark.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+    background: linear-gradient(180deg, #203D39 0%, #172B29 100%) !important;
+    color: #fff7df !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer strong,
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer .rdm-mobile-footer-line {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: 13px !important;
+    line-height: 1.18 !important;
+    font-weight: 900 !important;
+    text-shadow: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer .sep {
+    display: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer .rdm-mobile-footer-line + .rdm-mobile-footer-line {
+    margin-top: 2px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .footer #rdmPublicOfflinePillV33,
+  html:not(.obs) body.rdm-mobile-app-shell .footer .rdm-offline-status-pill {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: min(240px, 88vw) !important;
+    margin: 5px auto 0 !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 5px 10px !important;
+    min-height: 0 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    border-radius: 999px !important;
+    z-index: auto !important;
+    box-shadow: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .footer #rdmPublicOfflinePillV33 .rdm-public-offline-dot-v33,
+  html:not(.obs) body.rdm-mobile-app-shell .footer .rdm-offline-status-dot {
+    width: 8px !important;
+    height: 8px !important;
+    flex: 0 0 8px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePanelV33,
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
+    bottom: calc(var(--rdm-mobile-nav-height, 88px) + 8px) !important;
+  }
 }
 </style>
-<script id="rdm-v60-mobile-shell-marker">
-(function rdmV60Marker(){
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v60-mobile-footer-gap-hard-cleanup";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v60-mobile-footer-gap-hard-cleanup";
-  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
-  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+<script id="rdm-v62-mobile-thin-footer-cleanup">
+(function rdmV62MobileThinFooterCleanup(){
+  if (window.__rdmV62MobileThinFooterCleanup) return;
+  window.__rdmV62MobileThinFooterCleanup = true;
+
+  function isMobileShell(){
+    return !!(document.body && document.body.classList.contains('rdm-mobile-app-shell'));
+  }
+
+  function applyThinFooter(){
+    var footer = document.querySelector('.footer');
+    if (!footer || !isMobileShell()) return false;
+
+    var pill = document.getElementById('rdmPublicOfflinePillV33') || document.querySelector('.rdm-offline-status-pill');
+
+    if (!footer.dataset.rdmOriginalHtml) {
+      footer.dataset.rdmOriginalHtml = footer.innerHTML;
+    }
+
+    if (!footer.classList.contains('rdm-mobile-thin-footer')) {
+      footer.classList.add('rdm-mobile-thin-footer');
+      footer.innerHTML = '' +
+        '<span class="rdm-mobile-footer-line">WEB scripture text is public domain.</span>' +
+        '<span class="rdm-mobile-footer-line">Iron Sharpener™ by Restored Daily Ministries™.</span>';
+    }
+
+    if (pill && pill.parentElement !== footer) footer.appendChild(pill);
+    return true;
+  }
+
+  function runSoon(){ applyThinFooter(); }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runSoon, { once: true });
+  } else {
+    runSoon();
+  }
+
+  [150, 500, 1000, 1800, 3000].forEach(function(ms){
+    window.setTimeout(applyThinFooter, ms);
+  });
+
+  ['resize', 'orientationchange'].forEach(function(evt){
+    window.addEventListener(evt, function(){ window.setTimeout(applyThinFooter, 120); }, { passive: true });
+  });
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = 'v62-mobile-thin-footer-cleanup';
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = 'v62-mobile-thin-footer-cleanup';
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = 'v57-mobile-notes-tight-autogrow-only';
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = 'v48-mobile-notes-scripture-fit';
 })();
 </script>
+
+</body>
+</html>
