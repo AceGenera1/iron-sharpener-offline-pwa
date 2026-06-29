@@ -2829,6 +2829,71 @@ body.dark .resource-clean-empty {
 }
 @media (min-width: 781px) and (pointer: fine) { .rdm-dj-mobile-nav { display: none !important; } }
 
+
+
+/* =========================================================
+   v81 — Disciple Journal Mobile Palette + Scripture Mark Selection Fix
+   Scope: mobile/tablet only. Keeps the Journal light theme in its own
+   blue/parchment/copper palette, hides duplicate top Mark/Study controls,
+   and restores mobile selected-word/phrase marking.
+   ========================================================= */
+@media (max-width: 780px), (pointer: coarse) {
+  body.rdm-dj-mobile-shell:not(.dark) {
+    background:
+      radial-gradient(circle at top left, rgba(220,232,242,.70), transparent 34rem),
+      linear-gradient(180deg, var(--parchment), #F3E6D2 100%) !important;
+  }
+
+  /* Keep Disciple Journal light mode in the original Journal blue family, not the Disciple Maker cream/brown header. */
+  body.rdm-dj-mobile-shell:not(.dark) .hero {
+    background: linear-gradient(135deg, var(--deep), var(--water)) !important;
+    color: #FFF9F1 !important;
+  }
+  body.rdm-dj-mobile-shell:not(.dark) .eyebrow {
+    color: var(--soft-copper) !important;
+  }
+  body.rdm-dj-mobile-shell:not(.dark) .hero h1 {
+    color: #FFF9F1 !important;
+  }
+
+  /* Keep the top Scripture card clean because Mark and Tools now live in the bottom mobile nav. */
+  body.rdm-dj-mobile-shell .scriptureHeadActions #openMarkToolsBtn,
+  body.rdm-dj-mobile-shell .scriptureHeadActions #openStudyToolsBtn {
+    display: none !important;
+  }
+  body.rdm-dj-mobile-shell .scriptureHeadActions {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Let mobile Safari/Chrome actually select Scripture words and phrases. */
+  body.rdm-dj-mobile-shell .scriptureCard .passage,
+  body.rdm-dj-mobile-shell .scriptureCard .verse,
+  body.rdm-dj-mobile-shell .scriptureCard .verse * {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+  }
+  body.rdm-dj-mobile-shell .scriptureCard .verse {
+    touch-action: auto !important;
+  }
+
+  /* Light-mode bottom nav should read like Disciple Journal, not the other tool. */
+  body.rdm-dj-mobile-shell:not(.dark) .rdm-dj-mobile-nav {
+    background: rgba(250,244,232,.96) !important;
+    border-top-color: rgba(185,122,86,.70) !important;
+  }
+  body.rdm-dj-mobile-shell:not(.dark) .rdm-dj-mobile-nav button {
+    background: rgba(255,249,241,.88) !important;
+    color: var(--deep) !important;
+    border-color: rgba(185,122,86,.38) !important;
+  }
+  body.rdm-dj-mobile-shell:not(.dark) .rdm-dj-mobile-nav button.active {
+    background: linear-gradient(180deg, var(--soft-copper), var(--copper)) !important;
+    color: #FFF9F1 !important;
+    border-color: rgba(255,249,241,.55) !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -7471,6 +7536,98 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     await refreshOpenStudyPanelsForCurrentPassage();
   };
 
+
+
+  /* v81 — Mobile selected-text bridge for Scripture marking.
+     This caches a live selection inside Scripture before mobile Safari clears it,
+     then lets Highlight/Underline/Circle/Box apply to that selected word/phrase. */
+  let djV81CachedSelectionRange = null;
+  let djV81CachedVerseNum = null;
+  let djV81CachedSelectionText = "";
+
+  function djV81SelectionVerseFromNode(node) {
+    const element = node && node.nodeType === 1 ? node : node?.parentElement;
+    return element?.closest?.(".verse[data-verse]") || null;
+  }
+
+  function djV81RememberSelection() {
+    try {
+      const selection = window.getSelection ? window.getSelection() : null;
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return false;
+      const selectedText = String(selection.toString() || "").trim();
+      if (!selectedText) return false;
+      const range = selection.getRangeAt(0);
+      const anchorVerse = djV81SelectionVerseFromNode(selection.anchorNode);
+      const focusVerse = djV81SelectionVerseFromNode(selection.focusNode);
+      const verse = anchorVerse || focusVerse;
+      if (!verse || !$('passage')?.contains(verse)) return false;
+      if (anchorVerse && focusVerse && anchorVerse !== focusVerse) return false;
+      try {
+        if (!range.intersectsNode(verse)) return false;
+      } catch (_) {
+        if (!verse.contains(range.commonAncestorContainer)) return false;
+      }
+      djV81CachedSelectionRange = range.cloneRange();
+      djV81CachedVerseNum = verse.dataset.verse || "";
+      djV81CachedSelectionText = selectedText;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function djV81ClearCachedSelection() {
+    djV81CachedSelectionRange = null;
+    djV81CachedVerseNum = null;
+    djV81CachedSelectionText = "";
+  }
+
+  const djV81OriginalGetSelectionRangeInsideVerse = getSelectionRangeInsideVerse;
+  getSelectionRangeInsideVerse = function getSelectionRangeInsideVerseV81(verse) {
+    const liveRange = djV81OriginalGetSelectionRangeInsideVerse(verse);
+    if (liveRange) {
+      djV81RememberSelection();
+      return liveRange;
+    }
+    if (!verse || !djV81CachedSelectionRange || String(verse.dataset.verse || "") !== String(djV81CachedVerseNum || "")) return null;
+    try {
+      const cloned = djV81CachedSelectionRange.cloneRange();
+      if (cloned && cloned.toString && cloned.toString().trim()) return cloned;
+    } catch (_) {}
+    return null;
+  };
+
+  function djV81ApplyCachedSelectionWithMode(mode) {
+    if (!mode || mode === "erase" || !djV81CachedSelectionRange || !djV81CachedVerseNum) return false;
+    const verse = document.querySelector(`.verse[data-verse="${djV81CachedVerseNum}"]`);
+    if (!verse) return false;
+    try {
+      markMode = mode;
+      if (mode.startsWith("highlight")) activeMarkColor = normalizeMarkColor(mode);
+      const applied = typeof wrapSelectedTextInVerseV77 === "function"
+        ? wrapSelectedTextInVerseV77(verse, mode)
+        : applyMarkToSelection(verse);
+      if (applied) {
+        djV81ClearCachedSelection();
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function djV81WireSelectionCache() {
+    if (window.__djV81SelectionCacheReady) return;
+    window.__djV81SelectionCacheReady = true;
+    ["selectionchange", "touchstart", "touchend", "mouseup", "keyup"].forEach((eventName) => {
+      document.addEventListener(eventName, djV81RememberSelection, { capture: true, passive: true });
+    });
+    const passage = $('passage');
+    if (passage) {
+      passage.addEventListener("pointerdown", djV81RememberSelection, { capture: true, passive: true });
+      passage.addEventListener("touchstart", djV81RememberSelection, { capture: true, passive: true });
+    }
+  }
+
   function bindEvents() {
     setupExistingFloatingPanels();
     $("studyModeBtn").addEventListener("click", openStudyMode);
@@ -7485,7 +7642,18 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     $("toolJfb").addEventListener("click", openJfbTool);
     $("toolBackgrounds").addEventListener("click", openBackgroundsTool);
     $("toolBookOverview").addEventListener("click", openBookOverviewTool);
-    document.querySelectorAll(".markToolBtn").forEach((btn) => btn.addEventListener("click", () => setMarkMode(btn.dataset.mark)));
+    document.querySelectorAll(".markToolBtn").forEach((btn) => {
+      btn.addEventListener("pointerdown", djV81RememberSelection, { capture: true, passive: true });
+      btn.addEventListener("touchstart", djV81RememberSelection, { capture: true, passive: true });
+      btn.addEventListener("click", () => {
+        djV81RememberSelection();
+        const selectedMode = btn.dataset.mark;
+        setMarkMode(selectedMode);
+        if (selectedMode && selectedMode !== "erase" && djV81CachedSelectionRange) {
+          setTimeout(() => djV81ApplyCachedSelectionWithMode(selectedMode), 0);
+        }
+      });
+    });
     $("markClearPassageBtn").addEventListener("click", clearMarksForCurrentPassage);
     $("markStopBtn").addEventListener("click", () => setMarkMode(null));
     $("toolEastons").addEventListener("click", openEastonsTool);
@@ -7582,6 +7750,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
         $("end").value = String(last.end || last.start || 1);
       }
     } catch (_) {}
+    djV81WireSelectionCache();
     bindEvents();
     db = await openDb();
     restoreDraft();
@@ -8550,7 +8719,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v80-mobile-shell-foundation";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v81-mobile-journal-palette-selection-fix";
 })();
 </script>
 
