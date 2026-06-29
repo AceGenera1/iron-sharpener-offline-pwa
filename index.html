@@ -22031,5 +22031,255 @@ html:not(.obs) body.rdm-mobile-app-shell .layout {
 })();
 </script>
 
+
+<!-- Patch 55 — Mobile Notes Section Only Cleanup -->
+<style id="rdm-v55-mobile-notes-section-only-cleanup">
+/*
+   v55 — Notes screen only.
+   Purpose: stop the mobile Notes chooser from clipping card titles,
+   make cream mode truly cream in the Notes section, and keep dark mode clean.
+   No desktop, OBS, Scripture, Passage, Tools, Cross Reference, or offline logic changes.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  --rdm-v55-notes-gap: clamp(15px, 3.8vw, 20px);
+  --rdm-v55-notes-x: clamp(18px, 4.4vw, 28px);
+  --rdm-v55-open-col: clamp(104px, 27vw, 128px);
+  --rdm-v55-card-h: clamp(132px, 15.8dvh, 154px);
+  --rdm-v55-title-size: clamp(25px, 6.1vw, 31px);
+}
+
+/* Cream mode: the whole Notes sheet should read as cream, not dark. */
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side {
+  background: linear-gradient(180deg, #fffaf0 0%, #fff4dc 56%, #fff1cf 100%) !important;
+  color: #203D39 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side > .rdm-mobile-sheet-head {
+  background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
+  color: #203D39 !important;
+  border-bottom: 2px solid rgba(215,168,79,.78) !important;
+  box-shadow: 0 8px 18px rgba(122,76,6,.10) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side > .rdm-mobile-sheet-head strong {
+  color: #203D39 !important;
+  text-shadow: none !important;
+}
+
+/* Dark mode keeps the forest-green Notes sheet. */
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side,
+html:not(.obs) body.dark.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  background: linear-gradient(180deg, #203D39 0%, #172B29 100%) !important;
+  color: #fff6d9 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  gap: var(--rdm-v55-notes-gap) !important;
+  padding-left: var(--rdm-v55-notes-x) !important;
+  padding-right: var(--rdm-v55-notes-x) !important;
+  padding-bottom: calc(var(--rdm-mobile-nav-height) + 22px) !important;
+  overflow-x: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .rdm-mobile-sheet-head {
+  margin-left: calc(-1 * var(--rdm-v55-notes-x)) !important;
+  margin-right: calc(-1 * var(--rdm-v55-notes-x)) !important;
+  margin-bottom: clamp(18px, 4.6vw, 26px) !important;
+  padding-left: var(--rdm-v55-notes-x) !important;
+  padding-right: var(--rdm-v55-notes-x) !important;
+}
+
+/* Closed chooser cards: fixed enough height to let every title breathe. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) {
+  display: block !important;
+  height: var(--rdm-v55-card-h) !important;
+  min-height: var(--rdm-v55-card-h) !important;
+  max-height: var(--rdm-v55-card-h) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card {
+  background: linear-gradient(180deg, #fffdf7, #fff4dc) !important;
+  border: 2px solid rgba(215,168,79,.42) !important;
+  box-shadow: 0 16px 34px rgba(122,76,6,.10) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card,
+html:not(.obs) body.dark.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card {
+  background: linear-gradient(180deg, #315E56, #294843) !important;
+  border: 2px solid rgba(248,217,135,.62) !important;
+  box-shadow: 0 16px 34px rgba(0,0,0,.22) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > .panel-title {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) var(--rdm-v55-open-col) !important;
+  align-items: center !important;
+  gap: clamp(10px, 2.8vw, 16px) !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  padding: clamp(18px, 4.6vw, 24px) clamp(18px, 4.4vw, 24px) !important;
+  margin: 0 !important;
+  border-bottom: 0 !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  display: block !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: var(--rdm-v55-title-size) !important;
+  line-height: 1.08 !important;
+  letter-spacing: 1.15px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+  text-transform: uppercase !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  color: #203D39 !important;
+  text-shadow: none !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3,
+html:not(.obs) body.dark.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  color: #fff8ea !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.30) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > .panel-title::after {
+  width: var(--rdm-v55-open-col) !important;
+  min-width: var(--rdm-v55-open-col) !important;
+  max-width: var(--rdm-v55-open-col) !important;
+  min-height: clamp(56px, 7.3dvh, 66px) !important;
+  padding: 8px 10px !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  font-size: clamp(16px, 4.1vw, 18px) !important;
+  line-height: 1 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.dark).rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+  background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+  border-color: rgba(183,116,16,.58) !important;
+  color: #203D39 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.dark.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after,
+html:not(.obs) body.dark.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title::after {
+  background: rgba(248,217,135,.10) !important;
+  border-color: rgba(248,217,135,.78) !important;
+  color: #fff6d9 !important;
+}
+
+/* Open editor cards are allowed to grow normally. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  border-radius: 22px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title {
+  min-height: 122px !important;
+  height: auto !important;
+  padding: 22px clamp(18px, 4.4vw, 24px) !important;
+  grid-template-columns: minmax(0, 1fr) var(--rdm-v55-open-col) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > textarea {
+  width: calc(100% - 40px) !important;
+  min-height: min(48dvh, 390px) !important;
+  margin: 20px 20px 18px !important;
+  padding: 18px !important;
+  box-sizing: border-box !important;
+}
+
+/* Keep the edit box clean: the display card already has its own hide button. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideApplicationNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallApplicationNote {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 390px) {
+  html:not(.obs) body.rdm-mobile-app-shell {
+    --rdm-v55-notes-x: 16px;
+    --rdm-v55-open-col: 96px;
+    --rdm-v55-title-size: clamp(22px, 5.9vw, 26px);
+    --rdm-v55-card-h: 128px;
+  }
+}
+</style>
+<script id="rdm-v55-mobile-notes-section-only-cleanup">
+(function rdmV55MobileNotesSectionOnlyCleanup(){
+  if (window.__rdmV55MobileNotesSectionOnlyCleanup) return;
+  window.__rdmV55MobileNotesSectionOnlyCleanup = true;
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs");
+  }
+
+  function setTitleFor(panel, text){
+    if (!panel || !text) return;
+    const title = panel.querySelector(":scope > .panel-title h3");
+    if (title && title.textContent.trim() !== text) title.textContent = text;
+  }
+
+  function normalizeNotesTitles(){
+    if (!isMobileShell()) return;
+    setTitleFor(document.getElementById("teachingNotes")?.closest(".panel"), "Teaching Notes");
+    setTitleFor(document.getElementById("crossRefs")?.closest(".panel"), "Cross References");
+    setTitleFor(document.getElementById("applicationNotes")?.closest(".panel"), "Application & Prayer");
+    setTitleFor(document.getElementById("clipNotes")?.closest(".panel"), "Clip Notes");
+  }
+
+  function sync(){
+    normalizeNotesTitles();
+    try { if (typeof window.rdmV54SyncMobileNotesListMode === "function") window.rdmV54SyncMobileNotesListMode(); } catch (_) {}
+  }
+
+  window.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+    if (event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action='notes']") ||
+        event.target.closest(".side > .panel.rdm-mobile-note-card > .panel-title") ||
+        event.target.closest("[data-rdm-mobile-close]") ||
+        event.target.closest("#closeTeachingPresentation") ||
+        event.target.closest("#closeApplicationPresentation")) {
+      setTimeout(sync, 0);
+      setTimeout(sync, 90);
+    }
+  }, true);
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sync);
+  else sync();
+  setTimeout(sync, 250);
+
+  window.rdmV55SyncMobileNotesSection = sync;
+})();
+</script>
+<script id="rdm-v55-mobile-shell-marker">
+(function rdmV55Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v55-mobile-notes-section-only-cleanup";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v55-mobile-notes-section-only-cleanup";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
+
 </body>
 </html>
