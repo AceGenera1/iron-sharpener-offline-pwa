@@ -6,89 +6,13 @@
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
 <link href="./manifest.json" rel="manifest"/>
-<meta name="theme-color" content="#F4EFE3"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
-<link rel="apple-touch-startup-image" href="./assets/splash/iron-sharpener-launch-clean.png"/>
-<script id="rdm-v83-launch-internal-guard">
-(function(){
-  try {
-    var params = new URLSearchParams(window.location.search || '');
-    var internal = params.get('rdmInternal') === '1' || sessionStorage.getItem('rdmIronSharpenerAppActive') === '1';
-    document.documentElement.classList.add(internal ? 'rdm-v83-internal-nav' : 'rdm-v83-cold-launch');
-    sessionStorage.setItem('rdmIronSharpenerAppActive', '1');
-  } catch (_) {
-    document.documentElement.classList.add('rdm-v83-cold-launch');
-  }
-})();
-</script>
-<style id="rdm-v83-simple-launch-splash-style">
-/* v83: single clean launch splash; no device-specific icon/splash takeover. */
-html.rdm-v83-cold-launch,
-html.rdm-v83-cold-launch body {
-  background: #FFF4DB !important;
-}
-#rdmV83LaunchSplash {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 50% 38%, rgba(255, 218, 137, .42), transparent 34%),
-    linear-gradient(180deg, #FFF8EA 0%, #FFF1D5 100%);
-  color: #203D39;
-  padding: max(22px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
-  text-align: center;
-  transition: opacity .32s ease, visibility .32s ease;
-}
-html.rdm-v83-internal-nav #rdmV83LaunchSplash,
-#rdmV83LaunchSplash.rdm-v83-hide {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-.rdm-v83-splash-card {
-  width: min(92vw, 980px);
-  display: grid;
-  justify-items: center;
-  gap: clamp(14px, 2.2vh, 30px);
-}
-.rdm-v83-splash-logo {
-  width: clamp(220px, 46vw, 520px);
-  height: auto;
-  filter: drop-shadow(0 20px 42px rgba(23,43,41,.28));
-}
-.rdm-v83-splash-ministry {
-  margin-top: clamp(10px, 1.6vh, 22px);
-  font: 800 clamp(15px, 3.2vw, 32px)/1.15 Georgia, 'Times New Roman', serif;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
-.rdm-v83-splash-title {
-  font: 900 clamp(30px, 8.8vw, 76px)/1.02 Georgia, 'Times New Roman', serif;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: #172B29;
-}
-.rdm-v83-splash-line {
-  font: 800 clamp(20px, 5.6vw, 44px)/1.16 Georgia, 'Times New Roman', serif;
-  color: #3D3529;
-}
-.rdm-v83-splash-rule {
-  width: min(58vw, 430px);
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #D7A84F, transparent);
-  opacity: .95;
-}
-@media (max-width: 480px) {
-  .rdm-v83-splash-logo { width: min(70vw, 330px); }
-  .rdm-v83-splash-ministry { letter-spacing: .14em; }
-  .rdm-v83-splash-title { letter-spacing: .03em; }
-}
-</style>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#FFF4DB" media="(prefers-color-scheme: light)"/>
+<!-- v84 native launch screen only: no HTML overlay, no app UI/logo changes. -->
+<link rel="apple-touch-startup-image" href="./assets/splash/iron-sharpener-launch-universal.png"/>
 
 <style id="rdm-v79-first-paint-mobile-stability">
 /* v79 early paint guard: mobile-only visual stability before the later scripts finish loading. */
@@ -2581,38 +2505,6 @@ html.obs #discipleJournalBtn { display: none !important; }
 </style>
 </head>
 <body>
-<div id="rdmV83LaunchSplash" aria-hidden="true">
-  <div class="rdm-v83-splash-card">
-    <img class="rdm-v83-splash-logo" src="./assets/iron-sharpener-logo.png" alt=""/>
-    <div class="rdm-v83-splash-ministry">Restored Daily Ministries</div>
-    <div class="rdm-v83-splash-title">Iron Sharpener</div>
-    <div class="rdm-v83-splash-line">Make disciples. Be discipled.</div>
-    <div class="rdm-v83-splash-rule"></div>
-  </div>
-</div>
-<script id="rdm-v83-launch-splash-release">
-(function(){
-  function hide(){
-    try {
-      var splash = document.getElementById('rdmV83LaunchSplash');
-      if (splash) {
-        splash.classList.add('rdm-v83-hide');
-        setTimeout(function(){ if (splash && splash.parentNode) splash.parentNode.removeChild(splash); }, 420);
-      }
-    } catch (_) {}
-  }
-  try {
-    if (document.documentElement.classList.contains('rdm-v83-internal-nav')) {
-      hide();
-      return;
-    }
-    window.addEventListener('load', function(){ setTimeout(hide, 450); }, { once: true });
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(hide, 1700); }, { once: true });
-    setTimeout(hide, 4200);
-  } catch (_) { setTimeout(hide, 1800); }
-})();
-</script>
-
 <div class="shell">
 <header class="hero">
 <div class="logo-wrap">
@@ -25531,9 +25423,6 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
-
-<script id="rdm-v83-simple-universal-launch-version">
-window.__IRON_SHARPENER_DISCIPLE_MAKER_MOBILE_VERSION = 'v83-simple-universal-launch-splash-final';
-</script>
+<!-- v84 clean native splash: locked v79 app UI preserved; no DOM splash overlay. -->
 </body>
 </html>
