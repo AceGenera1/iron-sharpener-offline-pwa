@@ -23042,5 +23042,390 @@ html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-
 })();
 </script>
 
+
+<!-- Patch 63 — Mobile Tools Stackable Marks Lock -->
+<style id="rdm-v63-mobile-tools-stackable-marks-style">
+/*
+   Patch 63 — Teacher Tools stackable marks
+   Scope: Teacher Tools marking behavior and visual stacking only.
+   Locked areas preserved: v57 Notes, v62 thin footer, mobile shell layout,
+   Scripture loading, cross references, offline ready, OBS, and desktop shell.
+*/
+.verse.rdm-stack-marked {
+  position: relative;
+}
+
+/* When box + circle are both present, keep both visible instead of one flattening the other. */
+.verse.boxed.circled {
+  outline-offset: 7px !important;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,.08),
+    0 0 0 1px rgba(255,255,255,.12) inset !important;
+}
+
+/* Keep whole-verse underline readable when stacked with highlight, box, circle, or focus. */
+.verse.underlined.boxed,
+.verse.underlined.circled,
+.verse.underlined[class*="highlight-"] {
+  text-decoration-skip-ink: none !important;
+}
+
+/* Make tool cards communicate that marks can stack without changing layout. */
+#teacherToolsPanel .tool-option[data-tool="underline"] strong::after,
+#teacherToolsPanel .tool-option[data-tool="circle"] strong::after,
+#teacherToolsPanel .tool-option[data-tool="box"] strong::after,
+#teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after {
+  content: "Stackable";
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(215,168,79,.55);
+  font: 900 10px Arial, sans-serif;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  color: #7A4C06;
+  background: rgba(248,217,135,.20);
+}
+
+body.dark #teacherToolsPanel .tool-option[data-tool="underline"] strong::after,
+body.dark #teacherToolsPanel .tool-option[data-tool="circle"] strong::after,
+body.dark #teacherToolsPanel .tool-option[data-tool="box"] strong::after,
+body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after {
+  color: #ffe08c;
+  background: rgba(248,217,135,.12);
+  border-color: rgba(248,217,135,.58);
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  #teacherToolsPanel .tool-option[data-tool="underline"] strong::after,
+  #teacherToolsPanel .tool-option[data-tool="circle"] strong::after,
+  #teacherToolsPanel .tool-option[data-tool="box"] strong::after,
+  #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+}
+</style>
+<script id="rdm-v63-mobile-tools-stackable-marks-script">
+(function rdmV63MobileToolsStackableMarks(){
+  if (window.__rdmV63MobileToolsStackableMarks) return;
+  window.__rdmV63MobileToolsStackableMarks = true;
+
+  const COLORS = ["gold", "blue", "green", "red", "purple", "amber"];
+  const HIGHLIGHT_CLASSES = ["highlighted", "highlight-gold", "highlight-blue", "highlight-green", "highlight-red", "highlight-purple", "highlight-amber"];
+  const STACK_TOOL_CLASSES = ["underlined", "circled", "boxed", "pointed", "focused"];
+  const STORAGE_KEY = "ironSharpenerUnified.selectedTeachingMarkColor";
+
+  function cleanColor(value) {
+    const text = String(value || "").replace(/^highlight-/, "").trim();
+    return COLORS.includes(text) ? text : "gold";
+  }
+
+  function get(id) { return document.getElementById(id); }
+
+  function getSelectedMarkColor() {
+    return cleanColor(window.__rdmSelectedTeachingMarkColor || localStorage.getItem(STORAGE_KEY) || "gold");
+  }
+
+  function setSelectedMarkColor(color) {
+    const cleaned = cleanColor(color);
+    window.__rdmSelectedTeachingMarkColor = cleaned;
+    try { localStorage.setItem(STORAGE_KEY, cleaned); } catch (_) {}
+    return cleaned;
+  }
+
+  function colorFromHighlightTool(toolName) {
+    const match = String(toolName || "").match(/^highlight-(gold|blue|green|red|purple|amber)$/);
+    return match ? match[1] : "";
+  }
+
+  function markColorClass(toolName, color) {
+    return `rdm-${toolName}-${cleanColor(color)}`;
+  }
+
+  function journalColorClass(toolName, color) {
+    const cleaned = cleanColor(color);
+    return toolName === "box" ? `box-${cleaned}` : `${toolName}-${cleaned}`;
+  }
+
+  function removeColorClassesForTool(element, toolName) {
+    if (!element) return;
+    const rdmPrefix = `rdm-${toolName}-`;
+    const journalPrefix = toolName === "box" ? "box-" : `${toolName}-`;
+    Array.from(element.classList || []).forEach((className) => {
+      if (className.startsWith(rdmPrefix) || (COLORS.includes(className.slice(journalPrefix.length)) && className.startsWith(journalPrefix))) {
+        element.classList.remove(className);
+      }
+    });
+  }
+
+  function removeAllColorAwareMarkClasses(element) {
+    if (!element) return;
+    Array.from(element.classList || []).forEach((className) => {
+      if (/^rdm-(underline|circle|box)-/.test(className) || /^(underline|circle|box|box)-/.test(className)) {
+        if (/^(underline|circle|box)-(gold|blue|green|red|purple|amber)$/.test(className) || /^box-(gold|blue|green|red|purple|amber)$/.test(className) || /^rdm-(underline|circle|box)-(gold|blue|green|red|purple|amber)$/.test(className)) {
+          element.classList.remove(className);
+        }
+      }
+    });
+  }
+
+  function selectionRangeInsideVerse(verse) {
+    if (typeof getSelectionRangeInsideVerse === "function") {
+      return getSelectionRangeInsideVerse(verse);
+    }
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null;
+    const range = selection.getRangeAt(0);
+    if (!verse || !verse.contains(range.commonAncestorContainer)) return null;
+    if (!String(selection.toString() || "").trim()) return null;
+    return range;
+  }
+
+  function wrapSelectedText(verse, className) {
+    const range = selectionRangeInsideVerse(verse);
+    if (!range) return false;
+
+    const span = document.createElement("span");
+    span.className = className;
+
+    try {
+      range.surroundContents(span);
+    } catch (_) {
+      const contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+    }
+
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+    verse.classList.add("rdm-stack-marked");
+    return true;
+  }
+
+  function removeInlineMarks(verse) {
+    if (!verse) return;
+    verse.querySelectorAll(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber").forEach((span) => {
+      const parent = span.parentNode;
+      if (!parent) return;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+      parent.normalize();
+    });
+  }
+
+  function applyWholeVerseHighlight(verse, color) {
+    const highlightClass = `highlight-${cleanColor(color)}`;
+    const alreadySame = verse.classList.contains(highlightClass) || (highlightClass === "highlight-gold" && verse.classList.contains("highlighted"));
+
+    HIGHLIGHT_CLASSES.forEach((className) => verse.classList.remove(className));
+
+    if (!alreadySame) {
+      verse.classList.add(highlightClass, "rdm-stack-marked");
+      if (highlightClass === "highlight-gold") verse.classList.add("highlighted");
+    }
+  }
+
+  function applyWholeVerseStackMark(verse, toolName) {
+    const classMap = { underline: "underlined", circle: "circled", box: "boxed" };
+    const wholeClass = classMap[toolName];
+    if (!wholeClass) return false;
+
+    const color = getSelectedMarkColor();
+    const rdmClass = markColorClass(toolName, color);
+    const journalClass = journalColorClass(toolName, color);
+    const alreadySame = verse.classList.contains(wholeClass) && (verse.classList.contains(rdmClass) || verse.classList.contains(journalClass));
+
+    removeColorClassesForTool(verse, toolName);
+
+    if (alreadySame) {
+      verse.classList.remove(wholeClass);
+    } else {
+      verse.classList.add(wholeClass, rdmClass, journalClass, "rdm-stack-marked");
+    }
+
+    return true;
+  }
+
+  function updateFocusMode() {
+    const box = get("scriptureBox");
+    if (!box) return;
+    if (document.querySelector(".verse.focused")) box.classList.add("focus-mode");
+    else box.classList.remove("focus-mode");
+  }
+
+  function stackableUseActiveTool(verse) {
+    if (!verse) return;
+
+    const tool = String(typeof activeTool !== "undefined" ? activeTool : "highlight-gold");
+
+    if (tool === "copy-verse") {
+      if (typeof copySingleVerse === "function") copySingleVerse(verse);
+      return;
+    }
+
+    if (tool.startsWith("highlight-")) {
+      const color = colorFromHighlightTool(tool) || getSelectedMarkColor();
+      setSelectedMarkColor(color);
+
+      if (wrapSelectedText(verse, `inline-highlight-${cleanColor(color)}`)) {
+        if (typeof saveMarks === "function") saveMarks();
+        return;
+      }
+
+      applyWholeVerseHighlight(verse, color);
+      if (typeof saveMarks === "function") saveMarks();
+      return;
+    }
+
+    if (tool === "underline" || tool === "circle" || tool === "box") {
+      const color = getSelectedMarkColor();
+      const inlineMap = { underline: "inline-underline", circle: "inline-circle", box: "inline-box" };
+      const inlineClass = `${inlineMap[tool]} rdm-inline-mark-${cleanColor(color)} inline-mark-${cleanColor(color)}`;
+
+      if (wrapSelectedText(verse, inlineClass)) {
+        if (typeof saveMarks === "function") saveMarks();
+        return;
+      }
+
+      applyWholeVerseStackMark(verse, tool);
+      if (typeof saveMarks === "function") saveMarks();
+      return;
+    }
+
+    if (tool === "pointer") {
+      document.querySelectorAll(".verse.pointed").forEach((item) => {
+        if (item !== verse) item.classList.remove("pointed");
+      });
+      verse.classList.toggle("pointed");
+      verse.classList.add("rdm-stack-marked");
+      if (typeof saveMarks === "function") saveMarks();
+      return;
+    }
+
+    if (tool === "focus") {
+      verse.classList.toggle("focused");
+      verse.classList.add("rdm-stack-marked");
+      updateFocusMode();
+      if (typeof saveMarks === "function") saveMarks();
+      return;
+    }
+
+    if (tool === "erase") {
+      HIGHLIGHT_CLASSES.concat(STACK_TOOL_CLASSES).forEach((className) => verse.classList.remove(className));
+      verse.classList.remove("rdm-stack-marked");
+      removeAllColorAwareMarkClasses(verse);
+      removeInlineMarks(verse);
+      updateFocusMode();
+      if (typeof saveMarks === "function") saveMarks();
+      return;
+    }
+
+    if (typeof window.__rdmV63PreviousUseActiveTool === "function") {
+      window.__rdmV63PreviousUseActiveTool(verse);
+    }
+  }
+
+  function markExistingStackedVerses() {
+    document.querySelectorAll("#passage .verse[data-v]").forEach((verse) => {
+      const hasStack = HIGHLIGHT_CLASSES.concat(STACK_TOOL_CLASSES).some((className) => verse.classList.contains(className)) ||
+        !!verse.querySelector(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber");
+      verse.classList.toggle("rdm-stack-marked", hasStack);
+    });
+  }
+
+  function refreshToolLabels(toolName) {
+    const tool = toolName || (typeof activeTool !== "undefined" ? activeTool : "highlight-gold");
+    const labels = {
+      "highlight-gold": "Gold Highlight",
+      "highlight-blue": "Blue Highlight",
+      "highlight-green": "Green Highlight",
+      "highlight-red": "Red Highlight",
+      "highlight-purple": "Purple Highlight",
+      "highlight-amber": "Amber Highlight",
+      pointer: "Pointer",
+      underline: `Underline — ${getSelectedMarkColor()[0].toUpperCase()}${getSelectedMarkColor().slice(1)}`,
+      circle: `Circle — ${getSelectedMarkColor()[0].toUpperCase()}${getSelectedMarkColor().slice(1)}`,
+      box: `Box — ${getSelectedMarkColor()[0].toUpperCase()}${getSelectedMarkColor().slice(1)}`,
+      focus: "Focus",
+      erase: "Erase Verse Marks"
+    };
+    const text = labels[tool] || tool;
+    const activeLabel = get("activeToolLabel");
+    const teacherStatus = get("teacherToolsStatusText");
+    const selectionLabel = get("currentSelectionLabel");
+    if (activeLabel) activeLabel.textContent = `Active Tool: ${text}`;
+    if (teacherStatus) teacherStatus.textContent = `Current Selection: ${text}`;
+    if (selectionLabel) selectionLabel.textContent = `Current Selection: ${text}`;
+  }
+
+  const previousUseActiveTool = typeof useActiveTool === "function" ? useActiveTool : null;
+  if (previousUseActiveTool && !window.__rdmV63PreviousUseActiveTool) {
+    window.__rdmV63PreviousUseActiveTool = previousUseActiveTool;
+  }
+
+  try {
+    useActiveTool = function rdmV63UseActiveToolStackable(verse) {
+      return stackableUseActiveTool(verse);
+    };
+  } catch (_) {}
+
+  const previousSetTool = typeof setTool === "function" ? setTool : null;
+  if (previousSetTool && !previousSetTool.__rdmV63Wrapped) {
+    const wrappedSetTool = function rdmV63SetToolStackable(toolName) {
+      const color = colorFromHighlightTool(toolName);
+      if (color) setSelectedMarkColor(color);
+      const result = previousSetTool.apply(this, arguments);
+      refreshToolLabels(toolName);
+      markExistingStackedVerses();
+      return result;
+    };
+    wrappedSetTool.__rdmV63Wrapped = true;
+    try { setTool = wrappedSetTool; } catch (_) {}
+  }
+
+  const previousRestoreMarks = typeof restoreMarks === "function" ? restoreMarks : null;
+  if (previousRestoreMarks && !previousRestoreMarks.__rdmV63Wrapped) {
+    const wrappedRestoreMarks = function rdmV63RestoreMarksStackClass() {
+      const result = previousRestoreMarks.apply(this, arguments);
+      markExistingStackedVerses();
+      return result;
+    };
+    wrappedRestoreMarks.__rdmV63Wrapped = true;
+    try { restoreMarks = wrappedRestoreMarks; } catch (_) {}
+  }
+
+  const previousClearMarks = typeof clearMarks === "function" ? clearMarks : null;
+  if (previousClearMarks && !previousClearMarks.__rdmV63Wrapped) {
+    const wrappedClearMarks = function rdmV63ClearMarksStackClasses() {
+      const result = previousClearMarks.apply(this, arguments);
+      document.querySelectorAll("#passage .verse[data-v]").forEach((verse) => {
+        verse.classList.remove("rdm-stack-marked");
+        removeAllColorAwareMarkClasses(verse);
+      });
+      return result;
+    };
+    wrappedClearMarks.__rdmV63Wrapped = true;
+    try { clearMarks = wrappedClearMarks; } catch (_) {}
+  }
+
+  function start() {
+    markExistingStackedVerses();
+    refreshToolLabels();
+    if (typeof setTool === "function") {
+      try { setTool(typeof activeTool !== "undefined" ? activeTool : "highlight-gold"); } catch (_) {}
+    }
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v63-mobile-tools-stackable-marks";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v63-mobile-tools-stackable-marks";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
+})();
+</script>
+
 </body>
 </html>
