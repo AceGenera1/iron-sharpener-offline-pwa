@@ -6868,7 +6868,6 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
   function openStudyMode() {
     saveCurrentDraftNow();
-    try { sessionStorage.setItem("rdmIronSharpenerInternalNav", "1"); } catch (_) {}
     window.location.href = "./index.html";
   }
 
@@ -10743,26 +10742,6 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
   window.rdmV102JournalScreenFit = stabilizeMobileFit;
   window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v102-journal-mobile-screen-fit-lock-final';
-})();
-</script>
-
-<script id="rdm-v103-journal-internal-navigation-flag-script">
-(function(){
-  if (window.__RDM_V103_JOURNAL_INTERNAL_NAV_FLAG__) return;
-  window.__RDM_V103_JOURNAL_INTERNAL_NAV_FLAG__ = true;
-  function markInternalNav(){
-    try { sessionStorage.setItem("rdmIronSharpenerInternalNav", "1"); } catch (_) {}
-  }
-  window.rdmIronSharpenerMarkInternalNavigation = markInternalNav;
-  document.addEventListener("click", function(event){
-    var target = event.target && event.target.closest ? event.target.closest("a[href], button") : null;
-    if (!target) return;
-    var href = target.getAttribute && target.getAttribute("href");
-    var onclick = target.getAttribute && target.getAttribute("onclick");
-    var text = ((target.textContent || "") + " " + (href || "") + " " + (onclick || "")).toLowerCase();
-    if (text.indexOf("index.html") !== -1 || text.indexOf("disciple maker") !== -1) markInternalNav();
-  }, true);
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_VERSION = "v103-internal-nav-splash-flag-final";
 })();
 </script>
 
