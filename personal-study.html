@@ -10225,10 +10225,12 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
 
 
-<script id="rdm-v96-built-in-crossrefs-close-stays-tools">
-(function rdmV96BuiltInCrossRefsCloseStaysTools(){
-  if (window.__rdmV96BuiltInCrossRefsCloseStaysTools) return;
-  window.__rdmV96BuiltInCrossRefsCloseStaysTools = true;
+<script id="rdm-v97-built-in-crossrefs-stay-open-mark-section">
+(function rdmV97BuiltInCrossRefsStayOpenMarkSection(){
+  if (window.__rdmV97BuiltInCrossRefsStayOpenMarkSection) return;
+  window.__rdmV97BuiltInCrossRefsStayOpenMarkSection = true;
+
+  var crossRefsOrigin = 'tools';
 
   function get(id){ return document.getElementById(id); }
   function isMobileShell(){
@@ -10236,27 +10238,18 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       (window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
   }
 
-  function setMobileScriptureView(){
-    if (!document.body) return;
-    document.body.setAttribute('data-dj-mobile-view', 'scripture');
+  function setActiveNav(action){
     var nav = get('rdmDjMobileNav');
-    if (nav) {
-      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
-        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'scripture');
-      });
-    }
+    if (!nav) return;
+    nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
+      button.classList.toggle('active', button.getAttribute('data-dj-action') === action);
+    });
   }
 
   function setMobileToolsView(){
     if (!document.body) return;
     document.body.setAttribute('data-dj-mobile-view', 'tools');
-
-    var nav = get('rdmDjMobileNav');
-    if (nav) {
-      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
-        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'tools');
-      });
-    }
+    setActiveNav('tools');
 
     var toolsPanel = get('studyToolsPanel');
     if (toolsPanel) {
@@ -10278,6 +10271,37 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       toolsPanel.style.removeProperty('resize');
       toolsPanel.style.removeProperty('overflow');
       toolsPanel.style.zIndex = '2147482100';
+    }
+
+    document.documentElement.classList.add('rdm-dj-v88-panel-open');
+    document.body.classList.add('rdm-dj-v88-panel-open');
+  }
+
+  function setMobileMarkView(){
+    if (!document.body) return;
+    document.body.setAttribute('data-dj-mobile-view', 'mark');
+    setActiveNav('mark');
+
+    var markPanel = get('markToolsPanel');
+    if (markPanel) {
+      markPanel.classList.remove('rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
+      markPanel.classList.add('open');
+      markPanel.setAttribute('aria-hidden', 'false');
+      markPanel.style.display = '';
+      markPanel.style.removeProperty('left');
+      markPanel.style.removeProperty('right');
+      markPanel.style.removeProperty('top');
+      markPanel.style.removeProperty('bottom');
+      markPanel.style.removeProperty('width');
+      markPanel.style.removeProperty('max-width');
+      markPanel.style.removeProperty('min-width');
+      markPanel.style.removeProperty('height');
+      markPanel.style.removeProperty('max-height');
+      markPanel.style.removeProperty('min-height');
+      markPanel.style.removeProperty('transform');
+      markPanel.style.removeProperty('resize');
+      markPanel.style.removeProperty('overflow');
+      markPanel.style.zIndex = '2147482100';
     }
 
     document.documentElement.classList.add('rdm-dj-v88-panel-open');
@@ -10318,42 +10342,141 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     }, 0);
   }
 
-  function closeBuiltInCrossRefs(){
+  function closeBuiltInCrossRefsOnly(){
     closePanelHard(get('internalCrossRefsPanel'));
     closePanelHard(get('rdmDjBuiltInCrossRefScripturePanel'));
     clearPanelLockIfNoneOpen();
   }
 
-  function openReferenceInMainScripture(ref){
+  function normalizeInternalCrossRefsPanel(){
+    var panel = get('internalCrossRefsPanel');
+    if (!panel || !panel.classList.contains('open') || !isMobileShell()) return;
+    panel.classList.add('rdm-dj-v88-full-panel');
+    panel.setAttribute('aria-hidden', 'false');
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    panel.style.position = 'fixed';
+    panel.style.left = '0';
+    panel.style.right = '0';
+    panel.style.top = '0';
+    panel.style.bottom = 'var(--dj-mobile-nav-height, 86px)';
+    panel.style.width = '100vw';
+    panel.style.maxWidth = '100vw';
+    panel.style.minWidth = '0';
+    panel.style.height = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+    panel.style.maxHeight = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
+    panel.style.minHeight = '0';
+    panel.style.transform = 'none';
+    panel.style.resize = 'none';
+    panel.style.overflow = 'hidden';
+    panel.style.zIndex = '2147482200';
+    document.documentElement.classList.add('rdm-dj-v88-panel-open');
+    document.body.classList.add('rdm-dj-v88-panel-open');
+  }
+
+  function pulseNormalize(){
+    [0, 60, 180, 420, 900].forEach(function(delay){
+      setTimeout(normalizeInternalCrossRefsPanel, delay);
+    });
+  }
+
+  function loadReferenceWhileKeepingCrossRefsOpen(ref){
     if (!ref) return;
 
-    closeBuiltInCrossRefs();
-    setMobileScriptureView();
-
-    // Return to the original Journal behavior: a Built-In Cross References click
-    // navigates the main Scripture tool and lets the Scripture Back stack handle return.
+    // Original behavior: the clicked reference loads in the main Scripture tool.
+    // Corrected behavior: the Built-In Cross References panel stays open so the
+    // user can keep tapping references until they intentionally close/switch away.
     if (typeof window.goToScriptureReference === 'function') {
       window.goToScriptureReference(ref);
     }
 
-    setTimeout(function(){
-      setMobileScriptureView();
-      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { window.scrollTo(0, 0); }
-    }, 40);
+    pulseNormalize();
   }
 
+  function insertMarkPanelCrossRefsButton(){
+    if (get('markBuiltInCrossRefsBtn')) return;
+    var basicGrid = document.querySelector('#markToolsPanel .markBasicGrid');
+    if (!basicGrid) return;
+
+    var button = document.createElement('button');
+    button.className = 'studyToolBtn';
+    button.id = 'markBuiltInCrossRefsBtn';
+    button.type = 'button';
+    button.innerHTML = '<strong>Built-In Cross References</strong><small>Trace related Scriptures for the selected passage.</small>';
+    basicGrid.insertBefore(button, basicGrid.firstChild);
+  }
+
+  function installMobilePlacementStyle(){
+    if (get('rdm-v97-crossrefs-placement-style')) return;
+    var style = document.createElement('style');
+    style.id = 'rdm-v97-crossrefs-placement-style';
+    style.textContent = [
+      '@media (max-width: 1180px), (hover: none), (pointer: coarse) {',
+      '  body.rdm-dj-mobile-shell #studyToolsPanel #toolCrossRefs { display: none !important; }',
+      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn { min-height: 74px !important; }',
+      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn strong { display:block; margin-bottom:4px; }',
+      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn small { display:block; font-weight:800; line-height:1.35; opacity:.9; }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  function openCrossRefsFromMark(){
+    crossRefsOrigin = 'mark';
+    var fn = window.openInternalCrossReferences || window.__rdmV94OriginalOpenInternalCrossReferences;
+    if (typeof fn === 'function') {
+      var result = fn.call(window, 'passage');
+      Promise.resolve(result).finally(pulseNormalize);
+      pulseNormalize();
+    }
+  }
+
+  function closeToOrigin(){
+    closeBuiltInCrossRefsOnly();
+    if (!isMobileShell()) return;
+    if (crossRefsOrigin === 'mark') setMobileMarkView();
+    else setMobileToolsView();
+  }
+
+  function install(){
+    insertMarkPanelCrossRefsButton();
+    installMobilePlacementStyle();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
+  else install();
+  setTimeout(install, 250);
+  setTimeout(install, 1000);
+
   document.addEventListener('click', function(event){
-    var closeButton = event.target && event.target.closest ? event.target.closest('#closeInternalCrossRefs') : null;
+    var target = event.target;
+    if (!target || !target.closest) return;
+
+    var markButton = target.closest('#markBuiltInCrossRefsBtn');
+    if (markButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      openCrossRefsFromMark();
+      return;
+    }
+
+    var closeButton = target.closest('#closeInternalCrossRefs');
     if (closeButton) {
       event.preventDefault();
       event.stopPropagation();
       if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-      closeBuiltInCrossRefs();
-      setMobileToolsView();
+      closeToOrigin();
       return;
     }
 
-    var refButton = event.target && event.target.closest ? event.target.closest('#internalCrossRefsPanel .internal-xref-link') : null;
+    var navButton = target.closest('#rdmDjMobileNav button[data-dj-action]');
+    if (navButton && get('internalCrossRefsPanel')?.classList.contains('open')) {
+      closeBuiltInCrossRefsOnly();
+      return;
+    }
+
+    var refButton = target.closest('#internalCrossRefsPanel .internal-xref-link');
     if (!refButton) return;
 
     event.preventDefault();
@@ -10361,23 +10484,20 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     if (event.stopImmediatePropagation) event.stopImmediatePropagation();
 
     var ref = refButton.getAttribute('data-ref') || refButton.textContent || '';
-    openReferenceInMainScripture(ref.trim());
+    loadReferenceWhileKeepingCrossRefsOpen(ref.trim());
   }, true);
 
-  // Make the public close function match the hard mobile close behavior without
-  // disturbing desktop use.
   var originalClose = window.closeInternalCrossReferences;
   window.closeInternalCrossReferences = function(){
     if (isMobileShell()) {
-      closeBuiltInCrossRefs();
-      setMobileToolsView();
+      closeToOrigin();
       return;
     }
     if (typeof originalClose === 'function') return originalClose.apply(this, arguments);
-    closeBuiltInCrossRefs();
+    closeBuiltInCrossRefsOnly();
   };
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v96-built-in-crossrefs-close-stays-tools';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v97-built-in-crossrefs-stay-open-mark-section';
 })();
 </script>
 
