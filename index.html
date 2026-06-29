@@ -22758,6 +22758,129 @@ html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-
 })();
 </script>
 
+
+
+<!-- =========================================================
+     v61 — Mobile footer visible + Offline Ready inline
+     Scope: mobile Scripture footer area only.
+     Purpose: keep the clean no-gap Scripture layout while preventing
+     the Offline Ready badge from covering the footer text.
+     No Notes, Passage, Tools, Scripture loading, cross-reference, OBS,
+     desktop, or offline engine logic is changed.
+     ========================================================= -->
+<style id="rdm-v61-mobile-footer-visible-offline-inline">
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+    display: block !important;
+    margin: 0 !important;
+    padding: 14px 16px calc(var(--rdm-mobile-nav-height, 88px) + 14px) !important;
+    border-top: 2px solid var(--gold) !important;
+    background: linear-gradient(180deg, #fffaf0 0%, #fff1cf 100%) !important;
+    color: #203D39 !important;
+    text-align: center !important;
+    line-height: 1.35 !important;
+    font-size: clamp(18px, 4.6vw, 24px) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer strong {
+    display: block !important;
+    color: #203D39 !important;
+    font-weight: 900 !important;
+    text-shadow: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer .sep {
+    display: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open).dark .footer,
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer.dark {
+    background: linear-gradient(180deg, #203D39 0%, #172B29 100%) !important;
+    color: #fff7df !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open).dark .footer strong,
+  html:not(.obs) body.rdm-mobile-app-shell.dark:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer strong,
+  html:not(.obs) body.dark.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer strong {
+    color: #fff7df !important;
+  }
+
+  /* Once v61 moves the Offline Ready pill into the footer, make it part of
+     the footer flow instead of a fixed overlay. This prevents it from covering
+     the attribution line while keeping the status visible and clickable. */
+  html:not(.obs) body.rdm-mobile-app-shell .footer #rdmPublicOfflinePillV33,
+  html:not(.obs) body.rdm-mobile-app-shell .footer .rdm-offline-status-pill {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: min(330px, 92vw) !important;
+    margin: 12px auto 0 !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 8px 14px !important;
+    font-size: 14px !important;
+    line-height: 1.1 !important;
+    z-index: auto !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.10) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .footer #rdmPublicOfflinePillV33 .rdm-public-offline-dot-v33,
+  html:not(.obs) body.rdm-mobile-app-shell .footer .rdm-offline-status-dot {
+    flex: 0 0 auto !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmPublicOfflinePanelV33,
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
+    bottom: calc(var(--rdm-mobile-nav-height, 88px) + 10px) !important;
+  }
+}
+</style>
+<script id="rdm-v61-mobile-footer-visible-offline-inline">
+(function rdmV61MobileFooterOfflineInline(){
+  if (window.__rdmV61MobileFooterOfflineInline) return;
+  window.__rdmV61MobileFooterOfflineInline = true;
+
+  function isMobileShell(){
+    return !!(document.body && document.body.classList.contains('rdm-mobile-app-shell'));
+  }
+
+  function moveOfflinePillIntoFooter(){
+    var footer = document.querySelector('.footer');
+    var pill = document.getElementById('rdmPublicOfflinePillV33') || document.querySelector('.rdm-offline-status-pill');
+    if (!footer || !pill || !isMobileShell()) return false;
+    if (pill.parentElement !== footer) footer.appendChild(pill);
+    return true;
+  }
+
+  function runSoon(){
+    moveOfflinePillIntoFooter();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runSoon, { once: true });
+  } else {
+    runSoon();
+  }
+
+  /* Limited retries only, because the Offline Ready pill is created by the
+     existing offline module after startup. This is not a MutationObserver and
+     does not run continuously. */
+  [150, 500, 1000, 1800, 3000].forEach(function(ms){
+    window.setTimeout(moveOfflinePillIntoFooter, ms);
+  });
+
+  ['resize', 'orientationchange'].forEach(function(evt){
+    window.addEventListener(evt, function(){ window.setTimeout(moveOfflinePillIntoFooter, 120); }, { passive: true });
+  });
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = 'v61-mobile-footer-visible-offline-inline';
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = 'v61-mobile-footer-visible-offline-inline';
+})();
+</script>
+
 </body>
 </html>
 <!-- Patch 60 — Mobile Footer Gap Hard Cleanup -->
