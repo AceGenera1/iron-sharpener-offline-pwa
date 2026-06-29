@@ -22685,5 +22685,45 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallA
 })();
 </script>
 
+
+
+<!-- Patch 58 — Mobile Scripture Gap Cleanup -->
+<style id="rdm-v58-mobile-scripture-gap-cleanup">
+/*
+   v58 — Mobile Scripture gap cleanup only.
+   Scope: mobile Scripture screen spacing between the Scripture card and footer.
+   Notes section v57 remains locked. Desktop, OBS, Scripture loading, bottom nav,
+   cross-reference behavior, Offline Ready logic, and app panels are untouched.
+*/
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .layout {
+  min-height: 0 !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .scripture {
+  min-height: 0 !important;
+  height: auto !important;
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .nav-row {
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+  margin-top: 0 !important;
+  margin-bottom: calc(var(--rdm-mobile-nav-height, 78px) + 14px) !important;
+}
+</style>
+<script id="rdm-v58-mobile-shell-marker">
+(function rdmV58Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v58-mobile-scripture-gap-cleanup";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v58-mobile-scripture-gap-cleanup";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
+
 </body>
 </html>
