@@ -22725,5 +22725,96 @@ html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-
 })();
 </script>
 
+
+
+<!-- Patch 59 — Mobile Footer Gap Cleanup -->
+<style id="rdm-v59-mobile-footer-gap-cleanup">
+/*
+   v59 — Mobile footer gap cleanup only.
+   Scope: Scripture screen space below the footer.
+   Notes remain locked at v57. Scripture card spacing from v58 remains intact.
+   No changes to Scripture loading, Notes, Passage, Tools, bottom nav, or desktop.
+*/
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .shell {
+  min-height: auto !important;
+  height: auto !important;
+  padding-bottom: calc(var(--rdm-mobile-nav-height, 78px) + 8px) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .layout {
+  margin-bottom: 0 !important;
+}
+</style>
+<script id="rdm-v59-mobile-shell-marker">
+(function rdmV59Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v59-mobile-footer-gap-cleanup";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v59-mobile-footer-gap-cleanup";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
+
 </body>
 </html>
+<!-- Patch 60 — Mobile Footer Gap Hard Cleanup -->
+<style id="rdm-v60-mobile-footer-gap-hard-cleanup">
+/*
+   v60 — Scripture footer gap hard cleanup only.
+   Scope: mobile Scripture screen spacing below the footer.
+   Notes remain locked at v57. No changes to Notes, Passage, Tools,
+   Scripture loading, cross references, OBS, or desktop.
+
+   This patch removes the shell/body bottom reserve that was still leaving
+   a large cream/green blank area between the footer and the fixed bottom nav.
+*/
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) {
+  min-height: auto !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .shell {
+  min-height: 0 !important;
+  height: auto !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .layout {
+  min-height: 0 !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .scripture {
+  margin-bottom: 0 !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .footer {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 14px !important;
+  padding-bottom: 18px !important;
+}
+
+/* Keep Offline Ready available without reserving a large empty area for it. */
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) #rdmPublicOfflinePillV33,
+html:not(.obs) body.rdm-mobile-app-shell:not(.rdm-mobile-passage-open):not(.rdm-mobile-notes-open) .rdm-offline-status-pill {
+  bottom: calc(var(--rdm-mobile-nav-height, 88px) + 8px) !important;
+  right: 10px !important;
+  left: auto !important;
+  max-width: min(205px, calc(100vw - 20px)) !important;
+}
+</style>
+<script id="rdm-v60-mobile-shell-marker">
+(function rdmV60Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v60-mobile-footer-gap-hard-cleanup";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v60-mobile-footer-gap-hard-cleanup";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
