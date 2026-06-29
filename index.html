@@ -23988,7 +23988,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     block.innerHTML = `
       <div class="tool-section-title">Copy Tools</div>
       <div class="rdm-v65-copy-tools">
-        <button id="rdmV65CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage with WEB attribution.</span></button>
+        <button id="rdmV65CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage.</span></button>
         <button id="rdmV65CopyMarkedBtn" class="tool-option" type="button"><strong>Copy Selected / Marked</strong><span>Copy selected words' verse, or marked verses together.</span></button>
       </div>
     `;
@@ -24258,7 +24258,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     const sorted = sortedUniqueVerses(verses);
     const ref = referenceFor(sorted);
     const body = sorted.map(v => `${v.dataset.v} ${getVerseText(v)}`).join("\n");
-    return `${ref} (WEB)\n${body}\n\nWorld English Bible (WEB) — Public Domain`.trim();
+    return `${ref} (WEB)\n${body}`.trim();
   }
 
   function ensureToast() {
@@ -24443,7 +24443,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       <div class="rdm-v66-copy-grid">
         <button id="rdmV66CopySingleBtn" class="tool-option" type="button"><strong>Copy Single Verse</strong><span>Tap this, then tap one verse on the Scripture screen.</span></button>
         <button id="rdmV66CopyMultipleBtn" class="tool-option" type="button"><strong>Copy Multiple Verses</strong><span>Tap this, then tap verses to build and copy a selection.</span></button>
-        <button id="rdmV66CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage with WEB attribution.</span></button>
+        <button id="rdmV66CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage.</span></button>
         <button id="rdmV66ClearCopyBtn" class="tool-option secondary" type="button"><strong>Clear Copy Selection</strong><span>Clear selected copy verses and exit copy mode.</span></button>
       </div>
     `;
@@ -24536,5 +24536,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v67 mobile copy output cleanup: removed trailing WEB public-domain footer from copied verse/passage text. -->
 </body>
 </html>
