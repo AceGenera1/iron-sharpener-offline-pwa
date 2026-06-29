@@ -5,6 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1D2D44" />
 <title>Iron Sharpener: Disciple Journal</title>
+<script id="rdm-v102-journal-fit-early-theme">
+(function rdmV102JournalFitEarlyTheme(){
+  try {
+    var theme = localStorage.getItem('ironSharpenerDiscipleJournal.theme') || 'light';
+    document.documentElement.classList.add('rdm-dj-fit-early');
+    document.documentElement.classList.toggle('rdm-dj-dark', theme === 'dark');
+    document.documentElement.classList.toggle('rdm-dj-light', theme !== 'dark');
+  } catch (_) {
+    document.documentElement.classList.add('rdm-dj-fit-early', 'rdm-dj-light');
+  }
+})();
+</script>
+<style id="rdm-v102-journal-fit-first-paint">
+/* v102 first-paint guard: keep mobile Journal overscroll/blank areas painted in the active theme. */
+html.rdm-dj-fit-early,
+html.rdm-dj-fit-early body {
+  background-color: #F3E6D2;
+}
+html.rdm-dj-fit-early.rdm-dj-dark,
+html.rdm-dj-fit-early.rdm-dj-dark body {
+  background-color: #111A28;
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-fit-early,
+  html.rdm-dj-fit-early body {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+}
+</style>
 <style>
   :root {
     --deep: #1D2D44;
@@ -10555,5 +10587,163 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v101-crossrefs-locked-scripture-clean-final';
 })();
 </script>
+
+<!-- v102 — Journal mobile screen fit lock from Disciple Maker v79 pattern -->
+<style id="rdm-v102-journal-mobile-screen-fit-lock-style">
+/*
+  v102 — Disciple Journal mobile screen-fit lock.
+  Built from locked v101. Mirrors the v79 Disciple Maker screen-fit/stability idea:
+  paint the whole browser viewport in the active theme, stabilize the fixed bottom nav,
+  and reduce blank overscroll/edge gaps without touching Journal/cross-reference behavior.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-screen-fit-lock,
+  html.rdm-dj-screen-fit-lock body {
+    margin: 0 !important;
+    min-height: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: none !important;
+  }
+
+  html.rdm-dj-screen-fit-lock.rdm-dj-light,
+  html.rdm-dj-screen-fit-lock.rdm-dj-light body,
+  html.rdm-dj-screen-fit-lock:not(.rdm-dj-dark),
+  html.rdm-dj-screen-fit-lock:not(.rdm-dj-dark) body {
+    background-color: #F3E6D2 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock.rdm-dj-dark,
+  html.rdm-dj-screen-fit-lock.rdm-dj-dark body {
+    background-color: #111A28 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell:not(.dark) {
+    background:
+      radial-gradient(circle at top left, rgba(220,232,242,.70), transparent 34rem),
+      linear-gradient(180deg, var(--parchment), #F3E6D2 100%) !important;
+    background-color: #F3E6D2 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.dark {
+    background:
+      radial-gradient(circle at top left, rgba(175,199,217,.12), transparent 34rem),
+      linear-gradient(180deg, #111A28, #172233 100%) !important;
+    background-color: #111A28 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell {
+    min-height: var(--rdm-dj-visual-height, 100dvh) !important;
+    scrollbar-gutter: stable both-edges;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell .shell {
+    min-height: auto !important;
+    padding-bottom: calc(var(--dj-mobile-nav-height, 86px) + 2px) !important;
+    background: transparent !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell .layout {
+    padding-bottom: 0 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell .journalFooter {
+    margin-bottom: 0 !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell .rdm-dj-mobile-nav,
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell #rdmDjMobileNav {
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    contain: layout paint !important;
+  }
+
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.rdm-v102-fit-settling .shell,
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.rdm-v102-fit-settling .layout,
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.rdm-v102-fit-settling .journalFooter,
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.rdm-v102-fit-settling #rdmDjMobileNav,
+  html.rdm-dj-screen-fit-lock body.rdm-dj-mobile-shell.rdm-v102-fit-settling #rdmDjMobileNav * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>
+<script id="rdm-v102-journal-mobile-screen-fit-lock-script">
+(function rdmV102JournalMobileScreenFitLock(){
+  if (window.__rdmV102JournalMobileScreenFitLock) return;
+  window.__rdmV102JournalMobileScreenFitLock = true;
+
+  var MOBILE_QUERY = window.matchMedia ? window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)') : null;
+  var THEME_KEY = 'ironSharpenerDiscipleJournal.theme';
+
+  function isMobileLike(){
+    return !MOBILE_QUERY || MOBILE_QUERY.matches;
+  }
+
+  function storedTheme(){
+    try { return localStorage.getItem(THEME_KEY) || 'light'; } catch (_) { return 'light'; }
+  }
+
+  function isDark(){
+    return !!(document.body && document.body.classList.contains('dark')) || storedTheme() === 'dark';
+  }
+
+  function syncThemeSurface(){
+    var dark = isDark();
+    var html = document.documentElement;
+    html.classList.add('rdm-dj-screen-fit-lock');
+    html.classList.toggle('rdm-dj-dark', dark);
+    html.classList.toggle('rdm-dj-light', !dark);
+    html.style.backgroundColor = dark ? '#111A28' : '#F3E6D2';
+    if (document.body) document.body.style.backgroundColor = dark ? '#111A28' : '#F3E6D2';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#111A28' : '#1D2D44');
+  }
+
+  function setViewportHeight(){
+    if (!isMobileLike()) return;
+    var height = 0;
+    if (window.visualViewport && window.visualViewport.height) height = window.visualViewport.height;
+    if (!height && window.innerHeight) height = window.innerHeight;
+    if (!height) height = document.documentElement.clientHeight || 0;
+    if (height) document.documentElement.style.setProperty('--rdm-dj-visual-height', Math.round(height) + 'px');
+  }
+
+  function stabilizeMobileFit(){
+    syncThemeSurface();
+    setViewportHeight();
+    if (!isMobileLike() || !document.body || !document.body.classList.contains('rdm-dj-mobile-shell')) return;
+    document.body.classList.add('rdm-v102-fit-settling');
+    var nav = document.getElementById('rdmDjMobileNav');
+    if (nav) {
+      nav.style.setProperty('transform', 'translateZ(0)', 'important');
+      nav.style.setProperty('contain', 'layout paint', 'important');
+    }
+    setTimeout(function(){ if (document.body) document.body.classList.remove('rdm-v102-fit-settling'); }, 520);
+  }
+
+  function pulseFit(){
+    [0, 80, 260, 620].forEach(function(delay){ setTimeout(stabilizeMobileFit, delay); });
+  }
+
+  document.addEventListener('click', function(event){
+    var themeBtn = event.target && event.target.closest ? event.target.closest('#themeBtn') : null;
+    var navBtn = event.target && event.target.closest ? event.target.closest('#rdmDjMobileNav button[data-dj-action]') : null;
+    if (themeBtn || navBtn) pulseFit();
+  }, true);
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseFit, { once: true });
+  else pulseFit();
+
+  window.addEventListener('pageshow', pulseFit);
+  window.addEventListener('resize', function(){ setTimeout(stabilizeMobileFit, 80); }, { passive: true });
+  window.addEventListener('orientationchange', function(){ setTimeout(pulseFit, 220); }, { passive: true });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', function(){ setTimeout(setViewportHeight, 60); }, { passive: true });
+
+  window.rdmV102JournalScreenFit = stabilizeMobileFit;
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v102-journal-mobile-screen-fit-lock-final';
+})();
+</script>
+
 </body>
 </html>
