@@ -25256,5 +25256,180 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v78 — Mobile return panel stability polish -->
+<style id="rdm-v78-mobile-return-panel-stability-style">
+/*
+   v78 — Mobile return panel stability polish.
+   Scope: Disciple Maker mobile/tablet shell only.
+   Purpose: stop Tools/panel buttons from visually shrinking/expanding when returning from Disciple Journal.
+   Desktop, OBS, Scripture navigation, Journal v101, copy, resources, marks, and notes logic are untouched.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    contain: layout paint !important;
+    transform: translateZ(0);
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    box-sizing: border-box !important;
+    flex: 1 1 0 !important;
+    align-self: stretch !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open {
+    box-sizing: border-box !important;
+    contain: layout paint !important;
+    overscroll-behavior: contain !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid,
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open .tool-grid.three,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-options,
+  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open .tool-options,
+  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open .tool-options,
+  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open .tool-options {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell #obsCrossRefsPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell #obsNavigatorPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell #teachingMethodPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button,
+  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel.open button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
+    align-self: stretch !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav *,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #teacherToolsPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #teacherToolsPanel.open *,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #studyResourcesPanel.open,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #studyResourcesPanel.open *,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing .resource-instance-panel.open,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing .resource-instance-panel.open * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v78-return-stabilizing #rdmMobileAppNav button:active {
+    transform: none !important;
+  }
+}
+</style>
+<script id="rdm-v78-mobile-return-panel-stability-script">
+(function rdmV78MobileReturnPanelStability(){
+  if (window.__rdmV78MobileReturnPanelStability) return;
+  window.__rdmV78MobileReturnPanelStability = true;
+
+  const MOBILE_QUERY = window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)");
+  const get = (id) => document.getElementById(id);
+  let releaseTimer = null;
+
+  function isMobileShell(){
+    return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs") && (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function normalizePanelSizing(){
+    if (!isMobileShell()) return;
+
+    const nav = get("rdmMobileAppNav");
+    if (nav) {
+      nav.style.setProperty("grid-template-columns", "repeat(5, minmax(0, 1fr))", "important");
+      nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
+        btn.style.setProperty("height", "60px", "important");
+        btn.style.setProperty("min-height", "60px", "important");
+        btn.style.setProperty("max-height", "60px", "important");
+        btn.style.setProperty("min-width", "0", "important");
+      });
+    }
+
+    document.querySelectorAll("#teacherToolsPanel.open, #studyResourcesPanel.open, #obsCrossRefsPanel.open, #obsNavigatorPanel.open, #teachingMethodPanel.open, #ironPromptPanel.open, .resource-instance-panel.open").forEach(function(panel){
+      panel.classList.add("rdm-v78-panel-stable");
+      panel.style.removeProperty("transform");
+      panel.style.removeProperty("left");
+      panel.style.removeProperty("right");
+      panel.style.removeProperty("top");
+      panel.style.removeProperty("bottom");
+      panel.querySelectorAll("button").forEach(function(btn){
+        btn.style.setProperty("min-height", "48px", "important");
+        btn.style.setProperty("width", "100%", "important");
+      });
+    });
+  }
+
+  function stabilizeReturn(){
+    if (!isMobileShell()) return;
+    document.body.classList.add("rdm-v78-return-stabilizing");
+    normalizePanelSizing();
+    requestAnimationFrame(normalizePanelSizing);
+    setTimeout(normalizePanelSizing, 120);
+    setTimeout(normalizePanelSizing, 360);
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(function(){
+      if (document.body) document.body.classList.remove("rdm-v78-return-stabilizing");
+      normalizePanelSizing();
+    }, 620);
+  }
+
+  function markLeavingForJournal(event){
+    const target = event.target && event.target.closest ? event.target.closest('#discipleJournalBtn, #rdmMobileAppNav button[data-rdm-mobile-action="journal"]') : null;
+    if (!target) return;
+    try { sessionStorage.setItem("rdmV78ReturningFromJournal", "1"); } catch (_) {}
+  }
+
+  function handlePageShow(event){
+    let returning = false;
+    try {
+      returning = sessionStorage.getItem("rdmV78ReturningFromJournal") === "1";
+      if (returning) sessionStorage.removeItem("rdmV78ReturningFromJournal");
+    } catch (_) {}
+    if (event && event.persisted) returning = true;
+    if (returning || isMobileShell()) stabilizeReturn();
+  }
+
+  function start(){
+    if (!isMobileShell()) return;
+    normalizePanelSizing();
+  }
+
+  document.addEventListener("click", markLeavingForJournal, true);
+  window.addEventListener("pageshow", handlePageShow);
+  window.addEventListener("focus", function(){ if (isMobileShell()) stabilizeReturn(); });
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") stabilizeReturn(); });
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.rdmV78StabilizeMobileReturnPanels = stabilizeReturn;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v78-mobile-return-panel-stability-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v78-mobile-return-panel-stability-final";
+})();
+</script>
+
 </body>
 </html>
