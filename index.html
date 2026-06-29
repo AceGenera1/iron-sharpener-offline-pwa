@@ -24749,5 +24749,168 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v69 — Mobile Scripture navigator tighten: remove refresh, move previous into navigator -->
+<style id="rdm-v69-mobile-scripture-navigator-tight-style">
+/*
+   v69 — Disciple Maker mobile Scripture navigator polish
+   Scope: mobile/tablet app shell only. Desktop and OBS are untouched.
+   Keeps the v68 inline Scripture navigator, removes the unneeded Refresh Passage
+   button from mobile, and places the Previous/back passage button in that spot
+   with a slimmer, cleaner style.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #loadBtn {
+    display: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #prevBtn.rdm-v69-inline-prev {
+    display: inline-flex !important;
+    grid-column: 1 / -1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    margin: 2px 0 0 !important;
+    padding: 8px 12px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+    letter-spacing: .025em !important;
+    background: rgba(255,248,234,.72) !important;
+    color: #6f4327 !important;
+    border: 1px solid rgba(111,67,39,.30) !important;
+    box-shadow: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .controls.rdm-v68-inline-scripture-controls > #prevBtn.rdm-v69-inline-prev {
+    background: rgba(255,255,255,.08) !important;
+    color: #f8d987 !important;
+    border-color: rgba(248,217,135,.36) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture .nav-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 18px 0 8px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture .nav-row #nextBtn {
+    width: 100% !important;
+    min-height: 46px !important;
+    padding: 10px 13px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+}
+</style>
+<script id="rdm-v69-mobile-scripture-navigator-tight-script">
+(function rdmV69MobileScriptureNavigatorTight(){
+  if (window.__rdmV69MobileScriptureNavigatorTight) return;
+  window.__rdmV69MobileScriptureNavigatorTight = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+  let prevPlaceholder = null;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function ensurePrevPlaceholder(prev){
+    if (prevPlaceholder || !prev || !prev.parentNode) return;
+    prevPlaceholder = document.createComment("rdm-v69-original-prev-position");
+    prev.parentNode.insertBefore(prevPlaceholder, prev);
+  }
+
+  function restorePreviousButton(prev){
+    if (!prev) return;
+    prev.classList.remove("rdm-v69-inline-prev");
+    prev.removeAttribute("aria-label");
+    if (prev.dataset.rdmV69OriginalText) prev.textContent = prev.dataset.rdmV69OriginalText;
+    const navRow = document.querySelector("#scriptureBox .nav-row");
+    const nextBtn = get("nextBtn");
+    if (prevPlaceholder && prevPlaceholder.parentNode) {
+      prevPlaceholder.parentNode.insertBefore(prev, prevPlaceholder.nextSibling);
+    } else if (navRow && prev.parentElement !== navRow) {
+      navRow.insertBefore(prev, nextBtn || navRow.firstChild);
+    }
+  }
+
+  function syncTightNavigator(){
+    const controls = document.querySelector(".scripture > .controls.rdm-v68-inline-scripture-controls");
+    const prev = get("prevBtn");
+    const load = get("loadBtn");
+    if (!prev) return;
+
+    ensurePrevPlaceholder(prev);
+
+    if (!isMobileShell() || !controls) {
+      if (load) {
+        load.removeAttribute("aria-hidden");
+        load.removeAttribute("tabindex");
+      }
+      restorePreviousButton(prev);
+      return;
+    }
+
+    if (load) {
+      load.setAttribute("aria-hidden", "true");
+      load.tabIndex = -1;
+    }
+
+    if (!prev.dataset.rdmV69OriginalText) prev.dataset.rdmV69OriginalText = prev.textContent.trim() || "‹ Previous";
+    prev.textContent = "← Previous Passage";
+    prev.setAttribute("aria-label", "Previous passage");
+    prev.classList.add("rdm-v69-inline-prev");
+
+    if (prev.parentElement !== controls) {
+      if (load && load.parentElement === controls) controls.insertBefore(prev, load.nextSibling);
+      else controls.appendChild(prev);
+    }
+  }
+
+  function start(){
+    if (typeof window.rdmV68SyncMobileInlineScriptureNavigator === "function") {
+      try { window.rdmV68SyncMobileInlineScriptureNavigator(); } catch (_) {}
+    }
+    syncTightNavigator();
+    setTimeout(syncTightNavigator, 80);
+    setTimeout(syncTightNavigator, 240);
+    setTimeout(syncTightNavigator, 700);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  document.addEventListener("click", function(event){
+    if (event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close]")) {
+      setTimeout(start, 0);
+      setTimeout(syncTightNavigator, 160);
+    }
+  }, true);
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(start, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", start);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(start);
+  }
+
+  window.rdmV69SyncMobileScriptureNavigatorTight = syncTightNavigator;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v69-mobile-scripture-navigator-tight-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v69-mobile-scripture-navigator-tight-final";
+})();
+</script>
+
 </body>
 </html>
