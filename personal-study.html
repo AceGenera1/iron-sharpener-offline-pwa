@@ -10406,5 +10406,73 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 })();
 </script>
 
+
+
+<script id="rdm-v99-crossrefs-close-on-bottom-nav-final">
+(function rdmV99CrossRefsCloseOnBottomNavFinal(){
+  if (window.__rdmV99CrossRefsCloseOnBottomNavFinal) return;
+  window.__rdmV99CrossRefsCloseOnBottomNavFinal = true;
+
+  function get(id){ return document.getElementById(id); }
+  function isMobileShell(){
+    return !!(document.body && document.body.classList.contains('rdm-dj-mobile-shell')) ||
+      (window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+  }
+
+  function hardClosePanel(panel){
+    if (!panel) return;
+    panel.classList.remove('open', 'rdm-dj-v88-full-panel', 'rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.style.display = 'none';
+    panel.style.removeProperty('left');
+    panel.style.removeProperty('right');
+    panel.style.removeProperty('top');
+    panel.style.removeProperty('bottom');
+    panel.style.removeProperty('width');
+    panel.style.removeProperty('max-width');
+    panel.style.removeProperty('min-width');
+    panel.style.removeProperty('height');
+    panel.style.removeProperty('max-height');
+    panel.style.removeProperty('min-height');
+    panel.style.removeProperty('transform');
+    panel.style.removeProperty('resize');
+    panel.style.removeProperty('overflow');
+    panel.style.removeProperty('z-index');
+    panel.style.removeProperty('flex-direction');
+    panel.style.removeProperty('position');
+  }
+
+  function closeBuiltInCrossRefsForNavigation(){
+    var panel = get('internalCrossRefsPanel');
+    if (!panel || !panel.classList.contains('open')) return;
+
+    hardClosePanel(panel);
+    hardClosePanel(get('rdmDjBuiltInCrossRefScripturePanel'));
+
+    // Let the bottom nav's own handler open Scripture, Journal, History, Mark, or Tools.
+    // After that handler runs, release the cross-reference-only page lock if nothing else is open.
+    setTimeout(function(){
+      var stillOpen = document.querySelector(
+        '#studyToolsPanel.open, #markToolsPanel.open, #resourceFloatPanel.open, #internalCrossRefsPanel.open, .resource-instance-panel.open, .backgrounds-resource-panel.open, .background-topic-panel.open, #journalReaderPanel.open'
+      );
+      if (!stillOpen && document.body) {
+        document.documentElement.classList.remove('rdm-dj-v88-panel-open', 'rdm-dj-panel-scroll-locked');
+        document.body.classList.remove('rdm-dj-v88-panel-open', 'rdm-dj-mobile-panel-locked');
+      }
+    }, 80);
+  }
+
+  document.addEventListener('click', function(event){
+    if (!isMobileShell()) return;
+    var navButton = event.target && event.target.closest ? event.target.closest('#rdmDjMobileNav button[data-dj-action]') : null;
+    if (!navButton) return;
+
+    // Do not block the existing mobile nav. Only make sure Built-In Cross References closes first.
+    closeBuiltInCrossRefsForNavigation();
+  }, true);
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v99-crossrefs-close-on-bottom-nav-final';
+})();
+</script>
 </body>
 </html>
