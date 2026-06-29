@@ -10225,12 +10225,10 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
 
 
-<script id="rdm-v97-built-in-crossrefs-stay-open-mark-section">
-(function rdmV97BuiltInCrossRefsStayOpenMarkSection(){
-  if (window.__rdmV97BuiltInCrossRefsStayOpenMarkSection) return;
-  window.__rdmV97BuiltInCrossRefsStayOpenMarkSection = true;
-
-  var crossRefsOrigin = 'tools';
+<script id="rdm-v98-built-in-crossrefs-tools-stay-open-final">
+(function rdmV98BuiltInCrossRefsToolsStayOpenFinal(){
+  if (window.__rdmV98BuiltInCrossRefsToolsStayOpenFinal) return;
+  window.__rdmV98BuiltInCrossRefsToolsStayOpenFinal = true;
 
   function get(id){ return document.getElementById(id); }
   function isMobileShell(){
@@ -10238,18 +10236,16 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       (window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
   }
 
-  function setActiveNav(action){
-    var nav = get('rdmDjMobileNav');
-    if (!nav) return;
-    nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
-      button.classList.toggle('active', button.getAttribute('data-dj-action') === action);
-    });
-  }
-
   function setMobileToolsView(){
     if (!document.body) return;
     document.body.setAttribute('data-dj-mobile-view', 'tools');
-    setActiveNav('tools');
+
+    var nav = get('rdmDjMobileNav');
+    if (nav) {
+      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
+        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'tools');
+      });
+    }
 
     var toolsPanel = get('studyToolsPanel');
     if (toolsPanel) {
@@ -10271,37 +10267,6 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       toolsPanel.style.removeProperty('resize');
       toolsPanel.style.removeProperty('overflow');
       toolsPanel.style.zIndex = '2147482100';
-    }
-
-    document.documentElement.classList.add('rdm-dj-v88-panel-open');
-    document.body.classList.add('rdm-dj-v88-panel-open');
-  }
-
-  function setMobileMarkView(){
-    if (!document.body) return;
-    document.body.setAttribute('data-dj-mobile-view', 'mark');
-    setActiveNav('mark');
-
-    var markPanel = get('markToolsPanel');
-    if (markPanel) {
-      markPanel.classList.remove('rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
-      markPanel.classList.add('open');
-      markPanel.setAttribute('aria-hidden', 'false');
-      markPanel.style.display = '';
-      markPanel.style.removeProperty('left');
-      markPanel.style.removeProperty('right');
-      markPanel.style.removeProperty('top');
-      markPanel.style.removeProperty('bottom');
-      markPanel.style.removeProperty('width');
-      markPanel.style.removeProperty('max-width');
-      markPanel.style.removeProperty('min-width');
-      markPanel.style.removeProperty('height');
-      markPanel.style.removeProperty('max-height');
-      markPanel.style.removeProperty('min-height');
-      markPanel.style.removeProperty('transform');
-      markPanel.style.removeProperty('resize');
-      markPanel.style.removeProperty('overflow');
-      markPanel.style.zIndex = '2147482100';
     }
 
     document.documentElement.classList.add('rdm-dj-v88-panel-open');
@@ -10348,10 +10313,12 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     clearPanelLockIfNoneOpen();
   }
 
-  function normalizeInternalCrossRefsPanel(){
+  function keepBuiltInCrossRefsOpen(){
     var panel = get('internalCrossRefsPanel');
-    if (!panel || !panel.classList.contains('open') || !isMobileShell()) return;
-    panel.classList.add('rdm-dj-v88-full-panel');
+    if (!panel || !isMobileShell()) return;
+
+    panel.classList.add('open', 'rdm-dj-v88-full-panel');
+    panel.classList.remove('rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
     panel.setAttribute('aria-hidden', 'false');
     panel.style.display = 'flex';
     panel.style.flexDirection = 'column';
@@ -10370,113 +10337,49 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     panel.style.resize = 'none';
     panel.style.overflow = 'hidden';
     panel.style.zIndex = '2147482200';
+
+    if (document.body) {
+      document.body.setAttribute('data-dj-mobile-view', 'tools');
+      document.body.classList.add('rdm-dj-v88-panel-open');
+    }
     document.documentElement.classList.add('rdm-dj-v88-panel-open');
-    document.body.classList.add('rdm-dj-v88-panel-open');
+
+    var nav = get('rdmDjMobileNav');
+    if (nav) {
+      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
+        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'tools');
+      });
+    }
   }
 
-  function pulseNormalize(){
-    [0, 60, 180, 420, 900].forEach(function(delay){
-      setTimeout(normalizeInternalCrossRefsPanel, delay);
-    });
+  function pulseKeepOpen(){
+    [0, 40, 120, 260].forEach(function(delay){ setTimeout(keepBuiltInCrossRefsOpen, delay); });
   }
 
-  function loadReferenceWhileKeepingCrossRefsOpen(ref){
+  function openReferenceInMainScriptureAndKeepPanel(ref){
     if (!ref) return;
 
-    // Original behavior: the clicked reference loads in the main Scripture tool.
-    // Corrected behavior: the Built-In Cross References panel stays open so the
-    // user can keep tapping references until they intentionally close/switch away.
+    // Keep the original Journal behavior: the reference changes the main Scripture tool.
+    // Do not close the Built-In Cross References panel, and do not create separate Scripture panels.
     if (typeof window.goToScriptureReference === 'function') {
       window.goToScriptureReference(ref);
     }
 
-    pulseNormalize();
+    pulseKeepOpen();
   }
-
-  function insertMarkPanelCrossRefsButton(){
-    if (get('markBuiltInCrossRefsBtn')) return;
-    var basicGrid = document.querySelector('#markToolsPanel .markBasicGrid');
-    if (!basicGrid) return;
-
-    var button = document.createElement('button');
-    button.className = 'studyToolBtn';
-    button.id = 'markBuiltInCrossRefsBtn';
-    button.type = 'button';
-    button.innerHTML = '<strong>Built-In Cross References</strong><small>Trace related Scriptures for the selected passage.</small>';
-    basicGrid.insertBefore(button, basicGrid.firstChild);
-  }
-
-  function installMobilePlacementStyle(){
-    if (get('rdm-v97-crossrefs-placement-style')) return;
-    var style = document.createElement('style');
-    style.id = 'rdm-v97-crossrefs-placement-style';
-    style.textContent = [
-      '@media (max-width: 1180px), (hover: none), (pointer: coarse) {',
-      '  body.rdm-dj-mobile-shell #studyToolsPanel #toolCrossRefs { display: none !important; }',
-      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn { min-height: 74px !important; }',
-      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn strong { display:block; margin-bottom:4px; }',
-      '  body.rdm-dj-mobile-shell #markBuiltInCrossRefsBtn small { display:block; font-weight:800; line-height:1.35; opacity:.9; }',
-      '}'
-    ].join('\n');
-    document.head.appendChild(style);
-  }
-
-  function openCrossRefsFromMark(){
-    crossRefsOrigin = 'mark';
-    var fn = window.openInternalCrossReferences || window.__rdmV94OriginalOpenInternalCrossReferences;
-    if (typeof fn === 'function') {
-      var result = fn.call(window, 'passage');
-      Promise.resolve(result).finally(pulseNormalize);
-      pulseNormalize();
-    }
-  }
-
-  function closeToOrigin(){
-    closeBuiltInCrossRefsOnly();
-    if (!isMobileShell()) return;
-    if (crossRefsOrigin === 'mark') setMobileMarkView();
-    else setMobileToolsView();
-  }
-
-  function install(){
-    insertMarkPanelCrossRefsButton();
-    installMobilePlacementStyle();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
-  else install();
-  setTimeout(install, 250);
-  setTimeout(install, 1000);
 
   document.addEventListener('click', function(event){
-    var target = event.target;
-    if (!target || !target.closest) return;
-
-    var markButton = target.closest('#markBuiltInCrossRefsBtn');
-    if (markButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-      openCrossRefsFromMark();
-      return;
-    }
-
-    var closeButton = target.closest('#closeInternalCrossRefs');
+    var closeButton = event.target && event.target.closest ? event.target.closest('#closeInternalCrossRefs') : null;
     if (closeButton) {
       event.preventDefault();
       event.stopPropagation();
       if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-      closeToOrigin();
-      return;
-    }
-
-    var navButton = target.closest('#rdmDjMobileNav button[data-dj-action]');
-    if (navButton && get('internalCrossRefsPanel')?.classList.contains('open')) {
       closeBuiltInCrossRefsOnly();
+      setMobileToolsView();
       return;
     }
 
-    var refButton = target.closest('#internalCrossRefsPanel .internal-xref-link');
+    var refButton = event.target && event.target.closest ? event.target.closest('#internalCrossRefsPanel .internal-xref-link') : null;
     if (!refButton) return;
 
     event.preventDefault();
@@ -10484,20 +10387,22 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     if (event.stopImmediatePropagation) event.stopImmediatePropagation();
 
     var ref = refButton.getAttribute('data-ref') || refButton.textContent || '';
-    loadReferenceWhileKeepingCrossRefsOpen(ref.trim());
+    openReferenceInMainScriptureAndKeepPanel(ref.trim());
   }, true);
 
+  // Keep the public close function hard-closing the xref panel on mobile, then returning to Tools.
   var originalClose = window.closeInternalCrossReferences;
   window.closeInternalCrossReferences = function(){
     if (isMobileShell()) {
-      closeToOrigin();
+      closeBuiltInCrossRefsOnly();
+      setMobileToolsView();
       return;
     }
     if (typeof originalClose === 'function') return originalClose.apply(this, arguments);
     closeBuiltInCrossRefsOnly();
   };
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v97-built-in-crossrefs-stay-open-mark-section';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v98-built-in-crossrefs-tools-stay-open-final';
 })();
 </script>
 
