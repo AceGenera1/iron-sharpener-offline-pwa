@@ -22281,5 +22281,187 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallA
 })();
 </script>
 
+
+
+<!-- Patch 56 — Mobile Notes Box Tighten Only -->
+<style id="rdm-v56-mobile-notes-tighten-only">
+/*
+   v56 — Notes boxes only.
+   Purpose: tighten the mobile Notes chooser/editor boxes without touching
+   Scripture, Passage, Tools, bottom nav, header, offline, OBS, or desktop.
+*/
+html:not(.obs) body.rdm-mobile-app-shell {
+  --rdm-v56-notes-x: clamp(18px, 4.3vw, 26px);
+  --rdm-v56-notes-gap: clamp(11px, 2.8vw, 15px);
+  --rdm-v56-open-col: clamp(92px, 24vw, 108px);
+  --rdm-v56-card-h: clamp(108px, 12.6dvh, 122px);
+  --rdm-v56-title-size: clamp(23px, 5.6vw, 29px);
+}
+
+/* Notes page spacing: compact, readable, and contained. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side {
+  gap: var(--rdm-v56-notes-gap) !important;
+  padding-left: var(--rdm-v56-notes-x) !important;
+  padding-right: var(--rdm-v56-notes-x) !important;
+  padding-bottom: calc(var(--rdm-mobile-nav-height, 86px) + 14px) !important;
+  overflow-x: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .rdm-mobile-sheet-head {
+  margin-left: calc(-1 * var(--rdm-v56-notes-x)) !important;
+  margin-right: calc(-1 * var(--rdm-v56-notes-x)) !important;
+  margin-bottom: clamp(12px, 3vw, 16px) !important;
+}
+
+/* Closed chooser cards: shorter, but tall enough for two-line labels. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) {
+  height: var(--rdm-v56-card-h) !important;
+  min-height: var(--rdm-v56-card-h) !important;
+  max-height: var(--rdm-v56-card-h) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > .panel-title {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) var(--rdm-v56-open-col) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  column-gap: clamp(8px, 2vw, 12px) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: clamp(13px, 3.3vw, 17px) clamp(15px, 3.8vw, 20px) !important;
+  margin: 0 !important;
+  border-bottom: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card > .panel-title h3 {
+  display: block !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: var(--rdm-v56-title-size) !important;
+  line-height: 1.02 !important;
+  letter-spacing: .85px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+  text-transform: uppercase !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card:not(.rdm-mobile-note-open) > .panel-title::after {
+  width: var(--rdm-v56-open-col) !important;
+  min-width: var(--rdm-v56-open-col) !important;
+  max-width: var(--rdm-v56-open-col) !important;
+  min-height: clamp(50px, 6.4dvh, 58px) !important;
+  padding: 7px 9px !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  font-size: clamp(15px, 3.9vw, 17px) !important;
+  line-height: 1 !important;
+}
+
+/* Open editor cards: pull everything closer together and keep the edit box from becoming oversized. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open {
+  padding-bottom: 14px !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) var(--rdm-v56-open-col) !important;
+  align-items: center !important;
+  min-height: clamp(92px, 11.5dvh, 108px) !important;
+  height: auto !important;
+  padding: clamp(15px, 3.8vw, 19px) clamp(16px, 4vw, 20px) !important;
+  border-bottom: 2px solid var(--gold) !important;
+  overflow: hidden !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .panel-title::after {
+  width: var(--rdm-v56-open-col) !important;
+  min-width: var(--rdm-v56-open-col) !important;
+  max-width: var(--rdm-v56-open-col) !important;
+  min-height: clamp(50px, 6.4dvh, 58px) !important;
+  font-size: clamp(15px, 3.9vw, 17px) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > textarea {
+  display: block !important;
+  width: calc(100% - 32px) !important;
+  min-height: min(34dvh, 290px) !important;
+  max-height: min(40dvh, 340px) !important;
+  margin: 14px 16px 12px !important;
+  padding: 15px !important;
+  border-radius: 16px !important;
+  box-sizing: border-box !important;
+  font-size: clamp(17px, 4.5vw, 20px) !important;
+  line-height: 1.42 !important;
+  overflow-y: auto !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .cross-ref-links,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .teaching-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .application-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > .notes-save-status,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open > #backToPreviousPassage {
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .teaching-note-actions,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side > .panel.rdm-mobile-note-card.rdm-mobile-note-open .application-note-actions {
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showApplicationNote {
+  min-height: 52px !important;
+  height: auto !important;
+  padding: 11px 14px !important;
+  border-radius: 16px !important;
+  font-size: clamp(15px, 4.1vw, 18px) !important;
+  line-height: 1.15 !important;
+}
+
+/* Keep the editor box clean; presentation cards already have their own hide buttons. */
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #hideApplicationNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallTeachingNote,
+html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-notes-open .side #showSmallApplicationNote {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 390px) {
+  html:not(.obs) body.rdm-mobile-app-shell {
+    --rdm-v56-notes-x: 16px;
+    --rdm-v56-open-col: 88px;
+    --rdm-v56-card-h: 106px;
+    --rdm-v56-title-size: clamp(21px, 5.35vw, 25px);
+  }
+}
+</style>
+<script id="rdm-v56-mobile-shell-marker">
+(function rdmV56Marker(){
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v56-mobile-notes-tighten-only";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v56-mobile-notes-tighten-only";
+  window.__IRON_SHARPENER_RECOVERY_BASELINE = "v48-mobile-notes-scripture-fit";
+})();
+</script>
+
 </body>
 </html>
