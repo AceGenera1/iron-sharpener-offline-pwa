@@ -10225,10 +10225,10 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 
 
 
-<script id="rdm-v95-built-in-crossrefs-original-behavior-final">
-(function rdmV95BuiltInCrossRefsOriginalBehaviorFinal(){
-  if (window.__rdmV95BuiltInCrossRefsOriginalBehaviorFinal) return;
-  window.__rdmV95BuiltInCrossRefsOriginalBehaviorFinal = true;
+<script id="rdm-v96-built-in-crossrefs-close-stays-tools">
+(function rdmV96BuiltInCrossRefsCloseStaysTools(){
+  if (window.__rdmV96BuiltInCrossRefsCloseStaysTools) return;
+  window.__rdmV96BuiltInCrossRefsCloseStaysTools = true;
 
   function get(id){ return document.getElementById(id); }
   function isMobileShell(){
@@ -10245,6 +10245,43 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
         button.classList.toggle('active', button.getAttribute('data-dj-action') === 'scripture');
       });
     }
+  }
+
+  function setMobileToolsView(){
+    if (!document.body) return;
+    document.body.setAttribute('data-dj-mobile-view', 'tools');
+
+    var nav = get('rdmDjMobileNav');
+    if (nav) {
+      nav.querySelectorAll('button[data-dj-action]').forEach(function(button){
+        button.classList.toggle('active', button.getAttribute('data-dj-action') === 'tools');
+      });
+    }
+
+    var toolsPanel = get('studyToolsPanel');
+    if (toolsPanel) {
+      toolsPanel.classList.remove('rdm-dj-v88-hidden-behind-full-panel', 'drag-positioned');
+      toolsPanel.classList.add('open');
+      toolsPanel.setAttribute('aria-hidden', 'false');
+      toolsPanel.style.display = '';
+      toolsPanel.style.removeProperty('left');
+      toolsPanel.style.removeProperty('right');
+      toolsPanel.style.removeProperty('top');
+      toolsPanel.style.removeProperty('bottom');
+      toolsPanel.style.removeProperty('width');
+      toolsPanel.style.removeProperty('max-width');
+      toolsPanel.style.removeProperty('min-width');
+      toolsPanel.style.removeProperty('height');
+      toolsPanel.style.removeProperty('max-height');
+      toolsPanel.style.removeProperty('min-height');
+      toolsPanel.style.removeProperty('transform');
+      toolsPanel.style.removeProperty('resize');
+      toolsPanel.style.removeProperty('overflow');
+      toolsPanel.style.zIndex = '2147482100';
+    }
+
+    document.documentElement.classList.add('rdm-dj-v88-panel-open');
+    document.body.classList.add('rdm-dj-v88-panel-open');
   }
 
   function closePanelHard(panel){
@@ -10312,7 +10349,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       event.stopPropagation();
       if (event.stopImmediatePropagation) event.stopImmediatePropagation();
       closeBuiltInCrossRefs();
-      setMobileScriptureView();
+      setMobileToolsView();
       return;
     }
 
@@ -10333,14 +10370,14 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.closeInternalCrossReferences = function(){
     if (isMobileShell()) {
       closeBuiltInCrossRefs();
-      setMobileScriptureView();
+      setMobileToolsView();
       return;
     }
     if (typeof originalClose === 'function') return originalClose.apply(this, arguments);
     closeBuiltInCrossRefs();
   };
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v95-built-in-crossrefs-original-behavior-final';
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v96-built-in-crossrefs-close-stays-tools';
 })();
 </script>
 
