@@ -6,22 +6,12 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#203D39",
-  "theme_color": "#203D39",
+  "background_color": "#FFF4DB",
+  "theme_color": "#F4EFE3",
   "icons": [
     {
-      "src": "./assets/icons/iron-sharpener-icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "./assets/icons/iron-sharpener-icon-512.png",
+      "src": "./assets/iron-sharpener-logo.png",
       "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "./assets/icons/iron-sharpener-icon-180.png",
-      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     }
