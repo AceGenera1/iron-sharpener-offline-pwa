@@ -25081,5 +25081,236 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v71 — Mobile Scripture back visibility cleanup -->
+<style id="rdm-v71-mobile-scripture-back-visibility-clean-style">
+/*
+   v71 — Disciple Maker mobile Scripture Back visibility cleanup
+   Scope: mobile/tablet only. Desktop and OBS remain untouched.
+   Keeps the v70 refined inline styling, but only shows the Scripture Back
+   button when there is an actual previous Scripture target.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v71-inline-scripture-back.rdm-v71-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v71-inline-scripture-back.rdm-no-back-target {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v71-inline-scripture-back.rdm-v71-has-back-target {
+    display: flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 43px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-radius: 13px !important;
+    font-size: clamp(12.5px, 3.25vw, 14.5px) !important;
+    line-height: 1.12 !important;
+    font-weight: 900 !important;
+    letter-spacing: .015em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #scriptureBox > #scriptureBackBtn {
+    display: none !important;
+  }
+}
+</style>
+<script id="rdm-v71-mobile-scripture-back-visibility-clean-script">
+(function rdmV71MobileScriptureBackVisibilityClean(){
+  if (window.__rdmV71MobileScriptureBackVisibilityClean) return;
+  window.__rdmV71MobileScriptureBackVisibilityClean = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function normalizeState(state){
+    if (!state) return null;
+    const start = String(state.start || "1");
+    return {
+      book: String(state.book || "").trim(),
+      chapter: String(state.chapter || "1").trim(),
+      start,
+      end: String(state.end || start).trim(),
+      range: String(state.range || get("rangeSize")?.value || "5")
+    };
+  }
+
+  function currentState(){
+    const book = get("book");
+    const chapter = get("chapter");
+    const start = get("start");
+    const end = get("end");
+    if (!book || !chapter || !start || !end) return null;
+    return normalizeState({
+      book: book.value,
+      chapter: chapter.value,
+      start: start.value,
+      end: end.value,
+      range: get("rangeSize")?.value || "5"
+    });
+  }
+
+  function sameState(a, b){
+    a = normalizeState(a);
+    b = normalizeState(b);
+    return !!a && !!b &&
+      a.book === b.book &&
+      a.chapter === b.chapter &&
+      a.start === b.start &&
+      a.end === b.end;
+  }
+
+  function labelForState(state){
+    const s = normalizeState(state);
+    if (!s || !s.book) return "previous passage";
+    return s.start === s.end ? `${s.book} ${s.chapter}:${s.start}` : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
+  }
+
+  function findBackTarget(){
+    const now = currentState();
+    const stacks = [
+      window.__rdmScriptureBackStackV42,
+      window.__rdmCrossReferenceBackStack,
+      window.__rdmScriptureBackStackV41
+    ];
+
+    for (const stack of stacks) {
+      if (!Array.isArray(stack) || !stack.length) continue;
+      for (let index = stack.length - 1; index >= 0; index -= 1) {
+        const candidate = normalizeState(stack[index]);
+        if (candidate && candidate.book && (!now || !sameState(candidate, now))) return candidate;
+      }
+    }
+
+    return null;
+  }
+
+  function hideLegacyBackButtonsOnMobile(){
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      const button = get(id);
+      if (button && isMobileShell()) button.style.setProperty("display", "none", "important");
+    });
+  }
+
+  function syncBackButtonVisibility(){
+    if (typeof window.rdmV68SyncMobileInlineScriptureNavigator === "function") {
+      try { window.rdmV68SyncMobileInlineScriptureNavigator(); } catch (_) {}
+    }
+    if (typeof window.rdmV69SyncMobileScriptureNavigatorTight === "function") {
+      try { window.rdmV69SyncMobileScriptureNavigatorTight(); } catch (_) {}
+    }
+    if (typeof window.rdmV70SyncMobileInlineScriptureBackPolish === "function") {
+      try { window.rdmV70SyncMobileInlineScriptureBackPolish(); } catch (_) {}
+    }
+
+    const back = get("scriptureBackBtn");
+    if (!back) return;
+
+    if (!isMobileShell()) {
+      back.classList.remove("rdm-v71-inline-scripture-back", "rdm-v71-no-back-target", "rdm-v71-has-back-target");
+      back.removeAttribute("aria-hidden");
+      back.removeAttribute("tabindex");
+      return;
+    }
+
+    hideLegacyBackButtonsOnMobile();
+
+    const controls = document.querySelector(".scripture > .controls.rdm-v68-inline-scripture-controls");
+    if (controls && back.parentElement !== controls) {
+      const load = get("loadBtn");
+      if (load && load.parentElement === controls) controls.insertBefore(back, load);
+      else controls.appendChild(back);
+    }
+
+    const target = findBackTarget();
+    back.classList.add("rdm-v70-inline-scripture-back", "rdm-v71-inline-scripture-back");
+    back.classList.toggle("rdm-v71-has-back-target", !!target);
+    back.classList.toggle("rdm-v71-no-back-target", !target);
+    back.classList.toggle("rdm-no-back-target", !target);
+
+    if (target) {
+      const label = labelForState(target);
+      back.textContent = `← Back to ${label}`;
+      back.title = `Back to ${label}`;
+      back.setAttribute("aria-label", `Back to ${label}`);
+      back.removeAttribute("aria-hidden");
+      back.removeAttribute("tabindex");
+    } else {
+      back.textContent = "← Back";
+      back.title = "No previous Scripture passage yet";
+      back.setAttribute("aria-label", "Back to previous Scripture passage");
+      back.setAttribute("aria-hidden", "true");
+      back.tabIndex = -1;
+    }
+  }
+
+  function scheduleSync(){
+    syncBackButtonVisibility();
+    setTimeout(syncBackButtonVisibility, 0);
+    setTimeout(syncBackButtonVisibility, 90);
+    setTimeout(syncBackButtonVisibility, 240);
+    setTimeout(syncBackButtonVisibility, 520);
+  }
+
+  const priorUpdate = window.rdmUpdateScriptureBackButtonV42;
+  if (typeof priorUpdate === "function" && !priorUpdate.__rdmV71Wrapped) {
+    const wrapped = function rdmV71UpdateScriptureBackButtonVisibility(){
+      const result = priorUpdate.apply(this, arguments);
+      scheduleSync();
+      return result;
+    };
+    wrapped.__rdmV71Wrapped = true;
+    window.rdmUpdateScriptureBackButtonV42 = wrapped;
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scheduleSync);
+  else scheduleSync();
+
+  document.addEventListener("click", function(event){
+    if (event.target.closest("#scriptureBackBtn, #prevBtn, #nextBtn, #loadBtn, #rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close]")) {
+      scheduleSync();
+    }
+  }, true);
+
+  ["change", "input"].forEach(function(name){
+    document.addEventListener(name, function(event){
+      if (!event.target || !event.target.matches || !event.target.matches("#book,#chapter,#start,#end,#rangeSize")) return;
+      scheduleSync();
+    }, true);
+  });
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(scheduleSync, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", scheduleSync);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(scheduleSync);
+  }
+
+  window.rdmV71SyncMobileScriptureBackVisibilityClean = syncBackButtonVisibility;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v71-mobile-scripture-back-visibility-clean-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v71-mobile-scripture-back-visibility-clean-final";
+})();
+</script>
+
 </body>
 </html>
