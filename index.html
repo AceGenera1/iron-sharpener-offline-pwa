@@ -24111,5 +24111,430 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+
+<!-- Patch 66 — Mobile copy tools inline + Built-In Cross References close on nav -->
+<style id="rdm-v66-mobile-copy-tools-style">
+/* Mobile only: no Copy Scripture popup panel over Scripture. Copy tools live inside Teacher Tools. */
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #copyScripturePanel,
+  html:not(.obs) body.rdm-mobile-app-shell #copyScripturePanel.open {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV65CopyTools,
+  html:not(.obs) body.rdm-mobile-app-shell #openCopyScriptureFromTools {
+    display: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV66CopyTools {
+    display: block !important;
+    margin: 18px 0 14px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV66CopyTools .tool-section-title {
+    margin: 0 0 10px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-v66-copy-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-v66-copy-grid .tool-option {
+    min-height: 82px !important;
+    padding: 14px 16px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-v66-copy-grid .tool-option strong {
+    font-size: 24px !important;
+    line-height: 1.12 !important;
+    margin-bottom: 6px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-v66-copy-grid .tool-option span {
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #passage .verse.copy-selected {
+    background: linear-gradient(90deg, rgba(215,168,79,.32), rgba(215,168,79,.10)) !important;
+    outline: 2px solid rgba(215,168,79,.78) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin-left: -12px !important;
+    margin-right: -10px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV66CopyToast {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: calc(var(--rdm-mobile-nav-height, 88px) + 16px) !important;
+    transform: translateX(-50%) translateY(16px) !important;
+    z-index: 120000 !important;
+    width: min(560px, calc(100vw - 32px)) !important;
+    padding: 13px 16px !important;
+    border: 2px solid var(--gold) !important;
+    border-radius: 999px !important;
+    background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+    color: #203D39 !important;
+    box-shadow: 0 14px 34px rgba(0,0,0,.24) !important;
+    font: 900 15px Arial, sans-serif !important;
+    text-align: center !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity .18s ease, transform .18s ease !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmV66CopyToast,
+  html:not(.obs) body.dark.rdm-mobile-app-shell #rdmV66CopyToast {
+    background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+    color: #203D39 !important;
+    border-color: #fff1c0 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV66CopyToast.show {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0) !important;
+  }
+}
+</style>
+<script id="rdm-v66-mobile-copy-tools-script">
+(function rdmV66MobileCopyToolsCrossRefsClose(){
+  if (window.__rdmV66MobileCopyToolsCrossRefsClose) return;
+  window.__rdmV66MobileCopyToolsCrossRefsClose = true;
+
+  function get(id) { return document.getElementById(id); }
+  function isMobileShell() {
+    return !!(document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs"));
+  }
+  function cleanText(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
+
+  function visibleVerses() {
+    return Array.from(document.querySelectorAll("#passage .verse[data-v]"));
+  }
+
+  function verseNum(verse) {
+    return parseInt(verse?.dataset?.v || "0", 10) || 0;
+  }
+
+  function sortedUniqueVerses(verses) {
+    return Array.from(new Set((verses || []).filter(Boolean)))
+      .filter(v => v.closest && v.closest("#passage"))
+      .sort((a, b) => verseNum(a) - verseNum(b));
+  }
+
+  function getVerseText(verse) {
+    if (!verse) return "";
+    const clone = verse.cloneNode(true);
+    clone.querySelectorAll(".vnum").forEach(node => node.remove());
+    return cleanText(clone.textContent || "");
+  }
+
+  function contiguous(numbers) {
+    if (numbers.length <= 1) return true;
+    for (let i = 1; i < numbers.length; i += 1) {
+      if (numbers[i] !== numbers[i - 1] + 1) return false;
+    }
+    return true;
+  }
+
+  function referenceFor(verses) {
+    const sorted = sortedUniqueVerses(verses);
+    const book = get("book")?.value || "";
+    const chapter = get("chapter")?.value || "";
+    const nums = sorted.map(verseNum).filter(Boolean);
+    if (!book || !chapter) return "Selected Scripture";
+    if (!nums.length) return `${book} ${chapter}`;
+    if (nums.length === 1) return `${book} ${chapter}:${nums[0]}`;
+    if (contiguous(nums)) return `${book} ${chapter}:${nums[0]}-${nums[nums.length - 1]}`;
+    return `${book} ${chapter}:${nums.join(", ")}`;
+  }
+
+  function formatForCopy(verses) {
+    const sorted = sortedUniqueVerses(verses);
+    const ref = referenceFor(sorted);
+    const body = sorted.map(v => `${v.dataset.v} ${getVerseText(v)}`).join("\n");
+    return `${ref} (WEB)\n${body}\n\nWorld English Bible (WEB) — Public Domain`.trim();
+  }
+
+  function ensureToast() {
+    let toast = get("rdmV66CopyToast");
+    if (toast) return toast;
+    toast = document.createElement("div");
+    toast.id = "rdmV66CopyToast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  function setStatus(message) {
+    const text = String(message || "");
+    [get("copyStatus"), get("activeToolLabel"), get("teacherToolsStatusText")].forEach(el => {
+      if (el) el.textContent = text;
+    });
+  }
+
+  function toast(message) {
+    const el = ensureToast();
+    el.textContent = message;
+    el.classList.add("show");
+    setStatus(message);
+    clearTimeout(window.__rdmV66CopyToastTimer);
+    window.__rdmV66CopyToastTimer = setTimeout(() => el.classList.remove("show"), 2300);
+  }
+
+  async function writeClipboard(text) {
+    const value = String(text || "");
+    if (!value.trim()) return false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch (_) {}
+
+    const helper = document.createElement("textarea");
+    helper.value = value;
+    helper.setAttribute("readonly", "readonly");
+    helper.setAttribute("aria-hidden", "true");
+    helper.style.position = "fixed";
+    helper.style.left = "0";
+    helper.style.top = "0";
+    helper.style.width = "2px";
+    helper.style.height = "2px";
+    helper.style.opacity = "0.01";
+    helper.style.zIndex = "-1";
+    document.body.appendChild(helper);
+    let ok = false;
+    try {
+      helper.focus({ preventScroll: true });
+      helper.select();
+      helper.setSelectionRange(0, helper.value.length);
+      ok = document.execCommand("copy");
+    } catch (_) {
+      ok = false;
+    } finally {
+      helper.remove();
+    }
+    return !!ok;
+  }
+
+  async function copyVerses(verses, emptyMessage, successBase) {
+    const sorted = sortedUniqueVerses(verses);
+    if (!sorted.length) {
+      toast(emptyMessage || "No verses available to copy.");
+      return false;
+    }
+    const ref = referenceFor(sorted);
+    const ok = await writeClipboard(formatForCopy(sorted));
+    const label = successBase || (sorted.length === 1 ? "Verse copied" : `${sorted.length} verses copied`);
+    toast(ok ? `${label}: ${ref}.` : `Copy failed. Please copy manually: ${ref}.`);
+    return ok;
+  }
+
+  function closeTeacherToolsForCopyMode() {
+    const panel = get("teacherToolsPanel");
+    if (panel) {
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+    }
+    try {
+      document.body.classList.remove("rdm-mobile-passage-open", "rdm-mobile-notes-open");
+      get("rdmMobileAppNav")?.querySelectorAll("button[data-rdm-mobile-action]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.rdmMobileAction === "scripture");
+      });
+      document.querySelector("#scriptureBox")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (_) {}
+  }
+
+  function clearCopySelection(showMessage) {
+    document.querySelectorAll("#passage .verse.copy-selected").forEach(v => v.classList.remove("copy-selected"));
+    window.rdmV66CopyMode = "";
+    window.rdmCopyScriptureMode = "";
+    if (showMessage) toast("Copy selection cleared.");
+  }
+
+  function selectedCopyVerses() {
+    return sortedUniqueVerses(Array.from(document.querySelectorAll("#passage .verse.copy-selected[data-v]")));
+  }
+
+  function startSingleCopyMode() {
+    clearCopySelection(false);
+    window.rdmV66CopyMode = "single";
+    window.rdmCopyScriptureMode = "";
+    toast("Tap one verse to copy it.");
+    closeTeacherToolsForCopyMode();
+  }
+
+  function startMultipleCopyMode() {
+    clearCopySelection(false);
+    window.rdmV66CopyMode = "multiple";
+    window.rdmCopyScriptureMode = "";
+    toast("Tap verses to copy multiple verses.");
+    closeTeacherToolsForCopyMode();
+  }
+
+  async function copyPassageNow() {
+    clearCopySelection(false);
+    await copyVerses(visibleVerses(), "No passage loaded.", "Passage copied");
+  }
+
+  async function handleVerseTapForCopy(verse, event) {
+    if (!isMobileShell() || !verse || !window.rdmV66CopyMode) return false;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    if (window.rdmV66CopyMode === "single") {
+      clearCopySelection(false);
+      verse.classList.add("copy-selected");
+      await copyVerses([verse], "No verse loaded.", "Verse copied");
+      window.rdmV66CopyMode = "";
+      setTimeout(() => verse.classList.remove("copy-selected"), 1300);
+      return true;
+    }
+
+    if (window.rdmV66CopyMode === "multiple") {
+      verse.classList.toggle("copy-selected");
+      const selected = selectedCopyVerses();
+      if (selected.length) await copyVerses(selected, "No verses selected.", selected.length === 1 ? "1 verse copied" : `${selected.length} verses copied`);
+      else toast("No verses selected. Tap verses to select them.");
+      return true;
+    }
+
+    return false;
+  }
+
+  function hideOldCopyEntrypoints() {
+    const oldV65 = get("rdmV65CopyTools");
+    if (oldV65) oldV65.style.display = "none";
+
+    const oldOpen = get("openCopyScriptureFromTools");
+    if (oldOpen) oldOpen.style.display = "none";
+
+    const panel = get("copyScripturePanel");
+    if (panel && isMobileShell()) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "none";
+    }
+  }
+
+  function installInlineCopyTools() {
+    const panel = get("teacherToolsPanel");
+    if (!panel) return;
+    hideOldCopyEntrypoints();
+
+    if (get("rdmV66CopyTools")) return;
+    const statusCard = panel.querySelector(".teacher-tools-status-card");
+    const anchor = statusCard || panel.querySelector(".tool-section-title");
+    if (!anchor) return;
+
+    const block = document.createElement("div");
+    block.id = "rdmV66CopyTools";
+    block.innerHTML = `
+      <div class="tool-section-title">Copy Tools</div>
+      <div class="rdm-v66-copy-grid">
+        <button id="rdmV66CopySingleBtn" class="tool-option" type="button"><strong>Copy Single Verse</strong><span>Tap this, then tap one verse on the Scripture screen.</span></button>
+        <button id="rdmV66CopyMultipleBtn" class="tool-option" type="button"><strong>Copy Multiple Verses</strong><span>Tap this, then tap verses to build and copy a selection.</span></button>
+        <button id="rdmV66CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage with WEB attribution.</span></button>
+        <button id="rdmV66ClearCopyBtn" class="tool-option secondary" type="button"><strong>Clear Copy Selection</strong><span>Clear selected copy verses and exit copy mode.</span></button>
+      </div>
+    `;
+    anchor.insertAdjacentElement("afterend", block);
+  }
+
+  function closeInternalCrossRefsPanel() {
+    const panel = get("internalCrossRefsPanel");
+    if (!panel) return;
+    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.top = "";
+    panel.style.bottom = "";
+    panel.style.transform = "";
+  }
+
+  document.addEventListener("click", function(event) {
+    if (!isMobileShell()) return;
+
+    const navBtn = event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action]");
+    if (navBtn) {
+      closeInternalCrossRefsPanel();
+      if (navBtn.dataset.rdmMobileAction !== "scripture") clearCopySelection(false);
+      return;
+    }
+
+    const verse = event.target.closest("#passage .verse[data-v]");
+    if (verse && window.rdmV66CopyMode) {
+      handleVerseTapForCopy(verse, event);
+      return;
+    }
+
+    const copyButton = event.target.closest("#rdmV66CopySingleBtn, #rdmV66CopyMultipleBtn, #rdmV66CopyPassageBtn, #rdmV66ClearCopyBtn, #copyScriptureMain, #copyVerse, #copySelectedVerses, #copyPassage, #openCopyScriptureFromTools");
+    if (!copyButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    if (copyButton.id === "rdmV66CopySingleBtn" || copyButton.id === "copyVerse") startSingleCopyMode();
+    else if (copyButton.id === "rdmV66CopyMultipleBtn" || copyButton.id === "copySelectedVerses") startMultipleCopyMode();
+    else if (copyButton.id === "rdmV66CopyPassageBtn" || copyButton.id === "copyPassage") copyPassageNow();
+    else if (copyButton.id === "rdmV66ClearCopyBtn") clearCopySelection(true);
+    else {
+      installInlineCopyTools();
+      const open = (typeof openTeacherTools === "function") ? openTeacherTools : null;
+      if (open) open(); else get("openTeacherTools")?.click();
+      setTimeout(() => get("rdmV66CopyTools")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      toast("Copy tools are inside Teacher Tools.");
+    }
+  }, true);
+
+  // Keep old popup closed even if an older handler tries to open it after our capture listener.
+  document.addEventListener("click", function() {
+    if (!isMobileShell()) return;
+    setTimeout(hideOldCopyEntrypoints, 0);
+    setTimeout(hideOldCopyEntrypoints, 80);
+  }, false);
+
+  function start() {
+    installInlineCopyTools();
+    hideOldCopyEntrypoints();
+    closeInternalCrossRefsPanel();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+  window.addEventListener("load", function(){
+    start();
+    setTimeout(start, 250);
+    setTimeout(start, 1000);
+  });
+
+  window.rdmV66CopyPassageNow = copyPassageNow;
+  window.rdmV66StartSingleCopyMode = startSingleCopyMode;
+  window.rdmV66StartMultipleCopyMode = startMultipleCopyMode;
+  window.rdmV66ClearCopySelection = clearCopySelection;
+  window.rdmV66CloseInternalCrossRefsPanel = closeInternalCrossRefsPanel;
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v66-mobile-copy-tools-crossrefs-close";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v66-mobile-copy-tools-crossrefs-close";
+  window.__IRON_SHARPENER_MARKING_LOCK_VERSION = "v64-mobile-tools-selection-bridge";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
+})();
+</script>
+
 </body>
 </html>
