@@ -25456,5 +25456,440 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v73 — Mobile Scripture Back journal-style mechanics cleanup -->
+<style id="rdm-v73-mobile-journal-style-scripture-back-style">
+/*
+   v73 — Disciple Maker mobile Scripture Back journal-style mechanics
+   Scope: mobile/tablet app shell only. Desktop and OBS remain untouched.
+   Uses the locked Disciple Journal v101 pattern: one clean previous-passage
+   target, update after real passage load, and no settling/pop state conflict.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #loadBtn,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #prevBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back {
+    display: flex !important;
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-radius: 13px !important;
+    font-size: clamp(12.5px, 3.25vw, 14.5px) !important;
+    line-height: 1.12 !important;
+    font-weight: 900 !important;
+    letter-spacing: .015em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+    transform: translateY(-3px) !important;
+    pointer-events: none !important;
+    transition:
+      opacity .18s ease,
+      transform .18s ease,
+      max-height .18s ease,
+      min-height .18s ease,
+      padding .18s ease,
+      margin .18s ease,
+      border-width .18s ease,
+      box-shadow .18s ease,
+      visibility 0s linear .18s !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target {
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-height: 58px !important;
+    min-height: 42px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-width: 1.5px !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+    transition-delay: .03s, .03s, .03s, .03s, .03s, .03s, .03s, .03s, 0s !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target {
+    background: linear-gradient(180deg, #f8d987 0%, #e4bd61 52%, #d7a84f 100%) !important;
+    color: #203D39 !important;
+    border: 1.5px solid rgba(255,241,192,.88) !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.12) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v73-inline-scripture-back.rdm-v73-has-back-target {
+    background: linear-gradient(180deg, #8A5A13 0%, #704407 100%) !important;
+    color: #FFF8EA !important;
+    border: 1.5px solid #7A4C06 !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.12) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > #scriptureBackBtn,
+  html:not(.obs) body.rdm-mobile-app-shell #scriptureBox > #scriptureBackBtn:not(.rdm-v73-inline-scripture-back) {
+    display: none !important;
+  }
+}
+</style>
+<script id="rdm-v73-mobile-journal-style-scripture-back-script">
+(function rdmV73MobileJournalStyleScriptureBack(){
+  if (window.__rdmV73MobileJournalStyleScriptureBack) return;
+  window.__rdmV73MobileJournalStyleScriptureBack = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+  const stack = window.__rdmV73DiscipleMakerScriptureBackStack || [];
+  window.__rdmV73DiscipleMakerScriptureBackStack = stack;
+
+  let lastLoadedState = null;
+  let restoringPrevious = false;
+  let backButtonBusy = false;
+  let wrappedLoadPassage = false;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function normalizeState(state){
+    if (!state) return null;
+    const book = String(state.book || "").trim();
+    if (!book) return null;
+    const start = String(state.start || "1").trim();
+    const end = String(state.end || start).trim();
+    return {
+      book,
+      chapter: String(state.chapter || "1").trim(),
+      start,
+      end,
+      range: String(state.range || get("rangeSize")?.value || "5").trim()
+    };
+  }
+
+  function currentState(){
+    const book = get("book");
+    const chapter = get("chapter");
+    const start = get("start");
+    const end = get("end");
+    if (!book || !chapter || !start || !end) return null;
+    return normalizeState({
+      book: book.value,
+      chapter: chapter.value,
+      start: start.value,
+      end: end.value,
+      range: get("rangeSize")?.value || "5"
+    });
+  }
+
+  function stateKey(state){
+    const s = normalizeState(state);
+    return s ? [s.book, s.chapter, s.start, s.end, s.range].join("|") : "";
+  }
+
+  function sameState(a, b){
+    const aa = normalizeState(a);
+    const bb = normalizeState(b);
+    return !!aa && !!bb && stateKey(aa) === stateKey(bb);
+  }
+
+  function stateLabel(state){
+    const s = normalizeState(state);
+    if (!s) return "Scripture";
+    return s.start === s.end ? `${s.book} ${s.chapter}:${s.start}` : `${s.book} ${s.chapter}:${s.start}-${s.end}`;
+  }
+
+  function topTarget(){
+    const now = currentState();
+    while (stack.length) {
+      const candidate = normalizeState(stack[stack.length - 1]);
+      if (candidate && (!now || !sameState(candidate, now))) return candidate;
+      stack.pop();
+    }
+    return null;
+  }
+
+  function rememberPreviousState(state){
+    const previous = normalizeState(state);
+    const now = currentState();
+    if (!previous || !now || sameState(previous, now)) return;
+
+    const last = stack.length ? normalizeState(stack[stack.length - 1]) : null;
+    if (last && sameState(last, previous)) {
+      updateBackButton();
+      return;
+    }
+
+    stack.push(previous);
+    if (stack.length > 60) stack.shift();
+    updateBackButton();
+  }
+
+  function hideLegacyMobileBackButtons(){
+    if (!isMobileShell()) return;
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      const btn = get(id);
+      if (btn) btn.style.setProperty("display", "none", "important");
+    });
+  }
+
+  function ensureInlineBackButton(){
+    const scripture = get("scriptureBox");
+    let back = get("scriptureBackBtn");
+    if (!scripture) return null;
+
+    if (!back) {
+      back = document.createElement("button");
+      back.id = "scriptureBackBtn";
+      back.type = "button";
+      back.className = "secondary";
+    }
+
+    if (!isMobileShell()) {
+      back.classList.remove("rdm-v73-inline-scripture-back", "rdm-v73-has-back-target", "rdm-v73-no-back-target", "rdm-v72-settling");
+      back.removeAttribute("aria-hidden");
+      back.removeAttribute("tabindex");
+      back.style.removeProperty("display");
+      back.style.removeProperty("visibility");
+      return back;
+    }
+
+    if (typeof window.rdmV68SyncMobileInlineScriptureNavigator === "function") {
+      try { window.rdmV68SyncMobileInlineScriptureNavigator(); } catch (_) {}
+    }
+    if (typeof window.rdmV69SyncMobileScriptureNavigatorTight === "function") {
+      try { window.rdmV69SyncMobileScriptureNavigatorTight(); } catch (_) {}
+    }
+
+    const controls = document.querySelector(".scripture > .controls.rdm-v68-inline-scripture-controls") || document.querySelector("#scriptureBox > .controls");
+    const load = get("loadBtn");
+    if (controls && back.parentElement !== controls) {
+      if (load && load.parentElement === controls) controls.insertBefore(back, load);
+      else controls.appendChild(back);
+    }
+
+    const prev = get("prevBtn");
+    if (prev) {
+      prev.setAttribute("aria-hidden", "true");
+      prev.tabIndex = -1;
+      prev.style.setProperty("display", "none", "important");
+      prev.style.setProperty("visibility", "hidden", "important");
+      prev.style.setProperty("pointer-events", "none", "important");
+    }
+    if (load) {
+      load.setAttribute("aria-hidden", "true");
+      load.tabIndex = -1;
+    }
+
+    back.classList.add("rdm-v70-inline-scripture-back", "rdm-v71-inline-scripture-back", "rdm-v72-inline-scripture-back", "rdm-v73-inline-scripture-back");
+    back.classList.remove("rdm-v72-settling");
+    hideLegacyMobileBackButtons();
+    return back;
+  }
+
+  function updateBackButton(){
+    const back = ensureInlineBackButton();
+    if (!back) return;
+
+    const target = topTarget();
+    const hasTarget = !!target && !backButtonBusy;
+
+    back.classList.toggle("rdm-v73-has-back-target", hasTarget);
+    back.classList.toggle("rdm-v73-no-back-target", !hasTarget);
+    back.classList.toggle("rdm-v71-has-back-target", hasTarget);
+    back.classList.toggle("rdm-v71-no-back-target", !hasTarget);
+    back.classList.toggle("rdm-no-back-target", !hasTarget);
+    back.classList.remove("rdm-v72-settling");
+
+    if (hasTarget) {
+      const label = stateLabel(target);
+      back.textContent = `← Back to ${label}`;
+      back.title = `Back to ${label}`;
+      back.setAttribute("aria-label", `Back to ${label}`);
+      back.removeAttribute("aria-hidden");
+      back.removeAttribute("tabindex");
+    } else {
+      back.textContent = "← Back";
+      back.title = "No previous Scripture passage yet";
+      back.setAttribute("aria-label", "Back to previous Scripture passage");
+      back.setAttribute("aria-hidden", "true");
+      back.tabIndex = -1;
+    }
+  }
+
+  function scheduleUpdate(){
+    updateBackButton();
+    setTimeout(updateBackButton, 80);
+    setTimeout(updateBackButton, 240);
+    setTimeout(updateBackButton, 520);
+    setTimeout(updateBackButton, 820);
+    setTimeout(updateBackButton, 1120);
+  }
+
+  function initializeLastLoaded(){
+    if (lastLoadedState) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem("iron-sharpener.lastRef") || "null");
+      lastLoadedState = normalizeState(saved) || currentState();
+    } catch (_) {
+      lastLoadedState = currentState();
+    }
+  }
+
+  function wrapLoadPassageOnce(){
+    if (wrappedLoadPassage) return;
+    const existing = (typeof loadPassage === "function" ? loadPassage : null) || (typeof window.loadPassage === "function" ? window.loadPassage : null);
+    if (typeof existing !== "function" || existing.__rdmV73Wrapped) return;
+
+    const wrapped = async function rdmV73JournalStyleLoadPassageWrapper(){
+      initializeLastLoaded();
+      const nextState = currentState();
+
+      if (!restoringPrevious && lastLoadedState && nextState && !sameState(lastLoadedState, nextState)) {
+        rememberPreviousState(lastLoadedState);
+      }
+
+      let result;
+      try {
+        result = existing.apply(this, arguments);
+        if (result && typeof result.then === "function") await result;
+      } finally {
+        lastLoadedState = normalizeState(currentState()) || normalizeState(nextState) || lastLoadedState;
+        updateBackButton();
+        setTimeout(updateBackButton, 120);
+      }
+      return result;
+    };
+
+    wrapped.__rdmV73Wrapped = true;
+    window.loadPassage = wrapped;
+    try { loadPassage = wrapped; } catch (_) {}
+    wrappedLoadPassage = true;
+  }
+
+  async function restorePreviousScripture(event){
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    if (event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    if (backButtonBusy) return;
+
+    let target = normalizeState(stack.pop());
+    const now = currentState();
+    while (target && now && sameState(target, now) && stack.length) target = normalizeState(stack.pop());
+
+    if (!target) {
+      updateBackButton();
+      return;
+    }
+
+    backButtonBusy = true;
+    restoringPrevious = true;
+
+    try {
+      if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+
+      const book = get("book");
+      const chapter = get("chapter");
+      const start = get("start");
+      const end = get("end");
+      const range = get("rangeSize");
+      if (!book || !chapter || !start || !end) return;
+
+      book.value = target.book;
+      if (typeof fillChapters === "function") fillChapters();
+      chapter.value = target.chapter;
+      if (typeof fillVerses === "function") fillVerses();
+      if (range) range.value = target.range || range.value || "5";
+      start.value = target.start;
+      end.value = target.end;
+
+      const loader = (typeof loadPassage === "function" ? loadPassage : window.loadPassage);
+      if (typeof loader === "function") await loader();
+      lastLoadedState = normalizeState(target);
+    } finally {
+      restoringPrevious = false;
+      backButtonBusy = false;
+      updateBackButton();
+      setTimeout(updateBackButton, 120);
+      setTimeout(updateBackButton, 360);
+    }
+  }
+
+  function installClickCapture(){
+    if (document.__rdmV73BackClickCapture) return;
+    document.__rdmV73BackClickCapture = true;
+    document.addEventListener("click", function(event){
+      if (!isMobileShell()) return;
+      if (event.target && event.target.closest && event.target.closest("#scriptureBackBtn")) {
+        restorePreviousScripture(event);
+        return;
+      }
+      if (event.target && event.target.closest && event.target.closest("#nextBtn, #prevBtn, #loadBtn, #rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close]")) {
+        setTimeout(scheduleUpdate, 40);
+      }
+    }, true);
+  }
+
+  function watchControls(){
+    ["book", "chapter", "start", "end", "rangeSize"].forEach(function(id){
+      const el = get(id);
+      if (!el || el.__rdmV73BackWatch) return;
+      el.__rdmV73BackWatch = true;
+      el.addEventListener("change", function(){ setTimeout(scheduleUpdate, 80); }, true);
+      el.addEventListener("input", function(){ setTimeout(scheduleUpdate, 120); }, true);
+    });
+  }
+
+  function start(){
+    initializeLastLoaded();
+    wrapLoadPassageOnce();
+    installClickCapture();
+    watchControls();
+    scheduleUpdate();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(start, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", start);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(start);
+  }
+
+  window.rdmV70SyncMobileInlineScriptureBackPolish = updateBackButton;
+  window.rdmV71SyncMobileScriptureBackVisibilityClean = updateBackButton;
+  window.rdmV72SyncMobileScriptureBackSoftened = updateBackButton;
+  window.rdmV73UpdateMobileScriptureBackButton = updateBackButton;
+  window.rdmV73GoBackOneScriptureStep = restorePreviousScripture;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v73-mobile-journal-style-scripture-back-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v73-mobile-journal-style-scripture-back-final";
+})();
+</script>
+
 </body>
 </html>
