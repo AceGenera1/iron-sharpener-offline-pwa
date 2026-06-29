@@ -24912,5 +24912,174 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v70 — Mobile Scripture navigator back button style alignment -->
+<style id="rdm-v70-mobile-inline-scripture-back-polish-style">
+/*
+   v70 — Disciple Maker mobile Scripture navigator back button polish
+   Scope: mobile/tablet only. Desktop and OBS remain untouched.
+   Uses the real Scripture Back button in the inline Scripture navigator spot,
+   keeps the gold back-button styling, and removes the extra previous button
+   from the mobile Scripture surface.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #prevBtn.rdm-v69-inline-prev {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v70-inline-scripture-back {
+    display: flex !important;
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    top: auto !important;
+    right: auto !important;
+    z-index: auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 43px !important;
+    margin: 2px 0 0 !important;
+    padding: 9px 13px !important;
+    border-radius: 13px !important;
+    font-size: clamp(12.5px, 3.25vw, 14.5px) !important;
+    line-height: 1.12 !important;
+    font-weight: 900 !important;
+    letter-spacing: .015em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.12) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v70-inline-scripture-back {
+    background: linear-gradient(180deg, #f8d987 0%, #e4bd61 52%, #d7a84f 100%) !important;
+    color: #203D39 !important;
+    border: 1.5px solid rgba(255,241,192,.88) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v70-inline-scripture-back {
+    background: linear-gradient(180deg, #8A5A13 0%, #704407 100%) !important;
+    color: #FFF8EA !important;
+    border: 1.5px solid #7A4C06 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > #scriptureBackBtn.rdm-v70-inline-scripture-back {
+    display: none !important;
+  }
+}
+</style>
+<script id="rdm-v70-mobile-inline-scripture-back-polish-script">
+(function rdmV70MobileInlineScriptureBackPolish(){
+  if (window.__rdmV70MobileInlineScriptureBackPolish) return;
+  window.__rdmV70MobileInlineScriptureBackPolish = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function restoreDesktopBackButton(back){
+    const scripture = get("scriptureBox");
+    if (!back || !scripture) return;
+    back.classList.remove("rdm-v70-inline-scripture-back");
+    if (back.parentElement !== scripture) scripture.insertBefore(back, scripture.firstChild);
+
+    const prev = get("prevBtn");
+    if (prev) {
+      prev.removeAttribute("aria-hidden");
+      prev.removeAttribute("tabindex");
+      prev.style.removeProperty("display");
+      prev.style.removeProperty("visibility");
+      prev.style.removeProperty("pointer-events");
+    }
+  }
+
+  function syncInlineBackButton(){
+    if (typeof window.rdmV68SyncMobileInlineScriptureNavigator === "function") {
+      try { window.rdmV68SyncMobileInlineScriptureNavigator(); } catch (_) {}
+    }
+    if (typeof window.rdmV69SyncMobileScriptureNavigatorTight === "function") {
+      try { window.rdmV69SyncMobileScriptureNavigatorTight(); } catch (_) {}
+    }
+
+    const controls = document.querySelector(".scripture > .controls.rdm-v68-inline-scripture-controls");
+    const scripture = get("scriptureBox");
+    const back = get("scriptureBackBtn");
+    const prev = get("prevBtn");
+    const load = get("loadBtn");
+    if (!scripture || !back) return;
+
+    if (!isMobileShell() || !controls) {
+      restoreDesktopBackButton(back);
+      return;
+    }
+
+    back.classList.add("rdm-v70-inline-scripture-back", "rdm-scripture-back-visible");
+    back.removeAttribute("style");
+
+    if (load && load.parentElement === controls) {
+      controls.insertBefore(back, load);
+    } else if (back.parentElement !== controls) {
+      controls.appendChild(back);
+    }
+
+    if (prev) {
+      prev.setAttribute("aria-hidden", "true");
+      prev.tabIndex = -1;
+      prev.style.setProperty("display", "none", "important");
+      prev.style.setProperty("visibility", "hidden", "important");
+      prev.style.setProperty("pointer-events", "none", "important");
+    }
+  }
+
+  function start(){
+    syncInlineBackButton();
+    setTimeout(syncInlineBackButton, 80);
+    setTimeout(syncInlineBackButton, 240);
+    setTimeout(syncInlineBackButton, 700);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  document.addEventListener("click", function(event){
+    if (event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close], #scriptureBackBtn, #prevBtn, #nextBtn")) {
+      setTimeout(start, 0);
+      setTimeout(syncInlineBackButton, 180);
+    }
+  }, true);
+
+  ["change", "input"].forEach(function(name){
+    document.addEventListener(name, function(event){
+      if (!event.target || !event.target.matches || !event.target.matches("#book,#chapter,#start,#end,#rangeSize")) return;
+      setTimeout(syncInlineBackButton, 60);
+      setTimeout(syncInlineBackButton, 220);
+    }, true);
+  });
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(start, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", start);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(start);
+  }
+
+  window.rdmV70SyncMobileInlineScriptureBackPolish = syncInlineBackButton;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v70-mobile-inline-scripture-back-polish-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v70-mobile-inline-scripture-back-polish-final";
+})();
+</script>
+
 </body>
 </html>
