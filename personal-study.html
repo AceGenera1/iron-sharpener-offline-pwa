@@ -2976,6 +2976,133 @@ body.dark .resource-clean-empty {
   }
 }
 
+
+
+/* =========================================================
+   v83 — Disciple Journal final mobile polish
+   Scope: resource panels, copy toast, thin footer only.
+   Locked: highlighting/marking, resource functions, v82 prompts placement.
+   ========================================================= */
+@media (max-width: 780px), (pointer: coarse) {
+  /* Resource results should take the whole usable mobile screen above the nav. */
+  body.rdm-dj-mobile-shell .resourceFloatPanel,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel.internal-crossrefs-panel,
+  body.rdm-dj-mobile-shell .resource-instance-panel,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel,
+  body.rdm-dj-mobile-shell .background-topic-panel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--dj-mobile-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 16px !important;
+    z-index: 89500 !important;
+  }
+
+  body.rdm-dj-mobile-shell .resourceFloatHead,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head,
+  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resourceFloatHead,
+  body.rdm-dj-mobile-shell .background-topic-panel .resourceFloatHead {
+    position: sticky !important;
+    top: calc(-14px - env(safe-area-inset-top, 0px)) !important;
+    z-index: 5 !important;
+    margin: calc(-14px - env(safe-area-inset-top, 0px)) -14px 16px !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 12px !important;
+    border-bottom: 1.5px solid var(--soft-copper) !important;
+    background: inherit !important;
+  }
+
+  body.rdm-dj-mobile-shell .resourceFloatHead h2,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead h2,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head h3 {
+    font-size: clamp(20px, 5.5vw, 30px) !important;
+    line-height: 1.12 !important;
+  }
+
+  body.rdm-dj-mobile-shell .resourceFloatHead button,
+  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead button,
+  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head button {
+    flex: 0 0 auto !important;
+  }
+
+  /* Disciple Maker-style thin footer for the Journal mobile shell. */
+  body.rdm-dj-mobile-shell .journalFooter {
+    margin: 0 !important;
+    padding: 8px 10px 9px !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 2px !important;
+    text-align: center !important;
+    line-height: 1.22 !important;
+  }
+  body.rdm-dj-mobile-shell .journalFooter .footerPurpose,
+  body.rdm-dj-mobile-shell .journalFooter .footerBrand span {
+    display: none !important;
+  }
+  body.rdm-dj-mobile-shell .journalFooter .footerVerse,
+  body.rdm-dj-mobile-shell .journalFooter .footerBrand strong {
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.22 !important;
+    font-weight: 900 !important;
+    color: var(--deep) !important;
+  }
+  body.rdm-dj-mobile-shell.dark .journalFooter .footerVerse,
+  body.rdm-dj-mobile-shell.dark .journalFooter .footerBrand strong {
+    color: #F8F4EC !important;
+  }
+
+  /* Copy/save toast borrowed from the locked Disciple Maker behavior. */
+  .rdm-dj-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--dj-mobile-nav-height) + 16px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%) translateY(12px);
+    z-index: 95000;
+    max-width: min(92vw, 440px);
+    padding: 11px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--soft-copper);
+    background: rgba(255,249,241,.98);
+    color: var(--deep);
+    box-shadow: 0 14px 32px rgba(29,45,68,.20);
+    font: 900 14px Arial, sans-serif;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  body.dark .rdm-dj-toast {
+    background: rgba(22,34,52,.98);
+    color: #F8F4EC;
+    box-shadow: 0 16px 36px rgba(0,0,0,.34);
+  }
+  .rdm-dj-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3332,7 +3459,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v82-mobile-resources-full-prompts-near-journal";
+  const VERSION = "v83-mobile-final-panel-toast-entry-footer";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -4677,7 +4804,35 @@ const verseCounts = {
   const $ = (id) => document.getElementById(id);
   const fields = ["entryTitle", "observe", "understand", "heart", "feetQuestions", "feetSensed", "feetTesting", "prayer", "walk", "remember", "tags", "freewrite", "freewriteTags"];
 
-  function setStatus(message) { $("status").textContent = message; }
+  let __djToastTimer = null;
+  function showMobileToast(message) {
+    if (!document.body.classList.contains("rdm-dj-mobile-shell")) return;
+    const cleaned = cleanText(message);
+    if (!cleaned) return;
+    let toast = document.getElementById("rdmDjToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "rdmDjToast";
+      toast.className = "rdm-dj-toast";
+      toast.setAttribute("role", "status");
+      toast.setAttribute("aria-live", "polite");
+      document.body.appendChild(toast);
+    }
+    toast.textContent = cleaned;
+    toast.classList.add("show");
+    clearTimeout(__djToastTimer);
+    __djToastTimer = setTimeout(() => toast.classList.remove("show"), 1850);
+  }
+
+  function shouldToastStatus(message) {
+    return /copied|copy unavailable/i.test(String(message || ""));
+  }
+
+  function setStatus(message) {
+    const statusEl = $("status");
+    if (statusEl) statusEl.textContent = message;
+    if (shouldToastStatus(message)) showMobileToast(message);
+  }
   function todayIso() { return new Date().toISOString().slice(0,10); }
   function makeId() { return (crypto && crypto.randomUUID) ? crypto.randomUUID() : `entry-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
   function cleanText(value) { return String(value || "").replace(/\s+/g, " ").trim(); }
@@ -5212,6 +5367,8 @@ const verseCounts = {
     $("entryMode").textContent = "New entry";
     setStatus(statusText);
     localStorage.removeItem(DRAFT_KEY);
+    clearTimeout(window.__journalDraftTimer);
+    clearTimeout(window.__journalCurrentEntrySaveTimer);
   }
 
   async function newEntry() {
@@ -5237,6 +5394,34 @@ const verseCounts = {
     draft.editingSavedEntry = editingSavedEntry;
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     setStatus(currentEntryId ? "Draft updated" : "Draft ready");
+  }
+
+
+  async function persistCurrentSavedEntryQuietly() {
+    if (!editingSavedEntry || !currentEntryId) return;
+    try {
+      const entry = collectEntry();
+      entry.id = currentEntryId;
+      const all = await getAllEntries();
+      const existing = all.find((item) => item.id === currentEntryId);
+      entry.createdAt = existing?.createdAt || entry.createdAt || entry.updatedAt;
+      await putEntry(entry);
+      setStatus("Current entry saved");
+      await renderHistory();
+    } catch (error) {
+      console.error("Could not auto-save current journal entry", error);
+    }
+  }
+
+  function scheduleJournalPersistence() {
+    clearTimeout(window.__journalDraftTimer);
+    window.__journalDraftTimer = setTimeout(() => {
+      autosaveDraft();
+      if (editingSavedEntry && currentEntryId) {
+        clearTimeout(window.__journalCurrentEntrySaveTimer);
+        window.__journalCurrentEntrySaveTimer = setTimeout(persistCurrentSavedEntryQuietly, 700);
+      }
+    }, 250);
   }
 
   function restoreDraft() {
@@ -7802,11 +7987,11 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       const target = activeWritingField() || $(btn.dataset.target);
       if (prompt && target) insertTextAtCursor(target, prompt);
       if (target) target.focus();
-      autosaveDraft();
+      scheduleJournalPersistence();
     }));
     document.querySelectorAll(".modeTab").forEach((btn) => btn.addEventListener("click", () => {
       setJournalMode(btn.dataset.mode);
-      autosaveDraft();
+      scheduleJournalPersistence();
     }));
     document.querySelectorAll(".stepTab").forEach((btn) => btn.addEventListener("click", () => {
       const step = btn.dataset.step;
@@ -7814,8 +7999,8 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
       document.querySelectorAll(".guidePanel").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === step));
     }));
     $("themeBtn").addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
-    fields.concat(["entryDate"]).forEach((id) => $(id).addEventListener("input", () => { clearTimeout(window.__journalDraftTimer); window.__journalDraftTimer = setTimeout(autosaveDraft, 250); }));
-    ["favoriteEntry", "reviewLater", "freewriteFavoriteEntry", "freewriteReviewLater"].forEach((id) => { if ($(id)) $(id).addEventListener("change", autosaveDraft); });
+    fields.concat(["entryDate"]).forEach((id) => $(id).addEventListener("input", scheduleJournalPersistence));
+    ["favoriteEntry", "reviewLater", "freewriteFavoriteEntry", "freewriteReviewLater"].forEach((id) => { if ($(id)) $(id).addEventListener("change", scheduleJournalPersistence); });
   }
 
   async function init() {
@@ -8802,7 +8987,33 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v82-mobile-resources-full-prompts-near-journal";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v83-mobile-final-panel-toast-entry-footer";
+})();
+</script>
+
+
+<script id="rdm-v83-disciple-journal-final-polish">
+(function rdmV83DiscipleJournalFinalPolish(){
+  if (window.__rdmV83DiscipleJournalFinalPolish) return;
+  window.__rdmV83DiscipleJournalFinalPolish = true;
+  function get(id){ return document.getElementById(id); }
+  function isMobileShell(){ return document.body.classList.contains("rdm-dj-mobile-shell"); }
+  function resetNavToCurrentView(){
+    if (!isMobileShell()) return;
+    var view = document.body.getAttribute("data-dj-mobile-view") || "scripture";
+    var nav = get("rdmDjMobileNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-dj-action]").forEach(function(button){
+      button.classList.toggle("active", button.getAttribute("data-dj-action") === view);
+    });
+  }
+  document.addEventListener("click", function(event){
+    var closeBtn = event.target.closest("button");
+    if (!closeBtn || !/close/i.test(closeBtn.textContent || "")) return;
+    if (closeBtn.closest(".resourceFloatPanel, .resource-instance-panel, #internalCrossRefsPanel, .backgrounds-resource-panel, .background-topic-panel")) {
+      setTimeout(resetNavToCurrentView, 50);
+    }
+  }, true);
 })();
 </script>
 
