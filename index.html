@@ -25312,5 +25312,149 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v72 — Mobile Scripture Back soft visibility timing -->
+<style id="rdm-v72-mobile-scripture-back-softened-style">
+/*
+   v72 — Disciple Maker mobile Scripture Back softened timing
+   Scope: mobile/tablet only. Desktop and OBS remain untouched.
+   Keeps the v71 behavior, but softens the show/hide transition so the
+   inline back button does not pop in/out too sharply while Scripture changes.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v72-inline-scripture-back {
+    display: flex !important;
+    overflow: hidden !important;
+    will-change: opacity, transform, max-height;
+    transition:
+      opacity .22s ease,
+      transform .22s ease,
+      max-height .24s ease,
+      min-height .20s ease,
+      padding .20s ease,
+      margin .20s ease,
+      border-width .20s ease,
+      box-shadow .22s ease,
+      visibility 0s linear .22s !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v72-inline-scripture-back.rdm-v71-has-back-target:not(.rdm-v72-settling) {
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-height: 58px !important;
+    transform: translateY(0) !important;
+    transition-delay: .05s, .05s, .05s, .05s, .05s, .05s, .05s, .05s, 0s !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v72-inline-scripture-back.rdm-v71-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v72-inline-scripture-back.rdm-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v72-inline-scripture-back.rdm-v72-settling {
+    display: flex !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+    transform: translateY(-4px) !important;
+    pointer-events: none !important;
+  }
+}
+</style>
+<script id="rdm-v72-mobile-scripture-back-softened-script">
+(function rdmV72MobileScriptureBackSoftened(){
+  if (window.__rdmV72MobileScriptureBackSoftened) return;
+  window.__rdmV72MobileScriptureBackSoftened = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+  let settleTimer = null;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function applySoftClass(){
+    const back = get("scriptureBackBtn");
+    if (!back) return null;
+
+    if (!isMobileShell()) {
+      back.classList.remove("rdm-v72-inline-scripture-back", "rdm-v72-settling");
+      return back;
+    }
+
+    back.classList.add("rdm-v72-inline-scripture-back");
+    return back;
+  }
+
+  function runSync(){
+    if (typeof window.rdmV71SyncMobileScriptureBackVisibilityClean === "function") {
+      try { window.rdmV71SyncMobileScriptureBackVisibilityClean(); } catch (_) {}
+    }
+    applySoftClass();
+  }
+
+  function settleSync(){
+    const back = applySoftClass();
+    if (back && isMobileShell()) back.classList.add("rdm-v72-settling");
+
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(function(){
+      const latest = applySoftClass();
+      if (latest) latest.classList.remove("rdm-v72-settling");
+      runSync();
+    }, 180);
+
+    setTimeout(runSync, 340);
+    setTimeout(runSync, 720);
+  }
+
+  function start(){
+    runSync();
+    setTimeout(runSync, 120);
+    setTimeout(runSync, 360);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  document.addEventListener("click", function(event){
+    if (!event.target || !event.target.closest) return;
+    if (event.target.closest("#scriptureBackBtn, #prevBtn, #nextBtn, #loadBtn")) {
+      settleSync();
+    } else if (event.target.closest("#rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close]")) {
+      setTimeout(start, 80);
+    }
+  }, true);
+
+  ["change", "input"].forEach(function(name){
+    document.addEventListener(name, function(event){
+      if (!event.target || !event.target.matches || !event.target.matches("#book,#chapter,#start,#end,#rangeSize")) return;
+      settleSync();
+    }, true);
+  });
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(start, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", start);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(start);
+  }
+
+  window.rdmV72SyncMobileScriptureBackSoftened = runSync;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v72-mobile-scripture-back-softened-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v72-mobile-scripture-back-softened-final";
+})();
+</script>
+
 </body>
 </html>
