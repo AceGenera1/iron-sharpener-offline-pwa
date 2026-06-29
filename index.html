@@ -10,10 +10,36 @@
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
-<meta name="theme-color" content="#FFF4DB" media="(prefers-color-scheme: light)"/>
-<!-- v84 native launch screen only: no HTML overlay, no app UI/logo changes. -->
-<link rel="apple-touch-startup-image" href="./assets/splash/iron-sharpener-launch-universal.png"/>
-
+<meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
+<link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
+<link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
+<link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
+<script id="rdm-v85-no-splash-early-theme-prepaint">
+(function rdmV85NoSplashEarlyThemePrepaint(){
+  try {
+    var theme = localStorage.getItem('ironSharpenerUnified.theme') || 'cream';
+    document.documentElement.classList.add('rdm-v85-prepaint');
+    document.documentElement.classList.toggle('rdm-v85-dark', theme === 'dark');
+  } catch (_) {
+    document.documentElement.classList.add('rdm-v85-prepaint');
+  }
+})();
+</script>
+<style id="rdm-v85-no-splash-first-paint">
+/* v85: no splash overlay/native launch image. Only paint the page background immediately. */
+html.rdm-v85-prepaint,
+html.rdm-v85-prepaint body { background-color: #F4EFE3; }
+html.rdm-v85-prepaint.rdm-v85-dark,
+html.rdm-v85-prepaint.rdm-v85-dark body { background-color: #203D39; }
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-v85-prepaint,
+  html.rdm-v85-prepaint body {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+}
+</style>
 <style id="rdm-v79-first-paint-mobile-stability">
 /* v79 early paint guard: mobile-only visual stability before the later scripts finish loading. */
 html, body { background-color: #F4EFE3; }
@@ -25423,6 +25449,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
-<!-- v84 clean native splash: locked v79 app UI preserved; no DOM splash overlay. -->
+<script>window.__IRON_SHARPENER_DISCIPLE_MAKER_MOBILE_VERSION='v85-no-splash-fast-open-clean-icon';</script>
+
 </body>
 </html>
