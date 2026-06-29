@@ -25989,5 +25989,316 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- v75 — Mobile Scripture passage mirrors locked Journal v101 back-button placement -->
+<style id="rdm-v75-mobile-journal-style-scripture-passage-style">
+/*
+   v75 — Disciple Maker mobile Scripture passage layout cleanup
+   Scope: mobile/tablet app shell only. Desktop and OBS remain untouched.
+   Moves the real Scripture Back button out of the inline navigator grid and
+   into a Journal-style action row above the Scripture navigator, matching the
+   locked Disciple Journal v101 pattern so the controls box no longer bounces.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 0 10px !important;
+    padding: 0 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls > #scriptureBackBtn.rdm-v75-journal-scripture-back {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back {
+    display: none !important;
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    justify-self: stretch !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 8px 14px !important;
+    border-radius: 999px !important;
+    font-size: clamp(12.5px, 3.2vw, 14px) !important;
+    font-weight: 900 !important;
+    line-height: 1.12 !important;
+    letter-spacing: .01em !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    transform: translateZ(0) !important;
+    will-change: auto !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background .12s ease, box-shadow .12s ease, opacity .12s ease, border-color .12s ease !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v71-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.has-back-target {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 38px !important;
+    padding: 8px 14px !important;
+    border-width: 1.5px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v73-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v71-no-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-no-back-target:not(.has-back-target) {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v71-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.has-back-target {
+    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
+    color: #10223C !important;
+    border: 1.5px solid rgba(217,160,123,.92) !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v73-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-v71-has-back-target,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.has-back-target {
+    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
+    color: #F8F4EC !important;
+    border: 1.5px solid rgba(217,160,123,.94) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back:active {
+    transform: translateZ(0) scale(.99) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .rdm-v75-scripture-head-actions > #scriptureBackBtn.rdm-v75-journal-scripture-back.rdm-back-restoring {
+    pointer-events: none !important;
+    opacity: .82 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls {
+    margin-top: 8px !important;
+  }
+}
+</style>
+<script id="rdm-v75-mobile-journal-style-scripture-passage-script">
+(function rdmV75MobileJournalStyleScripturePassage(){
+  if (window.__rdmV75MobileJournalStyleScripturePassage) return;
+  window.__rdmV75MobileJournalStyleScripturePassage = true;
+
+  const get = (id) => document.getElementById(id);
+  const MOBILE_QUERY = window.matchMedia ? window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)") : null;
+  let loadWrapped = false;
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!MOBILE_QUERY || MOBILE_QUERY.matches);
+  }
+
+  function ensureHeadActions(){
+    const scripture = get("scriptureBox");
+    if (!scripture) return null;
+
+    let row = get("rdmV75ScriptureHeadActions");
+    if (!row) {
+      row = document.createElement("div");
+      row.id = "rdmV75ScriptureHeadActions";
+      row.className = "rdm-v75-scripture-head-actions";
+    }
+
+    if (row.parentElement !== scripture) {
+      const controls = scripture.querySelector(":scope > .controls.rdm-v68-inline-scripture-controls") || scripture.querySelector(":scope > .controls");
+      const source = scripture.querySelector(":scope > .source");
+      if (source && source.nextSibling) scripture.insertBefore(row, source.nextSibling);
+      else if (controls) scripture.insertBefore(row, controls);
+      else scripture.insertBefore(row, scripture.firstChild);
+    }
+
+    return row;
+  }
+
+  function restoreDesktopPlacement(back){
+    const scripture = get("scriptureBox");
+    const row = get("rdmV75ScriptureHeadActions");
+    if (back) {
+      back.classList.remove("rdm-v75-journal-scripture-back", "backScriptureInlineBtn", "has-back-target", "rdm-back-restoring");
+      back.style.removeProperty("display");
+      back.style.removeProperty("visibility");
+      if (scripture && back.parentElement === row) scripture.insertBefore(back, scripture.firstChild);
+    }
+    if (row && row.parentElement && !row.children.length) row.remove();
+  }
+
+  function hasBackTarget(back){
+    if (!back) return false;
+    if (back.classList.contains("rdm-v73-has-back-target") || back.classList.contains("rdm-v71-has-back-target")) return true;
+    if (back.classList.contains("rdm-v73-no-back-target") || back.classList.contains("rdm-v71-no-back-target") || back.classList.contains("rdm-no-back-target")) return false;
+    const text = String(back.textContent || "").trim();
+    return /^←\s*Back\s+to\s+\S+/i.test(text) && back.getAttribute("aria-hidden") !== "true";
+  }
+
+  function placeJournalStyleBackButton(){
+    const back = get("scriptureBackBtn");
+    if (!back) return;
+
+    if (!isMobileShell()) {
+      restoreDesktopPlacement(back);
+      return;
+    }
+
+    if (typeof window.rdmV68SyncMobileInlineScriptureNavigator === "function") {
+      try { window.rdmV68SyncMobileInlineScriptureNavigator(); } catch (_) {}
+    }
+    if (typeof window.rdmV69SyncMobileScriptureNavigatorTight === "function") {
+      try { window.rdmV69SyncMobileScriptureNavigatorTight(); } catch (_) {}
+    }
+
+    const row = ensureHeadActions();
+    if (!row) return;
+
+    if (back.parentElement !== row) row.appendChild(back);
+
+    back.classList.add("rdm-v75-journal-scripture-back", "backScriptureInlineBtn");
+    back.classList.remove("rdm-v72-settling");
+    back.style.removeProperty("display");
+    back.style.removeProperty("visibility");
+    back.style.removeProperty("height");
+    back.style.removeProperty("max-height");
+    back.style.removeProperty("min-height");
+    back.style.removeProperty("margin");
+    back.style.removeProperty("padding");
+
+    const target = hasBackTarget(back);
+    back.classList.toggle("has-back-target", target);
+    back.classList.toggle("rdm-back-restoring", back.classList.contains("rdm-v73-restoring") || back.classList.contains("rdm-restoring"));
+
+    if (target) {
+      back.removeAttribute("aria-hidden");
+      back.removeAttribute("tabindex");
+    } else {
+      back.setAttribute("aria-hidden", "true");
+      back.tabIndex = -1;
+    }
+
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      const old = get(id);
+      if (old) old.style.setProperty("display", "none", "important");
+    });
+  }
+
+  function schedulePlace(){
+    placeJournalStyleBackButton();
+    setTimeout(placeJournalStyleBackButton, 0);
+    setTimeout(placeJournalStyleBackButton, 60);
+    setTimeout(placeJournalStyleBackButton, 180);
+    setTimeout(placeJournalStyleBackButton, 420);
+    setTimeout(placeJournalStyleBackButton, 900);
+  }
+
+  function wrapGlobalUpdater(name){
+    const fn = window[name];
+    if (typeof fn !== "function" || fn.__rdmV75Wrapped) return;
+    const wrapped = function rdmV75WrappedBackUpdater(){
+      const result = fn.apply(this, arguments);
+      placeJournalStyleBackButton();
+      setTimeout(placeJournalStyleBackButton, 80);
+      return result;
+    };
+    wrapped.__rdmV75Wrapped = true;
+    window[name] = wrapped;
+  }
+
+  function wrapLoadPassage(){
+    if (loadWrapped) return;
+    const existing = (typeof loadPassage === "function" ? loadPassage : null) || (typeof window.loadPassage === "function" ? window.loadPassage : null);
+    if (typeof existing !== "function" || existing.__rdmV75Wrapped) return;
+
+    const wrapped = async function rdmV75LoadPassageWithJournalBackPlacement(){
+      let result;
+      try {
+        result = existing.apply(this, arguments);
+        if (result && typeof result.then === "function") await result;
+      } finally {
+        placeJournalStyleBackButton();
+        setTimeout(placeJournalStyleBackButton, 80);
+        setTimeout(placeJournalStyleBackButton, 240);
+      }
+      return result;
+    };
+    wrapped.__rdmV75Wrapped = true;
+    window.loadPassage = wrapped;
+    try { loadPassage = wrapped; } catch (_) {}
+    loadWrapped = true;
+  }
+
+  function start(){
+    wrapLoadPassage();
+    [
+      "rdmV70SyncMobileInlineScriptureBackPolish",
+      "rdmV71SyncMobileScriptureBackVisibilityClean",
+      "rdmV72SyncMobileScriptureBackSoftened",
+      "rdmV73UpdateMobileScriptureBackButton"
+    ].forEach(wrapGlobalUpdater);
+    schedulePlace();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  document.addEventListener("click", function(event){
+    if (!event.target || !event.target.closest) return;
+    if (event.target.closest("#scriptureBackBtn, #nextBtn, #prevBtn, #loadBtn, #rdmMobileAppNav button[data-rdm-mobile-action], #obsBtn, [data-rdm-mobile-close]")) {
+      schedulePlace();
+    }
+  }, true);
+
+  ["change", "input"].forEach(function(name){
+    document.addEventListener(name, function(event){
+      if (!event.target || !event.target.matches || !event.target.matches("#book,#chapter,#start,#end,#rangeSize")) return;
+      schedulePlace();
+    }, true);
+  });
+
+  ["resize", "orientationchange", "pageshow"].forEach(function(name){
+    window.addEventListener(name, function(){ setTimeout(start, name === "orientationchange" ? 250 : 0); });
+  });
+
+  if (MOBILE_QUERY) {
+    if (typeof MOBILE_QUERY.addEventListener === "function") MOBILE_QUERY.addEventListener("change", start);
+    else if (typeof MOBILE_QUERY.addListener === "function") MOBILE_QUERY.addListener(start);
+  }
+
+  window.rdmV75PlaceJournalStyleScriptureBackButton = placeJournalStyleBackButton;
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v75-mobile-journal-style-scripture-passage-final";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v75-mobile-journal-style-scripture-passage-final";
+})();
+</script>
+
 </body>
 </html>
