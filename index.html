@@ -23643,5 +23643,473 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+<!-- Patch 65 — Resources headers, Built-In Cross References full menu, and copy repair -->
+<style id="rdm-v65-resource-crossrefs-copy-style">
+/* Hide duplicated entry titles inside dictionary/Nave entry panels. The panel header already shows the title. */
+.resource-instance-panel[data-resource-key^="eastons-entry"] .resource-panel-body > h4:first-child,
+.resource-instance-panel[data-resource-key^="smiths-entry"] .resource-panel-body > h4:first-child,
+.resource-instance-panel[data-resource-key^="naves-topic"] .resource-panel-body > h4:first-child {
+  display: none !important;
+}
+
+/* Built-In Cross References: mobile app full-screen menu, not a nested floating card. */
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open {
+    position: fixed !important;
+    inset: 0 0 var(--rdm-mobile-nav-height) 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: var(--rdm-mobile-nav-height) !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    resize: none !important;
+    transform: none !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    z-index: 91500 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .teacher-pop-head {
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3 !important;
+    margin: 0 !important;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 16px !important;
+    cursor: default !important;
+    border-bottom: 2px solid var(--gold) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) #internalCrossRefsPanel.open .teacher-pop-head {
+    background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #internalCrossRefsPanel.open .teacher-pop-head,
+  html:not(.obs) body.dark.rdm-mobile-app-shell #internalCrossRefsPanel.open .teacher-pop-head {
+    background: linear-gradient(180deg, #355A54, #294843) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .teacher-pop-head h3 {
+    font-size: clamp(26px, 7.3vw, 38px) !important;
+    line-height: 1.06 !important;
+    letter-spacing: 2px !important;
+    max-width: calc(100vw - 132px) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open #closeInternalCrossRefs {
+    min-width: 86px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xrefs-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px 16px calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xrefs-controls {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xrefs-controls button,
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xref-link,
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open #internalXrefsShowMore {
+    min-height: 48px !important;
+    font-size: 16px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xref-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #internalCrossRefsPanel.open .internal-xref-verse {
+    padding: 14px !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+.rdm-v65-copy-tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+
+.rdm-v65-copy-tools button {
+  width: 100% !important;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  .rdm-v65-copy-tools {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+<script id="rdm-v65-resource-crossrefs-copy-script">
+(function rdmV65ResourceCrossrefsCopyFix(){
+  if (window.__rdmV65ResourceCrossrefsCopyFix) return;
+  window.__rdmV65ResourceCrossrefsCopyFix = true;
+
+  const MARKED_SELECTOR = [
+    ".verse.focused",
+    ".verse.pointed",
+    ".verse.highlighted",
+    ".verse.highlight-gold",
+    ".verse.highlight-blue",
+    ".verse.highlight-green",
+    ".verse.highlight-red",
+    ".verse.highlight-purple",
+    ".verse.highlight-amber",
+    ".verse.underlined",
+    ".verse.circled",
+    ".verse.boxed",
+    ".verse.rdm-stack-marked",
+    ".verse:has(.inline-underline)",
+    ".verse:has(.inline-circle)",
+    ".verse:has(.inline-box)",
+    ".verse:has(.inline-highlight-gold)",
+    ".verse:has(.inline-highlight-blue)",
+    ".verse:has(.inline-highlight-green)",
+    ".verse:has(.inline-highlight-red)",
+    ".verse:has(.inline-highlight-purple)",
+    ".verse:has(.inline-highlight-amber)"
+  ].join(", ");
+
+  function get(id) { return document.getElementById(id); }
+
+  function cleanText(value) {
+    return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function visibleVerses() {
+    return Array.from(document.querySelectorAll("#passage .verse[data-v]"));
+  }
+
+  function verseNum(verse) {
+    return parseInt(verse?.dataset?.v || "0", 10);
+  }
+
+  function uniqueSortedVerses(verses) {
+    return Array.from(new Set((verses || []).filter(Boolean)))
+      .filter(verse => verse.closest && verse.closest("#passage"))
+      .sort((a, b) => verseNum(a) - verseNum(b));
+  }
+
+  function getVerseText(verse) {
+    if (!verse) return "";
+    const clone = verse.cloneNode(true);
+    clone.querySelectorAll(".vnum").forEach(node => node.remove());
+    return cleanText(clone.textContent || "");
+  }
+
+  function rangesAreContiguous(numbers) {
+    if (numbers.length <= 1) return true;
+    for (let i = 1; i < numbers.length; i += 1) {
+      if (numbers[i] !== numbers[i - 1] + 1) return false;
+    }
+    return true;
+  }
+
+  function referenceForVerses(verses) {
+    const sorted = uniqueSortedVerses(verses);
+    const book = get("book")?.value || "";
+    const chapter = get("chapter")?.value || "";
+    if (!sorted.length) return `${book} ${chapter}`.trim();
+
+    const numbers = sorted.map(verseNum).filter(Boolean);
+    if (numbers.length === 1) return `${book} ${chapter}:${numbers[0]}`;
+    if (rangesAreContiguous(numbers)) return `${book} ${chapter}:${numbers[0]}-${numbers[numbers.length - 1]}`;
+    return `${book} ${chapter}:${numbers.join(", ")}`;
+  }
+
+  function formatVerses(verses) {
+    const sorted = uniqueSortedVerses(verses);
+    const ref = referenceForVerses(sorted);
+    const body = sorted.map(verse => `${verse.dataset.v} ${getVerseText(verse)}`).join("\n");
+    return `${ref} (WEB)\n${body}`.trim();
+  }
+
+  function selectionTouchesVerse(selection, verse) {
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !verse) return false;
+    for (let i = 0; i < selection.rangeCount; i += 1) {
+      const range = selection.getRangeAt(i);
+      try {
+        if (range.intersectsNode(verse)) return true;
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  function selectedVerses() {
+    const selection = window.getSelection ? window.getSelection() : null;
+    if (selection && selection.rangeCount && !selection.isCollapsed && cleanText(selection.toString())) {
+      const verses = visibleVerses().filter(verse => selectionTouchesVerse(selection, verse));
+      if (verses.length) return uniqueSortedVerses(verses);
+    }
+
+    const cached = window.__rdmLastInlineTextSelection;
+    if (cached && cached.verse && document.body.contains(cached.verse)) {
+      return uniqueSortedVerses([cached.verse]);
+    }
+
+    return [];
+  }
+
+  function markedVerses() {
+    let verses = [];
+    try {
+      verses = Array.from(document.querySelectorAll(MARKED_SELECTOR));
+    } catch (_) {
+      verses = visibleVerses().filter(verse => {
+        return verse.classList.contains("focused") ||
+          verse.classList.contains("pointed") ||
+          verse.classList.contains("highlighted") ||
+          verse.classList.contains("highlight-gold") ||
+          verse.classList.contains("highlight-blue") ||
+          verse.classList.contains("highlight-green") ||
+          verse.classList.contains("highlight-red") ||
+          verse.classList.contains("highlight-purple") ||
+          verse.classList.contains("highlight-amber") ||
+          verse.classList.contains("underlined") ||
+          verse.classList.contains("circled") ||
+          verse.classList.contains("boxed") ||
+          verse.classList.contains("rdm-stack-marked") ||
+          !!verse.querySelector(".inline-underline, .inline-circle, .inline-box, .inline-highlight-gold, .inline-highlight-blue, .inline-highlight-green, .inline-highlight-red, .inline-highlight-purple, .inline-highlight-amber");
+      });
+    }
+    return uniqueSortedVerses(verses);
+  }
+
+  function setCopyStatus(message) {
+    const status = get("copyStatus");
+    const active = get("activeToolLabel");
+    const teacherStatus = get("teacherToolsStatusText");
+    if (status) status.textContent = message;
+    if (active) active.textContent = message;
+    if (teacherStatus) teacherStatus.textContent = message;
+    clearTimeout(window.__rdmV65CopyStatusTimer);
+    window.__rdmV65CopyStatusTimer = setTimeout(function(){
+      if (status) status.textContent = "Copy tools ready.";
+    }, 1800);
+  }
+
+  async function copyText(text) {
+    const value = String(text || "");
+    if (!value.trim()) return false;
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch (_) {}
+
+    const helper = document.createElement("textarea");
+    helper.value = value;
+    helper.setAttribute("readonly", "readonly");
+    helper.setAttribute("aria-hidden", "true");
+    helper.style.position = "fixed";
+    helper.style.left = "0";
+    helper.style.top = "0";
+    helper.style.width = "1px";
+    helper.style.height = "1px";
+    helper.style.opacity = "0.01";
+    helper.style.zIndex = "-1";
+    document.body.appendChild(helper);
+
+    let success = false;
+    try {
+      helper.focus({ preventScroll: true });
+      helper.select();
+      helper.setSelectionRange(0, helper.value.length);
+      success = document.execCommand("copy");
+    } catch (_) {
+      success = false;
+    } finally {
+      document.body.removeChild(helper);
+    }
+
+    return !!success;
+  }
+
+  async function copyVerses(verses, emptyMessage) {
+    const sorted = uniqueSortedVerses(verses);
+    if (!sorted.length) {
+      setCopyStatus(emptyMessage || "No verses available to copy.");
+      return false;
+    }
+
+    const ref = referenceForVerses(sorted);
+    const ok = await copyText(formatVerses(sorted));
+    setCopyStatus(ok ? `Copied: ${ref}.` : `Copy failed. Select and copy manually: ${ref}.`);
+    return ok;
+  }
+
+  async function copyPassage() {
+    await copyVerses(visibleVerses(), "No passage loaded.");
+  }
+
+  async function copyVerse() {
+    const picked = selectedVerses()[0] || markedVerses()[0] || visibleVerses()[0];
+    await copyVerses(picked ? [picked] : [], "No verse loaded.");
+  }
+
+  async function copySelectedOrMarked() {
+    const picked = selectedVerses();
+    await copyVerses(picked.length ? picked : markedVerses(), "Select or mark verses first.");
+  }
+
+  function installCopyShortcuts() {
+    const panel = get("teacherToolsPanel");
+    const status = get("teacherToolsStatusText");
+    if (!panel || !status || get("rdmV65CopyTools")) return;
+
+    const block = document.createElement("div");
+    block.id = "rdmV65CopyTools";
+    block.innerHTML = `
+      <div class="tool-section-title">Copy Tools</div>
+      <div class="rdm-v65-copy-tools">
+        <button id="rdmV65CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the current loaded passage with WEB attribution.</span></button>
+        <button id="rdmV65CopyMarkedBtn" class="tool-option" type="button"><strong>Copy Selected / Marked</strong><span>Copy selected words' verse, or marked verses together.</span></button>
+      </div>
+    `;
+    status.closest(".teacher-tools-status-card")?.insertAdjacentElement("afterend", block);
+  }
+
+  function sanitizeDuplicateResourceHeaders(root) {
+    const scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll('.resource-instance-panel[data-resource-key^="eastons-entry"], .resource-instance-panel[data-resource-key^="smiths-entry"], .resource-instance-panel[data-resource-key^="naves-topic"]').forEach(panel => {
+      const title = cleanText(panel.querySelector(".resource-panel-title")?.textContent || "").toLowerCase();
+      const firstHeading = panel.querySelector(".resource-panel-body > h4:first-child");
+      if (!firstHeading) return;
+      const inner = cleanText(firstHeading.textContent || "").toLowerCase();
+      if (!title || !inner || title === inner) firstHeading.remove();
+    });
+  }
+
+  function closeFloatingParentsForInternalCrossRefs() {
+    ["teacherToolsPanel", "studyResourcesPanel", "obsCrossRefsPanel"].forEach(id => {
+      const panel = get(id);
+      if (!panel) return;
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+    });
+  }
+
+  function patchInternalCrossRefsOpen() {
+    const previous = window.openInternalCrossReferences;
+    if (typeof previous !== "function" || previous.__rdmV65FullMenuWrapped) return;
+
+    const wrapped = async function rdmV65OpenInternalCrossReferencesFullMenu(scope) {
+      const result = await previous.apply(this, arguments);
+      const panel = get("internalCrossRefsPanel");
+      if (panel) {
+        panel.classList.add("open");
+        panel.setAttribute("aria-hidden", "false");
+        panel.style.display = "";
+      }
+      closeFloatingParentsForInternalCrossRefs();
+      return result;
+    };
+
+    wrapped.__rdmV65FullMenuWrapped = true;
+    window.openInternalCrossReferences = wrapped;
+  }
+
+  document.addEventListener("click", function(event){
+    const copyBtn = event.target.closest("#copyPassage, #copyVerse, #copySelectedVerses, #rdmV65CopyPassageBtn, #rdmV65CopyMarkedBtn");
+    if (copyBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+      if (copyBtn.id === "copyPassage" || copyBtn.id === "rdmV65CopyPassageBtn") copyPassage();
+      else if (copyBtn.id === "copySelectedVerses" || copyBtn.id === "rdmV65CopyMarkedBtn") copySelectedOrMarked();
+      else copyVerse();
+      return;
+    }
+
+    const internalBtn = event.target.closest("#openInternalCrossRefs, #studyResourcesKey [data-study-key-action='crossrefs']");
+    if (internalBtn && typeof window.openInternalCrossReferences === "function") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      window.openInternalCrossReferences("passage");
+      return;
+    }
+
+    if (event.target.closest(".dictionary-result-btn, .naves-topic-btn")) {
+      setTimeout(sanitizeDuplicateResourceHeaders, 0);
+      setTimeout(sanitizeDuplicateResourceHeaders, 80);
+      setTimeout(sanitizeDuplicateResourceHeaders, 220);
+    }
+  }, true);
+
+  const previousUseActiveTool = typeof useActiveTool === "function" ? useActiveTool : null;
+  if (previousUseActiveTool && !previousUseActiveTool.__rdmV65CopyBridge) {
+    const wrappedUseActiveTool = function rdmV65UseActiveToolCopyBridge(verse) {
+      let tool = "";
+      try { tool = String(activeTool || ""); } catch (_) {}
+      if (tool === "copy-verse") {
+        copyVerses(verse ? [verse] : [], "No verse loaded.");
+        return;
+      }
+      return previousUseActiveTool.apply(this, arguments);
+    };
+    wrappedUseActiveTool.__rdmV65CopyBridge = true;
+    try { useActiveTool = wrappedUseActiveTool; } catch (_) {}
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    installCopyShortcuts();
+    patchInternalCrossRefsOpen();
+    sanitizeDuplicateResourceHeaders();
+  });
+
+  window.addEventListener("load", function(){
+    installCopyShortcuts();
+    patchInternalCrossRefsOpen();
+    sanitizeDuplicateResourceHeaders();
+    setTimeout(installCopyShortcuts, 250);
+    setTimeout(patchInternalCrossRefsOpen, 250);
+  });
+
+  installCopyShortcuts();
+  patchInternalCrossRefsOpen();
+  sanitizeDuplicateResourceHeaders();
+
+  window.rdmV65CopyPassage = copyPassage;
+  window.rdmV65CopyVerse = copyVerse;
+  window.rdmV65CopySelectedOrMarked = copySelectedOrMarked;
+  window.rdmV65SanitizeResourceHeaders = sanitizeDuplicateResourceHeaders;
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v65-mobile-resources-crossrefs-copy-fix";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v65-mobile-resources-crossrefs-copy-fix";
+  window.__IRON_SHARPENER_MARKING_LOCK_VERSION = "v64-mobile-tools-selection-bridge";
+  window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
+  window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
+})();
+</script>
+
 </body>
 </html>
