@@ -3182,6 +3182,128 @@ body.dark .resource-clean-empty {
   }
 }
 
+
+
+/* =========================================================
+   v85 — Disciple Journal mobile panel lock, date tighten,
+   and import cleanup.
+   Scope: final mobile shell polish only.
+   Locked: study resources, marking/highlighting, copy/toast,
+   journal save/new-entry behavior, and resource result panels.
+   ========================================================= */
+/* Import is removed everywhere. Export remains available on desktop, but
+   mobile export stays hidden from v84 because mobile file handling varies. */
+#importBtn,
+#importFile {
+  display: none !important;
+}
+
+@media (max-width: 780px), (pointer: coarse) {
+  /* Keep the page behind full-screen mobile panels from scrolling. */
+  html.rdm-dj-modal-locked,
+  body.rdm-dj-panel-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* Study Tools chooser and Scripture Marking must behave like true app screens. */
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--dj-mobile-nav-height) + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-radius: 0 !important;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 16px !important;
+    z-index: 89500 !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
+  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open {
+    display: block !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead {
+    position: sticky !important;
+    top: calc(-14px - env(safe-area-inset-top, 0px)) !important;
+    z-index: 8 !important;
+    margin: calc(-14px - env(safe-area-inset-top, 0px)) -14px 16px !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 12px !important;
+    border-bottom: 1.5px solid var(--soft-copper) !important;
+    background: inherit !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead h2,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead h2 {
+    font-size: clamp(23px, 6vw, 34px) !important;
+    line-height: 1.08 !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsBody,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBody {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBodyV59,
+  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
+  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stronger mobile/iPad date-field correction. Keep it compact and centered. */
+  body.rdm-dj-mobile-shell #entryDate {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    max-height: 40px !important;
+    padding: 5px 10px !important;
+    line-height: 1.15 !important;
+    font-size: 15px !important;
+    text-align: center !important;
+    border-radius: 13px !important;
+  }
+
+  body.rdm-dj-mobile-shell #entryDate::-webkit-date-and-time-value {
+    min-height: 0 !important;
+    height: auto !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    padding: 0 !important;
+  }
+
+  body.rdm-dj-mobile-shell #entryDate::-webkit-calendar-picker-indicator {
+    margin: 0 !important;
+  }
+
+  body.rdm-dj-mobile-shell .gridControls > div:has(#entryDate) {
+    align-self: start !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5973,7 +6095,83 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
 
 </style></head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
-<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
+<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div>
+
+<script id="rdm-v85-disciple-journal-panel-lock-date-import-cleanup">
+(function rdmV85DiscipleJournalPanelLockDateImportCleanup(){
+  if (window.__rdmV85DiscipleJournalPanelLockDateImportCleanup) return;
+  window.__rdmV85DiscipleJournalPanelLockDateImportCleanup = true;
+
+  var lockedScrollY = 0;
+  function isMobileShell(){ return document.body && document.body.classList.contains('rdm-dj-mobile-shell'); }
+  function panelSelectors(){
+    return [
+      '#studyToolsPanel.open',
+      '#markToolsPanel.open',
+      '#resourceFloatPanel.open',
+      '#internalCrossRefsPanel.open',
+      '.resource-instance-panel.open',
+      '.backgrounds-resource-panel.open',
+      '.background-topic-panel.open',
+      '#journalReaderPanel.open'
+    ].join(',');
+  }
+  function anyFullPanelOpen(){ return !!document.querySelector(panelSelectors()); }
+  function lockPage(){
+    if (!isMobileShell() || document.body.classList.contains('rdm-dj-panel-open')) return;
+    lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.documentElement.classList.add('rdm-dj-modal-locked');
+    document.body.classList.add('rdm-dj-panel-open');
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + lockedScrollY + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+  function unlockPage(){
+    if (!document.body.classList.contains('rdm-dj-panel-open')) return;
+    if (anyFullPanelOpen()) return;
+    document.documentElement.classList.remove('rdm-dj-modal-locked');
+    document.body.classList.remove('rdm-dj-panel-open');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    try { window.scrollTo(0, lockedScrollY || 0); } catch (_) {}
+  }
+  function syncPanelLock(){ setTimeout(function(){ anyFullPanelOpen() ? lockPage() : unlockPage(); }, 30); }
+
+  document.addEventListener('click', function(event){
+    if (!isMobileShell()) return;
+    var target = event.target;
+    if (!target) return;
+    if (target.closest('#openStudyToolsBtn, #openMarkToolsBtn, #toolCrossRefs, #toolMatthewHenry, #toolJfb, #toolBackgrounds, #toolBookOverview, #toolDoctrine, #toolEastons, #toolSmiths, #toolNave, #rdmDjMobileNav button[data-dj-action="mark"], #rdmDjMobileNav button[data-dj-action="tools"], .resourceCardBtn, .cross-ref-link, .nave-ref-btn, .rdm-background-topic-btn, .study-background-topic-btn, .doctrine-topic-btn, .dictionary-result-btn, .naves-result-btn, #readJournalBtn, .readEntryBtn')) {
+      syncPanelLock();
+      return;
+    }
+    if (target.closest('#closeStudyToolsBtn, #closeMarkToolsBtn, #closeResourceFloatBtn, .resource-close, .backgrounds-close-btn, .background-topic-close-btn, #closeReaderBtn, #rdmDjMobileNav button[data-dj-action="scripture"], #rdmDjMobileNav button[data-dj-action="journal"], #rdmDjMobileNav button[data-dj-action="history"]')) {
+      setTimeout(function(){ unlockPage(); }, 80);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(event){
+    if (event.key === 'Escape') setTimeout(function(){ unlockPage(); }, 80);
+  }, true);
+
+  window.addEventListener('resize', function(){ if (!isMobileShell()) unlockPage(); else syncPanelLock(); }, { passive: true });
+
+  /* Import is intentionally removed from the UI. Leave old code harmlessly untouched. */
+  var importBtn = document.getElementById('importBtn');
+  var importFile = document.getElementById('importFile');
+  if (importBtn) importBtn.setAttribute('aria-hidden', 'true');
+  if (importFile) importFile.setAttribute('aria-hidden', 'true');
+
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v85-mobile-panel-lock-date-import-cleanup';
+})();
+</script>
+
+</body></html>`;
   }
 
   function safeFileName(value) {
@@ -9066,7 +9264,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener("orientationchange", function(){ setTimeout(applyMobileShell, 180); });
   window.addEventListener("resize", function(){ setTimeout(applyMobileShell, 120); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v84-mobile-study-tools-full-edit-export-date";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v85-mobile-panel-lock-date-import-cleanup";
 })();
 </script>
 
@@ -9124,7 +9322,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     }
   }, true);
 
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v84-mobile-study-tools-full-edit-export-date";
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = "v85-mobile-panel-lock-date-import-cleanup";
 })();
 </script>
 
