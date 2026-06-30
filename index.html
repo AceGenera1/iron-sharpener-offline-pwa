@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>IS Disciple Maker</title>
-<link href="./manifest.json?v=115" rel="manifest"/>
+<link href="./manifest-maker.json?v=116" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="IS Disciple Maker"/>
 <meta name="application-name" content="IS Disciple Maker"/>
@@ -100,7 +100,7 @@ body.dark { background-color: #203D39; }
   html:not(.obs) body { background-color: #F4EFE3; }
   html:not(.obs) body.dark { background-color: #203D39; }
   html:not(.obs) #rdmMobileAppNav {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
   html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
   html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
@@ -16926,7 +16926,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   bottom: 0;
   z-index: 79000;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px));
   border-top: 2px solid var(--gold);
@@ -17142,7 +17142,6 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
       <button type="button" data-rdm-mobile-action="scripture"><span class="rdm-mobile-nav-icon">📖</span><span>Scripture</span></button>
       <button type="button" data-rdm-mobile-action="tools"><span class="rdm-mobile-nav-icon">⚔</span><span>Tools</span></button>
       <button type="button" data-rdm-mobile-action="notes"><span class="rdm-mobile-nav-icon">✎</span><span>Notes</span></button>
-      <button type="button" data-rdm-mobile-action="journal"><span class="rdm-mobile-nav-icon">✚</span><span>Journal</span></button>
     `;
 
     nav.addEventListener("click", function (event) {
@@ -19787,7 +19786,7 @@ html:not(.obs) body.rdm-mobile-app-shell .vnum {
 
 /* Bottom navigation: five true app tabs after Resources was removed. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   min-height: var(--rdm-mobile-nav-height) !important;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -19930,7 +19929,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
 /* Tablet touch devices: keep the app feel but avoid stretched controls. */
 @media (min-width: 760px) {
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     width: min(720px, calc(100vw - 28px)) !important;
   }
   html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls,
@@ -19964,7 +19963,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
     const nav = get("rdmMobileAppNav");
     if (nav) {
       nav.querySelectorAll('button[data-rdm-mobile-action="resources"]').forEach((button) => button.remove());
-      nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
+      nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
     }
   }
 
@@ -20057,7 +20056,7 @@ html:not(.obs) body.rdm-mobile-app-shell .nav-row button {
 
 /* Bottom app nav: equal, device-aware tabs that fill the phone width cleanly. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: clamp(5px, 1.25vw, 9px) !important;
   padding: 8px clamp(8px, 2.2vw, 14px) calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -20900,7 +20899,7 @@ html:not(.obs) body.rdm-mobile-app-shell {
 /* Bottom app navigation must use the full phone width instead of clustering left. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   position: fixed !important;
   left: 0 !important;
   right: 0 !important;
@@ -24490,7 +24489,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
   html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls {
@@ -24603,7 +24602,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       passageBtn.classList.remove("active");
     }
 
-    nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
+    nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
 
     if (!nav.querySelector('button[data-rdm-mobile-action="scripture"].active')) {
       const anyActive = nav.querySelector('button.active:not([data-rdm-mobile-action="passage"])');
@@ -24699,7 +24698,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
   /* Fully retire the older legacy Scripture Back button on mobile so only v76 controls this feature. */
@@ -25203,12 +25202,12 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 */
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
   html:not(.obs) body.rdm-mobile-app-shell {
-    --rdm-mobile-visible-tabs: 4;
+    --rdm-mobile-visible-tabs: 3;
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     align-items: stretch !important;
     width: 100% !important;
     max-width: none !important;
@@ -25280,9 +25279,9 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     if (!nav) return;
 
     removeRetiredTabs(nav);
-    nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
+    nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
 
-    const validActions = new Set(["scripture", "tools", "notes", "journal"]);
+    const validActions = new Set(["scripture", "tools", "notes"]);
     nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(btn){
       if (!validActions.has(btn.dataset.rdmMobileAction)) {
         btn.remove();
@@ -29703,10 +29702,10 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 
 
-<script id="rdm-v115-maker-title-toolbar-offline-final-script">
-(function rdmV115MakerTitleToolbarOfflineFinal(){
-  if (window.__rdmV115MakerTitleToolbarOfflineFinal) return;
-  window.__rdmV115MakerTitleToolbarOfflineFinal = true;
+<script id="rdm-v116-maker-title-toolbar-offline-final-script">
+(function rdmV116MakerTitleToolbarOfflineFinal(){
+  if (window.__rdmV116MakerTitleToolbarOfflineFinal) return;
+  window.__rdmV116MakerTitleToolbarOfflineFinal = true;
   var STORAGE_PREFIX = "ironSharpenerUnified";
   function get(id){ return document.getElementById(id); }
   function isInstalledMaker(){
@@ -29750,23 +29749,23 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       }
       var nav = get('rdmMobileAppNav');
       if (!nav) return;
-      var journal = nav.querySelector('button[data-rdm-mobile-action="journal"]');
-      if (journal && !journal.dataset.rdmV115Removed) {
-        journal.dataset.rdmV115Removed = '1';
-        journal.setAttribute('aria-hidden','true');
-        journal.setAttribute('tabindex','-1');
-        journal.style.setProperty('display','none','important');
-      }
+      nav.querySelectorAll('button[data-rdm-mobile-action="journal"]').forEach(function(btn){
+        btn.remove();
+      });
+      nav.querySelectorAll('button[data-rdm-mobile-action="passage"], button[data-rdm-mobile-action="resources"]').forEach(function(btn){
+        btn.remove();
+      });
       nav.style.setProperty('display','grid','important');
       nav.style.setProperty('grid-template-columns','repeat(3, minmax(0, 1fr))','important');
       nav.style.setProperty('gap','clamp(12px, 2.8vw, 24px)','important');
       var actions = ['scripture','tools','notes'];
-      actions.forEach(function(action, idx){
-        var btn = nav.querySelector('button[data-rdm-mobile-action="' + action + '"]');
-        if (btn) {
-          btn.style.setProperty('grid-column', String(idx + 1), 'important');
-          btn.style.setProperty('width', '100%', 'important');
-        }
+      nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
+        var action = btn.getAttribute('data-rdm-mobile-action');
+        if (actions.indexOf(action) === -1) { btn.remove(); return; }
+        btn.style.setProperty('grid-column', String(actions.indexOf(action) + 1), 'important');
+        btn.style.setProperty('width', '100%', 'important');
+        btn.style.setProperty('min-width', '0', 'important');
+        btn.style.setProperty('max-width', 'none', 'important');
       });
     } catch (_) {}
   }
@@ -29817,6 +29816,84 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   else tick();
   [150, 500, 1200, 2400, 4000].forEach(function(ms){ setTimeout(tick, ms); });
   window.addEventListener('pageshow', function(){ setTimeout(tick, 100); setTimeout(tick, 900); });
+})();
+</script>
+
+
+
+<style id="rdm-v116-maker-source-removed-three-tab-final-style">
+/* v116: Disciple Maker mobile/tab app now has a true three-button toolbar. The Journal slot is removed, not merely hidden. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(12px, 2.8vw, 24px) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="scripture"] { grid-column: 1 !important; }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="tools"] { grid-column: 2 !important; }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="notes"] { grid-column: 3 !important; }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
+    display: none !important;
+  }
+}
+/* No misleading frozen progress bar in the public Offline Ready panel. */
+#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
+#rdmPublicOfflineBarV33,
+#rdmOfflinePanelV107 .rdm-offline-v107-track,
+#rdmOfflineBarV107,
+#rdmOfflinePanelV105 .rdm-offline-v105-track,
+#rdmOfflineBarV105 {
+  display: none !important;
+}
+</style>
+<script id="rdm-v116-maker-source-removed-three-tab-final-script">
+(function rdmV116MakerSourceRemovedThreeTabFinal(){
+  if (window.__rdmV116MakerSourceRemovedThreeTabFinal) return;
+  window.__rdmV116MakerSourceRemovedThreeTabFinal = true;
+  function lockTitle(){
+    try {
+      document.title = 'IS Disciple Maker';
+      [['apple-mobile-web-app-title','IS Disciple Maker'],['application-name','IS Disciple Maker']].forEach(function(pair){
+        var el = document.querySelector('meta[name="' + pair[0] + '"]');
+        if (!el) { el = document.createElement('meta'); el.setAttribute('name', pair[0]); document.head.appendChild(el); }
+        el.setAttribute('content', pair[1]);
+      });
+    } catch(_) {}
+  }
+  function normalizeThreeTabToolbar(){
+    try {
+      var nav = document.getElementById('rdmMobileAppNav');
+      if (!nav) return;
+      nav.querySelectorAll('button[data-rdm-mobile-action="journal"], button[data-rdm-mobile-action="passage"], button[data-rdm-mobile-action="resources"]').forEach(function(btn){ btn.remove(); });
+      var actions = ['scripture','tools','notes'];
+      nav.style.setProperty('display','grid','important');
+      nav.style.setProperty('grid-template-columns','repeat(3, minmax(0, 1fr))','important');
+      nav.style.setProperty('gap','clamp(12px, 2.8vw, 24px)','important');
+      nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
+        var action = btn.getAttribute('data-rdm-mobile-action');
+        var index = actions.indexOf(action);
+        if (index < 0) { btn.remove(); return; }
+        btn.style.setProperty('grid-column', String(index + 1), 'important');
+        btn.style.setProperty('width', '100%', 'important');
+        btn.style.setProperty('min-width', '0', 'important');
+        btn.style.setProperty('max-width', 'none', 'important');
+      });
+    } catch(_) {}
+  }
+  function hideOfflineBars(){
+    try {
+      document.querySelectorAll('#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33, #rdmPublicOfflineBarV33, #rdmOfflinePanelV107 .rdm-offline-v107-track, #rdmOfflineBarV107, #rdmOfflinePanelV105 .rdm-offline-v105-track, #rdmOfflineBarV105').forEach(function(el){
+        el.style.setProperty('display','none','important');
+      });
+    } catch(_) {}
+  }
+  function run(){ lockTitle(); normalizeThreeTabToolbar(); hideOfflineBars(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
+  [60, 180, 520, 1100, 2200].forEach(function(ms){ setTimeout(run, ms); });
+  document.addEventListener('click', function(){ setTimeout(run, 0); }, true);
+  window.addEventListener('pageshow', function(){ setTimeout(run, 60); });
 })();
 </script>
 
