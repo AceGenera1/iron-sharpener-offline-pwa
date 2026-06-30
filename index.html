@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
-<link href="./manifest.json" rel="manifest"/>
+<link href="./manifest-maker.json" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -14,6 +14,16 @@
 <link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
 <link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
 <link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
+
+<script id="rdm-v109-two-app-standalone-class">
+(function rdmV109TwoAppStandaloneClass(){
+  try {
+    var standalone = !!(window.navigator && window.navigator.standalone) ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    document.documentElement.classList.toggle('rdm-mobile-standalone-app', !!standalone);
+  } catch (_) {}
+})();
+</script>
 <script id="rdm-v85-no-splash-early-theme-prepaint">
 (function rdmV85NoSplashEarlyThemePrepaint(){
   try {
@@ -2528,6 +2538,20 @@ html.obs .rdm-offline-cache-panel {
 /* v30 Disciple Journal launch button: hidden in OBS Focus so teaching layout stays clean. */
 html.obs #discipleJournalBtn { display: none !important; }
 
+</style>
+
+<style id="rdm-v109-two-app-mobile-separation">
+/* v109: two-app mobile setup. In installed mobile/tablet mode, Disciple Maker stays focused on teaching tools.
+   Normal Safari/browser still shows the Journal link so a user can open personal-study.html and add the Journal app. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-mobile-standalone-app #discipleJournalBtn,
+  html.rdm-mobile-standalone-app #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+  }
+  html.rdm-mobile-standalone-app:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
 </style>
 </head>
 <body>
