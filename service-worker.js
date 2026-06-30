@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v36 Complete Offline Tool
-   App-shell recovery: keep HTML fresh when online, but serve every cached
-   Scripture/resource/asset file offline across Disciple Maker + Disciple Journal. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v36-complete-tool-20260630";
+/* Iron Sharpener service worker — v38 Fast Offline Navigation
+   Stable v36 cache foundation plus fast cached navigation for iPad/tablet
+   startup and Disciple Maker ↔ Disciple Journal switching. */
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v38-fast-navigation-20260630";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -187,8 +187,35 @@ async function removeOldHtmlShellEntries() {
   }
 }
 
-async function navigationNetworkFirst(request) {
+async function cachedHtmlForNavigation(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
+  for (const key of htmlCacheKeysForRequest(request)) {
+    const cached = await cache.match(key) || await matchAnyResourceCache(key);
+    if (cached) return cached;
+  }
+  return null;
+}
+
+async function refreshNavigationInBackground(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  try {
+    const response = await fetch(new Request(request, { cache: "reload" }));
+    if (response && response.ok) await cacheHtmlResponse(cache, response, request);
+  } catch (_) {}
+}
+
+async function navigationFastCached(request, event) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  const cached = await cachedHtmlForNavigation(request);
+
+  // v38: cached app pages should open immediately, especially on iPad/tablet
+  // and when switching between Disciple Maker and Disciple Journal offline.
+  // While online, refresh the HTML quietly in the background for future loads.
+  if (cached) {
+    try { if (event && event.waitUntil) event.waitUntil(refreshNavigationInBackground(request)); } catch (_) {}
+    return cached;
+  }
+
   try {
     const response = await fetch(new Request(request, { cache: "reload" }));
     if (response && response.ok) {
@@ -196,11 +223,6 @@ async function navigationNetworkFirst(request) {
       return response;
     }
   } catch (_) {}
-
-  for (const key of htmlCacheKeysForRequest(request)) {
-    const cached = await cache.match(key) || await matchAnyResourceCache(key);
-    if (cached) return cached;
-  }
 
   return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
@@ -246,7 +268,7 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (!sameOriginGet(request)) return;
   if (isNavigationRequest(request)) {
-    event.respondWith(navigationNetworkFirst(request));
+    event.respondWith(navigationFastCached(request, event));
     return;
   }
   event.respondWith(resourceCacheFirst(request));
