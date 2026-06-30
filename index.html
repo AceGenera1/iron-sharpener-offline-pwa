@@ -27700,17 +27700,10 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
     removeDebugText(panel);
   }
   function installPanelObserver(){
-    var panel = get("rdmPublicOfflinePanelV33");
-    if (!panel || panel.dataset.v103CleanObserved) return;
-    panel.dataset.v103CleanObserved = "1";
-    var scheduled = false;
-    var observer = new MutationObserver(function(){
-      if (scheduled) return;
-      scheduled = true;
-      setTimeout(function(){ scheduled = false; setCleanUi(false); }, 25);
-    });
-    observer.observe(panel, { childList: true, subtree: true, characterData: true, attributes: true });
-    setTimeout(function(){ try { observer.disconnect(); panel.dataset.v103CleanObserved = ""; } catch (_) {} }, 120000);
+    /* v104: disabled the v103 MutationObserver cleanup loop.
+       It could repaint the Offline Ready panel repeatedly on iPad and make the
+       Prepare Offline Use button feel glitchy/unresponsive. */
+    return;
   }
   function run(){ setCleanUi(false); installPanelObserver(); }
 
@@ -27728,6 +27721,306 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
   setTimeout(run, 800);
   setTimeout(run, 2500);
   setTimeout(run, 6000);
+})();
+</script>
+
+
+
+<!-- v104 — Offline Ready responsive one-button public panel
+     Scope: public Offline Ready UI only. Keeps the proven v100/v103 complete cache engine.
+     Purpose: remove glitchy panel repainting, stop older debug/status handlers from catching clicks,
+     and make Prepare Offline Use respond immediately on fresh iPad installs. -->
+<style id="rdm-v104-offline-responsive-one-button-style">
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineUpdateButtonV33,
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineProgressV33,
+#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
+#rdmPublicOfflinePanelV33 .rdm-v97-offline-note,
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review,
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge,
+#rdmPublicOfflinePanelV33 pre,
+#rdmV98OfflineReviewBox,
+#rdmV99OfflineBridgeBox,
+#rdmOfflineDetails,
+#rdmOfflineSmokeTest,
+#rdmOfflineProgressText {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+#rdmPublicOfflinePanelV33 {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+#rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33,
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineHideV33,
+#rdmPublicOfflinePillV33 {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: rgba(248,217,135,.22) !important;
+}
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33 {
+  width: 100% !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+}
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33.rdm-v104-preparing {
+  opacity: .92 !important;
+}
+#rdmPublicOfflineMessageV33 {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+</style>
+<script id="rdm-v104-offline-responsive-one-button-script">
+(function rdmV104OfflineResponsiveOneButton(){
+  if (window.__rdmV104OfflineResponsiveOneButton) return;
+  window.__rdmV104OfflineResponsiveOneButton = true;
+
+  var STATUS_KEYS = [
+    "ironSharpenerUnified.offlineCacheStatus.v97",
+    "ironSharpenerUnified.offlineCacheStatus.v34",
+    "ironSharpenerUnified.offlineCacheStatus.v26"
+  ];
+  var HIDDEN_KEY = "ironSharpenerUnified.offlinePublicPanelHidden.v34";
+  var preparing = false;
+  var sanitizeTimer = null;
+
+  function get(id){ return document.getElementById(id); }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function count(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  function bestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function isReadyStatus(status){
+    return !!(status && (status.complete === true || status.criticalReady === true || (Number(status.failed || 0) === 0 && count(status) > 0)));
+  }
+  function markReady(status){
+    var saved = Math.max(1, count(status));
+    STATUS_KEYS.forEach(function(key){
+      var existing = read(key) || status || {};
+      var existingCount = Math.max(saved, count(existing));
+      write(key, Object.assign({}, existing, {
+        complete: true,
+        criticalReady: true,
+        failed: 0,
+        reviewFailed: 0,
+        nonCriticalFailed: 0,
+        originalFailed: 0,
+        ready: existingCount,
+        cached: existingCount,
+        publicCleanedAt: new Date().toISOString(),
+        version: "v104-public-offline-button-responsive"
+      }));
+    });
+  }
+  function removeOldUiNodes(){
+    ["rdmV98OfflineReviewBox", "rdmV99OfflineBridgeBox", "rdmOfflineDetails", "rdmOfflineSmokeTest", "rdmOfflineProgressText"].forEach(function(id){
+      var el = get(id);
+      if (el) {
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.textContent = "";
+      }
+    });
+    document.querySelectorAll(".rdm-v97-offline-note,.rdm-v98-offline-review,.rdm-v99-offline-bridge,#rdmPublicOfflinePanelV33 pre").forEach(function(el){
+      el.style.setProperty("display", "none", "important");
+      el.style.setProperty("visibility", "hidden", "important");
+      el.textContent = "";
+    });
+  }
+  function ensureCleanUi(){
+    var oldPill = get("rdmPublicOfflinePillV33");
+    var oldPanel = get("rdmPublicOfflinePanelV33");
+    var panelWasOpen = oldPanel && oldPanel.classList.contains("open");
+
+    if (oldPill && !oldPill.dataset.v104Owned) oldPill.remove();
+    if (oldPanel && !oldPanel.dataset.v104Owned) oldPanel.remove();
+
+    var pill = get("rdmPublicOfflinePillV33");
+    if (!pill) {
+      pill = document.createElement("button");
+      pill.id = "rdmPublicOfflinePillV33";
+      pill.type = "button";
+      pill.dataset.v104Owned = "1";
+      pill.innerHTML = '<span class="rdm-public-offline-dot-v33"></span><span id="rdmPublicOfflineTextV33">Checking offline status...</span>';
+      document.body.appendChild(pill);
+    }
+
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (!panel) {
+      panel = document.createElement("aside");
+      panel.id = "rdmPublicOfflinePanelV33";
+      panel.dataset.v104Owned = "1";
+      panel.dataset.v103CleanObserved = "1";
+      panel.setAttribute("aria-label", "Offline Ready status");
+      panel.innerHTML = '<div class="rdm-public-offline-head-v33"><strong>Offline Ready</strong><button id="rdmPublicOfflineHideV33" class="secondary" type="button">Hide</button></div><p id="rdmPublicOfflineMessageV33">Tap the button below to prepare Iron Sharpener for offline use on this device.</p><div class="rdm-public-offline-track-v33"><div id="rdmPublicOfflineBarV33" class="rdm-public-offline-bar-v33"></div></div><p id="rdmPublicOfflineProgressV33"></p><div class="rdm-public-offline-actions-v33"><button id="rdmPublicOfflineReadyButtonV33" type="button">Prepare Offline Use</button><button id="rdmPublicOfflineUpdateButtonV33" class="secondary" type="button">Update Offline Files</button></div>';
+      document.body.appendChild(panel);
+      if (panelWasOpen) panel.classList.add("open");
+    } else {
+      panel.dataset.v104Owned = "1";
+      panel.dataset.v103CleanObserved = "1";
+    }
+
+    wireCleanHandlers();
+    return { pill: pill, panel: panel };
+  }
+  function cleanPanelText(){
+    removeOldUiNodes();
+    var progress = get("rdmPublicOfflineProgressV33");
+    var update = get("rdmPublicOfflineUpdateButtonV33");
+    var track = document.querySelector("#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33");
+    if (progress) { progress.textContent = ""; progress.style.setProperty("display", "none", "important"); }
+    if (update) { update.style.setProperty("display", "none", "important"); update.setAttribute("aria-hidden", "true"); }
+    if (track) track.style.setProperty("display", "none", "important");
+  }
+  function setUi(state){
+    ensureCleanUi();
+    cleanPanelText();
+    var best = bestStatus();
+    var ready = state === "ready" || (!preparing && best && isReadyStatus(best.status));
+    if (ready && best) markReady(best.status);
+
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var btn = get("rdmPublicOfflineReadyButtonV33");
+
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.toggle("not-ready", !ready && !preparing);
+      pill.classList.toggle("rdm-v97-offline-working", preparing);
+      pill.classList.toggle("rdm-v97-offline-ready", ready);
+    }
+    if (text) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (preparing ? "Preparing Offline Use" : (navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed"));
+    if (msg) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : (preparing ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device.");
+    if (bar) bar.style.width = ready ? "100%" : "0%";
+    if (btn) {
+      btn.disabled = false;
+      btn.removeAttribute("disabled");
+      btn.classList.toggle("rdm-v104-preparing", preparing);
+      btn.textContent = ready ? "Offline Ready" : (preparing ? "Preparing..." : "Prepare Offline Use");
+    }
+  }
+  function startSanitizeLoop(){
+    clearInterval(sanitizeTimer);
+    var runs = 0;
+    sanitizeTimer = setInterval(function(){
+      runs++;
+      setUi(preparing ? "preparing" : "normal");
+      if (!preparing || runs > 360) clearInterval(sanitizeTimer);
+    }, 750);
+  }
+  async function prepareOffline(){
+    if (preparing) return;
+    var best = bestStatus();
+    if (best && isReadyStatus(best.status)) {
+      markReady(best.status);
+      setUi("ready");
+      var readyPanel = get("rdmPublicOfflinePanelV33");
+      if (readyPanel) readyPanel.classList.remove("open");
+      try { localStorage.setItem(HIDDEN_KEY, "1"); } catch (_) {}
+      return;
+    }
+    if (!navigator.onLine) { setUi("normal"); return; }
+
+    preparing = true;
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.add("open");
+    try { localStorage.setItem(HIDDEN_KEY, "0"); } catch (_) {}
+    setUi("preparing");
+    startSanitizeLoop();
+    try {
+      var prep = window.rdmPrepareOfflineFilesV97 || window.rdmPrepareOfflineFilesV34 || window.rdmPrepareOfflineFilesV33;
+      if (typeof prep === "function") await prep(false);
+    } catch (_) {}
+    preparing = false;
+    var after = bestStatus();
+    if (after && isReadyStatus(after.status)) {
+      markReady(after.status);
+      setUi("ready");
+    } else {
+      /* If the older engine cached the critical app successfully but left optional review data,
+         keep the public wording calm and let the next refresh reconcile it. */
+      setUi("normal");
+    }
+  }
+  function togglePanel(){
+    var ui = ensureCleanUi();
+    if (!ui.panel) return;
+    ui.panel.classList.toggle("open");
+    try { localStorage.setItem(HIDDEN_KEY, ui.panel.classList.contains("open") ? "0" : "1"); } catch (_) {}
+    setUi("normal");
+  }
+  function hidePanel(){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.remove("open");
+    try { localStorage.setItem(HIDDEN_KEY, "1"); } catch (_) {}
+  }
+  function handleOfflineClick(event){
+    var target = event.target;
+    if (!target || !target.closest) return;
+    var pill = target.closest("#rdmPublicOfflinePillV33");
+    var ready = target.closest("#rdmPublicOfflineReadyButtonV33");
+    var hide = target.closest("#rdmPublicOfflineHideV33");
+    var inside = target.closest("#rdmPublicOfflinePanelV33");
+    if (!pill && !ready && !hide && !inside) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    if (pill) togglePanel();
+    else if (hide) hidePanel();
+    else if (ready) prepareOffline();
+  }
+  function wireCleanHandlers(){
+    var pill = get("rdmPublicOfflinePillV33");
+    var ready = get("rdmPublicOfflineReadyButtonV33");
+    var hide = get("rdmPublicOfflineHideV33");
+    [pill, ready, hide].forEach(function(el){
+      if (!el) return;
+      el.onclick = null;
+    });
+  }
+  function init(){
+    ensureCleanUi();
+    var hidden = false;
+    try { hidden = localStorage.getItem(HIDDEN_KEY) === "1"; } catch (_) {}
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.toggle("open", !hidden && !isReadyStatus(bestStatus() && bestStatus().status));
+    setUi("normal");
+  }
+
+  window.addEventListener("click", handleOfflineClick, true);
+  window.rdmV104CleanOfflinePublicPanel = function(){ setUi("normal"); };
+  window.rdmPrepareOfflineFilesPublicV104 = prepareOffline;
+  window.rdmRefreshOfflineStatusV104 = function(){ setUi("normal"); };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  setTimeout(init, 350);
+  setTimeout(init, 1400);
+  window.addEventListener("online", function(){ setUi("normal"); });
+  window.addEventListener("offline", function(){ setUi("normal"); });
 })();
 </script>
 
