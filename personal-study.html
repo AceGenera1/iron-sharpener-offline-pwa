@@ -3960,8 +3960,20 @@ body.dark .resource-clean-empty {
         <div class="gridControls">
           <div class="wide"><label for="book">Book</label><select id="book"></select></div>
           <div><label for="chapter">Chapter</label><select id="chapter"></select></div>
-          <div><label for="start">Start</label><select id="start"></select></div>
-          <div><label for="end">End</label><select id="end"></select></div>
+          <div><label for="start">Start Verse</label><select id="start"></select></div>
+          <div><label for="end">End Verse</label><select id="end"></select></div>
+          <div><label for="rangeSize">Section Size</label><select id="rangeSize">
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="7">7</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option selected value="full">Full Chapter</option>
+          </select></div>
           <div><label for="entryDate">Study Date</label><input id="entryDate" type="date" /></div>
         </div>
         <div class="miniActions">
@@ -5661,6 +5673,42 @@ const verseCounts = {
     const count = verseCountFor($("book").value, $("chapter").value);
     $("start").value = "1";
     $("end").value = String(count);
+    if ($("rangeSize")) $("rangeSize").value = "full";
+  }
+
+  function validRangeSizeValue(value) {
+    const select = $("rangeSize");
+    if (!select) return "full";
+    return Array.from(select.options).some(option => option.value === value) ? value : "full";
+  }
+
+  function currentSectionSize() {
+    return validRangeSizeValue($("rangeSize")?.value || localStorage.getItem("ironSharpenerDiscipleJournal.sectionSize") || "full");
+  }
+
+  function setSectionSize(value) {
+    const select = $("rangeSize");
+    if (!select) return;
+    select.value = validRangeSizeValue(value || "full");
+  }
+
+  function applySectionSizeRange() {
+    const select = $("rangeSize");
+    const count = verseCountFor($("book").value, $("chapter").value);
+    const selectedSize = currentSectionSize();
+    if (select) select.value = selectedSize;
+    try { localStorage.setItem("ironSharpenerDiscipleJournal.sectionSize", selectedSize); } catch (_) {}
+
+    if (selectedSize === "full") {
+      $("start").value = "1";
+      $("end").value = String(count);
+      return;
+    }
+
+    const size = parseInt(selectedSize, 10) || 5;
+    const start = Math.min(Math.max(parseInt($("start").value || "1", 10) || 1, 1), count);
+    $("start").value = String(start);
+    $("end").value = String(Math.min(count, start + size - 1));
   }
 
   function clampRangeToCurrentChapter(start, end) {
@@ -5682,6 +5730,7 @@ const verseCounts = {
       chapter,
       start,
       end,
+      range: currentSectionSize(),
       userAdjustedRange: !isFullChapterRange(book, chapter, start, end)
     }));
   }
@@ -5808,6 +5857,7 @@ const verseCounts = {
       populateVerses();
       $("start").value = String(entry.ref.start || "1");
       $("end").value = String(entry.ref.end || entry.ref.start || "1");
+      setSectionSize(isFullChapterRange($("book").value, $("chapter").value, $("start").value, $("end").value) ? "full" : (entry.ref.range || currentSectionSize()));
     }
     $("entryDate").value = entry.studyDate || todayIso();
     $("entryTitle").value = entry.title && entry.title !== entry.reference ? entry.title : "";
@@ -8765,6 +8815,11 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     return `${state.book}|${state.chapter}|${state.start}|${state.end}`;
   }
 
+  function scriptureStatePassageKey(state) {
+    if (!state) return "";
+    return `${state.book}|${state.chapter}`;
+  }
+
   function scriptureRefFromState(state) {
     if (!state) return "Scripture";
     const start = parseInt(state.start || "1", 10);
@@ -8867,7 +8922,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     if (
       !discipleJournalRestoringPreviousScripture &&
       discipleJournalLastLoadedScriptureState &&
-      scriptureStateKey(discipleJournalLastLoadedScriptureState) !== scriptureStateKey(nextState)
+      scriptureStatePassageKey(discipleJournalLastLoadedScriptureState) !== scriptureStatePassageKey(nextState)
     ) {
       rememberPreviousScriptureState(discipleJournalLastLoadedScriptureState);
     }
@@ -9005,20 +9060,24 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     window.addEventListener("beforeunload", saveCurrentDraftNow);
     $("book").addEventListener("change", () => {
       populateChapters();
-      setFullChapterRange();
+      applySectionSizeRange();
       loadPassage();
     });
     $("chapter").addEventListener("change", () => {
       populateVerses();
-      setFullChapterRange();
+      applySectionSizeRange();
       loadPassage();
     });
     $("start").addEventListener("change", () => {
-      syncEndMinimum();
+      applySectionSizeRange();
       loadPassage();
     });
     $("end").addEventListener("change", () => {
       syncEndMinimum();
+      loadPassage();
+    });
+    if ($("rangeSize")) $("rangeSize").addEventListener("change", () => {
+      applySectionSizeRange();
       loadPassage();
     });
     $("loadBtn").addEventListener("click", loadPassage);
@@ -9094,6 +9153,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   async function init() {
     applyTheme(localStorage.getItem(THEME_KEY) || "light");
     populateBooks();
+    setSectionSize(localStorage.getItem("ironSharpenerDiscipleJournal.sectionSize") || "full");
     $("entryDate").value = todayIso();
     try {
       const last = JSON.parse(localStorage.getItem("ironSharpenerDiscipleJournal.lastRef") || "null");
@@ -9102,17 +9162,18 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
         populateChapters();
         $("chapter").value = String(last.chapter || 1);
         populateVerses();
+        setSectionSize(last.range || localStorage.getItem("ironSharpenerDiscipleJournal.sectionSize") || "full");
 
-        if (last.userAdjustedRange === true) {
+        if (last.userAdjustedRange === true && (last.range || currentSectionSize()) !== "full") {
           clampRangeToCurrentChapter(last.start || "1", last.end || last.start || "1");
         } else {
-          setFullChapterRange();
+          applySectionSizeRange();
         }
       } else {
-        setFullChapterRange();
+        applySectionSizeRange();
       }
     } catch (_) {
-      setFullChapterRange();
+      applySectionSizeRange();
     }
     djV81WireSelectionCache();
     bindEvents();
@@ -11211,5 +11272,10 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   }, true);
 })();
 </script>
+
+<script id="rdm-v112-section-size-no-range-back-marker">
+(function(){ window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v112-section-size-no-range-back-final'; })();
+</script>
+
 </body>
 </html>
