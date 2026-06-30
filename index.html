@@ -25690,8 +25690,8 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function(){
+      // v94 recovery: clear stale resource state, but do not auto-open Study Resources at launch.
       clearActiveResource();
-      keepStudyResourcesOpenSoon();
     }, { once: true });
   } else {
     clearActiveResource();
@@ -25807,12 +25807,47 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     try { panel.remove(); } catch (_) {}
   }
 
+  function keepDictionarySearchOpenForEntry(resourceKey){
+    if (!isMobileShell()) return;
+    var key = String(resourceKey || "").toLowerCase();
+    var parentKey = "";
+    var focusSelector = "";
+
+    if (key.indexOf("eastons-entry-") === 0) {
+      parentKey = "eastons-search";
+      focusSelector = ".eastons-search-box, #eastonsSearchBox";
+    } else if (key.indexOf("smiths-entry-") === 0) {
+      parentKey = "smiths-search";
+      focusSelector = ".smiths-search-box, #smithsSearchBox";
+    }
+
+    if (!parentKey) return;
+
+    var parent = document.querySelector('.resource-instance-panel[data-resource-key="' + parentKey + '"]');
+    if (!parent) return;
+
+    parent.classList.add("open");
+    parent.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+    parent.setAttribute("aria-hidden", "false");
+    parent.style.display = "";
+    parent.style.zIndex = String(Date.now() + 20);
+
+    setTimeout(function(){
+      var input = parent.querySelector(focusSelector);
+      if (input && typeof input.focus === "function") {
+        try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); }
+      }
+    }, 80);
+  }
+
   function closeResourceFromTarget(target){
     if (!target || !target.closest) return false;
 
     var resourcePanel = target.closest(".resource-instance-panel");
     if (resourcePanel) {
+      var closedResourceKey = resourcePanel.dataset ? resourcePanel.dataset.resourceKey : "";
       closePanel(resourcePanel);
+      keepDictionarySearchOpenForEntry(closedResourceKey);
       return true;
     }
 
@@ -25897,6 +25932,129 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 
   window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v93-mobile-study-resources-close-stays-closed";
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v93-mobile-study-resources-close-stays-closed";
+})();
+</script>
+
+
+<!-- v94 — Mobile Study Resources final startup/dictionary close polish -->
+<style id="rdm-v94-mobile-study-resources-final-polish-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v94-startup-scripture-lock #studyResourcesPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v94-startup-scripture-lock #teacherToolsPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v94-startup-scripture-lock #obsCrossRefsPanel {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>
+<script id="rdm-v94-mobile-study-resources-final-polish-script">
+(function rdmV94MobileStudyResourcesFinalPolish(){
+  if (window.__rdmV94MobileStudyResourcesFinalPolish) return;
+  window.__rdmV94MobileStudyResourcesFinalPolish = true;
+
+  var startupUntil = Date.now() + 2400;
+  var userOpenedTools = false;
+
+  function get(id){ return document.getElementById(id); }
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains("rdm-mobile-app-shell") &&
+      !document.documentElement.classList.contains("obs") &&
+      (!window.matchMedia || window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches);
+  }
+
+  function closePanelById(id){
+    var panel = get(id);
+    if (!panel) return;
+    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+    panel.style.removeProperty("left");
+    panel.style.removeProperty("right");
+    panel.style.removeProperty("top");
+    panel.style.removeProperty("bottom");
+    panel.style.removeProperty("width");
+    panel.style.removeProperty("height");
+    panel.style.removeProperty("maxHeight");
+    panel.style.removeProperty("transform");
+  }
+
+  function markScriptureActive(){
+    var nav = get("rdmMobileAppNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-rdm-mobile-action") === "scripture");
+    });
+  }
+
+  function clearResourceState(){
+    try { activeResourcePanel = ""; } catch (_) {}
+    try { window.activeResourcePanel = ""; } catch (_) {}
+  }
+
+  function forceScriptureOnFreshLaunch(){
+    if (!isMobileShell()) return;
+    if (userOpenedTools) return;
+    if (Date.now() > startupUntil) return;
+
+    document.body.classList.add("rdm-v94-startup-scripture-lock");
+    document.body.classList.remove("rdm-mobile-passage-open", "rdm-mobile-notes-open");
+
+    closePanelById("studyResourcesPanel");
+    closePanelById("teacherToolsPanel");
+    closePanelById("obsCrossRefsPanel");
+
+    document.querySelectorAll(".resource-instance-panel").forEach(function(panel){
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+      panel.setAttribute("aria-hidden", "true");
+      try { panel.remove(); } catch (_) {}
+    });
+
+    clearResourceState();
+    markScriptureActive();
+  }
+
+  function markIntent(event){
+    var target = event.target;
+    if (!target || !target.closest) return;
+    if (target.closest("#openTeacherTools, #openStudyResourcesFromTools, #studyResourcesPanel, #teacherToolsPanel")) {
+      userOpenedTools = true;
+      return;
+    }
+    var navBtn = target.closest("#rdmMobileAppNav button[data-rdm-mobile-action]");
+    if (navBtn && navBtn.getAttribute("data-rdm-mobile-action") === "tools") {
+      userOpenedTools = true;
+    }
+  }
+
+  ["pointerdown", "touchstart", "mousedown", "click"].forEach(function(type){
+    document.addEventListener(type, markIntent, true);
+  });
+
+  function scheduleStartupLock(){
+    [0, 40, 120, 260, 520, 900, 1400, 2100].forEach(function(delay){
+      setTimeout(forceScriptureOnFreshLaunch, delay);
+    });
+    setTimeout(function(){
+      if (document.body) document.body.classList.remove("rdm-v94-startup-scripture-lock");
+    }, 2450);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleStartupLock, { once: true });
+  } else {
+    scheduleStartupLock();
+  }
+
+  window.addEventListener("pageshow", function(){
+    startupUntil = Date.now() + 900;
+    userOpenedTools = false;
+    scheduleStartupLock();
+  }, { once: true });
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v94-mobile-study-resources-final-polish";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v94-mobile-study-resources-final-polish";
 })();
 </script>
 
