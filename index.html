@@ -11297,225 +11297,11 @@ bindButton("openBookOverviewResource", async () => {
   document.querySelectorAll(".resource-source-label").forEach(label => label.remove());
 })();
 </script>
-<script>
-(function finalStudyResourcePositionAndRefreshPatch() {
-  const STORAGE_KEY = "ironSharpener.studyResourcePanelPositions.v1";
-
-  const get = (id) => document.getElementById(id);
-
-  function clean(value) {
-    return String(value || "")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-  }
-
-  function loadPositions() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch (_) {
-      return {};
-    }
-  }
-
-  function savePositions(positions) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(positions || {}));
-  }
-
-  function panelText(panel) {
-    if (!panel) return "";
-
-    return clean([
-      panel.dataset.resourceKey || "",
-      panel.dataset.commentaryKind || "",
-      panel.querySelector(".resource-panel-title")?.textContent || "",
-      panel.querySelector(".teacher-pop-head h3")?.textContent || "",
-      panel.textContent || ""
-    ].join(" "));
-  }
-
-  function getPanelResourceKey(panel) {
-    if (!panel) return "";
-
-    if (panel.dataset.resourceKey) return panel.dataset.resourceKey;
-
-    if (panel.dataset.commentaryKind === "mh") return "commentary-mh";
-    if (panel.dataset.commentaryKind === "jfb") return "commentary-jfb";
-
-    const text = panelText(panel);
-
-    if (text.includes("matthew henry commentary")) return "commentary-mh";
-    if (text.includes("jamieson-fausset-brown commentary") || text.includes("jfb commentary")) return "commentary-jfb";
-    if (text.includes("book overview") || /\b(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|samuel|kings|chronicles|ezra|nehemiah|esther|job|psalms|proverbs|ecclesiastes|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|corinthians|galatians|ephesians|philippians|colossians|thessalonians|timothy|titus|philemon|hebrews|james|peter|jude|revelation)\s+overview\b/i.test(text)) {
-      return "book-overview-manual";
-    }
-
-    if (text.includes("easton")) return "eastons-search";
-    if (text.includes("smith")) return "smiths-search";
-    if (text.includes("nave")) return "naves-search";
-    if (text.includes("biblical doctrine")) return "doctrine-search";
-
-    return "";
-  }
-
-  function rememberPanelPosition(panel) {
-    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
-
-    const key = getPanelResourceKey(panel);
-    if (!key) return;
-
-    const rect = panel.getBoundingClientRect();
-    const positions = loadPositions();
-
-    positions[key] = {
-      left: panel.style.left || `${rect.left}px`,
-      top: panel.style.top || `${rect.top}px`,
-      width: panel.style.width || "",
-      height: panel.style.height || "",
-      zIndex: panel.style.zIndex || ""
-    };
-
-    savePositions(positions);
-  }
-
-  function rememberAllPanelPositions() {
-    document.querySelectorAll(".resource-instance-panel").forEach(rememberPanelPosition);
-  }
-
-  function restorePanelPosition(panel) {
-    if (!panel || !panel.classList.contains("resource-instance-panel")) return;
-
-    const key = getPanelResourceKey(panel);
-    if (!key) return;
-
-    const saved = loadPositions()[key];
-    if (!saved) return;
-
-    panel.dataset.resourceKey = panel.dataset.resourceKey || key;
-
-    panel.style.left = saved.left;
-    panel.style.top = saved.top;
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-
-    panel.style.setProperty("--drag-left", saved.left);
-    panel.style.setProperty("--drag-top", saved.top);
-
-    if (saved.width) panel.style.width = saved.width;
-    if (saved.height) panel.style.height = saved.height;
-    if (saved.zIndex) panel.style.zIndex = saved.zIndex;
-
-    panel.classList.add("drag-positioned");
-  }
-
-  function restoreAllPanelPositions() {
-    document.querySelectorAll(".resource-instance-panel").forEach(restorePanelPosition);
-  }
-
-  function hasOpenPanelByKey(key) {
-    return Array.from(document.querySelectorAll(".resource-instance-panel")).some(panel => {
-      return getPanelResourceKey(panel) === key;
-    });
-  }
-
-  function hasMatthewHenryOpen() {
-    return hasOpenPanelByKey("commentary-mh");
-  }
-
-  function hasJfbOpen() {
-    return hasOpenPanelByKey("commentary-jfb");
-  }
-
-  function hasBookOverviewOpen() {
-    return hasOpenPanelByKey("book-overview-manual");
-  }
-
-  function clickIfPresent(id) {
-    const button = get(id);
-    if (button) button.click();
-  }
-
-  function finalRefreshActiveResourcePanel() {
-    const shouldRefreshMatthewHenry = hasMatthewHenryOpen();
-    const shouldRefreshJfb = hasJfbOpen();
-    const shouldRefreshBookOverview = hasBookOverviewOpen();
-
-    if (
-      !shouldRefreshMatthewHenry &&
-      !shouldRefreshJfb &&
-      !shouldRefreshBookOverview
-    ) {
-      return;
-    }
-
-    rememberAllPanelPositions();
-
-    if (shouldRefreshMatthewHenry) {
-      clickIfPresent("openCommentariesResource");
-    }
-
-    if (shouldRefreshJfb) {
-      clickIfPresent("openJfbResource");
-    }
-
-    if (shouldRefreshBookOverview) {
-      clickIfPresent("openBookOverviewResource");
-    }
-
-    setTimeout(restoreAllPanelPositions, 0);
-    setTimeout(restoreAllPanelPositions, 80);
-    setTimeout(restoreAllPanelPositions, 250);
-  }
-
-  document.addEventListener("pointerup", rememberAllPanelPositions, true);
-  document.addEventListener("mouseup", rememberAllPanelPositions, true);
-  document.addEventListener("touchend", rememberAllPanelPositions, true);
-
-  document.addEventListener("click", event => {
-    const closeButton = event.target.closest(".resource-instance-panel .teacher-pop-close");
-    if (closeButton) {
-      const panel = closeButton.closest(".resource-instance-panel");
-      rememberPanelPosition(panel);
-      return;
-    }
-
-    const resourceButton = event.target.closest("button");
-    if (!resourceButton) return;
-
-    const resourceButtonIds = new Set([
-      "openEastonsResource",
-      "openSmithsResource",
-      "openNavesResource",
-      "openDoctrineResource",
-      "openCommentariesResource",
-      "openJfbResource",
-      "openBookOverviewResource"
-    ]);
-
-    if (!resourceButtonIds.has(resourceButton.id)) return;
-
-    setTimeout(restoreAllPanelPositions, 0);
-    setTimeout(restoreAllPanelPositions, 80);
-    setTimeout(restoreAllPanelPositions, 250);
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    setTimeout(restoreAllPanelPositions, 0);
-    setTimeout(restoreAllPanelPositions, 80);
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  try {
-    refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
-  } catch (_) {}
-
-  window.refreshActiveResourcePanel = finalRefreshActiveResourcePanel;
-
-  restoreAllPanelPositions();
+<script id="rdm-v92-disable-auto-resource-refresh-position-observer">
+(function rdmV92DisableAutoResourceRefreshPositionObserver(){
+  // v92: the older resource-position/refresh observer is intentionally disabled on mobile.
+  // Resource panels now behave like Disciple Journal: manual open, manual close, no auto-popback.
+  window.__rdmV92AutoResourceRefreshObserverDisabled = true;
 })();
 </script>
 <script>
@@ -25587,22 +25373,156 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
-<!-- v91 — Mobile Study Resources single-session stability lock -->
-<style id="rdm-v91-mobile-study-resources-session-lock-style">
+<!-- v92 — Mobile Study Resources Journal-behavior layout/session lock -->
+<style id="rdm-v92-mobile-study-resources-journal-layout-style">
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open {
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.teacher-pop.open {
+    position: fixed !important;
+    inset: max(8px, env(safe-area-inset-top, 0px)) 0 var(--rdm-mobile-nav-height, 88px) 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    bottom: var(--rdm-mobile-nav-height, 88px) !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    resize: none !important;
+    overflow: hidden !important;
+    transform: none !important;
     display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    z-index: 2147481200 !important;
   }
 
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v91-resource-close-guard #studyResourcesPanel .tool-option {
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.teacher-pop.open.drag-positioned {
+    left: 0 !important;
+    right: 0 !important;
+    top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    bottom: var(--rdm-mobile-nav-height, 88px) !important;
+    transform: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 18px 18px 14px !important;
+    border-bottom: 1px solid rgba(248,217,135,.42) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) #studyResourcesPanel.open .teacher-pop-head {
+    background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
+    border-bottom-color: rgba(138,90,19,.26) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel.open .teacher-pop-head,
+  html:not(.obs) body.dark.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head {
+    background: linear-gradient(180deg, #355A54, #294843) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head h3 {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: clamp(22px, 4.4vw, 34px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+    white-space: normal !important;
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-close {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 86px !important;
+    max-width: none !important;
+    height: auto !important;
+    padding: 10px 16px !important;
+    margin: 0 !important;
+    border-radius: 14px !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-options {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    width: min(760px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 auto !important;
+    padding: 18px 0 calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-content: start !important;
+    align-items: stretch !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 118px !important;
+    max-height: none !important;
+    padding: 16px 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option strong {
+    font-size: clamp(17px, 2.7vw, 21px) !important;
+    line-height: 1.2 !important;
+    margin: 0 0 8px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option span {
+    font-size: clamp(15px, 2.3vw, 19px) !important;
+    line-height: 1.45 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v92-resource-busy #studyResourcesPanel.open .tool-option {
     pointer-events: none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel {
+    z-index: 2147481300 !important;
   }
 }
 </style>
-<script id="rdm-v91-mobile-study-resources-session-lock-script">
-(function rdmV91MobileStudyResourcesSessionLock(){
-  if (window.__rdmV91MobileStudyResourcesSessionLock) return;
-  window.__rdmV91MobileStudyResourcesSessionLock = true;
+<script id="rdm-v92-mobile-study-resources-journal-behavior-script">
+(function rdmV92MobileStudyResourcesJournalBehavior(){
+  if (window.__rdmV92MobileStudyResourcesJournalBehavior) return;
+  window.__rdmV92MobileStudyResourcesJournalBehavior = true;
 
   var RESOURCE_BUTTON_IDS = new Set([
     "openBackgroundsResource",
@@ -25615,15 +25535,19 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     "openJfbResource"
   ]);
 
-  var originalButtonHandlers = Object.create(null);
-  var closeGuardUntil = 0;
-  var openingResource = false;
+  var previousRefresh = null;
+  try {
+    previousRefresh = window.refreshActiveResourcePanel ||
+      (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null);
+  } catch (_) {}
 
   function get(id){ return document.getElementById(id); }
 
   function isMobileShell(){
-    return document.body.classList.contains("rdm-mobile-app-shell") ||
-      (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches);
+    return !!document.body && (
+      document.body.classList.contains("rdm-mobile-app-shell") ||
+      (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches)
+    ) && !document.documentElement.classList.contains("obs");
   }
 
   function clearActiveResource(){
@@ -25631,14 +25555,12 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     try { window.activeResourcePanel = ""; } catch (_) {}
   }
 
-  function setCloseGuard(ms){
-    closeGuardUntil = Date.now() + (ms || 900);
-    document.body.classList.add("rdm-v91-resource-close-guard");
-    setTimeout(function(){
-      if (Date.now() >= closeGuardUntil) {
-        document.body.classList.remove("rdm-v91-resource-close-guard");
-      }
-    }, (ms || 900) + 40);
+  function markToolsActive(){
+    var nav = get("rdmMobileAppNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
+      button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
+    });
   }
 
   function keepStudyResourcesOpen(){
@@ -25646,15 +25568,17 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     var panel = get("studyResourcesPanel");
     if (!panel) return;
     panel.classList.add("open");
+    panel.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
     panel.setAttribute("aria-hidden", "false");
     panel.style.display = "";
-
-    var nav = get("rdmMobileAppNav");
-    if (nav) {
-      nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
-        button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
-      });
-    }
+    panel.style.removeProperty("left");
+    panel.style.removeProperty("right");
+    panel.style.removeProperty("top");
+    panel.style.removeProperty("bottom");
+    panel.style.removeProperty("width");
+    panel.style.removeProperty("height");
+    panel.style.removeProperty("maxHeight");
+    markToolsActive();
   }
 
   function keepStudyResourcesOpenSoon(){
@@ -25663,86 +25587,14 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     });
   }
 
-  function closeLegacySharedResourcePanel(){
-    var panel = get("obsCrossRefsPanel");
+  function closeOnlyResourcePanel(panel){
     if (!panel) return;
     panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
     panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "none";
-    panel.style.removeProperty("--drag-left");
-    panel.style.removeProperty("--drag-top");
-    panel.style.right = "";
-    panel.style.bottom = "";
-
-    var back = get("obsBackToPreviousPassage");
-    if (back) back.style.display = "none";
+    try { panel.remove(); } catch (_) {}
   }
 
-  function closeAllStudyResourceOverlays(){
-    closeLegacySharedResourcePanel();
-
-    document.querySelectorAll(".resource-instance-panel").forEach(function(panel){
-      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-      panel.setAttribute("aria-hidden", "true");
-      try { panel.remove(); } catch (_) {}
-    });
-
-    clearActiveResource();
-  }
-
-  function syntheticEventFor(button, realEvent){
-    return {
-      target: button,
-      currentTarget: button,
-      preventDefault: function(){ try { realEvent && realEvent.preventDefault(); } catch (_) {} },
-      stopPropagation: function(){ try { realEvent && realEvent.stopPropagation(); } catch (_) {} },
-      stopImmediatePropagation: function(){ try { realEvent && realEvent.stopImmediatePropagation && realEvent.stopImmediatePropagation(); } catch (_) {} }
-    };
-  }
-
-  function rememberOriginalHandlers(){
-    RESOURCE_BUTTON_IDS.forEach(function(id){
-      var button = get(id);
-      if (!button) return;
-      if (!originalButtonHandlers[id] && typeof button.onclick === "function") {
-        originalButtonHandlers[id] = button.onclick;
-      }
-    });
-  }
-
-  function runOriginalResourceOpen(button, event){
-    var handler = originalButtonHandlers[button.id] || button.onclick;
-    if (typeof handler !== "function") return Promise.resolve();
-
-    try {
-      return Promise.resolve(handler.call(button, syntheticEventFor(button, event)));
-    } catch (error) {
-      console.warn("Study resource open failed:", error);
-      return Promise.resolve();
-    }
-  }
-
-  function openResourceManually(button, event){
-    if (!button || openingResource) return;
-    if (Date.now() < closeGuardUntil) return;
-
-    openingResource = true;
-    setCloseGuard(500);
-    closeAllStudyResourceOverlays();
-    keepStudyResourcesOpen();
-
-    runOriginalResourceOpen(button, event).finally(function(){
-      // Mobile Study Resources are manual sessions. Do not leave a stale activeResourcePanel
-      // value that can auto-open Easton's, Smith's, Nave's, or Doctrine later.
-      clearActiveResource();
-      keepStudyResourcesOpenSoon();
-      setTimeout(clearActiveResource, 80);
-      setTimeout(keepStudyResourcesOpen, 120);
-      setTimeout(function(){ openingResource = false; }, 180);
-    });
-  }
-
-  function isResourceCloseTarget(target){
+  function isResourceCloseButton(target){
     return target && target.closest && target.closest(
       ".resource-instance-panel .teacher-pop-close, " +
       ".resource-instance-panel .resource-close, " +
@@ -25750,79 +25602,107 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     );
   }
 
-  function handleResourceClose(event){
-    if (!isMobileShell()) return false;
-    var closeButton = isResourceCloseTarget(event.target);
-    if (!closeButton) return false;
+  function closeFromButton(closeButton){
+    if (!closeButton) return;
+    var panel = closeButton.closest(".resource-instance-panel");
+    if (panel) closeOnlyResourcePanel(panel);
 
-    event.preventDefault();
-    event.stopPropagation();
-    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    var legacy = closeButton.closest("#obsCrossRefsPanel");
+    if (legacy) {
+      legacy.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+      legacy.setAttribute("aria-hidden", "true");
+      legacy.style.display = "none";
+    }
 
-    setCloseGuard(850);
-    closeAllStudyResourceOverlays();
+    clearActiveResource();
     keepStudyResourcesOpenSoon();
-    return true;
   }
 
-  function handleResourceOpen(event){
-    if (!isMobileShell()) return false;
-    var button = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (!button || !RESOURCE_BUTTON_IDS.has(button.id)) return false;
-
-    event.preventDefault();
-    event.stopPropagation();
-    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-
-    openResourceManually(button, event);
-    return true;
+  function setBusy(ms){
+    if (!isMobileShell()) return;
+    document.body.classList.add("rdm-v92-resource-busy");
+    setTimeout(function(){
+      document.body.classList.remove("rdm-v92-resource-busy");
+    }, ms || 220);
   }
 
-  ["pointerdown", "touchstart", "mousedown", "click"].forEach(function(type){
-    document.addEventListener(type, function(event){
-      handleResourceClose(event);
-    }, true);
+  function handleEarlyResourceClose(event){
+    if (!isMobileShell()) return;
+    var closeButton = isResourceCloseButton(event.target);
+    if (!closeButton) return;
+
+    // Pointer/touch start is used only to clear stale state before older click handlers run.
+    clearActiveResource();
+    keepStudyResourcesOpenSoon();
+  }
+
+  function handleClick(event){
+    if (!isMobileShell()) return;
+
+    var closeButton = isResourceCloseButton(event.target);
+    if (closeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      closeFromButton(closeButton);
+      return;
+    }
+
+    var resourceButton = event.target && event.target.closest ? event.target.closest("button") : null;
+    if (resourceButton && RESOURCE_BUTTON_IDS.has(resourceButton.id)) {
+      clearActiveResource();
+      setBusy(180);
+      keepStudyResourcesOpen();
+      setTimeout(clearActiveResource, 0);
+      setTimeout(clearActiveResource, 120);
+      setTimeout(keepStudyResourcesOpen, 0);
+      setTimeout(keepStudyResourcesOpen, 160);
+      return;
+    }
+  }
+
+  ["pointerdown", "touchstart"].forEach(function(type){
+    document.addEventListener(type, handleEarlyResourceClose, true);
   });
 
+  document.addEventListener("click", handleClick, true);
+
   document.addEventListener("click", function(event){
-    if (handleResourceClose(event)) return;
-    handleResourceOpen(event);
-  }, true);
+    if (!isMobileShell()) return;
+    if (event.target && event.target.closest && event.target.closest(".resource-instance-panel .doctrine-related-topic-btn, .resource-instance-panel .dictionary-result-btn, .resource-instance-panel .naves-topic-btn, .resource-instance-panel .cross-ref-link")) {
+      clearActiveResource();
+      keepStudyResourcesOpenSoon();
+    }
+  }, false);
 
-  // Prevent older mobile refresh bridges from reopening stale dictionary/resource panels.
-  var previousRefresh = null;
-  try { previousRefresh = window.refreshActiveResourcePanel || (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null); } catch (_) {}
-
-  function v91ManualRefreshGuard(){
+  function v92ManualRefreshGuard(){
     if (isMobileShell()) {
       clearActiveResource();
       return;
     }
-    if (typeof previousRefresh === "function" && previousRefresh !== v91ManualRefreshGuard) {
+    if (typeof previousRefresh === "function" && previousRefresh !== v92ManualRefreshGuard) {
       return previousRefresh.apply(this, arguments);
     }
   }
 
-  try { refreshActiveResourcePanel = v91ManualRefreshGuard; } catch (_) {}
-  window.refreshActiveResourcePanel = v91ManualRefreshGuard;
+  try { refreshActiveResourcePanel = v92ManualRefreshGuard; } catch (_) {}
+  window.refreshActiveResourcePanel = v92ManualRefreshGuard;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function(){
-      rememberOriginalHandlers();
       clearActiveResource();
+      keepStudyResourcesOpenSoon();
     }, { once: true });
   } else {
-    rememberOriginalHandlers();
     clearActiveResource();
   }
 
   window.addEventListener("load", function(){
-    rememberOriginalHandlers();
     clearActiveResource();
   }, { once: true });
 
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v91-mobile-study-resources-single-session-lock";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v91-mobile-study-resources-single-session-lock";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v92-mobile-study-resources-journal-layout-behavior";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v92-mobile-study-resources-journal-layout-behavior";
 })();
 </script>
 
