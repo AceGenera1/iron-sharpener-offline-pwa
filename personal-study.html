@@ -6521,15 +6521,13 @@ const verseCounts = {
     const section = (title, body, question = "") => {
       const cleaned = scrubPromptOnlyText(body || "").trim();
       const questionHtml = question ? `<p class="question">${escapeHtml(question)}</p>` : "";
-      const answerHtml = cleaned ? `<p>${escapeHtml(cleaned).replace(/
-/g, "<br>")}</p>` : `<p class="empty-answer">No response saved yet.</p>`;
+      const answerHtml = cleaned ? `<p>${escapeHtml(cleaned).replace(/\n/g, "<br>")}</p>` : `<p class="empty-answer">No response saved yet.</p>`;
       return `<section><h3>${escapeHtml(title)}</h3>${questionHtml}${answerHtml}</section>`;
     };
     const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit Entry</span>' : ''}`;
 
     const bodyHtml = mode === "freewrite"
-      ? `<section class="freewrite-export"><p>${escapeHtml(scrubPromptOnlyText(notes.freewrite || "").trim() || "No freewrite notes have been saved in this entry yet.").replace(/
-/g, "<br>")}</p></section>`
+      ? `<section class="freewrite-export"><p>${escapeHtml(scrubPromptOnlyText(notes.freewrite || "").trim() || "No freewrite notes have been saved in this entry yet.").replace(/\n/g, "<br>")}</p></section>`
       : [
           section("Read & Observe", notes.observe, GUIDED_READER_PROMPTS.observe),
           section("Reflect — Meaning", notes.understand, GUIDED_READER_PROMPTS.understand),
