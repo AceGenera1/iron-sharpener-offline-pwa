@@ -5938,11 +5938,31 @@ const verseCounts = {
     return document.querySelector(".modeTab.active")?.dataset?.mode || "guided";
   }
 
-  function readerSection(title, body, extraClass = "") {
+  const GUIDED_READER_PROMPTS = {
+    observe: "What words, repeated ideas, commands, promises, warnings, or questions stand out?",
+    understand: "What does this passage reveal about God, Christ, the gospel, people, sin, faith, obedience, or hope?",
+    heart: "Where does this confront, comfort, correct, expose, strengthen, or encourage me?",
+    feetQuestions: "What questions am I bringing before the Lord as I sit at His feet?",
+    feetSensed: "What did I sense as I waited before the Lord?",
+    feetTesting: "What Scripture, confirmation, counsel, or testing is needed?",
+    prayer: "How does this passage lead me to confession, thanksgiving, surrender, request, or praise?",
+    walk: "What is one faithful next step of obedience, repentance, trust, reconciliation, or service?",
+    remember: "What truth do I need to carry with me and revisit?"
+  };
+
+  function readerSection(title, body, extraClass = "", promptText = "") {
     const cleaned = scrubPromptOnlyText(body || "").trim();
-    if (!cleaned) return "";
-    const cls = extraClass ? ` readerSection ${extraClass}` : "readerSection";
-    return `<section class="${cls}">${title ? `<h3>${escapeHtml(title)}</h3>` : ""}<p>${escapeHtml(cleaned)}</p></section>`;
+    const cls = extraClass ? `readerSection ${extraClass}` : "readerSection";
+    const promptHtml = promptText ? `<p class="readerQuestion">${escapeHtml(promptText)}</p>` : "";
+    const answerHtml = cleaned
+      ? `<p class="readerAnswer">${escapeHtml(cleaned)}</p>`
+      : `<p class="readerEmptyAnswer">No response saved yet.</p>`;
+    return `<section class="${cls}">${title ? `<h3>${escapeHtml(title)}</h3>` : ""}${promptHtml}${answerHtml}</section>`;
+  }
+
+  function readerFreewriteSection(body) {
+    const cleaned = scrubPromptOnlyText(body || "").trim();
+    return `<section class="readerSection freewriteContentOnly"><p>${escapeHtml(cleaned || "No freewrite notes have been saved in this entry yet.")}</p></section>`;
   }
 
   function readerEntryHtml(entry) {
@@ -5951,24 +5971,24 @@ const verseCounts = {
     const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit Entry</span>' : ''}`;
     const mode = entryReaderMode(entry);
     const sections = mode === "freewrite"
-      ? [readerSection("", notes.freewrite, "freewriteContentOnly")].filter(Boolean).join("")
+      ? readerFreewriteSection(notes.freewrite)
       : [
-          readerSection("Read & Observe", notes.observe),
-          readerSection("Understand the Meaning", notes.understand),
-          readerSection("Examine My Heart", notes.heart),
-          readerSection("At His Feet — Questions", notes.feetQuestions),
-          readerSection("At His Feet — What I Sensed", notes.feetSensed),
-          readerSection("At His Feet — Scripture / Testing", notes.feetTesting),
-          readerSection("Prayer Response", notes.prayer),
-          readerSection("Walk It Out", notes.walk),
-          readerSection("Remember / Revisit", notes.remember)
-        ].filter(Boolean).join("");
+          readerSection("Read & Observe", notes.observe, "", GUIDED_READER_PROMPTS.observe),
+          readerSection("Understand the Meaning", notes.understand, "", GUIDED_READER_PROMPTS.understand),
+          readerSection("Examine My Heart", notes.heart, "", GUIDED_READER_PROMPTS.heart),
+          readerSection("At His Feet — Questions", notes.feetQuestions, "", GUIDED_READER_PROMPTS.feetQuestions),
+          readerSection("At His Feet — What I Sensed", notes.feetSensed, "", GUIDED_READER_PROMPTS.feetSensed),
+          readerSection("At His Feet — Scripture / Testing", notes.feetTesting, "", GUIDED_READER_PROMPTS.feetTesting),
+          readerSection("Prayer Response", notes.prayer, "", GUIDED_READER_PROMPTS.prayer),
+          readerSection("Walk It Out", notes.walk, "", GUIDED_READER_PROMPTS.walk),
+          readerSection("Remember / Revisit", notes.remember, "", GUIDED_READER_PROMPTS.remember)
+        ].join("");
 
     return `
       <h1 class="readerPaperTitle">${escapeHtml(entryDisplayTitle(entry))}</h1>
-      <p class="readerMeta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")}${mode === "freewrite" ? " • Freewrite" : ""}</p>
+      <p class="readerMeta">${escapeHtml(entry.reference || "")} (WEB) • ${escapeHtml(entry.studyDate || "")}${mode === "freewrite" ? " • Freewrite" : " • Guided Study"}</p>
       ${badges ? `<div class="readerBadges">${badges}</div>` : ""}
-      ${sections || `<section class="readerSection"><h3>Journal Entry</h3><p>No written notes have been saved in this entry yet.</p></section>`}
+      ${sections}
     `;
   }
 
@@ -6498,22 +6518,29 @@ const verseCounts = {
   function entryToHtmlBlock(entry) {
     const notes = entry.notes || {};
     const mode = entryReaderMode(entry);
-    const section = (title, body, extraClass = "") => body ? `<section class="${escapeHtml(extraClass)}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body).replace(/\n/g, "<br>")}</p></section>` : "";
+    const section = (title, body, question = "") => {
+      const cleaned = scrubPromptOnlyText(body || "").trim();
+      const questionHtml = question ? `<p class="question">${escapeHtml(question)}</p>` : "";
+      const answerHtml = cleaned ? `<p>${escapeHtml(cleaned).replace(/
+/g, "<br>")}</p>` : `<p class="empty-answer">No response saved yet.</p>`;
+      return `<section><h3>${escapeHtml(title)}</h3>${questionHtml}${answerHtml}</section>`;
+    };
     const badges = `${entry.favorite ? '<span class="badge">Favorite</span>' : ''}${entry.reviewLater ? '<span class="badge">Revisit Entry</span>' : ''}`;
 
     const bodyHtml = mode === "freewrite"
-      ? (notes.freewrite ? `<section class="freewrite-export"><p>${escapeHtml(notes.freewrite).replace(/\n/g, "<br>")}</p></section>` : `<section><p>No freewrite text saved.</p></section>`)
+      ? `<section class="freewrite-export"><p>${escapeHtml(scrubPromptOnlyText(notes.freewrite || "").trim() || "No freewrite notes have been saved in this entry yet.").replace(/
+/g, "<br>")}</p></section>`
       : [
-          section("Read & Observe", notes.observe),
-          section("Reflect — Meaning", notes.understand),
-          section("Reflect — Heart", notes.heart),
-          section("At His Feet — Questions", notes.feetQuestions),
-          section("At His Feet — What I Sensed", notes.feetSensed),
-          section("At His Feet — Scripture / Testing", notes.feetTesting),
-          section("Prayer Response", notes.prayer),
-          section("Walk It Out", notes.walk),
-          section("Remember / Revisit", notes.remember)
-        ].filter(Boolean).join("") || `<section><p>No written notes have been saved in this entry yet.</p></section>`;
+          section("Read & Observe", notes.observe, GUIDED_READER_PROMPTS.observe),
+          section("Reflect — Meaning", notes.understand, GUIDED_READER_PROMPTS.understand),
+          section("Reflect — Heart", notes.heart, GUIDED_READER_PROMPTS.heart),
+          section("At His Feet — Questions", notes.feetQuestions, GUIDED_READER_PROMPTS.feetQuestions),
+          section("At His Feet — What I Sensed", notes.feetSensed, GUIDED_READER_PROMPTS.feetSensed),
+          section("At His Feet — Scripture / Testing", notes.feetTesting, GUIDED_READER_PROMPTS.feetTesting),
+          section("Prayer Response", notes.prayer, GUIDED_READER_PROMPTS.prayer),
+          section("Walk It Out", notes.walk, GUIDED_READER_PROMPTS.walk),
+          section("Remember / Revisit", notes.remember, GUIDED_READER_PROMPTS.remember)
+        ].join("");
 
     return `<article class="entry ${mode === "freewrite" ? "freewrite-entry" : "guided-entry"}">
       <h2>${escapeHtml(entryDisplayTitle(entry))}</h2>
@@ -11043,6 +11070,125 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   }
 }
 </style>
+
+<!-- v109 — Mobile nav bottom lock + guided reader/export format + transition polish -->
+<style id="rdm-v109-journal-guided-reader-nav-lock-style">
+.readerQuestion,
+.readerAnswer,
+.readerEmptyAnswer {
+  margin: 0 0 10px !important;
+  white-space: pre-wrap;
+  line-height: 1.62;
+}
+.readerQuestion {
+  color: var(--journal-muted-strong, var(--dust)) !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+}
+.readerAnswer {
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
+.readerEmptyAnswer {
+  color: var(--journal-muted-strong, var(--dust)) !important;
+  font-style: italic !important;
+  font-weight: 850 !important;
+}
+body.dark .readerAnswer { color: #F8F4EC !important; }
+
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html body.rdm-dj-mobile-shell,
+  html body.rdm-dj-mobile-shell.rdm-dj-mobile-panel-locked {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
+  }
+
+  html body.rdm-dj-mobile-shell #rdmDjMobileNav.rdm-dj-mobile-nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    transform: translate3d(0,0,0) !important;
+    will-change: auto !important;
+    contain: layout paint !important;
+    z-index: 2147481500 !important;
+  }
+
+  html.rdm-dj-v88-panel-open body.rdm-dj-mobile-shell #rdmDjMobileNav.rdm-dj-mobile-nav,
+  html.rdm-dj-panel-scroll-locked body.rdm-dj-mobile-shell #rdmDjMobileNav.rdm-dj-mobile-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    transform: translate3d(0,0,0) !important;
+  }
+
+  html body.rdm-dj-mobile-shell #journalReaderPanel.open {
+    position: fixed !important;
+    inset: 0 0 var(--dj-mobile-nav-height, 86px) 0 !important;
+    width: 100vw !important;
+    height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+    max-height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
+    border-radius: 0 !important;
+    z-index: 2147481200 !important;
+  }
+}
+
+/* Export/print guided format consistency. */
+.question {
+  margin: 0 0 8px !important;
+  color: var(--muted) !important;
+  font-weight: 900 !important;
+}
+.empty-answer {
+  margin: 0 !important;
+  color: var(--muted) !important;
+  font-style: italic !important;
+}
+</style>
+<script id="rdm-v109-journal-guided-reader-nav-lock-script">
+(function rdmV109JournalGuidedReaderNavLock(){
+  if (window.__rdmV109JournalGuidedReaderNavLock) return;
+  window.__rdmV109JournalGuidedReaderNavLock = true;
+
+  function isMobile(){ return !!document.body && document.body.classList.contains('rdm-dj-mobile-shell'); }
+  function get(id){ return document.getElementById(id); }
+  function unlockBodyFixed(){
+    if (!isMobile()) return;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    var nav = get('rdmDjMobileNav');
+    if (nav) {
+      nav.style.setProperty('position','fixed','important');
+      nav.style.setProperty('left','0','important');
+      nav.style.setProperty('right','0','important');
+      nav.style.setProperty('top','auto','important');
+      nav.style.setProperty('bottom','0','important');
+      nav.style.setProperty('width','100vw','important');
+      nav.style.setProperty('transform','translate3d(0,0,0)','important');
+      nav.style.setProperty('z-index','2147481500','important');
+    }
+  }
+
+  function pulse(){ [0, 60, 180, 420, 900, 1600].forEach(function(delay){ setTimeout(unlockBodyFixed, delay); }); }
+  document.addEventListener('click', function(event){
+    if (!isMobile()) return;
+    var target = event.target;
+    if (target && target.closest && target.closest('#rdmDjMobileNav, #openMarkToolsBtn, #openStudyToolsBtn, #closeMarkToolsBtn, #closeStudyToolsBtn, #readJournalBtn, .readEntryBtn, #closeReaderBtn')) pulse();
+  }, true);
+  window.addEventListener('resize', pulse, { passive: true });
+  window.addEventListener('orientationchange', pulse, { passive: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulse); else pulse();
+  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v109-guided-reader-nav-lock-final';
+})();
+</script>
+
 
 </body>
 </html>
