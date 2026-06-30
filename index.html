@@ -25587,20 +25587,22 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
-<!-- Recovery v90 — Mobile Study Resources journal-style close/open behavior lock -->
-<style id="rdm-v90-mobile-study-resources-journal-behavior-style">
+<!-- v91 — Mobile Study Resources single-session stability lock -->
+<style id="rdm-v91-mobile-study-resources-session-lock-style">
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  body.rdm-v90-resource-close-guard #studyResourcesPanel .tool-option,
-  body.rdm-v90-resource-close-guard #studyResourcesKey button {
-    pointer-events: none !important;
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open {
+    display: flex !important;
   }
 
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-v91-resource-close-guard #studyResourcesPanel .tool-option {
+    pointer-events: none !important;
+  }
 }
 </style>
-<script id="rdm-v90-mobile-study-resources-journal-behavior-script">
-(function rdmV90MobileStudyResourcesJournalBehavior(){
-  if (window.__rdmV90MobileStudyResourcesJournalBehavior) return;
-  window.__rdmV90MobileStudyResourcesJournalBehavior = true;
+<script id="rdm-v91-mobile-study-resources-session-lock-script">
+(function rdmV91MobileStudyResourcesSessionLock(){
+  if (window.__rdmV91MobileStudyResourcesSessionLock) return;
+  window.__rdmV91MobileStudyResourcesSessionLock = true;
 
   var RESOURCE_BUTTON_IDS = new Set([
     "openBackgroundsResource",
@@ -25613,8 +25615,9 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     "openJfbResource"
   ]);
 
+  var originalButtonHandlers = Object.create(null);
   var closeGuardUntil = 0;
-  var lastMenuShouldRemainOpen = false;
+  var openingResource = false;
 
   function get(id){ return document.getElementById(id); }
 
@@ -25623,84 +25626,71 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches);
   }
 
-  function studyPanel(){ return get("studyResourcesPanel"); }
-
-  function isStudyPanelOpen(){
-    var panel = studyPanel();
-    return !!(panel && panel.classList.contains("open") && panel.getAttribute("aria-hidden") !== "true");
+  function clearActiveResource(){
+    try { activeResourcePanel = ""; } catch (_) {}
+    try { window.activeResourcePanel = ""; } catch (_) {}
   }
 
-  function setActiveResource(value){
-    try { activeResourcePanel = value || ""; } catch (_) {}
-    try { window.activeResourcePanel = value || ""; } catch (_) {}
-  }
-
-  function setToolsNavActive(){
-    var nav = get("rdmMobileAppNav");
-    if (!nav) return;
-    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
-      button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
-    });
+  function setCloseGuard(ms){
+    closeGuardUntil = Date.now() + (ms || 900);
+    document.body.classList.add("rdm-v91-resource-close-guard");
+    setTimeout(function(){
+      if (Date.now() >= closeGuardUntil) {
+        document.body.classList.remove("rdm-v91-resource-close-guard");
+      }
+    }, (ms || 900) + 40);
   }
 
   function keepStudyResourcesOpen(){
     if (!isMobileShell()) return;
-    var panel = studyPanel();
+    var panel = get("studyResourcesPanel");
     if (!panel) return;
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     panel.style.display = "";
-    setToolsNavActive();
+
+    var nav = get("rdmMobileAppNav");
+    if (nav) {
+      nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
+        button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
+      });
+    }
   }
 
   function keepStudyResourcesOpenSoon(){
-    if (!lastMenuShouldRemainOpen) return;
-    [0, 40, 120].forEach(function(delay){
+    [0, 40, 120, 260].forEach(function(delay){
       setTimeout(keepStudyResourcesOpen, delay);
     });
   }
 
-  function markCloseGuard(){
-    closeGuardUntil = Date.now() + 650;
-    document.body.classList.add("rdm-v90-resource-close-guard");
-    setTimeout(function(){
-      if (Date.now() >= closeGuardUntil) {
-        document.body.classList.remove("rdm-v90-resource-close-guard");
-      }
-    }, 700);
-  }
-
-  function closeOnlyResourcePanel(panel){
+  function closeLegacySharedResourcePanel(){
+    var panel = get("obsCrossRefsPanel");
     if (!panel) return;
-    markCloseGuard();
-    setActiveResource("");
-    panel.classList.remove("open");
+    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
     panel.setAttribute("aria-hidden", "true");
-    panel.remove();
-    keepStudyResourcesOpenSoon();
+    panel.style.display = "none";
+    panel.style.removeProperty("--drag-left");
+    panel.style.removeProperty("--drag-top");
+    panel.style.right = "";
+    panel.style.bottom = "";
+
+    var back = get("obsBackToPreviousPassage");
+    if (back) back.style.display = "none";
   }
 
-  function installStableClose(panel){
-    if (!panel || panel.dataset.rdmV90StableClose === "1") return;
-    panel.dataset.rdmV90StableClose = "1";
-    panel.querySelectorAll(".teacher-pop-close, .resource-close").forEach(function(button){
-      if (button.dataset.rdmV90StableClose === "1") return;
-      button.dataset.rdmV90StableClose = "1";
-      button.addEventListener("click", function(event){
-        if (!isMobileShell()) return;
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-        closeOnlyResourcePanel(panel);
-      }, true);
+  function closeAllStudyResourceOverlays(){
+    closeLegacySharedResourcePanel();
+
+    document.querySelectorAll(".resource-instance-panel").forEach(function(panel){
+      panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+      panel.setAttribute("aria-hidden", "true");
+      try { panel.remove(); } catch (_) {}
     });
+
+    clearActiveResource();
   }
 
-  function installAllStableCloses(){
-    document.querySelectorAll(".resource-instance-panel").forEach(installStableClose);
-  }
-
-  function fakeEventFor(button, realEvent){
+  function syntheticEventFor(button, realEvent){
     return {
       target: button,
       currentTarget: button,
@@ -25710,112 +25700,129 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     };
   }
 
-  function openResourceThroughExistingHandler(button, event){
-    if (!button || typeof button.onclick !== "function") return false;
-
-    var menuWasOpen = isStudyPanelOpen() || !!button.closest("#studyResourcesPanel");
-    lastMenuShouldRemainOpen = menuWasOpen;
-
-    var result;
-    try {
-      result = button.onclick.call(button, fakeEventFor(button, event));
-    } catch (error) {
-      console.warn("Study Resource open failed:", error);
-      return true;
-    }
-
-    Promise.resolve(result).finally(function(){
-      installAllStableCloses();
-      if (menuWasOpen) keepStudyResourcesOpenSoon();
+  function rememberOriginalHandlers(){
+    RESOURCE_BUTTON_IDS.forEach(function(id){
+      var button = get(id);
+      if (!button) return;
+      if (!originalButtonHandlers[id] && typeof button.onclick === "function") {
+        originalButtonHandlers[id] = button.onclick;
+      }
     });
-
-    setTimeout(function(){
-      installAllStableCloses();
-      if (menuWasOpen) keepStudyResourcesOpenSoon();
-    }, 80);
-
-    return true;
   }
 
-  document.addEventListener("click", function(event){
-    if (!isMobileShell()) return;
+  function runOriginalResourceOpen(button, event){
+    var handler = originalButtonHandlers[button.id] || button.onclick;
+    if (typeof handler !== "function") return Promise.resolve();
 
-    var closeButton = event.target.closest(".resource-instance-panel .teacher-pop-close, .resource-instance-panel .resource-close");
-    if (closeButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-      closeOnlyResourcePanel(closeButton.closest(".resource-instance-panel"));
-      return;
+    try {
+      return Promise.resolve(handler.call(button, syntheticEventFor(button, event)));
+    } catch (error) {
+      console.warn("Study resource open failed:", error);
+      return Promise.resolve();
     }
+  }
 
-    var button = event.target.closest("button");
-    if (!button || !RESOURCE_BUTTON_IDS.has(button.id)) return;
+  function openResourceManually(button, event){
+    if (!button || openingResource) return;
+    if (Date.now() < closeGuardUntil) return;
 
-    if (Date.now() < closeGuardUntil) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-      return;
-    }
+    openingResource = true;
+    setCloseGuard(500);
+    closeAllStudyResourceOverlays();
+    keepStudyResourcesOpen();
+
+    runOriginalResourceOpen(button, event).finally(function(){
+      // Mobile Study Resources are manual sessions. Do not leave a stale activeResourcePanel
+      // value that can auto-open Easton's, Smith's, Nave's, or Doctrine later.
+      clearActiveResource();
+      keepStudyResourcesOpenSoon();
+      setTimeout(clearActiveResource, 80);
+      setTimeout(keepStudyResourcesOpen, 120);
+      setTimeout(function(){ openingResource = false; }, 180);
+    });
+  }
+
+  function isResourceCloseTarget(target){
+    return target && target.closest && target.closest(
+      ".resource-instance-panel .teacher-pop-close, " +
+      ".resource-instance-panel .resource-close, " +
+      "#closeObsCrossRefs"
+    );
+  }
+
+  function handleResourceClose(event){
+    if (!isMobileShell()) return false;
+    var closeButton = isResourceCloseTarget(event.target);
+    if (!closeButton) return false;
 
     event.preventDefault();
     event.stopPropagation();
     if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
 
-    openResourceThroughExistingHandler(button, event);
+    setCloseGuard(850);
+    closeAllStudyResourceOverlays();
+    keepStudyResourcesOpenSoon();
+    return true;
+  }
+
+  function handleResourceOpen(event){
+    if (!isMobileShell()) return false;
+    var button = event.target && event.target.closest ? event.target.closest("button") : null;
+    if (!button || !RESOURCE_BUTTON_IDS.has(button.id)) return false;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+
+    openResourceManually(button, event);
+    return true;
+  }
+
+  ["pointerdown", "touchstart", "mousedown", "click"].forEach(function(type){
+    document.addEventListener(type, function(event){
+      handleResourceClose(event);
+    }, true);
+  });
+
+  document.addEventListener("click", function(event){
+    if (handleResourceClose(event)) return;
+    handleResourceOpen(event);
   }, true);
 
-  var originalRefresh = null;
-  try { originalRefresh = window.refreshActiveResourcePanel || (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null); } catch (_) {}
+  // Prevent older mobile refresh bridges from reopening stale dictionary/resource panels.
+  var previousRefresh = null;
+  try { previousRefresh = window.refreshActiveResourcePanel || (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null); } catch (_) {}
 
-  function resourcePanelText(panel){
-    return String([
-      panel && panel.dataset ? panel.dataset.resourceKey || "" : "",
-      panel && panel.dataset ? panel.dataset.commentaryKind || "" : "",
-      panel ? panel.textContent || "" : ""
-    ].join(" ")).toLowerCase();
-  }
-
-  function shouldAllowAutomaticRefresh(){
-    if (Date.now() < closeGuardUntil) return false;
-
-    var panels = Array.from(document.querySelectorAll(".resource-instance-panel"));
-    if (!panels.length) return false;
-
-    return panels.some(function(panel){
-      var text = resourcePanelText(panel);
-      return text.includes("matthew henry commentary") ||
-        text.includes("jamieson-fausset-brown commentary") ||
-        text.includes("jfb commentary") ||
-        text.includes("book overview") ||
-        text.includes("bible backgrounds");
-    });
-  }
-
-  function safeRefreshActiveResourcePanel(){
-    if (!shouldAllowAutomaticRefresh()) return;
-    if (typeof originalRefresh === "function" && originalRefresh !== safeRefreshActiveResourcePanel) {
-      return originalRefresh.apply(this, arguments);
+  function v91ManualRefreshGuard(){
+    if (isMobileShell()) {
+      clearActiveResource();
+      return;
+    }
+    if (typeof previousRefresh === "function" && previousRefresh !== v91ManualRefreshGuard) {
+      return previousRefresh.apply(this, arguments);
     }
   }
 
-  try { refreshActiveResourcePanel = safeRefreshActiveResourcePanel; } catch (_) {}
-  window.refreshActiveResourcePanel = safeRefreshActiveResourcePanel;
+  try { refreshActiveResourcePanel = v91ManualRefreshGuard; } catch (_) {}
+  window.refreshActiveResourcePanel = v91ManualRefreshGuard;
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installAllStableCloses, { once: true });
+    document.addEventListener("DOMContentLoaded", function(){
+      rememberOriginalHandlers();
+      clearActiveResource();
+    }, { once: true });
   } else {
-    installAllStableCloses();
+    rememberOriginalHandlers();
+    clearActiveResource();
   }
 
   window.addEventListener("load", function(){
-    installAllStableCloses();
-    setActiveResource("");
+    rememberOriginalHandlers();
+    clearActiveResource();
   }, { once: true });
 
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v90-mobile-study-resources-journal-behavior-lock";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v90-mobile-study-resources-journal-behavior-lock";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v91-mobile-study-resources-single-session-lock";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v91-mobile-study-resources-single-session-lock";
 })();
 </script>
 
