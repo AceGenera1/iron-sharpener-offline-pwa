@@ -4146,7 +4146,7 @@ body.dark .resource-clean-empty {
 <script>
 (() => {
   "use strict";
-  const VERSION = "v93-built-in-crossrefs-safe-final";
+  const VERSION = "v108-full-chapter-verse-one-final";
 const books = [["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]];
 const verseCounts = {
   "Genesis": [
@@ -5625,28 +5625,65 @@ const verseCounts = {
   function populateBooks() {
     $("book").innerHTML = books.map(([book]) => `<option value="${escapeHtml(book)}">${escapeHtml(book)}</option>`).join("");
     $("book").value = "John";
-    populateChapters();
+    populateChapters("15");
+    setFullChapterRange();
   }
 
-  function populateChapters() {
+  function populateChapters(preferredChapter) {
     const book = $("book").value;
     const chapterCount = (books.find(([name]) => name === book) || [book, 1])[1];
     $("chapter").innerHTML = Array.from({length: chapterCount}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join("");
-    $("chapter").value = book === "John" ? "15" : "1";
+    const wantedChapter = parseInt(preferredChapter || "1", 10) || 1;
+    $("chapter").value = String(Math.min(Math.max(wantedChapter, 1), chapterCount));
     populateVerses();
+  }
+
+  function verseCountFor(book, chapter) {
+    const chapterNumber = parseInt(chapter || "1", 10) || 1;
+    const counts = verseCounts[book] || [];
+    return counts[chapterNumber - 1] || 1;
   }
 
   function populateVerses() {
     const book = $("book").value;
     const chapter = parseInt($("chapter").value || "1", 10);
-    const count = (verseCounts[book] && verseCounts[book][chapter - 1]) ? verseCounts[book][chapter - 1] : 1;
+    const count = verseCountFor(book, chapter);
     const options = Array.from({length: count}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join("");
     const oldStart = parseInt($("start").value || "1", 10);
-    const oldEnd = parseInt($("end").value || "5", 10);
+    const oldEnd = parseInt($("end").value || String(count), 10);
     $("start").innerHTML = options;
     $("end").innerHTML = options;
-    $("start").value = Math.min(oldStart || 1, count);
-    $("end").value = Math.min(Math.max(oldEnd || 5, parseInt($("start").value,10)), count);
+    $("start").value = String(Math.min(Math.max(oldStart || 1, 1), count));
+    $("end").value = String(Math.min(Math.max(oldEnd || count, parseInt($("start").value,10)), count));
+  }
+
+  function setFullChapterRange() {
+    const count = verseCountFor($("book").value, $("chapter").value);
+    $("start").value = "1";
+    $("end").value = String(count);
+  }
+
+  function clampRangeToCurrentChapter(start, end) {
+    const count = verseCountFor($("book").value, $("chapter").value);
+    const safeStart = Math.min(Math.max(parseInt(start || "1", 10) || 1, 1), count);
+    const safeEnd = Math.min(Math.max(parseInt(end || String(count), 10) || count, safeStart), count);
+    $("start").value = String(safeStart);
+    $("end").value = String(safeEnd);
+  }
+
+  function isFullChapterRange(book, chapter, start, end) {
+    return (parseInt(start || "1", 10) || 1) === 1 &&
+      (parseInt(end || "1", 10) || 1) === verseCountFor(book, chapter);
+  }
+
+  function saveLastScriptureRef(book, chapter, start, end) {
+    localStorage.setItem("ironSharpenerDiscipleJournal.lastRef", JSON.stringify({
+      book,
+      chapter,
+      start,
+      end,
+      userAdjustedRange: !isFullChapterRange(book, chapter, start, end)
+    }));
   }
 
   function syncEndMinimum() {
@@ -5712,7 +5749,7 @@ const verseCounts = {
       $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${renderVerseText(verse)}</p>`).join("");
       applySavedMarks();
       clearCopySelection();
-      localStorage.setItem("ironSharpenerDiscipleJournal.lastRef", JSON.stringify({ book, chapter, start, end }));
+      saveLastScriptureRef(book, chapter, start, end);
       autosaveDraft();
     } catch (error) {
       currentPassageVerses = [];
@@ -8941,10 +8978,24 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
     $("toolNave").addEventListener("click", openNaveTool);
     $("toolDoctrine").addEventListener("click", openDoctrineTool);
     window.addEventListener("beforeunload", saveCurrentDraftNow);
-    $("book").addEventListener("change", () => { populateChapters(); loadPassage(); });
-    $("chapter").addEventListener("change", () => { populateVerses(); loadPassage(); });
-    $("start").addEventListener("change", () => { syncEndMinimum(); loadPassage(); });
-    $("end").addEventListener("change", () => { syncEndMinimum(); loadPassage(); });
+    $("book").addEventListener("change", () => {
+      populateChapters();
+      setFullChapterRange();
+      loadPassage();
+    });
+    $("chapter").addEventListener("change", () => {
+      populateVerses();
+      setFullChapterRange();
+      loadPassage();
+    });
+    $("start").addEventListener("change", () => {
+      syncEndMinimum();
+      loadPassage();
+    });
+    $("end").addEventListener("change", () => {
+      syncEndMinimum();
+      loadPassage();
+    });
     $("loadBtn").addEventListener("click", loadPassage);
     $("copyScriptureBtn").addEventListener("click", () => { const menu = $("copyScriptureMenu"); const open = !menu.classList.contains("open"); menu.classList.toggle("open", open); $("copyScriptureBtn").setAttribute("aria-expanded", String(open)); });
     $("copySingleBtn").addEventListener("click", () => setCopyMode("single"));
@@ -9026,10 +9077,18 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
         populateChapters();
         $("chapter").value = String(last.chapter || 1);
         populateVerses();
-        $("start").value = String(last.start || 1);
-        $("end").value = String(last.end || last.start || 1);
+
+        if (last.userAdjustedRange === true) {
+          clampRangeToCurrentChapter(last.start || "1", last.end || last.start || "1");
+        } else {
+          setFullChapterRange();
+        }
+      } else {
+        setFullChapterRange();
       }
-    } catch (_) {}
+    } catch (_) {
+      setFullChapterRange();
+    }
     djV81WireSelectionCache();
     bindEvents();
     db = await openDb();
