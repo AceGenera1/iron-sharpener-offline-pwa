@@ -10745,5 +10745,143 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 })();
 </script>
 
+
+<!-- v104 — Disciple Journal mobile/tablet header device-fit polish only -->
+<style id="rdm-v104-journal-mobile-header-device-fit">
+/*
+  v104 scope: Disciple Journal mobile/tablet header only.
+  Keeps locked v102 screen-fit/cross-reference behavior intact while making the
+  header fit iPhone and iPad widths cleanly. Desktop is intentionally untouched.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  body.rdm-dj-mobile-shell .hero {
+    grid-template-columns: clamp(48px, 9vw, 58px) minmax(0, 1fr) auto !important;
+    gap: clamp(8px, 1.6vw, 12px) !important;
+    min-height: calc(78px + env(safe-area-inset-top, 0px)) !important;
+    padding: calc(8px + env(safe-area-inset-top, 0px)) clamp(10px, 2vw, 14px) 8px !important;
+  }
+  body.rdm-dj-mobile-shell .hero > div:nth-child(2) {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-align: left !important;
+  }
+  body.rdm-dj-mobile-shell .logoWrap {
+    width: clamp(48px, 9vw, 58px) !important;
+    height: clamp(48px, 9vw, 58px) !important;
+  }
+  body.rdm-dj-mobile-shell .logoWrap img {
+    width: 108% !important;
+    height: 108% !important;
+    object-fit: contain !important;
+  }
+  body.rdm-dj-mobile-shell .eyebrow {
+    max-width: 100% !important;
+    font-size: clamp(8.4px, 1.85vw, 10.5px) !important;
+    letter-spacing: clamp(1.6px, .45vw, 2.6px) !important;
+    line-height: 1.05 !important;
+    margin: 0 0 2px !important;
+    text-align: left !important;
+  }
+  body.rdm-dj-mobile-shell h1 {
+    max-width: 100% !important;
+    font-size: clamp(21px, 5.6vw, 36px) !important;
+    line-height: .98 !important;
+    letter-spacing: -.035em !important;
+    text-align: left !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+  body.rdm-dj-mobile-shell .heroActions {
+    width: auto !important;
+    min-width: 0 !important;
+    justify-content: end !important;
+  }
+  body.rdm-dj-mobile-shell .heroActions button {
+    min-width: clamp(78px, 19vw, 98px) !important;
+    max-width: clamp(82px, 22vw, 104px) !important;
+    min-height: 34px !important;
+    padding: 7px 8px !important;
+    font-size: clamp(10.5px, 2.55vw, 12px) !important;
+    line-height: 1.05 !important;
+  }
+}
+
+/* iPhone-size Journal header: keep the title readable instead of centered/truncated. */
+@media (max-width: 560px) {
+  body.rdm-dj-mobile-shell .hero {
+    grid-template-columns: 50px minmax(0, 1fr) 100px !important;
+    gap: 8px !important;
+    min-height: calc(92px + env(safe-area-inset-top, 0px)) !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  body.rdm-dj-mobile-shell .logoWrap {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  body.rdm-dj-mobile-shell .eyebrow {
+    font-size: 8.3px !important;
+    letter-spacing: 1.55px !important;
+  }
+  body.rdm-dj-mobile-shell h1 {
+    font-size: clamp(21px, 5.7vw, 27px) !important;
+    line-height: .98 !important;
+    -webkit-line-clamp: 2 !important;
+  }
+  body.rdm-dj-mobile-shell .heroActions button {
+    min-width: 92px !important;
+    max-width: 100px !important;
+    font-size: 11px !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+}
+
+/* Very narrow phones: shorten spacing before wrapping the title awkwardly. */
+@media (max-width: 390px) {
+  body.rdm-dj-mobile-shell .hero {
+    grid-template-columns: 46px minmax(0, 1fr) 90px !important;
+    gap: 7px !important;
+  }
+  body.rdm-dj-mobile-shell .logoWrap {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  body.rdm-dj-mobile-shell .eyebrow {
+    font-size: 7.8px !important;
+    letter-spacing: 1.25px !important;
+  }
+  body.rdm-dj-mobile-shell h1 {
+    font-size: 20px !important;
+  }
+  body.rdm-dj-mobile-shell .heroActions button {
+    min-width: 84px !important;
+    max-width: 90px !important;
+    font-size: 10.4px !important;
+  }
+}
+
+/* iPad/tablet Journal header: keep it close to the locked v102 look but cleaner. */
+@media (min-width: 700px) and (max-width: 1180px) {
+  body.rdm-dj-mobile-shell .hero {
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+    min-height: calc(86px + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.rdm-dj-mobile-shell .eyebrow {
+    font-size: 10.5px !important;
+    letter-spacing: 2.4px !important;
+  }
+  body.rdm-dj-mobile-shell h1 {
+    font-size: clamp(30px, 4.1vw, 42px) !important;
+    line-height: .96 !important;
+    -webkit-line-clamp: 1 !important;
+  }
+}
+</style>
+
 </body>
 </html>
