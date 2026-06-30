@@ -4,10 +4,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Iron Sharpener Disciple Maker</title>
+<title>IS Maker</title>
 <link href="./manifest-maker.json" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
+<meta name="apple-mobile-web-app-title" content="IS Maker"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
@@ -29669,6 +29669,112 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   setTimeout(init, 3000);
   window.addEventListener("online", refresh);
   window.addEventListener("offline", refresh);
+})();
+</script>
+
+
+
+<!-- v111 — Two-app installed Maker final focus/label cleanup
+     Browser mode keeps the Journal link for setup. Installed Home Screen app hides Journal completely. -->
+<style id="rdm-v111-two-app-final-hide-journal-style">
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html:not(.obs) body.rdm-mobile-app-shell #discipleJournalBtn,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #discipleJournalBtn,
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #discipleJournalBtn,
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav,
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+<script id="rdm-v111-two-app-final-hide-journal-script">
+(function rdmV111TwoAppFinalHideJournal(){
+  if (window.__rdmV111TwoAppFinalHideJournal) return;
+  window.__rdmV111TwoAppFinalHideJournal = true;
+  function isInstalled(){
+    try {
+      return !!((window.navigator && window.navigator.standalone) ||
+        (window.matchMedia && (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches
+        )));
+    } catch (_) { return false; }
+  }
+  function hide(el){
+    if (!el) return;
+    el.style.setProperty('display','none','important');
+    el.style.setProperty('visibility','hidden','important');
+    el.style.setProperty('pointer-events','none','important');
+    el.style.setProperty('width','0','important');
+    el.style.setProperty('min-width','0','important');
+    el.style.setProperty('max-width','0','important');
+    el.style.setProperty('height','0','important');
+    el.style.setProperty('min-height','0','important');
+    el.style.setProperty('max-height','0','important');
+    el.style.setProperty('padding','0','important');
+    el.style.setProperty('margin','0','important');
+    el.style.setProperty('border','0','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('opacity','0','important');
+    el.setAttribute('hidden','hidden');
+    el.setAttribute('aria-hidden','true');
+    if ('disabled' in el) el.disabled = true;
+  }
+  function apply(){
+    if (!isInstalled()) return;
+    try {
+      document.documentElement.classList.add('rdm-two-app-installed-maker');
+      if (document.body) document.body.classList.add('rdm-two-app-installed-maker');
+      hide(document.getElementById('discipleJournalBtn'));
+      document.querySelectorAll('#rdmMobileAppNav button[data-rdm-mobile-action="journal"]').forEach(hide);
+      var nav = document.getElementById('rdmMobileAppNav');
+      if (nav) nav.style.setProperty('grid-template-columns','repeat(3, minmax(0, 1fr))','important');
+    } catch (_) {}
+  }
+  function pulse(){ [0, 100, 300, 700, 1200, 2500, 4500, 7000, 10000, 14000].forEach(function(ms){ setTimeout(apply, ms); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulse); else pulse();
+  window.addEventListener('load', pulse, { once: true });
+  window.addEventListener('pageshow', pulse);
+  window.addEventListener('focus', apply);
 })();
 </script>
 
