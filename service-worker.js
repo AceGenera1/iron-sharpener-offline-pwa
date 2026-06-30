@@ -1,9 +1,26 @@
-/* Iron Sharpener service worker — v35 Disciple Journal foundation
-   Safe app-shell recovery: never serve old cached HTML, but keep old JSON/resource
-   caches available so offline Scripture and study resources are preserved. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v35-disciple-journal-20260627";
+/* Iron Sharpener service worker — v36 Complete Offline Tool
+   App-shell recovery: keep HTML fresh when online, but serve every cached
+   Scripture/resource/asset file offline across Disciple Maker + Disciple Journal. */
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v36-complete-tool-20260630";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
-const CORE_ASSETS = ["./index.html", "./personal-study.html", "./manifest.json", "./assets/iron-sharpener-logo.png", "./assets/disciple-journal-logo.png", "./assets/disciple-journal-icon-192.png", "./assets/disciple-journal-icon-512.png"];
+
+const CORE_ASSETS = [
+  "./",
+  "./index.html",
+  "index.html",
+  "./personal-study.html",
+  "personal-study.html",
+  "./manifest.json",
+  "manifest.json",
+  "./assets/iron-sharpener-logo.png",
+  "assets/iron-sharpener-logo.png",
+  "./assets/disciple-journal-logo.png",
+  "assets/disciple-journal-logo.png",
+  "./assets/disciple-journal-icon-192.png",
+  "assets/disciple-journal-icon-192.png",
+  "./assets/disciple-journal-icon-512.png",
+  "assets/disciple-journal-icon-512.png"
+];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -14,7 +31,6 @@ self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     await removeOldHtmlShellEntries();
     await self.clients.claim();
-    // v34: keep activation gentle; fresh HTML is cached on install and normal navigation.
   })());
 });
 
@@ -32,22 +48,61 @@ function isNavigationRequest(request) {
   if (request.mode === "navigate") return true;
   try {
     const url = new URL(request.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+    return url.pathname.endsWith("/") || url.pathname.endsWith(".html");
   } catch (_) { return false; }
 }
 
 function isJsonRequest(request) {
   try { return new URL(request.url).pathname.endsWith(".json"); }
-  catch (_) { return false; }
+  catch (_) { return String(request || "").endsWith(".json"); }
+}
+
+function safeDecode(value) {
+  try { return decodeURIComponent(value); } catch (_) { return value; }
+}
+
+function cleanPath(value) {
+  return String(value || "")
+    .replace(/^https?:\/\/[^/]+\//i, "")
+    .replace(/^\/+/, "")
+    .replace(/\/+/g, "/");
+}
+
+function noDot(value) {
+  return cleanPath(String(value || "").replace(/^\.\//, ""));
+}
+
+function withDot(value) {
+  const path = noDot(value);
+  return path ? `./${path}` : "./";
+}
+
+function encodeSpaces(value) {
+  return String(value || "").replace(/ /g, "%20");
+}
+
+function requestPath(request) {
+  try { return new URL(request.url).pathname.replace(/^\//, ""); }
+  catch (_) { return noDot(request); }
+}
+
+function resourceKeyVariants(requestOrPath) {
+  const raw = typeof requestOrPath === "string" ? requestOrPath : requestPath(requestOrPath);
+  const path = noDot(raw);
+  const decoded = safeDecode(path);
+  const encoded = encodeSpaces(path);
+  const keys = [requestOrPath, path, `/${path}`, withDot(path), decoded, `/${decoded}`, withDot(decoded), encoded, `/${encoded}`, withDot(encoded)];
+  if (!path || path === "index.html") keys.push("./", "/", "index.html", "./index.html");
+  return [...new Set(keys.filter(Boolean))];
 }
 
 function isHtmlRequestKey(key) {
   try {
     const url = typeof key === "string" ? new URL(key, self.location.href) : new URL(key.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || url.pathname.endsWith(".html");
+    return url.pathname.endsWith("/") || url.pathname.endsWith(".html");
   } catch (_) {
     const text = String(key || "");
-    return text === "./" || text === "/" || text.endsWith("index.html") || text.endsWith(".html");
+    return text === "./" || text === "/" || text.endsWith(".html");
   }
 }
 
@@ -63,17 +118,25 @@ async function putIfGood(cache, request, response) {
   catch (_) { return false; }
 }
 
+async function putAllVariants(cache, key, response) {
+  let saved = false;
+  for (const variant of resourceKeyVariants(key)) {
+    if (typeof variant !== "string") continue;
+    saved = (await putIfGood(cache, variant, response)) || saved;
+  }
+  return saved;
+}
+
 function htmlCacheKeysForRequest(request) {
   const keys = [];
   try {
     const url = typeof request === "string" ? new URL(request, self.location.href) : new URL(request.url);
     let path = url.pathname.replace(/^\//, "") || "index.html";
     if (path.endsWith("/")) path += "index.html";
-    keys.push(path, `./${path}`);
+    keys.push(path, `./${path}`, safeDecode(path), `./${safeDecode(path)}`);
     if (path === "index.html") keys.push("./", "/");
   } catch (_) {
-    const text = String(request || "");
-    if (text) keys.push(text, text.replace(/^\.\//, ""), `./${text.replace(/^\.\//, "")}`);
+    keys.push(...resourceKeyVariants(request));
   }
   return [...new Set(keys.filter(Boolean))];
 }
@@ -82,26 +145,23 @@ async function cacheHtmlResponse(cache, response, request) {
   if (!response || !response.ok) return false;
   const type = response.headers.get("content-type") || "";
   if (type && !type.includes("html")) return false;
+  let saved = false;
   for (const key of htmlCacheKeysForRequest(request)) {
-    await putIfGood(cache, key, response);
+    saved = (await putIfGood(cache, key, response)) || saved;
   }
-  return true;
+  return saved;
 }
 
 async function cacheFreshCoreShell() {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  try {
-    const html = await fetch(new Request("./index.html", { cache: "reload" }));
-    if (html && html.ok) await cacheHtmlResponse(cache, html, "./index.html");
-  } catch (_) {}
-  for (const asset of CORE_ASSETS.filter((item) => !item.endsWith("index.html"))) {
+  for (const asset of CORE_ASSETS) {
     try {
       const response = await fetch(new Request(asset, { cache: "reload" }));
       if (response && response.ok) {
-        if (asset.endsWith(".html")) await cacheHtmlResponse(cache, response, asset);
-        else {
-          await putIfGood(cache, asset, response);
-          await putIfGood(cache, asset.replace(/^\.\//, ""), response);
+        if (asset.endsWith(".html") || asset === "./" || asset.endsWith("/")) {
+          await cacheHtmlResponse(cache, response, asset);
+        } else {
+          await putAllVariants(cache, asset, response);
         }
       }
     } catch (_) {}
@@ -112,6 +172,7 @@ async function removeOldHtmlShellEntries() {
   const keys = await caches.keys();
   for (const name of keys) {
     if (!name.startsWith(IRON_SHARPENER_CACHE_PREFIX)) continue;
+    if (name === IRON_SHARPENER_CACHE) continue;
     try {
       const cache = await caches.open(name);
       const requests = await cache.keys();
@@ -120,6 +181,8 @@ async function removeOldHtmlShellEntries() {
       await cache.delete("/");
       await cache.delete("./index.html");
       await cache.delete("index.html");
+      await cache.delete("./personal-study.html");
+      await cache.delete("personal-study.html");
     } catch (_) {}
   }
 }
@@ -133,25 +196,25 @@ async function navigationNetworkFirst(request) {
       return response;
     }
   } catch (_) {}
+
   for (const key of htmlCacheKeysForRequest(request)) {
-    const cached = await cache.match(key);
+    const cached = await cache.match(key) || await matchAnyResourceCache(key);
     if (cached) return cached;
   }
+
   return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
-function urlWithoutLeadingSlash(request) {
-  try { return new URL(request.url).pathname.replace(/^\//, ""); }
-  catch (_) { return request; }
-}
-
-async function matchAnyResourceCache(request) {
-  const keys = await caches.keys();
-  for (const name of keys) {
+async function matchAnyResourceCache(requestOrPath) {
+  const cacheNames = await caches.keys();
+  const variants = resourceKeyVariants(requestOrPath);
+  for (const name of cacheNames) {
     try {
       const cache = await caches.open(name);
-      const cached = await cache.match(request) || await cache.match(urlWithoutLeadingSlash(request));
-      if (cached) return cached;
+      for (const key of variants) {
+        const cached = await cache.match(key);
+        if (cached) return cached;
+      }
     } catch (_) {}
   }
   return null;
@@ -159,8 +222,9 @@ async function matchAnyResourceCache(request) {
 
 async function resourceCacheFirst(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cached = await cache.match(request) || await cache.match(urlWithoutLeadingSlash(request)) || await matchAnyResourceCache(request);
+  const cached = await matchAnyResourceCache(request);
   if (cached) return cached;
+
   try {
     const response = await fetch(request);
     if (isJsonRequest(request)) {
@@ -169,9 +233,11 @@ async function resourceCacheFirst(request) {
         return new Response("JSON resource unavailable or invalid.", { status: response ? response.status : 503 });
       }
     }
-    if (response && response.ok) await putIfGood(cache, request, response);
+    if (response && response.ok) await putAllVariants(cache, request, response);
     return response;
   } catch (_) {
+    const fallback = await matchAnyResourceCache(request);
+    if (fallback) return fallback;
     return new Response("Offline resource not cached.", { status: 504 });
   }
 }
