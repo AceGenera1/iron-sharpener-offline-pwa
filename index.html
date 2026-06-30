@@ -25550,8 +25550,8 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 }
 </style>
 
-<!-- Patch 87 — Mobile Study Resources Panel Lock / Crossrefs Placement Cleanup -->
-<style id="rdm-v87-mobile-study-resources-panel-lock-style">
+<!-- Patch 88 — Mobile Study Resources Menu Remains Open After Resource Close -->
+<style id="rdm-v88-mobile-study-resources-stay-open-style">
 /* Keep Built-In Cross References out of Teaching Marks/Teacher Tools on mobile and place it only in Study Resources. */
 @media (max-width: 1050px), (pointer: coarse) {
   html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel #openInternalCrossRefs,
@@ -25574,7 +25574,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 }
 </style>
-<script id="rdm-v87-mobile-study-resources-panel-lock-script">
+<script id="rdm-v88-mobile-study-resources-stay-open-script">
 (function rdmV87MobileStudyResourcesPanelLock(){
   if (window.__rdmV87MobileStudyResourcesPanelLock) return;
   window.__rdmV87MobileStudyResourcesPanelLock = true;
@@ -25668,12 +25668,52 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     }
   }
 
+  function setToolsNavActive(){
+    const nav = get("rdmMobileAppNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.rdmMobileAction === "tools");
+    });
+  }
+
+  function keepStudyResourcesPanelOpenAfterResourceClose(){
+    if (!isMobileShell()) return;
+
+    const panel = get("studyResourcesPanel");
+    if (!panel) return;
+
+    removeCrossRefsFromTeachingMarks();
+    ensureCrossRefsInsideStudyResources();
+
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.display = "";
+    panel.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.top = "";
+    panel.style.bottom = "";
+    panel.style.transform = "";
+
+    setToolsNavActive();
+  }
+
+  function scheduleStudyResourcesPanelOpenAfterResourceClose(){
+    if (!isMobileShell()) return;
+    keepStudyResourcesPanelOpenAfterResourceClose();
+    setTimeout(keepStudyResourcesPanelOpenAfterResourceClose, 0);
+    setTimeout(keepStudyResourcesPanelOpenAfterResourceClose, 80);
+    setTimeout(keepStudyResourcesPanelOpenAfterResourceClose, 220);
+  }
+
   function closeResourcePanel(panel){
     if (!panel) return;
+    const shouldKeepStudyResourcesOpen = isMobileShell();
     suppressResourceOpenUntil = Date.now() + 420;
     panel.remove();
     removeCrossRefsFromTeachingMarks();
     ensureCrossRefsInsideStudyResources();
+    if (shouldKeepStudyResourcesOpen) scheduleStudyResourcesPanelOpenAfterResourceClose();
   }
 
   function isResourceOpenTarget(target){
@@ -25740,8 +25780,8 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     setTimeout(run, 700);
   });
 
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v87-mobile-study-resources-panel-lock";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v87-mobile-study-resources-panel-lock";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v88-mobile-study-resources-stay-open-lock";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v88-mobile-study-resources-stay-open-lock";
 })();
 </script>
 
