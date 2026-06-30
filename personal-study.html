@@ -11188,5 +11188,28 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 </script>
 
 
+
+
+<script id="rdm-v111-fast-mode-navigation-feedback">
+(function rdmV111FastModeNavigationFeedback(){
+  if (window.__rdmV111FastModeNavigationFeedback) return;
+  window.__rdmV111FastModeNavigationFeedback = true;
+  function showSwitchingLabel(text){
+    var existing = document.getElementById('rdmModeSwitchToast');
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = 'rdmModeSwitchToast';
+      existing.style.cssText = 'position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2147483000;padding:11px 16px;border-radius:999px;background:rgba(255,249,241,.98);color:#1D2D44;border:1.5px solid #D9A07B;box-shadow:0 14px 32px rgba(0,0,0,.18);font:900 14px Arial,sans-serif;pointer-events:none;';
+      document.body.appendChild(existing);
+    }
+    existing.textContent = text || 'Opening Disciple Maker...';
+  }
+  document.addEventListener('click', function(event){
+    var btn = event.target && event.target.closest ? event.target.closest('#studyModeBtn') : null;
+    if (!btn) return;
+    try { showSwitchingLabel('Opening Disciple Maker...'); } catch (_) {}
+  }, true);
+})();
+</script>
 </body>
 </html>
