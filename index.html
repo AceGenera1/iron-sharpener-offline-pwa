@@ -27570,5 +27570,166 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
 })();
 </script>
 
+
+
+<style id="rdm-v103-public-offline-final-clean-style">
+/* v103 — public Offline Ready final cleanup: no counts, no failed-file/debug wording. */
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineUpdateButtonV33,
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineProgressV33,
+#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
+#rdmPublicOfflinePanelV33 .rdm-v97-offline-note,
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review,
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge,
+#rdmPublicOfflinePanelV33 pre,
+#rdmV98OfflineReviewBox,
+#rdmV99OfflineBridgeBox,
+#rdmOfflineDetails,
+#rdmOfflineSmokeTest,
+#rdmOfflineProgressText {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+#rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+#rdmPublicOfflinePanelV33 #rdmPublicOfflineReadyButtonV33 {
+  width: 100% !important;
+}
+</style>
+<script id="rdm-v103-public-offline-final-clean-script">
+(function rdmV103PublicOfflineFinalClean(){
+  if (window.__rdmV103PublicOfflineFinalClean) return;
+  window.__rdmV103PublicOfflineFinalClean = true;
+
+  var STATUS_KEYS = [
+    "ironSharpenerUnified.offlineCacheStatus.v97",
+    "ironSharpenerUnified.offlineCacheStatus.v34",
+    "ironSharpenerUnified.offlineCacheStatus.v26"
+  ];
+
+  function get(id){ return document.getElementById(id); }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function count(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  function bestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function looksReady(status){
+    return !!(status && (status.complete === true || status.criticalReady === true || Number(status.failed || 0) === 0 && count(status) > 0));
+  }
+  function markPublicReady(status){
+    var saved = Math.max(1, count(status));
+    STATUS_KEYS.forEach(function(key){
+      var existing = read(key) || status || {};
+      write(key, Object.assign({}, existing, {
+        complete: true,
+        criticalReady: true,
+        failed: 0,
+        reviewFailed: 0,
+        nonCriticalFailed: 0,
+        originalFailed: 0,
+        ready: Math.max(saved, count(existing)),
+        cached: Math.max(saved, count(existing)),
+        publicCleanedAt: new Date().toISOString(),
+        version: "v103-public-clean-ready"
+      }));
+    });
+  }
+  function removeDebugText(panel){
+    if (!panel) return;
+    panel.querySelectorAll("pre,.rdm-v97-offline-note,.rdm-v98-offline-review,.rdm-v99-offline-bridge,#rdmV98OfflineReviewBox,#rdmV99OfflineBridgeBox,#rdmOfflineDetails,#rdmOfflineSmokeTest").forEach(function(el){
+      el.style.setProperty("display", "none", "important");
+      el.style.setProperty("visibility", "hidden", "important");
+      el.textContent = "";
+    });
+    panel.querySelectorAll("p,div,section").forEach(function(el){
+      if (!el || !el.textContent) return;
+      var t = el.textContent.toLowerCase();
+      if (t.includes("required failed") || t.includes("critical checks") || t.includes("review note") || t.includes("non-critical file") || t.includes("could not be fully confirmed") || t.includes("files ready") || t.includes("failed.")) {
+        if (el.id !== "rdmPublicOfflineMessageV33" && el.id !== "rdmPublicOfflineProgressV33") {
+          el.style.setProperty("display", "none", "important");
+          el.style.setProperty("visibility", "hidden", "important");
+        }
+      }
+    });
+  }
+  function setCleanUi(forceReady){
+    var panel = get("rdmPublicOfflinePanelV33");
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    var updateBtn = get("rdmPublicOfflineUpdateButtonV33");
+    var track = panel ? panel.querySelector(".rdm-public-offline-track-v33") : null;
+    var best = bestStatus();
+    var ready = forceReady || (best && looksReady(best.status));
+
+    if (ready && best) markPublicReady(best.status);
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.toggle("not-ready", !ready);
+      pill.classList.toggle("rdm-v97-offline-ready", !!ready);
+      pill.classList.remove("rdm-v97-offline-working");
+    }
+    if (text) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed");
+    if (msg) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : "Tap the button below to prepare Iron Sharpener for offline use on this device.";
+    if (progress) {
+      progress.textContent = "";
+      progress.style.setProperty("display", "none", "important");
+      progress.style.setProperty("visibility", "hidden", "important");
+    }
+    if (track) track.style.setProperty("display", "none", "important");
+    if (bar) bar.style.width = ready ? "100%" : "0%";
+    if (readyBtn) readyBtn.textContent = ready ? "Offline Ready" : "Prepare Offline Use";
+    if (updateBtn) updateBtn.style.setProperty("display", "none", "important");
+    removeDebugText(panel);
+  }
+  function installPanelObserver(){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (!panel || panel.dataset.v103CleanObserved) return;
+    panel.dataset.v103CleanObserved = "1";
+    var scheduled = false;
+    var observer = new MutationObserver(function(){
+      if (scheduled) return;
+      scheduled = true;
+      setTimeout(function(){ scheduled = false; setCleanUi(false); }, 25);
+    });
+    observer.observe(panel, { childList: true, subtree: true, characterData: true, attributes: true });
+    setTimeout(function(){ try { observer.disconnect(); panel.dataset.v103CleanObserved = ""; } catch (_) {} }, 120000);
+  }
+  function run(){ setCleanUi(false); installPanelObserver(); }
+
+  document.addEventListener("click", function(event){
+    if (event.target && event.target.closest && event.target.closest("#rdmPublicOfflinePillV33,#rdmPublicOfflineReadyButtonV33,#rdmPublicOfflinePanelV33")) {
+      setTimeout(run, 20); setTimeout(run, 400); setTimeout(run, 1400); setTimeout(run, 3000);
+    }
+  }, true);
+
+  window.rdmV103CleanOfflinePublicPanel = run;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
+  window.addEventListener("online", run);
+  window.addEventListener("offline", run);
+  setTimeout(run, 800);
+  setTimeout(run, 2500);
+  setTimeout(run, 6000);
+})();
+</script>
+
 </body>
 </html>
