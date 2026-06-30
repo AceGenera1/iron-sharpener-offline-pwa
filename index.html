@@ -29303,5 +29303,283 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 </script>
 
+
+<!-- v108 — Offline Ready public progress handoff only
+     Scope: Offline Ready menu/button feedback only. No Scripture, Journal, navigation, or service-worker changes. -->
+<style id="rdm-v108-offline-progress-handoff-style">
+#rdmOfflinePanelV107.rdm-v108-working #rdmOfflineBarV107 {
+  background-size: 34px 34px !important;
+  background-image: linear-gradient(45deg, rgba(255,255,255,.26) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.26) 50%, rgba(255,255,255,.26) 75%, transparent 75%, transparent) !important;
+  animation: rdmV108OfflineBarMove 1.1s linear infinite !important;
+}
+@keyframes rdmV108OfflineBarMove {
+  from { background-position: 0 0; }
+  to { background-position: 34px 0; }
+}
+#rdmOfflineButtonV107.rdm-v108-ready {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border-color: #fff1c0 !important;
+}
+#rdmOfflineButtonV107.rdm-v108-working {
+  cursor: wait !important;
+}
+</style>
+<script id="rdm-v108-offline-progress-handoff-script">
+(function rdmV108OfflineProgressHandoffOnly(){
+  if (window.__rdmV108OfflineProgressHandoffOnly) return;
+  window.__rdmV108OfflineProgressHandoffOnly = true;
+
+  var STORAGE_PREFIX = "ironSharpenerUnified";
+  var STATUS_KEYS = [
+    STORAGE_PREFIX + ".offlineCacheStatus.v97",
+    STORAGE_PREFIX + ".offlineCacheStatus.v34",
+    STORAGE_PREFIX + ".offlineCacheStatus.v26",
+    STORAGE_PREFIX + ".offlineCacheStatus.v105"
+  ];
+  var CRITICAL = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json",
+    "bible/resources/topics/index.json",
+    "bible/resources/backgrounds/index.json"
+  ];
+  var running = false;
+  var pollTimer = null;
+  var lastPercent = 0;
+
+  function get(id){ return document.getElementById(id); }
+  function text(el, value){ if (el) el.textContent = value; }
+  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function variants(path){
+    var raw = String(path || "");
+    var p = cleanPath(raw).replace(/^\.\//, "");
+    var decoded = p;
+    try { decoded = decodeURIComponent(p); } catch (_) {}
+    var encoded = p.replace(/ /g, "%20");
+    return Array.from(new Set([raw, p, "./" + p, "/" + p, decoded, "./" + decoded, "/" + decoded, encoded, "./" + encoded, "/" + encoded].filter(Boolean)));
+  }
+  async function cached(path){
+    if (!("caches" in window)) return false;
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
+    }
+    return false;
+  }
+  async function criticalReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL.length; i++) {
+      if (!(await cached(CRITICAL[i]))) return false;
+      if (i % 4 === 0) await sleep(1);
+    }
+    return true;
+  }
+  function count(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  function bestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function readyFromStorage(){
+    var best = bestStatus();
+    return !!(best && best.status && (best.status.complete === true || best.status.criticalReady === true));
+  }
+  function normalizeReadyStatus(source){
+    var best = bestStatus();
+    var key = (best && best.key) || (STORAGE_PREFIX + ".offlineCacheStatus.v97");
+    var base = Object.assign({}, (best && best.status) || {}, source || {});
+    base.complete = true;
+    base.criticalReady = true;
+    base.failed = 0;
+    base.nonCriticalFailed = Number(base.nonCriticalFailed || base.reviewFailed || base.originalFailed || 0);
+    base.updatedAt = new Date().toISOString();
+    base.version = "v108-public-ready-normalized";
+    write(key, base);
+    write(STORAGE_PREFIX + ".offlineCacheStatus.v97", base);
+  }
+  function ensurePanelOpen(){
+    var panel = get("rdmOfflinePanelV107");
+    if (panel) panel.classList.add("open");
+  }
+  function setProgress(percent, note){
+    lastPercent = Math.max(lastPercent, Math.max(0, Math.min(100, Number(percent) || 0)));
+    var bar = get("rdmOfflineBarV107");
+    if (bar) bar.style.width = lastPercent + "%";
+    if (note) text(get("rdmOfflineNoteV107"), note);
+  }
+  function setButtonState(state){
+    var pill = get("rdmOfflinePillV107");
+    var panel = get("rdmOfflinePanelV107");
+    var btn = get("rdmOfflineButtonV107");
+    var ready = state === "ready";
+    var work = state === "working";
+    if (pill) {
+      pill.classList.toggle("ready", ready);
+      pill.classList.toggle("working", work);
+      pill.classList.toggle("offline", !navigator.onLine);
+    }
+    if (panel) panel.classList.toggle("rdm-v108-working", work);
+    if (btn) {
+      btn.disabled = work;
+      btn.classList.toggle("rdm-v108-ready", ready);
+      btn.classList.toggle("rdm-v108-working", work);
+      btn.textContent = ready ? "Offline Ready" : (work ? "Preparing..." : "Prepare Offline Use");
+      btn.setAttribute("aria-busy", work ? "true" : "false");
+    }
+    text(get("rdmOfflineTextV107"), ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (work ? "Preparing Offline Use" : "Offline Setup Needed"));
+    text(get("rdmOfflineMessageV107"), ready ? "Iron Sharpener is ready for offline use on this device." : (work ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device."));
+  }
+  function hiddenPercent(){
+    var bar = get("rdmPublicOfflineBarV33");
+    if (!bar) return 0;
+    var width = String(bar.style.width || "");
+    var match = width.match(/([0-9]+(?:\.[0-9]+)?)\s*%/);
+    return match ? Math.max(0, Math.min(100, Number(match[1]) || 0)) : 0;
+  }
+  function publicNoteForPercent(percent){
+    if (percent < 18) return "Starting offline setup...";
+    if (percent < 42) return "Saving Scripture for offline use...";
+    if (percent < 68) return "Saving study resources for offline use...";
+    if (percent < 90) return "Preparing Disciple Journal and app files...";
+    if (percent < 100) return "Finalizing offline setup. Keep this page open.";
+    return "Finishing final checks...";
+  }
+  function startPolling(){
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(function(){
+      if (!running) return;
+      var actual = hiddenPercent();
+      if (actual > 0) setProgress(Math.min(actual, 99), publicNoteForPercent(actual));
+      else if (lastPercent < 7) setProgress(7, "Starting offline setup...");
+    }, 450);
+  }
+  function stopPolling(){
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = null;
+  }
+  function finish(ok, note){
+    running = false;
+    stopPolling();
+    setButtonState(ok ? "ready" : "normal");
+    lastPercent = ok ? 100 : 0;
+    var bar = get("rdmOfflineBarV107");
+    if (bar) bar.style.width = (ok ? "100%" : "0%");
+    text(get("rdmOfflineNoteV107"), note || (ok ? "Offline setup complete. This device is ready." : "Offline setup did not finish. Connect to the internet and try again."));
+  }
+  async function runSetup(event){
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    }
+    if (running) return;
+    ensurePanelOpen();
+    if (readyFromStorage() || await criticalReady()) {
+      normalizeReadyStatus();
+      finish(true);
+      return;
+    }
+    if (!navigator.onLine) {
+      finish(false, "Connect to the internet, then tap Prepare Offline Use again.");
+      return;
+    }
+    running = true;
+    lastPercent = 0;
+    setButtonState("working");
+    setProgress(4, "Starting offline setup...");
+    startPolling();
+    var completed = false;
+    var prepPromise = null;
+    try {
+      if (typeof window.rdmPrepareOfflineFilesV97 === "function") prepPromise = window.rdmPrepareOfflineFilesV97(false);
+      else if (typeof window.rdmPrepareOfflineFilesV34 === "function") prepPromise = window.rdmPrepareOfflineFilesV34(false);
+      else prepPromise = sleep(700);
+    } catch (err) {
+      prepPromise = Promise.reject(err);
+    }
+    var watchdog = (async function(){
+      // Once the underlying checker reaches the final hidden 100% and critical files are confirmed,
+      // the public UI may finish immediately instead of looking frozen during the last hidden cleanup.
+      while (running && !completed) {
+        await sleep(900);
+        if (hiddenPercent() >= 99 && await criticalReady()) {
+          normalizeReadyStatus(bestStatus() && bestStatus().status);
+          completed = true;
+          finish(true);
+          return;
+        }
+      }
+    })();
+    try {
+      await prepPromise;
+      completed = true;
+      var best = bestStatus();
+      if ((best && best.status && (best.status.complete || best.status.criticalReady)) || await criticalReady()) {
+        normalizeReadyStatus(best && best.status);
+        finish(true);
+      } else {
+        finish(false, "Offline setup could not be confirmed. Tap Prepare Offline Use again while online.");
+      }
+    } catch (_) {
+      completed = true;
+      if (await criticalReady()) {
+        normalizeReadyStatus(bestStatus() && bestStatus().status);
+        finish(true);
+      } else {
+        finish(false, "Offline setup did not finish. Keep this page online and try again.");
+      }
+    }
+    try { await watchdog; } catch (_) {}
+  }
+  async function refresh(){
+    if (running) return;
+    if (readyFromStorage() || await criticalReady()) {
+      normalizeReadyStatus();
+      finish(true);
+    } else {
+      setButtonState("normal");
+      setProgress(0, "Ready to begin.");
+    }
+  }
+  function rewireButton(){
+    var old = get("rdmOfflineButtonV107");
+    if (!old || old.dataset.v108Wired === "1") return;
+    var btn = old.cloneNode(true);
+    btn.dataset.v107Wired = "1";
+    btn.dataset.v108Wired = "1";
+    old.parentNode.replaceChild(btn, old);
+    btn.addEventListener("click", runSetup, true);
+  }
+  function init(){
+    rewireButton();
+    refresh();
+  }
+  window.rdmPrepareOfflineFilesPublicV108 = runSetup;
+  window.rdmRefreshOfflineStatusV108 = refresh;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  setTimeout(init, 350);
+  setTimeout(init, 1400);
+  setTimeout(init, 3000);
+  window.addEventListener("online", refresh);
+  window.addEventListener("offline", refresh);
+})();
+</script>
+
 </body>
 </html>
