@@ -2574,7 +2574,7 @@ html.obs #discipleJournalBtn { display: none !important; }
 <label for="rangeSize">Section Size</label>
 <select id="rangeSize">
 <option value="3">3</option>
-<option selected="" value="5">5</option>
+<option value="5">5</option>
 <option value="7">7</option>
 <option value="10">10</option>
 <option value="15">15</option>
@@ -2582,7 +2582,7 @@ html.obs #discipleJournalBtn { display: none !important; }
 <option value="25">25</option>
 <option value="50">50</option>
 <option value="100">100</option>
-<option value="full">Full Chapter</option>
+<option selected="" value="full">Full Chapter</option>
 </select>
 </div>
 <button id="loadBtn" title="Refresh the current passage if it does not load correctly.">↻ Refresh Passage</button>
@@ -28751,6 +28751,556 @@ body.dark #rdmOfflineProgressBarV106 {
   window.addEventListener("online", init);
   window.addEventListener("offline", init);
 })();
+</script>
+
+
+
+<!-- v107 — Offline setup finish, full-chapter default, and tablet browser scroll cleanup
+     Scope: Disciple Maker public Offline Ready UI + Scripture default only.
+     Keeps v112 Journal and v38 service worker unchanged. -->
+<style id="rdm-v107-offline-finish-full-chapter-scroll-style">
+/* v107 owns the public Offline Ready display. Hide previous debug/public variants completely. */
+#rdmOfflinePillV105,
+#rdmOfflinePanelV105,
+#rdmPublicOfflinePillV33,
+#rdmPublicOfflinePanelV33,
+.rdm-offline-status-pill,
+.rdm-offline-cache-panel,
+#rdmV98OfflineReviewBox,
+#rdmV99OfflineBridgeBox,
+#rdmOfflineDetails,
+#rdmOfflineSmokeTest,
+#rdmOfflineProgressText {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#rdmOfflinePillV107 {
+  position: fixed !important;
+  right: 14px !important;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 2147482500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: auto !important;
+  max-width: min(315px, calc(100vw - 28px)) !important;
+  min-height: 38px !important;
+  padding: 8px 13px !important;
+  border: 1.8px solid var(--gold) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+  color: #203D39 !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22) !important;
+  font: 900 12px Arial, sans-serif !important;
+  letter-spacing: .1px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#rdmOfflineDotV107 {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  flex: 0 0 auto !important;
+  background: #d44d4d !important;
+  box-shadow: 0 0 0 3px rgba(212,77,77,.16) !important;
+}
+#rdmOfflinePillV107.ready #rdmOfflineDotV107 {
+  background: #3fb377 !important;
+  box-shadow: 0 0 0 3px rgba(63,179,119,.16) !important;
+}
+#rdmOfflinePillV107.working #rdmOfflineDotV107 {
+  background: #d99f31 !important;
+  box-shadow: 0 0 0 3px rgba(217,159,49,.18) !important;
+}
+#rdmOfflineTextV107 {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+#rdmOfflinePanelV107 {
+  position: fixed !important;
+  right: 14px !important;
+  bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 2147482501 !important;
+  width: min(390px, calc(100vw - 28px)) !important;
+  max-height: calc(100svh - 104px - env(safe-area-inset-bottom, 0px)) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: none !important;
+  padding: 16px !important;
+  border: 2px solid var(--gold) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, #fffaf0, #fff1d0) !important;
+  color: #203D39 !important;
+  box-shadow: 0 22px 52px rgba(0,0,0,.25) !important;
+  font-family: Arial, sans-serif !important;
+}
+#rdmOfflinePanelV107.open { display: block !important; }
+#rdmOfflinePanelV107 .rdm-offline-v107-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 11px !important;
+  border-bottom: 1.5px solid var(--gold) !important;
+}
+#rdmOfflinePanelV107 strong {
+  color: #7A4C06 !important;
+  font: 900 18px Georgia, "Times New Roman", serif !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+}
+#rdmOfflinePanelV107 p {
+  margin: 8px 0 !important;
+  font: 800 14px Arial, sans-serif !important;
+  line-height: 1.48 !important;
+}
+#rdmOfflinePanelV107 button {
+  min-height: 46px !important;
+  padding: 10px 13px !important;
+  border-radius: 14px !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+#rdmOfflineButtonV107 {
+  width: 100% !important;
+  margin-top: 12px !important;
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+}
+#rdmOfflineButtonV107[disabled] { opacity: .92 !important; }
+.rdm-offline-v107-track {
+  display: block !important;
+  width: 100% !important;
+  height: 13px !important;
+  margin: 13px 0 8px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(122,76,6,.28) !important;
+  background: rgba(255,255,255,.48) !important;
+}
+#rdmOfflineBarV107 {
+  display: block !important;
+  width: 0%;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #8A5A13, #d7a84f) !important;
+  transition: width .28s ease !important;
+}
+#rdmOfflineNoteV107 {
+  margin: 6px 0 0 !important;
+  font-size: 12px !important;
+  opacity: .92 !important;
+}
+body.dark #rdmOfflinePillV107,
+body.dark #rdmOfflinePanelV107 #rdmOfflineButtonV107 {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border-color: #fff1c0 !important;
+}
+body.dark #rdmOfflinePanelV107 {
+  background: linear-gradient(180deg, #355A54, #294843) !important;
+  color: #fff6d9 !important;
+  border-color: rgba(248,217,135,.88) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14) !important;
+}
+body.dark #rdmOfflinePanelV107 strong { color: #ffe08c !important; }
+body.dark .rdm-offline-v107-track {
+  background: rgba(255,255,255,.10) !important;
+  border-color: rgba(248,217,135,.45) !important;
+}
+body.dark #rdmOfflineBarV107 { background: linear-gradient(90deg, #f8d987, #d7a84f) !important; }
+html.obs #rdmOfflinePillV107,
+html.obs #rdmOfflinePanelV107 { display: none !important; }
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePillV107 {
+  right: 14px !important;
+  bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 12px) !important;
+  max-width: min(315px, calc(100vw - 28px)) !important;
+}
+html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
+  right: 14px !important;
+  bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 58px) !important;
+  max-height: calc(100svh - var(--rdm-mobile-nav-height, 74px) - 92px) !important;
+}
+
+/* iPad/tablet Safari cleanup: reduce the extra blank scrolling area below the app. */
+@media (min-width: 700px) and (pointer: coarse) {
+  html:not(.obs),
+  html:not(.obs) body.rdm-mobile-app-shell {
+    min-height: 100svh !important;
+    overflow-x: hidden !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell {
+    padding: 0 !important;
+    background-color: #203D39 !important;
+    overscroll-behavior-y: none !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .shell {
+    min-height: auto !important;
+    padding-bottom: calc(var(--rdm-mobile-nav-height, 82px) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .layout {
+    min-height: auto !important;
+    padding-bottom: calc(var(--rdm-mobile-nav-height, 82px) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .scripture {
+    min-height: auto !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .footer {
+    margin-bottom: 0 !important;
+    padding-bottom: 8px !important;
+  }
+}
+</style>
+<script id="rdm-v107-offline-finish-full-chapter-scroll-script">
+(function rdmV107OfflineProgressFinishFullChapterFix(){
+  if (window.__rdmV107OfflineProgressFinishFullChapterFix) return;
+  window.__rdmV107OfflineProgressFinishFullChapterFix = true;
+
+  var STORAGE_PREFIX = "ironSharpenerUnified";
+  var USER_RANGE_KEY = STORAGE_PREFIX + ".sectionSizeUserChosen.v107";
+  var STATUS_KEYS = [
+    STORAGE_PREFIX + ".offlineCacheStatus.v97",
+    STORAGE_PREFIX + ".offlineCacheStatus.v34",
+    STORAGE_PREFIX + ".offlineCacheStatus.v26",
+    STORAGE_PREFIX + ".offlineCacheStatus.v105"
+  ];
+  var CRITICAL = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json",
+    "bible/resources/topics/index.json",
+    "bible/resources/backgrounds/index.json"
+  ];
+
+  var running = false;
+  var timer = null;
+  var progress = 0;
+
+  function get(id){ return document.getElementById(id); }
+  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function text(el, value){ if (el) el.textContent = value; }
+  function count(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  function bestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function readyFromStorage(){
+    var best = bestStatus();
+    return !!(best && best.status && (best.status.complete === true || best.status.criticalReady === true));
+  }
+  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function variants(path){
+    var raw = String(path || "");
+    var p = cleanPath(raw).replace(/^\.\//, "");
+    var list = [raw, p, "./" + p, "/" + p];
+    try { list.push(decodeURIComponent(p), "./" + decodeURIComponent(p), "/" + decodeURIComponent(p)); } catch (_) {}
+    list.push(p.replace(/ /g, "%20"), "./" + p.replace(/ /g, "%20"), "/" + p.replace(/ /g, "%20"));
+    if (p === "index.html") list.push("./", "/");
+    return Array.from(new Set(list.filter(Boolean)));
+  }
+  async function cached(path){
+    if (!("caches" in window)) return false;
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
+    }
+    return false;
+  }
+  async function criticalReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL.length; i++) {
+      if (!(await cached(CRITICAL[i]))) return false;
+      if (i % 3 === 0) await sleep(1);
+    }
+    return true;
+  }
+  function markReady(status){
+    var saved = Math.max(1, count(status || (bestStatus() && bestStatus().status)));
+    STATUS_KEYS.forEach(function(key){
+      var existing = read(key) || status || {};
+      var existingCount = Math.max(saved, count(existing));
+      write(key, Object.assign({}, existing, {
+        complete: true,
+        criticalReady: true,
+        failed: 0,
+        failures: [],
+        reviewFailed: 0,
+        nonCriticalFailed: 0,
+        originalFailed: 0,
+        ready: existingCount,
+        cached: existingCount,
+        publicCleanedAt: new Date().toISOString(),
+        version: "v107-public-offline-complete-clean"
+      }));
+    });
+  }
+
+  function maxVerseFor(book, chapter){
+    try {
+      var counts = (window.verseCounts || verseCounts)[book];
+      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function ensureFullOption(select){
+    if (!select) return;
+    if (!Array.from(select.options || []).some(function(option){ return option.value === "full"; })) {
+      var option = document.createElement("option");
+      option.value = "full";
+      option.textContent = "Full Chapter";
+      select.appendChild(option);
+    }
+  }
+  function shouldMigrateOldDefault(){
+    var userChose = false;
+    try { userChose = localStorage.getItem(USER_RANGE_KEY) === "1"; } catch (_) {}
+    if (userChose) return false;
+    var stored = "";
+    try { stored = localStorage.getItem(STORAGE_PREFIX + ".sectionSize") || ""; } catch (_) {}
+    return !stored || stored === "5";
+  }
+  function applyFullChapterDefault(){
+    var range = get("rangeSize");
+    var obsRange = get("obsRangeSizeSelect");
+    ensureFullOption(range);
+    ensureFullOption(obsRange);
+    if (!shouldMigrateOldDefault()) return;
+
+    var book = get("book");
+    var chapter = get("chapter");
+    var start = get("start");
+    var end = get("end");
+    if (range) range.value = "full";
+    if (obsRange) obsRange.value = "full";
+    if (start) start.value = "1";
+    if (end && book && chapter) end.value = String(maxVerseFor(book.value || "Genesis", chapter.value || "1"));
+    try { localStorage.setItem(STORAGE_PREFIX + ".sectionSize", "full"); } catch (_) {}
+    try {
+      var current = {
+        book: book ? book.value : "Genesis",
+        chapter: chapter ? chapter.value : "1",
+        start: "1",
+        end: end ? end.value : "1",
+        range: "full"
+      };
+      localStorage.setItem(STORAGE_PREFIX + ".lastRef", JSON.stringify(current));
+      localStorage.setItem("iron-sharpener.lastRef", JSON.stringify(current));
+    } catch (_) {}
+  }
+  function markRangeUserChoice(){
+    try { localStorage.setItem(USER_RANGE_KEY, "1"); } catch (_) {}
+  }
+  function wireRangeChoice(){
+    ["rangeSize", "obsRangeSizeSelect"].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.v107RangeChoiceWired === "1") return;
+      el.dataset.v107RangeChoiceWired = "1";
+      el.addEventListener("change", markRangeUserChoice, true);
+    });
+  }
+  function hideOldOfflineUi(){
+    [
+      "rdmOfflinePillV105", "rdmOfflinePanelV105",
+      "rdmPublicOfflinePillV33", "rdmPublicOfflinePanelV33",
+      "rdmV98OfflineReviewBox", "rdmV99OfflineBridgeBox",
+      "rdmOfflineDetails", "rdmOfflineSmokeTest", "rdmOfflineProgressText"
+    ].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      el.classList.remove("open");
+      el.style.setProperty("display", "none", "important");
+      el.style.setProperty("visibility", "hidden", "important");
+      el.style.setProperty("pointer-events", "none", "important");
+    });
+  }
+  function ensureUi(){
+    hideOldOfflineUi();
+    var pill = get("rdmOfflinePillV107");
+    if (!pill) {
+      pill = document.createElement("button");
+      pill.id = "rdmOfflinePillV107";
+      pill.type = "button";
+      pill.innerHTML = '<span id="rdmOfflineDotV107"></span><span id="rdmOfflineTextV107">Checking offline status...</span>';
+      document.body.appendChild(pill);
+    }
+    var panel = get("rdmOfflinePanelV107");
+    if (!panel) {
+      panel = document.createElement("aside");
+      panel.id = "rdmOfflinePanelV107";
+      panel.setAttribute("aria-label", "Offline Ready");
+      panel.innerHTML = '<div class="rdm-offline-v107-head"><strong>Offline Ready</strong><button id="rdmOfflineHideV107" class="secondary" type="button">Hide</button></div><p id="rdmOfflineMessageV107">Tap the button below to prepare Iron Sharpener for offline use on this device.</p><div class="rdm-offline-v107-track"><div id="rdmOfflineBarV107"></div></div><p id="rdmOfflineNoteV107">Ready to begin.</p><button id="rdmOfflineButtonV107" type="button">Prepare Offline Use</button>';
+      document.body.appendChild(panel);
+    }
+    wireUi();
+  }
+  function setProgress(value, note){
+    progress = Math.max(0, Math.min(100, Number(value) || 0));
+    var bar = get("rdmOfflineBarV107");
+    if (bar) bar.style.width = progress + "%";
+    if (note) text(get("rdmOfflineNoteV107"), note);
+  }
+  function setUi(state){
+    ensureUi();
+    var ready = state === "ready" || (!running && readyFromStorage());
+    var pill = get("rdmOfflinePillV107");
+    var btn = get("rdmOfflineButtonV107");
+    if (pill) {
+      pill.classList.toggle("ready", ready);
+      pill.classList.toggle("working", running);
+      pill.classList.toggle("offline", !navigator.onLine);
+    }
+    text(get("rdmOfflineTextV107"), ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (running ? "Preparing Offline Use" : "Offline Setup Needed"));
+    text(get("rdmOfflineMessageV107"), ready ? "Iron Sharpener is ready for offline use on this device." : (running ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device."));
+    if (btn) {
+      btn.disabled = !!running;
+      btn.textContent = ready ? "Offline Ready" : (running ? "Preparing..." : "Prepare Offline Use");
+      btn.setAttribute("aria-busy", running ? "true" : "false");
+    }
+    if (!running) setProgress(ready ? 100 : 0, ready ? "Offline setup complete. This device is ready." : "Ready to begin.");
+  }
+  function startProgressLoop(){
+    running = true;
+    var panel = get("rdmOfflinePanelV107");
+    if (panel) panel.classList.add("open");
+    setUi("working");
+    setProgress(4, "Starting offline setup...");
+    if (timer) clearInterval(timer);
+    timer = setInterval(function(){
+      if (!running) return;
+      if (progress < 28) setProgress(progress + 3, "Preparing offline files...");
+      else if (progress < 58) setProgress(progress + 2, "Saving Scripture for offline use...");
+      else if (progress < 82) setProgress(progress + 1, "Saving study resources for offline use...");
+      else if (progress < 94) setProgress(progress + 0.5, "Finishing offline setup...");
+      else setProgress(94, "Finalizing offline setup. Keep this page open.");
+    }, 650);
+  }
+  function finishProgress(ok, message){
+    running = false;
+    if (timer) clearInterval(timer);
+    timer = null;
+    if (ok) {
+      setProgress(100, "Offline setup complete. This device is ready.");
+      setUi("ready");
+    } else {
+      setProgress(0, message || (navigator.onLine ? "Offline setup could not finish. Tap Prepare Offline Use again while online." : "Connect to the internet, then tap Prepare Offline Use again."));
+      setUi("normal");
+    }
+  }
+  async function runOfflineSetup(){
+    if (running) return;
+    if (readyFromStorage() || await criticalReady()) {
+      markReady(bestStatus() && bestStatus().status);
+      finishProgress(true);
+      return;
+    }
+    if (!navigator.onLine) {
+      finishProgress(false, "Connect to the internet, then tap Prepare Offline Use again.");
+      return;
+    }
+    startProgressLoop();
+    try {
+      if (typeof window.rdmPrepareOfflineFilesV97 === "function") await window.rdmPrepareOfflineFilesV97(false);
+      else if (typeof window.rdmPrepareOfflineFilesV34 === "function") await window.rdmPrepareOfflineFilesV34(false);
+      else await sleep(500);
+      await sleep(250);
+      var best = bestStatus();
+      if (await criticalReady() || (best && best.status && (best.status.complete || best.status.criticalReady))) {
+        markReady(best && best.status);
+        finishProgress(true);
+      } else {
+        finishProgress(false);
+      }
+    } catch (_) {
+      if (await criticalReady()) {
+        markReady(bestStatus() && bestStatus().status);
+        finishProgress(true);
+      } else {
+        finishProgress(false);
+      }
+    }
+  }
+  function wireUi(){
+    var pill = get("rdmOfflinePillV107");
+    var btn = get("rdmOfflineButtonV107");
+    var hide = get("rdmOfflineHideV107");
+    if (pill && pill.dataset.v107Wired !== "1") {
+      pill.dataset.v107Wired = "1";
+      pill.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        ensureUi();
+        var panel = get("rdmOfflinePanelV107");
+        if (panel) panel.classList.toggle("open");
+        setUi("normal");
+      }, false);
+    }
+    if (btn && btn.dataset.v107Wired !== "1") {
+      btn.dataset.v107Wired = "1";
+      btn.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        runOfflineSetup();
+      }, false);
+    }
+    if (hide && hide.dataset.v107Wired !== "1") {
+      hide.dataset.v107Wired = "1";
+      hide.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var panel = get("rdmOfflinePanelV107");
+        if (panel) panel.classList.remove("open");
+      }, false);
+    }
+  }
+  async function refreshReady(){
+    ensureUi();
+    if (await criticalReady()) markReady(bestStatus() && bestStatus().status);
+    setUi("normal");
+  }
+  function init(){
+    applyFullChapterDefault();
+    wireRangeChoice();
+    ensureUi();
+    setUi("normal");
+    refreshReady();
+  }
+
+  window.rdmPrepareOfflineFilesPublicV107 = runOfflineSetup;
+  window.rdmRefreshOfflineStatusV107 = refreshReady;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  setTimeout(init, 350);
+  setTimeout(init, 1200);
+  setTimeout(init, 2600);
+  window.addEventListener("online", refreshReady);
+  window.addEventListener("offline", refreshReady);
+})();
+
 </script>
 
 </body>
