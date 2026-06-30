@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
+<title>Iron Sharpener Disciple Maker</title>
 <link href="./manifest-maker.json" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
@@ -15,13 +15,48 @@
 <link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
 <link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
 
-<script id="rdm-v109-two-app-standalone-class">
-(function rdmV109TwoAppStandaloneClass(){
-  try {
-    var standalone = !!(window.navigator && window.navigator.standalone) ||
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-    document.documentElement.classList.toggle('rdm-mobile-standalone-app', !!standalone);
-  } catch (_) {}
+<script id="rdm-v110-two-app-installed-focus-class">
+(function rdmV110TwoAppInstalledFocusClass(){
+  function isInstalledMobileApp(){
+    try {
+      var standalone = !!(window.navigator && window.navigator.standalone);
+      var displayStandalone = !!(window.matchMedia && (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches
+      ));
+      var touchMobile = !!(window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+      return !!((standalone || displayStandalone) && touchMobile);
+    } catch (_) { return false; }
+  }
+  function apply(){
+    try {
+      var active = isInstalledMobileApp();
+      document.documentElement.classList.toggle('rdm-mobile-standalone-app', active);
+      document.documentElement.classList.toggle('rdm-two-app-installed-maker', active);
+      if (document.body) {
+        document.body.classList.toggle('rdm-two-app-installed-maker', active);
+      }
+      if (!active) return;
+      var desktopBtn = document.getElementById('discipleJournalBtn');
+      if (desktopBtn) {
+        desktopBtn.style.display = 'none';
+        desktopBtn.setAttribute('hidden', 'hidden');
+        desktopBtn.setAttribute('aria-hidden', 'true');
+      }
+      document.querySelectorAll('#rdmMobileAppNav button[data-rdm-mobile-action="journal"]').forEach(function(btn){
+        btn.style.display = 'none';
+        btn.setAttribute('hidden', 'hidden');
+        btn.setAttribute('aria-hidden', 'true');
+        btn.disabled = true;
+      });
+    } catch (_) {}
+  }
+  apply();
+  [0, 120, 400, 900, 1600, 2500].forEach(function(ms){ setTimeout(apply, ms); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('load', apply, { once: true });
 })();
 </script>
 <script id="rdm-v85-no-splash-early-theme-prepaint">
@@ -2549,6 +2584,34 @@ html.obs #discipleJournalBtn { display: none !important; }
     display: none !important;
   }
   html.rdm-mobile-standalone-app:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+
+<style id="rdm-v110-two-app-installed-focus-style">
+/* v110: installed mobile app focus. Browser mode still shows Journal for setup; Home Screen app hides it. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #discipleJournalBtn,
+  body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+  }
+  body.rdm-mobile-app-shell #rdmMobileAppNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-mobile-standalone-app #discipleJournalBtn,
+  html.rdm-two-app-installed-maker #discipleJournalBtn,
+  body.rdm-two-app-installed-maker #discipleJournalBtn,
+  html.rdm-mobile-standalone-app #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  html.rdm-two-app-installed-maker #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  body.rdm-two-app-installed-maker #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+  }
+  html.rdm-mobile-standalone-app:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav,
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav,
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #rdmMobileAppNav {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
@@ -16230,7 +16293,7 @@ html.obs #rdmPublicOfflinePanelV33 {
     if (panel) panel.classList.add("open");
 
     const cache = await caches.open(CACHE_NAME);
-    const updateFiles = [...new Set(["./index.html", "index.html", "./manifest.json", "./assets/iron-sharpener-logo.png", ...coreReadyFiles])];
+    const updateFiles = [...new Set(["./index.html", "index.html", "./manifest.json", "./manifest-maker.json", "./manifest-journal.json", "./assets/iron-sharpener-logo.png", ...coreReadyFiles])];
     let ready = 0;
     let failed = 0;
 
@@ -26321,6 +26384,10 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
     "personal-study.html",
     "./manifest.json",
     "manifest.json",
+    "./manifest-maker.json",
+    "manifest-maker.json",
+    "./manifest-journal.json",
+    "manifest-journal.json",
     "./assets/iron-sharpener-logo.png",
     "assets/iron-sharpener-logo.png",
     "./assets/disciple-journal-logo.png",
