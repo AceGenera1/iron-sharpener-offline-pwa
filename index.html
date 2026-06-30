@@ -25587,5 +25587,237 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+<!-- Recovery v90 — Mobile Study Resources journal-style close/open behavior lock -->
+<style id="rdm-v90-mobile-study-resources-journal-behavior-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  body.rdm-v90-resource-close-guard #studyResourcesPanel .tool-option,
+  body.rdm-v90-resource-close-guard #studyResourcesKey button {
+    pointer-events: none !important;
+  }
+
+}
+</style>
+<script id="rdm-v90-mobile-study-resources-journal-behavior-script">
+(function rdmV90MobileStudyResourcesJournalBehavior(){
+  if (window.__rdmV90MobileStudyResourcesJournalBehavior) return;
+  window.__rdmV90MobileStudyResourcesJournalBehavior = true;
+
+  var RESOURCE_BUTTON_IDS = new Set([
+    "openBackgroundsResource",
+    "openEastonsResource",
+    "openSmithsResource",
+    "openNavesResource",
+    "openDoctrineResource",
+    "openCommentariesResource",
+    "openBookOverviewResource",
+    "openJfbResource"
+  ]);
+
+  var closeGuardUntil = 0;
+  var lastMenuShouldRemainOpen = false;
+
+  function get(id){ return document.getElementById(id); }
+
+  function isMobileShell(){
+    return document.body.classList.contains("rdm-mobile-app-shell") ||
+      (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches);
+  }
+
+  function studyPanel(){ return get("studyResourcesPanel"); }
+
+  function isStudyPanelOpen(){
+    var panel = studyPanel();
+    return !!(panel && panel.classList.contains("open") && panel.getAttribute("aria-hidden") !== "true");
+  }
+
+  function setActiveResource(value){
+    try { activeResourcePanel = value || ""; } catch (_) {}
+    try { window.activeResourcePanel = value || ""; } catch (_) {}
+  }
+
+  function setToolsNavActive(){
+    var nav = get("rdmMobileAppNav");
+    if (!nav) return;
+    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
+      button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
+    });
+  }
+
+  function keepStudyResourcesOpen(){
+    if (!isMobileShell()) return;
+    var panel = studyPanel();
+    if (!panel) return;
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.display = "";
+    setToolsNavActive();
+  }
+
+  function keepStudyResourcesOpenSoon(){
+    if (!lastMenuShouldRemainOpen) return;
+    [0, 40, 120].forEach(function(delay){
+      setTimeout(keepStudyResourcesOpen, delay);
+    });
+  }
+
+  function markCloseGuard(){
+    closeGuardUntil = Date.now() + 650;
+    document.body.classList.add("rdm-v90-resource-close-guard");
+    setTimeout(function(){
+      if (Date.now() >= closeGuardUntil) {
+        document.body.classList.remove("rdm-v90-resource-close-guard");
+      }
+    }, 700);
+  }
+
+  function closeOnlyResourcePanel(panel){
+    if (!panel) return;
+    markCloseGuard();
+    setActiveResource("");
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.remove();
+    keepStudyResourcesOpenSoon();
+  }
+
+  function installStableClose(panel){
+    if (!panel || panel.dataset.rdmV90StableClose === "1") return;
+    panel.dataset.rdmV90StableClose = "1";
+    panel.querySelectorAll(".teacher-pop-close, .resource-close").forEach(function(button){
+      if (button.dataset.rdmV90StableClose === "1") return;
+      button.dataset.rdmV90StableClose = "1";
+      button.addEventListener("click", function(event){
+        if (!isMobileShell()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+        closeOnlyResourcePanel(panel);
+      }, true);
+    });
+  }
+
+  function installAllStableCloses(){
+    document.querySelectorAll(".resource-instance-panel").forEach(installStableClose);
+  }
+
+  function fakeEventFor(button, realEvent){
+    return {
+      target: button,
+      currentTarget: button,
+      preventDefault: function(){ try { realEvent && realEvent.preventDefault(); } catch (_) {} },
+      stopPropagation: function(){ try { realEvent && realEvent.stopPropagation(); } catch (_) {} },
+      stopImmediatePropagation: function(){ try { realEvent && realEvent.stopImmediatePropagation && realEvent.stopImmediatePropagation(); } catch (_) {} }
+    };
+  }
+
+  function openResourceThroughExistingHandler(button, event){
+    if (!button || typeof button.onclick !== "function") return false;
+
+    var menuWasOpen = isStudyPanelOpen() || !!button.closest("#studyResourcesPanel");
+    lastMenuShouldRemainOpen = menuWasOpen;
+
+    var result;
+    try {
+      result = button.onclick.call(button, fakeEventFor(button, event));
+    } catch (error) {
+      console.warn("Study Resource open failed:", error);
+      return true;
+    }
+
+    Promise.resolve(result).finally(function(){
+      installAllStableCloses();
+      if (menuWasOpen) keepStudyResourcesOpenSoon();
+    });
+
+    setTimeout(function(){
+      installAllStableCloses();
+      if (menuWasOpen) keepStudyResourcesOpenSoon();
+    }, 80);
+
+    return true;
+  }
+
+  document.addEventListener("click", function(event){
+    if (!isMobileShell()) return;
+
+    var closeButton = event.target.closest(".resource-instance-panel .teacher-pop-close, .resource-instance-panel .resource-close");
+    if (closeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      closeOnlyResourcePanel(closeButton.closest(".resource-instance-panel"));
+      return;
+    }
+
+    var button = event.target.closest("button");
+    if (!button || !RESOURCE_BUTTON_IDS.has(button.id)) return;
+
+    if (Date.now() < closeGuardUntil) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+
+    openResourceThroughExistingHandler(button, event);
+  }, true);
+
+  var originalRefresh = null;
+  try { originalRefresh = window.refreshActiveResourcePanel || (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null); } catch (_) {}
+
+  function resourcePanelText(panel){
+    return String([
+      panel && panel.dataset ? panel.dataset.resourceKey || "" : "",
+      panel && panel.dataset ? panel.dataset.commentaryKind || "" : "",
+      panel ? panel.textContent || "" : ""
+    ].join(" ")).toLowerCase();
+  }
+
+  function shouldAllowAutomaticRefresh(){
+    if (Date.now() < closeGuardUntil) return false;
+
+    var panels = Array.from(document.querySelectorAll(".resource-instance-panel"));
+    if (!panels.length) return false;
+
+    return panels.some(function(panel){
+      var text = resourcePanelText(panel);
+      return text.includes("matthew henry commentary") ||
+        text.includes("jamieson-fausset-brown commentary") ||
+        text.includes("jfb commentary") ||
+        text.includes("book overview") ||
+        text.includes("bible backgrounds");
+    });
+  }
+
+  function safeRefreshActiveResourcePanel(){
+    if (!shouldAllowAutomaticRefresh()) return;
+    if (typeof originalRefresh === "function" && originalRefresh !== safeRefreshActiveResourcePanel) {
+      return originalRefresh.apply(this, arguments);
+    }
+  }
+
+  try { refreshActiveResourcePanel = safeRefreshActiveResourcePanel; } catch (_) {}
+  window.refreshActiveResourcePanel = safeRefreshActiveResourcePanel;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installAllStableCloses, { once: true });
+  } else {
+    installAllStableCloses();
+  }
+
+  window.addEventListener("load", function(){
+    installAllStableCloses();
+    setActiveResource("");
+  }, { once: true });
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v90-mobile-study-resources-journal-behavior-lock";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v90-mobile-study-resources-journal-behavior-lock";
+})();
+</script>
+
 </body>
 </html>
