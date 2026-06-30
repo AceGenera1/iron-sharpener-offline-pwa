@@ -6,6 +6,40 @@
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Iron Sharpener | Scripture Study &amp; Teaching Tool</title>
 <link href="./manifest.json" rel="manifest"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
+<link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
+<link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
+<link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
+<script id="rdm-v85-no-splash-early-theme-prepaint">
+(function rdmV85NoSplashEarlyThemePrepaint(){
+  try {
+    var theme = localStorage.getItem('ironSharpenerUnified.theme') || 'cream';
+    document.documentElement.classList.add('rdm-v85-prepaint');
+    document.documentElement.classList.toggle('rdm-v85-dark', theme === 'dark');
+  } catch (_) {
+    document.documentElement.classList.add('rdm-v85-prepaint');
+  }
+})();
+</script>
+<style id="rdm-v85-no-splash-first-paint">
+/* v85: no splash overlay/native launch image. Only paint the page background immediately. */
+html.rdm-v85-prepaint,
+html.rdm-v85-prepaint body { background-color: #F4EFE3; }
+html.rdm-v85-prepaint.rdm-v85-dark,
+html.rdm-v85-prepaint.rdm-v85-dark body { background-color: #203D39; }
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-v85-prepaint,
+  html.rdm-v85-prepaint body {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+}
+</style>
 <style id="rdm-v79-first-paint-mobile-stability">
 /* v79 early paint guard: mobile-only visual stability before the later scripts finish loading. */
 html, body { background-color: #F4EFE3; }
@@ -13383,32 +13417,19 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   }
 
   function installButtons() {
-    const eraseButton = document.querySelector('#teacherToolsPanel .tool-option[data-tool="erase"]');
-    if (eraseButton && eraseButton.parentElement && !$("openInternalCrossRefs")) {
-      const button = document.createElement("button");
-      button.id = "openInternalCrossRefs";
-      button.type = "button";
-      button.className = "tool-option helper-option internal-xref-shortcut";
-      button.innerHTML = `<strong>Built-In Cross References</strong><span>Open the internal Scripture cross-reference database for the current passage.</span>`;
-      eraseButton.insertAdjacentElement("afterend", button);
-    }
+    // Recovery lock: Built-In Cross References belongs to the Study Resources key bar only.
+    // Do not inject it into Teaching Marks / Teacher Tools.
+    document.querySelectorAll('#teacherToolsPanel #openInternalCrossRefs, #teacherToolsPanel .internal-xref-shortcut').forEach(button => button.remove());
 
-    // Built-In Cross References now lives in the Study Resources for this passage bar.
     // Keep it out of the OBS tools drawer to avoid duplicated controls.
     $("obsShowInternalCrossRefs")?.remove();
-
-    $("openInternalCrossRefs")?.addEventListener("click", event => { event.preventDefault(); openPanel("passage"); });
   }
 
   async function updateAvailability() {
     const rows = await collectRows("passage", "");
     const count = countRows(rows);
     const available = count > 0;
-    [$("openInternalCrossRefs")].filter(Boolean).forEach(btn => {
-      btn.disabled = !available;
-      btn.style.display = available ? "" : "none";
-      btn.title = available ? `${count} built-in cross reference${count === 1 ? "" : "s"} for this selected passage.` : "No Built-In Cross References available for this selected passage.";
-    });
+    // No Teaching Marks shortcut is updated here. The Study Resources key bar controls visibility.
     return { passage: stateLabel(), builtInCrossReferences: count, available };
   }
 
@@ -25412,6 +25433,157 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   window.rdmV79NormalizeMobileNav = normalizeNav;
   window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v79-mobile-startup-tools-nav-stability-final";
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v79-mobile-startup-tools-nav-stability-final";
+})();
+</script>
+
+<script>window.__IRON_SHARPENER_DISCIPLE_MAKER_MOBILE_VERSION='v85-no-splash-fast-open-clean-icon';</script>
+
+
+<!-- v86 — Disciple Maker mobile/tablet header device-fit polish only -->
+<style id="rdm-v86-disciple-maker-mobile-header-device-fit">
+/*
+  v86 scope: mobile/tablet Disciple Maker header only.
+  Keeps locked v79/v85 behavior intact while fitting the brand mark/title better
+  across iPad/tablet and phone widths. Desktop/OBS are intentionally untouched.
+*/
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: clamp(50px, 6.2vw, 64px) minmax(0, 1fr) auto !important;
+    gap: clamp(8px, 1.25vw, 14px) !important;
+    min-height: calc(78px + env(safe-area-inset-top, 0px)) !important;
+    padding: calc(9px + env(safe-area-inset-top, 0px)) clamp(10px, 2vw, 18px) 9px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .hero-main {
+    min-width: 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+    overflow: hidden !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+    width: clamp(50px, 6.2vw, 64px) !important;
+    height: clamp(50px, 6.2vw, 64px) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo {
+    width: calc(clamp(50px, 6.2vw, 64px) - 2px) !important;
+    height: calc(clamp(50px, 6.2vw, 64px) - 2px) !important;
+    object-fit: contain !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+    max-width: 100% !important;
+    font-size: clamp(8.8px, 1.55vw, 11px) !important;
+    letter-spacing: clamp(1.7px, .32vw, 3px) !important;
+    line-height: 1.05 !important;
+    margin: 0 0 2px !important;
+    text-align: left !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    max-width: 100% !important;
+    font-size: clamp(25px, 5.4vw, 42px) !important;
+    line-height: .94 !important;
+    letter-spacing: .015em !important;
+    text-align: left !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    flex: 0 0 auto !important;
+    min-width: clamp(72px, 9.5vw, 96px) !important;
+    max-width: clamp(72px, 9.5vw, 104px) !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+
+/* iPad/tablet: give the title room without letting it dominate the banner. */
+@media (min-width: 700px) and (max-width: 1180px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 64px minmax(0, 1fr) auto !important;
+    min-height: calc(84px + env(safe-area-inset-top, 0px)) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+    font-size: 11px !important;
+    letter-spacing: 3px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    font-size: clamp(34px, 4.6vw, 48px) !important;
+    line-height: .92 !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Phones: compact the title so the action button no longer crushes the header. */
+@media (max-width: 560px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+    font-size: 8.7px !important;
+    letter-spacing: 1.7px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    font-size: clamp(24px, 6.8vw, 32px) !important;
+    line-height: .94 !important;
+    letter-spacing: 0 !important;
+  }
+}
+</style>
+
+
+<!-- Recovery Lock — keep Built-In Cross References out of Teaching Marks -->
+<style id="rdm-v89-recovery-crossrefs-tools-clean-style">
+@media (max-width: 1050px), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel #openInternalCrossRefs,
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel .internal-xref-shortcut {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+}
+</style>
+<script id="rdm-v89-recovery-crossrefs-tools-clean-script">
+(function rdmV89RecoveryCrossRefsToolsClean(){
+  if (window.__rdmV89RecoveryCrossRefsToolsClean) return;
+  window.__rdmV89RecoveryCrossRefsToolsClean = true;
+
+  function clean(){
+    const panel = document.getElementById("teacherToolsPanel");
+    if (!panel) return;
+    panel.querySelectorAll("#openInternalCrossRefs, .internal-xref-shortcut").forEach(function(button){
+      button.remove();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", clean, { once: true });
+  } else {
+    clean();
+  }
+  window.addEventListener("load", clean, { once: true });
+  document.addEventListener("click", function(event){
+    if (event.target && event.target.closest && event.target.closest("#openTeacherTools, #rdmMobileAppNav [data-rdm-mobile-action='tools']")) {
+      setTimeout(clean, 0);
+      setTimeout(clean, 80);
+    }
+  }, true);
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v89-recovery-last-working-tools-clean";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v89-recovery-last-working-tools-clean";
 })();
 </script>
 
