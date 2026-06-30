@@ -3736,6 +3736,61 @@ body.dark .resource-clean-empty {
   }
 }
 </style>
+
+<style id="rdm-v107-mobile-export-replaces-import-style">
+/* =========================================================
+   v107 — Mobile Journal save bar export/import cleanup
+   Scope: Disciple Journal mobile/tablet only.
+   Purpose: hide Import Backup on mobile and restore Export Journal
+   in that save-bar area. Desktop remains unchanged.
+   ========================================================= */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  body.rdm-dj-mobile-shell #importBtn,
+  body.rdm-dj-mobile-shell #importFile {
+    display: none !important;
+  }
+
+  body.rdm-dj-mobile-shell .saveBar .exportMenuWrap {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    order: 3 !important;
+  }
+
+  body.rdm-dj-mobile-shell .saveBar #exportBtn {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.rdm-dj-mobile-shell .saveBar #saveBtn { order: 1 !important; }
+  body.rdm-dj-mobile-shell .saveBar #copyEntryBtn { order: 2 !important; }
+  body.rdm-dj-mobile-shell .saveBar #deleteBtn { order: 4 !important; }
+  body.rdm-dj-mobile-shell .saveBar #status { order: 5 !important; }
+
+  body.rdm-dj-mobile-shell .saveBar .exportMenu {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  body.rdm-dj-mobile-shell .saveBar .exportMenu.open {
+    display: grid !important;
+  }
+
+  /* Keep reader/single-entry export hidden on mobile; the Journal save-bar export is the mobile path. */
+  body.rdm-dj-mobile-shell #readerExportBtn,
+  body.rdm-dj-mobile-shell .exportEntryBtn {
+    display: none !important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="shell">
