@@ -26730,5 +26730,256 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
 })();
 </script>
 
+
+
+<!-- v98 — Offline Ready reconciliation + visible failed-file review -->
+<style id="rdm-v98-offline-ready-critical-check-style">
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review {
+  display: none;
+  margin-top: 10px;
+  padding: 10px 11px;
+  border: 1px solid rgba(183,116,16,.34);
+  border-radius: 12px;
+  background: rgba(248,217,135,.12);
+  color: #203D39;
+  font: 800 12px Arial, sans-serif;
+  line-height: 1.42;
+}
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review.open { display: block; }
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #7A4C06;
+  font-weight: 900;
+}
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review code {
+  display: block;
+  margin-top: 5px;
+  padding: 6px 7px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.62);
+  color: #203D39;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 800 11px ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v98-offline-review {
+  background: rgba(248,217,135,.10);
+  color: #fff6d9;
+  border-color: rgba(248,217,135,.42);
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v98-offline-review strong { color: #ffe08c; }
+body.dark #rdmPublicOfflinePanelV33 .rdm-v98-offline-review code {
+  background: rgba(0,0,0,.18);
+  color: #fff6d9;
+}
+</style>
+<script id="rdm-v98-offline-ready-critical-check">
+(function rdmV98OfflineReadyCriticalCheck(){
+  if (window.__rdmV98OfflineReadyCriticalCheck) return;
+  window.__rdmV98OfflineReadyCriticalCheck = true;
+
+  var STORAGE_PREFIX = "ironSharpenerUnified";
+  var STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v97";
+  var PANEL_HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v34";
+  var MAX_REVIEW_FAILURES = 25;
+  var CRITICAL_SPOT_CHECKS = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json",
+    "bible/resources/topics/index.json",
+    "bible/resources/backgrounds/index.json"
+  ];
+
+  function get(id){ return document.getElementById(id); }
+  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function withoutDot(path){ return cleanPath(String(path || "").replace(/^\.\//, "")); }
+  function withDot(path){ var p = withoutDot(path); return p ? "./" + p : "./"; }
+  function safeDecode(path){ try { return decodeURIComponent(path); } catch (_) { return path; } }
+  function safeEncodeSpaces(path){ return String(path || "").replace(/ /g, "%20"); }
+  function unique(list){ return Array.from(new Set((list || []).filter(Boolean))); }
+  function variants(path){
+    var raw = String(path || "").trim();
+    var noDot = withoutDot(raw);
+    var decoded = safeDecode(noDot);
+    var encoded = safeEncodeSpaces(noDot);
+    var items = [raw, noDot, withDot(noDot), decoded, withDot(decoded), encoded, withDot(encoded)];
+    if (noDot === "index.html") items.push("./");
+    return unique(items);
+  }
+  function readStatus(){ try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); } catch (_) { return null; } }
+  function writeStatus(status){ try { localStorage.setItem(STATUS_KEY, JSON.stringify(status)); } catch (_) {} }
+  function statusCount(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  async function cachedSomewhere(path){
+    if (!("caches" in window)) return false;
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
+    }
+    return false;
+  }
+  async function criticalFilesReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL_SPOT_CHECKS.length; i++) {
+      if (!(await cachedSomewhere(CRITICAL_SPOT_CHECKS[i]))) return false;
+    }
+    return true;
+  }
+  function ensureReviewBox(){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (!panel) return null;
+    var box = get("rdmV98OfflineReviewBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "rdmV98OfflineReviewBox";
+      box.className = "rdm-v98-offline-review";
+      panel.appendChild(box);
+    }
+    return box;
+  }
+  function renderReviewBox(status){
+    var box = ensureReviewBox();
+    if (!box) return;
+    var reviewFailed = Number(status && (status.reviewFailed || status.nonCriticalFailed || status.originalFailed || 0));
+    var failures = Array.isArray(status && status.failures) ? status.failures : [];
+    if (!reviewFailed && !failures.length) {
+      box.classList.remove("open");
+      box.innerHTML = "";
+      return;
+    }
+    var shown = failures.slice(0, 12).join("\n");
+    box.classList.add("open");
+    box.innerHTML = '<strong>Review note:</strong>' +
+      reviewFailed + ' non-critical file check' + (reviewFailed === 1 ? '' : 's') + ' could not be confirmed, but the critical offline checks passed. The app can still be marked ready. ' +
+      (shown ? '<code>' + shown.replace(/[&<>]/g, function(ch){ return ({"&":"&amp;","<":"&lt;",">":"&gt;"})[ch]; }) + '</code>' : '');
+  }
+  function setUiReady(status, reviewFailed){
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    var updateBtn = get("rdmPublicOfflineUpdateButtonV33");
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.remove("not-ready", "rdm-v97-offline-needed", "rdm-v97-offline-working");
+      pill.classList.add("rdm-v97-offline-ready");
+    }
+    if (text) text.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
+    if (msg) msg.textContent = reviewFailed ? "Iron Sharpener is ready for offline use. A few non-critical resource checks need review." : "Iron Sharpener is fully ready for offline use on this device.";
+    if (progress) progress.textContent = statusCount(status).toLocaleString() + " files ready on this device." + (reviewFailed ? " " + reviewFailed + " non-critical check" + (reviewFailed === 1 ? "" : "s") + " listed below." : "");
+    if (bar) bar.style.width = "100%";
+    if (readyBtn) readyBtn.textContent = "Offline Ready";
+    if (updateBtn) updateBtn.disabled = !navigator.onLine;
+    renderReviewBox(status);
+  }
+  function setUiNeeded(message){
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.add("not-ready", "rdm-v97-offline-needed");
+      pill.classList.remove("rdm-v97-offline-ready", "rdm-v97-offline-working");
+    }
+    if (text) text.textContent = navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed";
+    if (msg) msg.textContent = message || "Complete offline setup is needed for the full tool.";
+    if (progress) progress.textContent = navigator.onLine ? "Click Prepare Offline Use and keep this page open until it finishes." : "Connect to the internet and run Prepare Offline Use once.";
+    if (bar) bar.style.width = "0%";
+    var box = ensureReviewBox();
+    if (box) { box.classList.remove("open"); box.innerHTML = ""; }
+  }
+  async function reconcileOfflineStatus(){
+    var status = readStatus();
+    var criticalReady = await criticalFilesReady();
+    if (!status || !criticalReady) {
+      setUiNeeded(!criticalReady && status ? "Offline setup needs another pass because critical checks did not all pass." : undefined);
+      return false;
+    }
+    var existingReview = Number(status.reviewFailed || status.nonCriticalFailed || status.originalFailed || 0);
+    var currentFailed = Number(status.failed || 0);
+    var reviewFailed = existingReview || currentFailed;
+    var canGreen = criticalReady && (currentFailed === 0 || currentFailed <= MAX_REVIEW_FAILURES || existingReview > 0);
+    if (!canGreen) {
+      setUiNeeded("Offline preparation finished, but too many required files could not be confirmed yet.");
+      renderReviewBox(status);
+      return false;
+    }
+    var reconciled = {
+      ...status,
+      complete: true,
+      failed: 0,
+      reviewFailed: reviewFailed,
+      nonCriticalFailed: reviewFailed,
+      originalFailed: reviewFailed,
+      criticalReady: true,
+      reconciledAt: new Date().toISOString(),
+      version: "v98-offline-ready-critical-check"
+    };
+    writeStatus(reconciled);
+    setUiReady(reconciled, reviewFailed);
+    return true;
+  }
+  function openPanel(){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.add("open");
+    try { localStorage.setItem(PANEL_HIDDEN_KEY, "0"); } catch (_) {}
+  }
+  async function runOldPrepAndReconcile(force){
+    openPanel();
+    var oldPrep = window.rdmPrepareOfflineFilesV97 || window.rdmPrepareOfflineFilesV34;
+    if (typeof oldPrep === "function") {
+      await oldPrep(!!force);
+      await new Promise(function(resolve){ setTimeout(resolve, 350); });
+    }
+    return reconcileOfflineStatus();
+  }
+  function wireButtons(){
+    var ready = get("rdmPublicOfflineReadyButtonV33");
+    if (ready) ready.onclick = function(){
+      var status = readStatus();
+      if (status && status.complete) {
+        var panel = get("rdmPublicOfflinePanelV33");
+        if (panel) panel.classList.remove("open");
+        try { localStorage.setItem(PANEL_HIDDEN_KEY, "1"); } catch (_) {}
+      } else {
+        runOldPrepAndReconcile(false);
+      }
+    };
+    var update = get("rdmPublicOfflineUpdateButtonV33");
+    if (update) update.onclick = function(){
+      if (!navigator.onLine) { reconcileOfflineStatus(); return; }
+      runOldPrepAndReconcile(true);
+    };
+  }
+  function start(){
+    wireButtons();
+    reconcileOfflineStatus();
+    setTimeout(function(){ wireButtons(); reconcileOfflineStatus(); }, 900);
+  }
+  window.rdmReconcileOfflineStatusV98 = reconcileOfflineStatus;
+  window.rdmPrepareOfflineFilesV98 = runOldPrepAndReconcile;
+  window.rdmRefreshOfflineStatusV98 = reconcileOfflineStatus;
+  window.rdmRefreshOfflineStatusV34 = reconcileOfflineStatus;
+  window.rdmUpdateOfflineFilesFastV34 = function(){ return runOldPrepAndReconcile(true); };
+  window.addEventListener("online", reconcileOfflineStatus);
+  window.addEventListener("offline", reconcileOfflineStatus);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v98-offline-ready-critical-check";
+})();
+</script>
+
 </body>
 </html>
