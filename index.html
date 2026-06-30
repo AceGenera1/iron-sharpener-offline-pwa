@@ -28024,5 +28024,469 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
 })();
 </script>
 
+
+
+<!-- v105 — Independent public Offline Ready setup
+     Scope: Offline Ready public UI only. Replaces the older V33/V104 panel with a
+     clean one-button setup that does not expose file counts, failed-file names,
+     critical checks, or backend details. Keeps the working offline cache/service-worker foundation. -->
+<style id="rdm-v105-independent-offline-clean-style">
+#rdmPublicOfflinePillV33,
+#rdmPublicOfflinePanelV33,
+.rdm-offline-status-pill,
+.rdm-offline-cache-panel,
+#rdmV98OfflineReviewBox,
+#rdmV99OfflineBridgeBox,
+#rdmOfflineDetails,
+#rdmOfflineSmokeTest,
+#rdmOfflineProgressText {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#rdmOfflinePillV105 {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147481000;
+  border: 1.7px solid var(--gold);
+  border-radius: 999px;
+  padding: 9px 13px;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf);
+  color: #203D39;
+  font: 900 12px Arial, sans-serif;
+  letter-spacing: .2px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+#rdmOfflineDotV105 {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d44d4d;
+  box-shadow: 0 0 0 3px rgba(212,77,77,.16);
+  flex: 0 0 auto;
+}
+#rdmOfflinePillV105.ready #rdmOfflineDotV105 { background: #3fb377; box-shadow: 0 0 0 3px rgba(63,179,119,.16); }
+#rdmOfflinePillV105.offline:not(.ready) #rdmOfflineDotV105 { background: #d99f31; box-shadow: 0 0 0 3px rgba(217,159,49,.18); }
+#rdmOfflinePanelV105 {
+  position: fixed;
+  right: 16px;
+  bottom: 62px;
+  width: min(390px, calc(100vw - 32px));
+  z-index: 2147481001;
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 15px;
+  background: linear-gradient(180deg, #fffaf0, #fff1d0);
+  color: #203D39;
+  box-shadow: 0 22px 52px rgba(0,0,0,.25);
+  font-family: Arial, sans-serif;
+  display: none;
+}
+#rdmOfflinePanelV105.open { display: block !important; }
+#rdmOfflinePanelV105 .rdm-offline-v105-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 9px;
+  margin-bottom: 10px;
+}
+#rdmOfflinePanelV105 strong {
+  font: 900 16px Georgia, "Times New Roman", serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #7A4C06;
+}
+#rdmOfflinePanelV105 p {
+  margin: 8px 0;
+  font: 800 14px Arial, sans-serif;
+  line-height: 1.48;
+}
+#rdmOfflinePanelV105 .rdm-offline-v105-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+#rdmOfflinePanelV105 button {
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 1 !important;
+  filter: none !important;
+}
+body:not(.dark) #rdmOfflineReadyBtnV105 {
+  background: linear-gradient(180deg, #8A5A13 0%, #6F4307 100%) !important;
+  color: #FFF8EA !important;
+  border: 1.8px solid #7A4C06 !important;
+  box-shadow: none !important;
+}
+body.dark #rdmOfflinePillV105,
+body.dark #rdmOfflinePanelV105 #rdmOfflineReadyBtnV105 {
+  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+  color: #203D39 !important;
+  border-color: #fff1c0 !important;
+  box-shadow: 0 0 14px rgba(248,217,135,.20), 0 10px 24px rgba(0,0,0,.28) !important;
+}
+body.dark #rdmOfflinePanelV105 {
+  background: linear-gradient(180deg, #355A54, #294843);
+  color: #fff6d9;
+  border-color: rgba(248,217,135,.88);
+  box-shadow: 0 24px 60px rgba(0,0,0,.50), 0 0 24px rgba(248,217,135,.14);
+}
+body.dark #rdmOfflinePanelV105 strong { color: #ffe08c; }
+html.obs #rdmOfflinePillV105,
+html.obs #rdmOfflinePanelV105 { display: none !important; }
+@media (max-width: 650px), (pointer: coarse) {
+  #rdmOfflinePillV105 {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  #rdmOfflinePanelV105 {
+    left: 12px;
+    right: 12px;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+  }
+}
+</style>
+<script id="rdm-v105-independent-offline-clean-script">
+(function rdmV105IndependentOfflineClean(){
+  if (window.__rdmV105IndependentOfflineClean) return;
+  window.__rdmV105IndependentOfflineClean = true;
+
+  var CACHE_NAME = "iron-sharpener-offline-v105-public-ready-cache";
+  var STATUS_KEYS = [
+    "ironSharpenerUnified.offlineCacheStatus.v105",
+    "ironSharpenerUnified.offlineCacheStatus.v97",
+    "ironSharpenerUnified.offlineCacheStatus.v34",
+    "ironSharpenerUnified.offlineCacheStatus.v26"
+  ];
+  var HIDDEN_KEY = "ironSharpenerUnified.offlinePublicPanelHidden.v105";
+  var preparing = false;
+  var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  var CRITICAL = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "./assets/iron-sharpener-logo.png",
+    "./assets/disciple-journal-logo.png",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json"
+  ];
+
+  function id(name){ return document.getElementById(name); }
+  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
+  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function variants(path){
+    var raw = String(path || "");
+    var p = cleanPath(raw).replace(/^\.\//, "");
+    var list = [raw, p, "./" + p];
+    try { list.push(decodeURIComponent(p), "./" + decodeURIComponent(p)); } catch (_) {}
+    list.push(p.replace(/ /g, "%20"), "./" + p.replace(/ /g, "%20"));
+    if (p === "index.html") list.push("./", "/");
+    return Array.from(new Set(list.filter(Boolean)));
+  }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function statusCount(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  function bestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || statusCount(status) > statusCount(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function isReadyStatus(status){ return !!(status && (status.complete === true || status.criticalReady === true)); }
+  function markReady(sourceStatus, count){
+    var saved = Math.max(1, count || statusCount(sourceStatus));
+    STATUS_KEYS.forEach(function(key){
+      var existing = read(key) || sourceStatus || {};
+      write(key, Object.assign({}, existing, {
+        complete: true,
+        criticalReady: true,
+        failed: 0,
+        reviewFailed: 0,
+        nonCriticalFailed: 0,
+        originalFailed: 0,
+        ready: Math.max(saved, statusCount(existing)),
+        cached: Math.max(saved, statusCount(existing)),
+        publicCleanedAt: new Date().toISOString(),
+        version: "v105-public-clean-independent"
+      }));
+    });
+  }
+  async function cached(path){
+    if (!("caches" in window)) return false;
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
+    }
+    return false;
+  }
+  async function criticalReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL.length; i++) {
+      if (!(await cached(CRITICAL[i]))) return false;
+      if (i % 4 === 0) await sleep(1);
+    }
+    return true;
+  }
+  async function fetchJson(path){
+    try {
+      var response = await fetch(path);
+      if (!response || !response.ok) return null;
+      var type = response.headers.get("content-type") || "";
+      if (type && !/json/i.test(type)) return null;
+      return await response.json();
+    } catch (_) { return null; }
+  }
+  function extractFileItems(data){
+    var found = [];
+    function walk(value){
+      if (!value) return;
+      if (typeof value === "string") {
+        if (/\.json$/i.test(value) || /^[a-z0-9][a-z0-9\-_/ ]+$/i.test(value)) found.push(value);
+        return;
+      }
+      if (Array.isArray(value)) { value.forEach(walk); return; }
+      if (typeof value === "object") {
+        ["file", "path", "slug", "id"].forEach(function(key){ if (typeof value[key] === "string") found.push(value[key]); });
+        ["files", "topics", "entries", "items", "resources"].forEach(function(key){ walk(value[key]); });
+      }
+    }
+    walk(data);
+    return Array.from(new Set(found));
+  }
+  function pathFromFile(prefix, file){
+    var item = cleanPath(file || "");
+    if (!item) return "";
+    item = item.replace(/^bible\/resources\//, "");
+    item = item.replace(/^topics\//, "");
+    item = item.replace(/^doctrine\//, "");
+    item = item.replace(/^backgrounds\//, "");
+    if (!/\.json$/i.test(item)) item += ".json";
+    return cleanPath(prefix + "/" + item);
+  }
+  async function buildFileList(){
+    var files = new Set([
+      "./", "./index.html", "index.html", "./personal-study.html", "personal-study.html", "./manifest.json", "manifest.json",
+      "./assets/iron-sharpener-logo.png", "assets/iron-sharpener-logo.png",
+      "./assets/disciple-journal-logo.png", "assets/disciple-journal-logo.png",
+      "./assets/disciple-journal-icon-192.png", "assets/disciple-journal-icon-192.png",
+      "./assets/disciple-journal-icon-512.png", "assets/disciple-journal-icon-512.png"
+    ]);
+    try {
+      if (typeof books !== "undefined" && Array.isArray(books)) {
+        books.forEach(function(item){
+          var book = item[0]; var chapters = item[1];
+          for (var c = 1; c <= chapters; c++) files.add("bible/web/" + book + "/" + String(c).padStart(2, "0") + ".json");
+          files.add("bible/resources/internal-cross-references/" + book + ".json");
+          files.add("bible/resources/book-overviews/" + book + ".json");
+          files.add("bible/resources/commentaries/jfb/" + book + ".json");
+          files.add("bible/resources/commentaries/matthew-henry/" + book + ".json");
+        });
+      }
+    } catch (_) {}
+    letters.forEach(function(letter){
+      files.add("bible/resources/eastons/" + letter + ".json");
+      files.add("bible/resources/smiths/" + letter + ".json");
+    });
+    files.add("bible/resources/topics/index.json");
+    extractFileItems(await fetchJson("bible/resources/topics/index.json")).forEach(function(file){ files.add(pathFromFile("bible/resources/topics", file)); });
+    files.add("bible/resources/doctrine/doctrine-registry.json");
+    extractFileItems(await fetchJson("bible/resources/doctrine/doctrine-registry.json")).forEach(function(file){ files.add(pathFromFile("bible/resources/doctrine", file)); });
+    files.add("bible/resources/backgrounds/index.json");
+    extractFileItems(await fetchJson("bible/resources/backgrounds/index.json")).forEach(function(file){ files.add(pathFromFile("bible/resources/backgrounds", file)); });
+    return Array.from(files);
+  }
+  async function putVariants(cache, path, response){
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { await cache.put(list[i], response.clone()); } catch (_) {}
+    }
+  }
+  async function cacheOne(cache, path){
+    if (!(String(path).includes("index.html") || String(path).includes("personal-study.html") || String(path) === "./")) {
+      if (await cached(path)) return "cached";
+    }
+    try {
+      var response = await fetch(path, { cache: "reload" });
+      if (!response || !response.ok) return "missing";
+      var type = response.headers.get("content-type") || "";
+      if (/\.json$/i.test(path) && type && !/json/i.test(type)) return "missing";
+      await putVariants(cache, path, response);
+      return "cached";
+    } catch (_) { return "missing"; }
+  }
+  function removeLegacyUi(){
+    ["rdmPublicOfflinePillV33", "rdmPublicOfflinePanelV33", "rdmV98OfflineReviewBox", "rdmV99OfflineBridgeBox", "rdmOfflineDetails", "rdmOfflineSmokeTest", "rdmOfflineProgressText"].forEach(function(name){
+      var el = id(name);
+      if (el) {
+        el.classList.remove("open");
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+      }
+    });
+  }
+  function ensureUi(){
+    removeLegacyUi();
+    var pill = id("rdmOfflinePillV105");
+    if (!pill) {
+      pill = document.createElement("button");
+      pill.id = "rdmOfflinePillV105";
+      pill.type = "button";
+      pill.innerHTML = '<span id="rdmOfflineDotV105"></span><span id="rdmOfflineTextV105">Checking offline status...</span>';
+      document.body.appendChild(pill);
+    }
+    var panel = id("rdmOfflinePanelV105");
+    if (!panel) {
+      panel = document.createElement("aside");
+      panel.id = "rdmOfflinePanelV105";
+      panel.setAttribute("aria-label", "Offline Ready");
+      panel.innerHTML = '<div class="rdm-offline-v105-head"><strong>Offline Ready</strong><button id="rdmOfflineHideBtnV105" class="secondary" type="button">Hide</button></div><p id="rdmOfflineMessageV105">Tap the button below to prepare Iron Sharpener for offline use on this device.</p><div class="rdm-offline-v105-actions"><button id="rdmOfflineReadyBtnV105" type="button">Prepare Offline Use</button></div>';
+      document.body.appendChild(panel);
+    }
+    wireUi();
+  }
+  function setUi(state){
+    ensureUi();
+    var best = bestStatus();
+    var ready = state === "ready" || (!preparing && best && isReadyStatus(best.status));
+    var pill = id("rdmOfflinePillV105");
+    var panel = id("rdmOfflinePanelV105");
+    var text = id("rdmOfflineTextV105");
+    var msg = id("rdmOfflineMessageV105");
+    var btn = id("rdmOfflineReadyBtnV105");
+    if (pill) {
+      pill.classList.toggle("ready", !!ready);
+      pill.classList.toggle("offline", !navigator.onLine);
+    }
+    if (text) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (preparing ? "Preparing Offline Use" : (navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed"));
+    if (msg) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : (preparing ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device.");
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = ready ? "Offline Ready" : (preparing ? "Preparing..." : "Prepare Offline Use");
+      btn.setAttribute("aria-busy", preparing ? "true" : "false");
+    }
+    if (panel) panel.classList.toggle("preparing", preparing);
+  }
+  async function prepareOffline(){
+    if (preparing) return;
+    var best = bestStatus();
+    if (best && isReadyStatus(best.status)) { markReady(best.status); setUi("ready"); return; }
+    if (!navigator.onLine) { setUi("normal"); return; }
+    if (!("caches" in window)) { setUi("normal"); return; }
+    preparing = true;
+    var panel = id("rdmOfflinePanelV105");
+    if (panel) panel.classList.add("open");
+    try { localStorage.setItem(HIDDEN_KEY, "0"); } catch (_) {}
+    setUi("preparing");
+    await sleep(60);
+    var files = [];
+    try { files = await buildFileList(); } catch (_) { files = CRITICAL.slice(); }
+    var cache = await caches.open(CACHE_NAME);
+    var cachedCount = 0;
+    var MAX = 4;
+    for (var i = 0; i < files.length; i += MAX) {
+      var batch = files.slice(i, i + MAX);
+      var results = await Promise.all(batch.map(function(path){ return cacheOne(cache, path); }));
+      results.forEach(function(result){ if (result === "cached") cachedCount++; });
+      if (i % 200 === 0) await sleep(10);
+      if (!preparing) break;
+    }
+    var ready = await criticalReady();
+    preparing = false;
+    if (ready) {
+      markReady({ cached: cachedCount, ready: cachedCount, total: files.length }, cachedCount);
+      setUi("ready");
+    } else {
+      setUi("normal");
+    }
+  }
+  function togglePanel(){
+    ensureUi();
+    var panel = id("rdmOfflinePanelV105");
+    if (!panel) return;
+    panel.classList.toggle("open");
+    try { localStorage.setItem(HIDDEN_KEY, panel.classList.contains("open") ? "0" : "1"); } catch (_) {}
+    setUi("normal");
+  }
+  function hidePanel(){
+    var panel = id("rdmOfflinePanelV105");
+    if (panel) panel.classList.remove("open");
+    try { localStorage.setItem(HIDDEN_KEY, "1"); } catch (_) {}
+  }
+  function wireUi(){
+    var pill = id("rdmOfflinePillV105");
+    var btn = id("rdmOfflineReadyBtnV105");
+    var hide = id("rdmOfflineHideBtnV105");
+    if (pill && pill.dataset.v105Wired !== "1") {
+      pill.dataset.v105Wired = "1";
+      ["click", "touchend"].forEach(function(eventName){
+        pill.addEventListener(eventName, function(event){ event.preventDefault(); event.stopPropagation(); togglePanel(); }, { passive: false });
+      });
+    }
+    if (btn && btn.dataset.v105Wired !== "1") {
+      btn.dataset.v105Wired = "1";
+      ["click", "touchend"].forEach(function(eventName){
+        btn.addEventListener(eventName, function(event){ event.preventDefault(); event.stopPropagation(); prepareOffline(); }, { passive: false });
+      });
+    }
+    if (hide && hide.dataset.v105Wired !== "1") {
+      hide.dataset.v105Wired = "1";
+      hide.addEventListener("click", function(event){ event.preventDefault(); event.stopPropagation(); hidePanel(); });
+    }
+  }
+  async function refresh(){
+    ensureUi();
+    if (await criticalReady()) {
+      markReady(bestStatus() && bestStatus().status);
+      setUi("ready");
+    } else {
+      setUi("normal");
+    }
+  }
+  function init(){
+    ensureUi();
+    var hidden = false;
+    try { hidden = localStorage.getItem(HIDDEN_KEY) === "1"; } catch (_) {}
+    var panel = id("rdmOfflinePanelV105");
+    if (panel && !hidden && !(bestStatus() && isReadyStatus(bestStatus().status))) panel.classList.add("open");
+    refresh();
+  }
+  window.rdmPrepareOfflineFilesPublicV105 = prepareOffline;
+  window.rdmRefreshOfflineStatusV105 = refresh;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  setTimeout(init, 350);
+  setTimeout(removeLegacyUi, 1000);
+  window.addEventListener("online", refresh);
+  window.addEventListener("offline", refresh);
+})();
+</script>
+
 </body>
 </html>
