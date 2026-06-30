@@ -26249,5 +26249,486 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 })();
 </script>
 
+
+
+<!-- v97 — Verse 1 startup + complete offline tool readiness -->
+<style id="rdm-v97-complete-offline-verse-one-style">
+#rdmPublicOfflinePillV33.rdm-v97-offline-ready .rdm-public-offline-dot-v33 { background: #3fb377 !important; box-shadow: 0 0 0 3px rgba(63,179,119,.16) !important; }
+#rdmPublicOfflinePillV33.rdm-v97-offline-needed .rdm-public-offline-dot-v33 { background: #d44d4d !important; box-shadow: 0 0 0 3px rgba(212,77,77,.16) !important; }
+#rdmPublicOfflinePillV33.rdm-v97-offline-working .rdm-public-offline-dot-v33 { background: #d99f31 !important; box-shadow: 0 0 0 3px rgba(217,159,49,.18) !important; }
+#rdmPublicOfflinePanelV33 .rdm-v97-offline-note {
+  margin-top: 8px;
+  padding: 9px 10px;
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  background: rgba(248,217,135,.14);
+  font: 800 12px Arial, sans-serif;
+  line-height: 1.38;
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248,217,135,.10); color: #fff6d9; }
+</style>
+<script id="rdm-v97-complete-offline-verse-one">
+(function rdmV97CompleteOfflineVerseOne(){
+  if (window.__rdmV97CompleteOfflineVerseOne) return;
+  window.__rdmV97CompleteOfflineVerseOne = true;
+
+  var STORAGE_PREFIX = "ironSharpenerUnified";
+  var CACHE_NAME = "iron-sharpener-offline-v36-complete-tool-20260630";
+  var STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v97";
+  var OLD_STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v34";
+  var PANEL_HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v34";
+  var PREP_LOCK = false;
+  var START_NORMALIZED_SESSION_KEY = STORAGE_PREFIX + ".v97.startVerseOne.normalized";
+  var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  var DOCTRINE_INDEX_FILES = [
+    "index.json",
+    "index-2a-additions.json",
+    "index-2b-2c-3-additions.json",
+    "index-4-5-6-additions.json",
+    "index-7-8-additions.json",
+    "index-9-10-additions.json",
+    "index-11-12-additions.json"
+  ];
+  var CORE_FILES = [
+    "./",
+    "./index.html",
+    "index.html",
+    "./personal-study.html",
+    "personal-study.html",
+    "./manifest.json",
+    "manifest.json",
+    "./assets/iron-sharpener-logo.png",
+    "assets/iron-sharpener-logo.png",
+    "./assets/disciple-journal-logo.png",
+    "assets/disciple-journal-logo.png",
+    "./assets/disciple-journal-icon-192.png",
+    "assets/disciple-journal-icon-192.png",
+    "./assets/disciple-journal-icon-512.png",
+    "assets/disciple-journal-icon-512.png"
+  ];
+  var CRITICAL_SPOT_CHECKS = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json",
+    "bible/resources/topics/index.json",
+    "bible/resources/backgrounds/index.json"
+  ];
+
+  function get(id){ return document.getElementById(id); }
+  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
+  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function withDot(path){ path = cleanPath(path); return path.indexOf("./") === 0 ? path : "./" + path; }
+  function withoutDot(path){ return cleanPath(String(path || "").replace(/^\.\//, "")); }
+  function safeDecode(path){ try { return decodeURIComponent(path); } catch (_) { return path; } }
+  function safeEncodeSpaces(path){ return String(path || "").replace(/ /g, "%20"); }
+  function unique(list){ return Array.from(new Set((list || []).filter(Boolean))); }
+  function variants(path){
+    var raw = String(path || "").trim();
+    var noDot = withoutDot(raw);
+    var decoded = safeDecode(noDot);
+    var encoded = safeEncodeSpaces(noDot);
+    var items = [raw, noDot, withDot(noDot), decoded, withDot(decoded), encoded, withDot(encoded)];
+    if (noDot === "index.html") items.push("./");
+    return unique(items);
+  }
+  function isJsonPath(path){ return /\.json(?:$|\?)/i.test(String(path || "")); }
+  function normalizeResourceFile(prefix, file){
+    var item = cleanPath(file || "");
+    if (!item) return "";
+    item = item.replace(/^\.\//, "");
+    item = item.replace(/^bible\/resources\//, "");
+    item = item.replace(/^topics\//, "");
+    item = item.replace(/^doctrine\//, "");
+    item = item.replace(/^backgrounds\//, "");
+    if (!/\.json$/i.test(item)) item += ".json";
+    return cleanPath(prefix + "/" + item);
+  }
+  function slug(value){
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+  function readStatus(){ try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); } catch (_) { return null; } }
+  function writeStatus(status){ try { localStorage.setItem(STATUS_KEY, JSON.stringify(status)); } catch (_) {} }
+  function oldStatusCount(){
+    try {
+      var old = JSON.parse(localStorage.getItem(OLD_STATUS_KEY) || "null");
+      if (!old) return 0;
+      return Math.max(Number(old.cached || 0), Number(old.ready || 0), Number(old.total || 0) - Number(old.failed || 0) - Number(old.skipped || 0));
+    } catch (_) { return 0; }
+  }
+  function statusCount(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  async function cachedSomewhere(path){
+    if (!("caches" in window)) return false;
+    for (var i = 0, list = variants(path); i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
+    }
+    return false;
+  }
+  async function criticalFilesReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL_SPOT_CHECKS.length; i++) {
+      if (!(await cachedSomewhere(CRITICAL_SPOT_CHECKS[i]))) return false;
+      if (i % 4 === 0) await sleep(1);
+    }
+    return true;
+  }
+  async function putVariants(cache, path, response){
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { await cache.put(list[i], response.clone()); } catch (_) {}
+    }
+  }
+  async function fetchJsonForList(path){
+    if (!path) return null;
+    try {
+      var cached = ("caches" in window) ? await caches.match(path) : null;
+      if (cached && cached.ok) return await cached.clone().json();
+    } catch (_) {}
+    try {
+      var response = await fetch(path, { cache: "default" });
+      if (!response || !response.ok) return null;
+      var type = response.headers.get("content-type") || "";
+      if (type && !/json/i.test(type)) return null;
+      return await response.json();
+    } catch (_) { return null; }
+  }
+  function addIndexedFiles(set, prefix, data){
+    function add(value){
+      var path = normalizeResourceFile(prefix, value);
+      if (path) set.add(path);
+    }
+    function walk(value){
+      if (!value) return;
+      if (typeof value === "string") { add(value); return; }
+      if (Array.isArray(value)) { value.forEach(walk); return; }
+      if (typeof value === "object") {
+        if (typeof value.file === "string") add(value.file);
+        else if (typeof value.path === "string") add(value.path);
+        else if (typeof value.slug === "string") add(value.slug);
+        else if (typeof value.id === "string") add(value.id);
+        ["files", "topics", "entries", "items", "resources"].forEach(function(key){ walk(value[key]); });
+      }
+    }
+    walk(data);
+  }
+  async function buildCompleteOfflineList(){
+    var files = new Set(CORE_FILES);
+    try {
+      if (Array.isArray(window.books || books)) {
+        (window.books || books).forEach(function(pair){
+          var book = pair[0];
+          var chapters = Number(pair[1] || 0);
+          for (var chapter = 1; chapter <= chapters; chapter++) {
+            files.add("bible/web/" + book + "/" + String(chapter).padStart(2, "0") + ".json");
+          }
+          files.add("bible/resources/internal-cross-references/" + book + ".json");
+          files.add("bible/resources/book-overviews/" + book + ".json");
+          files.add("bible/resources/commentaries/jfb/" + book + ".json");
+          files.add("bible/resources/commentaries/matthew-henry/" + book + ".json");
+          files.add("bible/resources/backgrounds/by-reference/" + book + ".json");
+        });
+      }
+    } catch (_) {}
+    LETTERS.forEach(function(letter){
+      files.add("bible/resources/eastons/" + letter + ".json");
+      files.add("bible/resources/smiths/" + letter + ".json");
+    });
+    files.add("bible/resources/topics/index.json");
+    addIndexedFiles(files, "bible/resources/topics", await fetchJsonForList("bible/resources/topics/index.json"));
+
+    files.add("bible/resources/doctrine/doctrine-registry.json");
+    addIndexedFiles(files, "bible/resources/doctrine", await fetchJsonForList("bible/resources/doctrine/doctrine-registry.json"));
+    for (var d = 0; d < DOCTRINE_INDEX_FILES.length; d++) {
+      var doctrineIndexPath = "bible/resources/doctrine/" + DOCTRINE_INDEX_FILES[d];
+      files.add(doctrineIndexPath);
+      addIndexedFiles(files, "bible/resources/doctrine", await fetchJsonForList(doctrineIndexPath));
+    }
+
+    files.add("bible/resources/backgrounds/index.json");
+    addIndexedFiles(files, "bible/resources/backgrounds/topics", await fetchJsonForList("bible/resources/backgrounds/index.json"));
+
+    // Optional project-level manifest support. If the repo later includes offline-manifest.json,
+    // this patch will include it without another code change.
+    var manifest = await fetchJsonForList("offline-manifest.json");
+    if (Array.isArray(manifest)) manifest.forEach(function(path){ files.add(cleanPath(path)); });
+    else if (manifest && Array.isArray(manifest.files)) manifest.files.forEach(function(path){ files.add(cleanPath(path)); });
+
+    return unique(Array.from(files).map(cleanPath));
+  }
+  function shouldBlockReady(path){
+    var p = cleanPath(path);
+    return /^(index\.html|personal-study\.html|manifest\.json|assets\/|bible\/web\/|bible\/resources\/)/i.test(p) || p === "" || p === "./";
+  }
+  async function cacheOne(path, cache, force){
+    var p = cleanPath(path);
+    var shell = p === "" || p === "./" || p === "index.html" || p === "personal-study.html" || /\.html$/i.test(p);
+    if (!force && !shell && await cachedSomewhere(p)) return { status: "cached" };
+    var tryList = variants(p);
+    for (var i = 0; i < tryList.length; i++) {
+      var requestPath = tryList[i];
+      try {
+        var response = await fetch(requestPath, { cache: (force || shell) ? "reload" : "default" });
+        if (!response || !response.ok) continue;
+        var type = response.headers.get("content-type") || "";
+        if (isJsonPath(p) && type && !/json/i.test(type)) continue;
+        if (/\.html$/i.test(p) && type && !/html/i.test(type)) continue;
+        await putVariants(cache, p, response);
+        return { status: "cached" };
+      } catch (_) {}
+    }
+    return { status: shouldBlockReady(p) ? "failed" : "missing" };
+  }
+  function ensureOfflineUi(){
+    if (!get("rdmPublicOfflinePillV33")) {
+      var pill = document.createElement("button");
+      pill.id = "rdmPublicOfflinePillV33";
+      pill.type = "button";
+      pill.innerHTML = '<span class="rdm-public-offline-dot-v33"></span><span id="rdmPublicOfflineTextV33">Checking offline status...</span>';
+      document.body.appendChild(pill);
+      pill.addEventListener("click", function(){
+        var panel = get("rdmPublicOfflinePanelV33");
+        if (panel) {
+          panel.classList.toggle("open");
+          try { localStorage.setItem(PANEL_HIDDEN_KEY, panel.classList.contains("open") ? "0" : "1"); } catch (_) {}
+        }
+      });
+    }
+    if (!get("rdmPublicOfflinePanelV33")) {
+      var panel = document.createElement("aside");
+      panel.id = "rdmPublicOfflinePanelV33";
+      panel.setAttribute("aria-label", "Offline Ready status");
+      panel.innerHTML = '<div class="rdm-public-offline-head-v33"><strong>Offline Ready</strong><button id="rdmPublicOfflineHideV33" class="secondary" type="button">Hide</button></div><p id="rdmPublicOfflineMessageV33">Checking offline readiness...</p><div class="rdm-public-offline-track-v33"><div id="rdmPublicOfflineBarV33" class="rdm-public-offline-bar-v33"></div></div><p id="rdmPublicOfflineProgressV33">Please wait...</p><div class="rdm-public-offline-actions-v33"><button id="rdmPublicOfflineReadyButtonV33" type="button">Prepare Offline Use</button><button id="rdmPublicOfflineUpdateButtonV33" class="secondary" type="button">Update Offline Files</button></div><div class="rdm-v97-offline-note">This prepares the teaching side, Disciple Journal page, WEB Scripture files, study resources, and app assets for this browser/device. Journal entries and teaching notes remain saved in this device\'s browser storage.</div>';
+      document.body.appendChild(panel);
+    }
+    var hide = get("rdmPublicOfflineHideV33");
+    if (hide) hide.onclick = function(){
+      var panel = get("rdmPublicOfflinePanelV33");
+      if (panel) panel.classList.remove("open");
+      try { localStorage.setItem(PANEL_HIDDEN_KEY, "1"); } catch (_) {}
+    };
+    var ready = get("rdmPublicOfflineReadyButtonV33");
+    if (ready) ready.onclick = function(){
+      var status = readStatus();
+      if (status && status.complete && Number(status.failed || 0) === 0) {
+        var panel = get("rdmPublicOfflinePanelV33");
+        if (panel) panel.classList.remove("open");
+        try { localStorage.setItem(PANEL_HIDDEN_KEY, "1"); } catch (_) {}
+      } else {
+        prepareCompleteOffline(false);
+      }
+    };
+    var update = get("rdmPublicOfflineUpdateButtonV33");
+    if (update) update.onclick = function(){
+      if (!navigator.onLine) { refreshCompleteOfflineStatus(); return; }
+      prepareCompleteOffline(true);
+    };
+  }
+  function setOfflineUi(ready, mode, message, pct, progressText){
+    ensureOfflineUi();
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    var updateBtn = get("rdmPublicOfflineUpdateButtonV33");
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.toggle("not-ready", !ready);
+      pill.classList.toggle("rdm-v97-offline-ready", !!ready);
+      pill.classList.toggle("rdm-v97-offline-needed", !ready && mode !== "running" && mode !== "building");
+      pill.classList.toggle("rdm-v97-offline-working", mode === "running" || mode === "building");
+    }
+    if (text) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed");
+    if (msg) msg.textContent = message || "Checking offline readiness...";
+    if (progress) progress.textContent = progressText || "";
+    if (bar) bar.style.width = Math.max(0, Math.min(100, pct || 0)) + "%";
+    if (readyBtn) readyBtn.textContent = ready ? "Offline Ready" : "Prepare Offline Use";
+    if (updateBtn) updateBtn.disabled = !navigator.onLine && !ready;
+  }
+  async function refreshCompleteOfflineStatus(){
+    ensureOfflineUi();
+    var status = readStatus();
+    var ready = !!(status && status.complete && Number(status.failed || 0) === 0 && await criticalFilesReady());
+    if (ready) {
+      setOfflineUi(true, "ready", "Iron Sharpener is fully ready for offline use on this device.", 100, statusCount(status).toLocaleString() + " files ready on this device.");
+    } else if (navigator.onLine) {
+      var oldCount = oldStatusCount();
+      setOfflineUi(false, "online", "Complete offline setup is needed for the full tool, not just the app shell.", 0, oldCount ? oldCount.toLocaleString() + " older cached files found. Click Prepare Offline Use to verify the complete tool." : "Click Prepare Offline Use and keep this page open until it finishes.");
+    } else {
+      setOfflineUi(false, "offline", "You are offline, but this device has not confirmed the complete tool cache yet.", 0, "Connect to the internet and run Prepare Offline Use once.");
+    }
+  }
+  async function prepareCompleteOffline(force){
+    if (PREP_LOCK) return;
+    if (!navigator.onLine) { refreshCompleteOfflineStatus(); return; }
+    if (!("caches" in window)) {
+      setOfflineUi(false, "unsupported", "This browser does not support offline caching.", 0, "Use a modern browser with site storage enabled.");
+      return;
+    }
+    PREP_LOCK = true;
+    try {
+      var panel = get("rdmPublicOfflinePanelV33");
+      if (panel) panel.classList.add("open");
+      try { localStorage.setItem(PANEL_HIDDEN_KEY, "0"); } catch (_) {}
+      setOfflineUi(false, "building", "Building the complete offline file list...", 2, "Checking Scripture, Disciple Journal, and study resource indexes.");
+      var files = await buildCompleteOfflineList();
+      var total = files.length;
+      var cache = await caches.open(CACHE_NAME);
+      var cached = 0, failed = 0, missing = 0, checked = 0;
+      var failures = [];
+      var maxParallel = force ? 3 : 4;
+      async function handle(path){
+        var result = await cacheOne(path, cache, force);
+        if (result.status === "cached") cached++;
+        else if (result.status === "missing") missing++;
+        else { failed++; if (failures.length < 12) failures.push(path); }
+        checked++;
+        if (checked % 25 === 0 || checked === total) {
+          var pct = total ? Math.round((checked / total) * 100) : 100;
+          setOfflineUi(false, "running", "Preparing the complete Iron Sharpener tool for offline use. Keep this page open.", pct, checked.toLocaleString() + " of " + total.toLocaleString() + " checked. " + cached.toLocaleString() + " ready.");
+        }
+      }
+      for (var i = 0; i < files.length; i += maxParallel) {
+        await Promise.all(files.slice(i, i + maxParallel).map(handle));
+        if (i % 200 === 0) await sleep(20);
+      }
+      var criticalReady = await criticalFilesReady();
+      var complete = failed === 0 && criticalReady;
+      var status = {
+        complete: complete,
+        total: total,
+        cached: cached,
+        ready: cached,
+        skipped: missing,
+        optionalMissing: missing,
+        failed: failed,
+        failures: failures,
+        updatedAt: new Date().toISOString(),
+        version: "v97-complete-offline-tool"
+      };
+      writeStatus(status);
+      if (complete) {
+        setOfflineUi(true, "ready", "Iron Sharpener is fully ready for offline use on this device.", 100, cached.toLocaleString() + " files ready on this device.");
+      } else {
+        setOfflineUi(false, "needs-review", "Offline preparation finished, but the complete tool could not be fully confirmed.", 100, cached.toLocaleString() + " ready. " + failed + " required failed. " + (criticalReady ? "Critical checks passed." : "Critical checks did not pass."));
+      }
+    } finally {
+      PREP_LOCK = false;
+    }
+  }
+
+  function maxVerseFor(book, chapter){
+    try {
+      var counts = (window.verseCounts || verseCounts)[book];
+      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function rangeEndFor(book, chapter, range){
+    var max = maxVerseFor(book, chapter);
+    if (range === "full") return String(max);
+    var size = parseInt(range, 10) || 5;
+    return String(Math.min(max, size));
+  }
+  function normalizedStartupState(state){
+    if (!state || typeof state !== "object") return state;
+    var book = state.book || "Genesis";
+    var chapter = String(state.chapter || "1");
+    var range = state.range || localStorage.getItem(STORAGE_PREFIX + ".sectionSize") || "5";
+    return { book: book, chapter: chapter, start: "1", end: rangeEndFor(book, chapter, range), range: range };
+  }
+  function normalizeStoredLastRef(){
+    [STORAGE_PREFIX + ".lastRef", "iron-sharpener.lastRef"].forEach(function(key){
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        var normalized = normalizedStartupState(parsed);
+        if (normalized) localStorage.setItem(key, JSON.stringify(normalized));
+      } catch (_) {}
+    });
+  }
+  function applyVerseOneToControls(){
+    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end"), range = get("rangeSize");
+    if (!book || !chapter || !start || !end || !range) return false;
+    var wantedEnd = rangeEndFor(book.value, chapter.value, range.value || "5");
+    var changed = start.value !== "1" || end.value !== wantedEnd;
+    start.value = "1";
+    end.value = wantedEnd;
+    return changed;
+  }
+  function persistNormalizedCurrent(){
+    var book = get("book"), chapter = get("chapter"), range = get("rangeSize");
+    if (!book || !chapter || !range) return;
+    var normalized = normalizedStartupState({ book: book.value, chapter: chapter.value, range: range.value || "5" });
+    try { localStorage.setItem(STORAGE_PREFIX + ".lastRef", JSON.stringify(normalized)); } catch (_) {}
+    try { localStorage.setItem("iron-sharpener.lastRef", JSON.stringify(normalized)); } catch (_) {}
+  }
+  function installLoadPassagePersistenceWrap(){
+    var existing = (typeof loadPassage === "function" ? loadPassage : null) || window.loadPassage;
+    if (typeof existing !== "function" || existing.__rdmV97VerseOneWrapped) return;
+    var wrapped = function rdmV97VerseOneLoadWrapper(){
+      var result = existing.apply(this, arguments);
+      if (result && typeof result.then === "function") {
+        return result.finally(function(){ persistNormalizedCurrent(); });
+      }
+      persistNormalizedCurrent();
+      return result;
+    };
+    wrapped.__rdmV97VerseOneWrapped = true;
+    window.loadPassage = wrapped;
+    try { loadPassage = wrapped; } catch (_) {}
+  }
+  function runInitialVerseOneNormalization(){
+    normalizeStoredLastRef();
+    installLoadPassagePersistenceWrap();
+    var already = false;
+    try { already = sessionStorage.getItem(START_NORMALIZED_SESSION_KEY) === "1"; } catch (_) {}
+    if (already) return;
+    try { sessionStorage.setItem(START_NORMALIZED_SESSION_KEY, "1"); } catch (_) {}
+    setTimeout(function(){
+      var changed = applyVerseOneToControls();
+      persistNormalizedCurrent();
+      if (changed && typeof loadPassage === "function") {
+        try { loadPassage(); } catch (_) {}
+      }
+      if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
+    }, 350);
+  }
+
+  window.rdmPrepareOfflineFilesV97 = prepareCompleteOffline;
+  window.rdmRefreshOfflineStatusV97 = refreshCompleteOfflineStatus;
+  window.rdmPrepareOfflineFilesV34 = prepareCompleteOffline;
+  window.rdmRefreshOfflineStatusV34 = refreshCompleteOfflineStatus;
+  window.rdmUpdateOfflineFilesFastV34 = function(){ return prepareCompleteOffline(false); };
+
+  function start(){
+    ensureOfflineUi();
+    runInitialVerseOneNormalization();
+    refreshCompleteOfflineStatus();
+    window.addEventListener("online", refreshCompleteOfflineStatus);
+    window.addEventListener("offline", refreshCompleteOfflineStatus);
+    setTimeout(function(){ ensureOfflineUi(); refreshCompleteOfflineStatus(); }, 1200);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v97-complete-offline-verse-one";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v97-complete-offline-verse-one";
+})();
+</script>
+
 </body>
 </html>
