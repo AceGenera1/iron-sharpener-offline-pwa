@@ -25374,566 +25374,19 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 </script>
 
 <!-- v92 — Mobile Study Resources Journal-behavior layout/session lock -->
-<style id="rdm-v92-mobile-study-resources-journal-layout-style">
-@media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.teacher-pop.open {
-    position: fixed !important;
-    inset: max(8px, env(safe-area-inset-top, 0px)) 0 var(--rdm-mobile-nav-height, 88px) 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: max(8px, env(safe-area-inset-top, 0px)) !important;
-    bottom: var(--rdm-mobile-nav-height, 88px) !important;
-    width: auto !important;
-    height: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    resize: none !important;
-    overflow: hidden !important;
-    transform: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    z-index: 2147481200 !important;
-  }
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.teacher-pop.open.drag-positioned {
-    left: 0 !important;
-    right: 0 !important;
-    top: max(8px, env(safe-area-inset-top, 0px)) !important;
-    bottom: var(--rdm-mobile-nav-height, 88px) !important;
-    transform: none !important;
-  }
+<!-- removed <style id="rdm-v92-mobile-study-resources-journal-layout-style"> in v95: replaced by click-only Journal-style close mechanics -->
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head {
-    flex: 0 0 auto !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 12px !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 18px 18px 14px !important;
-    border-bottom: 1px solid rgba(248,217,135,.42) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 3 !important;
-  }
 
-  html:not(.obs) body.rdm-mobile-app-shell:not(.dark) #studyResourcesPanel.open .teacher-pop-head {
-    background: linear-gradient(180deg, #FBF7EE, #F4EFE3) !important;
-    border-bottom-color: rgba(138,90,19,.26) !important;
-  }
+<!-- removed <script id="rdm-v92-mobile-study-resources-journal-behavior-script"> in v95: replaced by click-only Journal-style close mechanics -->
 
-  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel.open .teacher-pop-head,
-  html:not(.obs) body.dark.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head {
-    background: linear-gradient(180deg, #355A54, #294843) !important;
-  }
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-head h3 {
-    display: block !important;
-    width: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: clamp(22px, 4.4vw, 34px) !important;
-    line-height: 1.08 !important;
-    letter-spacing: .08em !important;
-    text-transform: uppercase !important;
-    white-space: normal !important;
-    writing-mode: horizontal-tb !important;
-    transform: none !important;
-  }
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .teacher-pop-close {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 86px !important;
-    max-width: none !important;
-    height: auto !important;
-    padding: 10px 16px !important;
-    margin: 0 !important;
-    border-radius: 14px !important;
-    white-space: nowrap !important;
-    position: relative !important;
-    right: auto !important;
-    top: auto !important;
-  }
+<!-- removed <style id="rdm-v93-mobile-resource-close-guard-style"> in v95: replaced by click-only Journal-style close mechanics -->
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-options {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    width: min(760px, calc(100vw - 32px)) !important;
-    max-width: calc(100vw - 32px) !important;
-    margin: 0 auto !important;
-    padding: 18px 0 calc(22px + env(safe-area-inset-bottom, 0px)) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-    align-content: start !important;
-    align-items: stretch !important;
-  }
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: auto !important;
-    min-height: 118px !important;
-    max-height: none !important;
-    padding: 16px 18px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
-    text-align: left !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    pointer-events: auto !important;
-  }
+<!-- removed <script id="rdm-v93-mobile-study-resource-close-stays-closed-script"> in v95: replaced by click-only Journal-style close mechanics -->
 
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option strong {
-    font-size: clamp(17px, 2.7vw, 21px) !important;
-    line-height: 1.2 !important;
-    margin: 0 0 8px !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open .tool-option span {
-    font-size: clamp(15px, 2.3vw, 19px) !important;
-    line-height: 1.45 !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v92-resource-busy #studyResourcesPanel.open .tool-option {
-    pointer-events: none !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel {
-    z-index: 2147481300 !important;
-  }
-}
-</style>
-<script id="rdm-v92-mobile-study-resources-journal-behavior-script">
-(function rdmV92MobileStudyResourcesJournalBehavior(){
-  if (window.__rdmV92MobileStudyResourcesJournalBehavior) return;
-  window.__rdmV92MobileStudyResourcesJournalBehavior = true;
-
-  var RESOURCE_BUTTON_IDS = new Set([
-    "openBackgroundsResource",
-    "openEastonsResource",
-    "openSmithsResource",
-    "openNavesResource",
-    "openDoctrineResource",
-    "openCommentariesResource",
-    "openBookOverviewResource",
-    "openJfbResource"
-  ]);
-
-  var previousRefresh = null;
-  try {
-    previousRefresh = window.refreshActiveResourcePanel ||
-      (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null);
-  } catch (_) {}
-
-  function get(id){ return document.getElementById(id); }
-
-  function isMobileShell(){
-    return !!document.body && (
-      document.body.classList.contains("rdm-mobile-app-shell") ||
-      (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches)
-    ) && !document.documentElement.classList.contains("obs");
-  }
-
-  function clearActiveResource(){
-    try { activeResourcePanel = ""; } catch (_) {}
-    try { window.activeResourcePanel = ""; } catch (_) {}
-  }
-
-  function markToolsActive(){
-    var nav = get("rdmMobileAppNav");
-    if (!nav) return;
-    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
-      button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
-    });
-  }
-
-  function keepStudyResourcesOpen(){
-    if (!isMobileShell()) return;
-    var panel = get("studyResourcesPanel");
-    if (!panel) return;
-    panel.classList.add("open");
-    panel.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-    panel.setAttribute("aria-hidden", "false");
-    panel.style.display = "";
-    panel.style.removeProperty("left");
-    panel.style.removeProperty("right");
-    panel.style.removeProperty("top");
-    panel.style.removeProperty("bottom");
-    panel.style.removeProperty("width");
-    panel.style.removeProperty("height");
-    panel.style.removeProperty("maxHeight");
-    markToolsActive();
-  }
-
-  function keepStudyResourcesOpenSoon(){
-    [0, 40, 120, 260].forEach(function(delay){
-      setTimeout(keepStudyResourcesOpen, delay);
-    });
-  }
-
-  function closeOnlyResourcePanel(panel){
-    if (!panel) return;
-    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-    panel.setAttribute("aria-hidden", "true");
-    try { panel.remove(); } catch (_) {}
-  }
-
-  function isResourceCloseButton(target){
-    return target && target.closest && target.closest(
-      ".resource-instance-panel .teacher-pop-close, " +
-      ".resource-instance-panel .resource-close, " +
-      "#closeObsCrossRefs"
-    );
-  }
-
-  function closeFromButton(closeButton){
-    if (!closeButton) return;
-    var panel = closeButton.closest(".resource-instance-panel");
-    if (panel) closeOnlyResourcePanel(panel);
-
-    var legacy = closeButton.closest("#obsCrossRefsPanel");
-    if (legacy) {
-      legacy.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-      legacy.setAttribute("aria-hidden", "true");
-      legacy.style.display = "none";
-    }
-
-    clearActiveResource();
-    keepStudyResourcesOpenSoon();
-  }
-
-  function setBusy(ms){
-    if (!isMobileShell()) return;
-    document.body.classList.add("rdm-v92-resource-busy");
-    setTimeout(function(){
-      document.body.classList.remove("rdm-v92-resource-busy");
-    }, ms || 220);
-  }
-
-  function handleEarlyResourceClose(event){
-    if (!isMobileShell()) return;
-    var closeButton = isResourceCloseButton(event.target);
-    if (!closeButton) return;
-
-    // Pointer/touch start is used only to clear stale state before older click handlers run.
-    clearActiveResource();
-    keepStudyResourcesOpenSoon();
-  }
-
-  function handleClick(event){
-    if (!isMobileShell()) return;
-
-    var closeButton = isResourceCloseButton(event.target);
-    if (closeButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-      closeFromButton(closeButton);
-      return;
-    }
-
-    var resourceButton = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (resourceButton && RESOURCE_BUTTON_IDS.has(resourceButton.id)) {
-      clearActiveResource();
-      setBusy(180);
-      keepStudyResourcesOpen();
-      setTimeout(clearActiveResource, 0);
-      setTimeout(clearActiveResource, 120);
-      setTimeout(keepStudyResourcesOpen, 0);
-      setTimeout(keepStudyResourcesOpen, 160);
-      return;
-    }
-  }
-
-  ["pointerdown", "touchstart"].forEach(function(type){
-    document.addEventListener(type, handleEarlyResourceClose, true);
-  });
-
-  document.addEventListener("click", handleClick, true);
-
-  document.addEventListener("click", function(event){
-    if (!isMobileShell()) return;
-    if (event.target && event.target.closest && event.target.closest(".resource-instance-panel .doctrine-related-topic-btn, .resource-instance-panel .dictionary-result-btn, .resource-instance-panel .naves-topic-btn, .resource-instance-panel .cross-ref-link")) {
-      clearActiveResource();
-      keepStudyResourcesOpenSoon();
-    }
-  }, false);
-
-  function v92ManualRefreshGuard(){
-    if (isMobileShell()) {
-      clearActiveResource();
-      return;
-    }
-    if (typeof previousRefresh === "function" && previousRefresh !== v92ManualRefreshGuard) {
-      return previousRefresh.apply(this, arguments);
-    }
-  }
-
-  try { refreshActiveResourcePanel = v92ManualRefreshGuard; } catch (_) {}
-  window.refreshActiveResourcePanel = v92ManualRefreshGuard;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function(){
-      // v94 recovery: clear stale resource state, but do not auto-open Study Resources at launch.
-      clearActiveResource();
-    }, { once: true });
-  } else {
-    clearActiveResource();
-  }
-
-  window.addEventListener("load", function(){
-    clearActiveResource();
-  }, { once: true });
-
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v92-mobile-study-resources-journal-layout-behavior";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v92-mobile-study-resources-journal-layout-behavior";
-})();
-</script>
-
-<style id="rdm-v93-mobile-resource-close-guard-style">
-/* v93 — Mobile Study Resources close guard.
-   Prevents the Study Resources card underneath a just-closed resource panel
-   from receiving the same tap/click and reopening Easton's/Smith's/etc. */
-@media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-v93-resource-close-guard #studyResourcesPanel.open .tool-option {
-    pointer-events: none !important;
-  }
-}
-</style>
-<script id="rdm-v93-mobile-study-resource-close-stays-closed-script">
-(function rdmV93MobileStudyResourceCloseStaysClosed(){
-  if (window.__rdmV93MobileStudyResourceCloseStaysClosed) return;
-  window.__rdmV93MobileStudyResourceCloseStaysClosed = true;
-
-  var RESOURCE_BUTTON_IDS = new Set([
-    "openBackgroundsResource",
-    "openEastonsResource",
-    "openSmithsResource",
-    "openNavesResource",
-    "openDoctrineResource",
-    "openCommentariesResource",
-    "openBookOverviewResource",
-    "openJfbResource"
-  ]);
-
-  var closeGuardUntil = 0;
-  var closeGuardTimer = null;
-
-  function get(id){ return document.getElementById(id); }
-
-  function isMobileShell(){
-    return !!document.body &&
-      !document.documentElement.classList.contains("obs") &&
-      (
-        document.body.classList.contains("rdm-mobile-app-shell") ||
-        (window.matchMedia && window.matchMedia("(max-width: 1180px), (hover: none), (pointer: coarse)").matches)
-      );
-  }
-
-  function clearActiveResource(){
-    try { activeResourcePanel = ""; } catch (_) {}
-    try { window.activeResourcePanel = ""; } catch (_) {}
-  }
-
-  function markToolsActive(){
-    var nav = get("rdmMobileAppNav");
-    if (!nav) return;
-    nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(button){
-      button.classList.toggle("active", button.getAttribute("data-rdm-mobile-action") === "tools");
-    });
-  }
-
-  function keepStudyResourcesOpen(){
-    if (!isMobileShell()) return;
-    var panel = get("studyResourcesPanel");
-    if (!panel) return;
-    panel.classList.add("open");
-    panel.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-    panel.setAttribute("aria-hidden", "false");
-    panel.style.display = "";
-    panel.style.removeProperty("left");
-    panel.style.removeProperty("right");
-    panel.style.removeProperty("top");
-    panel.style.removeProperty("bottom");
-    panel.style.removeProperty("width");
-    panel.style.removeProperty("height");
-    panel.style.removeProperty("maxHeight");
-    markToolsActive();
-  }
-
-  function keepStudyResourcesOpenSoon(){
-    [0, 50, 150, 320].forEach(function(delay){
-      setTimeout(keepStudyResourcesOpen, delay);
-    });
-  }
-
-  function startCloseGuard(ms){
-    if (!isMobileShell()) return;
-    closeGuardUntil = Date.now() + (ms || 700);
-    if (document.body) document.body.classList.add("rdm-v93-resource-close-guard");
-    if (closeGuardTimer) clearTimeout(closeGuardTimer);
-    closeGuardTimer = setTimeout(function(){
-      if (Date.now() >= closeGuardUntil && document.body) {
-        document.body.classList.remove("rdm-v93-resource-close-guard");
-      }
-    }, ms || 700);
-  }
-
-  function isGuardActive(){
-    return isMobileShell() && Date.now() < closeGuardUntil;
-  }
-
-  function closePanel(panel){
-    if (!panel) return;
-    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-    panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "none";
-    try { panel.remove(); } catch (_) {}
-  }
-
-  function keepDictionarySearchOpenForEntry(resourceKey){
-    if (!isMobileShell()) return;
-    var key = String(resourceKey || "").toLowerCase();
-    var parentKey = "";
-    var focusSelector = "";
-
-    if (key.indexOf("eastons-entry-") === 0) {
-      parentKey = "eastons-search";
-      focusSelector = ".eastons-search-box, #eastonsSearchBox";
-    } else if (key.indexOf("smiths-entry-") === 0) {
-      parentKey = "smiths-search";
-      focusSelector = ".smiths-search-box, #smithsSearchBox";
-    }
-
-    if (!parentKey) return;
-
-    var parent = document.querySelector('.resource-instance-panel[data-resource-key="' + parentKey + '"]');
-    if (!parent) return;
-
-    parent.classList.add("open");
-    parent.classList.remove("drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-    parent.setAttribute("aria-hidden", "false");
-    parent.style.display = "";
-    parent.style.zIndex = String(Date.now() + 20);
-
-    setTimeout(function(){
-      var input = parent.querySelector(focusSelector);
-      if (input && typeof input.focus === "function") {
-        try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); }
-      }
-    }, 80);
-  }
-
-  function closeResourceFromTarget(target){
-    if (!target || !target.closest) return false;
-
-    var resourcePanel = target.closest(".resource-instance-panel");
-    if (resourcePanel) {
-      var closedResourceKey = resourcePanel.dataset ? resourcePanel.dataset.resourceKey : "";
-      closePanel(resourcePanel);
-      keepDictionarySearchOpenForEntry(closedResourceKey);
-      return true;
-    }
-
-    var legacyPanel = target.closest("#obsCrossRefsPanel");
-    if (legacyPanel) {
-      legacyPanel.classList.remove("open", "drag-positioned", "rd-drag-positioned", "open-up", "open-down");
-      legacyPanel.setAttribute("aria-hidden", "true");
-      legacyPanel.style.display = "none";
-      return true;
-    }
-
-    return false;
-  }
-
-  function isResourceCloseTarget(target){
-    return !!(target && target.closest && target.closest(
-      ".resource-instance-panel .teacher-pop-close, " +
-      ".resource-instance-panel .resource-close, " +
-      "#closeObsCrossRefs"
-    ));
-  }
-
-  function handleCloseEvent(event){
-    if (!isMobileShell()) return;
-    if (!isResourceCloseTarget(event.target)) return;
-
-    // Close on the earliest event so the later synthetic click cannot land on
-    // Easton's/Smith's/etc. underneath the removed resource panel.
-    event.preventDefault();
-    event.stopPropagation();
-    if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-
-    clearActiveResource();
-    startCloseGuard(750);
-    closeResourceFromTarget(event.target);
-    keepStudyResourcesOpenSoon();
-  }
-
-  function handleResourceButtonClick(event){
-    if (!isMobileShell()) return;
-    var button = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (!button || !RESOURCE_BUTTON_IDS.has(button.id)) return;
-
-    // Block ghost clicks and programmatic stale refresh clicks from opening
-    // a dictionary/resource the user did not intentionally choose.
-    if (isGuardActive() || event.isTrusted === false) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-      clearActiveResource();
-      keepStudyResourcesOpenSoon();
-      return;
-    }
-  }
-
-  ["pointerdown", "touchstart", "mousedown", "click"].forEach(function(type){
-    document.addEventListener(type, handleCloseEvent, true);
-  });
-
-  document.addEventListener("click", handleResourceButtonClick, true);
-
-  // Final mobile refresh rule: closed means closed. Refreshing the passage may
-  // update contextual helpers, but it must not reopen Easton's/Smith's/Nave's/etc.
-  var previousRefresh = null;
-  try {
-    previousRefresh = window.refreshActiveResourcePanel ||
-      (typeof refreshActiveResourcePanel === "function" ? refreshActiveResourcePanel : null);
-  } catch (_) {}
-
-  function safeMobileRefresh(){
-    if (isMobileShell()) {
-      clearActiveResource();
-      return;
-    }
-    if (typeof previousRefresh === "function" && previousRefresh !== safeMobileRefresh) {
-      return previousRefresh.apply(this, arguments);
-    }
-  }
-
-  try { refreshActiveResourcePanel = safeMobileRefresh; } catch (_) {}
-  window.refreshActiveResourcePanel = safeMobileRefresh;
-
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v93-mobile-study-resources-close-stays-closed";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v93-mobile-study-resources-close-stays-closed";
-})();
-</script>
 
 
 <!-- v94 — Mobile Study Resources final startup/dictionary close polish -->
@@ -26055,6 +25508,221 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 
   window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v94-mobile-study-resources-final-polish";
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v94-mobile-study-resources-final-polish";
+})();
+</script>
+
+
+<!-- v95 — Mobile Study Resources Journal-style close mechanics -->
+<style id="rdm-v95-mobile-study-resources-journal-close-mechanics-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel.open {
+    display: flex !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .rdm-v95-click-shield {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483000 !important;
+    background: transparent !important;
+    pointer-events: auto !important;
+    touch-action: none !important;
+  }
+}
+</style>
+<script id="rdm-v95-mobile-study-resources-journal-close-mechanics-script">
+(function rdmV95MobileStudyResourcesJournalCloseMechanics(){
+  if (window.__rdmV95MobileStudyResourcesJournalCloseMechanics) return;
+  window.__rdmV95MobileStudyResourcesJournalCloseMechanics = true;
+
+  var zBase = 2147480000;
+
+  function get(id){ return document.getElementById(id); }
+
+  function isMobileShell(){
+    return !!document.body &&
+      document.body.classList.contains('rdm-mobile-app-shell') &&
+      !document.documentElement.classList.contains('obs') &&
+      (!window.matchMedia || window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+  }
+
+  function clearActiveResource(){
+    try { activeResourcePanel = ''; } catch (_) {}
+    try { window.activeResourcePanel = ''; } catch (_) {}
+  }
+
+  function markToolsActive(){
+    var nav = get('rdmMobileAppNav');
+    if (!nav) return;
+    nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-rdm-mobile-action') === 'tools');
+    });
+  }
+
+  function keepStudyResourcesOpen(){
+    if (!isMobileShell()) return;
+    var panel = get('studyResourcesPanel');
+    if (!panel) return;
+    panel.classList.add('open');
+    panel.classList.remove('drag-positioned', 'rd-drag-positioned', 'open-up', 'open-down');
+    panel.setAttribute('aria-hidden', 'false');
+    panel.style.display = '';
+    panel.style.removeProperty('left');
+    panel.style.removeProperty('right');
+    panel.style.removeProperty('top');
+    panel.style.removeProperty('bottom');
+    panel.style.removeProperty('width');
+    panel.style.removeProperty('height');
+    panel.style.removeProperty('maxHeight');
+    markToolsActive();
+  }
+
+  function keepStudyResourcesOpenSoon(){
+    [0, 80, 180].forEach(function(delay){ setTimeout(keepStudyResourcesOpen, delay); });
+  }
+
+  function makeClickShield(){
+    if (!isMobileShell()) return;
+    var old = document.querySelector('.rdm-v95-click-shield');
+    if (old) old.remove();
+    var shield = document.createElement('div');
+    shield.className = 'rdm-v95-click-shield';
+    shield.setAttribute('aria-hidden', 'true');
+    shield.addEventListener('click', function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }, true);
+    document.body.appendChild(shield);
+    setTimeout(function(){ try { shield.remove(); } catch (_) {} }, 360);
+  }
+
+  function reopenParentSearchIfNeeded(resourceKey){
+    if (!resourceKey) return;
+    var key = String(resourceKey || '').toLowerCase();
+    var parentKey = '';
+    var focusSelector = '';
+
+    if (key.indexOf('eastons-entry-') === 0) {
+      parentKey = 'eastons-search';
+      focusSelector = '.eastons-search-box, #eastonsSearchBox, [data-lookup-input]';
+    } else if (key.indexOf('smiths-entry-') === 0) {
+      parentKey = 'smiths-search';
+      focusSelector = '.smiths-search-box, #smithsSearchBox, [data-lookup-input]';
+    } else if (key.indexOf('naves-topic-') === 0) {
+      parentKey = 'naves-search';
+      focusSelector = '.naves-search-box, [data-lookup-input]';
+    } else if (key.indexOf('doctrine-topic-') === 0 || key.indexOf('doctrine::') === 0) {
+      parentKey = 'doctrine-search';
+      focusSelector = '.doctrine-search-box, [data-lookup-input]';
+    } else if (key.indexOf('background-topic-') === 0) {
+      parentKey = 'backgrounds-current';
+      focusSelector = '.backgrounds-search-box, [data-lookup-input]';
+    }
+
+    if (!parentKey) return;
+    var parent = document.querySelector('.resource-instance-panel[data-resource-key="' + parentKey + '"]');
+    if (!parent) return;
+
+    parent.classList.add('open');
+    parent.classList.remove('drag-positioned', 'rd-drag-positioned', 'open-up', 'open-down');
+    parent.setAttribute('aria-hidden', 'false');
+    parent.style.display = '';
+    parent.style.zIndex = String(++zBase);
+
+    setTimeout(function(){
+      var input = parent.querySelector(focusSelector);
+      if (input && typeof input.focus === 'function') {
+        try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); }
+      }
+    }, 120);
+  }
+
+  function closeExactResourcePanel(panel){
+    if (!panel) return;
+    var key = panel.dataset ? (panel.dataset.resourceKey || '') : '';
+    panel.classList.remove('open', 'drag-positioned', 'rd-drag-positioned', 'open-up', 'open-down');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.style.display = 'none';
+    // Remove child/detail panels after the click cycle. Parent/search panels are left available if reopened.
+    setTimeout(function(){
+      try {
+        if (key && !/^(eastons-search|smiths-search|naves-search|doctrine-search|backgrounds-current|book-overview|commentary-)/i.test(key)) {
+          panel.remove();
+        }
+      } catch (_) {}
+    }, 80);
+    reopenParentSearchIfNeeded(key);
+  }
+
+  function closeLegacyResourcePanel(panel){
+    if (!panel) return;
+    panel.classList.remove('open', 'drag-positioned', 'rd-drag-positioned', 'open-up', 'open-down');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.style.display = 'none';
+  }
+
+  function isResourceCloseClick(target){
+    if (!target || !target.closest) return null;
+    return target.closest(
+      '.resource-instance-panel .teacher-pop-close, ' +
+      '.resource-instance-panel .resource-close, ' +
+      '#obsCrossRefsPanel #closeObsCrossRefs'
+    );
+  }
+
+  document.addEventListener('click', function(event){
+    if (!isMobileShell()) return;
+    var closeButton = isResourceCloseClick(event.target);
+    if (!closeButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+
+    var resourcePanel = closeButton.closest('.resource-instance-panel');
+    if (resourcePanel) {
+      clearActiveResource();
+      closeExactResourcePanel(resourcePanel);
+      keepStudyResourcesOpenSoon();
+      makeClickShield();
+      return;
+    }
+
+    var legacyPanel = closeButton.closest('#obsCrossRefsPanel');
+    if (legacyPanel) {
+      clearActiveResource();
+      closeLegacyResourcePanel(legacyPanel);
+      keepStudyResourcesOpenSoon();
+      makeClickShield();
+    }
+  }, true);
+
+  // When a sub-resource button is used, keep the parent panel open behind it.
+  document.addEventListener('click', function(event){
+    if (!isMobileShell()) return;
+    if (!event.target || !event.target.closest) return;
+    if (event.target.closest('.resource-instance-panel .dictionary-result-btn, .resource-instance-panel .naves-topic-btn, .resource-instance-panel .doctrine-topic-btn, .resource-instance-panel .doctrine-related-topic-btn, .resource-instance-panel .rdm-background-topic-btn, .resource-instance-panel .study-background-topic-btn')) {
+      clearActiveResource();
+      keepStudyResourcesOpenSoon();
+    }
+  }, false);
+
+  // Mobile rule: passage refreshes may update the key bar, but must not reopen or close study-resource panels.
+  var previousRefresh = null;
+  try { previousRefresh = window.refreshActiveResourcePanel || (typeof refreshActiveResourcePanel === 'function' ? refreshActiveResourcePanel : null); } catch (_) {}
+  function v95SafeMobileRefresh(){
+    if (isMobileShell()) {
+      clearActiveResource();
+      return;
+    }
+    if (typeof previousRefresh === 'function' && previousRefresh !== v95SafeMobileRefresh) {
+      return previousRefresh.apply(this, arguments);
+    }
+  }
+  try { refreshActiveResourcePanel = v95SafeMobileRefresh; } catch (_) {}
+  window.refreshActiveResourcePanel = v95SafeMobileRefresh;
+
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = 'v95-mobile-study-resources-journal-close-mechanics';
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = 'v95-mobile-study-resources-journal-close-mechanics';
 })();
 </script>
 
