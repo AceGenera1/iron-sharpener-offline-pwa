@@ -11,7 +11,7 @@
 <link rel="icon" href="./assets/disciple-journal-logo.png" type="image/png" />
 
 <meta name="theme-color" content="#1D2D44" />
-<title>Iron Sharpener Disciple Journal</title>
+<title>IS Journal</title>
 
 <script id="rdm-v114-two-app-installed-focus-class">
 (function rdmV114TwoAppInstalledFocusClass(){
@@ -7061,6 +7061,99 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 })();
 <\/script>
 
+
+
+<!-- v115 — Two-app installed Journal final label/icon focus cleanup
+     Browser mode keeps Disciple Maker Mode for setup. Installed Home Screen app hides it. -->
+<style id="rdm-v115-two-app-final-hide-maker-style">
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-two-app-installed-journal #studyModeBtn,
+  body.rdm-two-app-installed-journal #studyModeBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+}
+</style>
+<script id="rdm-v115-two-app-final-hide-maker-script">
+(function rdmV115TwoAppFinalHideMaker(){
+  if (window.__rdmV115TwoAppFinalHideMaker) return;
+  window.__rdmV115TwoAppFinalHideMaker = true;
+  function isInstalled(){
+    try {
+      return !!((window.navigator && window.navigator.standalone) ||
+        (window.matchMedia && (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches
+        )));
+    } catch (_) { return false; }
+  }
+  function hide(el){
+    if (!el) return;
+    el.style.setProperty('display','none','important');
+    el.style.setProperty('visibility','hidden','important');
+    el.style.setProperty('pointer-events','none','important');
+    el.style.setProperty('width','0','important');
+    el.style.setProperty('min-width','0','important');
+    el.style.setProperty('max-width','0','important');
+    el.style.setProperty('height','0','important');
+    el.style.setProperty('min-height','0','important');
+    el.style.setProperty('max-height','0','important');
+    el.style.setProperty('padding','0','important');
+    el.style.setProperty('margin','0','important');
+    el.style.setProperty('border','0','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('opacity','0','important');
+    el.setAttribute('hidden','hidden');
+    el.setAttribute('aria-hidden','true');
+    if ('disabled' in el) el.disabled = true;
+  }
+  function apply(){
+    if (!isInstalled()) return;
+    try {
+      document.documentElement.classList.add('rdm-two-app-installed-journal');
+      if (document.body) document.body.classList.add('rdm-two-app-installed-journal');
+      hide(document.getElementById('studyModeBtn'));
+    } catch (_) {}
+  }
+  function pulse(){ [0, 100, 300, 700, 1200, 2500, 4500, 7000, 10000].forEach(function(ms){ setTimeout(apply, ms); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulse); else pulse();
+  window.addEventListener('load', pulse, { once: true });
+  window.addEventListener('pageshow', pulse);
+  window.addEventListener('focus', apply);
+})();
+</script>
+
 </body></html>`;
   }
 
@@ -11353,6 +11446,99 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 <script id="rdm-v112-section-size-no-range-back-marker">
 (function(){ window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v112-section-size-no-range-back-final'; })();
+</script>
+
+
+
+<!-- v115 — Two-app installed Journal final label/icon focus cleanup
+     Browser mode keeps Disciple Maker Mode for setup. Installed Home Screen app hides it. -->
+<style id="rdm-v115-two-app-final-hide-maker-style">
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-two-app-installed-journal #studyModeBtn,
+  body.rdm-two-app-installed-journal #studyModeBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+}
+</style>
+<script id="rdm-v115-two-app-final-hide-maker-script">
+(function rdmV115TwoAppFinalHideMaker(){
+  if (window.__rdmV115TwoAppFinalHideMaker) return;
+  window.__rdmV115TwoAppFinalHideMaker = true;
+  function isInstalled(){
+    try {
+      return !!((window.navigator && window.navigator.standalone) ||
+        (window.matchMedia && (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches
+        )));
+    } catch (_) { return false; }
+  }
+  function hide(el){
+    if (!el) return;
+    el.style.setProperty('display','none','important');
+    el.style.setProperty('visibility','hidden','important');
+    el.style.setProperty('pointer-events','none','important');
+    el.style.setProperty('width','0','important');
+    el.style.setProperty('min-width','0','important');
+    el.style.setProperty('max-width','0','important');
+    el.style.setProperty('height','0','important');
+    el.style.setProperty('min-height','0','important');
+    el.style.setProperty('max-height','0','important');
+    el.style.setProperty('padding','0','important');
+    el.style.setProperty('margin','0','important');
+    el.style.setProperty('border','0','important');
+    el.style.setProperty('overflow','hidden','important');
+    el.style.setProperty('opacity','0','important');
+    el.setAttribute('hidden','hidden');
+    el.setAttribute('aria-hidden','true');
+    if ('disabled' in el) el.disabled = true;
+  }
+  function apply(){
+    if (!isInstalled()) return;
+    try {
+      document.documentElement.classList.add('rdm-two-app-installed-journal');
+      if (document.body) document.body.classList.add('rdm-two-app-installed-journal');
+      hide(document.getElementById('studyModeBtn'));
+    } catch (_) {}
+  }
+  function pulse(){ [0, 100, 300, 700, 1200, 2500, 4500, 7000, 10000].forEach(function(ms){ setTimeout(apply, ms); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulse); else pulse();
+  window.addEventListener('load', pulse, { once: true });
+  window.addEventListener('pageshow', pulse);
+  window.addEventListener('focus', apply);
+})();
 </script>
 
 </body>
