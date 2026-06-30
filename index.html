@@ -28488,5 +28488,270 @@ html.obs #rdmOfflinePanelV105 { display: none !important; }
 })();
 </script>
 
+
+
+<!-- v106 — Offline Ready non-blocking progress cleanup
+     Scope: Offline Ready public UI + tablet browser scroll cleanup only.
+     Keeps the working v105 cache foundation, v112 Journal side, and v38 service worker behavior. -->
+<style id="rdm-v106-offline-progress-no-block-style">
+/* Keep the new public Offline Ready control visible, but never across the whole mobile tool bar. */
+#rdmOfflinePillV105 {
+  max-width: calc(100vw - 32px) !important;
+  white-space: nowrap !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePillV105 {
+  left: auto !important;
+  right: 14px !important;
+  bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 12px) !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(315px, calc(100vw - 28px)) !important;
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  z-index: 82000 !important;
+  font-size: 11px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.26) !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmOfflineTextV105 {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV105 {
+  left: auto !important;
+  right: 14px !important;
+  bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 58px) !important;
+  width: min(380px, calc(100vw - 28px)) !important;
+  max-height: calc(100dvh - var(--rdm-mobile-nav-height, 74px) - 92px) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  z-index: 82001 !important;
+}
+
+/* Override v105's coarse-pointer full-width rule. */
+@media (max-width: 650px), (pointer: coarse) {
+  #rdmOfflinePillV105 {
+    left: auto !important;
+    right: 14px !important;
+    bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 12px) !important;
+    width: auto !important;
+    max-width: min(315px, calc(100vw - 28px)) !important;
+  }
+  #rdmOfflinePanelV105 {
+    left: auto !important;
+    right: 14px !important;
+    bottom: calc(var(--rdm-mobile-nav-height, 74px + env(safe-area-inset-bottom, 0px)) + 58px) !important;
+    width: min(380px, calc(100vw - 28px)) !important;
+  }
+}
+
+.rdm-offline-v106-progress-track {
+  display: block !important;
+  width: 100% !important;
+  height: 12px !important;
+  margin: 12px 0 8px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(122,76,6,.28) !important;
+  background: rgba(255,255,255,.42) !important;
+}
+#rdmOfflineProgressBarV106 {
+  display: block !important;
+  width: 0%;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #8A5A13, #d7a84f) !important;
+  transition: width .25s ease !important;
+}
+#rdmOfflineProgressNoteV106 {
+  margin: 6px 0 0 !important;
+  font: 800 12px Arial, sans-serif !important;
+  opacity: .92 !important;
+}
+body.dark .rdm-offline-v106-progress-track {
+  background: rgba(255,255,255,.10) !important;
+  border-color: rgba(248,217,135,.45) !important;
+}
+body.dark #rdmOfflineProgressBarV106 {
+  background: linear-gradient(90deg, #f8d987, #d7a84f) !important;
+}
+
+/* Tablet Safari/browser cleanup: avoid the extra scrollable blank space below the app. */
+@media (min-width: 700px) and (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .shell {
+    min-height: 100svh !important;
+    padding-bottom: calc(var(--rdm-mobile-nav-height, 82px) + 8px) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .layout {
+    min-height: 0 !important;
+    padding-bottom: calc(var(--rdm-mobile-nav-height, 82px) + 20px) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .scripture {
+    min-height: 0 !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .footer {
+    margin-bottom: 0 !important;
+  }
+}
+</style>
+<script id="rdm-v106-offline-progress-no-block-script">
+(function rdmV106OfflineProgressNoBlock(){
+  if (window.__rdmV106OfflineProgressNoBlock) return;
+  window.__rdmV106OfflineProgressNoBlock = true;
+
+  var running = false;
+  var timer = null;
+  var progress = 0;
+
+  function id(name){ return document.getElementById(name); }
+  function statusKeys(){
+    return [
+      "ironSharpenerUnified.offlineCacheStatus.v105",
+      "ironSharpenerUnified.offlineCacheStatus.v97",
+      "ironSharpenerUnified.offlineCacheStatus.v34",
+      "ironSharpenerUnified.offlineCacheStatus.v26"
+    ];
+  }
+  function readStatus(key){
+    try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; }
+  }
+  function readyFromStorage(){
+    return statusKeys().some(function(key){
+      var status = readStatus(key);
+      return !!(status && (status.complete === true || status.criticalReady === true));
+    });
+  }
+  function ensureUi(){
+    var panel = id("rdmOfflinePanelV105");
+    if (!panel) return;
+    var actions = panel.querySelector(".rdm-offline-v105-actions");
+    if (!id("rdmOfflineProgressTrackV106")) {
+      var track = document.createElement("div");
+      track.id = "rdmOfflineProgressTrackV106";
+      track.className = "rdm-offline-v106-progress-track";
+      track.setAttribute("aria-hidden", "true");
+      track.innerHTML = '<div id="rdmOfflineProgressBarV106"></div>';
+      var note = document.createElement("p");
+      note.id = "rdmOfflineProgressNoteV106";
+      note.textContent = readyFromStorage() ? "This device is ready for offline use." : "Ready to begin.";
+      if (actions) {
+        panel.insertBefore(track, actions);
+        panel.insertBefore(note, actions);
+      } else {
+        panel.appendChild(track);
+        panel.appendChild(note);
+      }
+    }
+  }
+  function setProgress(value, note){
+    ensureUi();
+    progress = Math.max(0, Math.min(100, Number(value) || 0));
+    var bar = id("rdmOfflineProgressBarV106");
+    var label = id("rdmOfflineProgressNoteV106");
+    if (bar) bar.style.width = progress + "%";
+    if (label && note) label.textContent = note;
+  }
+  function publicReadyUi(){
+    var ready = readyFromStorage();
+    var text = id("rdmOfflineTextV105");
+    var msg = id("rdmOfflineMessageV105");
+    var btn = id("rdmOfflineReadyBtnV105");
+    var pill = id("rdmOfflinePillV105");
+    if (pill) {
+      pill.classList.toggle("ready", ready);
+      pill.classList.toggle("offline", !navigator.onLine);
+    }
+    if (text && !running) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (navigator.onLine ? "Offline Setup Needed" : "Offline Setup Needed");
+    if (msg && !running) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : "Tap the button below to prepare Iron Sharpener for offline use on this device.";
+    if (btn && !running) {
+      btn.disabled = false;
+      btn.textContent = ready ? "Offline Ready" : "Prepare Offline Use";
+      btn.removeAttribute("aria-busy");
+    }
+    if (!running) setProgress(ready ? 100 : 0, ready ? "This device is ready for offline use." : "Ready to begin.");
+  }
+  function startFriendlyProgress(){
+    running = true;
+    progress = 6;
+    var panel = id("rdmOfflinePanelV105");
+    if (panel) panel.classList.add("open");
+    var text = id("rdmOfflineTextV105");
+    var msg = id("rdmOfflineMessageV105");
+    var btn = id("rdmOfflineReadyBtnV105");
+    if (text) text.textContent = "Preparing Offline Use";
+    if (msg) msg.textContent = "Preparing Iron Sharpener for offline use. Keep this page open until it finishes.";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Preparing...";
+      btn.setAttribute("aria-busy", "true");
+    }
+    setProgress(progress, "Starting offline setup...");
+    if (timer) clearInterval(timer);
+    timer = setInterval(function(){
+      if (!running) return;
+      if (progress < 35) progress += 5;
+      else if (progress < 70) progress += 3;
+      else if (progress < 92) progress += 1;
+      var note = progress < 35 ? "Gathering offline files..." : (progress < 70 ? "Saving Scripture and study resources..." : "Finishing offline setup...");
+      setProgress(progress, note);
+    }, 450);
+  }
+  function finishFriendlyProgress(ok){
+    running = false;
+    if (timer) clearInterval(timer);
+    timer = null;
+    if (ok || readyFromStorage()) {
+      setProgress(100, "Offline setup complete. This device is ready.");
+    } else {
+      setProgress(0, navigator.onLine ? "Offline setup could not finish. Tap Prepare Offline Use again while online." : "Connect to the internet, then tap Prepare Offline Use again.");
+    }
+    publicReadyUi();
+  }
+  function rewireButton(){
+    ensureUi();
+    var btn = id("rdmOfflineReadyBtnV105");
+    if (btn && btn.dataset.v106Wired !== "1") {
+      var clone = btn.cloneNode(true);
+      clone.dataset.v106Wired = "1";
+      btn.parentNode.replaceChild(clone, btn);
+      clone.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        if (running) return;
+        if (readyFromStorage()) { publicReadyUi(); return; }
+        if (!navigator.onLine) { publicReadyUi(); return; }
+        startFriendlyProgress();
+        Promise.resolve()
+          .then(function(){
+            if (typeof window.rdmPrepareOfflineFilesPublicV105 === "function") return window.rdmPrepareOfflineFilesPublicV105();
+            if (typeof window.rdmPrepareOfflineFilesV97 === "function") return window.rdmPrepareOfflineFilesV97();
+          })
+          .then(function(){ finishFriendlyProgress(true); })
+          .catch(function(){ finishFriendlyProgress(false); });
+      }, false);
+    }
+    var pill = id("rdmOfflinePillV105");
+    if (pill && pill.dataset.v106Wired !== "1") {
+      pill.dataset.v106Wired = "1";
+      pill.addEventListener("click", function(){ setTimeout(function(){ ensureUi(); publicReadyUi(); rewireButton(); }, 25); }, false);
+    }
+  }
+  function init(){
+    ensureUi();
+    publicReadyUi();
+    rewireButton();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  setTimeout(init, 400);
+  setTimeout(init, 1200);
+  window.addEventListener("online", init);
+  window.addEventListener("offline", init);
+})();
+</script>
+
 </body>
 </html>
