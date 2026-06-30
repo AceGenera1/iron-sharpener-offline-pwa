@@ -5,15 +5,32 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>IS Disciple Maker</title>
-<link href="./manifest-maker.json" rel="manifest"/>
+<link href="./manifest-maker.json?v=114" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="IS Disciple Maker"/>
+<meta name="application-name" content="IS Disciple Maker"/>
+<meta property="og:title" content="IS Disciple Maker"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
 <link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
 <link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
 <link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
+
+<script id="rdm-v114-maker-app-title-lock">
+(function rdmV114MakerAppTitleLock(){
+  try {
+    document.title = "IS Disciple Maker";
+    function setMeta(name, value){
+      var el = document.querySelector('meta[name="' + name + '"]');
+      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+      el.setAttribute('content', value);
+    }
+    setMeta("apple-mobile-web-app-title", "IS Disciple Maker");
+    setMeta("application-name", "IS Disciple Maker");
+  } catch (_) {}
+})();
+</script>
 
 <script id="rdm-v112-two-app-installed-focus-class">
 (function rdmV112TwoAppInstalledFocusClass(){
@@ -4835,8 +4852,17 @@ async function loadPassage() {
     const selectedBook = bookSel.value;
     const bookFolder = selectedBook;
     const chapterNumber = chapSel.value;
-    const startVerse = parseInt(startSel.value, 10);
-    const endVerse = parseInt(endSel.value, 10);
+    let startVerse = parseInt(startSel.value, 10);
+    let endVerse = parseInt(endSel.value, 10);
+
+    if (rangeSel && rangeSel.value === "full") {
+      const maxForChapter = (verseCounts[selectedBook] && verseCounts[selectedBook][parseInt(chapterNumber, 10) - 1]) || endVerse || startVerse || 1;
+      startVerse = 1;
+      endVerse = maxForChapter;
+      if (startSel) startSel.value = "1";
+      if (endSel) endSel.value = String(maxForChapter);
+    }
+
     const paddedChapter = String(chapterNumber).padStart(2, "0");
 
     const response = await fetch(
@@ -29765,7 +29791,11 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     var nav = get("rdmMobileAppNav");
     if (!nav) return;
     var journal = nav.querySelector('button[data-rdm-mobile-action="journal"]');
-    if (journal) journal.remove();
+    if (journal) {
+      journal.style.setProperty("display", "none", "important");
+      journal.setAttribute("aria-hidden", "true");
+      journal.setAttribute("tabindex", "-1");
+    }
     try {
       nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
       nav.style.setProperty("gap", "clamp(10px, 2.4vw, 18px)", "important");
@@ -29908,6 +29938,126 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
   else init();
   window.addEventListener("pageshow", function(){ setTimeout(tick, 120); });
+})();
+</script>
+
+
+<!-- v114 — Maker final: Add-to-Home title lock, stable toolbar, text-only offline status -->
+<style id="rdm-v114-maker-final-polish-style">
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(12px, 2.6vw, 22px) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  html:not(.obs) body.rdm-mobile-app-shell #discipleJournalBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-maker-app-focus:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav,
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav,
+  body.rdm-maker-app-focus.rdm-mobile-app-shell #rdmMobileAppNav,
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #rdmMobileAppNav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(12px, 2.6vw, 22px) !important;
+  }
+  html.rdm-maker-app-focus:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  html.rdm-two-app-installed-maker:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  body.rdm-maker-app-focus.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  body.rdm-two-app-installed-maker.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
+  html.rdm-maker-app-focus:not(.obs) body.rdm-mobile-app-shell #discipleJournalBtn,
+  body.rdm-maker-app-focus.rdm-mobile-app-shell #discipleJournalBtn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+/* The progress bar was misleading on iPad; use clear text status instead. */
+#rdmOfflinePanelV107 .rdm-offline-v107-track,
+#rdmOfflinePanelV107 #rdmOfflineBarV107 {
+  display: none !important;
+}
+#rdmOfflineNoteV107 {
+  margin-top: 12px !important;
+  font-weight: 800 !important;
+}
+</style>
+<script id="rdm-v114-maker-final-polish-script">
+(function rdmV114MakerFinalPolish(){
+  if (window.__rdmV114MakerFinalPolish) return;
+  window.__rdmV114MakerFinalPolish = true;
+  function get(id){ return document.getElementById(id); }
+  function isInstalled(){
+    try {
+      return !!((window.navigator && window.navigator.standalone) ||
+        (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches)) ||
+        /(?:^|[?&])app=maker(?:&|$)/.test(window.location.search || ''));
+    } catch (_) { return false; }
+  }
+  function titleLock(){
+    try {
+      document.title = 'IS Disciple Maker';
+      var apple = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (apple) apple.setAttribute('content', 'IS Disciple Maker');
+      var app = document.querySelector('meta[name="application-name"]');
+      if (app) app.setAttribute('content', 'IS Disciple Maker');
+    } catch (_) {}
+  }
+  function stableToolbar(){
+    if (!isInstalled()) return;
+    try {
+      document.documentElement.classList.add('rdm-maker-app-focus', 'rdm-two-app-installed-maker', 'rdm-mobile-standalone-app');
+      if (document.body) document.body.classList.add('rdm-maker-app-focus', 'rdm-two-app-installed-maker');
+      var nav = get('rdmMobileAppNav');
+      if (nav) {
+        nav.style.setProperty('display', 'grid', 'important');
+        nav.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))', 'important');
+        nav.style.setProperty('gap', 'clamp(12px, 2.6vw, 22px)', 'important');
+        var journal = nav.querySelector('button[data-rdm-mobile-action="journal"]');
+        if (journal) {
+          journal.style.setProperty('display', 'none', 'important');
+          journal.style.setProperty('visibility', 'hidden', 'important');
+          journal.style.setProperty('pointer-events', 'none', 'important');
+          journal.setAttribute('aria-hidden', 'true');
+          journal.setAttribute('tabindex', '-1');
+        }
+      }
+      var link = get('discipleJournalBtn');
+      if (link) {
+        link.style.setProperty('display', 'none', 'important');
+        link.style.setProperty('visibility', 'hidden', 'important');
+        link.style.setProperty('pointer-events', 'none', 'important');
+      }
+    } catch (_) {}
+  }
+  function forceFullChapterBeforeLoad(){
+    try {
+      var range = get('rangeSize'), book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
+      if (!range || range.value !== 'full' || !book || !chapter || !start || !end) return;
+      var counts = (window.verseCounts || verseCounts || {})[book.value];
+      var max = counts ? Number(counts[Number(chapter.value || 1) - 1] || end.value || 1) : Number(end.value || 1);
+      start.value = '1';
+      end.value = String(max);
+    } catch (_) {}
+  }
+  function hideOfflineMeter(){
+    try {
+      var track = document.querySelector('#rdmOfflinePanelV107 .rdm-offline-v107-track');
+      var bar = get('rdmOfflineBarV107');
+      if (track) track.style.setProperty('display', 'none', 'important');
+      if (bar) bar.style.setProperty('display', 'none', 'important');
+    } catch (_) {}
+  }
+  function tick(){ titleLock(); stableToolbar(); forceFullChapterBeforeLoad(); hideOfflineMeter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, { once: true });
+  else tick();
+  [150, 500, 1200, 2500].forEach(function(ms){ setTimeout(tick, ms); });
+  window.addEventListener('pageshow', function(){ setTimeout(tick, 100); });
 })();
 </script>
 
