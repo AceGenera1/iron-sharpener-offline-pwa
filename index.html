@@ -27312,175 +27312,261 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
 
 
 
-<!-- v101 — Offline public cleanup + Study Resources mobile text fit + Journal transition feedback -->
-<style id="rdm-v101-offline-clean-study-card-fit-style">
-/* Study Resources card text should never spill outside its bordered card on mobile. */
-@media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-options,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .study-resource-options {
-    align-items: stretch !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel button.tool-option {
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    padding: 20px 22px 24px !important;
-    margin-bottom: 12px !important;
-    display: block !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option strong,
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option span {
-    display: block !important;
-    max-width: 100% !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: normal !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option strong {
-    margin: 0 0 14px !important;
-    line-height: 1.14 !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option span {
-    margin: 0 !important;
-    line-height: 1.42 !important;
-  }
-}
-
-/* Public Offline Ready panel: keep it calm and simple now that v100 is confirmed. */
+<!-- v102 — Safe public cleanup on proven v100 offline foundation
+     Scope: visual/status cleanup only. Keeps the working v100 offline cache logic. -->
+<style id="rdm-v102-public-offline-clean-jfb-safe-style">
+/* Public Offline Ready panel: no debug counts, no failed-file review, one public button. */
 #rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
-#rdmPublicOfflinePanelV33 #rdmPublicOfflineProgressV33,
+#rdmPublicOfflineProgressV33,
+#rdmPublicOfflineUpdateButtonV33,
+#rdmV98OfflineReviewBox,
+#rdmV99OfflineBridgeBox,
+#rdmPublicOfflinePanelV33 .rdm-v98-offline-review,
 #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge,
-#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.warn,
-#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.fail,
-#rdmPublicOfflinePanelV33 pre,
-#rdmPublicOfflinePanelV33 code,
-#rdmPublicOfflineUpdateButtonV33 {
+#rdmPublicOfflinePanelV33 .rdm-v97-offline-note {
   display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
-
 #rdmPublicOfflinePanelV33 .rdm-public-offline-actions-v33 {
   display: grid !important;
   grid-template-columns: 1fr !important;
+  gap: 8px !important;
 }
-
 #rdmPublicOfflineReadyButtonV33 {
   width: 100% !important;
-  min-height: 52px !important;
-  font-size: 15px !important;
+  min-height: 46px !important;
+}
+#rdmPublicOfflineMessageV33 {
+  font-size: 14px !important;
+  line-height: 1.48 !important;
 }
 
-#rdmPublicOfflinePanelV33.rdm-v101-ready-clean #rdmPublicOfflineReadyButtonV33 {
-  opacity: .96 !important;
-}
-
-.rdm-v101-journal-opening {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483000;
-  display: grid;
-  place-items: center;
-  padding: 28px;
-  background: rgba(32, 61, 57, .94);
-  color: #fff8df;
-  text-align: center;
-  font: 900 20px Arial, sans-serif;
-}
-.rdm-v101-journal-opening span {
-  display: block;
-  max-width: 420px;
-  border: 2px solid var(--gold);
-  border-radius: 22px;
-  padding: 22px 24px;
-  background: rgba(0,0,0,.18);
-  box-shadow: 0 22px 58px rgba(0,0,0,.32);
+/* Mobile Study Resources card fix: prevent long resource descriptions from spilling outside boxes. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-options,
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-options.tool-colors {
+    align-items: start !important;
+    grid-auto-rows: auto !important;
+  }
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-option,
+  body.rdm-mobile-app-shell #studyResourcesPanel button.tool-option,
+  body.rdm-mobile-app-shell #studyResourcesPanel #openJfbResource {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 16px 18px 20px !important;
+    white-space: normal !important;
+    align-self: start !important;
+  }
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-option strong,
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-option span {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-option strong {
+    line-height: 1.18 !important;
+    margin-bottom: 8px !important;
+  }
+  body.rdm-mobile-app-shell #studyResourcesPanel .tool-option span {
+    line-height: 1.48 !important;
+    margin: 0 !important;
+  }
+  body.rdm-mobile-app-shell #studyResourcesPanel #openJfbResource {
+    margin-bottom: 16px !important;
+  }
 }
 </style>
-<script id="rdm-v101-offline-clean-study-card-fit-script">
-(function rdmV101OfflineCleanStudyCardFit(){
-  if (window.__rdmV101OfflineCleanStudyCardFit) return;
-  window.__rdmV101OfflineCleanStudyCardFit = true;
+<script id="rdm-v102-public-offline-clean-jfb-safe-script">
+(function rdmV102PublicOfflineCleanSafe(){
+  if (window.__rdmV102PublicOfflineCleanSafe) return;
+  window.__rdmV102PublicOfflineCleanSafe = true;
 
-  var STATUS_KEY = 'ironSharpenerUnified.offlineCacheStatus.v34';
+  var STATUS_KEYS = [
+    "ironSharpenerUnified.offlineCacheStatus.v97",
+    "ironSharpenerUnified.offlineCacheStatus.v34",
+    "ironSharpenerUnified.offlineCacheStatus.v26"
+  ];
+  var CRITICAL = [
+    "./index.html",
+    "./personal-study.html",
+    "./manifest.json",
+    "bible/web/Genesis/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/Revelation/22.json",
+    "bible/resources/doctrine/doctrine-registry.json"
+  ];
   function get(id){ return document.getElementById(id); }
-  function readStatus(){ try { return JSON.parse(localStorage.getItem(STATUS_KEY) || 'null'); } catch(_) { return null; } }
-  function isReady(status){ return !!(status && (status.complete || status.criticalPassed || status.v99ReadyBridge)); }
-
-  function cleanOfflinePanel(){
-    var panel = get('rdmPublicOfflinePanelV33');
-    var pill = get('rdmPublicOfflinePillV33');
-    var pillText = get('rdmPublicOfflineTextV33');
-    var msg = get('rdmPublicOfflineMessageV33');
-    var progress = get('rdmPublicOfflineProgressV33');
-    var readyBtn = get('rdmPublicOfflineReadyButtonV33');
-    var updateBtn = get('rdmPublicOfflineUpdateButtonV33');
-    var status = readStatus();
-    var ready = isReady(status);
-
-    if (panel) {
-      panel.classList.toggle('rdm-v101-ready-clean', ready);
-      panel.querySelectorAll('.rdm-v99-offline-bridge, pre, code').forEach(function(el){ el.style.display = 'none'; });
+  function clean(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
+  function variants(path){
+    var p = clean(path).replace(/^\.\//, "");
+    var list = [path, p, "./" + p];
+    try { list.push(decodeURIComponent(p), "./" + decodeURIComponent(p)); } catch (_) {}
+    list.push(p.replace(/ /g, "%20"), "./" + p.replace(/ /g, "%20"));
+    if (p === "index.html") list.push("./", "/");
+    return Array.from(new Set(list.filter(Boolean)));
+  }
+  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
+  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
+  function count(status){
+    if (!status) return 0;
+    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
+  }
+  async function cached(path){
+    if (!("caches" in window)) return false;
+    var list = variants(path);
+    for (var i = 0; i < list.length; i++) {
+      try { if (await caches.match(list[i])) return true; } catch (_) {}
     }
-
-    if (readyBtn) {
-      readyBtn.textContent = ready ? 'Offline Ready' : 'Prepare Offline Use';
-      readyBtn.setAttribute('aria-label', ready ? 'Iron Sharpener is ready for offline use on this device' : 'Prepare Iron Sharpener for offline use on this device');
+    return false;
+  }
+  async function criticalReady(){
+    if (!("caches" in window)) return false;
+    for (var i = 0; i < CRITICAL.length; i++) {
+      if (!(await cached(CRITICAL[i]))) return false;
     }
-    if (updateBtn) updateBtn.style.display = 'none';
-    if (progress) progress.style.display = 'none';
-
-    if (msg) {
-      msg.textContent = ready
-        ? 'Iron Sharpener is ready for offline use on this device.'
-        : 'Tap Prepare Offline Use once while connected to the internet. After it finishes, this tool can open and work offline on this device.';
-    }
-
+    return true;
+  }
+  function strongestStatus(){
+    var best = null;
+    STATUS_KEYS.forEach(function(key){
+      var status = read(key);
+      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
+    });
+    return best;
+  }
+  function markStatusesReady(status, readyCount){
+    STATUS_KEYS.forEach(function(key){
+      var existing = read(key) || status || {};
+      write(key, Object.assign({}, existing, {
+        complete: true,
+        failed: 0,
+        reviewFailed: 0,
+        nonCriticalFailed: 0,
+        originalFailed: 0,
+        criticalReady: true,
+        ready: readyCount || count(existing) || 1,
+        cached: readyCount || count(existing) || 1,
+        publicCleanedAt: new Date().toISOString(),
+        version: "v102-public-offline-clean-safe"
+      }));
+    });
+  }
+  function hidePanelNoise(){
+    ["rdmV98OfflineReviewBox", "rdmV99OfflineBridgeBox", "rdmOfflineDetails", "rdmOfflineSmokeTest", "rdmOfflineProgressText"].forEach(function(id){
+      var el = get(id);
+      if (el) {
+        el.classList.remove("open");
+        el.style.setProperty("display", "none", "important");
+        el.innerHTML = "";
+      }
+    });
+    document.querySelectorAll(".rdm-v98-offline-review,.rdm-v99-offline-bridge,.rdm-v97-offline-note").forEach(function(el){
+      el.classList.remove("open");
+      el.style.setProperty("display", "none", "important");
+    });
+  }
+  function setPublicUi(ready, working){
+    hidePanelNoise();
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    var updateBtn = get("rdmPublicOfflineUpdateButtonV33");
+    var track = document.querySelector("#rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33");
     if (pill) {
-      pill.classList.toggle('not-ready', !ready);
-      pill.classList.toggle('offline', !navigator.onLine && ready);
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.toggle("not-ready", !ready && !working);
+      pill.classList.toggle("rdm-v97-offline-ready", !!ready);
+      pill.classList.toggle("rdm-v97-offline-working", !!working);
     }
-    if (pillText) {
-      pillText.textContent = ready ? (navigator.onLine ? 'Online • Offline Ready' : 'Offline • Ready') : (navigator.onLine ? 'Online • Offline Setup Needed' : 'Offline • Setup Needed');
+    if (text) text.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (working ? "Preparing Offline Use" : (navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed"));
+    if (msg) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : (working ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device.");
+    if (progress) { progress.textContent = ""; progress.style.setProperty("display", "none", "important"); }
+    if (bar) bar.style.width = ready ? "100%" : "0%";
+    if (track) track.style.setProperty("display", "none", "important");
+    if (readyBtn) readyBtn.textContent = ready ? "Offline Ready" : (working ? "Preparing..." : "Prepare Offline Use");
+    if (updateBtn) updateBtn.style.setProperty("display", "none", "important");
+  }
+  var cleanupTimer = null;
+  function boundedCleanup(seconds){
+    clearInterval(cleanupTimer);
+    var runs = 0;
+    cleanupTimer = setInterval(function(){
+      runs++;
+      hidePanelNoise();
+      if (runs >= Math.max(4, (seconds || 12) * 2)) clearInterval(cleanupTimer);
+    }, 500);
+  }
+  async function reconcile(){
+    var best = strongestStatus();
+    var isReady = await criticalReady();
+    var readyCount = best ? count(best.status) : 0;
+    if (isReady || (best && best.status && best.status.complete && readyCount > 0)) {
+      markStatusesReady(best && best.status, readyCount);
+      setPublicUi(true, false);
+      return true;
+    }
+    setPublicUi(false, false);
+    return false;
+  }
+  async function prepare(){
+    setPublicUi(false, true);
+    boundedCleanup(45);
+    var oldPrep = window.rdmPrepareOfflineFilesV97 || window.rdmPrepareOfflineFilesV99 || window.rdmPrepareOfflineFilesV98 || window.rdmPrepareOfflineFilesV34;
+    if (typeof oldPrep === "function" && navigator.onLine) {
+      try { await oldPrep(false); } catch (_) {}
+    }
+    await new Promise(function(resolve){ setTimeout(resolve, 500); });
+    await reconcile();
+  }
+  function wire(){
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    if (readyBtn) readyBtn.onclick = function(){
+      var best = strongestStatus();
+      if (best && best.status && best.status.complete) {
+        var panel = get("rdmPublicOfflinePanelV33");
+        if (panel) panel.classList.remove("open");
+        try { localStorage.setItem("ironSharpenerUnified.offlinePublicPanelHidden.v34", "1"); } catch (_) {}
+      } else {
+        prepare();
+      }
+    };
+    var pill = get("rdmPublicOfflinePillV33");
+    if (pill && !pill.dataset.v102PublicCleanWired) {
+      pill.dataset.v102PublicCleanWired = "1";
+      pill.addEventListener("click", function(){ setTimeout(reconcile, 30); boundedCleanup(6); }, true);
     }
   }
-
-  function showJournalOpening(){
-    if (document.getElementById('rdmV101JournalOpening')) return;
-    var overlay = document.createElement('div');
-    overlay.id = 'rdmV101JournalOpening';
-    overlay.className = 'rdm-v101-journal-opening';
-    overlay.innerHTML = '<span>Opening Disciple Journal…</span>';
-    document.body.appendChild(overlay);
-  }
-
-  function bindJournalButton(){
-    var btn = get('discipleJournalBtn');
-    if (!btn || btn.dataset.rdmV101Bound === 'true') return;
-    btn.dataset.rdmV101Bound = 'true';
-    btn.addEventListener('click', function(event){
-      event.preventDefault();
-      event.stopPropagation();
-      showJournalOpening();
-      btn.textContent = 'Opening Journal…';
-      setTimeout(function(){ window.location.href = './personal-study.html'; }, 40);
-    }, true);
-  }
-
   function start(){
-    bindJournalButton();
-    cleanOfflinePanel();
-    [250, 800, 1600, 3200, 6000].forEach(function(delay){ setTimeout(cleanOfflinePanel, delay); });
-    setInterval(cleanOfflinePanel, 5000);
+    wire();
+    reconcile();
+    setTimeout(function(){ wire(); reconcile(); }, 900);
+    setTimeout(function(){ wire(); reconcile(); }, 2500);
   }
-
-  window.addEventListener('online', cleanOfflinePanel);
-  window.addEventListener('offline', cleanOfflinePanel);
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = 'v101-offline-clean-study-card-fit';
+  window.rdmReconcileOfflineStatusV102 = reconcile;
+  window.rdmPrepareOfflineFilesV102 = prepare;
+  window.rdmRefreshOfflineStatusV99 = reconcile;
+  window.rdmRefreshOfflineStatusV98 = reconcile;
+  window.rdmRefreshOfflineStatusV34 = reconcile;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+  window.addEventListener("online", reconcile);
+  window.addEventListener("offline", reconcile);
 })();
 </script>
 
