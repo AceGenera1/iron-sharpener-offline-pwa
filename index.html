@@ -26450,10 +26450,17 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
 
     files.add("bible/resources/doctrine/doctrine-registry.json");
     addIndexedFiles(files, "bible/resources/doctrine", await fetchJsonForList("bible/resources/doctrine/doctrine-registry.json"));
+    // v100: Legacy doctrine index files are optional compatibility helpers.
+    // The active doctrine system uses doctrine-registry.json. If these older
+    // split index files are not present in the repo, they must not keep the
+    // whole app from being marked Offline Ready.
     for (var d = 0; d < DOCTRINE_INDEX_FILES.length; d++) {
       var doctrineIndexPath = "bible/resources/doctrine/" + DOCTRINE_INDEX_FILES[d];
-      files.add(doctrineIndexPath);
-      addIndexedFiles(files, "bible/resources/doctrine", await fetchJsonForList(doctrineIndexPath));
+      var doctrineIndexData = await fetchJsonForList(doctrineIndexPath);
+      if (doctrineIndexData) {
+        files.add(doctrineIndexPath);
+        addIndexedFiles(files, "bible/resources/doctrine", doctrineIndexData);
+      }
     }
 
     files.add("bible/resources/backgrounds/index.json");
@@ -27289,6 +27296,17 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
   else start();
 
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v99-offline-ready-status-bridge";
+})();
+</script>
+
+
+<!-- v100 — Offline Ready doctrine-index cleanup
+     The seven old split doctrine index files are legacy optional files.
+     doctrine-registry.json is the active doctrine index, so missing legacy
+     files should not block the green Offline Ready state. -->
+<script id="rdm-v100-offline-doctrine-index-optional-note">
+(function rdmV100OfflineDoctrineIndexOptionalNote(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v100-offline-doctrine-index-optional";
 })();
 </script>
 
