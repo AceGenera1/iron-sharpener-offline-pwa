@@ -3,8 +3,25 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="manifest" href="./manifest-journal.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Disciple Journal" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="./assets/disciple-journal-icon-192.png" />
+<link rel="icon" href="./assets/disciple-journal-icon-192.png" type="image/png" />
+
 <meta name="theme-color" content="#1D2D44" />
 <title>Iron Sharpener: Disciple Journal</title>
+
+<script id="rdm-v113-two-app-standalone-class">
+(function rdmV113TwoAppStandaloneClass(){
+  try {
+    var standalone = !!(window.navigator && window.navigator.standalone) ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    document.documentElement.classList.toggle('rdm-dj-mobile-standalone-app', !!standalone);
+  } catch (_) {}
+})();
+</script>
 <script id="rdm-v102-journal-fit-early-theme">
 (function rdmV102JournalFitEarlyTheme(){
   try {
@@ -3791,6 +3808,16 @@ body.dark .resource-clean-empty {
   }
 }
 </style>
+
+<style id="rdm-v113-two-app-mobile-separation">
+/* v113: two-app mobile setup. In installed mobile/tablet mode, Disciple Journal stays focused on journaling.
+   Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -6871,6 +6898,16 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
 }
 </style>
 
+
+<style id="rdm-v113-two-app-mobile-separation">
+/* v113: two-app mobile setup. In installed mobile/tablet mode, Disciple Journal stays focused on journaling.
+   Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
 </head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div>
