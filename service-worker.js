@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v36 Complete Offline Tool
-   App-shell recovery: keep HTML fresh when online, but serve every cached
-   Scripture/resource/asset file offline across Disciple Maker + Disciple Journal. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v36-complete-tool-20260630";
+/* Iron Sharpener service worker — v37 Fast Offline Navigation
+   App-shell recovery: keep HTML fresh when online, but serve cached navigation quickly
+   when offline/slow so Disciple Maker → Disciple Journal does not stall. */
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v37-fast-offline-nav-20260630";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -187,20 +187,44 @@ async function removeOldHtmlShellEntries() {
   }
 }
 
-async function navigationNetworkFirst(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  try {
-    const response = await fetch(new Request(request, { cache: "reload" }));
-    if (response && response.ok) {
-      await cacheHtmlResponse(cache, response, request);
-      return response;
-    }
-  } catch (_) {}
+function swSleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+async function cachedHtmlForNavigation(cache, request) {
   for (const key of htmlCacheKeysForRequest(request)) {
     const cached = await cache.match(key) || await matchAnyResourceCache(key);
     if (cached) return cached;
   }
+  return null;
+}
+
+async function navigationNetworkFirst(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  const cached = await cachedHtmlForNavigation(cache, request);
+
+  const networkPromise = (async () => {
+    try {
+      const response = await fetch(new Request(request, { cache: "reload" }));
+      if (response && response.ok) {
+        await cacheHtmlResponse(cache, response, request);
+        return response;
+      }
+    } catch (_) {}
+    return null;
+  })();
+
+  if (cached) {
+    const winner = await Promise.race([
+      networkPromise,
+      swSleep(850).then(() => cached)
+    ]);
+    if (winner) return winner;
+    return cached;
+  }
+
+  const response = await networkPromise;
+  if (response) return response;
 
   return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
