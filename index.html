@@ -26981,5 +26981,316 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v98-offline-review code {
 })();
 </script>
 
+
+
+<!-- v99 — Offline Ready status bridge / visible confirmation
+     Purpose: If v97/v98 preparation cached the critical tool files but older
+     readiness code keeps repainting the badge red because of a few non-critical
+     review misses, reconcile the stored status itself and visibly show the
+     active patch/version in the Offline Ready panel. Bounded timers only. -->
+<style id="rdm-v99-offline-ready-status-bridge-style">
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(63,179,119,.38);
+  background: rgba(63,179,119,.10);
+  color: #203D39;
+  font: 900 12px Arial, sans-serif;
+  line-height: 1.4;
+}
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.warn {
+  border-color: rgba(217,159,49,.42);
+  background: rgba(217,159,49,.12);
+}
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.fail {
+  border-color: rgba(212,77,77,.42);
+  background: rgba(212,77,77,.10);
+}
+#rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
+  display: block;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.54);
+  overflow-wrap: anywhere;
+  font: 800 11px Consolas, monospace;
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge {
+  color: #fff6d9;
+  background: rgba(63,179,119,.12);
+  border-color: rgba(63,179,119,.46);
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.warn {
+  background: rgba(217,159,49,.14);
+  border-color: rgba(217,159,49,.48);
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge.fail {
+  background: rgba(212,77,77,.13);
+  border-color: rgba(212,77,77,.48);
+}
+body.dark #rdmPublicOfflinePanelV33 .rdm-v99-offline-bridge code {
+  background: rgba(0,0,0,.20);
+  color: #fff3d7;
+}
+</style>
+<script id="rdm-v99-offline-ready-status-bridge">
+(function rdmV99OfflineReadyStatusBridge(){
+  if (window.__rdmV99OfflineReadyStatusBridge) return;
+  window.__rdmV99OfflineReadyStatusBridge = true;
+
+  var STORAGE_PREFIX = "ironSharpenerUnified";
+  var STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v97";
+  var PANEL_HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v34";
+  var CRITICAL_FILES = [
+    "index.html",
+    "personal-study.html",
+    "manifest.json",
+    "assets/iron-sharpener-logo.png",
+    "assets/disciple-journal-logo.png",
+    "bible/web/Genesis/01.json",
+    "bible/web/1 Chronicles/01.json",
+    "bible/web/2 Chronicles/06.json",
+    "bible/web/2 Chronicles/08.json",
+    "bible/web/1 Corinthians/01.json",
+    "bible/web/Revelation/22.json"
+  ];
+
+  function get(id){ return document.getElementById(id); }
+  function norm(value){
+    var text = String(value || "").trim();
+    text = text.replace(/^https?:\/\/[^/]+\//i, "");
+    text = text.replace(/^\.\//, "").replace(/^\//, "");
+    try { text = decodeURIComponent(text); } catch (_) {}
+    return text;
+  }
+  function readStatus(){
+    try { return JSON.parse(localStorage.getItem(STATUS_KEY) || "null"); }
+    catch (_) { return null; }
+  }
+  function writeStatus(status){
+    try { localStorage.setItem(STATUS_KEY, JSON.stringify(status)); } catch (_) {}
+  }
+  function statusCount(status){
+    if (!status) return 0;
+    return Math.max(
+      Number(status.cached || 0),
+      Number(status.ready || 0),
+      Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0)
+    );
+  }
+  function reviewCount(status){
+    if (!status) return 0;
+    return Math.max(
+      Number(status.reviewFailed || 0),
+      Number(status.nonCriticalFailed || 0),
+      Number(status.originalFailed || 0),
+      Number(status.failed || 0)
+    );
+  }
+  function reviewList(status){
+    if (!status) return [];
+    var list = [];
+    if (Array.isArray(status.reviewFailures)) list = list.concat(status.reviewFailures);
+    if (Array.isArray(status.failures)) list = list.concat(status.failures);
+    var seen = {};
+    return list.filter(function(item){
+      var key = String(item || "");
+      if (!key || seen[key]) return false;
+      seen[key] = true;
+      return true;
+    }).slice(0, 12);
+  }
+
+  async function criticalFilesReady(){
+    if (!window.caches || !caches.keys) return false;
+    try {
+      var names = await caches.keys();
+      var found = Object.create(null);
+      for (var i = 0; i < names.length; i++) {
+        var cache = await caches.open(names[i]);
+        var requests = await cache.keys();
+        for (var j = 0; j < requests.length; j++) {
+          var req = requests[j];
+          var path = "";
+          try { path = new URL(req.url).pathname.replace(/^\//, ""); }
+          catch (_) { path = String(req.url || req); }
+          found[norm(path)] = true;
+        }
+      }
+      return CRITICAL_FILES.every(function(path){ return !!found[norm(path)]; });
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function ensureBridgeBox(kind, html){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (!panel) return;
+    var box = get("rdmV99OfflineBridgeBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "rdmV99OfflineBridgeBox";
+      box.className = "rdm-v99-offline-bridge";
+      panel.appendChild(box);
+    }
+    box.className = "rdm-v99-offline-bridge" + (kind ? " " + kind : "");
+    box.innerHTML = html;
+  }
+
+  function paintReady(status){
+    var failed = reviewCount(status);
+    var count = statusCount(status);
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    var progress = get("rdmPublicOfflineProgressV33");
+    var bar = get("rdmPublicOfflineBarV33");
+    var readyBtn = get("rdmPublicOfflineReadyButtonV33");
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.remove("not-ready", "rdm-v97-offline-needed", "rdm-v97-offline-working");
+      pill.classList.add("rdm-v97-offline-ready");
+    }
+    if (text) text.textContent = navigator.onLine ? "Online • Offline Ready" : "Offline • Ready";
+    if (msg) msg.textContent = failed ? "Iron Sharpener is offline ready. A few non-critical file checks are listed for review." : "Iron Sharpener is fully ready for offline use on this device.";
+    if (progress) progress.textContent = count.toLocaleString() + " files ready on this device." + (failed ? " " + failed + " non-critical review check" + (failed === 1 ? "" : "s") + "." : "");
+    if (bar) bar.style.width = "100%";
+    if (readyBtn) readyBtn.textContent = "Offline Ready";
+
+    var failures = reviewList(status);
+    ensureBridgeBox(failed ? "warn" : "", "<strong>v99 Offline Ready bridge active.</strong><br>Critical files are confirmed, so the badge can stay green." + (failures.length ? "<code>Review only: " + failures.join(" | ") + "</code>" : ""));
+  }
+
+  function paintNeeded(message){
+    var pill = get("rdmPublicOfflinePillV33");
+    var text = get("rdmPublicOfflineTextV33");
+    var msg = get("rdmPublicOfflineMessageV33");
+    if (pill) {
+      pill.classList.toggle("offline", !navigator.onLine);
+      pill.classList.add("not-ready", "rdm-v97-offline-needed");
+      pill.classList.remove("rdm-v97-offline-ready", "rdm-v97-offline-working");
+    }
+    if (text) text.textContent = navigator.onLine ? "Online • Offline Setup Needed" : "Offline • Setup Needed";
+    if (msg) msg.textContent = message || "Offline setup needs to be run once more while online.";
+    ensureBridgeBox("fail", "<strong>v99 Offline Ready bridge active.</strong><br>Critical files are not all confirmed yet. Run Update Offline Files while online and keep the page open.");
+  }
+
+  async function reconcile(){
+    var status = readStatus();
+    var criticalReady = await criticalFilesReady();
+    if (!status || !criticalReady) {
+      paintNeeded(!status ? "No completed offline status is stored yet." : "Critical offline files are not all confirmed yet.");
+      return false;
+    }
+
+    var count = statusCount(status);
+    var failed = reviewCount(status);
+    var failures = reviewList(status);
+    var readyEnough = criticalReady && (count >= CRITICAL_FILES.length || status.complete || count > 100);
+    if (!readyEnough) {
+      paintNeeded("Offline status exists, but the ready count is too low to mark complete yet.");
+      return false;
+    }
+
+    var reconciled = Object.assign({}, status, {
+      complete: true,
+      failed: 0,
+      reviewFailed: failed,
+      nonCriticalFailed: failed,
+      originalFailed: failed,
+      reviewFailures: failures,
+      criticalReady: true,
+      v99ReadyBridge: true,
+      reconciledAt: new Date().toISOString(),
+      version: "v99-offline-ready-status-bridge"
+    });
+    writeStatus(reconciled);
+    paintReady(reconciled);
+    return true;
+  }
+
+  function openPanel(){
+    var panel = get("rdmPublicOfflinePanelV33");
+    if (panel) panel.classList.add("open");
+    try { localStorage.setItem(PANEL_HIDDEN_KEY, "0"); } catch (_) {}
+  }
+
+  function scheduleReconcileSweep(){
+    [300, 900, 1800, 3500, 7000, 12000, 22000, 45000, 90000].forEach(function(ms){
+      window.setTimeout(function(){ wireButtons(); reconcile(); }, ms);
+    });
+  }
+
+  function runOldPrep(force){
+    openPanel();
+    var oldPrep = window.rdmPrepareOfflineFilesV97 || window.rdmPrepareOfflineFilesV98 || window.rdmPrepareOfflineFilesV34;
+    if (typeof oldPrep === "function") {
+      try {
+        var result = oldPrep(!!force);
+        if (result && typeof result.then === "function") {
+          result.then(function(){ window.setTimeout(reconcile, 500); }).catch(function(){ window.setTimeout(reconcile, 500); });
+        }
+      } catch (_) {}
+    }
+    scheduleReconcileSweep();
+  }
+
+  function wireButtons(){
+    var ready = get("rdmPublicOfflineReadyButtonV33");
+    if (ready && !ready.__rdmV99Wired) {
+      ready.__rdmV99Wired = true;
+      ready.addEventListener("click", function(){ scheduleReconcileSweep(); }, true);
+    }
+    if (ready) {
+      ready.onclick = function(){
+        var status = readStatus();
+        if (status && status.complete && status.v99ReadyBridge) {
+          var panel = get("rdmPublicOfflinePanelV33");
+          if (panel) panel.classList.remove("open");
+          try { localStorage.setItem(PANEL_HIDDEN_KEY, "1"); } catch (_) {}
+        } else {
+          runOldPrep(false);
+        }
+      };
+    }
+
+    var update = get("rdmPublicOfflineUpdateButtonV33");
+    if (update && !update.__rdmV99Wired) {
+      update.__rdmV99Wired = true;
+      update.addEventListener("click", function(){ scheduleReconcileSweep(); }, true);
+    }
+    if (update) {
+      update.onclick = function(){
+        if (!navigator.onLine) { reconcile(); return; }
+        runOldPrep(true);
+      };
+    }
+  }
+
+  function start(){
+    wireButtons();
+    reconcile();
+    [700, 1300, 2500, 5000].forEach(function(ms){
+      window.setTimeout(function(){ wireButtons(); reconcile(); }, ms);
+    });
+  }
+
+  window.rdmReconcileOfflineStatusV99 = reconcile;
+  window.rdmPrepareOfflineFilesV99 = runOldPrep;
+  window.rdmRefreshOfflineStatusV34 = reconcile;
+  window.rdmRefreshOfflineStatusV98 = reconcile;
+  window.rdmRefreshOfflineStatusV99 = reconcile;
+  window.rdmUpdateOfflineFilesFastV34 = function(){ return runOldPrep(true); };
+
+  window.addEventListener("online", function(){ scheduleReconcileSweep(); });
+  window.addEventListener("offline", function(){ reconcile(); });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v99-offline-ready-status-bridge";
+})();
+</script>
+
 </body>
 </html>
