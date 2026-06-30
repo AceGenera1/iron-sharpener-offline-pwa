@@ -5,21 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <link rel="manifest" href="./manifest-journal.json" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="Disciple Journal" />
+<meta name="apple-mobile-web-app-title" content="IS Journal" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="apple-touch-icon" href="./assets/disciple-journal-icon-192.png" />
-<link rel="icon" href="./assets/disciple-journal-icon-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="./assets/disciple-journal-logo.png" />
+<link rel="icon" href="./assets/disciple-journal-logo.png" type="image/png" />
 
 <meta name="theme-color" content="#1D2D44" />
-<title>Iron Sharpener: Disciple Journal</title>
+<title>Iron Sharpener Disciple Journal</title>
 
-<script id="rdm-v113-two-app-standalone-class">
-(function rdmV113TwoAppStandaloneClass(){
-  try {
-    var standalone = !!(window.navigator && window.navigator.standalone) ||
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-    document.documentElement.classList.toggle('rdm-dj-mobile-standalone-app', !!standalone);
-  } catch (_) {}
+<script id="rdm-v114-two-app-installed-focus-class">
+(function rdmV114TwoAppInstalledFocusClass(){
+  function isInstalledMobileApp(){
+    try {
+      var standalone = !!(window.navigator && window.navigator.standalone);
+      var displayStandalone = !!(window.matchMedia && (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches
+      ));
+      var touchMobile = !!(window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+      return !!((standalone || displayStandalone) && touchMobile);
+    } catch (_) { return false; }
+  }
+  function apply(){
+    try {
+      var active = isInstalledMobileApp();
+      document.documentElement.classList.toggle('rdm-dj-mobile-standalone-app', active);
+      document.documentElement.classList.toggle('rdm-two-app-installed-journal', active);
+      if (document.body) document.body.classList.toggle('rdm-two-app-installed-journal', active);
+      if (!active) return;
+      var btn = document.getElementById('studyModeBtn');
+      if (btn) {
+        btn.style.display = 'none';
+        btn.setAttribute('hidden', 'hidden');
+        btn.setAttribute('aria-hidden', 'true');
+      }
+    } catch (_) {}
+  }
+  apply();
+  [0, 120, 400, 900, 1600, 2500].forEach(function(ms){ setTimeout(apply, ms); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('load', apply, { once: true });
 })();
 </script>
 <script id="rdm-v102-journal-fit-early-theme">
@@ -3814,6 +3841,20 @@ body.dark .resource-clean-empty {
    Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
   html.rdm-dj-mobile-standalone-app #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
+
+<style id="rdm-v114-two-app-installed-focus-style">
+/* v114: installed mobile app focus. Browser mode still shows Disciple Maker Mode for setup; Home Screen app hides it. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn { display: none !important; }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn,
+  html.rdm-two-app-installed-journal #studyModeBtn,
+  body.rdm-two-app-installed-journal #studyModeBtn {
     display: none !important;
   }
 }
