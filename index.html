@@ -4,83 +4,16 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<link rel="manifest" href="./is-disciple-maker.webmanifest?v=118" />
-<title>IS Disciple Maker</title>
+<title>Iron Sharpener | Scripture Study & Teaching Tool</title>
+<link href="./manifest.json" rel="manifest"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="IS Disciple Maker" />
-<meta name="application-name" content="IS Disciple Maker" />
-<meta property="og:title" content="IS Disciple Maker" />
+<meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
 <link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
 <link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
 <link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
-
-
-<script id="rdm-v118-maker-name-early-lock">
-(function(){
-  try {
-    document.title = "IS Disciple Maker";
-    function metaName(name, value){
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    }
-    metaName('apple-mobile-web-app-title', "IS Disciple Maker");
-    metaName('application-name', "IS Disciple Maker");
-  } catch (_) {}
-})();
-</script>
-<script id="rdm-v114-maker-app-title-lock">
-(function rdmV114MakerAppTitleLock(){
-  try {
-    document.title = "IS Disciple Maker";
-    function setMeta(name, value){
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    }
-    setMeta("apple-mobile-web-app-title", "IS Disciple Maker");
-    setMeta("application-name", "IS Disciple Maker");
-  } catch (_) {}
-})();
-</script>
-
-<script id="rdm-v112-two-app-installed-focus-class">
-(function rdmV112TwoAppInstalledFocusClass(){
-  function hasAppLaunchFlag(){
-    try { return /(?:^|[?&])app=maker(?:[^&]*)?(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
-  }
-  function isInstalledMobileApp(){
-    try {
-      var standalone = !!(window.navigator && window.navigator.standalone);
-      var displayStandalone = !!(window.matchMedia && (
-        window.matchMedia('(display-mode: standalone)').matches ||
-        window.matchMedia('(display-mode: fullscreen)').matches ||
-        window.matchMedia('(display-mode: minimal-ui)').matches
-      ));
-      var touchMobile = !!(window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
-      return !!((standalone || displayStandalone || hasAppLaunchFlag()) && touchMobile);
-    } catch (_) { return false; }
-  }
-  function apply(){
-    try {
-      var active = isInstalledMobileApp();
-      document.documentElement.classList.toggle('rdm-mobile-standalone-app', active);
-      document.documentElement.classList.toggle('rdm-two-app-installed-maker', active);
-      document.documentElement.classList.toggle('rdm-maker-app-focus', active);
-      if (document.body) {
-        document.body.classList.toggle('rdm-two-app-installed-maker', active);
-        document.body.classList.toggle('rdm-maker-app-focus', active);
-      }
-    } catch (_) {}
-  }
-  apply();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
-  window.addEventListener('pageshow', apply);
-})();
-</script>
 <script id="rdm-v85-no-splash-early-theme-prepaint">
 (function rdmV85NoSplashEarlyThemePrepaint(){
   try {
@@ -115,7 +48,7 @@ body.dark { background-color: #203D39; }
   html:not(.obs) body { background-color: #F4EFE3; }
   html:not(.obs) body.dark { background-color: #203D39; }
   html:not(.obs) #rdmMobileAppNav {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
   html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
   html:not(.obs) #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
@@ -2596,10 +2529,6 @@ html.obs .rdm-offline-cache-panel {
 html.obs #discipleJournalBtn { display: none !important; }
 
 </style>
-
-
-
-
 </head>
 <body>
 <div class="shell">
@@ -4829,17 +4758,8 @@ async function loadPassage() {
     const selectedBook = bookSel.value;
     const bookFolder = selectedBook;
     const chapterNumber = chapSel.value;
-    let startVerse = parseInt(startSel.value, 10);
-    let endVerse = parseInt(endSel.value, 10);
-
-    if (rangeSel && rangeSel.value === "full") {
-      const maxForChapter = (verseCounts[selectedBook] && verseCounts[selectedBook][parseInt(chapterNumber, 10) - 1]) || endVerse || startVerse || 1;
-      startVerse = 1;
-      endVerse = maxForChapter;
-      if (startSel) startSel.value = "1";
-      if (endSel) endSel.value = String(maxForChapter);
-    }
-
+    const startVerse = parseInt(startSel.value, 10);
+    const endVerse = parseInt(endSel.value, 10);
     const paddedChapter = String(chapterNumber).padStart(2, "0");
 
     const response = await fetch(
@@ -16286,7 +16206,7 @@ html.obs #rdmPublicOfflinePanelV33 {
     if (panel) panel.classList.add("open");
 
     const cache = await caches.open(CACHE_NAME);
-    const updateFiles = [...new Set(["./index.html", "index.html", "./manifest.json", "./manifest-maker.json", "./manifest-journal.json", "./assets/iron-sharpener-logo.png", ...coreReadyFiles])];
+    const updateFiles = [...new Set(["./index.html", "index.html", "./manifest.json", "./assets/iron-sharpener-logo.png", ...coreReadyFiles])];
     let ready = 0;
     let failed = 0;
 
@@ -16891,7 +16811,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   bottom: 0;
   z-index: 79000;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px));
   border-top: 2px solid var(--gold);
@@ -17107,6 +17027,7 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
       <button type="button" data-rdm-mobile-action="scripture"><span class="rdm-mobile-nav-icon">📖</span><span>Scripture</span></button>
       <button type="button" data-rdm-mobile-action="tools"><span class="rdm-mobile-nav-icon">⚔</span><span>Tools</span></button>
       <button type="button" data-rdm-mobile-action="notes"><span class="rdm-mobile-nav-icon">✎</span><span>Notes</span></button>
+      <button type="button" data-rdm-mobile-action="journal"><span class="rdm-mobile-nav-icon">✚</span><span>Journal</span></button>
     `;
 
     nav.addEventListener("click", function (event) {
@@ -19751,7 +19672,7 @@ html:not(.obs) body.rdm-mobile-app-shell .vnum {
 
 /* Bottom navigation: five true app tabs after Resources was removed. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   min-height: var(--rdm-mobile-nav-height) !important;
   padding: 7px 7px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -19894,7 +19815,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
 /* Tablet touch devices: keep the app feel but avoid stretched controls. */
 @media (min-width: 760px) {
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     width: min(720px, calc(100vw - 28px)) !important;
   }
   html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-passage-open .controls,
@@ -19928,7 +19849,7 @@ html:not(.obs) body.rdm-mobile-app-shell #ironPromptPanel.open button {
     const nav = get("rdmMobileAppNav");
     if (nav) {
       nav.querySelectorAll('button[data-rdm-mobile-action="resources"]').forEach((button) => button.remove());
-      nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
+      nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
     }
   }
 
@@ -20021,7 +19942,7 @@ html:not(.obs) body.rdm-mobile-app-shell .nav-row button {
 
 /* Bottom app nav: equal, device-aware tabs that fill the phone width cleanly. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: clamp(5px, 1.25vw, 9px) !important;
   padding: 8px clamp(8px, 2.2vw, 14px) calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
@@ -20864,7 +20785,7 @@ html:not(.obs) body.rdm-mobile-app-shell {
 /* Bottom app navigation must use the full phone width instead of clustering left. */
 html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   position: fixed !important;
   left: 0 !important;
   right: 0 !important;
@@ -24454,7 +24375,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 
   html:not(.obs) body.rdm-mobile-app-shell .scripture > .controls.rdm-v68-inline-scripture-controls {
@@ -24567,7 +24488,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       passageBtn.classList.remove("active");
     }
 
-    nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
+    nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
 
     if (!nav.querySelector('button[data-rdm-mobile-action="scripture"].active')) {
       const anyActive = nav.querySelector('button.active:not([data-rdm-mobile-action="passage"])');
@@ -24663,7 +24584,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 
   /* Fully retire the older legacy Scripture Back button on mobile so only v76 controls this feature. */
@@ -25167,12 +25088,12 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 */
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
   html:not(.obs) body.rdm-mobile-app-shell {
-    --rdm-mobile-visible-tabs: 3;
+    --rdm-mobile-visible-tabs: 4;
   }
 
   html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
     display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     align-items: stretch !important;
     width: 100% !important;
     max-width: none !important;
@@ -25244,9 +25165,9 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     if (!nav) return;
 
     removeRetiredTabs(nav);
-    nav.style.setProperty("grid-template-columns", "repeat(3, minmax(0, 1fr))", "important");
+    nav.style.setProperty("grid-template-columns", "repeat(4, minmax(0, 1fr))", "important");
 
-    const validActions = new Set(["scripture", "tools", "notes"]);
+    const validActions = new Set(["scripture", "tools", "notes", "journal"]);
     nav.querySelectorAll("button[data-rdm-mobile-action]").forEach(function(btn){
       if (!validActions.has(btn.dataset.rdmMobileAction)) {
         btn.remove();
@@ -26376,10 +26297,6 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
     "personal-study.html",
     "./manifest.json",
     "manifest.json",
-    "./manifest-maker.json",
-    "manifest-maker.json",
-    "./manifest-journal.json",
-    "manifest-journal.json",
     "./assets/iron-sharpener-logo.png",
     "assets/iron-sharpener-logo.png",
     "./assets/disciple-journal-logo.png",
@@ -29386,659 +29303,6 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 </script>
 
-
-<!-- v108 — Offline Ready public progress handoff only
-     Scope: Offline Ready menu/button feedback only. No Scripture, Journal, navigation, or service-worker changes. -->
-<style id="rdm-v108-offline-progress-handoff-style">
-#rdmOfflinePanelV107.rdm-v108-working #rdmOfflineBarV107 {
-  background-size: 34px 34px !important;
-  background-image: linear-gradient(45deg, rgba(255,255,255,.26) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.26) 50%, rgba(255,255,255,.26) 75%, transparent 75%, transparent) !important;
-  animation: rdmV108OfflineBarMove 1.1s linear infinite !important;
-}
-@keyframes rdmV108OfflineBarMove {
-  from { background-position: 0 0; }
-  to { background-position: 34px 0; }
-}
-#rdmOfflineButtonV107.rdm-v108-ready {
-  background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
-  color: #203D39 !important;
-  border-color: #fff1c0 !important;
-}
-#rdmOfflineButtonV107.rdm-v108-working {
-  cursor: wait !important;
-}
-</style>
-<script id="rdm-v108-offline-progress-handoff-script">
-(function rdmV108OfflineProgressHandoffOnly(){
-  if (window.__rdmV108OfflineProgressHandoffOnly) return;
-  window.__rdmV108OfflineProgressHandoffOnly = true;
-
-  var STORAGE_PREFIX = "ironSharpenerUnified";
-  var STATUS_KEYS = [
-    STORAGE_PREFIX + ".offlineCacheStatus.v97",
-    STORAGE_PREFIX + ".offlineCacheStatus.v34",
-    STORAGE_PREFIX + ".offlineCacheStatus.v26",
-    STORAGE_PREFIX + ".offlineCacheStatus.v105"
-  ];
-  var CRITICAL = [
-    "./index.html",
-    "./personal-study.html",
-    "./manifest.json",
-    "bible/web/Genesis/01.json",
-    "bible/web/2 Chronicles/06.json",
-    "bible/web/2 Chronicles/08.json",
-    "bible/web/Revelation/22.json",
-    "bible/resources/doctrine/doctrine-registry.json",
-    "bible/resources/topics/index.json",
-    "bible/resources/backgrounds/index.json"
-  ];
-  var running = false;
-  var pollTimer = null;
-  var lastPercent = 0;
-
-  function get(id){ return document.getElementById(id); }
-  function text(el, value){ if (el) el.textContent = value; }
-  function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
-  function read(key){ try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (_) { return null; } }
-  function write(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
-  function cleanPath(path){ return String(path || "").replace(/^https?:\/\/[^/]+\//i, "").replace(/^\/+/, "").replace(/\/+/g, "/"); }
-  function variants(path){
-    var raw = String(path || "");
-    var p = cleanPath(raw).replace(/^\.\//, "");
-    var decoded = p;
-    try { decoded = decodeURIComponent(p); } catch (_) {}
-    var encoded = p.replace(/ /g, "%20");
-    return Array.from(new Set([raw, p, "./" + p, "/" + p, decoded, "./" + decoded, "/" + decoded, encoded, "./" + encoded, "/" + encoded].filter(Boolean)));
-  }
-  async function cached(path){
-    if (!("caches" in window)) return false;
-    var list = variants(path);
-    for (var i = 0; i < list.length; i++) {
-      try { if (await caches.match(list[i])) return true; } catch (_) {}
-    }
-    return false;
-  }
-  async function criticalReady(){
-    if (!("caches" in window)) return false;
-    for (var i = 0; i < CRITICAL.length; i++) {
-      if (!(await cached(CRITICAL[i]))) return false;
-      if (i % 4 === 0) await sleep(1);
-    }
-    return true;
-  }
-  function count(status){
-    if (!status) return 0;
-    return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
-  }
-  function bestStatus(){
-    var best = null;
-    STATUS_KEYS.forEach(function(key){
-      var status = read(key);
-      if (status && (!best || count(status) > count(best.status))) best = { key: key, status: status };
-    });
-    return best;
-  }
-  function readyFromStorage(){
-    var best = bestStatus();
-    return !!(best && best.status && (best.status.complete === true || best.status.criticalReady === true));
-  }
-  function normalizeReadyStatus(source){
-    var best = bestStatus();
-    var key = (best && best.key) || (STORAGE_PREFIX + ".offlineCacheStatus.v97");
-    var base = Object.assign({}, (best && best.status) || {}, source || {});
-    base.complete = true;
-    base.criticalReady = true;
-    base.failed = 0;
-    base.nonCriticalFailed = Number(base.nonCriticalFailed || base.reviewFailed || base.originalFailed || 0);
-    base.updatedAt = new Date().toISOString();
-    base.version = "v108-public-ready-normalized";
-    write(key, base);
-    write(STORAGE_PREFIX + ".offlineCacheStatus.v97", base);
-  }
-  function ensurePanelOpen(){
-    var panel = get("rdmOfflinePanelV107");
-    if (panel) panel.classList.add("open");
-  }
-  function setProgress(percent, note){
-    lastPercent = Math.max(lastPercent, Math.max(0, Math.min(100, Number(percent) || 0)));
-    var bar = get("rdmOfflineBarV107");
-    if (bar) bar.style.width = lastPercent + "%";
-    if (note) text(get("rdmOfflineNoteV107"), note);
-  }
-  function setButtonState(state){
-    var pill = get("rdmOfflinePillV107");
-    var panel = get("rdmOfflinePanelV107");
-    var btn = get("rdmOfflineButtonV107");
-    var ready = state === "ready";
-    var work = state === "working";
-    if (pill) {
-      pill.classList.toggle("ready", ready);
-      pill.classList.toggle("working", work);
-      pill.classList.toggle("offline", !navigator.onLine);
-    }
-    if (panel) panel.classList.toggle("rdm-v108-working", work);
-    if (btn) {
-      btn.disabled = work;
-      btn.classList.toggle("rdm-v108-ready", ready);
-      btn.classList.toggle("rdm-v108-working", work);
-      btn.textContent = ready ? "Offline Ready" : (work ? "Preparing..." : "Prepare Offline Use");
-      btn.setAttribute("aria-busy", work ? "true" : "false");
-    }
-    text(get("rdmOfflineTextV107"), ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (work ? "Preparing Offline Use" : "Offline Setup Needed"));
-    text(get("rdmOfflineMessageV107"), ready ? "Iron Sharpener is ready for offline use on this device." : (work ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device."));
-  }
-  function hiddenPercent(){
-    var bar = get("rdmPublicOfflineBarV33");
-    if (!bar) return 0;
-    var width = String(bar.style.width || "");
-    var match = width.match(/([0-9]+(?:\.[0-9]+)?)\s*%/);
-    return match ? Math.max(0, Math.min(100, Number(match[1]) || 0)) : 0;
-  }
-  function publicNoteForPercent(percent){
-    if (percent < 18) return "Starting offline setup...";
-    if (percent < 42) return "Saving Scripture for offline use...";
-    if (percent < 68) return "Saving study resources for offline use...";
-    if (percent < 90) return "Preparing Disciple Journal and app files...";
-    if (percent < 100) return "Finalizing offline setup. Keep this page open.";
-    return "Finishing final checks...";
-  }
-  function startPolling(){
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(function(){
-      if (!running) return;
-      var actual = hiddenPercent();
-      if (actual > 0) setProgress(Math.min(actual, 99), publicNoteForPercent(actual));
-      else if (lastPercent < 7) setProgress(7, "Starting offline setup...");
-    }, 450);
-  }
-  function stopPolling(){
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = null;
-  }
-  function finish(ok, note){
-    running = false;
-    stopPolling();
-    setButtonState(ok ? "ready" : "normal");
-    lastPercent = ok ? 100 : 0;
-    var bar = get("rdmOfflineBarV107");
-    if (bar) bar.style.width = (ok ? "100%" : "0%");
-    text(get("rdmOfflineNoteV107"), note || (ok ? "Offline setup complete. This device is ready." : "Offline setup did not finish. Connect to the internet and try again."));
-  }
-  async function runSetup(event){
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-    }
-    if (running) return;
-    ensurePanelOpen();
-    if (readyFromStorage() || await criticalReady()) {
-      normalizeReadyStatus();
-      finish(true);
-      return;
-    }
-    if (!navigator.onLine) {
-      finish(false, "Connect to the internet, then tap Prepare Offline Use again.");
-      return;
-    }
-    running = true;
-    lastPercent = 0;
-    setButtonState("working");
-    setProgress(4, "Starting offline setup...");
-    startPolling();
-    var completed = false;
-    var prepPromise = null;
-    try {
-      if (typeof window.rdmPrepareOfflineFilesV97 === "function") prepPromise = window.rdmPrepareOfflineFilesV97(false);
-      else if (typeof window.rdmPrepareOfflineFilesV34 === "function") prepPromise = window.rdmPrepareOfflineFilesV34(false);
-      else prepPromise = sleep(700);
-    } catch (err) {
-      prepPromise = Promise.reject(err);
-    }
-    var watchdog = (async function(){
-      // Once the underlying checker reaches the final hidden 100% and critical files are confirmed,
-      // the public UI may finish immediately instead of looking frozen during the last hidden cleanup.
-      while (running && !completed) {
-        await sleep(900);
-        if (hiddenPercent() >= 99 && await criticalReady()) {
-          normalizeReadyStatus(bestStatus() && bestStatus().status);
-          completed = true;
-          finish(true);
-          return;
-        }
-      }
-    })();
-    try {
-      await prepPromise;
-      completed = true;
-      var best = bestStatus();
-      if ((best && best.status && (best.status.complete || best.status.criticalReady)) || await criticalReady()) {
-        normalizeReadyStatus(best && best.status);
-        finish(true);
-      } else {
-        finish(false, "Offline setup could not be confirmed. Tap Prepare Offline Use again while online.");
-      }
-    } catch (_) {
-      completed = true;
-      if (await criticalReady()) {
-        normalizeReadyStatus(bestStatus() && bestStatus().status);
-        finish(true);
-      } else {
-        finish(false, "Offline setup did not finish. Keep this page online and try again.");
-      }
-    }
-    try { await watchdog; } catch (_) {}
-  }
-  async function refresh(){
-    if (running) return;
-    if (readyFromStorage() || await criticalReady()) {
-      normalizeReadyStatus();
-      finish(true);
-    } else {
-      setButtonState("normal");
-      setProgress(0, "Ready to begin.");
-    }
-  }
-  function rewireButton(){
-    var old = get("rdmOfflineButtonV107");
-    if (!old || old.dataset.v108Wired === "1") return;
-    var btn = old.cloneNode(true);
-    btn.dataset.v107Wired = "1";
-    btn.dataset.v108Wired = "1";
-    old.parentNode.replaceChild(btn, old);
-    btn.addEventListener("click", runSetup, true);
-  }
-  function init(){
-    rewireButton();
-    refresh();
-  }
-  window.rdmPrepareOfflineFilesPublicV108 = runSetup;
-  window.rdmRefreshOfflineStatusV108 = refresh;
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
-  setTimeout(init, 350);
-  setTimeout(init, 1400);
-  setTimeout(init, 3000);
-  window.addEventListener("online", refresh);
-  window.addEventListener("offline", refresh);
-})();
-</script>
-
-
-
-
-
-
-
-
-
-
-<style id="rdm-v117-maker-title-toolbar-screenlock-final">
-/* v117 final correction: actual Maker manifest title, stable 3-tab toolbar, and iPad/browser screen fit. */
-@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  html:not(.obs),
-  html:not(.obs) body {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    overflow-x: hidden !important;
-    overscroll-behavior-x: none !important;
-    -webkit-text-size-adjust: 100% !important;
-    background-color: #F4EFE3 !important;
-  }
-  html:not(.obs) body.dark { background-color: #203D39 !important; }
-
-  html:not(.obs) body.rdm-mobile-app-shell .shell,
-  html:not(.obs) body.rdm-mobile-app-shell .layout,
-  html:not(.obs) body.rdm-mobile-app-shell main {
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-
-  /* The Maker mobile app source now has exactly three tabs. Keep that layout stable without timed JS. */
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-flow: column !important;
-    justify-content: stretch !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    max-width: none !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    transform: none !important;
-    gap: clamp(10px, 2.3vw, 18px) !important;
-    transition: none !important;
-    animation: none !important;
-    box-sizing: border-box !important;
-  }
-  @media (min-width: 700px) and (max-width: 1180px) {
-    html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-      left: 50% !important;
-      right: auto !important;
-      transform: translateX(-50%) !important;
-      width: min(760px, calc(100vw - 28px)) !important;
-    }
-  }
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="scripture"] { grid-column: 1 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="tools"] { grid-column: 2 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="notes"] { grid-column: 3 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action] {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: none !important;
-    transition: none !important;
-    animation: none !important;
-    box-sizing: border-box !important;
-  }
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"],
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="passage"],
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="resources"] {
-    display: none !important;
-  }
-
-  /* Text-only offline panel. No fake/frozen progress meter. */
-  #rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
-  #rdmPublicOfflineBarV33,
-  #rdmOfflinePanelV107 .rdm-offline-v107-track,
-  #rdmOfflineBarV107,
-  #rdmOfflinePanelV105 .rdm-offline-v105-track,
-  #rdmOfflineBarV105 {
-    display: none !important;
-  }
-}
-</style>
-<script id="rdm-v117-maker-title-fullchapter-only">
-(function rdmV117MakerTitleFullChapterOnly(){
-  if (window.__rdmV117MakerTitleFullChapterOnly) return;
-  window.__rdmV117MakerTitleFullChapterOnly = true;
-  function meta(name, value){
-    try {
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    } catch(_) {}
-  }
-  function lockTitle(){
-    try { document.title = 'IS Disciple Maker'; } catch(_) {}
-    meta('apple-mobile-web-app-title', 'IS Disciple Maker');
-    meta('application-name', 'IS Disciple Maker');
-  }
-  function maxVerse(book, chapter){
-    try {
-      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
-      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
-    } catch(_) { return 1; }
-  }
-  function honorFullChapterOnce(){
-    try {
-      var book = document.getElementById('book');
-      var chapter = document.getElementById('chapter');
-      var start = document.getElementById('start');
-      var end = document.getElementById('end');
-      var size = document.getElementById('rangeSize');
-      if (!book || !chapter || !start || !end || !size || size.value !== 'full') return;
-      var max = maxVerse(book.value || 'Genesis', chapter.value || '1');
-      if (String(start.value) !== '1') start.value = '1';
-      if (String(end.value) !== String(max)) end.value = String(max);
-      try { localStorage.setItem((window.STORAGE_PREFIX || 'ironSharpenerUnified') + '.sectionSize', 'full'); } catch(_) {}
-    } catch(_) {}
-  }
-  function run(){ lockTitle(); honorFullChapterOnce(); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
-  window.addEventListener('pageshow', run);
-})();
-</script>
-
-
-
-<!-- v118 — Clean two-app mode separation: browser keeps Journal, installed Maker removes it -->
-<style id="rdm-v118-clean-two-app-mode-style">
-@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  html:not(.obs),
-  html:not(.obs) body {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    overflow-x: hidden !important;
-    -webkit-text-size-adjust: 100% !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell {
-    position: relative !important;
-    min-height: 100svh !important;
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-    overscroll-behavior-x: none !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell .shell,
-  html:not(.obs) body.rdm-mobile-app-shell .layout,
-  html:not(.obs) body.rdm-mobile-app-shell main {
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Browser/mobile website mode: keep all four buttons so users can move between tools. */
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-browser #rdmMobileAppNav {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    grid-auto-flow: column !important;
-    justify-content: stretch !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    max-width: none !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    transform: none !important;
-    gap: clamp(8px, 1.6vw, 14px) !important;
-    transition: none !important;
-    animation: none !important;
-  }
-
-  /* Installed Maker app mode: true three-button toolbar. Journal is removed from the DOM. */
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-flow: column !important;
-    justify-content: stretch !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    max-width: none !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    transform: none !important;
-    gap: clamp(10px, 2.3vw, 18px) !important;
-    transition: none !important;
-    animation: none !important;
-  }
-
-  @media (min-width: 700px) and (max-width: 1180px) {
-    html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
-      left: 50% !important;
-      right: auto !important;
-      transform: translateX(-50%) !important;
-      width: min(760px, calc(100vw - 28px)) !important;
-      max-width: calc(100vw - 28px) !important;
-    }
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action] {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: none !important;
-    transition: none !important;
-    animation: none !important;
-    box-sizing: border-box !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-browser #rdmMobileAppNav button[data-rdm-mobile-action="scripture"] { grid-column: 1 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-browser #rdmMobileAppNav button[data-rdm-mobile-action="tools"] { grid-column: 2 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-browser #rdmMobileAppNav button[data-rdm-mobile-action="notes"] { grid-column: 3 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-browser #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
-    grid-column: 4 !important;
-    display: inline-flex !important;
-    visibility: visible !important;
-  }
-
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav button[data-rdm-mobile-action="scripture"] { grid-column: 1 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav button[data-rdm-mobile-action="tools"] { grid-column: 2 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav button[data-rdm-mobile-action="notes"] { grid-column: 3 !important; }
-  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav button[data-rdm-mobile-action="journal"] { display: none !important; }
-
-  /* Keep the public/browser header route available, but keep the installed app focused. */
-  html:not(.obs) body.rdm-maker-installed #discipleJournalBtn { display: none !important; }
-  html:not(.obs) body.rdm-maker-browser #discipleJournalBtn { display: inline-flex !important; }
-
-  /* Text-only offline setup status; no frozen-looking meter. */
-  #rdmPublicOfflinePanelV33 .rdm-public-offline-track-v33,
-  #rdmPublicOfflineBarV33,
-  #rdmOfflinePanelV107 .rdm-offline-v107-track,
-  #rdmOfflineBarV107,
-  #rdmOfflinePanelV105 .rdm-offline-v105-track,
-  #rdmOfflineBarV105 {
-    display: none !important;
-  }
-}
-</style>
-<script id="rdm-v118-clean-two-app-mode-script">
-(function rdmV118CleanTwoAppMode(){
-  if (window.__rdmV118CleanTwoAppMode) return;
-  window.__rdmV118CleanTwoAppMode = true;
-
-  var MAKER_NAME = "IS Disciple Maker";
-
-  function qs(sel){ try { return document.querySelector(sel); } catch(_) { return null; } }
-  function byId(id){ return document.getElementById(id); }
-  function mm(query){ try { return !!(window.matchMedia && window.matchMedia(query).matches); } catch(_) { return false; } }
-  function hasAppFlag(){ try { return /(?:^|[?&])app=maker(?:&|$)/.test(window.location.search || ""); } catch(_) { return false; } }
-  function isInstalled(){
-    return !!((window.navigator && window.navigator.standalone) || mm("(display-mode: standalone)") || mm("(display-mode: fullscreen)") || mm("(display-mode: minimal-ui)") || hasAppFlag());
-  }
-  function isTouchLayout(){
-    return mm("(max-width: 1180px), (hover: none), (pointer: coarse)");
-  }
-  function setMeta(name, value){
-    try {
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    } catch(_) {}
-  }
-  function lockMakerName(){
-    try { document.title = MAKER_NAME; } catch(_) {}
-    setMeta('apple-mobile-web-app-title', MAKER_NAME);
-    setMeta('application-name', MAKER_NAME);
-  }
-  function button(action, icon, label){
-    return '<button type="button" data-rdm-mobile-action="' + action + '"><span class="rdm-mobile-nav-icon">' + icon + '</span><span>' + label + '</span></button>';
-  }
-  function markup(installed){
-    var html = '';
-    html += button('scripture', '📖', 'Scripture');
-    html += button('tools', '⚔', 'Tools');
-    html += button('notes', '✎', 'Notes');
-    if (!installed) html += button('journal', '+', 'Journal');
-    return html;
-  }
-  function closeMobileSheets(){
-    try { document.body.classList.remove('rdm-mobile-passage-open', 'rdm-mobile-notes-open'); } catch(_) {}
-  }
-  function closeFloatingPanels(){
-    ['teacherToolsPanel','studyResourcesPanel','obsCrossRefsPanel','obsNavigatorPanel','teachingMethodPanel','ironPromptPanel'].forEach(function(id){
-      var panel = byId(id);
-      if (!panel) return;
-      panel.classList.remove('open','drag-positioned','rd-drag-positioned','open-up','open-down');
-      panel.setAttribute('aria-hidden','true');
-      panel.style.display = '';
-    });
-  }
-  function active(action){
-    var nav = byId('rdmMobileAppNav');
-    if (!nav) return;
-    nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
-      btn.classList.toggle('active', btn.getAttribute('data-rdm-mobile-action') === action);
-    });
-  }
-  function wire(nav){
-    if (!nav || nav.dataset.v118Wired === '1') return;
-    nav.dataset.v118Wired = '1';
-    nav.addEventListener('click', function(event){
-      var btn = event.target && event.target.closest ? event.target.closest('button[data-rdm-mobile-action]') : null;
-      if (!btn || !nav.contains(btn)) return;
-      var action = btn.getAttribute('data-rdm-mobile-action') || '';
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-      if (action === 'scripture') {
-        closeMobileSheets();
-        closeFloatingPanels();
-        var scripture = byId('scriptureBox');
-        if (scripture && scripture.scrollIntoView) scripture.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        active('scripture');
-      } else if (action === 'tools') {
-        closeMobileSheets();
-        if (typeof window.openTeacherTools === 'function') window.openTeacherTools();
-        else if (byId('openTeacherTools')) byId('openTeacherTools').click();
-        active('tools');
-      } else if (action === 'notes') {
-        closeFloatingPanels();
-        document.body.classList.remove('rdm-mobile-passage-open');
-        document.body.classList.add('rdm-mobile-notes-open');
-        active('notes');
-      } else if (action === 'journal') {
-        try { if (typeof window.saveCurrentNotes === 'function') window.saveCurrentNotes(); } catch(_) {}
-        window.location.href = './personal-study.html';
-      }
-    }, true);
-  }
-  function ensureNav(){
-    if (!document.body || !isTouchLayout()) return;
-    var installed = isInstalled();
-    document.body.classList.toggle('rdm-maker-installed', installed);
-    document.body.classList.toggle('rdm-maker-browser', !installed);
-    document.documentElement.classList.toggle('rdm-maker-installed', installed);
-    document.documentElement.classList.toggle('rdm-maker-browser', !installed);
-    var nav = byId('rdmMobileAppNav');
-    if (!nav) {
-      nav = document.createElement('nav');
-      nav.id = 'rdmMobileAppNav';
-      nav.setAttribute('aria-label','Iron Sharpener mobile navigation');
-      document.body.appendChild(nav);
-    }
-    wire(nav);
-    var mode = installed ? 'installed' : 'browser';
-    if (nav.dataset.v118Mode !== mode) {
-      nav.dataset.v118Mode = mode;
-      nav.innerHTML = markup(installed);
-      active('scripture');
-    }
-  }
-  function restoreBrowserRouteButton(){
-    var installed = isInstalled();
-    var btn = byId('discipleJournalBtn');
-    if (btn) {
-      if (installed) btn.style.display = 'none';
-      else btn.style.display = '';
-    }
-  }
-  function apply(){ lockMakerName(); ensureNav(); restoreBrowserRouteButton(); }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
-  window.addEventListener('pageshow', apply);
-  window.addEventListener('resize', function(){ setTimeout(apply, 80); });
-  window.addEventListener('orientationchange', function(){ setTimeout(apply, 220); });
-  window.addEventListener('online', function(){ setTimeout(apply, 120); });
-  window.addEventListener('offline', function(){ setTimeout(apply, 120); });
-  [250, 900, 1800].forEach(function(delay){ setTimeout(apply, delay); });
-})();
-</script>
-
+<!-- v121 single-app stable restore: pre-two-app recovery -->
 </body>
 </html>
