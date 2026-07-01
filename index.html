@@ -4411,7 +4411,7 @@ function showSmallTeachingNoteBox() {
       const max = verseMax();
       const oldStart = parseInt(startSel.value, 10) || 1;
       const oldEnd = parseInt(endSel.value, 10) || oldStart;
-      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
+      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "full";
 
       startSel.innerHTML = "";
       endSel.innerHTML = "";
@@ -6150,7 +6150,7 @@ function goToScriptureReference(ref) {
   fillVerses();
   startSel.value = match[3];
   endSel.value = match[4] || match[3];
- rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
+ rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "full";
 
   $("backToPreviousPassage").style.display = "inline-flex";
 
@@ -6277,6 +6277,25 @@ if (crossRefs) {
 }
 }
 
+
+
+/* v130 — default Section Size is Full Chapter unless the user changes it from this version forward. */
+try {
+  const __rdmSectionTouchedKeyV130 = `${storagePrefix}.sectionSizeUserTouched.v130`;
+  const __rdmSectionKeyV130 = `${storagePrefix}.sectionSize`;
+  if (localStorage.getItem(__rdmSectionTouchedKeyV130) !== "1") {
+    localStorage.setItem(__rdmSectionKeyV130, "full");
+    try {
+      const __savedRefV130 = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
+      if (__savedRefV130 && __savedRefV130.range !== "full") {
+        __savedRefV130.range = "full";
+        __savedRefV130.start = "1";
+        localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify(__savedRefV130));
+      }
+    } catch (_) {}
+  }
+} catch (_) {}
+
  function init() {
   if ($("backToPreviousPassage")) {
     $("backToPreviousPassage").onclick = () => {
@@ -6310,7 +6329,7 @@ if (crossRefs) {
   chapSel.value = saved?.chapter || "1";
   fillVerses();
 
-  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
+  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "full";
   startSel.value = saved?.start || "1";
 
   if (saved?.end) {
@@ -6330,7 +6349,7 @@ if (crossRefs) {
     fillChapters();
     chapSel.value = "1";
     fillVerses();
-    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
+    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "full";
     startSel.value = "1";
     updateEndFromRange();
   });
@@ -6349,6 +6368,7 @@ if (crossRefs) {
 
   rangeSel.onchange = () => saveThenLoad(() => {
     localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
+    localStorage.setItem(`${storagePrefix}.sectionSizeUserTouched.v130`, "1");
     updateEndFromRange();
   });
 
@@ -30727,6 +30747,133 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.addEventListener('resize', function(){ setTimeout(run, 90); });
   window.addEventListener('orientationchange', function(){ setTimeout(run, 220); });
   [160, 500, 1100, 2200].forEach(function(ms){ setTimeout(run, ms); });
+})();
+</script>
+
+
+
+<!-- v130 — Disciple Maker: strong full-chapter render guard + range-only back cleanup -->
+<script id="rdm-v130-maker-fullchapter-rangeback-final">
+(function rdmV130MakerFullchapterRangebackFinal(){
+  if (window.__rdmV130MakerFullchapterRangebackFinal) return;
+  window.__rdmV130MakerFullchapterRangebackFinal = true;
+
+  function get(id){ return document.getElementById(id); }
+  function counts(){ try { return window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}); } catch(_) { return {}; } }
+  function maxVerse(book, chapter){
+    try {
+      var all = counts();
+      var list = all[book] || all[String(book || '').replace(/\b\w/g, function(c){ return c.toUpperCase(); })];
+      var n = list ? Number(list[Number(chapter || 1) - 1] || 1) : 1;
+      return n || 1;
+    } catch(_) { return 1; }
+  }
+  function selectedFull(){ var r = get('rangeSize'); return !!(r && String(r.value) === 'full'); }
+  function currentState(){
+    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
+    if (!book || !chapter || !start || !end) return null;
+    var max = maxVerse(book.value || 'Genesis', chapter.value || '1');
+    return { book: book.value || 'Genesis', chapter: String(chapter.value || '1'), start: start, end: end, max: max };
+  }
+  function forceFullControls(){
+    if (!selectedFull()) return null;
+    var s = currentState();
+    if (!s) return null;
+    if (String(s.start.value) !== '1') s.start.value = '1';
+    if (String(s.end.value) !== String(s.max)) s.end.value = String(s.max);
+    try { localStorage.setItem('ironSharpenerUnified.sectionSize', 'full'); } catch(_) {}
+    return s;
+  }
+  function clean(value){
+    try { if (typeof cleanText === 'function') return cleanText(value); } catch(_) {}
+    return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function renderedCount(){ try { return document.querySelectorAll('#passage .verse[data-v]').length; } catch(_) { return 0; } }
+  function titleText(){ var t = get('refTitle'); return String((t && t.textContent) || '').replace(/\s+/g,' ').trim(); }
+  function isMismatch(){
+    if (!selectedFull()) return false;
+    var s = forceFullControls();
+    if (!s) return false;
+    var count = renderedCount();
+    var title = titleText();
+    if (count > 0 && count < s.max) return true;
+    if (title && title.indexOf('1-' + s.max) === -1) return true;
+    return false;
+  }
+  async function renderFullDirect(reason){
+    var s = forceFullControls();
+    if (!s || window.__rdmV130RenderingFull) return;
+    window.__rdmV130RenderingFull = true;
+    try {
+      var path = './bible/web/' + s.book + '/' + String(s.chapter).padStart(2,'0') + '.json';
+      var res = await fetch(path, { cache: 'force-cache' });
+      if (!res.ok) res = await fetch(path);
+      if (!res.ok) return;
+      var data = await res.json();
+      var verses = Array.isArray(data.verses) ? data.verses : [];
+      var selected = verses.filter(function(v){ return Number(v.verse) >= 1 && Number(v.verse) <= s.max; });
+      var refTitle = get('refTitle'), passage = get('passage');
+      if (!passage || !selected.length) return;
+      if (refTitle) refTitle.textContent = (data.book || s.book) + ' ' + (data.chapter || s.chapter) + ' 1-' + s.max;
+      passage.innerHTML = selected.map(function(v){
+        return '<p class="verse" data-v="' + Number(v.verse) + '"><span class="vnum">' + Number(v.verse) + '</span>' + clean(v.text) + '</p>';
+      }).join('');
+      try { if (typeof activateVerses === 'function') activateVerses(); } catch(_) {}
+      try { if (typeof restoreMarks === 'function') restoreMarks(); } catch(_) {}
+      try { if (typeof loadCurrentNotes === 'function') loadCurrentNotes(); } catch(_) {}
+      try { if (typeof refreshActiveResourcePanel === 'function') refreshActiveResourcePanel(); } catch(_) {}
+      try { localStorage.setItem('ironSharpenerUnified.lastRef', JSON.stringify({ book:s.book, chapter:s.chapter, start:'1', end:String(s.max), range:'full' })); } catch(_) {}
+    } catch(_) {
+    } finally {
+      setTimeout(function(){ window.__rdmV130RenderingFull = false; }, 250);
+    }
+  }
+  function clearRangeBack(){
+    try { window.__rdmCrossReferenceBackStack = []; } catch(_) {}
+    try { window.previousPassageState = null; } catch(_) {}
+    try { previousPassageState = null; } catch(_) {}
+    ['scriptureBackBtn','backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){
+      var el = get(id); if (!el) return;
+      if (id === 'scriptureBackBtn') { el.classList.remove('rdm-scripture-back-visible'); el.setAttribute('aria-hidden','true'); }
+      else el.style.display = 'none';
+    });
+  }
+  function rangeChanged(){
+    window.__rdmV130RangeOnlyUntil = Date.now() + 4200;
+    try { localStorage.setItem('ironSharpenerUnified.sectionSizeUserTouched.v130', '1'); } catch(_) {}
+    [0,80,180,360,700,1200,1900,2800,3900].forEach(function(ms){ setTimeout(clearRangeBack, ms); });
+  }
+  function install(){
+    ['rangeSize','start','end'].forEach(function(id){
+      var el = get(id); if (!el || el.dataset.rdmV130RangeBack === '1') return;
+      el.dataset.rdmV130RangeBack = '1';
+      el.addEventListener('change', rangeChanged, true);
+      el.addEventListener('input', rangeChanged, true);
+    });
+    var existing = (typeof window.loadPassage === 'function' ? window.loadPassage : (typeof loadPassage === 'function' ? loadPassage : null));
+    if (typeof existing === 'function' && !existing.__rdmV130FullChapterGuard) {
+      var wrapped = async function rdmV130FullChapterSafeLoad(){
+        forceFullControls();
+        var result = await existing.apply(this, arguments);
+        forceFullControls();
+        if (Date.now() < (window.__rdmV130RangeOnlyUntil || 0)) clearRangeBack();
+        if (isMismatch()) await renderFullDirect('after-load');
+        return result;
+      };
+      wrapped.__rdmV130FullChapterGuard = true;
+      window.loadPassage = wrapped;
+      try { loadPassage = wrapped; } catch(_) {}
+    }
+  }
+  function tick(){
+    install();
+    forceFullControls();
+    if (Date.now() < (window.__rdmV130RangeOnlyUntil || 0)) clearRangeBack();
+    if (isMismatch()) renderFullDirect('tick');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, { once:true }); else tick();
+  window.addEventListener('pageshow', function(){ setTimeout(tick, 80); setTimeout(tick, 500); });
+  [100,350,800,1400,2400,3800,5600,8000,11000].forEach(function(ms){ setTimeout(tick, ms); });
 })();
 </script>
 
