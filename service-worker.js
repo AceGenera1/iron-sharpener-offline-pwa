@@ -1,6 +1,7 @@
-/* Iron Sharpener service worker — v45 Native Offline Priority (based on proven v43)
-   Purpose: keep the fast page switching from v42, but stop Bible/resource JSON
-   requests from hanging while offline by using the proven tight, cache-first path lookup.
+/* v46 is intentionally the proven v43 cache strategy restored after v45 page-level fetch override slowed Scripture loading. */
+/* Iron Sharpener service worker — v46 Restore Fast Bible JSON Offline
+   Purpose: restore the proven v43 fast page switching and Bible/resource JSON
+   requests from hanging while offline by using a tight, cache-first path lookup.
 
    Notes:
    - Does not change app data or Journal entries.
@@ -8,7 +9,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v45-native-offline-priority-20260701";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v46-restore-fast-bible-json-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
