@@ -1,14 +1,13 @@
 {
-  "name": "IS Disciple Maker",
-  "short_name": "IS Disciple Maker",
-  "description": "Disciple Maker scripture study and teaching tools from Restored Daily Ministries.",
-  "id": "./index.html?app=maker",
-  "start_url": "./index.html?app=maker",
+  "name": "Iron Sharpener",
+  "short_name": "Iron Sharpener",
+  "id": "/",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#203D39",
   "theme_color": "#203D39",
+  "description": "Scripture study and Disciple Journal tool by Restored Daily Ministries.",
   "icons": [
     {
       "src": "./assets/iron-sharpener-logo.png",
