@@ -1,23 +1,23 @@
 {
   "name": "Iron Sharpener",
   "short_name": "Iron Sharpener",
-  "description": "Scripture study and teaching tools from Restored Daily Ministries.",
-  "id": "/index.html?app=iron-sharpener-v124",
-  "start_url": "/index.html?app=iron-sharpener-v124",
-  "scope": "/",
+  "description": "Iron Sharpener Scripture study, teaching tools, and Disciple Journal from Restored Daily Ministries.",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#203D39",
   "theme_color": "#203D39",
   "icons": [
     {
-      "src": "/assets/iron-sharpener-logo.png",
+      "src": "./assets/iron-sharpener-logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/iron-sharpener-logo.png",
+      "src": "./assets/iron-sharpener-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
