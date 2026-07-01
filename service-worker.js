@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v40 Fresh Shell Navigation
+/* Iron Sharpener service worker — v41 Two-App Shell Navigation
    Stable v36 cache foundation plus fast cached navigation for iPad/tablet
    startup and Disciple Maker ↔ Disciple Journal switching. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v40-fresh-shell-20260701";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v41-two-app-shell-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -20,6 +20,10 @@ const CORE_ASSETS = [
   "is-disciple-maker-v122.webmanifest",
   "./is-disciple-journal-v122.webmanifest",
   "is-disciple-journal-v122.webmanifest",
+  "./is-disciple-maker-v124.webmanifest",
+  "is-disciple-maker-v124.webmanifest",
+  "./is-disciple-journal-v124.webmanifest",
+  "is-disciple-journal-v124.webmanifest",
   "./assets/iron-sharpener-logo.png",
   "assets/iron-sharpener-logo.png",
   "./assets/disciple-journal-logo.png",
@@ -213,7 +217,7 @@ async function refreshNavigationInBackground(request) {
 }
 
 async function navigationFastCached(request, event) {
-  // v40: when online, prefer the fresh HTML shell so Safari/Home Screen stops
+  // v41: when online, prefer the fresh HTML shell so Safari/Home Screen stops
   // reopening older cached app versions. If the network is unavailable or slow,
   // fall back to the cached shell quickly.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
