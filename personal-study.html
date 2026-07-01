@@ -3859,13 +3859,13 @@ body.dark .resource-clean-empty {
 <style id="rdm-v114-two-app-installed-focus-style">
 /* v114: installed mobile app focus. Browser mode still shows Disciple Maker Mode for setup; Home Screen app hides it. */
 @media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  #studyModeBtn { display: none !important; }
+  #studyModeBtn { display: inline-flex !important; }
 }
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
   html.rdm-dj-mobile-standalone-app #studyModeBtn,
   html.rdm-two-app-installed-journal #studyModeBtn,
   body.rdm-two-app-installed-journal #studyModeBtn {
-    display: none !important;
+    display: inline-flex !important;
   }
 }
 </style>
@@ -6955,7 +6955,7 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
    Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
 @media (max-width: 1180px), (hover: none), (pointer: coarse) {
   html.rdm-dj-mobile-standalone-app #studyModeBtn {
-    display: none !important;
+    display: inline-flex !important;
   }
 }
 </style>
@@ -7195,7 +7195,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (window.__rdmV127JournalStudyToolButtonBackfix) return;
   window.__rdmV127JournalStudyToolButtonBackfix = true;
 
-  var LABEL = 'Study Tool';
+  var LABEL = 'Teaching Tool';
   function get(id){ return document.getElementById(id); }
 
   function labelStudyToolButton(){
@@ -7223,7 +7223,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
         toast.style.cssText = 'position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2147483000;padding:11px 16px;border-radius:999px;background:rgba(255,249,241,.98);color:#1D2D44;border:1.5px solid #D9A07B;box-shadow:0 14px 32px rgba(0,0,0,.18);font:900 14px Arial,sans-serif;pointer-events:none;';
         document.body.appendChild(toast);
       }
-      toast.textContent = 'Opening Study Tool...';
+      toast.textContent = 'Opening Teaching Tool...';
     } catch (_) {}
     window.location.href = './index.html';
   }
@@ -11739,6 +11739,80 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   window.addEventListener('pageshow', apply);
   window.addEventListener('load', apply, { once:true });
   [100, 350, 900, 1800].forEach(function(ms){ setTimeout(apply, ms); });
+})();
+</script>
+
+
+
+<!-- v130 — Disciple Journal: final Teaching Tool label lock, no button fighting -->
+<style id="rdm-v130-journal-teaching-tool-final-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: 112px !important;
+    max-width: 148px !important;
+    padding: 8px 10px !important;
+    touch-action: manipulation !important;
+  }
+  .heroActions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+  }
+}
+@media (max-width: 430px) {
+  #studyModeBtn { min-width: 98px !important; max-width: 124px !important; font-size: 11px !important; }
+}
+</style>
+<script id="rdm-v130-journal-teaching-tool-final-script">
+(function rdmV130JournalTeachingToolFinal(){
+  if (window.__rdmV130JournalTeachingToolFinal) return;
+  window.__rdmV130JournalTeachingToolFinal = true;
+  function get(id){ return document.getElementById(id); }
+  function lockButton(){
+    var btn = get('studyModeBtn');
+    if (!btn) return;
+    btn.textContent = 'Teaching Tool';
+    btn.setAttribute('aria-label', 'Open Teaching Tool');
+    btn.setAttribute('title', 'Open Teaching Tool');
+    btn.type = 'button';
+    btn.removeAttribute('hidden');
+    btn.removeAttribute('aria-hidden');
+    btn.style.setProperty('display', 'inline-flex', 'important');
+    btn.style.setProperty('visibility', 'visible', 'important');
+    btn.style.setProperty('pointer-events', 'auto', 'important');
+  }
+  function clearRangeBack(){
+    try { window.discipleJournalScriptureBackStack = []; } catch(_) {}
+    try { discipleJournalScriptureBackStack = []; } catch(_) {}
+    try { window.discipleJournalLastLoadedScriptureState = null; } catch(_) {}
+    var b = get('backToScriptureBtn');
+    if (b) { b.classList.remove('has-back-target','rdm-back-restoring'); b.setAttribute('aria-hidden','true'); }
+    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch(_) {}
+  }
+  function rangeChanged(){
+    window.__rdmV130JournalRangeOnlyUntil = Date.now() + 3500;
+    [0,80,180,360,700,1200,2200,3400].forEach(function(ms){ setTimeout(clearRangeBack, ms); });
+  }
+  function installRange(){
+    ['rangeSize','start','end'].forEach(function(id){
+      var el = get(id); if (!el || el.dataset.rdmV130JournalRangeBack === '1') return;
+      el.dataset.rdmV130JournalRangeBack = '1';
+      el.addEventListener('change', rangeChanged, true);
+      el.addEventListener('input', rangeChanged, true);
+    });
+  }
+  function run(){ lockButton(); installRange(); if (Date.now() < (window.__rdmV130JournalRangeOnlyUntil || 0)) clearRangeBack(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
+  window.addEventListener('pageshow', function(){ setTimeout(run, 80); });
 })();
 </script>
 
