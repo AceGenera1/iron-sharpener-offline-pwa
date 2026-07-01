@@ -5889,11 +5889,6 @@ const verseCounts = {
     const now = new Date().toISOString();
     const values = Object.fromEntries(fields.map((id) => [id, $(id).value.trim()]));
     const shouldUpdateExisting = editingSavedEntry && !!currentEntryId;
-    const notes = { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite };
-    const hasGuidedAnswers = guidedNotesHaveContent(notes);
-    const hasFreewriteAnswer = !!scrubPromptOnlyText(notes.freewrite || "").trim();
-    const selectedMode = currentJournalMode();
-    const entryMode = hasGuidedAnswers ? "guided" : (selectedMode === "freewrite" && hasFreewriteAnswer ? "freewrite" : selectedMode);
     return {
       id: shouldUpdateExisting ? currentEntryId : makeId(),
       version: VERSION,
@@ -5903,11 +5898,11 @@ const verseCounts = {
       reference: currentReference(),
       ref: { book: $("book").value, chapter: $("chapter").value, start: $("start").value, end: $("end").value },
       title: values.entryTitle || "",
-      mode: entryMode,
-      notes,
-      tags: entryMode === "freewrite" ? (values.freewriteTags || values.tags || "") : values.tags,
-      favorite: entryMode === "freewrite" ? ($("freewriteFavoriteEntry")?.checked || false) : ($("favoriteEntry")?.checked || false),
-      reviewLater: entryMode === "freewrite" ? ($("freewriteReviewLater")?.checked || false) : ($("reviewLater")?.checked || false)
+      mode: currentJournalMode(),
+      notes: { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite },
+      tags: currentJournalMode() === "freewrite" ? (values.freewriteTags || values.tags || "") : values.tags,
+      favorite: currentJournalMode() === "freewrite" ? ($("freewriteFavoriteEntry")?.checked || false) : ($("favoriteEntry")?.checked || false),
+      reviewLater: currentJournalMode() === "freewrite" ? ($("freewriteReviewLater")?.checked || false) : ($("reviewLater")?.checked || false)
     };
   }
 
@@ -11227,9 +11222,8 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 </script>
 
 
-<!-- v131 — Guided reader/export mode correction marker -->
-<script id="rdm-v131-guided-reader-export-mode-marker">
-(function(){ window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v131-guided-reader-export-fastnav'; })();
+<script id="rdm-v132-journal-clean-export-recovery-marker">
+(function(){ try { window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v132-journal-clean-export-recovery'; } catch (_) {} })();
 </script>
 </body>
 </html>
