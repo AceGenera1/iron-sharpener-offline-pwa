@@ -4,7 +4,49 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<link rel="manifest" href="./manifest.json" />
+
+<script id="rdm-v131-tablet-launch-prepaint-immediate">
+(function rdmV131TabletLaunchPrepaintImmediate(){
+  try {
+    var key = 'ironSharpenerUnified.theme';
+    var theme = 'cream';
+    try { theme = localStorage.getItem(key) || theme; } catch (_) {}
+    var dark = theme === 'dark';
+    var root = document.documentElement;
+    root.classList.add('rdm-v131-launch-prepaint');
+    root.classList.toggle('rdm-v131-launch-dark', dark);
+    root.style.backgroundColor = dark ? '#203D39' : '#F4EFE3';
+    root.style.colorScheme = dark ? 'dark' : 'light';
+  } catch (_) {
+    try {
+      document.documentElement.classList.add('rdm-v131-launch-prepaint');
+      document.documentElement.style.backgroundColor = '#F4EFE3';
+    } catch (__) {}
+  }
+})();
+</script>
+<style id="rdm-v131-tablet-launch-prepaint-css">
+/* v131: first-paint guard moved to the very top of <head> for iPad/tablet home-screen launch. */
+html.rdm-v131-launch-prepaint,
+html.rdm-v131-launch-prepaint body {
+  background: #F4EFE3 !important;
+  margin: 0;
+  min-height: 100%;
+}
+html.rdm-v131-launch-prepaint.rdm-v131-launch-dark,
+html.rdm-v131-launch-prepaint.rdm-v131-launch-dark body {
+  background: #203D39 !important;
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-v131-launch-prepaint,
+  html.rdm-v131-launch-prepaint body {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+}
+</style>
+
+<link rel="manifest" href="./manifest.json?v=131" />
 <title>Iron Sharpener</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
@@ -30879,3 +30921,4 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 </body>
 </html>
+<!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
