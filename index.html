@@ -4,10 +4,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<link rel="manifest" href="./is-iron-sharpener-v124.webmanifest" />
+<link rel="manifest" href="./manifest.json" />
 <title>Iron Sharpener</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="Iron Sharpener" />
+<meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
 <meta name="application-name" content="Iron Sharpener" />
 <meta property="og:title" content="Iron Sharpener" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -30345,6 +30345,152 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.addEventListener('pageshow', runAndReload);
   window.addEventListener('load', function(){ setTimeout(runAndReload, 150); }, { once:true });
   [300, 800, 1500, 2600, 4200].forEach(function(ms){ setTimeout(runAndReload, ms); });
+})();
+</script>
+
+
+
+<!-- v126 — Single app polish: full-chapter render guard + range-only back cleanup -->
+<script id="rdm-v126-single-app-fullchapter-rangeback-cleanup">
+(function rdmV126SingleAppFullChapterRangeBackCleanup(){
+  if (window.__rdmV126SingleAppFullChapterRangeBackCleanup) return;
+  window.__rdmV126SingleAppFullChapterRangeBackCleanup = true;
+
+  function get(id){ return document.getElementById(id); }
+  function counts(){ try { return window.verseCounts || (typeof verseCounts !== "undefined" ? verseCounts : {}); } catch (_) { return {}; } }
+  function maxVerse(book, chapter){
+    try {
+      var c = counts()[book];
+      var n = c ? Number(c[Number(chapter || 1) - 1] || 1) : 1;
+      return n || 1;
+    } catch (_) { return 1; }
+  }
+  function clean(value){
+    try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {}
+    return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  function lockSingleManifestTitle(){
+    try { document.title = "Iron Sharpener"; } catch (_) {}
+    try {
+      var link = document.querySelector('link[rel="manifest"]');
+      if (!link) { link = document.createElement('link'); link.rel = 'manifest'; document.head.appendChild(link); }
+      link.href = './manifest.json';
+    } catch (_) {}
+    try {
+      ["apple-mobile-web-app-title", "application-name"].forEach(function(name){
+        var meta = document.querySelector('meta[name="' + name + '"]');
+        if (!meta) { meta = document.createElement('meta'); meta.name = name; document.head.appendChild(meta); }
+        meta.content = "Iron Sharpener";
+      });
+    } catch (_) {}
+  }
+  function fullSelected(){
+    var range = get("rangeSize");
+    return !!(range && String(range.value || "") === "full");
+  }
+  function enforceFullControls(){
+    if (!fullSelected()) return null;
+    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end");
+    if (!book || !chapter || !start || !end) return null;
+    var max = maxVerse(book.value || "Genesis", chapter.value || "1");
+    start.value = "1";
+    end.value = String(max);
+    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
+    return { book: book.value || "Genesis", chapter: String(chapter.value || "1"), max: max };
+  }
+  async function renderFullDirect(reason){
+    var state = enforceFullControls();
+    if (!state) return false;
+    if (window.__rdmV126DirectFullRendering) return false;
+    window.__rdmV126DirectFullRendering = true;
+    try {
+      var chapterPadded = String(state.chapter).padStart(2, "0");
+      var response = await fetch("bible/web/" + state.book + "/" + chapterPadded + ".json");
+      if (!response.ok) return false;
+      var data = await response.json();
+      var verses = Array.isArray(data.verses) ? data.verses : [];
+      var selected = verses.filter(function(v){ return Number(v.verse) >= 1 && Number(v.verse) <= state.max; });
+      var refTitle = get("refTitle");
+      var passage = get("passage");
+      if (!passage) return false;
+      if (refTitle) refTitle.textContent = (data.book || state.book) + " " + (data.chapter || state.chapter) + " 1-" + state.max;
+      passage.innerHTML = selected.map(function(v){
+        return '<p class="verse" data-v="' + Number(v.verse) + '"><span class="vnum">' + Number(v.verse) + '</span>' + clean(v.text) + '</p>';
+      }).join("");
+      try { if (typeof activateVerses === "function") activateVerses(); } catch (_) {}
+      try { if (typeof restoreMarks === "function") restoreMarks(); } catch (_) {}
+      try { if (typeof loadCurrentNotes === "function") loadCurrentNotes(); } catch (_) {}
+      try { if (typeof refreshActiveResourcePanel === "function") refreshActiveResourcePanel(); } catch (_) {}
+      try {
+        localStorage.setItem("ironSharpenerUnified.lastRef", JSON.stringify({ book: state.book, chapter: state.chapter, start: "1", end: String(state.max), range: "full" }));
+      } catch (_) {}
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      setTimeout(function(){ window.__rdmV126DirectFullRendering = false; }, 300);
+    }
+  }
+  function fullMismatch(){
+    if (!fullSelected()) return false;
+    var state = enforceFullControls();
+    if (!state) return false;
+    var passage = get("passage");
+    if (!passage) return false;
+    var rendered = passage.querySelectorAll(".verse[data-v]").length;
+    var title = String((get("refTitle") && get("refTitle").textContent) || "").replace(/\s+/g," ").trim();
+    if (rendered && rendered < state.max) return true;
+    if (title && title.indexOf("1-" + state.max) === -1) return true;
+    return false;
+  }
+  function clearRangeOnlyBackTargets(){
+    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    ["scriptureBackBtn", "backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      if (id === "scriptureBackBtn") el.classList.remove("rdm-scripture-back-visible");
+      else el.style.display = "none";
+    });
+    try { if (typeof window.rdmUpdateScriptureBackButtonV39 === "function") window.rdmUpdateScriptureBackButtonV39(); } catch (_) {}
+  }
+  function installRangeCleanup(){
+    ["rangeSize", "start", "end"].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV126RangeCleanup === "1") return;
+      el.dataset.rdmV126RangeCleanup = "1";
+      el.addEventListener("change", function(){
+        setTimeout(clearRangeOnlyBackTargets, 0);
+        setTimeout(clearRangeOnlyBackTargets, 160);
+      }, true);
+    });
+  }
+  function installLoadGuard(){
+    var existing = (typeof window.loadPassage === "function" ? window.loadPassage : (typeof loadPassage === "function" ? loadPassage : null));
+    if (typeof existing !== "function" || existing.__rdmV126FullGuard) return;
+    var wrapped = async function rdmV126FullChapterLoadGuard(){
+      lockSingleManifestTitle();
+      enforceFullControls();
+      var result = await existing.apply(this, arguments);
+      enforceFullControls();
+      if (fullMismatch()) await renderFullDirect("after-load-mismatch");
+      return result;
+    };
+    wrapped.__rdmV126FullGuard = true;
+    window.loadPassage = wrapped;
+    try { loadPassage = wrapped; } catch (_) {}
+  }
+  function run(){
+    lockSingleManifestTitle();
+    installRangeCleanup();
+    installLoadGuard();
+    enforceFullControls();
+    setTimeout(function(){ if (fullMismatch()) renderFullDirect("startup-mismatch"); }, 120);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once:true }); else run();
+  window.addEventListener("pageshow", function(){ setTimeout(run, 60); setTimeout(function(){ if (fullMismatch()) renderFullDirect("pageshow"); }, 240); });
+  [350, 900, 1800, 3200].forEach(function(ms){ setTimeout(function(){ run(); if (fullMismatch()) renderFullDirect("timer"); }, ms); });
 })();
 </script>
 
