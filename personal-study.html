@@ -7164,6 +7164,155 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 })();
 <\/script>
 
+
+
+<!-- v127 — Disciple Journal: stable top Study Tool button + range-only changes do not create Back target -->
+<style id="rdm-v127-journal-study-tool-button-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: 106px !important;
+    max-width: 132px !important;
+    touch-action: manipulation !important;
+  }
+  .heroActions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+  }
+}
+</style>
+<script id="rdm-v127-journal-study-tool-button-backfix">
+(function rdmV127JournalStudyToolButtonBackfix(){
+  if (window.__rdmV127JournalStudyToolButtonBackfix) return;
+  window.__rdmV127JournalStudyToolButtonBackfix = true;
+
+  var LABEL = 'Study Tool';
+  function get(id){ return document.getElementById(id); }
+
+  function labelStudyToolButton(){
+    try {
+      var btn = get('studyModeBtn');
+      if (!btn) return;
+      btn.textContent = LABEL;
+      btn.setAttribute('aria-label', 'Open the Scripture study and teaching tool');
+      btn.removeAttribute('hidden');
+      btn.removeAttribute('aria-hidden');
+      btn.style.setProperty('display', 'inline-flex', 'important');
+      btn.style.setProperty('visibility', 'visible', 'important');
+      btn.style.setProperty('pointer-events', 'auto', 'important');
+    } catch (_) {}
+  }
+
+  function openStudyTool(){
+    try { if (typeof saveCurrentDraftNow === 'function') saveCurrentDraftNow(); } catch (_) {}
+    try { if (typeof persistCurrentEntry === 'function') persistCurrentEntry(); } catch (_) {}
+    try {
+      var toast = get('rdmModeSwitchToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'rdmModeSwitchToast';
+        toast.style.cssText = 'position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2147483000;padding:11px 16px;border-radius:999px;background:rgba(255,249,241,.98);color:#1D2D44;border:1.5px solid #D9A07B;box-shadow:0 14px 32px rgba(0,0,0,.18);font:900 14px Arial,sans-serif;pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = 'Opening Study Tool...';
+    } catch (_) {}
+    window.location.href = './index.html';
+  }
+
+  document.addEventListener('click', function(event){
+    var btn = event.target && event.target.closest ? event.target.closest('#studyModeBtn') : null;
+    if (!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    openStudyTool();
+  }, true);
+
+  function hideBackTarget(){
+    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
+    var btn = get('backToScriptureBtn');
+    if (btn) {
+      btn.classList.remove('has-back-target', 'rdm-back-restoring');
+      btn.setAttribute('aria-hidden', 'true');
+      btn.textContent = '← Back to Scripture';
+    }
+    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
+  }
+
+  function rangeOnlyChanged(){
+    window.__rdmV127JournalRangeOnlyChangeUntil = Date.now() + 2200;
+    [0, 40, 120, 280, 620, 1100, 1800, 2300].forEach(function(delay){
+      setTimeout(hideBackTarget, delay);
+    });
+  }
+
+  function installRangeOnlyListeners(){
+    ['rangeSize','start','end'].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV127JournalRangeBackFix === '1') return;
+      el.dataset.rdmV127JournalRangeBackFix = '1';
+      el.addEventListener('change', rangeOnlyChanged, true);
+      el.addEventListener('input', rangeOnlyChanged, true);
+    });
+  }
+
+  function wrapBackFunctions(){
+    try {
+      var originalRemember = (typeof rememberPreviousScriptureState === 'function') ? rememberPreviousScriptureState : window.rememberPreviousScriptureState;
+      if (typeof originalRemember === 'function' && !originalRemember.__rdmV127RangeBackFix) {
+        var wrappedRemember = function rdmV127RangeSafeRememberPreviousScriptureState(state){
+          if (Date.now() < (window.__rdmV127JournalRangeOnlyChangeUntil || 0)) {
+            hideBackTarget();
+            return;
+          }
+          return originalRemember.apply(this, arguments);
+        };
+        wrappedRemember.__rdmV127RangeBackFix = true;
+        window.rememberPreviousScriptureState = wrappedRemember;
+        try { rememberPreviousScriptureState = wrappedRemember; } catch (_) {}
+      }
+    } catch (_) {}
+
+    try {
+      var originalUpdate = (typeof updateBackToScriptureButton === 'function') ? updateBackToScriptureButton : window.updateBackToScriptureButton;
+      if (typeof originalUpdate === 'function' && !originalUpdate.__rdmV127RangeBackFix) {
+        var wrappedUpdate = function rdmV127RangeSafeUpdateBackToScriptureButton(){
+          var result = originalUpdate.apply(this, arguments);
+          if (Date.now() < (window.__rdmV127JournalRangeOnlyChangeUntil || 0)) hideBackTarget();
+          return result;
+        };
+        wrappedUpdate.__rdmV127RangeBackFix = true;
+        window.updateBackToScriptureButton = wrappedUpdate;
+        try { updateBackToScriptureButton = wrappedUpdate; } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  function run(){
+    labelStudyToolButton();
+    installRangeOnlyListeners();
+    wrapBackFunctions();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
+  window.addEventListener('pageshow', function(){ setTimeout(run, 80); });
+  window.addEventListener('resize', function(){ setTimeout(labelStudyToolButton, 80); });
+  window.addEventListener('orientationchange', function(){ setTimeout(labelStudyToolButton, 180); });
+  [80, 250, 700, 1300, 2400, 3900, 5200].forEach(function(ms){ setTimeout(labelStudyToolButton, ms); });
+})();
+</script>
+
 </body></html>`;
   }
 
