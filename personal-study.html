@@ -3881,7 +3881,7 @@ body.dark .resource-clean-empty {
     </div>
     <div>
       <div class="heroActions">
-        <button class="ghost" id="studyModeBtn" type="button">Maker</button>
+        <button class="ghost" id="studyModeBtn" type="button">Teaching Tool</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
       <div class="verseCard">
@@ -11610,61 +11610,6 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 <!-- v116: restored safe Journal script, real Journal icon, readable app label support. -->
 
 
-<!-- v123 — Journal top Maker button restored for two-app navigation -->
-<style id="rdm-v123-journal-top-maker-button-style">
-@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  #studyModeBtn {
-    display: inline-flex !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    min-width: 96px !important;
-  }
-  .heroActions {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 10px !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-  }
-}
-</style>
-<script id="rdm-v123-journal-top-maker-button-script">
-(function rdmV123JournalTopMakerButton(){
-  if (window.__rdmV123JournalTopMakerButton) return;
-  window.__rdmV123JournalTopMakerButton = true;
-  function restore(){
-    try {
-      var btn = document.getElementById('studyModeBtn');
-      if (!btn) return;
-      btn.textContent = 'Maker';
-      btn.removeAttribute('hidden');
-      btn.removeAttribute('aria-hidden');
-      btn.style.removeProperty('display');
-      btn.style.setProperty('display', 'inline-flex', 'important');
-      btn.style.setProperty('visibility', 'visible', 'important');
-      btn.style.setProperty('pointer-events', 'auto', 'important');
-      if (!btn.dataset.rdmV123TopMakerFallback) {
-        btn.dataset.rdmV123TopMakerFallback = '1';
-        btn.addEventListener('click', function(){
-          try { if (typeof saveCurrentDraftNow === 'function') saveCurrentDraftNow(); } catch (_) {}
-          setTimeout(function(){ window.location.href = './index.html'; }, 0);
-        }, false);
-      }
-    } catch (_) {}
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once:true }); else restore();
-  window.addEventListener('pageshow', restore);
-  window.addEventListener('load', restore, { once:true });
-  [100, 400, 900, 1700, 2700, 3800].forEach(function(ms){ setTimeout(restore, ms); });
-})();
-</script>
-
-
-
 <!-- v126 — Single app Journal recovery: section-size back cleanup + bottom nav lock -->
 <script id="rdm-v126-journal-single-app-recovery">
 (function rdmV126JournalSingleAppRecovery(){
@@ -11729,50 +11674,73 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 </script>
 
 
-
-<!-- v128 — final Journal recovery: safe Study Tool button label/click after all legacy patches -->
-<script>
-(function rdmV128JournalStudyToolButtonFinal(){
-  if (window.__rdmV128JournalStudyToolButtonFinal) return;
-  window.__rdmV128JournalStudyToolButtonFinal = true;
-
-  function goToStudyTool(event){
-    if (event) {
-      try { event.preventDefault(); event.stopPropagation(); } catch (_) {}
-    }
-    try { sessionStorage.setItem('rdmReturnFromJournalV126', '1'); } catch (_) {}
-    try { document.body.classList.add('rdm-switching-to-study-tool'); } catch (_) {}
+<!-- v129 — Disciple Journal: stable Teaching Tool top button, no Maker/Study Tool label fighting -->
+<style id="rdm-v129-journal-teaching-tool-button-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: 116px !important;
+    max-width: 148px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  .heroActions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+  }
+}
+@media (max-width: 430px) {
+  #studyModeBtn {
+    min-width: 96px !important;
+    max-width: 118px !important;
+    font-size: 11px !important;
+  }
+}
+</style>
+<script id="rdm-v129-journal-teaching-tool-button-script">
+(function rdmV129JournalTeachingToolButton(){
+  if (window.__rdmV129JournalTeachingToolButton) return;
+  window.__rdmV129JournalTeachingToolButton = true;
+  function openTeachingTool(event){
+    if (event) { try { event.preventDefault(); event.stopPropagation(); } catch (_) {} }
+    try { if (typeof saveCurrentDraftNow === 'function') saveCurrentDraftNow(); } catch (_) {}
+    try { sessionStorage.setItem('rdmReturnFromJournalV129', '1'); } catch (_) {}
     window.location.href = './index.html';
   }
-
-  function applyStudyToolButton(){
+  function apply(){
     var btn = document.getElementById('studyModeBtn');
     if (!btn) return;
-    btn.textContent = 'Study Tool';
-    btn.setAttribute('aria-label', 'Open Study Tool');
-    btn.setAttribute('title', 'Open Study Tool');
+    btn.textContent = 'Teaching Tool';
+    btn.setAttribute('aria-label', 'Open Scripture Study and Teaching Tool');
+    btn.setAttribute('title', 'Open Teaching Tool');
     btn.type = 'button';
-    if (btn.dataset.rdmV128StudyToolFinal === '1') return;
-    var clone = btn.cloneNode(true);
-    clone.dataset.rdmV128StudyToolFinal = '1';
-    clone.addEventListener('click', goToStudyTool, { passive: false });
-    btn.parentNode.replaceChild(clone, btn);
+    btn.removeAttribute('hidden');
+    btn.removeAttribute('aria-hidden');
+    btn.style.setProperty('display', 'inline-flex', 'important');
+    btn.style.setProperty('visibility', 'visible', 'important');
+    btn.style.setProperty('pointer-events', 'auto', 'important');
+    if (btn.dataset.rdmV129TeachingToolClick !== '1') {
+      var clone = btn.cloneNode(true);
+      clone.dataset.rdmV129TeachingToolClick = '1';
+      clone.addEventListener('click', openTeachingTool, true);
+      btn.parentNode.replaceChild(clone, btn);
+    }
   }
-
-  function pulse(){
-    applyStudyToolButton();
-    [80, 250, 700, 1300, 2400].forEach(function(ms){
-      setTimeout(applyStudyToolButton, ms);
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', pulse, { once: true });
-  } else {
-    pulse();
-  }
-  window.addEventListener('pageshow', pulse);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('load', apply, { once:true });
+  [100, 350, 900, 1800].forEach(function(ms){ setTimeout(apply, ms); });
 })();
 </script>
+
 </body>
 </html>
