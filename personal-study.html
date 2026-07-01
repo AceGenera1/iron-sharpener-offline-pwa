@@ -7311,7 +7311,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.addEventListener('orientationchange', function(){ setTimeout(labelStudyToolButton, 180); });
   [80, 250, 700, 1300, 2400, 3900, 5200].forEach(function(ms){ setTimeout(labelStudyToolButton, ms); });
 })();
-</script>
+<\/script>
 
 </body></html>`;
   }
@@ -11728,5 +11728,51 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 })();
 </script>
 
+
+
+<!-- v128 — final Journal recovery: safe Study Tool button label/click after all legacy patches -->
+<script>
+(function rdmV128JournalStudyToolButtonFinal(){
+  if (window.__rdmV128JournalStudyToolButtonFinal) return;
+  window.__rdmV128JournalStudyToolButtonFinal = true;
+
+  function goToStudyTool(event){
+    if (event) {
+      try { event.preventDefault(); event.stopPropagation(); } catch (_) {}
+    }
+    try { sessionStorage.setItem('rdmReturnFromJournalV126', '1'); } catch (_) {}
+    try { document.body.classList.add('rdm-switching-to-study-tool'); } catch (_) {}
+    window.location.href = './index.html';
+  }
+
+  function applyStudyToolButton(){
+    var btn = document.getElementById('studyModeBtn');
+    if (!btn) return;
+    btn.textContent = 'Study Tool';
+    btn.setAttribute('aria-label', 'Open Study Tool');
+    btn.setAttribute('title', 'Open Study Tool');
+    btn.type = 'button';
+    if (btn.dataset.rdmV128StudyToolFinal === '1') return;
+    var clone = btn.cloneNode(true);
+    clone.dataset.rdmV128StudyToolFinal = '1';
+    clone.addEventListener('click', goToStudyTool, { passive: false });
+    btn.parentNode.replaceChild(clone, btn);
+  }
+
+  function pulse(){
+    applyStudyToolButton();
+    [80, 250, 700, 1300, 2400].forEach(function(ms){
+      setTimeout(applyStudyToolButton, ms);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pulse, { once: true });
+  } else {
+    pulse();
+  }
+  window.addEventListener('pageshow', pulse);
+})();
+</script>
 </body>
 </html>
