@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<link rel="manifest" href="./is-disciple-journal-v124.webmanifest" />
+<link rel="manifest" href="./manifest.json" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="IS Disciple Journal" />
 <meta name="application-name" content="IS Disciple Journal" />
@@ -7124,7 +7124,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   else registerAndWarm();
   window.addEventListener('pageshow', function(){ setTimeout(registerAndWarm, 120); });
 })();
-</script>
+<\/script>
 
 
 
@@ -7149,7 +7149,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
   window.addEventListener('pageshow', apply);
 })();
-</script>
+<\/script>
 
 
 
@@ -7162,7 +7162,7 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
   window.addEventListener('pageshow', apply);
 })();
-</script>
+<\/script>
 
 </body></html>`;
   }
@@ -11511,6 +11511,71 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   window.addEventListener('pageshow', restore);
   window.addEventListener('load', restore, { once:true });
   [100, 400, 900, 1700, 2700, 3800].forEach(function(ms){ setTimeout(restore, ms); });
+})();
+</script>
+
+
+
+<!-- v126 — Single app Journal recovery: section-size back cleanup + bottom nav lock -->
+<script id="rdm-v126-journal-single-app-recovery">
+(function rdmV126JournalSingleAppRecovery(){
+  if (window.__rdmV126JournalSingleAppRecovery) return;
+  window.__rdmV126JournalSingleAppRecovery = true;
+  function get(id){ return document.getElementById(id); }
+  function lockSingleManifest(){
+    try {
+      var link = document.querySelector('link[rel="manifest"]');
+      if (!link) { link = document.createElement('link'); link.rel = 'manifest'; document.head.appendChild(link); }
+      link.href = './manifest.json';
+    } catch (_) {}
+  }
+  function clearRangeOnlyBackTargets(){
+    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    ["scriptureBackBtn", "backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      if (id === "scriptureBackBtn") el.classList.remove("rdm-scripture-back-visible");
+      else el.style.display = "none";
+    });
+    try { if (typeof window.rdmUpdateScriptureBackButtonV39 === "function") window.rdmUpdateScriptureBackButtonV39(); } catch (_) {}
+  }
+  function installRangeCleanup(){
+    ["rangeSize", "start", "end"].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV126JournalRangeCleanup === "1") return;
+      el.dataset.rdmV126JournalRangeCleanup = "1";
+      el.addEventListener("change", function(){
+        setTimeout(clearRangeOnlyBackTargets, 0);
+        setTimeout(clearRangeOnlyBackTargets, 160);
+      }, true);
+    });
+  }
+  function lockBottomNav(){
+    var cssId = "rdm-v126-journal-bottom-nav-lock-style";
+    if (!document.getElementById(cssId)) {
+      var style = document.createElement("style");
+      style.id = cssId;
+      style.textContent = `
+        @media (max-width: 1180px), (hover: none), (pointer: coarse) {
+          #rdmJournalMobileNav, .rdm-dj-mobile-nav, .mobile-nav, nav[aria-label*="Journal" i] {
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 9999 !important;
+            transform: translateZ(0) !important;
+          }
+          body { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  function run(){ lockSingleManifest(); installRangeCleanup(); lockBottomNav(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once:true }); else run();
+  window.addEventListener("pageshow", function(){ setTimeout(run, 80); });
 })();
 </script>
 
