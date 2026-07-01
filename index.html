@@ -30128,5 +30128,163 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v123 — Installed Maker mobile: move Journal access to top header beside Dark button -->
+<style id="rdm-v123-maker-top-journal-button-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV123 {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: clamp(7px, 1.4vw, 10px) !important;
+    min-width: 0 !important;
+    max-width: 42vw !important;
+    z-index: 74010 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    position: static !important;
+    transform: none !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    min-height: 40px !important;
+    border-radius: 999px !important;
+    padding: 8px 10px !important;
+    font: 900 clamp(11px, 1.75vw, 13px) Arial, sans-serif !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123 {
+    display: none !important;
+    min-width: clamp(74px, 11vw, 96px) !important;
+    max-width: clamp(74px, 11vw, 104px) !important;
+    background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+    color: #203D39 !important;
+    border: 1.8px solid var(--gold) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.16) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileTopJournalBtnV123 {
+    background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+    color: #203D39 !important;
+    border-color: #fff1c0 !important;
+  }
+
+  /* In installed Maker mode, keep bottom nav as true 3 buttons and put Journal beside Dark. */
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileTopJournalBtnV123 {
+    display: inline-flex !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.rdm-maker-installed #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+  }
+}
+
+@media (max-width: 430px) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV123 {
+    max-width: 45vw !important;
+    gap: 6px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    min-width: 64px !important;
+    max-width: 82px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 11px !important;
+  }
+}
+</style>
+<script id="rdm-v123-maker-top-journal-button-script">
+(function rdmV123MakerTopJournalButton(){
+  if (window.__rdmV123MakerTopJournalButton) return;
+  window.__rdmV123MakerTopJournalButton = true;
+
+  function mm(q){ try { return !!(window.matchMedia && window.matchMedia(q).matches); } catch(_) { return false; } }
+  function isTouch(){ return mm('(max-width: 1180px), (hover: none), (pointer: coarse)'); }
+  function isInstalled(){
+    try {
+      return !!((window.navigator && window.navigator.standalone) || mm('(display-mode: standalone)') || mm('(display-mode: fullscreen)') || mm('(display-mode: minimal-ui)') || /(?:^|[?&])app=maker(?:&|$)/.test(window.location.search || ''));
+    } catch(_) { return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+
+  function ensureTopJournal(){
+    if (!document.body || !isTouch()) return;
+    var hero = document.querySelector('.hero');
+    if (!hero) return;
+
+    var wrap = byId('rdmMobileTopActionsV123');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'rdmMobileTopActionsV123';
+      wrap.setAttribute('aria-label', 'Mobile app quick actions');
+      hero.appendChild(wrap);
+    }
+
+    var journal = byId('rdmMobileTopJournalBtnV123');
+    if (!journal) {
+      journal = document.createElement('button');
+      journal.id = 'rdmMobileTopJournalBtnV123';
+      journal.type = 'button';
+      journal.className = 'secondary';
+      journal.textContent = 'Journal';
+      journal.setAttribute('aria-label', 'Open Disciple Journal');
+      journal.addEventListener('click', function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        try { if (typeof window.saveCurrentNotes === 'function') window.saveCurrentNotes(); } catch(_) {}
+        window.location.href = './personal-study.html';
+      }, true);
+    }
+
+    var theme = byId('rdmMobileThemeToggle');
+    if (journal.parentNode !== wrap) wrap.appendChild(journal);
+    if (theme && theme.parentNode !== wrap) wrap.appendChild(theme);
+    if (theme && wrap.lastElementChild !== theme) wrap.appendChild(theme);
+
+    var installed = isInstalled();
+    document.body.classList.toggle('rdm-maker-installed', installed);
+    document.body.classList.toggle('rdm-maker-browser', !installed);
+    journal.style.display = installed ? 'inline-flex' : 'none';
+  }
+
+  function scrubInstalledBottomJournal(){
+    try {
+      if (!isInstalled()) return;
+      var nav = byId('rdmMobileAppNav');
+      if (!nav) return;
+      nav.querySelectorAll('button[data-rdm-mobile-action="journal"]').forEach(function(btn){ btn.remove(); });
+      nav.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+    } catch(_) {}
+  }
+
+  function apply(){ ensureTopJournal(); scrubInstalledBottomJournal(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('resize', function(){ setTimeout(apply, 80); });
+  window.addEventListener('orientationchange', function(){ setTimeout(apply, 220); });
+  window.addEventListener('online', function(){ setTimeout(apply, 120); });
+  window.addEventListener('offline', function(){ setTimeout(apply, 120); });
+  [120, 350, 900, 1800].forEach(function(delay){ setTimeout(apply, delay); });
+})();
+</script>
+
 </body>
 </html>
