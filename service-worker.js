@@ -1,14 +1,19 @@
-/* Iron Sharpener service worker — v43 Fast Bible JSON Offline
-   Purpose: keep the fast page switching from v42, but stop Bible/resource JSON
-   requests from hanging while offline by using a tight, cache-first path lookup.
+/* Iron Sharpener service worker — v44 Instant Tablet App Shell + Fast Bible JSON Offline
+   Purpose: keep the v43 Bible/resource JSON fix, but make iPad/tablet app startup faster.
+
+   What changed from v43:
+   - Navigation no longer scans old resource caches before returning the page shell.
+   - index.html / personal-study.html are matched from the current shell cache first.
+   - Old caches are used only as a quick fallback when the current shell is missing.
+   - Background refresh happens after the cached shell has already been served.
 
    Notes:
    - Does not change app data or Journal entries.
-   - Keeps current HTML shells fast.
-   - Does not scan every old cache for every verse file.
+   - Does not change Offline Ready preparation.
+   - Keeps the fast Bible JSON lookup that fixed offline Scripture loading.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v43-fast-bible-json-offline-20260701";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v44-instant-tablet-shell-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -273,12 +278,71 @@ async function tightResourceMatch(requestOrPath) {
   return null;
 }
 
-async function cachedHtmlForNavigation(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  for (const key of htmlCacheKeysForRequest(request)) {
-    const cached = await cache.match(key, { ignoreSearch: true }) || await tightResourceMatch(key);
-    if (cached) return cached;
+function shellPathForNavigation(request) {
+  try {
+    const url = new URL(request.url);
+    let path = url.pathname.replace(/^\/+/, "");
+    if (!path || path.endsWith("/")) path = "index.html";
+    if (path !== "personal-study.html") path = "index.html";
+    return path;
+  } catch (_) {
+    return "index.html";
   }
+}
+
+function exactShellKeysForNavigation(request) {
+  const path = shellPathForNavigation(request);
+  const keys = [path, `./${path}`, `/${path}`];
+  if (path === "index.html") keys.push("./", "/");
+  return [...new Set(keys)];
+}
+
+async function matchShellInCache(cache, keys) {
+  for (const key of keys) {
+    try {
+      const cached = await cache.match(key, { ignoreSearch: true });
+      if (cached) return cached;
+    } catch (_) {}
+  }
+  return null;
+}
+
+async function cachedHtmlForNavigation(request) {
+  const keys = exactShellKeysForNavigation(request);
+
+  // Critical v44 speed fix: return the app shell from the current cache directly.
+  // Do not scan every old offline resource cache during app launch.
+  try {
+    const currentCache = await caches.open(IRON_SHARPENER_CACHE);
+    const currentShell = await matchShellInCache(currentCache, keys);
+    if (currentShell) return currentShell;
+  } catch (_) {}
+
+  // Fast fallback only: check known shell caches directly without resource variant scans.
+  try {
+    const existing = await caches.keys();
+    const quickNames = [IRON_SHARPENER_CACHE]
+      .concat(KNOWN_RESOURCE_CACHES)
+      .concat(existing.filter((name) => name.startsWith(IRON_SHARPENER_CACHE_PREFIX) && /v4[0-3]|v3[6-9]|complete|public-ready|final-offline-sync/i.test(name)));
+    const seen = new Set();
+    for (const name of quickNames) {
+      if (!name || seen.has(name) || !existing.includes(name)) continue;
+      seen.add(name);
+      try {
+        const cache = await caches.open(name);
+        const cached = await matchShellInCache(cache, keys);
+        if (cached) {
+          // Copy into v44 current shell cache for the next app launch.
+          try {
+            const current = await caches.open(IRON_SHARPENER_CACHE);
+            await cacheHtmlResponse(current, cached.clone(), request);
+          } catch (_) {}
+          return cached;
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+
   return null;
 }
 
@@ -310,15 +374,15 @@ async function navigationFastCached(request, event) {
     } catch (_) {}
   }
 
-  let wantsJournal = false;
-  try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
-  if (wantsJournal) {
+  const path = shellPathForNavigation(request);
+  if (path === "personal-study.html") {
     return (await cache.match("./personal-study.html")) ||
       (await cache.match("personal-study.html")) ||
       new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
   }
   return (await cache.match("./index.html")) ||
     (await cache.match("index.html")) ||
+    (await cache.match("./")) ||
     new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
