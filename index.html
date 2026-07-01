@@ -30589,5 +30589,146 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v129 — Single-app mobile/browser: keep top Disciple Journal button visible without touching offline -->
+<style id="rdm-v129-maker-top-disciple-journal-browser-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV129 {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: clamp(7px, 1.4vw, 10px) !important;
+    min-width: 0 !important;
+    max-width: 50vw !important;
+    z-index: 74010 !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV129,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    position: static !important;
+    transform: none !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    min-height: 40px !important;
+    border-radius: 999px !important;
+    padding: 8px 10px !important;
+    font: 900 clamp(10px, 1.55vw, 13px) Arial, sans-serif !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV129 {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: clamp(86px, 13vw, 132px) !important;
+    max-width: clamp(96px, 16vw, 148px) !important;
+    background: linear-gradient(180deg, #fffaf0, #fff0cf) !important;
+    color: #203D39 !important;
+    border: 1.8px solid var(--gold) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.16) !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileTopJournalBtnV129 {
+    background: linear-gradient(180deg, #f8d987, #d7a84f) !important;
+    color: #203D39 !important;
+    border-color: #fff1c0 !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[data-rdm-mobile-action="journal"] {
+    display: none !important;
+  }
+}
+@media (max-width: 430px) {
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV129 {
+    max-width: 48vw !important;
+    gap: 6px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV123,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV129,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    min-width: 66px !important;
+    max-width: 104px !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+    font-size: 10.5px !important;
+  }
+}
+</style>
+<script id="rdm-v129-maker-top-disciple-journal-browser-script">
+(function rdmV129MakerTopDiscipleJournalBrowser(){
+  if (window.__rdmV129MakerTopDiscipleJournalBrowser) return;
+  window.__rdmV129MakerTopDiscipleJournalBrowser = true;
+  function mm(q){ try { return !!(window.matchMedia && window.matchMedia(q).matches); } catch(_) { return false; } }
+  function isMobileLike(){ return mm('(max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)'); }
+  function byId(id){ return document.getElementById(id); }
+  function openJournal(event){
+    if (event) { try { event.preventDefault(); event.stopPropagation(); } catch(_) {} }
+    try { if (typeof window.saveCurrentNotes === 'function') window.saveCurrentNotes(); } catch(_) {}
+    window.location.href = './personal-study.html';
+  }
+  function ensureTopJournal(){
+    if (!document.body || !isMobileLike()) return;
+    var hero = document.querySelector('.hero');
+    if (!hero) return;
+    var wrap = byId('rdmMobileTopActionsV123') || byId('rdmMobileTopActionsV129');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'rdmMobileTopActionsV129';
+      wrap.setAttribute('aria-label', 'Mobile quick actions');
+      hero.appendChild(wrap);
+    }
+    var btn = byId('rdmMobileTopJournalBtnV123') || byId('rdmMobileTopJournalBtnV129');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'rdmMobileTopJournalBtnV129';
+      btn.type = 'button';
+      btn.className = 'secondary';
+    }
+    btn.textContent = 'Disciple Journal';
+    btn.setAttribute('aria-label', 'Open Disciple Journal');
+    btn.setAttribute('title', 'Open Disciple Journal');
+    btn.style.setProperty('display', 'inline-flex', 'important');
+    btn.style.setProperty('visibility', 'visible', 'important');
+    btn.style.setProperty('pointer-events', 'auto', 'important');
+    if (btn.dataset.rdmV129JournalClick !== '1') {
+      btn.dataset.rdmV129JournalClick = '1';
+      btn.addEventListener('click', openJournal, true);
+    }
+    var theme = byId('rdmMobileThemeToggle');
+    if (btn.parentNode !== wrap) wrap.appendChild(btn);
+    if (theme && theme.parentNode !== wrap) wrap.appendChild(theme);
+    if (theme && wrap.lastElementChild !== theme) wrap.appendChild(theme);
+    try {
+      var nav = byId('rdmMobileAppNav');
+      if (nav) {
+        nav.querySelectorAll('button[data-rdm-mobile-action="journal"]').forEach(function(old){ old.remove(); });
+        nav.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+      }
+    } catch(_) {}
+  }
+  function run(){ ensureTopJournal(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
+  window.addEventListener('pageshow', run);
+  window.addEventListener('resize', function(){ setTimeout(run, 90); });
+  window.addEventListener('orientationchange', function(){ setTimeout(run, 220); });
+  [160, 500, 1100, 2200].forEach(function(ms){ setTimeout(run, ms); });
+})();
+</script>
+
 </body>
 </html>
