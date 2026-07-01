@@ -2642,6 +2642,105 @@ html.obs #discipleJournalBtn { display: none !important; }
 
 
 
+
+<script id="rdm-v134-native-offline-bible-fetch">
+(function rdmV134NativeOfflineBibleFetch(){
+  if (window.__rdmV134NativeOfflineBibleFetch) return;
+  window.__rdmV134NativeOfflineBibleFetch = true;
+
+  var nativeFetch = window.fetch ? window.fetch.bind(window) : null;
+  if (!nativeFetch) return;
+
+  var chapterMemory = new Map();
+  var cacheNameMemory = null;
+  var CACHE_NAMES = [
+    'iron-sharpener-offline-v105-public-ready-cache',
+    'iron-sharpener-offline-v36-complete-tool-20260630',
+    'iron-sharpener-offline-v43-fast-bible-json-offline-20260701',
+    'iron-sharpener-offline-v44-instant-tablet-shell-20260701',
+    'iron-sharpener-offline-v42-fast-resource-cache-navigation-20260701',
+    'iron-sharpener-offline-v41-single-app-fast-navigation-20260701',
+    'iron-sharpener-offline-v40-fresh-shell-navigation-20260701',
+    'iron-sharpener-offline-v34-final-offline-sync-20260627',
+    'iron-sharpener-offline-v26-public-lock-20260626'
+  ];
+
+  function cleanPath(value){
+    return String(value || '')
+      .replace(/^https?:\/\/[^/]+\//i, '')
+      .replace(/^\/+/, '')
+      .replace(/^\.\//, '')
+      .replace(/^\.\.\//, '')
+      .replace(/\/+/, '/');
+  }
+  function decodeSafe(value){ try { return decodeURIComponent(value); } catch(_) { return value; } }
+  function canonicalBiblePath(input){
+    try {
+      var raw = (typeof input === 'string') ? input : (input && input.url) ? input.url : String(input || '');
+      var path = raw;
+      try { path = new URL(raw, window.location.href).pathname; } catch(_) {}
+      path = cleanPath(path);
+      path = decodeSafe(path);
+      var i = path.indexOf('bible/web/');
+      if (i >= 0) path = path.slice(i);
+      if (!/^bible\/web\/.+\.json$/i.test(path)) return '';
+      return path;
+    } catch(_) { return ''; }
+  }
+  function variants(path){
+    var decoded = decodeSafe(path);
+    var encoded = path.replace(/ /g, '%20');
+    return Array.from(new Set([
+      path, './' + path, '/' + path,
+      decoded, './' + decoded, '/' + decoded,
+      encoded, './' + encoded, '/' + encoded
+    ]));
+  }
+  async function getCacheNames(){
+    if (cacheNameMemory) return cacheNameMemory;
+    try {
+      var existing = await caches.keys();
+      var names = [];
+      function add(name){ if (name && existing.indexOf(name) !== -1 && names.indexOf(name) === -1) names.push(name); }
+      CACHE_NAMES.forEach(add);
+      existing.filter(function(name){ return /^iron-sharpener-offline-/.test(name) && /complete|public-ready|fast-bible|resource|navigation|shell|final-offline-sync/i.test(name); }).forEach(add);
+      cacheNameMemory = names;
+      return names;
+    } catch(_) { return []; }
+  }
+  async function matchBible(path){
+    if (!('caches' in window)) return null;
+    var keys = variants(path);
+    var names = await getCacheNames();
+    for (var n = 0; n < names.length; n++) {
+      try {
+        var cache = await caches.open(names[n]);
+        for (var k = 0; k < keys.length; k++) {
+          var hit = await cache.match(keys[k], { ignoreSearch: true });
+          if (hit) return hit;
+        }
+      } catch(_) {}
+    }
+    return null;
+  }
+  async function fetchBible(input, init){
+    var path = canonicalBiblePath(input);
+    if (!path) return nativeFetch(input, init);
+    if (chapterMemory.has(path)) return chapterMemory.get(path).clone();
+    var cached = await matchBible(path);
+    if (cached) {
+      try { chapterMemory.set(path, cached.clone()); } catch(_) {}
+      return cached;
+    }
+    return nativeFetch(input, init);
+  }
+  window.fetch = function rdmV134Fetch(input, init){
+    if (canonicalBiblePath(input)) return fetchBible(input, init);
+    return nativeFetch(input, init);
+  };
+})();
+</script>
+
 </head>
 <body>
 <div class="shell">
@@ -30027,210 +30126,10 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
-<script id="rdm-v124-iron-sharpener-fullchapter-startup-fix">
-(function rdmV124IronSharpenerFullChapterStartupFix(){
-  if (window.__rdmV124IronSharpenerFullChapterStartupFix) return;
-  window.__rdmV124IronSharpenerFullChapterStartupFix = true;
-  function get(id){ return document.getElementById(id); }
-  function setMeta(name, value){
-    try {
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    } catch (_) {}
-  }
-  function lockMakerTitle(){
-    try { document.title = 'Iron Sharpener'; } catch (_) {}
-    setMeta('apple-mobile-web-app-title', 'Iron Sharpener');
-    setMeta('application-name', 'Iron Sharpener');
-  }
-  function maxVerse(book, chapter){
-    try {
-      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
-      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
-    } catch (_) { return 1; }
-  }
-  function loadedRefLooksFull(book, chapter, max){
-    try {
-      var title = String((get('refTitle') && get('refTitle').textContent) || '').replace(/\s+/g, ' ').trim().toLowerCase();
-      book = String(book || '').toLowerCase();
-      return title.indexOf(book) !== -1 && title.indexOf(String(chapter) + ' 1-' + String(max)) !== -1;
-    } catch (_) { return false; }
-  }
-  function forceVisibleFullChapter(shouldReload){
-    lockMakerTitle();
-    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end'), size = get('rangeSize');
-    if (!book || !chapter || !start || !end || !size) return;
-    if (String(size.value || '') !== 'full') return;
-    var max = maxVerse(book.value || 'Genesis', chapter.value || '1');
-    if (String(start.value) !== '1') start.value = '1';
-    if (String(end.value) !== String(max)) end.value = String(max);
-    try { localStorage.setItem('ironSharpenerUnified.sectionSize', 'full'); } catch (_) {}
-    try {
-      localStorage.setItem('ironSharpenerUnified.lastRef', JSON.stringify({ book: book.value || 'Genesis', chapter: chapter.value || '1', start: '1', end: String(max), range: 'full' }));
-    } catch (_) {}
-    if (!shouldReload || loadedRefLooksFull(book.value, chapter.value, max) || window.__rdmV124FullChapterReloading) return;
-    window.__rdmV124FullChapterReloading = true;
-    try {
-      var loader = (typeof window.loadPassage === 'function') ? window.loadPassage : (typeof loadPassage === 'function' ? loadPassage : null);
-      if (loader) Promise.resolve(loader()).finally(function(){ setTimeout(function(){ window.__rdmV124FullChapterReloading = false; }, 500); });
-      else window.__rdmV124FullChapterReloading = false;
-    } catch (_) { window.__rdmV124FullChapterReloading = false; }
-  }
-  function run(){ forceVisibleFullChapter(false); }
-  function runAndReload(){ forceVisibleFullChapter(true); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
-  window.addEventListener('pageshow', runAndReload);
-  window.addEventListener('load', function(){ setTimeout(runAndReload, 150); }, { once:true });
-  [300, 800, 1500, 2600, 4200].forEach(function(ms){ setTimeout(runAndReload, ms); });
-})();
-</script>
 
 
 
 <!-- v126 — Single app polish: full-chapter render guard + range-only back cleanup -->
-<script id="rdm-v126-single-app-fullchapter-rangeback-cleanup">
-(function rdmV126SingleAppFullChapterRangeBackCleanup(){
-  if (window.__rdmV126SingleAppFullChapterRangeBackCleanup) return;
-  window.__rdmV126SingleAppFullChapterRangeBackCleanup = true;
-
-  function get(id){ return document.getElementById(id); }
-  function counts(){ try { return window.verseCounts || (typeof verseCounts !== "undefined" ? verseCounts : {}); } catch (_) { return {}; } }
-  function maxVerse(book, chapter){
-    try {
-      var c = counts()[book];
-      var n = c ? Number(c[Number(chapter || 1) - 1] || 1) : 1;
-      return n || 1;
-    } catch (_) { return 1; }
-  }
-  function clean(value){
-    try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {}
-    return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
-  function lockSingleManifestTitle(){
-    try { document.title = "Iron Sharpener"; } catch (_) {}
-    try {
-      var link = document.querySelector('link[rel="manifest"]');
-      if (!link) { link = document.createElement('link'); link.rel = 'manifest'; document.head.appendChild(link); }
-      link.href = './manifest.json';
-    } catch (_) {}
-    try {
-      ["apple-mobile-web-app-title", "application-name"].forEach(function(name){
-        var meta = document.querySelector('meta[name="' + name + '"]');
-        if (!meta) { meta = document.createElement('meta'); meta.name = name; document.head.appendChild(meta); }
-        meta.content = "Iron Sharpener";
-      });
-    } catch (_) {}
-  }
-  function fullSelected(){
-    var range = get("rangeSize");
-    return !!(range && String(range.value || "") === "full");
-  }
-  function enforceFullControls(){
-    if (!fullSelected()) return null;
-    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end");
-    if (!book || !chapter || !start || !end) return null;
-    var max = maxVerse(book.value || "Genesis", chapter.value || "1");
-    start.value = "1";
-    end.value = String(max);
-    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
-    return { book: book.value || "Genesis", chapter: String(chapter.value || "1"), max: max };
-  }
-  async function renderFullDirect(reason){
-    var state = enforceFullControls();
-    if (!state) return false;
-    if (window.__rdmV126DirectFullRendering) return false;
-    window.__rdmV126DirectFullRendering = true;
-    try {
-      var chapterPadded = String(state.chapter).padStart(2, "0");
-      var response = await fetch("bible/web/" + state.book + "/" + chapterPadded + ".json");
-      if (!response.ok) return false;
-      var data = await response.json();
-      var verses = Array.isArray(data.verses) ? data.verses : [];
-      var selected = verses.filter(function(v){ return Number(v.verse) >= 1 && Number(v.verse) <= state.max; });
-      var refTitle = get("refTitle");
-      var passage = get("passage");
-      if (!passage) return false;
-      if (refTitle) refTitle.textContent = (data.book || state.book) + " " + (data.chapter || state.chapter) + " 1-" + state.max;
-      passage.innerHTML = selected.map(function(v){
-        return '<p class="verse" data-v="' + Number(v.verse) + '"><span class="vnum">' + Number(v.verse) + '</span>' + clean(v.text) + '</p>';
-      }).join("");
-      try { if (typeof activateVerses === "function") activateVerses(); } catch (_) {}
-      try { if (typeof restoreMarks === "function") restoreMarks(); } catch (_) {}
-      try { if (typeof loadCurrentNotes === "function") loadCurrentNotes(); } catch (_) {}
-      try { if (typeof refreshActiveResourcePanel === "function") refreshActiveResourcePanel(); } catch (_) {}
-      try {
-        localStorage.setItem("ironSharpenerUnified.lastRef", JSON.stringify({ book: state.book, chapter: state.chapter, start: "1", end: String(state.max), range: "full" }));
-      } catch (_) {}
-      return true;
-    } catch (_) {
-      return false;
-    } finally {
-      setTimeout(function(){ window.__rdmV126DirectFullRendering = false; }, 300);
-    }
-  }
-  function fullMismatch(){
-    if (!fullSelected()) return false;
-    var state = enforceFullControls();
-    if (!state) return false;
-    var passage = get("passage");
-    if (!passage) return false;
-    var rendered = passage.querySelectorAll(".verse[data-v]").length;
-    var title = String((get("refTitle") && get("refTitle").textContent) || "").replace(/\s+/g," ").trim();
-    if (rendered && rendered < state.max) return true;
-    if (title && title.indexOf("1-" + state.max) === -1) return true;
-    return false;
-  }
-  function clearRangeOnlyBackTargets(){
-    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
-    try { window.previousPassageState = null; } catch (_) {}
-    try { previousPassageState = null; } catch (_) {}
-    ["scriptureBackBtn", "backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
-      var el = get(id);
-      if (!el) return;
-      if (id === "scriptureBackBtn") el.classList.remove("rdm-scripture-back-visible");
-      else el.style.display = "none";
-    });
-    try { if (typeof window.rdmUpdateScriptureBackButtonV39 === "function") window.rdmUpdateScriptureBackButtonV39(); } catch (_) {}
-  }
-  function installRangeCleanup(){
-    ["rangeSize", "start", "end"].forEach(function(id){
-      var el = get(id);
-      if (!el || el.dataset.rdmV126RangeCleanup === "1") return;
-      el.dataset.rdmV126RangeCleanup = "1";
-      el.addEventListener("change", function(){
-        setTimeout(clearRangeOnlyBackTargets, 0);
-        setTimeout(clearRangeOnlyBackTargets, 160);
-      }, true);
-    });
-  }
-  function installLoadGuard(){
-    var existing = (typeof window.loadPassage === "function" ? window.loadPassage : (typeof loadPassage === "function" ? loadPassage : null));
-    if (typeof existing !== "function" || existing.__rdmV126FullGuard) return;
-    var wrapped = async function rdmV126FullChapterLoadGuard(){
-      lockSingleManifestTitle();
-      enforceFullControls();
-      var result = await existing.apply(this, arguments);
-      enforceFullControls();
-      if (fullMismatch()) await renderFullDirect("after-load-mismatch");
-      return result;
-    };
-    wrapped.__rdmV126FullGuard = true;
-    window.loadPassage = wrapped;
-    try { loadPassage = wrapped; } catch (_) {}
-  }
-  function run(){
-    lockSingleManifestTitle();
-    installRangeCleanup();
-    installLoadGuard();
-    enforceFullControls();
-    setTimeout(function(){ if (fullMismatch()) renderFullDirect("startup-mismatch"); }, 120);
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once:true }); else run();
-  window.addEventListener("pageshow", function(){ setTimeout(run, 60); setTimeout(function(){ if (fullMismatch()) renderFullDirect("pageshow"); }, 240); });
-  [350, 900, 1800, 3200].forEach(function(ms){ setTimeout(function(){ run(); if (fullMismatch()) renderFullDirect("timer"); }, ms); });
-})();
-</script>
 
 
 
@@ -30334,80 +30233,34 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 
 <!-- v130 — Disciple Maker: strong full-chapter render guard + range-only back cleanup -->
-<script id="rdm-v130-maker-fullchapter-rangeback-final">
-(function rdmV130MakerFullchapterRangebackFinal(){
-  if (window.__rdmV130MakerFullchapterRangebackFinal) return;
-  window.__rdmV130MakerFullchapterRangebackFinal = true;
 
+
+
+
+
+<!-- v134 — Native offline speed cleanup: no repeated full-chapter reload loops -->
+<script id="rdm-v134-native-offline-light-fullchapter-back-cleanup">
+(function rdmV134NativeOfflineLightFullchapterBackCleanup(){
+  if (window.__rdmV134NativeOfflineLightFullchapterBackCleanup) return;
+  window.__rdmV134NativeOfflineLightFullchapterBackCleanup = true;
   function get(id){ return document.getElementById(id); }
-  function counts(){ try { return window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}); } catch(_) { return {}; } }
   function maxVerse(book, chapter){
     try {
-      var all = counts();
-      var list = all[book] || all[String(book || '').replace(/\b\w/g, function(c){ return c.toUpperCase(); })];
+      var counts = window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {});
+      var list = counts[book];
       var n = list ? Number(list[Number(chapter || 1) - 1] || 1) : 1;
       return n || 1;
     } catch(_) { return 1; }
   }
-  function selectedFull(){ var r = get('rangeSize'); return !!(r && String(r.value) === 'full'); }
-  function currentState(){
+  function fullSelected(){ var r = get('rangeSize'); return !!(r && String(r.value) === 'full'); }
+  function enforceFullControls(){
+    if (!fullSelected()) return;
     var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
-    if (!book || !chapter || !start || !end) return null;
+    if (!book || !chapter || !start || !end) return;
     var max = maxVerse(book.value || 'Genesis', chapter.value || '1');
-    return { book: book.value || 'Genesis', chapter: String(chapter.value || '1'), start: start, end: end, max: max };
-  }
-  function forceFullControls(){
-    if (!selectedFull()) return null;
-    var s = currentState();
-    if (!s) return null;
-    if (String(s.start.value) !== '1') s.start.value = '1';
-    if (String(s.end.value) !== String(s.max)) s.end.value = String(s.max);
+    if (String(start.value) !== '1') start.value = '1';
+    if (String(end.value) !== String(max)) end.value = String(max);
     try { localStorage.setItem('ironSharpenerUnified.sectionSize', 'full'); } catch(_) {}
-    return s;
-  }
-  function clean(value){
-    try { if (typeof cleanText === 'function') return cleanText(value); } catch(_) {}
-    return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function renderedCount(){ try { return document.querySelectorAll('#passage .verse[data-v]').length; } catch(_) { return 0; } }
-  function titleText(){ var t = get('refTitle'); return String((t && t.textContent) || '').replace(/\s+/g,' ').trim(); }
-  function isMismatch(){
-    if (!selectedFull()) return false;
-    var s = forceFullControls();
-    if (!s) return false;
-    var count = renderedCount();
-    var title = titleText();
-    if (count > 0 && count < s.max) return true;
-    if (title && title.indexOf('1-' + s.max) === -1) return true;
-    return false;
-  }
-  async function renderFullDirect(reason){
-    var s = forceFullControls();
-    if (!s || window.__rdmV130RenderingFull) return;
-    window.__rdmV130RenderingFull = true;
-    try {
-      var path = './bible/web/' + s.book + '/' + String(s.chapter).padStart(2,'0') + '.json';
-      var res = await fetch(path, { cache: 'force-cache' });
-      if (!res.ok) res = await fetch(path);
-      if (!res.ok) return;
-      var data = await res.json();
-      var verses = Array.isArray(data.verses) ? data.verses : [];
-      var selected = verses.filter(function(v){ return Number(v.verse) >= 1 && Number(v.verse) <= s.max; });
-      var refTitle = get('refTitle'), passage = get('passage');
-      if (!passage || !selected.length) return;
-      if (refTitle) refTitle.textContent = (data.book || s.book) + ' ' + (data.chapter || s.chapter) + ' 1-' + s.max;
-      passage.innerHTML = selected.map(function(v){
-        return '<p class="verse" data-v="' + Number(v.verse) + '"><span class="vnum">' + Number(v.verse) + '</span>' + clean(v.text) + '</p>';
-      }).join('');
-      try { if (typeof activateVerses === 'function') activateVerses(); } catch(_) {}
-      try { if (typeof restoreMarks === 'function') restoreMarks(); } catch(_) {}
-      try { if (typeof loadCurrentNotes === 'function') loadCurrentNotes(); } catch(_) {}
-      try { if (typeof refreshActiveResourcePanel === 'function') refreshActiveResourcePanel(); } catch(_) {}
-      try { localStorage.setItem('ironSharpenerUnified.lastRef', JSON.stringify({ book:s.book, chapter:s.chapter, start:'1', end:String(s.max), range:'full' })); } catch(_) {}
-    } catch(_) {
-    } finally {
-      setTimeout(function(){ window.__rdmV130RenderingFull = false; }, 250);
-    }
   }
   function clearRangeBack(){
     try { window.__rdmCrossReferenceBackStack = []; } catch(_) {}
@@ -30420,45 +30273,37 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     });
   }
   function rangeChanged(){
-    window.__rdmV130RangeOnlyUntil = Date.now() + 4200;
-    try { localStorage.setItem('ironSharpenerUnified.sectionSizeUserTouched.v130', '1'); } catch(_) {}
-    [0,80,180,360,700,1200,1900,2800,3900].forEach(function(ms){ setTimeout(clearRangeBack, ms); });
+    window.__rdmV134RangeOnlyUntil = Date.now() + 1800;
+    clearRangeBack();
+    setTimeout(clearRangeBack, 120);
+    setTimeout(clearRangeBack, 420);
   }
   function install(){
+    enforceFullControls();
     ['rangeSize','start','end'].forEach(function(id){
-      var el = get(id); if (!el || el.dataset.rdmV130RangeBack === '1') return;
-      el.dataset.rdmV130RangeBack = '1';
+      var el = get(id); if (!el || el.dataset.rdmV134RangeBack === '1') return;
+      el.dataset.rdmV134RangeBack = '1';
       el.addEventListener('change', rangeChanged, true);
       el.addEventListener('input', rangeChanged, true);
     });
-    var existing = (typeof window.loadPassage === 'function' ? window.loadPassage : (typeof loadPassage === 'function' ? loadPassage : null));
-    if (typeof existing === 'function' && !existing.__rdmV130FullChapterGuard) {
-      var wrapped = async function rdmV130FullChapterSafeLoad(){
-        forceFullControls();
-        var result = await existing.apply(this, arguments);
-        forceFullControls();
-        if (Date.now() < (window.__rdmV130RangeOnlyUntil || 0)) clearRangeBack();
-        if (isMismatch()) await renderFullDirect('after-load');
+    var original = (typeof window.loadPassage === 'function') ? window.loadPassage : (typeof loadPassage === 'function' ? loadPassage : null);
+    if (typeof original === 'function' && !original.__rdmV134NativeOfflineLightGuard) {
+      var wrapped = async function rdmV134NativeOfflineLoadPassage(){
+        enforceFullControls();
+        var result = await original.apply(this, arguments);
+        enforceFullControls();
+        if (Date.now() < (window.__rdmV134RangeOnlyUntil || 0)) clearRangeBack();
         return result;
       };
-      wrapped.__rdmV130FullChapterGuard = true;
+      wrapped.__rdmV134NativeOfflineLightGuard = true;
       window.loadPassage = wrapped;
       try { loadPassage = wrapped; } catch(_) {}
     }
   }
-  function tick(){
-    install();
-    forceFullControls();
-    if (Date.now() < (window.__rdmV130RangeOnlyUntil || 0)) clearRangeBack();
-    if (isMismatch()) renderFullDirect('tick');
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, { once:true }); else tick();
-  window.addEventListener('pageshow', function(){ setTimeout(tick, 80); setTimeout(tick, 500); });
-  [100,350,800,1400,2400,3800,5600,8000,11000].forEach(function(ms){ setTimeout(tick, ms); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
 })();
 </script>
-
-
 
 <!-- v133 — Mobile browser/header polish: stack top actions so Iron Sharpener title is readable -->
 <style id="rdm-v133-mobile-header-stacked-actions-final">
