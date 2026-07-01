@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<link rel="manifest" href="./manifest-journal.json?v=119" />
+<link rel="manifest" href="./is-disciple-journal.webmanifest?v=120" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="IS Disciple Journal" />
 <meta name="application-name" content="IS Disciple Journal" />
@@ -14,12 +14,16 @@
 
 <meta name="theme-color" content="#1D2D44" />
 <title>IS Disciple Journal</title>
+
+<script id="rdm-v120-journal-name-early-lock">
+(function(){try{document.title="IS Disciple Journal";function m(n,v){var e=document.querySelector('meta[name="'+n+'"]');if(!e){e=document.createElement('meta');e.setAttribute('name',n);document.head.appendChild(e);}e.setAttribute('content',v);}m('apple-mobile-web-app-title',"IS Disciple Journal");m('application-name',"IS Disciple Journal");}catch(_){}})();
+</script>
 <script id="rdm-v118-journal-title-lock">(function(){try{document.title="IS Disciple Journal";}catch(_){}})();</script>
 
 <script id="rdm-v114-two-app-installed-focus-class">
 (function rdmV114TwoAppInstalledFocusClass(){
   function hasAppLaunchFlag(){
-    try { return /(?:^|[?&])app=journal(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
+    try { return /(?:^|[?&])app=journal(?:[^&]*)?(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
   }
   function isInstalledMobileApp(){
     try {
@@ -7119,6 +7123,31 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerAndWarm, { once: true });
   else registerAndWarm();
   window.addEventListener('pageshow', function(){ setTimeout(registerAndWarm, 120); });
+})();
+</script>
+
+
+
+<!-- v120 — Fresh manifest filename + stable Journal app name only -->
+<script id="rdm-v120-journal-name-final-lock">
+(function rdmV120JournalNameFinalLock(){
+  if (window.__rdmV120JournalNameFinalLock) return;
+  window.__rdmV120JournalNameFinalLock = true;
+  var NAME = "IS Disciple Journal";
+  function setMeta(name, value){
+    try {
+      var el = document.querySelector('meta[name="' + name + '"]');
+      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+      el.setAttribute('content', value);
+    } catch(_) {}
+  }
+  function apply(){
+    try { document.title = NAME; } catch(_) {}
+    setMeta('apple-mobile-web-app-title', NAME);
+    setMeta('application-name', NAME);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
 })();
 </script>
 
