@@ -3,8 +3,62 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="manifest" href="./is-disciple-journal-v122.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="IS Disciple Journal" />
+<meta name="application-name" content="IS Disciple Journal" />
+<meta property="og:title" content="IS Disciple Journal" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="./assets/disciple-journal-logo.png" />
+<link rel="icon" href="./assets/disciple-journal-logo.png" type="image/png" />
+
 <meta name="theme-color" content="#1D2D44" />
-<title>Iron Sharpener: Disciple Journal</title>
+<title>IS Disciple Journal</title>
+
+<script id="rdm-v120-journal-name-early-lock">
+(function(){try{document.title="IS Disciple Journal";function m(n,v){var e=document.querySelector('meta[name="'+n+'"]');if(!e){e=document.createElement('meta');e.setAttribute('name',n);document.head.appendChild(e);}e.setAttribute('content',v);}m('apple-mobile-web-app-title',"IS Disciple Journal");m('application-name',"IS Disciple Journal");}catch(_){}})();
+</script>
+<script id="rdm-v118-journal-title-lock">(function(){try{document.title="IS Disciple Journal";}catch(_){}})();</script>
+
+<script id="rdm-v114-two-app-installed-focus-class">
+(function rdmV114TwoAppInstalledFocusClass(){
+  function hasAppLaunchFlag(){
+    try { return /(?:^|[?&])app=journal(?:[^&]*)?(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
+  }
+  function isInstalledMobileApp(){
+    try {
+      var standalone = !!(window.navigator && window.navigator.standalone);
+      var displayStandalone = !!(window.matchMedia && (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches
+      ));
+      var touchMobile = !!(window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
+      return !!((standalone || displayStandalone || hasAppLaunchFlag()) && touchMobile);
+    } catch (_) { return false; }
+  }
+  function apply(){
+    try {
+      var active = isInstalledMobileApp();
+      document.documentElement.classList.toggle('rdm-dj-mobile-standalone-app', active);
+      document.documentElement.classList.toggle('rdm-two-app-installed-journal', active);
+      if (document.body) document.body.classList.toggle('rdm-two-app-installed-journal', active);
+      if (!active) return;
+      var btn = document.getElementById('studyModeBtn');
+      if (btn) {
+        btn.style.display = 'none';
+        btn.setAttribute('hidden', 'hidden');
+        btn.setAttribute('aria-hidden', 'true');
+      }
+    } catch (_) {}
+  }
+  apply();
+  [0, 120, 400, 900, 1600, 2500].forEach(function(ms){ setTimeout(apply, ms); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('load', apply, { once: true });
+})();
+</script>
 <script id="rdm-v102-journal-fit-early-theme">
 (function rdmV102JournalFitEarlyTheme(){
   try {
@@ -3791,6 +3845,30 @@ body.dark .resource-clean-empty {
   }
 }
 </style>
+
+<style id="rdm-v113-two-app-mobile-separation">
+/* v113: two-app mobile setup. In installed mobile/tablet mode, Disciple Journal stays focused on journaling.
+   Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
+
+<style id="rdm-v114-two-app-installed-focus-style">
+/* v114: installed mobile app focus. Browser mode still shows Disciple Maker Mode for setup; Home Screen app hides it. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn { display: none !important; }
+}
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn,
+  html.rdm-two-app-installed-journal #studyModeBtn,
+  body.rdm-two-app-installed-journal #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -6871,6 +6949,16 @@ body.dark .markToolBtn[data-mark="box"].markActive::after {
 }
 </style>
 
+
+<style id="rdm-v113-two-app-mobile-separation">
+/* v113: two-app mobile setup. In installed mobile/tablet mode, Disciple Journal stays focused on journaling.
+   Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  html.rdm-dj-mobile-standalone-app #studyModeBtn {
+    display: none !important;
+  }
+}
+</style>
 </head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
 ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
 <${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div>
@@ -6983,7 +7071,99 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
 })();
 <\/script>
 
-<!-- v121 single-app stable restore: pre-two-app recovery -->
+
+<script id="rdm-v119-journal-offline-shell-warmup">
+(function rdmV119JournalOfflineShellWarmup(){
+  if (window.__rdmV119JournalOfflineShellWarmup) return;
+  window.__rdmV119JournalOfflineShellWarmup = true;
+  var SHELL_CACHE = 'iron-sharpener-offline-v38-fast-navigation-20260630';
+  var CORE = [
+    './personal-study.html','personal-study.html','./index.html','index.html','./manifest.json','manifest.json','./manifest-journal.json','manifest-journal.json','./manifest-maker.json','manifest-maker.json',
+    './assets/disciple-journal-logo.png','assets/disciple-journal-logo.png','./assets/disciple-journal-icon-192.png','assets/disciple-journal-icon-192.png','./assets/disciple-journal-icon-512.png','assets/disciple-journal-icon-512.png','./assets/iron-sharpener-logo.png','assets/iron-sharpener-logo.png'
+  ];
+  function lockTitle(){
+    try {
+      document.title = 'IS Disciple Journal';
+      var apple = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (apple) apple.setAttribute('content','IS Disciple Journal');
+      var app = document.querySelector('meta[name="application-name"]');
+      if (app) app.setAttribute('content','IS Disciple Journal');
+    } catch (_) {}
+  }
+  async function putVariant(cache, key, response){
+    try { if (response && response.ok) await cache.put(key, response.clone()); } catch (_) {}
+  }
+  async function warmPageShell(){
+    try {
+      if (!('caches' in window) || !navigator.onLine) return;
+      var cache = await caches.open(SHELL_CACHE);
+      for (var i = 0; i < CORE.length; i++) {
+        var key = CORE[i];
+        try {
+          var res = await fetch(key, { cache: 'reload' });
+          if (res && res.ok) {
+            await putVariant(cache, key, res);
+            if (key.charAt(0) === '.' && key.indexOf('./') === 0) await putVariant(cache, key.slice(2), res);
+            else if (key.indexOf('./') !== 0) await putVariant(cache, './' + key, res);
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+  async function registerAndWarm(){
+    lockTitle();
+    try {
+      if ('serviceWorker' in navigator) {
+        var reg = await navigator.serviceWorker.register('./service-worker.js');
+        try { if (reg && reg.update) reg.update(); } catch (_) {}
+      }
+    } catch (_) {}
+    warmPageShell();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerAndWarm, { once: true });
+  else registerAndWarm();
+  window.addEventListener('pageshow', function(){ setTimeout(registerAndWarm, 120); });
+})();
+</script>
+
+
+
+<!-- v120 — Fresh manifest filename + stable Journal app name only -->
+<script id="rdm-v120-journal-name-final-lock">
+(function rdmV120JournalNameFinalLock(){
+  if (window.__rdmV120JournalNameFinalLock) return;
+  window.__rdmV120JournalNameFinalLock = true;
+  var NAME = "IS Disciple Journal";
+  function setMeta(name, value){
+    try {
+      var el = document.querySelector('meta[name="' + name + '"]');
+      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+      el.setAttribute('content', value);
+    } catch(_) {}
+  }
+  function apply(){
+    try { document.title = NAME; } catch(_) {}
+    setMeta('apple-mobile-web-app-title', NAME);
+    setMeta('application-name', NAME);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
+})();
+</script>
+
+
+
+<!-- v122 — Journal name/icon final lock only -->
+<script id="rdm-v122-journal-final-name-lock">
+(function(){
+  var NAME="IS Disciple Journal";
+  function meta(n,v){try{var e=document.querySelector('meta[name="'+n+'"]'); if(!e){e=document.createElement('meta');e.name=n;document.head.appendChild(e);} e.content=v;}catch(_){}}
+  function apply(){try{document.title=NAME;}catch(_){} meta('apple-mobile-web-app-title', NAME); meta('application-name', NAME);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
+  window.addEventListener('pageshow', apply);
+})();
+</script>
+
 </body></html>`;
   }
 
@@ -11278,5 +11458,6 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 (function(){ window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v112-section-size-no-range-back-final'; })();
 </script>
 
+<!-- v116: restored safe Journal script, real Journal icon, readable app label support. -->
 </body>
 </html>
