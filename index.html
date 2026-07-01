@@ -30494,5 +30494,100 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v127 — Disciple Maker: close Tools returns active tab to Scripture; range-only changes do not create Back target -->
+<script id="rdm-v127-maker-tools-close-active-scripture-range-backfix">
+(function rdmV127MakerToolsCloseActiveScriptureRangeBackfix(){
+  if (window.__rdmV127MakerToolsCloseActiveScriptureRangeBackfix) return;
+  window.__rdmV127MakerToolsCloseActiveScriptureRangeBackfix = true;
+
+  function get(id){ return document.getElementById(id); }
+
+  function setActiveMobileTab(action){
+    try {
+      var nav = get('rdmMobileAppNav');
+      if (!nav) return;
+      nav.querySelectorAll('button[data-rdm-mobile-action]').forEach(function(btn){
+        btn.classList.toggle('active', btn.getAttribute('data-rdm-mobile-action') === action);
+        if (btn.getAttribute('data-rdm-mobile-action') === action) btn.setAttribute('aria-current', 'page');
+        else btn.removeAttribute('aria-current');
+      });
+    } catch (_) {}
+  }
+
+  function markScriptureAfterToolsClose(){
+    [0, 60, 180, 420].forEach(function(delay){
+      setTimeout(function(){ setActiveMobileTab('scripture'); }, delay);
+    });
+  }
+
+  document.addEventListener('click', function(event){
+    var target = event.target;
+    if (!target || !target.closest) return;
+    if (target.closest('#closeTeacherTools, #teacherToolsPanel .teacher-pop-close')) {
+      markScriptureAfterToolsClose();
+    }
+  }, true);
+
+  function hideBackTarget(){
+    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    ['scriptureBackBtn','backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      if (id === 'scriptureBackBtn') {
+        el.classList.remove('rdm-scripture-back-visible');
+        el.classList.add('rdm-no-back-target');
+        el.setAttribute('aria-hidden', 'true');
+      } else {
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  function rangeOnlyChanged(){
+    window.__rdmV127MakerRangeOnlyChangeUntil = Date.now() + 2200;
+    [0, 40, 120, 280, 620, 1100, 1800, 2300].forEach(function(delay){
+      setTimeout(hideBackTarget, delay);
+    });
+  }
+
+  function installRangeOnlyListeners(){
+    ['rangeSize','start','end'].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV127RangeBackFix === '1') return;
+      el.dataset.rdmV127RangeBackFix = '1';
+      el.addEventListener('change', rangeOnlyChanged, true);
+      el.addEventListener('input', rangeOnlyChanged, true);
+    });
+  }
+
+  function wrapBackUpdater(){
+    try {
+      var original = window.rdmUpdateScriptureBackButtonV39;
+      if (typeof original === 'function' && !original.__rdmV127RangeBackFix) {
+        var wrapped = function rdmV127RangeSafeBackUpdater(){
+          var result = original.apply(this, arguments);
+          if (Date.now() < (window.__rdmV127MakerRangeOnlyChangeUntil || 0)) hideBackTarget();
+          return result;
+        };
+        wrapped.__rdmV127RangeBackFix = true;
+        window.rdmUpdateScriptureBackButtonV39 = wrapped;
+      }
+    } catch (_) {}
+  }
+
+  function run(){
+    installRangeOnlyListeners();
+    wrapBackUpdater();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
+  window.addEventListener('pageshow', function(){ setTimeout(run, 80); });
+})();
+</script>
+
 </body>
 </html>
