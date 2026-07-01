@@ -30458,6 +30458,135 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v133 — Mobile browser/header polish: stack top actions so Iron Sharpener title is readable -->
+<style id="rdm-v133-mobile-header-stacked-actions-final">
+@media (max-width: 700px), (hover: none) and (pointer: coarse) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    display: grid !important;
+    grid-template-columns: 50px minmax(0, 1fr) clamp(92px, 27vw, 116px) !important;
+    align-items: center !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+    padding-left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .hero-main {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: clamp(8px, 2.2vw, 10px) !important;
+    letter-spacing: clamp(1.4px, .45vw, 2.3px) !important;
+    line-height: 1.05 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: none !important;
+    font-size: clamp(25px, 7.15vw, 31px) !important;
+    line-height: .84 !important;
+    letter-spacing: .2px !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV132 {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    width: clamp(92px, 27vw, 116px) !important;
+    max-width: clamp(92px, 27vw, 116px) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV132,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 5px 7px !important;
+    border-radius: 999px !important;
+    font-size: clamp(11px, 2.6vw, 12.5px) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    grid-template-columns: 46px minmax(0, 1fr) 92px !important;
+    column-gap: 6px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell .logo-wrap { width: 46px !important; height: 46px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell .logo { width: 44px !important; height: 44px !important; }
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    font-size: clamp(23px, 7vw, 27px) !important;
+    line-height: .85 !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopActionsV132 {
+    width: 92px !important;
+    max-width: 92px !important;
+  }
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV132,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle {
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 10.8px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+}
+</style>
+<script id="rdm-v133-mobile-header-stacked-actions-final-script">
+(function rdmV133MobileHeaderStackedActions(){
+  if (window.__rdmV133MobileHeaderStackedActions) return;
+  window.__rdmV133MobileHeaderStackedActions = true;
+  function shouldUseShortJournal(){ return window.innerWidth && window.innerWidth <= 700; }
+  function apply(){
+    try {
+      var btn = document.getElementById('rdmMobileTopJournalBtnV132');
+      if (btn && shouldUseShortJournal()) {
+        btn.textContent = 'Journal';
+        btn.setAttribute('aria-label', 'Open Disciple Journal');
+        btn.setAttribute('title', 'Open Disciple Journal');
+      }
+    } catch (_) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
+  window.addEventListener('resize', function(){ setTimeout(apply, 80); });
+  window.addEventListener('orientationchange', function(){ setTimeout(apply, 180); });
+  [120, 500, 1200].forEach(function(ms){ setTimeout(apply, ms); });
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
