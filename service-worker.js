@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v41 Two-App Shell Navigation
-   Stable v36 cache foundation plus fast cached navigation for iPad/tablet
-   startup and Disciple Maker ↔ Disciple Journal switching. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v41-two-app-shell-20260701";
+/* Iron Sharpener service worker — v41 Single App Fast Offline Navigation
+   Keeps the complete offline cache foundation but serves cached HTML shells
+   immediately during offline/mobile app navigation, then refreshes quietly online. */
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v41-single-app-fast-navigation-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -12,26 +12,10 @@ const CORE_ASSETS = [
   "personal-study.html",
   "./manifest.json",
   "manifest.json",
-  "./manifest-maker.json",
-  "manifest-maker.json",
-  "./manifest-journal.json",
-  "manifest-journal.json",
-  "./is-disciple-maker-v122.webmanifest",
-  "is-disciple-maker-v122.webmanifest",
-  "./is-disciple-journal-v122.webmanifest",
-  "is-disciple-journal-v122.webmanifest",
-  "./is-disciple-maker-v124.webmanifest",
-  "is-disciple-maker-v124.webmanifest",
-  "./is-disciple-journal-v124.webmanifest",
-  "is-disciple-journal-v124.webmanifest",
   "./assets/iron-sharpener-logo.png",
   "assets/iron-sharpener-logo.png",
   "./assets/disciple-journal-logo.png",
-  "assets/disciple-journal-logo.png",
-  "./assets/disciple-journal-icon-192.png",
-  "assets/disciple-journal-icon-192.png",
-  "./assets/disciple-journal-icon-512.png",
-  "assets/disciple-journal-icon-512.png"
+  "assets/disciple-journal-logo.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -217,46 +201,29 @@ async function refreshNavigationInBackground(request) {
 }
 
 async function navigationFastCached(request, event) {
-  // v41: when online, prefer the fresh HTML shell so Safari/Home Screen stops
-  // reopening older cached app versions. If the network is unavailable or slow,
-  // fall back to the cached shell quickly.
+  // v41: for the installed/mobile app, open the cached HTML shell immediately.
+  // This removes the long offline pause when moving between Teaching Tool and Journal.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cachedPromise = cachedHtmlForNavigation(request);
-  let networkSettled = false;
-  const networkPromise = (async () => {
-    try {
-      const response = await fetch(new Request(request, { cache: "reload" }));
-      networkSettled = true;
-      if (response && response.ok) {
-        await cacheHtmlResponse(cache, response, request);
-        return response;
-      }
-    } catch (_) {
-      networkSettled = true;
+  const cached = await cachedHtmlForNavigation(request);
+  if (cached) {
+    try { if (event && event.waitUntil) event.waitUntil(refreshNavigationInBackground(request)); } catch (_) {}
+    return cached;
+  }
+
+  try {
+    const response = await fetch(new Request(request, { cache: "reload" }));
+    if (response && response.ok) {
+      await cacheHtmlResponse(cache, response, request);
+      return response;
     }
-    return null;
-  })();
-
-  try { if (event && event.waitUntil) event.waitUntil(networkPromise); } catch (_) {}
-
-  const quick = await Promise.race([
-    networkPromise,
-    new Promise(resolve => setTimeout(resolve, 900)).then(async () => (await cachedPromise) || null)
-  ]);
-  if (quick) return quick;
-
-  const network = await networkPromise;
-  if (network) return network;
-
-  const cached = await cachedPromise;
-  if (cached) return cached;
+  } catch (_) {}
 
   let wantsJournal = false;
   try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
   if (wantsJournal) {
-    return (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
+    return (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
   }
-  return (await cache.match("./index.html")) || (await cache.match("index.html")) || (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
+  return (await cache.match("./index.html")) || (await cache.match("index.html")) || (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
 async function matchAnyResourceCache(requestOrPath) {
