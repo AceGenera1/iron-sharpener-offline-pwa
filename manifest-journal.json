@@ -2,22 +2,22 @@
   "name": "IS Disciple Journal",
   "short_name": "IS Disciple Journal",
   "description": "Disciple Journal for Scripture reading, prayer, reflection, and saved study entries.",
-  "id": "./personal-study.html?app=journal",
-  "start_url": "./personal-study.html?app=journal",
-  "scope": "./",
+  "id": "/personal-study.html?app=journal",
+  "start_url": "/personal-study.html?app=journal",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#F3E6D2",
   "theme_color": "#1D2D44",
   "icons": [
     {
-      "src": "./assets/disciple-journal-icon-192.png",
+      "src": "/assets/disciple-journal-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./assets/disciple-journal-icon-512.png",
+      "src": "/assets/disciple-journal-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
