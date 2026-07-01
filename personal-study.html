@@ -14,12 +14,16 @@
 
 <meta name="theme-color" content="#1D2D44" />
 <title>IS Disciple Journal</title>
+
+<script id="rdm-v120-journal-name-early-lock">
+(function(){try{document.title="IS Disciple Journal";function m(n,v){var e=document.querySelector('meta[name="'+n+'"]');if(!e){e=document.createElement('meta');e.setAttribute('name',n);document.head.appendChild(e);}e.setAttribute('content',v);}m('apple-mobile-web-app-title',"IS Disciple Journal");m('application-name',"IS Disciple Journal");}catch(_){}})();
+</script>
 <script id="rdm-v118-journal-title-lock">(function(){try{document.title="IS Disciple Journal";}catch(_){}})();</script>
 
 <script id="rdm-v114-two-app-installed-focus-class">
 (function rdmV114TwoAppInstalledFocusClass(){
   function hasAppLaunchFlag(){
-    try { return /(?:^|[?&])app=journal(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
+    try { return /(?:^|[?&])app=journal(?:[^&]*)?(?:&|$)/.test(window.location.search || ''); } catch (_) { return false; }
   }
   function isInstalledMobileApp(){
     try {
@@ -3877,7 +3881,7 @@ body.dark .resource-clean-empty {
     </div>
     <div>
       <div class="heroActions">
-        <button class="ghost" id="studyModeBtn" type="button">Disciple Maker Mode</button>
+        <button class="ghost" id="studyModeBtn" type="button">Maker</button>
         <button class="ghost" id="themeBtn" type="button">Light / Dark</button>
       </div>
       <div class="verseCard">
@@ -7066,6 +7070,99 @@ ${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.
   window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v93-built-in-crossrefs-safe-final';
 })();
 <\/script>
+
+
+<script id="rdm-v119-journal-offline-shell-warmup">
+(function rdmV119JournalOfflineShellWarmup(){
+  if (window.__rdmV119JournalOfflineShellWarmup) return;
+  window.__rdmV119JournalOfflineShellWarmup = true;
+  var SHELL_CACHE = 'iron-sharpener-offline-v38-fast-navigation-20260630';
+  var CORE = [
+    './personal-study.html','personal-study.html','./index.html','index.html','./manifest.json','manifest.json','./manifest-journal.json','manifest-journal.json','./manifest-maker.json','manifest-maker.json',
+    './assets/disciple-journal-logo.png','assets/disciple-journal-logo.png','./assets/disciple-journal-icon-192.png','assets/disciple-journal-icon-192.png','./assets/disciple-journal-icon-512.png','assets/disciple-journal-icon-512.png','./assets/iron-sharpener-logo.png','assets/iron-sharpener-logo.png'
+  ];
+  function lockTitle(){
+    try {
+      document.title = 'IS Disciple Journal';
+      var apple = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (apple) apple.setAttribute('content','IS Disciple Journal');
+      var app = document.querySelector('meta[name="application-name"]');
+      if (app) app.setAttribute('content','IS Disciple Journal');
+    } catch (_) {}
+  }
+  async function putVariant(cache, key, response){
+    try { if (response && response.ok) await cache.put(key, response.clone()); } catch (_) {}
+  }
+  async function warmPageShell(){
+    try {
+      if (!('caches' in window) || !navigator.onLine) return;
+      var cache = await caches.open(SHELL_CACHE);
+      for (var i = 0; i < CORE.length; i++) {
+        var key = CORE[i];
+        try {
+          var res = await fetch(key, { cache: 'reload' });
+          if (res && res.ok) {
+            await putVariant(cache, key, res);
+            if (key.charAt(0) === '.' && key.indexOf('./') === 0) await putVariant(cache, key.slice(2), res);
+            else if (key.indexOf('./') !== 0) await putVariant(cache, './' + key, res);
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+  async function registerAndWarm(){
+    lockTitle();
+    try {
+      if ('serviceWorker' in navigator) {
+        var reg = await navigator.serviceWorker.register('./service-worker.js');
+        try { if (reg && reg.update) reg.update(); } catch (_) {}
+      }
+    } catch (_) {}
+    warmPageShell();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerAndWarm, { once: true });
+  else registerAndWarm();
+  window.addEventListener('pageshow', function(){ setTimeout(registerAndWarm, 120); });
+})();
+</script>
+
+
+
+<!-- v120 — Fresh manifest filename + stable Journal app name only -->
+<script id="rdm-v120-journal-name-final-lock">
+(function rdmV120JournalNameFinalLock(){
+  if (window.__rdmV120JournalNameFinalLock) return;
+  window.__rdmV120JournalNameFinalLock = true;
+  var NAME = "IS Disciple Journal";
+  function setMeta(name, value){
+    try {
+      var el = document.querySelector('meta[name="' + name + '"]');
+      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+      el.setAttribute('content', value);
+    } catch(_) {}
+  }
+  function apply(){
+    try { document.title = NAME; } catch(_) {}
+    setMeta('apple-mobile-web-app-title', NAME);
+    setMeta('application-name', NAME);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
+  window.addEventListener('pageshow', apply);
+})();
+</script>
+
+
+
+<!-- v122 — Journal name/icon final lock only -->
+<script id="rdm-v122-journal-final-name-lock">
+(function(){
+  var NAME="IS Disciple Journal";
+  function meta(n,v){try{var e=document.querySelector('meta[name="'+n+'"]'); if(!e){e=document.createElement('meta');e.name=n;document.head.appendChild(e);} e.content=v;}catch(_){}}
+  function apply(){try{document.title=NAME;}catch(_){} meta('apple-mobile-web-app-title', NAME); meta('application-name', NAME);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
+  window.addEventListener('pageshow', apply);
+})();
+</script>
 
 </body></html>`;
   }
@@ -11364,31 +11461,56 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 <!-- v116: restored safe Journal script, real Journal icon, readable app label support. -->
 
 
-<!-- v124 — Journal shell warmup; syntax-safe recovery from broken v119-v122 shells -->
-<script id="rdm-v124-journal-shell-warmup">
-(function rdmV124JournalShellWarmup(){
-  if (window.__rdmV124JournalShellWarmup) return;
-  window.__rdmV124JournalShellWarmup = true;
-  var NAME = 'IS Disciple Journal';
-  function meta(name, value){
-    try {
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    } catch(_) {}
+<!-- v123 — Journal top Maker button restored for two-app navigation -->
+<style id="rdm-v123-journal-top-maker-button-style">
+@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  #studyModeBtn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: 96px !important;
   }
-  function lockName(){ try { document.title = NAME; } catch(_) {} meta('apple-mobile-web-app-title', NAME); meta('application-name', NAME); }
-  async function warmShell(){
-    try { if ('serviceWorker' in navigator) await navigator.serviceWorker.register('./service-worker.js'); } catch(_) {}
-    try {
-      if (!('caches' in window) || !navigator.onLine) return;
-      var cache = await caches.open('iron-sharpener-offline-v41-two-app-shell-20260701');
-      await cache.addAll(['./personal-study.html','personal-study.html','./index.html','index.html','./is-disciple-journal-v124.webmanifest','./is-disciple-maker-v124.webmanifest']);
-    } catch(_) {}
+  .heroActions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
   }
-  function run(){ lockName(); warmShell(); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
-  window.addEventListener('pageshow', run);
+}
+</style>
+<script id="rdm-v123-journal-top-maker-button-script">
+(function rdmV123JournalTopMakerButton(){
+  if (window.__rdmV123JournalTopMakerButton) return;
+  window.__rdmV123JournalTopMakerButton = true;
+  function restore(){
+    try {
+      var btn = document.getElementById('studyModeBtn');
+      if (!btn) return;
+      btn.textContent = 'Maker';
+      btn.removeAttribute('hidden');
+      btn.removeAttribute('aria-hidden');
+      btn.style.removeProperty('display');
+      btn.style.setProperty('display', 'inline-flex', 'important');
+      btn.style.setProperty('visibility', 'visible', 'important');
+      btn.style.setProperty('pointer-events', 'auto', 'important');
+      if (!btn.dataset.rdmV123TopMakerFallback) {
+        btn.dataset.rdmV123TopMakerFallback = '1';
+        btn.addEventListener('click', function(){
+          try { if (typeof saveCurrentDraftNow === 'function') saveCurrentDraftNow(); } catch (_) {}
+          setTimeout(function(){ window.location.href = './index.html'; }, 0);
+        }, false);
+      }
+    } catch (_) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once:true }); else restore();
+  window.addEventListener('pageshow', restore);
+  window.addEventListener('load', restore, { once:true });
+  [100, 400, 900, 1700, 2700, 3800].forEach(function(ms){ setTimeout(restore, ms); });
 })();
 </script>
 
