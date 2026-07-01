@@ -3869,6 +3869,105 @@ body.dark .resource-clean-empty {
   }
 }
 </style>
+
+<script id="rdm-v134-native-offline-bible-fetch">
+(function rdmV134NativeOfflineBibleFetch(){
+  if (window.__rdmV134NativeOfflineBibleFetch) return;
+  window.__rdmV134NativeOfflineBibleFetch = true;
+
+  var nativeFetch = window.fetch ? window.fetch.bind(window) : null;
+  if (!nativeFetch) return;
+
+  var chapterMemory = new Map();
+  var cacheNameMemory = null;
+  var CACHE_NAMES = [
+    'iron-sharpener-offline-v105-public-ready-cache',
+    'iron-sharpener-offline-v36-complete-tool-20260630',
+    'iron-sharpener-offline-v43-fast-bible-json-offline-20260701',
+    'iron-sharpener-offline-v44-instant-tablet-shell-20260701',
+    'iron-sharpener-offline-v42-fast-resource-cache-navigation-20260701',
+    'iron-sharpener-offline-v41-single-app-fast-navigation-20260701',
+    'iron-sharpener-offline-v40-fresh-shell-navigation-20260701',
+    'iron-sharpener-offline-v34-final-offline-sync-20260627',
+    'iron-sharpener-offline-v26-public-lock-20260626'
+  ];
+
+  function cleanPath(value){
+    return String(value || '')
+      .replace(/^https?:\/\/[^/]+\//i, '')
+      .replace(/^\/+/, '')
+      .replace(/^\.\//, '')
+      .replace(/^\.\.\//, '')
+      .replace(/\/+/, '/');
+  }
+  function decodeSafe(value){ try { return decodeURIComponent(value); } catch(_) { return value; } }
+  function canonicalBiblePath(input){
+    try {
+      var raw = (typeof input === 'string') ? input : (input && input.url) ? input.url : String(input || '');
+      var path = raw;
+      try { path = new URL(raw, window.location.href).pathname; } catch(_) {}
+      path = cleanPath(path);
+      path = decodeSafe(path);
+      var i = path.indexOf('bible/web/');
+      if (i >= 0) path = path.slice(i);
+      if (!/^bible\/web\/.+\.json$/i.test(path)) return '';
+      return path;
+    } catch(_) { return ''; }
+  }
+  function variants(path){
+    var decoded = decodeSafe(path);
+    var encoded = path.replace(/ /g, '%20');
+    return Array.from(new Set([
+      path, './' + path, '/' + path,
+      decoded, './' + decoded, '/' + decoded,
+      encoded, './' + encoded, '/' + encoded
+    ]));
+  }
+  async function getCacheNames(){
+    if (cacheNameMemory) return cacheNameMemory;
+    try {
+      var existing = await caches.keys();
+      var names = [];
+      function add(name){ if (name && existing.indexOf(name) !== -1 && names.indexOf(name) === -1) names.push(name); }
+      CACHE_NAMES.forEach(add);
+      existing.filter(function(name){ return /^iron-sharpener-offline-/.test(name) && /complete|public-ready|fast-bible|resource|navigation|shell|final-offline-sync/i.test(name); }).forEach(add);
+      cacheNameMemory = names;
+      return names;
+    } catch(_) { return []; }
+  }
+  async function matchBible(path){
+    if (!('caches' in window)) return null;
+    var keys = variants(path);
+    var names = await getCacheNames();
+    for (var n = 0; n < names.length; n++) {
+      try {
+        var cache = await caches.open(names[n]);
+        for (var k = 0; k < keys.length; k++) {
+          var hit = await cache.match(keys[k], { ignoreSearch: true });
+          if (hit) return hit;
+        }
+      } catch(_) {}
+    }
+    return null;
+  }
+  async function fetchBible(input, init){
+    var path = canonicalBiblePath(input);
+    if (!path) return nativeFetch(input, init);
+    if (chapterMemory.has(path)) return chapterMemory.get(path).clone();
+    var cached = await matchBible(path);
+    if (cached) {
+      try { chapterMemory.set(path, cached.clone()); } catch(_) {}
+      return cached;
+    }
+    return nativeFetch(input, init);
+  }
+  window.fetch = function rdmV134Fetch(input, init){
+    if (canonicalBiblePath(input)) return fetchBible(input, init);
+    return nativeFetch(input, init);
+  };
+})();
+</script>
+
 </head>
 <body>
 <div class="shell">
