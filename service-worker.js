@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v39 Two-App Fast Offline Navigation
+/* Iron Sharpener service worker — v38 Fast Offline Navigation
    Stable v36 cache foundation plus fast cached navigation for iPad/tablet
    startup and Disciple Maker ↔ Disciple Journal switching. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v39-two-app-navigation-20260630";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v38-fast-navigation-20260630";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -12,10 +12,6 @@ const CORE_ASSETS = [
   "personal-study.html",
   "./manifest.json",
   "manifest.json",
-  "./manifest-maker.json",
-  "manifest-maker.json",
-  "./manifest-journal.json",
-  "manifest-journal.json",
   "./assets/iron-sharpener-logo.png",
   "assets/iron-sharpener-logo.png",
   "./assets/disciple-journal-logo.png",
@@ -228,15 +224,7 @@ async function navigationFastCached(request, event) {
     }
   } catch (_) {}
 
-  
-  const requestedAgain = await cachedHtmlForNavigation(request);
-  if (requestedAgain) return requestedAgain;
-  let wantsJournal = false;
-  try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
-  if (wantsJournal) {
-    return (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
-  }
-  return (await cache.match("./index.html")) || (await cache.match("index.html")) || (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
+  return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
 async function matchAnyResourceCache(requestOrPath) {
