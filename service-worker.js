@@ -1,7 +1,7 @@
-/* Iron Sharpener service worker — v38 Fast Offline Navigation
+/* Iron Sharpener service worker — v40 Fresh Shell Navigation
    Stable v36 cache foundation plus fast cached navigation for iPad/tablet
    startup and Disciple Maker ↔ Disciple Journal switching. */
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v38-fast-navigation-20260630";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v40-fresh-shell-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 const CORE_ASSETS = [
@@ -12,6 +12,14 @@ const CORE_ASSETS = [
   "personal-study.html",
   "./manifest.json",
   "manifest.json",
+  "./manifest-maker.json",
+  "manifest-maker.json",
+  "./manifest-journal.json",
+  "manifest-journal.json",
+  "./is-disciple-maker-v122.webmanifest",
+  "is-disciple-maker-v122.webmanifest",
+  "./is-disciple-journal-v122.webmanifest",
+  "is-disciple-journal-v122.webmanifest",
   "./assets/iron-sharpener-logo.png",
   "assets/iron-sharpener-logo.png",
   "./assets/disciple-journal-logo.png",
@@ -205,26 +213,46 @@ async function refreshNavigationInBackground(request) {
 }
 
 async function navigationFastCached(request, event) {
+  // v40: when online, prefer the fresh HTML shell so Safari/Home Screen stops
+  // reopening older cached app versions. If the network is unavailable or slow,
+  // fall back to the cached shell quickly.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cached = await cachedHtmlForNavigation(request);
-
-  // v38: cached app pages should open immediately, especially on iPad/tablet
-  // and when switching between Disciple Maker and Disciple Journal offline.
-  // While online, refresh the HTML quietly in the background for future loads.
-  if (cached) {
-    try { if (event && event.waitUntil) event.waitUntil(refreshNavigationInBackground(request)); } catch (_) {}
-    return cached;
-  }
-
-  try {
-    const response = await fetch(new Request(request, { cache: "reload" }));
-    if (response && response.ok) {
-      await cacheHtmlResponse(cache, response, request);
-      return response;
+  const cachedPromise = cachedHtmlForNavigation(request);
+  let networkSettled = false;
+  const networkPromise = (async () => {
+    try {
+      const response = await fetch(new Request(request, { cache: "reload" }));
+      networkSettled = true;
+      if (response && response.ok) {
+        await cacheHtmlResponse(cache, response, request);
+        return response;
+      }
+    } catch (_) {
+      networkSettled = true;
     }
-  } catch (_) {}
+    return null;
+  })();
 
-  return (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
+  try { if (event && event.waitUntil) event.waitUntil(networkPromise); } catch (_) {}
+
+  const quick = await Promise.race([
+    networkPromise,
+    new Promise(resolve => setTimeout(resolve, 900)).then(async () => (await cachedPromise) || null)
+  ]);
+  if (quick) return quick;
+
+  const network = await networkPromise;
+  if (network) return network;
+
+  const cached = await cachedPromise;
+  if (cached) return cached;
+
+  let wantsJournal = false;
+  try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
+  if (wantsJournal) {
+    return (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || (await cache.match("./index.html")) || (await cache.match("index.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
+  }
+  return (await cache.match("./index.html")) || (await cache.match("index.html")) || (await cache.match("./personal-study.html")) || (await cache.match("personal-study.html")) || new Response("Iron Sharpener is unavailable offline until the app shell is refreshed online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
 async function matchAnyResourceCache(requestOrPath) {
