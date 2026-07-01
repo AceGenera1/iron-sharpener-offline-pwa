@@ -5889,6 +5889,11 @@ const verseCounts = {
     const now = new Date().toISOString();
     const values = Object.fromEntries(fields.map((id) => [id, $(id).value.trim()]));
     const shouldUpdateExisting = editingSavedEntry && !!currentEntryId;
+    const notes = { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite };
+    const hasGuidedAnswers = guidedNotesHaveContent(notes);
+    const hasFreewriteAnswer = !!scrubPromptOnlyText(notes.freewrite || "").trim();
+    const selectedMode = currentJournalMode();
+    const entryMode = hasGuidedAnswers ? "guided" : (selectedMode === "freewrite" && hasFreewriteAnswer ? "freewrite" : selectedMode);
     return {
       id: shouldUpdateExisting ? currentEntryId : makeId(),
       version: VERSION,
@@ -5898,11 +5903,11 @@ const verseCounts = {
       reference: currentReference(),
       ref: { book: $("book").value, chapter: $("chapter").value, start: $("start").value, end: $("end").value },
       title: values.entryTitle || "",
-      mode: currentJournalMode(),
-      notes: { observe: values.observe, understand: values.understand, heart: values.heart, feetQuestions: values.feetQuestions, feetSensed: values.feetSensed, feetTesting: values.feetTesting, prayer: values.prayer, walk: values.walk, remember: values.remember, freewrite: values.freewrite },
-      tags: currentJournalMode() === "freewrite" ? (values.freewriteTags || values.tags || "") : values.tags,
-      favorite: currentJournalMode() === "freewrite" ? ($("freewriteFavoriteEntry")?.checked || false) : ($("favoriteEntry")?.checked || false),
-      reviewLater: currentJournalMode() === "freewrite" ? ($("freewriteReviewLater")?.checked || false) : ($("reviewLater")?.checked || false)
+      mode: entryMode,
+      notes,
+      tags: entryMode === "freewrite" ? (values.freewriteTags || values.tags || "") : values.tags,
+      favorite: entryMode === "freewrite" ? ($("freewriteFavoriteEntry")?.checked || false) : ($("favoriteEntry")?.checked || false),
+      reviewLater: entryMode === "freewrite" ? ($("freewriteReviewLater")?.checked || false) : ($("reviewLater")?.checked || false)
     };
   }
 
@@ -6049,9 +6054,14 @@ const verseCounts = {
 
   function entryReaderMode(entry) {
     const notes = entry?.notes || {};
-    if (entry?.mode === "freewrite") return "freewrite";
+    const hasGuidedAnswers = guidedNotesHaveContent(notes);
+    const hasFreewriteAnswer = !!scrubPromptOnlyText(notes.freewrite || "").trim();
+    // Guided structure wins when any guided field has saved content. This preserves
+    // older entries that were accidentally marked as freewrite while using Guided Study.
+    if (hasGuidedAnswers) return "guided";
     if (entry?.mode === "guided") return "guided";
-    if (scrubPromptOnlyText(notes.freewrite || "").trim() && !guidedNotesHaveContent(notes)) return "freewrite";
+    if (entry?.mode === "freewrite" && hasFreewriteAnswer) return "freewrite";
+    if (hasFreewriteAnswer && !hasGuidedAnswers) return "freewrite";
     return "guided";
   }
 
@@ -6696,624 +6706,24 @@ const verseCounts = {
     return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(titleText)}</title>
 <style>
-  :root{color-scheme:light;--bg:#FAF4E8;--paper:#FFF9F1;--card:#FFFFFF;--ink:#1D2D44;--deep:#1D2D44;--water:#355070;--muted:#5F6F82;--copper:#B97A56;--soft-copper:#D9A07B;--line:rgba(29,45,68,.16);--shadow:0 18px 45px rgba(29,45,68,.14);}
-  body.export-dark{color-scheme:dark;--bg:#111A28;--paper:#1D2D44;--card:rgba(255,249,241,.055);--ink:#F8F4EC;--deep:#F8F4EC;--water:#AFC7D9;--muted:rgba(248,244,236,.76);--copper:#D9A07B;--soft-copper:#D9A07B;--line:rgba(217,160,123,.34);--shadow:0 24px 60px rgba(0,0,0,.45);}
-  body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left, rgba(220,232,242,.55), transparent 28rem),linear-gradient(180deg,var(--bg),#F3E6D2);color:var(--ink);line-height:1.55;margin:0;padding:32px;}
-  body.export-dark{background:radial-gradient(circle at top left, rgba(175,199,217,.12), transparent 30rem),linear-gradient(180deg,#111A28,#172233 100%);}
+  :root{color-scheme:light;--bg:#FAF4E8;--paper:#FFF9F1;--card:#FFFFFF;--ink:#1D2D44;--deep:#1D2D44;--muted:#5F6F82;--copper:#B97A56;--soft-copper:#D9A07B;--line:rgba(29,45,68,.16);--shadow:0 18px 45px rgba(29,45,68,.14);}
+  body.export-dark{color-scheme:dark;--bg:#111A28;--paper:#1D2D44;--card:rgba(255,249,241,.055);--ink:#F8F4EC;--deep:#F8F4EC;--muted:rgba(248,244,236,.76);--copper:#D9A07B;--soft-copper:#D9A07B;--line:rgba(217,160,123,.34);--shadow:0 24px 60px rgba(0,0,0,.45);}
+  body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,rgba(220,232,242,.55),transparent 28rem),linear-gradient(180deg,var(--bg),#F3E6D2);color:var(--ink);line-height:1.55;margin:0;padding:32px;}
+  body.export-dark{background:radial-gradient(circle at top left,rgba(175,199,217,.12),transparent 30rem),linear-gradient(180deg,#111A28,#172233 100%);}
   .wrap{max-width:920px;margin:0 auto;background:var(--paper);border:1px solid var(--soft-copper);border-radius:22px;padding:28px;box-shadow:var(--shadow);}
   h1{margin:0 0 6px;font-size:32px;color:var(--deep);line-height:1.12;} .sub{color:var(--copper);font-weight:800;margin:0 0 20px;}
   .entry{border-top:1px solid var(--line);padding-top:22px;margin-top:22px;} h2{margin-bottom:4px;color:var(--deep);} .meta{color:var(--muted);font-weight:800;}
   section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0;} h3{margin:0 0 6px;color:var(--copper);}
-  .freewrite-export p{font-size:17px;line-height:1.75;white-space:pre-wrap;} section p{white-space:pre-wrap;}
-  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;}
-  .badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800;background:rgba(217,160,123,.14);color:var(--copper);border:1px solid rgba(185,122,86,.30)}
+  .question{margin:0 0 8px;color:var(--muted);font-weight:800;} .empty-answer{margin:0;color:var(--muted);font-style:italic;} section p{white-space:pre-wrap;} .freewrite-export p{font-size:17px;line-height:1.75;white-space:pre-wrap;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;} .badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800;background:rgba(217,160,123,.14);color:var(--copper);border:1px solid rgba(185,122,86,.30)}
   .note{font-size:13px;color:var(--muted);margin-top:24px;}
   @media (max-width:700px){body{padding:14px;}.wrap{padding:18px;border-radius:18px;}h1{font-size:27px;}}
-  @media print{body,body.export-dark{background:#fff!important;color:#1D2D44!important;padding:0!important;}.wrap{background:#fff!important;color:#1D2D44!important;border:0!important;box-shadow:none!important;max-width:none!important;}section{background:#fff!important;color:#1D2D44!important;border:1px solid rgba(29,45,68,.18)!important;}h1,h2{color:#1D2D44!important;}h3,.sub{color:#8A4A28!important;}.meta{color:#5F6F82!important;}}
-
-
-/* v76 — Box text marking + full flexible color stacking */
-.verse.boxed {
-  border: 3px solid var(--soft-copper);
-  border-radius: 13px;
-  padding: 11px 16px;
-  outline-offset: 3px;
-}
-.verse.boxed.box-gold { border-color: var(--soft-copper) !important; }
-.verse.boxed.box-blue { border-color: #5C91E6 !important; }
-.verse.boxed.box-green { border-color: #4DBB83 !important; }
-.verse.boxed.box-red { border-color: #DD4D4D !important; }
-.verse.boxed.box-purple { border-color: #9D63D6 !important; }
-.verse.boxed.box-amber { border-color: #F28B33 !important; }
-.inline-box {
-  display: inline-block;
-  border: 3px solid var(--soft-copper);
-  border-radius: 7px;
-  padding: 0 6px 1px;
-  margin: 0 2px;
-  line-height: 1.15;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.12);
-}
-.inline-box.inline-mark-gold { border-color: var(--soft-copper) !important; }
-.inline-box.inline-mark-blue { border-color: #5C91E6 !important; }
-.inline-box.inline-mark-green { border-color: #4DBB83 !important; }
-.inline-box.inline-mark-red { border-color: #DD4D4D !important; }
-.inline-box.inline-mark-purple { border-color: #9D63D6 !important; }
-.inline-box.inline-mark-amber { border-color: #F28B33 !important; }
-body.dark .inline-box.inline-mark-gold { box-shadow: 0 0 12px rgba(217,160,123,.16); }
-body.dark .inline-box.inline-mark-blue { box-shadow: 0 0 12px rgba(92,145,230,.16); }
-body.dark .inline-box.inline-mark-green { box-shadow: 0 0 12px rgba(77,187,131,.16); }
-body.dark .inline-box.inline-mark-red { box-shadow: 0 0 12px rgba(221,77,77,.16); }
-body.dark .inline-box.inline-mark-purple { box-shadow: 0 0 12px rgba(157,99,214,.16); }
-body.dark .inline-box.inline-mark-amber { box-shadow: 0 0 12px rgba(242,139,51,.16); }
-.markToolBtn[data-mark="underline"].markActive::after,
-.markToolBtn[data-mark="circle"].markActive::after,
-.markToolBtn[data-mark="box"].markActive::after {
-  content: "Using " attr(data-mark-color-label);
-  display: inline-flex;
-  margin-top: 9px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(255,249,241,.78);
-  color: var(--deep);
-  border: 1px solid rgba(217,160,123,.40);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .02em;
-}
-body.dark .markToolBtn[data-mark="underline"].markActive::after,
-body.dark .markToolBtn[data-mark="circle"].markActive::after,
-body.dark .markToolBtn[data-mark="box"].markActive::after {
-  background: rgba(255,249,241,.12);
-  color: #F8F4EC;
-  border-color: rgba(217,160,123,.48);
-}
-
-</style>
-
-<style id="rdm-v88-disciple-journal-final-full-panel-lock-style">
-/* =========================================================
-   v88 — Final Disciple Journal mobile panel lock
-   Pattern copied from the locked Disciple Maker mobile shell:
-   panels become full app pages fixed from the safe top to the bottom nav.
-   Scope: Study Tools chooser, Scripture Marking, and all resource panels.
-   ========================================================= */
-@media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html.rdm-dj-v88-panel-open,
-  body.rdm-dj-mobile-shell.rdm-dj-v88-panel-open {
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
-  body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
-  body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
-  body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell .resource-instance-panel.open,
-  body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell .background-topic-panel.open,
-  body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
-    display: flex !important;
-    flex-direction: column !important;
-    position: fixed !important;
-    inset: 0 0 var(--dj-mobile-nav-height, 86px) 0 !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: var(--dj-mobile-nav-height, 86px) !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    min-width: 0 !important;
-    height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
-    max-height: calc(100vh - var(--dj-mobile-nav-height, 86px)) !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    transform: none !important;
-    resize: none !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    border-left: 0 !important;
-    border-right: 0 !important;
-    border-top: 0 !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    z-index: 2147482000 !important;
-    opacity: 1 !important;
-    isolation: isolate !important;
-    box-shadow: none !important;
-    pointer-events: auto !important;
-    background: #FFF9F1 !important;
-    color: var(--ink) !important;
-  }
-
-  @supports (height: 100dvh) {
-    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.open,
-    body.rdm-dj-mobile-shell #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.open,
-    body.rdm-dj-mobile-shell #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.open,
-    body.rdm-dj-mobile-shell #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell #internalCrossRefsPanel.open,
-    body.rdm-dj-mobile-shell #internalCrossRefsPanel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell .resource-instance-panel.open,
-    body.rdm-dj-mobile-shell .resource-instance-panel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell .backgrounds-resource-panel.open,
-    body.rdm-dj-mobile-shell .backgrounds-resource-panel.rdm-dj-v88-full-panel,
-    body.rdm-dj-mobile-shell .background-topic-panel.open,
-    body.rdm-dj-mobile-shell .background-topic-panel.rdm-dj-v88-full-panel {
-      height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
-      max-height: calc(100dvh - var(--dj-mobile-nav-height, 86px)) !important;
-    }
-  }
-
-  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.open,
-  body.rdm-dj-mobile-shell.dark #studyToolsPanel.studyToolsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.open,
-  body.rdm-dj-mobile-shell.dark #markToolsPanel.markToolsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.open,
-  body.rdm-dj-mobile-shell.dark #resourceFloatPanel.resourceFloatPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.open,
-  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark .resource-instance-panel.open,
-  body.rdm-dj-mobile-shell.dark .resource-instance-panel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.open,
-  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel.rdm-dj-v88-full-panel,
-  body.rdm-dj-mobile-shell.dark .background-topic-panel.open,
-  body.rdm-dj-mobile-shell.dark .background-topic-panel.rdm-dj-v88-full-panel {
-    background: linear-gradient(180deg, #355070 0%, #1D2D44 100%) !important;
-    color: #F8F4EC !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsHead,
-  body.rdm-dj-mobile-shell #markToolsPanel .markToolsHead,
-  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceFloatHead,
-  body.rdm-dj-mobile-shell .resource-instance-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .teacher-pop-head,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell .background-topic-panel .resourceFloatHead {
-    flex: 0 0 auto !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 3 !important;
-    margin: 0 !important;
-    padding: calc(16px + env(safe-area-inset-top, 0px)) 18px 14px !important;
-    border-bottom: 1.5px solid var(--soft-copper) !important;
-    background: #FFF9F1 !important;
-    color: var(--ink) !important;
-    box-shadow: 0 8px 18px rgba(29,45,68,.05) !important;
-  }
-
-  body.rdm-dj-mobile-shell.dark #studyToolsPanel .studyToolsHead,
-  body.rdm-dj-mobile-shell.dark #markToolsPanel .markToolsHead,
-  body.rdm-dj-mobile-shell.dark #resourceFloatPanel .resourceFloatHead,
-  body.rdm-dj-mobile-shell.dark .resource-instance-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell.dark #internalCrossRefsPanel .teacher-pop-head,
-  body.rdm-dj-mobile-shell.dark .backgrounds-resource-panel .resourceFloatHead,
-  body.rdm-dj-mobile-shell.dark .background-topic-panel .resourceFloatHead {
-    background: #355070 !important;
-    color: #F8F4EC !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsBody,
-  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBody,
-  body.rdm-dj-mobile-shell #studyToolsResults,
-  body.rdm-dj-mobile-shell .resource-panel-body,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-body,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-list,
-  body.rdm-dj-mobile-shell .backgrounds-resource-panel .resource-panel-body,
-  body.rdm-dj-mobile-shell .background-topic-panel .resource-panel-body {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    width: 100% !important;
-    max-width: none !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
-    padding: 16px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
-    box-sizing: border-box !important;
-    background: transparent !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel .studyToolsMenu.descriptiveResourceGrid,
-  body.rdm-dj-mobile-shell #markToolsPanel .markToolsBodyV59,
-  body.rdm-dj-mobile-shell #markToolsPanel .markColorGrid,
-  body.rdm-dj-mobile-shell #markToolsPanel .markBasicGrid,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-controls {
-    width: 100% !important;
-    max-width: none !important;
-    grid-template-columns: 1fr !important;
-  }
-
-  body.rdm-dj-mobile-shell #studyToolsPanel .resourceCardBtn,
-  body.rdm-dj-mobile-shell #markToolsPanel .studyToolBtn,
-  body.rdm-dj-mobile-shell #resourceFloatPanel .resourceResult,
-  body.rdm-dj-mobile-shell .resource-instance-panel .resourceResult,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xrefs-summary,
-  body.rdm-dj-mobile-shell #internalCrossRefsPanel .internal-xref-verse {
-    width: 100% !important;
-    max-width: none !important;
-  }
-
-  body.rdm-dj-mobile-shell .rdm-dj-v88-hidden-behind-full-panel {
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-}
-</style>
-
-
-<style id="rdm-v113-two-app-mobile-separation">
-/* v113: two-app mobile setup. In installed mobile/tablet mode, Disciple Journal stays focused on journaling.
-   Normal Safari/browser still shows Disciple Maker Mode so a user can move between pages while setting up icons. */
-@media (max-width: 1180px), (hover: none), (pointer: coarse) {
-  html.rdm-dj-mobile-standalone-app #studyModeBtn {
-    display: inline-flex !important;
-  }
-}
-</style>
-</head><body class="${bodyClass}"><div class="wrap"><h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${escapeHtml(new Date().toLocaleString())}</p>
-${entryList.map(entryToHtmlBlock).join("\n") || "<p>No journal entries exported.</p>"}
-<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div>
-
-<script id="rdm-v88-disciple-journal-final-full-panel-lock-script">
-(function rdmV88DiscipleJournalFinalFullPanelLock(){
-  if (window.__rdmV88DiscipleJournalFinalFullPanelLock) return;
-  window.__rdmV88DiscipleJournalFinalFullPanelLock = true;
-
-  function isMobileShell(){
-    return !!document.body && document.body.classList.contains('rdm-dj-mobile-shell');
-  }
-
-  function panelList(){
-    return Array.from(document.querySelectorAll([
-      '#studyToolsPanel',
-      '#markToolsPanel',
-      '#resourceFloatPanel',
-      '#internalCrossRefsPanel',
-      '.resource-instance-panel',
-      '.backgrounds-resource-panel',
-      '.background-topic-panel'
-    ].join(',')));
-  }
-
-  function isOpenPanel(panel){
-    if (!panel) return false;
-    if (panel.classList.contains('open')) return true;
-    if (panel.getAttribute('aria-hidden') === 'false' && getComputedStyle(panel).display !== 'none') return true;
-    return false;
-  }
-
-  function normalizePanels(){
-    if (!document.body) return;
-    var mobile = isMobileShell();
-    var panels = panelList();
-    var openPanels = [];
-
-    panels.forEach(function(panel){
-      var open = mobile && isOpenPanel(panel);
-      panel.classList.toggle('rdm-dj-v88-full-panel', open);
-      panel.classList.remove('rdm-dj-v88-hidden-behind-full-panel');
-      if (open) {
-        openPanels.push(panel);
-        panel.style.left = '0';
-        panel.style.right = '0';
-        panel.style.top = '0';
-        panel.style.bottom = 'var(--dj-mobile-nav-height, 86px)';
-        panel.style.width = '100vw';
-        panel.style.maxWidth = '100vw';
-        panel.style.minWidth = '0';
-        panel.style.height = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
-        panel.style.maxHeight = 'calc(100dvh - var(--dj-mobile-nav-height, 86px))';
-        panel.style.minHeight = '0';
-        panel.style.transform = 'none';
-        panel.style.resize = 'none';
-        panel.style.overflow = 'hidden';
-        panel.style.position = 'fixed';
-        panel.style.zIndex = String(2147482000 + openPanels.length);
-      } else if (!mobile) {
-        panel.classList.remove('rdm-dj-v88-full-panel','rdm-dj-v88-hidden-behind-full-panel');
-      }
-    });
-
-    // If a resource result is open, hide the chooser behind it. This mirrors the
-    // Disciple Maker mobile behavior where a resource result feels like its own page.
-    var frontResource = openPanels.find(function(panel){
-      return panel.classList.contains('resource-instance-panel') ||
-             panel.id === 'resourceFloatPanel' ||
-             panel.id === 'internalCrossRefsPanel' ||
-             panel.classList.contains('backgrounds-resource-panel') ||
-             panel.classList.contains('background-topic-panel');
-    });
-    if (frontResource) {
-      ['studyToolsPanel','markToolsPanel'].forEach(function(id){
-        var panel = document.getElementById(id);
-        if (panel && panel !== frontResource && panel.classList.contains('open')) {
-          panel.classList.add('rdm-dj-v88-hidden-behind-full-panel');
-        }
-      });
-    }
-
-    var any = openPanels.length > 0;
-    document.documentElement.classList.toggle('rdm-dj-v88-panel-open', any);
-    document.body.classList.toggle('rdm-dj-v88-panel-open', any);
-  }
-
-  function pulseNormalize(){
-    [0, 60, 180, 420, 800, 1400, 2400, 3600].forEach(function(delay){
-      setTimeout(normalizePanels, delay);
-    });
-  }
-
-  document.addEventListener('click', function(event){
-    if (!isMobileShell()) return;
-    pulseNormalize();
-  }, true);
-
-  document.addEventListener('keydown', function(event){
-    if (event.key === 'Escape') pulseNormalize();
-  }, true);
-
-  window.addEventListener('resize', pulseNormalize, { passive: true });
-  window.addEventListener('orientationchange', pulseNormalize, { passive: true });
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pulseNormalize);
-  else pulseNormalize();
-
-  window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v93-built-in-crossrefs-safe-final';
-})();
-<\/script>
-
-
-<script id="rdm-v119-journal-offline-shell-warmup">
-(function rdmV119JournalOfflineShellWarmup(){
-  if (window.__rdmV119JournalOfflineShellWarmup) return;
-  window.__rdmV119JournalOfflineShellWarmup = true;
-  var SHELL_CACHE = 'iron-sharpener-offline-v38-fast-navigation-20260630';
-  var CORE = [
-    './personal-study.html','personal-study.html','./index.html','index.html','./manifest.json','manifest.json','./manifest-journal.json','manifest-journal.json','./manifest-maker.json','manifest-maker.json',
-    './assets/disciple-journal-logo.png','assets/disciple-journal-logo.png','./assets/disciple-journal-icon-192.png','assets/disciple-journal-icon-192.png','./assets/disciple-journal-icon-512.png','assets/disciple-journal-icon-512.png','./assets/iron-sharpener-logo.png','assets/iron-sharpener-logo.png'
-  ];
-  function lockTitle(){
-    try {
-      document.title = 'IS Disciple Journal';
-      var apple = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-      if (apple) apple.setAttribute('content','IS Disciple Journal');
-      var app = document.querySelector('meta[name="application-name"]');
-      if (app) app.setAttribute('content','IS Disciple Journal');
-    } catch (_) {}
-  }
-  async function putVariant(cache, key, response){
-    try { if (response && response.ok) await cache.put(key, response.clone()); } catch (_) {}
-  }
-  async function warmPageShell(){
-    try {
-      if (!('caches' in window) || !navigator.onLine) return;
-      var cache = await caches.open(SHELL_CACHE);
-      for (var i = 0; i < CORE.length; i++) {
-        var key = CORE[i];
-        try {
-          var res = await fetch(key, { cache: 'reload' });
-          if (res && res.ok) {
-            await putVariant(cache, key, res);
-            if (key.charAt(0) === '.' && key.indexOf('./') === 0) await putVariant(cache, key.slice(2), res);
-            else if (key.indexOf('./') !== 0) await putVariant(cache, './' + key, res);
-          }
-        } catch (_) {}
-      }
-    } catch (_) {}
-  }
-  async function registerAndWarm(){
-    lockTitle();
-    try {
-      if ('serviceWorker' in navigator) {
-        var reg = await navigator.serviceWorker.register('./service-worker.js');
-        try { if (reg && reg.update) reg.update(); } catch (_) {}
-      }
-    } catch (_) {}
-    warmPageShell();
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerAndWarm, { once: true });
-  else registerAndWarm();
-  window.addEventListener('pageshow', function(){ setTimeout(registerAndWarm, 120); });
-})();
-<\/script>
-
-
-
-<!-- v120 — Fresh manifest filename + stable Journal app name only -->
-<script id="rdm-v120-journal-name-final-lock">
-(function rdmV120JournalNameFinalLock(){
-  if (window.__rdmV120JournalNameFinalLock) return;
-  window.__rdmV120JournalNameFinalLock = true;
-  var NAME = "IS Disciple Journal";
-  function setMeta(name, value){
-    try {
-      var el = document.querySelector('meta[name="' + name + '"]');
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
-      el.setAttribute('content', value);
-    } catch(_) {}
-  }
-  function apply(){
-    try { document.title = NAME; } catch(_) {}
-    setMeta('apple-mobile-web-app-title', NAME);
-    setMeta('application-name', NAME);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once:true }); else apply();
-  window.addEventListener('pageshow', apply);
-})();
-<\/script>
-
-
-
-<!-- v122 — Journal name/icon final lock only -->
-<script id="rdm-v122-journal-final-name-lock">
-(function(){
-  var NAME="IS Disciple Journal";
-  function meta(n,v){try{var e=document.querySelector('meta[name="'+n+'"]'); if(!e){e=document.createElement('meta');e.name=n;document.head.appendChild(e);} e.content=v;}catch(_){}}
-  function apply(){try{document.title=NAME;}catch(_){} meta('apple-mobile-web-app-title', NAME); meta('application-name', NAME);}
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', apply, {once:true}); else apply();
-  window.addEventListener('pageshow', apply);
-})();
-<\/script>
-
-
-
-<!-- v127 — Disciple Journal: stable top Study Tool button + range-only changes do not create Back target -->
-<style id="rdm-v127-journal-study-tool-button-style">
-@media (max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
-  #studyModeBtn {
-    display: inline-flex !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    min-width: 106px !important;
-    max-width: 132px !important;
-    touch-action: manipulation !important;
-  }
-  .heroActions {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 10px !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-  }
-}
-</style>
-<script id="rdm-v127-journal-study-tool-button-backfix">
-(function rdmV127JournalStudyToolButtonBackfix(){
-  if (window.__rdmV127JournalStudyToolButtonBackfix) return;
-  window.__rdmV127JournalStudyToolButtonBackfix = true;
-
-  var LABEL = 'Teaching Tool';
-  function get(id){ return document.getElementById(id); }
-
-  function labelStudyToolButton(){
-    try {
-      var btn = get('studyModeBtn');
-      if (!btn) return;
-      btn.textContent = LABEL;
-      btn.setAttribute('aria-label', 'Open the Scripture study and teaching tool');
-      btn.removeAttribute('hidden');
-      btn.removeAttribute('aria-hidden');
-      btn.style.setProperty('display', 'inline-flex', 'important');
-      btn.style.setProperty('visibility', 'visible', 'important');
-      btn.style.setProperty('pointer-events', 'auto', 'important');
-    } catch (_) {}
-  }
-
-  function openStudyTool(){
-    try { if (typeof saveCurrentDraftNow === 'function') saveCurrentDraftNow(); } catch (_) {}
-    try { if (typeof persistCurrentEntry === 'function') persistCurrentEntry(); } catch (_) {}
-    try {
-      var toast = get('rdmModeSwitchToast');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'rdmModeSwitchToast';
-        toast.style.cssText = 'position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2147483000;padding:11px 16px;border-radius:999px;background:rgba(255,249,241,.98);color:#1D2D44;border:1.5px solid #D9A07B;box-shadow:0 14px 32px rgba(0,0,0,.18);font:900 14px Arial,sans-serif;pointer-events:none;';
-        document.body.appendChild(toast);
-      }
-      toast.textContent = 'Opening Teaching Tool...';
-    } catch (_) {}
-    window.location.href = './index.html';
-  }
-
-  document.addEventListener('click', function(event){
-    var btn = event.target && event.target.closest ? event.target.closest('#studyModeBtn') : null;
-    if (!btn) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-    openStudyTool();
-  }, true);
-
-  function hideBackTarget(){
-    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
-    try { discipleJournalScriptureBackStack = []; } catch (_) {}
-    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
-    var btn = get('backToScriptureBtn');
-    if (btn) {
-      btn.classList.remove('has-back-target', 'rdm-back-restoring');
-      btn.setAttribute('aria-hidden', 'true');
-      btn.textContent = '← Back to Scripture';
-    }
-    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
-  }
-
-  function rangeOnlyChanged(){
-    window.__rdmV127JournalRangeOnlyChangeUntil = Date.now() + 2200;
-    [0, 40, 120, 280, 620, 1100, 1800, 2300].forEach(function(delay){
-      setTimeout(hideBackTarget, delay);
-    });
-  }
-
-  function installRangeOnlyListeners(){
-    ['rangeSize','start','end'].forEach(function(id){
-      var el = get(id);
-      if (!el || el.dataset.rdmV127JournalRangeBackFix === '1') return;
-      el.dataset.rdmV127JournalRangeBackFix = '1';
-      el.addEventListener('change', rangeOnlyChanged, true);
-      el.addEventListener('input', rangeOnlyChanged, true);
-    });
-  }
-
-  function wrapBackFunctions(){
-    try {
-      var originalRemember = (typeof rememberPreviousScriptureState === 'function') ? rememberPreviousScriptureState : window.rememberPreviousScriptureState;
-      if (typeof originalRemember === 'function' && !originalRemember.__rdmV127RangeBackFix) {
-        var wrappedRemember = function rdmV127RangeSafeRememberPreviousScriptureState(state){
-          if (Date.now() < (window.__rdmV127JournalRangeOnlyChangeUntil || 0)) {
-            hideBackTarget();
-            return;
-          }
-          return originalRemember.apply(this, arguments);
-        };
-        wrappedRemember.__rdmV127RangeBackFix = true;
-        window.rememberPreviousScriptureState = wrappedRemember;
-        try { rememberPreviousScriptureState = wrappedRemember; } catch (_) {}
-      }
-    } catch (_) {}
-
-    try {
-      var originalUpdate = (typeof updateBackToScriptureButton === 'function') ? updateBackToScriptureButton : window.updateBackToScriptureButton;
-      if (typeof originalUpdate === 'function' && !originalUpdate.__rdmV127RangeBackFix) {
-        var wrappedUpdate = function rdmV127RangeSafeUpdateBackToScriptureButton(){
-          var result = originalUpdate.apply(this, arguments);
-          if (Date.now() < (window.__rdmV127JournalRangeOnlyChangeUntil || 0)) hideBackTarget();
-          return result;
-        };
-        wrappedUpdate.__rdmV127RangeBackFix = true;
-        window.updateBackToScriptureButton = wrappedUpdate;
-        try { updateBackToScriptureButton = wrappedUpdate; } catch (_) {}
-      }
-    } catch (_) {}
-  }
-
-  function run(){
-    labelStudyToolButton();
-    installRangeOnlyListeners();
-    wrapBackFunctions();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once:true }); else run();
-  window.addEventListener('pageshow', function(){ setTimeout(run, 80); });
-  window.addEventListener('resize', function(){ setTimeout(labelStudyToolButton, 80); });
-  window.addEventListener('orientationchange', function(){ setTimeout(labelStudyToolButton, 180); });
-  [80, 250, 700, 1300, 2400, 3900, 5200].forEach(function(ms){ setTimeout(labelStudyToolButton, ms); });
-})();
-<\/script>
-
-</body></html>`;
+  @media print{body,body.export-dark{background:#fff!important;color:#1D2D44!important;padding:0!important;}.wrap{background:#fff!important;color:#1D2D44!important;border:0!important;box-shadow:none!important;max-width:none!important;}section{background:#fff!important;color:#1D2D44!important;border:1px solid rgba(29,45,68,.18)!important;}h1,h2{color:#1D2D44!important;}h3,.sub{color:#8A4A28!important;}.meta{color:#5F6F82!important;}.question,.empty-answer{color:#5F6F82!important;}}
+</style></head><body class="${bodyClass}"><div class="wrap">
+<h1>${escapeHtml(titleText)}</h1><p class="sub">${escapeHtml(subText)} • ${new Date().toLocaleString()}</p>
+${entryList.map(entryToHtmlBlock).join("\n")}
+<p class="note">Generated by Iron Sharpener: Disciple Journal. WEB scripture text is public domain.</p>
+<${"script"} id="iron-sharpener-disciple-journal-data" type="application/json">${jsonForHtmlScript(backup)}</${"script"}></div></body></html>`;
   }
 
   function safeFileName(value) {
@@ -11816,5 +11226,10 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 })();
 </script>
 
+
+<!-- v131 — Guided reader/export mode correction marker -->
+<script id="rdm-v131-guided-reader-export-mode-marker">
+(function(){ window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v131-guided-reader-export-fastnav'; })();
+</script>
 </body>
 </html>
