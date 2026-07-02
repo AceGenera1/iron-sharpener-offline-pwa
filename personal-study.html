@@ -7151,7 +7151,7 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
   else install();
   window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
 })();
-</script>
+<\/script>
 
 </body></html>`;
   }
@@ -12149,6 +12149,98 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   function install(){ patchHelpers(); }
   document.addEventListener('change', intercept, true);
   document.addEventListener('input', intercept, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
+})();
+</script>
+
+
+<!-- v141 — Journal range-control back suppression: Start/End/Section Size are not navigation. -->
+<style id="rdm-v141-journal-range-no-back-style">
+  body.rdm-v141-journal-range-no-back #backToScriptureBtn,
+  body.rdm-v141-journal-range-no-back .backScriptureInlineBtn,
+  body.rdm-v141-journal-range-no-back .has-back-target {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+</style>
+<script id="rdm-v141-journal-range-controls-no-back-final">
+(function rdmV141JournalRangeControlsNoBackFinal(){
+  if (window.__rdmV141JournalRangeControlsNoBackFinal) return;
+  window.__rdmV141JournalRangeControlsNoBackFinal = true;
+  var PREFIX = 'ironSharpenerDiscipleJournal';
+  var rangeClearTimer = null;
+  var rangeLoadTimer = null;
+  function get(id){ return document.getElementById(id); }
+  function isRangeControl(el){ return el && (el.id === 'start' || el.id === 'end' || el.id === 'rangeSize'); }
+  function ensureCustomOption(){
+    var range = get('rangeSize'); if (!range) return;
+    for (var i = 0; i < range.options.length; i++) if (range.options[i].value === 'custom') return;
+    var opt = document.createElement('option'); opt.value = 'custom'; opt.textContent = 'Custom Range'; range.appendChild(opt);
+  }
+  function maxVerseSafe(){
+    try { var b = get('book') ? get('book').value : 'John'; var c = get('chapter') ? get('chapter').value : '1'; if (typeof verseCountFor === 'function') return Number(verseCountFor(b, c) || 1); } catch (_) {}
+    try { var book = get('book') ? get('book').value : 'John'; var chapter = Number(get('chapter') ? get('chapter').value : '1') || 1; var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book]; return counts ? Number(counts[chapter - 1] || 1) : 1; } catch (_) { return 1; }
+  }
+  function setStore(value){ try { localStorage.setItem(PREFIX + '.sectionSize', value || 'full'); } catch (_) {} }
+  function clampRange(){
+    var start = get('start'), end = get('end'); if (!start || !end) return;
+    var max = maxVerseSafe();
+    var s = Number(start.value || 1) || 1;
+    var e = Number(end.value || s) || s;
+    s = Math.max(1, Math.min(max, s)); e = Math.max(s, Math.min(max, e));
+    start.value = String(s); end.value = String(e);
+  }
+  function applyRangeFromControl(changedId){
+    ensureCustomOption();
+    var range = get('rangeSize'), start = get('start'), end = get('end'); if (!start || !end) return;
+    var max = maxVerseSafe();
+    if (changedId === 'start' || changedId === 'end') { if (range) range.value = 'custom'; setStore('custom'); clampRange(); return; }
+    if (!range) return;
+    var value = String(range.value || 'full');
+    if (value === 'full') { start.value = '1'; end.value = String(max); setStore('full'); return; }
+    if (value === 'custom') { setStore('custom'); clampRange(); return; }
+    var size = Number(value) || 5; var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    start.value = String(s); end.value = String(Math.min(max, s + size - 1)); setStore(value);
+  }
+  function clearBackNow(){
+    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
+    var btn = get('backToScriptureBtn');
+    if (btn) { try { btn.classList.remove('has-back-target','rdm-back-restoring','active'); } catch (_) {} try { btn.setAttribute('aria-hidden','true'); } catch (_) {} btn.textContent = '← Back to Scripture'; try { btn.style.display = 'none'; } catch (_) {} }
+  }
+  function beginRangeOnlyWindow(){
+    window.__rdmV141JournalRangeOnlyUntil = Date.now() + 8000;
+    document.body && document.body.classList.add('rdm-v141-journal-range-no-back');
+    clearBackNow();
+    [0,40,120,240,500,900,1400,2200,3500,5200,7600].forEach(function(ms){ setTimeout(clearBackNow, ms); });
+    clearTimeout(rangeClearTimer);
+    rangeClearTimer = setTimeout(function(){ clearBackNow(); try { document.body.classList.remove('rdm-v141-journal-range-no-back'); } catch (_) {} }, 8200);
+  }
+  function loadRangeChange(){
+    clearTimeout(rangeLoadTimer);
+    rangeLoadTimer = setTimeout(function(){ try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {} beginRangeOnlyWindow(); }, 25);
+  }
+  function intercept(event){
+    var target = event && event.target; if (!isRangeControl(target)) return;
+    beginRangeOnlyWindow();
+    try { event.stopImmediatePropagation(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    applyRangeFromControl(target.id);
+    loadRangeChange();
+  }
+  function patchHelpers(){
+    ensureCustomOption();
+    try { applySectionSizeRange = function(){ applyRangeFromControl('rangeSize'); }; } catch (_) {}
+    try { window.applySectionSizeRange = function(){ applyRangeFromControl('rangeSize'); }; } catch (_) {}
+    try { syncEndMinimum = clampRange; } catch (_) {}
+    try { window.syncEndMinimum = clampRange; } catch (_) {}
+  }
+  document.addEventListener('input', intercept, true);
+  document.addEventListener('change', intercept, true);
+  function install(){ patchHelpers(); clearBackNow(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
   window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
 })();
