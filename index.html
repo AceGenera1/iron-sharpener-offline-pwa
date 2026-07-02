@@ -2965,8 +2965,8 @@ html.obs #discipleJournalBtn { display: none !important; }
 <section class="controls">
 <div><label for="book">Book</label><select id="book"></select></div>
 <div><label for="chapter">Chapter</label><select id="chapter"></select></div>
-<div><label for="start">Start Verse</label><select id="start"></select></div>
-<div><label for="end">End Verse</label><select id="end"></select></div>
+<select id="start" hidden aria-hidden="true"></select>
+<select id="end" hidden aria-hidden="true"></select>
 <div>
 <label for="rangeSize">Section Size</label>
 <select id="rangeSize">
@@ -3089,10 +3089,8 @@ html.obs #discipleJournalBtn { display: none !important; }
 <select id="obsBookSelect"></select>
 <label>Chapter</label>
 <select id="obsChapterSelect"></select>
-<label>Start Verse</label>
-<select id="obsStartVerseSelect"></select>
-<label>End Verse</label>
-<select id="obsEndVerseSelect"></select>
+<select id="obsStartVerseSelect" hidden aria-hidden="true"></select>
+<select id="obsEndVerseSelect" hidden aria-hidden="true"></select>
 <label>Section Size</label>
 <select id="obsRangeSizeSelect"></select>
 <button id="obsLoadPassage" style="width:100%;margin-top:12px;" type="button">
@@ -31074,6 +31072,114 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v143 — Remove Start/End Verse controls; Section Size is the only range control. -->
+<style id="rdm-v143-remove-start-end-controls-style">
+  #start[hidden], #end[hidden], #obsStartVerseSelect[hidden], #obsEndVerseSelect[hidden] { display:none !important; }
+</style>
+<script id="rdm-v143-remove-start-end-controls">
+(function rdmV143RemoveStartEndControls(){
+  if (window.__rdmV143RemoveStartEndControls) return;
+  window.__rdmV143RemoveStartEndControls = true;
+  var PREFIX = 'ironSharpenerUnified';
+  function get(id){ return document.getElementById(id); }
+  function maxVerse(book, chapter){
+    try {
+      var ch = Math.max(1, parseInt(chapter, 10) || 1);
+      var arr = (typeof verseCounts !== 'undefined' && verseCounts && verseCounts[book]) ? verseCounts[book] : null;
+      return Math.max(1, parseInt(arr && arr[ch - 1], 10) || 1);
+    } catch (_) { return 1; }
+  }
+  function setSelectValue(sel, value){
+    if (!sel) return;
+    value = String(value || '1');
+    try {
+      var exists = false;
+      for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === value) { exists = true; break; } }
+      if (!exists) sel.add(new Option(value, value));
+    } catch (_) {}
+    try { sel.value = value; } catch (_) {}
+  }
+  function clearBack(){
+    try { window.__rdmRangeEditNoBackUntil = Date.now() + 10000; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    ['backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){
+      var el = get(id); if (el) el.style.display = 'none';
+    });
+  }
+  function rangeValue(rangeSel){
+    var v = rangeSel && rangeSel.value ? String(rangeSel.value) : 'full';
+    if (v === 'custom') v = 'full';
+    return v;
+  }
+  function normalizeMainRange(){
+    var book = get('book'), chapter = get('chapter'), range = get('rangeSize'), start = get('start'), end = get('end');
+    if (!book || !chapter || !range || !start || !end) return;
+    var v = rangeValue(range);
+    if (range.value !== v) range.value = v;
+    var max = maxVerse(book.value, chapter.value);
+    var endVerse = v === 'full' ? max : Math.min(max, Math.max(1, parseInt(v, 10) || max));
+    setSelectValue(start, 1);
+    setSelectValue(end, endVerse);
+    try { localStorage.setItem(PREFIX + '.sectionSize', v); } catch (_) {}
+  }
+  function normalizeObsRange(){
+    var book = get('obsBookSelect'), chapter = get('obsChapterSelect'), range = get('obsRangeSizeSelect'), start = get('obsStartVerseSelect'), end = get('obsEndVerseSelect');
+    if (!book || !chapter || !range || !start || !end) return;
+    var v = rangeValue(range);
+    if (range.value !== v) range.value = v;
+    var max = maxVerse(book.value, chapter.value);
+    var endVerse = v === 'full' ? max : Math.min(max, Math.max(1, parseInt(v, 10) || max));
+    setSelectValue(start, 1);
+    setSelectValue(end, endVerse);
+  }
+  function loadSoon(){
+    clearBack();
+    clearTimeout(window.__rdmV143RangeLoadTimer);
+    window.__rdmV143RangeLoadTimer = setTimeout(function(){
+      clearBack();
+      try { if (typeof saveCurrentNotes === 'function') saveCurrentNotes(); } catch (_) {}
+      try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {}
+      setTimeout(clearBack, 80); setTimeout(clearBack, 450); setTimeout(clearBack, 1400);
+    }, 30);
+  }
+  function mainChange(e){
+    var t = e && e.target;
+    if (!t) return;
+    if (t.id === 'rangeSize') {
+      try { e.stopImmediatePropagation(); } catch (_) {}
+      try { e.stopPropagation(); } catch (_) {}
+      normalizeMainRange();
+      loadSoon();
+      return;
+    }
+    if (t.id === 'book' || t.id === 'chapter') {
+      setTimeout(function(){ normalizeMainRange(); clearBack(); }, 30);
+      setTimeout(clearBack, 250);
+    }
+    if (t.id === 'obsRangeSizeSelect') {
+      try { e.stopImmediatePropagation(); } catch (_) {}
+      try { e.stopPropagation(); } catch (_) {}
+      normalizeObsRange();
+      clearBack();
+      try { if (typeof loadObsPassage === 'function') loadObsPassage(); } catch (_) {}
+    }
+  }
+  document.addEventListener('change', mainChange, true);
+  document.addEventListener('input', mainChange, true);
+  function install(){
+    try { get('start')?.setAttribute('hidden',''); get('end')?.setAttribute('hidden',''); } catch (_) {}
+    try { get('obsStartVerseSelect')?.setAttribute('hidden',''); get('obsEndVerseSelect')?.setAttribute('hidden',''); } catch (_) {}
+    normalizeMainRange();
+    normalizeObsRange();
+    clearBack();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 100); });
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
