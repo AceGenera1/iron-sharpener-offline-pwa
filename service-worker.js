@@ -1,5 +1,5 @@
-/* Iron Sharpener service worker — v50 IndexedDB Backup Fast Shell
-   Purpose: keep fast page switching and provide a cache fallback while the pages use IndexedDB as the primary Bible database.
+/* Iron Sharpener service worker — v51 Browser Online Bible Fast Path
+   Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and prevent online browser Scripture loads from scanning offline caches before trying the network.
 
    Notes:
    - Does not change app data or Journal entries.
@@ -7,7 +7,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v50-indexeddb-backup-fast-shell-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v51-browser-online-bible-fast-20260702";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -321,6 +321,41 @@ async function navigationFastCached(request, event) {
     new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
+
+async function bibleJsonOnlineFastPath(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+
+  // When online, do NOT search every offline cache before loading Scripture.
+  // The page-level IndexedDB loader checks the downloaded Bible database first.
+  // If IndexedDB misses in normal browser mode, go straight to the live JSON and then save a backup.
+  if (looksOnline()) {
+    try {
+      const response = await fetch(request, { cache: "default" });
+      const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
+      if (response && response.ok && (!type || type.includes("json"))) {
+        await putAllVariants(cache, request, response);
+        return response;
+      }
+    } catch (_) {}
+
+    // If the network fails while the browser thinks it is online, fall back quickly.
+    const fallback = await matchInCacheName(IRON_SHARPENER_CACHE, request) || await tightResourceMatch(request);
+    if (fallback) return fallback;
+    return new Response("Offline Bible chapter not found.", {
+      status: 504,
+      headers: { "content-type": "application/json" }
+    });
+  }
+
+  // Offline: exact cache lookup only. The IndexedDB loader usually answers before this path.
+  const cached = await matchInCacheName(IRON_SHARPENER_CACHE, request) || await tightResourceMatch(request);
+  if (cached) return cached;
+  return new Response("Offline Bible chapter not found.", {
+    status: 504,
+    headers: { "content-type": "application/json" }
+  });
+}
+
 async function resourceCacheFirst(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
@@ -366,6 +401,11 @@ self.addEventListener("fetch", (event) => {
 
   if (isNavigationRequest(request)) {
     event.respondWith(navigationFastCached(request, event));
+    return;
+  }
+
+  if (isBibleJsonRequest(request)) {
+    event.respondWith(bibleJsonOnlineFastPath(request));
     return;
   }
 
