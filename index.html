@@ -30674,6 +30674,95 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v139 — Start/End verse custom range fix for mobile browser/app. -->
+<script id="rdm-v139-start-end-custom-range-fix">
+(function rdmV139StartEndCustomRangeFix(){
+  if (window.__rdmV139StartEndCustomRangeFix) return;
+  window.__rdmV139StartEndCustomRangeFix = true;
+  var storagePrefix = 'ironSharpenerUnified';
+  function get(id){ return document.getElementById(id); }
+  function ensureCustomOption(){
+    var range = get('rangeSize');
+    if (!range) return;
+    if (!Array.prototype.some.call(range.options, function(o){ return o.value === 'custom'; })) {
+      var opt = document.createElement('option');
+      opt.value = 'custom';
+      opt.textContent = 'Custom Range';
+      range.appendChild(opt);
+    }
+  }
+  function verseMaxSafe(){
+    try { if (typeof verseMax === 'function') return Number(verseMax() || 1); } catch (_) {}
+    try {
+      var book = get('book') ? get('book').value : 'Genesis';
+      var chapter = get('chapter') ? Number(get('chapter').value || 1) : 1;
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[chapter - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function clampCustomRange(){
+    var start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = verseMaxSafe();
+    var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    var e = Math.max(s, Math.min(max, Number(end.value || max) || max));
+    start.value = String(s);
+    end.value = String(e);
+  }
+  function switchToCustomBecauseUserChangedRange(){
+    ensureCustomOption();
+    var range = get('rangeSize');
+    if (!range) return;
+    if (range.value === 'full') {
+      range.value = 'custom';
+    }
+    clampCustomRange();
+    try { sessionStorage.setItem(storagePrefix + '.rangeChangedByUser.v139', '1'); } catch (_) {}
+  }
+  function installUpdateEndPatch(){
+    ensureCustomOption();
+    var oldUpdate = null;
+    try { oldUpdate = window.updateEndFromRange || (typeof updateEndFromRange === 'function' ? updateEndFromRange : null); } catch (_) {}
+    if (oldUpdate && oldUpdate.__rdmV139CustomRangePatched) return;
+    var patched = function rdmV139UpdateEndFromRange(){
+      ensureCustomOption();
+      var range = get('rangeSize');
+      if (range && range.value === 'custom') {
+        clampCustomRange();
+        return;
+      }
+      if (typeof oldUpdate === 'function') return oldUpdate.apply(this, arguments);
+    };
+    patched.__rdmV139CustomRangePatched = true;
+    window.updateEndFromRange = patched;
+    try { updateEndFromRange = patched; } catch (_) {}
+  }
+  function installListeners(){
+    ensureCustomOption();
+    installUpdateEndPatch();
+    ['start','end'].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV139CustomRange === '1') return;
+      el.dataset.rdmV139CustomRange = '1';
+      el.addEventListener('input', switchToCustomBecauseUserChangedRange, true);
+      el.addEventListener('change', switchToCustomBecauseUserChangedRange, true);
+    });
+    var range = get('rangeSize');
+    if (range && range.dataset.rdmV139CustomRangeSelect !== '1') {
+      range.dataset.rdmV139CustomRangeSelect = '1';
+      range.addEventListener('change', function(){
+        ensureCustomOption();
+        if (range.value === 'custom') clampCustomRange();
+      }, true);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installListeners, { once:true }); else installListeners();
+  window.addEventListener('pageshow', function(){ setTimeout(installListeners, 60); });
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
