@@ -30763,6 +30763,124 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v140 — Definitive range-control interceptor: Start/End/Section Size update passage without Back. -->
+<script id="rdm-v140-maker-range-controls-no-back">
+(function rdmV140MakerRangeControlsNoBack(){
+  if (window.__rdmV140MakerRangeControlsNoBack) return;
+  window.__rdmV140MakerRangeControlsNoBack = true;
+  var PREFIX = 'ironSharpenerUnified';
+  var pendingLoad = 0;
+  function get(id){ return document.getElementById(id); }
+  function isRangeControl(el){ return el && (el.id === 'start' || el.id === 'end' || el.id === 'rangeSize'); }
+  function ensureCustomOption(){
+    var range = get('rangeSize');
+    if (!range) return;
+    for (var i = 0; i < range.options.length; i++) if (range.options[i].value === 'custom') return;
+    var opt = document.createElement('option');
+    opt.value = 'custom';
+    opt.textContent = 'Custom Range';
+    range.appendChild(opt);
+  }
+  function maxVerseSafe(){
+    try { if (typeof verseMax === 'function') return Number(verseMax() || 1); } catch (_) {}
+    try {
+      var book = get('book') ? get('book').value : 'Genesis';
+      var chapter = get('chapter') ? Number(get('chapter').value || 1) : 1;
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[chapter - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function storeSection(value){
+    try { localStorage.setItem(PREFIX + '.sectionSize', value || 'full'); } catch (_) {}
+    try { localStorage.setItem(PREFIX + '.sectionSizeUserTouched.v130', '1'); } catch (_) {}
+  }
+  function clampRange(){
+    var start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = maxVerseSafe();
+    var s = Number(start.value || 1) || 1;
+    var e = Number(end.value || s) || s;
+    s = Math.max(1, Math.min(max, s));
+    e = Math.max(s, Math.min(max, e));
+    start.value = String(s);
+    end.value = String(e);
+  }
+  function applySectionSize(){
+    ensureCustomOption();
+    var range = get('rangeSize'), start = get('start'), end = get('end');
+    if (!range || !start || !end) return;
+    var max = maxVerseSafe();
+    var value = String(range.value || 'full');
+    if (value === 'full') {
+      start.value = '1';
+      end.value = String(max);
+      storeSection('full');
+      return;
+    }
+    if (value === 'custom') {
+      clampRange();
+      storeSection('custom');
+      return;
+    }
+    var size = Number(value) || 5;
+    var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    start.value = String(s);
+    end.value = String(Math.min(max, s + size - 1));
+    storeSection(value);
+  }
+  function setCustomFromVerseControls(){
+    ensureCustomOption();
+    var range = get('rangeSize');
+    if (range) range.value = 'custom';
+    storeSection('custom');
+    clampRange();
+  }
+  function clearBack(){
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
+    ['scriptureBackBtn','backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){
+      var el = get(id); if (!el) return;
+      try { el.classList.remove('rdm-scripture-back-visible','rdm-teaching-back-active','active'); } catch (_) {}
+      try { el.setAttribute('aria-hidden','true'); } catch (_) {}
+      if (id !== 'scriptureBackBtn') el.style.display = 'none';
+    });
+  }
+  function loadAfterRangeChange(){
+    clearBack();
+    clearTimeout(pendingLoad);
+    pendingLoad = setTimeout(function(){
+      try { if (typeof saveCurrentNotes === 'function') saveCurrentNotes(); } catch (_) {}
+      try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {}
+      [0,120,450,1000].forEach(function(ms){ setTimeout(clearBack, ms); });
+    }, 20);
+  }
+  function intercept(event){
+    var target = event && event.target;
+    if (!isRangeControl(target)) return;
+    try { event.stopImmediatePropagation(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    ensureCustomOption();
+    if (target.id === 'start' || target.id === 'end') setCustomFromVerseControls();
+    else applySectionSize();
+    loadAfterRangeChange();
+  }
+  function patchHelpers(){
+    ensureCustomOption();
+    window.rdmMakerApplySectionSizeV140 = applySectionSize;
+    window.rdmMakerClearRangeBackV140 = clearBack;
+    try { updateEndFromRange = applySectionSize; } catch (_) {}
+    try { window.updateEndFromRange = applySectionSize; } catch (_) {}
+  }
+  function install(){ patchHelpers(); }
+  document.addEventListener('change', intercept, true);
+  document.addEventListener('input', intercept, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
