@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v53 Online Direct Bible JSON Polish
+/* Iron Sharpener service worker — v54 Instant App Shell + Online Direct Bible JSON
    Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make browser Scripture loads prefer already-saved local Bible JSON before touching the network.
 
    Notes:
@@ -7,7 +7,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v53-online-direct-bible-json-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v54-instant-shell-online-direct-bible-json-20260702";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -328,9 +328,19 @@ async function refreshNavigationInBackground(request) {
   } catch (_) {}
 }
 
+async function currentCacheHtmlForNavigationOnly(request) {
+  // v54: first app paint must not wait on old-cache scans. Check current shell cache only.
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  for (const key of htmlCacheKeysForRequest(request)) {
+    const cached = await cache.match(key, { ignoreSearch: true });
+    if (cached) return cached;
+  }
+  return null;
+}
+
 async function navigationFastCached(request, event) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cached = await cachedHtmlForNavigation(request);
+  const cached = await currentCacheHtmlForNavigationOnly(request);
   if (cached) {
     try {
       if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
@@ -348,6 +358,7 @@ async function navigationFastCached(request, event) {
     } catch (_) {}
   }
 
+  // Last resort only: exact known shell names, no broad cache scan during launch.
   let wantsJournal = false;
   try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
   if (wantsJournal) {
@@ -357,6 +368,7 @@ async function navigationFastCached(request, event) {
   }
   return (await cache.match("./index.html")) ||
     (await cache.match("index.html")) ||
+    (await cache.match("./")) ||
     new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
