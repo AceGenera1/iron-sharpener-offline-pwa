@@ -11735,6 +11735,159 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   window.addEventListener('pageshow', function(){ setTimeout(install, 120); });
 })();
 </script>
+
+
+<!-- v146 — Disciple Journal full-chapter-only + real book/chapter Back button. -->
+<script id="rdm-v146-journal-fullchapter-back-final">
+(function rdmV146JournalFullChapterBackFinal(){
+  if (window.__rdmV146JournalFullChapterBackFinal) return;
+  window.__rdmV146JournalFullChapterBackFinal = true;
+  var ownStack = [];
+  var lastLoaded = null;
+  var restoring = false;
+  var baseLoad = null;
+  function get(id){ return document.getElementById(id); }
+  function maxVerse(book, chapter){
+    try { if (typeof verseCountFor === 'function') return Math.max(1, parseInt(verseCountFor(book, chapter), 10) || 1); } catch (_) {}
+    try {
+      var ch = Math.max(1, parseInt(chapter, 10) || 1);
+      if (typeof verseCounts !== 'undefined' && verseCounts && verseCounts[book]) return Math.max(1, parseInt(verseCounts[book][ch - 1], 10) || 1);
+    } catch (_) {}
+    try { var end = get('end'); if (end && end.options && end.options.length) return Math.max(1, end.options.length); } catch (_) {}
+    return 1;
+  }
+  function ensureOption(select, value){
+    if (!select) return;
+    value = String(value || '1');
+    try {
+      var found = false;
+      for (var i = 0; i < select.options.length; i++) { if (select.options[i].value === value) { found = true; break; } }
+      if (!found) select.add(new Option(value, value));
+    } catch (_) {}
+    try { select.value = value; } catch (_) {}
+  }
+  function forceFullChapterState(){
+    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end'), range = get('rangeSize');
+    if (!book || !chapter) return null;
+    var b = book.value || 'John';
+    var c = String(chapter.value || '1');
+    var max = maxVerse(b, c);
+    if (range) { try { range.value = 'full'; } catch (_) {} }
+    ensureOption(start, '1');
+    ensureOption(end, String(max));
+    try { localStorage.setItem('ironSharpenerDiscipleJournal.sectionSize', 'full'); } catch (_) {}
+    return { book:b, chapter:c, start:'1', end:String(max) };
+  }
+  function key(state){ return state ? [state.book, state.chapter].join('|') : ''; }
+  function ref(state){
+    if (!state) return 'Scripture';
+    return state.start === state.end ? (state.book + ' ' + state.chapter + ':' + state.start) : (state.book + ' ' + state.chapter + ':' + state.start + '-' + state.end);
+  }
+  function clearOldBackInternals(){
+    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { window.__rdmV143JournalRangeOnlyUntil = 0; } catch (_) {}
+    try { window.__rdmV135JournalRangeOnlyUntil = 0; } catch (_) {}
+  }
+  function updateButton(){
+    var btn = get('backToScriptureBtn');
+    if (!btn) return;
+    var target = ownStack.length ? ownStack[ownStack.length - 1] : null;
+    if (!target) {
+      btn.classList.remove('has-back-target','rdm-back-restoring','active');
+      btn.setAttribute('aria-hidden','true');
+      btn.textContent = '← Back to Scripture';
+      btn.style.display = 'none';
+      return;
+    }
+    btn.classList.add('has-back-target');
+    btn.classList.remove('rdm-back-restoring');
+    btn.setAttribute('aria-hidden','false');
+    btn.textContent = '← Back to ' + ref(target);
+    btn.style.display = 'inline-flex';
+  }
+  function pushBackTarget(state){
+    if (!state || !state.book || !state.chapter) return;
+    var current = forceFullChapterState();
+    if (!current || key(state) === key(current)) return;
+    var top = ownStack.length ? ownStack[ownStack.length - 1] : null;
+    if (!top || key(top) !== key(state)) ownStack.push(Object.assign({}, state));
+    if (ownStack.length > 20) ownStack.shift();
+    updateButton();
+    setTimeout(updateButton, 120);
+    setTimeout(updateButton, 360);
+    setTimeout(updateButton, 900);
+  }
+  async function finalLoadPassage(){
+    if (!baseLoad) return;
+    var before = lastLoaded ? Object.assign({}, lastLoaded) : null;
+    var next = forceFullChapterState();
+    var shouldRemember = !!(before && next && key(before) && key(next) && key(before) !== key(next) && !restoring);
+    clearOldBackInternals();
+    var priorRestoring;
+    try { priorRestoring = discipleJournalRestoringPreviousScripture; discipleJournalRestoringPreviousScripture = true; } catch (_) {}
+    try {
+      await baseLoad();
+    } finally {
+      try { discipleJournalRestoringPreviousScripture = priorRestoring || false; } catch (_) {}
+    }
+    var after = forceFullChapterState() || next;
+    lastLoaded = after ? Object.assign({}, after) : next;
+    if (shouldRemember) pushBackTarget(before); else updateButton();
+  }
+  async function restoreBack(event){
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+    if (event && typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    var target = ownStack.pop();
+    updateButton();
+    if (!target) return;
+    restoring = true;
+    try {
+      var book = get('book'), chapter = get('chapter');
+      if (book) book.value = target.book;
+      try { if (typeof populateChapters === 'function') populateChapters(target.chapter); } catch (_) {}
+      if (chapter) chapter.value = String(target.chapter || '1');
+      try { if (typeof populateVerses === 'function') populateVerses(); } catch (_) {}
+      forceFullChapterState();
+      await finalLoadPassage();
+      try { document.querySelector('.scriptureCard')?.scrollIntoView({ behavior:'auto', block:'start' }); } catch (_) {}
+    } finally {
+      restoring = false;
+      updateButton();
+    }
+  }
+  function install(){
+    if (!baseLoad) {
+      try { baseLoad = window.loadPassage || loadPassage; } catch (_) { baseLoad = null; }
+      if (!baseLoad || baseLoad.__rdmV146FinalLoader) return;
+      finalLoadPassage.__rdmV146FinalLoader = true;
+      window.loadPassage = finalLoadPassage;
+      try { loadPassage = finalLoadPassage; } catch (_) {}
+    }
+    ['start','end','rangeSize'].forEach(function(id){
+      var el = get(id);
+      if (el) { el.hidden = true; el.setAttribute('aria-hidden','true'); el.style.display = 'none'; }
+    });
+    document.querySelectorAll('label[for="start"],label[for="end"],label[for="rangeSize"]').forEach(function(label){
+      label.style.display = 'none';
+      var wrap = label.closest('div');
+      if (wrap) wrap.style.display = 'none';
+    });
+    forceFullChapterState();
+    var btn = get('backToScriptureBtn');
+    if (btn && btn.dataset.rdmV146BackClick !== '1') {
+      btn.dataset.rdmV146BackClick = '1';
+      btn.addEventListener('click', restoreBack, true);
+    }
+    updateButton();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
+  window.rdmJournalForceFullChapterAndBackV146 = function(){ install(); return finalLoadPassage(); };
+})();
+</script>
+
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
