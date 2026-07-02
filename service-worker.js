@@ -1,42 +1,22 @@
-/* Iron Sharpener service worker — v49 Exact Root Bible Cache Offline
-   Purpose: keep the working fast navigation/offline foundation, but make Scripture
-   chapter JSON load like a downloaded book by checking only the exact known cache
-   locations first instead of walking old caches/variants.
+/* Iron Sharpener service worker — v50 IndexedDB Backup Fast Shell
+   Purpose: keep fast page switching and provide a cache fallback while the pages use IndexedDB as the primary Bible database.
 
    Notes:
    - Does not change app data or Journal entries.
    - Keeps current HTML shells fast.
-   - Bible JSON uses a direct exact-match path before any fallback.
+   - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v49-exact-root-bible-cache-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v50-indexeddb-backup-fast-shell-20260702";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
-const PRIMARY_COMPLETE_CACHE = "iron-sharpener-offline-v36-complete-tool-20260630";
-
 const KNOWN_RESOURCE_CACHES = [
-  PRIMARY_COMPLETE_CACHE,
+  "iron-sharpener-offline-v36-complete-tool-20260630",
   "iron-sharpener-offline-v105-public-ready-cache",
   "iron-sharpener-offline-v34-final-offline-sync-20260627",
   "iron-sharpener-offline-v26-public-lock-20260626"
 ];
-
-const FAST_BIBLE_CACHE_NAMES = [
-  IRON_SHARPENER_CACHE,
-  PRIMARY_COMPLETE_CACHE
-];
-
-const LEGACY_BIBLE_FALLBACK_CACHES = [
-  "iron-sharpener-offline-v47-direct-fast-bible-json-20260701",
-  "iron-sharpener-offline-v46-restore-fast-bible-json-20260701",
-  "iron-sharpener-offline-v43-fast-bible-json-offline-20260701",
-  "iron-sharpener-offline-v42-fast-resource-cache-navigation-20260701",
-  "iron-sharpener-offline-v40-fresh-shell-navigation-20260701",
-  "iron-sharpener-offline-v38-fast-stable-navigation-20260630"
-];
-
-const cacheHandlePromises = new Map();
 
 const CORE_ASSETS = [
   "./",
@@ -182,16 +162,6 @@ function isHtmlRequestKey(key) {
 function looksOnline() {
   try { return !!(self.navigator && self.navigator.onLine); }
   catch (_) { return true; }
-}
-
-function openNamedCache(name) {
-  if (!cacheHandlePromises.has(name)) {
-    cacheHandlePromises.set(name, caches.open(name).catch(function(error){
-      cacheHandlePromises.delete(name);
-      throw error;
-    }));
-  }
-  return cacheHandlePromises.get(name);
 }
 
 async function putIfGood(cache, request, response) {
@@ -351,121 +321,7 @@ async function navigationFastCached(request, event) {
     new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
-
-function bibleExactKeys(request) {
-  const path = canonicalResourcePath(request);
-  const decoded = safeDecode(path);
-  const encoded = encodeSpaces(decoded);
-  const encodedFromPath = encodeSpaces(path);
-  let absoluteDecoded = null;
-  let absoluteEncoded = null;
-  try { absoluteDecoded = new URL(decoded, self.location.origin + "/").href; } catch (_) {}
-  try { absoluteEncoded = new URL(encoded, self.location.origin + "/").href; } catch (_) {}
-  let requestUrl = null;
-  try { requestUrl = request.url; } catch (_) {}
-
-  // v49: older successful offline prep saved some Bible chapters under
-  // root-relative keys such as /bible/web/Nehemiah/01.json. v48 was too strict
-  // and did not check the leading-slash form, which made good cached chapters
-  // look missing while offline. Keep this exact-key list fast, but include all
-  // canonical root/no-root/dot/encoded forms.
-  return [...new Set([
-    request,
-    requestUrl,
-    absoluteDecoded,
-    absoluteEncoded,
-    path,
-    `/${path}`,
-    `./${path}`,
-    decoded,
-    `/${decoded}`,
-    `./${decoded}`,
-    encoded,
-    `/${encoded}`,
-    `./${encoded}`,
-    encodedFromPath,
-    `/${encodedFromPath}`,
-    `./${encodedFromPath}`
-  ].filter(Boolean))];
-}
-
-async function matchExactKeysInCache(cacheName, keys) {
-  try {
-    const cache = await openNamedCache(cacheName);
-    for (const key of keys) {
-      const cached = await cache.match(key, { ignoreSearch: true });
-      if (cached) return cached;
-    }
-  } catch (_) {}
-  return null;
-}
-
-async function bibleCacheSearchNames() {
-  const existing = await caches.keys();
-  const names = [];
-  const add = (name) => { if (name && existing.includes(name) && !names.includes(name)) names.push(name); };
-
-  // Fast path first.
-  FAST_BIBLE_CACHE_NAMES.forEach(add);
-
-  // Then the known complete/resource caches from previous working builds.
-  KNOWN_RESOURCE_CACHES.forEach(add);
-  LEGACY_BIBLE_FALLBACK_CACHES.forEach(add);
-
-  // v49 safety: if a device prepared offline under any Iron Sharpener cache name,
-  // check it with the same exact keys. This is not the old slow broad variant scan;
-  // it is a small exact-key lookup, and it prevents valid cached chapters from
-  // being reported missing because their cache name changed.
-  existing
-    .filter((name) => name.startsWith(IRON_SHARPENER_CACHE_PREFIX))
-    .forEach(add);
-
-  return names;
-}
-
-async function directBibleJsonMatch(request) {
-  const keys = bibleExactKeys(request);
-  const names = await bibleCacheSearchNames();
-
-  for (const name of names) {
-    const cached = await matchExactKeysInCache(name, keys);
-    if (cached) return cached;
-  }
-
-  return null;
-}
-
-async function bibleJsonFast(request) {
-  const cache = await openNamedCache(IRON_SHARPENER_CACHE);
-  const cached = await directBibleJsonMatch(request);
-  if (cached) {
-    try { eventlessCopy(cache, request, cached.clone()); } catch (_) {}
-    return cached;
-  }
-
-  if (!looksOnline()) {
-    return new Response("Offline Bible chapter not cached.", { status: 504, headers: { "content-type": "application/json" } });
-  }
-
-  try {
-    // Let the browser HTTP cache satisfy online requests if it already has the
-    // chapter. This avoids forcing a network round-trip for static Scripture JSON.
-    const response = await fetch(new Request(request, { cache: "force-cache" }));
-    const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
-    if (!response || !response.ok || (type && !type.includes("json"))) {
-      return new Response("Bible chapter unavailable or invalid.", { status: response ? response.status : 503, headers: { "content-type": "application/json" } });
-    }
-    await putAllVariants(cache, request, response.clone());
-    return response;
-  } catch (_) {
-    const fallback = await directBibleJsonMatch(request);
-    if (fallback) return fallback;
-    return new Response("Offline Bible chapter not cached.", { status: 504, headers: { "content-type": "application/json" } });
-  }
-}
-
 async function resourceCacheFirst(request) {
-  if (isBibleJsonRequest(request)) return bibleJsonFast(request);
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
   const cached = await tightResourceMatch(request);
