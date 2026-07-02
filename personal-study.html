@@ -16,7 +16,7 @@
 <title>IS Disciple Journal</title>
 
 
-<script id="rdm-v137-bible-indexeddb-first">
+<script id="rdm-v137-online-direct-bible-loader">
 (function rdmV137BibleIndexedDbFirst(){
   "use strict";
   if (window.__rdmBibleIndexedDbV137Installed) return;
@@ -172,23 +172,49 @@
     } catch (_) { return false; }
   }
 
+  function saveResponseToBibleDbSoon(info, response, waitForSave){
+    try {
+      if (!info || !response || !response.ok) return waitForSave ? Promise.resolve(false) : false;
+      var work = response.clone().json().then(function(data){ return putChapter(info, data); }).catch(function(){ return false; });
+      if (waitForSave) return work;
+      // Fire-and-forget for normal online reading so Scripture renders immediately.
+      work.catch(function(){});
+      return true;
+    } catch (_) { return waitForSave ? Promise.resolve(false) : false; }
+  }
+
   if (originalFetch) {
     window.fetch = async function rdmBibleIndexedDbFetch(input, init){
       var info = parseBiblePath(input);
       if (!info) return originalFetch(input, init);
-      var wantsReload = !!(init && String(init.cache || "").toLowerCase() === "reload");
+
+      var cacheMode = init && init.cache ? String(init.cache || "").toLowerCase() : "";
+      var wantsReload = cacheMode === "reload" || cacheMode === "no-store";
+      var setupFetch = cacheMode === "force-cache";
+      var online = true;
+      try { online = navigator.onLine !== false; } catch (_) { online = true; }
+
+      // Online normal reading should behave like a website again: direct fast request first.
+      // Do not wait on IndexedDB open/get here; Safari/iPad can make that pause noticeable.
+      // If the chapter is already in this page's memory, return it instantly.
+      if (online && !wantsReload && !setupFetch) {
+        try {
+          if (memory.has(info.key)) return responseFromData(memory.get(info.key));
+        } catch (_) {}
+        var onlineResponse = await originalFetch(input, init);
+        saveResponseToBibleDbSoon(info, onlineResponse, false);
+        return onlineResponse;
+      }
+
+      // Offline and Offline Ready setup still use the local Bible database first.
       if (!wantsReload) {
         var local = await getChapter(info);
         if (local) return responseFromData(local);
       }
+
       var response = await originalFetch(input, init);
-      try {
-        if (response && response.ok) {
-          var clone = response.clone();
-          var data = await clone.json();
-          await putChapter(info, data);
-        }
-      } catch (_) {}
+      // During Offline Ready setup, wait for the Bible DB save to finish.
+      await saveResponseToBibleDbSoon(info, response, setupFetch);
       return response;
     };
   }
