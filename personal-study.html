@@ -11225,6 +11225,119 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 <script id="rdm-v132-journal-clean-export-recovery-marker">
 (function(){ try { window.__IRON_SHARPENER_DISCIPLE_JOURNAL_MOBILE_VERSION = 'v132-journal-clean-export-recovery'; } catch (_) {} })();
 </script>
+
+
+<!-- v135 — Disciple Journal clean Scripture loader: one chapter request, one render, guided/export logic untouched. -->
+<script id="rdm-v135-journal-clean-single-scripture-loader">
+(function rdmV135JournalCleanSingleScriptureLoader(){
+  if (window.__rdmV135JournalCleanSingleScriptureLoader) return;
+  window.__rdmV135JournalCleanSingleScriptureLoader = true;
+  var chapterCache = new Map();
+  var activeToken = 0;
+  var lastRenderedKey = '';
+  function get(id){ return document.getElementById(id); }
+  function escape(value){
+    try { if (typeof escapeHtml === 'function') return escapeHtml(value); } catch (_) {}
+    return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function clean(value){
+    try { if (typeof cleanText === 'function') return cleanText(value); } catch (_) {}
+    return String(value || '');
+  }
+  function maxVerse(book, chapter){
+    try { if (typeof verseCountFor === 'function') return Number(verseCountFor(book, chapter) || 1); } catch (_) {}
+    try {
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function sectionMode(){
+    var size = get('rangeSize');
+    if (size) return String(size.value || 'full');
+    try { if (typeof currentSectionSize === 'function') return String(currentSectionSize() || 'full'); } catch (_) {}
+    return 'full';
+  }
+  function state(){
+    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
+    if (!book || !chapter || !start || !end) return null;
+    var b = book.value || 'John';
+    var c = String(chapter.value || '1');
+    var max = maxVerse(b, c) || 1;
+    var mode = sectionMode();
+    var s = Number(start.value || 1) || 1;
+    var e = Number(end.value || s) || s;
+    if (mode === 'full') { s = 1; e = max; }
+    s = Math.max(1, Math.min(max, s));
+    e = Math.max(s, Math.min(max, e));
+    if (String(start.value) !== String(s)) start.value = String(s);
+    if (String(end.value) !== String(e)) end.value = String(e);
+    return { book:b, chapter:c, start:s, end:e, max:max, mode:mode };
+  }
+  function reference(s){ return s.start === s.end ? (s.book + ' ' + s.chapter + ':' + s.start) : (s.book + ' ' + s.chapter + ':' + s.start + '-' + s.end); }
+  async function fetchChapter(book, chapter){
+    var key = book + '|' + String(chapter);
+    if (chapterCache.has(key)) return chapterCache.get(key);
+    var path = './bible/web/' + book + '/' + String(chapter).padStart(2, '0') + '.json';
+    var response = await fetch(path);
+    if (!response.ok) response = await fetch('bible/web/' + book + '/' + String(chapter).padStart(2, '0') + '.json');
+    if (!response.ok) throw new Error('Bible chapter not found: ' + path);
+    var data = await response.json();
+    chapterCache.set(key, data);
+    return data;
+  }
+  function clearRangeBack(){
+    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
+    var b = get('backToScriptureBtn');
+    if (b) { b.classList.remove('has-back-target','rdm-back-restoring'); b.setAttribute('aria-hidden','true'); }
+    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
+  }
+  async function cleanLoadPassage(){
+    var s = state();
+    var passage = get('passage'), title = get('referenceTitle');
+    if (!s || !passage) return;
+    var token = ++activeToken;
+    var key = s.book + '|' + s.chapter + '|' + s.start + '|' + s.end + '|' + s.mode;
+    if (title) title.textContent = reference(s);
+    if (key !== lastRenderedKey) passage.innerHTML = '<p class="empty">Loading ' + escape(reference(s)) + '…</p>';
+    try {
+      var data = await fetchChapter(s.book, s.chapter);
+      if (token !== activeToken) return;
+      var verses = Array.isArray(data.verses) ? data.verses : [];
+      var selected = verses.filter(function(v){ var n = Number(v.verse); return n >= s.start && n <= s.end; });
+      if (!selected.length) throw new Error('No verses found.');
+      try { currentPassageVerses = selected; } catch (_) { window.currentPassageVerses = selected; }
+      if (title) title.textContent = reference(s);
+      passage.innerHTML = selected.map(function(v){
+        var n = Number(v.verse);
+        return '<p class="verse" data-verse="' + n + '" data-v="' + n + '"><span class="vnum">' + n + '</span>' + escape(clean(v.text)) + '</p>';
+      }).join('');
+      lastRenderedKey = key;
+      try { if (typeof applySavedMarks === 'function') applySavedMarks(); } catch (_) {}
+      try { if (typeof clearCopySelection === 'function') clearCopySelection(); } catch (_) {}
+      try { if (typeof saveLastScriptureRef === 'function') saveLastScriptureRef(s.book, s.chapter, String(s.start), String(s.end)); } catch (_) {}
+      try { if (typeof autosaveDraft === 'function') autosaveDraft(); } catch (_) {}
+      try { if (Date.now() < (window.__rdmV135JournalRangeOnlyUntil || 0)) clearRangeBack(); else if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
+    } catch (error) {
+      if (token !== activeToken) return;
+      try { currentPassageVerses = []; } catch (_) { window.currentPassageVerses = []; }
+      passage.innerHTML = '<p class="empty">This passage could not load from the local Bible files. ' + escape(error && error.message ? error.message : error) + '</p>';
+    }
+  }
+  cleanLoadPassage.__rdmV135JournalCleanLoader = true;
+  window.loadPassage = cleanLoadPassage;
+  try { loadPassage = cleanLoadPassage; } catch (_) {}
+  ['rangeSize','start','end'].forEach(function(id){
+    var el = get(id); if (!el || el.dataset.rdmV135JournalCleanRange === '1') return;
+    el.dataset.rdmV135JournalCleanRange = '1';
+    el.addEventListener('change', function(){ window.__rdmV135JournalRangeOnlyUntil = Date.now() + 2200; setTimeout(clearRangeBack, 0); setTimeout(clearRangeBack, 180); }, true);
+    el.addEventListener('input', function(){ window.__rdmV135JournalRangeOnlyUntil = Date.now() + 1200; setTimeout(clearRangeBack, 0); }, true);
+  });
+  window.rdmJournalCleanLoadPassageV135 = cleanLoadPassage;
+})();
+</script>
+
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
