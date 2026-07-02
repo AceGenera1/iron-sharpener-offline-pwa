@@ -4760,11 +4760,20 @@ function showSmallTeachingNoteBox() {
 
     function updateEndFromRange() {
       const max = verseMax();
-      const startVerse = parseInt(startSel.value, 10) || 1;
+      let startVerse = parseInt(startSel.value, 10) || 1;
+      startVerse = Math.max(1, Math.min(max, startVerse));
+      startSel.value = String(startVerse);
 
       if (rangeSel.value === "full") {
-        startSel.value = 1;
-        endSel.value = max;
+        startSel.value = "1";
+        endSel.value = String(max);
+        return;
+      }
+
+      if (rangeSel.value === "custom") {
+        let endVerse = parseInt(endSel.value, 10) || startVerse;
+        endVerse = Math.max(startVerse, Math.min(max, endVerse));
+        endSel.value = String(endVerse);
         return;
       }
 
@@ -6686,16 +6695,36 @@ try {
     updateEndFromRange();
   });
 
+  function clearRangeEditBackButton() {
+    try { previousPassageState = null; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach((id) => {
+      const btn = $(id);
+      if (btn) btn.style.display = "none";
+    });
+  }
+
   startSel.onchange = () => saveThenLoad(() => {
+    rangeSel.value = "custom";
+    localStorage.setItem(`${storagePrefix}.sectionSize`, "custom");
+    localStorage.setItem(`${storagePrefix}.sectionSizeUserTouched.v142`, "1");
     updateEndFromRange();
+    clearRangeEditBackButton();
   });
 
-  endSel.onchange = () => saveThenLoad();
+  endSel.onchange = () => saveThenLoad(() => {
+    rangeSel.value = "custom";
+    localStorage.setItem(`${storagePrefix}.sectionSize`, "custom");
+    localStorage.setItem(`${storagePrefix}.sectionSizeUserTouched.v142`, "1");
+    updateEndFromRange();
+    clearRangeEditBackButton();
+  });
 
   rangeSel.onchange = () => saveThenLoad(() => {
     localStorage.setItem(`${storagePrefix}.sectionSize`, rangeSel.value);
-    localStorage.setItem(`${storagePrefix}.sectionSizeUserTouched.v130`, "1");
+    localStorage.setItem(`${storagePrefix}.sectionSizeUserTouched.v142`, "1");
     updateEndFromRange();
+    clearRangeEditBackButton();
   });
 
   $("loadBtn").onclick = () => {
@@ -31024,6 +31053,27 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
 })();
 </script>
+
+
+<!-- v142 — Core range controls: start/end/section edits are not navigation. -->
+<script id="rdm-v142-teaching-core-range-no-back">
+(function rdmV142TeachingCoreRangeNoBack(){
+  if (window.__rdmV142TeachingCoreRangeNoBack) return;
+  window.__rdmV142TeachingCoreRangeNoBack = true;
+  function get(id){ return document.getElementById(id); }
+  function clearBack(){
+    try { window.previousPassageState = null; } catch(_) {}
+    try { previousPassageState = null; } catch(_) {}
+    ['backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){ var el=get(id); if(el) el.style.display='none'; });
+  }
+  document.addEventListener('change', function(e){
+    var t=e.target; if(!t || !/^(start|end|rangeSize)$/.test(t.id||'')) return;
+    window.__rdmRangeEditNoBackUntil = Date.now() + 3000;
+    clearBack(); setTimeout(clearBack,80); setTimeout(clearBack,350); setTimeout(clearBack,900);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
