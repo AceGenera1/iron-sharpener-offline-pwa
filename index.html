@@ -30881,6 +30881,149 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
 })();
 </script>
+
+
+<!-- v141 — Final range-control back suppression: range edits are not navigation. -->
+<style id="rdm-v141-range-no-back-style">
+  body.rdm-v141-range-no-back #scriptureBackBtn,
+  body.rdm-v141-range-no-back #backToPreviousPassage,
+  body.rdm-v141-range-no-back #obsBackToPreviousPassage,
+  body.rdm-v141-range-no-back #navesBackToPreviousPassage,
+  body.rdm-v141-range-no-back .rdm-scripture-back-visible {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+</style>
+<script id="rdm-v141-range-controls-no-back-final">
+(function rdmV141RangeControlsNoBackFinal(){
+  if (window.__rdmV141RangeControlsNoBackFinal) return;
+  window.__rdmV141RangeControlsNoBackFinal = true;
+  var PREFIX = 'ironSharpenerUnified';
+  var rangeClearTimer = null;
+  var rangeLoadTimer = null;
+
+  function get(id){ return document.getElementById(id); }
+  function isRangeControl(el){ return el && (el.id === 'start' || el.id === 'end' || el.id === 'rangeSize'); }
+  function maxVerseSafe(){
+    try { if (typeof verseMax === 'function') return Number(verseMax() || 1); } catch (_) {}
+    try {
+      var book = get('book') ? get('book').value : 'Genesis';
+      var chapter = get('chapter') ? Number(get('chapter').value || 1) : 1;
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[chapter - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function ensureCustomOption(){
+    var range = get('rangeSize');
+    if (!range) return;
+    for (var i = 0; i < range.options.length; i++) if (range.options[i].value === 'custom') return;
+    var opt = document.createElement('option');
+    opt.value = 'custom';
+    opt.textContent = 'Custom Range';
+    range.appendChild(opt);
+  }
+  function setStore(value){
+    try { localStorage.setItem(PREFIX + '.sectionSize', value || 'full'); } catch (_) {}
+    try { localStorage.setItem(PREFIX + '.sectionSizeUserTouched.v141', '1'); } catch (_) {}
+  }
+  function clampRange(){
+    var start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = maxVerseSafe();
+    var s = Number(start.value || 1) || 1;
+    var e = Number(end.value || s) || s;
+    s = Math.max(1, Math.min(max, s));
+    e = Math.max(s, Math.min(max, e));
+    start.value = String(s);
+    end.value = String(e);
+  }
+  function applyRangeFromControl(changedId){
+    ensureCustomOption();
+    var range = get('rangeSize'), start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = maxVerseSafe();
+    if (changedId === 'start' || changedId === 'end') {
+      if (range) range.value = 'custom';
+      setStore('custom');
+      clampRange();
+      return;
+    }
+    if (!range) return;
+    var value = String(range.value || 'full');
+    if (value === 'full') {
+      start.value = '1';
+      end.value = String(max);
+      setStore('full');
+      return;
+    }
+    if (value === 'custom') {
+      setStore('custom');
+      clampRange();
+      return;
+    }
+    var size = Number(value) || 5;
+    var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    start.value = String(s);
+    end.value = String(Math.min(max, s + size - 1));
+    setStore(value);
+  }
+  function clearBackNow(){
+    try { window.__rdmScriptureBackStackV42 = []; } catch (_) {}
+    try { window.__rdmScriptureBackStackV41 = []; } catch (_) {}
+    try { window.__rdmCrossReferenceBackStack = []; } catch (_) {}
+    try { window.__rdmV76DiscipleMakerScriptureBackStack = []; } catch (_) {}
+    try { window.previousPassageState = null; } catch (_) {}
+    try { previousPassageState = null; } catch (_) {}
+    ['scriptureBackBtn','backToPreviousPassage','obsBackToPreviousPassage','navesBackToPreviousPassage'].forEach(function(id){
+      var el = get(id); if (!el) return;
+      try { el.classList.remove('rdm-scripture-back-visible','has-back-target','active'); } catch (_) {}
+      try { el.classList.add('rdm-no-back-target'); } catch (_) {}
+      try { el.setAttribute('aria-hidden','true'); } catch (_) {}
+      try { el.style.display = 'none'; } catch (_) {}
+    });
+  }
+  function beginRangeOnlyWindow(){
+    window.__rdmRangeOnlyChangeUntil = Date.now() + 8000;
+    document.body && document.body.classList.add('rdm-v141-range-no-back');
+    clearBackNow();
+    clearTimeout(rangeClearTimer);
+    var pulses = [0,40,120,240,500,900,1400,2200,3500,5200,7600];
+    pulses.forEach(function(ms){ setTimeout(clearBackNow, ms); });
+    rangeClearTimer = setTimeout(function(){
+      clearBackNow();
+      try { document.body.classList.remove('rdm-v141-range-no-back'); } catch (_) {}
+    }, 8200);
+  }
+  function loadRangeChange(){
+    clearTimeout(rangeLoadTimer);
+    rangeLoadTimer = setTimeout(function(){
+      try { if (typeof saveCurrentNotes === 'function') saveCurrentNotes(); } catch (_) {}
+      try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {}
+      beginRangeOnlyWindow();
+    }, 25);
+  }
+  function intercept(event){
+    var target = event && event.target;
+    if (!isRangeControl(target)) return;
+    beginRangeOnlyWindow();
+    try { event.stopImmediatePropagation(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    applyRangeFromControl(target.id);
+    loadRangeChange();
+  }
+  function patchHelpers(){
+    ensureCustomOption();
+    try { updateEndFromRange = function(){ applyRangeFromControl('rangeSize'); }; } catch (_) {}
+    try { window.updateEndFromRange = function(){ applyRangeFromControl('rangeSize'); }; } catch (_) {}
+  }
+  document.addEventListener('input', intercept, true);
+  document.addEventListener('change', intercept, true);
+  function install(){ patchHelpers(); clearBackNow(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
