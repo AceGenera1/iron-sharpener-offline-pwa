@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v52 Browser Scripture Local-First Polish
+/* Iron Sharpener service worker — v53 Online Direct Bible JSON Polish
    Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make browser Scripture loads prefer already-saved local Bible JSON before touching the network.
 
    Notes:
@@ -7,7 +7,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v52-browser-scripture-local-first-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v53-online-direct-bible-json-20260702";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -364,36 +364,34 @@ async function navigationFastCached(request, event) {
 async function bibleJsonOnlineFastPath(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
-  // The page-level IndexedDB loader answers first when the chapter is already in the Bible DB.
-  // If the page does reach the service worker, prefer exact local Bible cache keys before network.
-  // This avoids the browser version pausing on chapters that are already saved locally.
-  const exactLocal = await fastBibleMatchInCacheName(IRON_SHARPENER_CACHE, request) || await fastKnownBibleBackupMatch(request);
-  if (exactLocal) {
-    try { eventlessCopy(cache, request, exactLocal.clone()); } catch (_) {}
-    return exactLocal;
-  }
-
   if (looksOnline()) {
+    // Online should behave like a normal website: ask the live/static file path first.
+    // Do not scan offline caches before this, because that is what created the recent online pause.
     try {
-      // Use the browser HTTP cache when possible. If this chapter is not present yet,
-      // the browser will fetch it once and the page will save it into IndexedDB.
       const response = await fetch(new Request(request.url, { cache: "force-cache" }));
       const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
       if (response && response.ok && (!type || type.includes("json"))) {
-        await putAllVariants(cache, request, response);
+        // Save in the background only. Do not hold Scripture rendering hostage to cache writes.
+        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
 
-    // Final online fallback: normal fetch, then save.
     try {
       const response = await fetch(request);
       const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
       if (response && response.ok && (!type || type.includes("json"))) {
-        await putAllVariants(cache, request, response);
+        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
+  }
+
+  // Offline fallback: exact local Bible keys only, no broad cache scan.
+  const exactLocal = await fastBibleMatchInCacheName(IRON_SHARPENER_CACHE, request) || await fastKnownBibleBackupMatch(request);
+  if (exactLocal) {
+    try { eventlessCopy(cache, request, exactLocal.clone()); } catch (_) {}
+    return exactLocal;
   }
 
   return new Response("Offline Bible chapter not found.", {
