@@ -11598,6 +11598,90 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 })();
 </script>
 
+
+
+<!-- v138 — Start/End verse custom range fix for Disciple Journal. -->
+<script id="rdm-v138-journal-start-end-custom-range-fix">
+(function rdmV138JournalStartEndCustomRangeFix(){
+  if (window.__rdmV138JournalStartEndCustomRangeFix) return;
+  window.__rdmV138JournalStartEndCustomRangeFix = true;
+  var storagePrefix = 'ironSharpenerDiscipleJournal';
+  function get(id){ return document.getElementById(id); }
+  function ensureCustomOption(){
+    var range = get('rangeSize');
+    if (!range) return;
+    if (!Array.prototype.some.call(range.options, function(o){ return o.value === 'custom'; })) {
+      var opt = document.createElement('option');
+      opt.value = 'custom';
+      opt.textContent = 'Custom Range';
+      range.appendChild(opt);
+    }
+  }
+  function maxVerseSafe(){
+    try {
+      var book = get('book') ? get('book').value : 'John';
+      var chapter = get('chapter') ? get('chapter').value : '1';
+      if (typeof verseCountFor === 'function') return Number(verseCountFor(book, chapter) || 1);
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function clampCustomRange(){
+    var start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = maxVerseSafe();
+    var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    var e = Math.max(s, Math.min(max, Number(end.value || max) || max));
+    start.value = String(s);
+    end.value = String(e);
+  }
+  function switchToCustomBecauseUserChangedRange(){
+    ensureCustomOption();
+    var range = get('rangeSize');
+    if (!range) return;
+    if (range.value === 'full') range.value = 'custom';
+    clampCustomRange();
+    try { sessionStorage.setItem(storagePrefix + '.rangeChangedByUser.v138', '1'); } catch (_) {}
+  }
+  function patchSectionHelpers(){
+    ensureCustomOption();
+    var oldApply = null;
+    try { oldApply = window.applySectionSizeRange || (typeof applySectionSizeRange === 'function' ? applySectionSizeRange : null); } catch (_) {}
+    if (oldApply && oldApply.__rdmV138CustomRangePatched) return;
+    var patched = function rdmV138ApplySectionSizeRange(){
+      ensureCustomOption();
+      var range = get('rangeSize');
+      if (range && range.value === 'custom') {
+        clampCustomRange();
+        return;
+      }
+      if (typeof oldApply === 'function') return oldApply.apply(this, arguments);
+    };
+    patched.__rdmV138CustomRangePatched = true;
+    window.applySectionSizeRange = patched;
+    try { applySectionSizeRange = patched; } catch (_) {}
+  }
+  function installListeners(){
+    ensureCustomOption();
+    patchSectionHelpers();
+    ['start','end'].forEach(function(id){
+      var el = get(id);
+      if (!el || el.dataset.rdmV138JournalCustomRange === '1') return;
+      el.dataset.rdmV138JournalCustomRange = '1';
+      el.addEventListener('input', switchToCustomBecauseUserChangedRange, true);
+      el.addEventListener('change', switchToCustomBecauseUserChangedRange, true);
+    });
+    var range = get('rangeSize');
+    if (range && range.dataset.rdmV138JournalCustomRangeSelect !== '1') {
+      range.dataset.rdmV138JournalCustomRangeSelect = '1';
+      range.addEventListener('change', function(){ if (range.value === 'custom') clampCustomRange(); }, true);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installListeners, { once:true }); else installListeners();
+  window.addEventListener('pageshow', function(){ setTimeout(installListeners, 60); });
+})();
+</script>
+
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
