@@ -1,5 +1,5 @@
-/* v46 is intentionally the proven v43 cache strategy restored after v45 page-level fetch override slowed Scripture loading. */
-/* Iron Sharpener service worker — v46 Restore Fast Bible JSON Offline
+/* v47 keeps the proven v43/v46 strategy and adds direct Bible JSON lookup before broad cache scans. */
+/* Iron Sharpener service worker — v47 Direct Fast Bible JSON Offline
    Purpose: restore the proven v43 fast page switching and Bible/resource JSON
    requests from hanging while offline by using a tight, cache-first path lookup.
 
@@ -9,7 +9,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v46-restore-fast-bible-json-20260701";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v47-direct-fast-bible-json-20260701";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -323,7 +323,68 @@ async function navigationFastCached(request, event) {
     new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
+
+async function directBibleJsonMatch(request) {
+  const path = canonicalResourcePath(request);
+  const decoded = safeDecode(path);
+  const encoded = encodeSpaces(decoded);
+  const requestUrl = (() => { try { return request.url; } catch (_) { return null; } })();
+  const keys = [...new Set([
+    request,
+    requestUrl,
+    path,
+    `/${path}`,
+    `./${path}`,
+    decoded,
+    `/${decoded}`,
+    `./${decoded}`,
+    encoded,
+    `/${encoded}`,
+    `./${encoded}`
+  ].filter(Boolean))];
+
+  const cacheNames = await getPriorityCacheNames();
+  for (const name of cacheNames) {
+    try {
+      const cache = await caches.open(name);
+      for (const key of keys) {
+        const cached = await cache.match(key, { ignoreSearch: true });
+        if (cached) return cached;
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+async function bibleJsonFast(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  const cached = await directBibleJsonMatch(request);
+  if (cached) {
+    try { eventlessCopy(cache, request, cached.clone()); } catch (_) {}
+    return cached;
+  }
+
+  if (!looksOnline()) {
+    return new Response("Offline Bible chapter not cached.", { status: 504, headers: { "content-type": "application/json" } });
+  }
+
+  try {
+    const response = await fetch(request);
+    const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
+    if (!response || !response.ok || (type && !type.includes("json"))) {
+      return new Response("Bible chapter unavailable or invalid.", { status: response ? response.status : 503, headers: { "content-type": "application/json" } });
+    }
+    await putAllVariants(cache, request, response.clone());
+    return response;
+  } catch (_) {
+    const fallback = await directBibleJsonMatch(request);
+    if (fallback) return fallback;
+    return new Response("Offline Bible chapter not cached.", { status: 504, headers: { "content-type": "application/json" } });
+  }
+}
+
 async function resourceCacheFirst(request) {
+  if (isBibleJsonRequest(request)) return bibleJsonFast(request);
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
   const cached = await tightResourceMatch(request);
