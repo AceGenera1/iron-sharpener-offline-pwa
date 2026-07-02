@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v48 Zero-Scan Bible JSON Offline
+/* Iron Sharpener service worker — v49 Exact Root Bible Cache Offline
    Purpose: keep the working fast navigation/offline foundation, but make Scripture
    chapter JSON load like a downloaded book by checking only the exact known cache
    locations first instead of walking old caches/variants.
@@ -9,7 +9,7 @@
    - Bible JSON uses a direct exact-match path before any fallback.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v48-zero-scan-bible-json-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v49-exact-root-bible-cache-20260702";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -356,21 +356,36 @@ function bibleExactKeys(request) {
   const path = canonicalResourcePath(request);
   const decoded = safeDecode(path);
   const encoded = encodeSpaces(decoded);
-  let absolute = null;
-  try { absolute = new URL(decoded, self.location.origin + "/").href; } catch (_) {}
+  const encodedFromPath = encodeSpaces(path);
+  let absoluteDecoded = null;
+  let absoluteEncoded = null;
+  try { absoluteDecoded = new URL(decoded, self.location.origin + "/").href; } catch (_) {}
+  try { absoluteEncoded = new URL(encoded, self.location.origin + "/").href; } catch (_) {}
   let requestUrl = null;
   try { requestUrl = request.url; } catch (_) {}
 
-  // Keep this list intentionally small. The old slow path came from trying too
-  // many variants across too many caches for every chapter.
+  // v49: older successful offline prep saved some Bible chapters under
+  // root-relative keys such as /bible/web/Nehemiah/01.json. v48 was too strict
+  // and did not check the leading-slash form, which made good cached chapters
+  // look missing while offline. Keep this exact-key list fast, but include all
+  // canonical root/no-root/dot/encoded forms.
   return [...new Set([
     request,
     requestUrl,
-    absolute,
+    absoluteDecoded,
+    absoluteEncoded,
+    path,
+    `/${path}`,
+    `./${path}`,
     decoded,
+    `/${decoded}`,
     `./${decoded}`,
     encoded,
-    `./${encoded}`
+    `/${encoded}`,
+    `./${encoded}`,
+    encodedFromPath,
+    `/${encodedFromPath}`,
+    `./${encodedFromPath}`
   ].filter(Boolean))];
 }
 
@@ -385,19 +400,34 @@ async function matchExactKeysInCache(cacheName, keys) {
   return null;
 }
 
+async function bibleCacheSearchNames() {
+  const existing = await caches.keys();
+  const names = [];
+  const add = (name) => { if (name && existing.includes(name) && !names.includes(name)) names.push(name); };
+
+  // Fast path first.
+  FAST_BIBLE_CACHE_NAMES.forEach(add);
+
+  // Then the known complete/resource caches from previous working builds.
+  KNOWN_RESOURCE_CACHES.forEach(add);
+  LEGACY_BIBLE_FALLBACK_CACHES.forEach(add);
+
+  // v49 safety: if a device prepared offline under any Iron Sharpener cache name,
+  // check it with the same exact keys. This is not the old slow broad variant scan;
+  // it is a small exact-key lookup, and it prevents valid cached chapters from
+  // being reported missing because their cache name changed.
+  existing
+    .filter((name) => name.startsWith(IRON_SHARPENER_CACHE_PREFIX))
+    .forEach(add);
+
+  return names;
+}
+
 async function directBibleJsonMatch(request) {
   const keys = bibleExactKeys(request);
+  const names = await bibleCacheSearchNames();
 
-  // First pass: only the current shell cache and the known complete offline cache.
-  // This is the downloaded-book path.
-  for (const name of FAST_BIBLE_CACHE_NAMES) {
-    const cached = await matchExactKeysInCache(name, keys);
-    if (cached) return cached;
-  }
-
-  // Second pass: a very small fallback list for devices that prepared offline on
-  // an older stable service worker. No broad cache scan here.
-  for (const name of LEGACY_BIBLE_FALLBACK_CACHES) {
+  for (const name of names) {
     const cached = await matchExactKeysInCache(name, keys);
     if (cached) return cached;
   }
