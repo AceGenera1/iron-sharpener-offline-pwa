@@ -12032,6 +12032,127 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 })();
 </script>
 
+
+
+<!-- v140 — Definitive Journal range-control interceptor: Start/End/Section Size update passage without Back. -->
+<script id="rdm-v140-journal-range-controls-no-back">
+(function rdmV140JournalRangeControlsNoBack(){
+  if (window.__rdmV140JournalRangeControlsNoBack) return;
+  window.__rdmV140JournalRangeControlsNoBack = true;
+  var PREFIX = 'ironSharpenerDiscipleJournal';
+  var pendingLoad = 0;
+  function get(id){ return document.getElementById(id); }
+  function isRangeControl(el){ return el && (el.id === 'start' || el.id === 'end' || el.id === 'rangeSize'); }
+  function ensureCustomOption(){
+    var range = get('rangeSize');
+    if (!range) return;
+    for (var i = 0; i < range.options.length; i++) if (range.options[i].value === 'custom') return;
+    var opt = document.createElement('option');
+    opt.value = 'custom';
+    opt.textContent = 'Custom Range';
+    range.appendChild(opt);
+  }
+  function maxVerseSafe(){
+    try {
+      var book = get('book') ? get('book').value : 'John';
+      var chapter = get('chapter') ? get('chapter').value : '1';
+      if (typeof verseCountFor === 'function') return Number(verseCountFor(book, chapter) || 1);
+      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
+    } catch (_) { return 1; }
+  }
+  function storeSection(value){
+    try { localStorage.setItem(PREFIX + '.sectionSize', value || 'full'); } catch (_) {}
+  }
+  function clampRange(){
+    var start = get('start'), end = get('end');
+    if (!start || !end) return;
+    var max = maxVerseSafe();
+    var s = Number(start.value || 1) || 1;
+    var e = Number(end.value || s) || s;
+    s = Math.max(1, Math.min(max, s));
+    e = Math.max(s, Math.min(max, e));
+    start.value = String(s);
+    end.value = String(e);
+  }
+  function applySectionSize(){
+    ensureCustomOption();
+    var range = get('rangeSize'), start = get('start'), end = get('end');
+    if (!range || !start || !end) return;
+    var max = maxVerseSafe();
+    var value = String(range.value || 'full');
+    if (value === 'full') {
+      start.value = '1';
+      end.value = String(max);
+      storeSection('full');
+      return;
+    }
+    if (value === 'custom') {
+      clampRange();
+      storeSection('custom');
+      return;
+    }
+    var size = Number(value) || 5;
+    var s = Math.max(1, Math.min(max, Number(start.value || 1) || 1));
+    start.value = String(s);
+    end.value = String(Math.min(max, s + size - 1));
+    storeSection(value);
+  }
+  function setCustomFromVerseControls(){
+    ensureCustomOption();
+    var range = get('rangeSize');
+    if (range) range.value = 'custom';
+    storeSection('custom');
+    clampRange();
+  }
+  function clearBack(){
+    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { discipleJournalScriptureBackStack = []; } catch (_) {}
+    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
+    var btn = get('backToScriptureBtn');
+    if (btn) {
+      try { btn.classList.remove('has-back-target','rdm-back-restoring','active'); } catch (_) {}
+      try { btn.setAttribute('aria-hidden','true'); } catch (_) {}
+      btn.textContent = '← Back to Scripture';
+      btn.style.display = 'none';
+    }
+  }
+  function loadAfterRangeChange(){
+    window.__rdmV135JournalRangeOnlyUntil = Date.now() + 5000;
+    window.__rdmV139JournalRangeOnlyUntil = Date.now() + 5000;
+    clearBack();
+    clearTimeout(pendingLoad);
+    pendingLoad = setTimeout(function(){
+      try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {}
+      [0,120,450,1000,2200].forEach(function(ms){ setTimeout(clearBack, ms); });
+    }, 20);
+  }
+  function intercept(event){
+    var target = event && event.target;
+    if (!isRangeControl(target)) return;
+    try { event.stopImmediatePropagation(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    ensureCustomOption();
+    if (target.id === 'start' || target.id === 'end') setCustomFromVerseControls();
+    else applySectionSize();
+    loadAfterRangeChange();
+  }
+  function patchHelpers(){
+    ensureCustomOption();
+    window.rdmJournalApplySectionSizeV140 = applySectionSize;
+    window.rdmJournalClearRangeBackV140 = clearBack;
+    try { applySectionSizeRange = applySectionSize; } catch (_) {}
+    try { window.applySectionSizeRange = applySectionSize; } catch (_) {}
+    try { syncEndMinimum = clampRange; } catch (_) {}
+    try { window.syncEndMinimum = clampRange; } catch (_) {}
+  }
+  function install(){ patchHelpers(); }
+  document.addEventListener('change', intercept, true);
+  document.addEventListener('input', intercept, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
+  window.addEventListener('pageshow', function(){ setTimeout(install, 80); });
+})();
+</script>
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
