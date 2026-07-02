@@ -2926,6 +2926,14 @@ html.obs #discipleJournalBtn { display: none !important; }
 
 
 
+
+<style id="rdm-v144-full-chapter-only-controls">
+  /* v144: full-chapter-only Scripture controls. Start/End/Section Size are intentionally removed from the visible UI. */
+  #start, #end, #rangeSize, #obsStartVerseSelect, #obsEndVerseSelect, #obsRangeSizeSelect,
+  label[for="start"], label[for="end"], label[for="rangeSize"] { display: none !important; }
+  .controls div:has(#start), .controls div:has(#end), .controls div:has(#rangeSize) { display: none !important; }
+  body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
+</style>
 </head>
 <body>
 <div class="shell">
@@ -2967,21 +2975,9 @@ html.obs #discipleJournalBtn { display: none !important; }
 <div><label for="chapter">Chapter</label><select id="chapter"></select></div>
 <select id="start" hidden aria-hidden="true"></select>
 <select id="end" hidden aria-hidden="true"></select>
-<div>
-<label for="rangeSize">Section Size</label>
-<select id="rangeSize">
-<option value="3">3</option>
-<option value="5">5</option>
-<option value="7">7</option>
-<option value="10">10</option>
-<option value="15">15</option>
-<option value="20">20</option>
-<option value="25">25</option>
-<option value="50">50</option>
-<option value="100">100</option>
+<select id="rangeSize" hidden aria-hidden="true">
 <option selected="" value="full">Full Chapter</option>
 </select>
-</div>
 <button id="loadBtn" title="Refresh the current passage if it does not load correctly.">↻ Refresh Passage</button>
 </section>
 <main class="layout">
@@ -3091,8 +3087,7 @@ html.obs #discipleJournalBtn { display: none !important; }
 <select id="obsChapterSelect"></select>
 <select id="obsStartVerseSelect" hidden aria-hidden="true"></select>
 <select id="obsEndVerseSelect" hidden aria-hidden="true"></select>
-<label>Section Size</label>
-<select id="obsRangeSizeSelect"></select>
+<select id="obsRangeSizeSelect" hidden aria-hidden="true"></select>
 <button id="obsLoadPassage" style="width:100%;margin-top:12px;" type="button">
     Load Passage
   </button>
@@ -31180,6 +31175,83 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.addEventListener('pageshow', function(){ setTimeout(install, 100); });
 })();
 </script>
+
+<script id="rdm-v144-full-chapter-only-teaching-tool">
+(function rdmV144FullChapterOnlyTeachingTool(){
+  "use strict";
+  const STORAGE_PREFIX = "ironSharpenerUnified";
+  function $(id){ return document.getElementById(id); }
+  function verseCount(book, chapter){
+    try {
+      if (window.verseCounts && window.verseCounts[book]) {
+        return parseInt(window.verseCounts[book][String(chapter)] || window.verseCounts[book][parseInt(chapter,10)] || 1, 10) || 1;
+      }
+    } catch (_) {}
+    // Fallback for the current code where verseCounts may be block scoped but options are already filled.
+    const end = $("end");
+    if (end && end.options && end.options.length) return end.options.length;
+    return parseInt(end?.value || "1", 10) || 1;
+  }
+  function hideBackButtons(){
+    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(function(id){
+      const btn = $(id);
+      if (btn) {
+        btn.style.display = "none";
+        btn.setAttribute("aria-hidden", "true");
+        btn.classList.remove("active", "has-back-target", "rdm-back-restoring");
+      }
+    });
+    try { window.previousPassageState = null; } catch (_) {}
+  }
+  function forceFullChapter(){
+    const book = $("book")?.value || "Genesis";
+    const chapter = $("chapter")?.value || "1";
+    const start = $("start");
+    const end = $("end");
+    const range = $("rangeSize");
+    if (range) range.value = "full";
+    if (start) start.value = "1";
+    if (end) end.value = String(verseCount(book, chapter));
+    try { localStorage.setItem(STORAGE_PREFIX + ".sectionSize", "full"); } catch (_) {}
+    hideBackButtons();
+  }
+  function patchControls(){
+    ["start","end","rangeSize","obsStartVerseSelect","obsEndVerseSelect","obsRangeSizeSelect"].forEach(function(id){
+      const el = $(id);
+      if (el) {
+        el.hidden = true;
+        el.setAttribute("aria-hidden", "true");
+        el.style.display = "none";
+      }
+    });
+    document.querySelectorAll('label[for="start"], label[for="end"], label[for="rangeSize"]').forEach(function(label){
+      const wrap = label.closest('div');
+      if (wrap) wrap.style.display = "none";
+      label.style.display = "none";
+    });
+    forceFullChapter();
+  }
+  function bindOnce(){
+    ["book","chapter"].forEach(function(id){
+      const el = $(id);
+      if (!el || el.dataset.rdmV144FullChapterOnly === "1") return;
+      el.dataset.rdmV144FullChapterOnly = "1";
+      el.addEventListener("change", function(){
+        // Let the original book/chapter logic repopulate hidden verse options, then force full chapter and clear Back UI.
+        setTimeout(forceFullChapter, 0);
+        setTimeout(forceFullChapter, 80);
+      }, true);
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function(){ patchControls(); bindOnce(); setTimeout(forceFullChapter, 200); });
+  } else {
+    patchControls(); bindOnce(); setTimeout(forceFullChapter, 200);
+  }
+  window.rdmForceFullChapterOnly = forceFullChapter;
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
