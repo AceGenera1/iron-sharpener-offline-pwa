@@ -46,7 +46,265 @@ html.rdm-v131-launch-prepaint.rdm-v131-launch-dark body {
 }
 </style>
 
-<link rel="manifest" href="./manifest.json?v=136" />
+
+<script id="rdm-v137-bible-indexeddb-first">
+(function rdmV137BibleIndexedDbFirst(){
+  "use strict";
+  if (window.__rdmBibleIndexedDbV137Installed) return;
+  window.__rdmBibleIndexedDbV137Installed = true;
+
+  var DB_NAME = "iron-sharpener-bible-indexeddb-v1";
+  var DB_VERSION = 1;
+  var CHAPTER_STORE = "chapters";
+  var META_STORE = "meta";
+  var EXPECTED_CHAPTERS = 1189;
+  var memory = new Map();
+  var dbPromise = null;
+  var originalFetch = window.fetch ? window.fetch.bind(window) : null;
+
+  function openDb(){
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise(function(resolve, reject){
+      try {
+        var req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = function(){
+          var db = req.result;
+          if (!db.objectStoreNames.contains(CHAPTER_STORE)) db.createObjectStore(CHAPTER_STORE, { keyPath: "key" });
+          if (!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE, { keyPath: "key" });
+        };
+        req.onsuccess = function(){ resolve(req.result); };
+        req.onerror = function(){ reject(req.error || new Error("Bible IndexedDB open failed")); };
+      } catch (error) { reject(error); }
+    });
+    return dbPromise;
+  }
+
+  function txStore(db, name, mode){
+    return db.transaction(name, mode).objectStore(name);
+  }
+
+  function idbGet(storeName, key){
+    return openDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        try {
+          var req = txStore(db, storeName, "readonly").get(key);
+          req.onsuccess = function(){ resolve(req.result || null); };
+          req.onerror = function(){ reject(req.error || new Error("IndexedDB get failed")); };
+        } catch (error) { reject(error); }
+      });
+    });
+  }
+
+  function idbPut(storeName, value){
+    return openDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        try {
+          var req = txStore(db, storeName, "readwrite").put(value);
+          req.onsuccess = function(){ resolve(true); };
+          req.onerror = function(){ reject(req.error || new Error("IndexedDB put failed")); };
+        } catch (error) { reject(error); }
+      });
+    });
+  }
+
+  function idbCountChapters(){
+    return openDb().then(function(db){
+      return new Promise(function(resolve){
+        try {
+          var req = txStore(db, CHAPTER_STORE, "readonly").count();
+          req.onsuccess = function(){ resolve(Number(req.result || 0)); };
+          req.onerror = function(){ resolve(0); };
+        } catch (_) { resolve(0); }
+      });
+    }).catch(function(){ return 0; });
+  }
+
+  function cleanPath(value){
+    return String(value || "")
+      .replace(/^https?:\/\/[^/]+\//i, "")
+      .replace(/^\/+/, "")
+      .replace(/^\.\//, "")
+      .replace(/^\.\.\//, "")
+      .replace(/\/+/g, "/");
+  }
+
+  function safeDecode(value){
+    try { return decodeURIComponent(value); } catch (_) { return value; }
+  }
+
+  function parseBiblePath(input){
+    try {
+      var method = "GET";
+      var raw = input;
+      if (input && typeof input === "object" && "url" in input) {
+        raw = input.url;
+        method = input.method || method;
+      }
+      if (method && String(method).toUpperCase() !== "GET") return null;
+      var url = new URL(String(raw), window.location.href);
+      if (url.origin !== window.location.origin) return null;
+      var path = safeDecode(cleanPath(url.pathname));
+      var idx = path.indexOf("bible/web/");
+      if (idx < 0) return null;
+      path = path.slice(idx);
+      var match = path.match(/^bible\/web\/(.+)\/(\d{2})\.json$/i);
+      if (!match) return null;
+      var book = safeDecode(match[1]).replace(/\+/g, " ");
+      var chapter = String(parseInt(match[2], 10) || 1);
+      if (!book || !chapter) return null;
+      return {
+        book: book,
+        chapter: chapter,
+        padded: String(chapter).padStart(2, "0"),
+        key: book + ":" + chapter,
+        path: "bible/web/" + book + "/" + String(chapter).padStart(2, "0") + ".json"
+      };
+    } catch (_) { return null; }
+  }
+
+  function responseFromData(data){
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "x-iron-sharpener-source": "indexeddb"
+      }
+    });
+  }
+
+  async function getChapter(info){
+    if (!info) return null;
+    if (memory.has(info.key)) return memory.get(info.key);
+    try {
+      var record = await idbGet(CHAPTER_STORE, info.key);
+      if (record && record.data && record.data.verses) {
+        memory.set(info.key, record.data);
+        return record.data;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  async function putChapter(info, data){
+    if (!info || !data || !data.verses) return false;
+    var normalized = Object.assign({}, data, { book: data.book || info.book, chapter: Number(data.chapter || info.chapter) });
+    memory.set(info.key, normalized);
+    try {
+      await idbPut(CHAPTER_STORE, {
+        key: info.key,
+        book: info.book,
+        chapter: Number(info.chapter),
+        path: info.path,
+        data: normalized,
+        updatedAt: new Date().toISOString(),
+        version: "v137"
+      });
+      return true;
+    } catch (_) { return false; }
+  }
+
+  if (originalFetch) {
+    window.fetch = async function rdmBibleIndexedDbFetch(input, init){
+      var info = parseBiblePath(input);
+      if (!info) return originalFetch(input, init);
+      var wantsReload = !!(init && String(init.cache || "").toLowerCase() === "reload");
+      if (!wantsReload) {
+        var local = await getChapter(info);
+        if (local) return responseFromData(local);
+      }
+      var response = await originalFetch(input, init);
+      try {
+        if (response && response.ok) {
+          var clone = response.clone();
+          var data = await clone.json();
+          await putChapter(info, data);
+        }
+      } catch (_) {}
+      return response;
+    };
+  }
+
+  window.rdmBibleDbGetChapter = async function(book, chapter){
+    return getChapter({ key: String(book) + ":" + String(parseInt(chapter, 10) || 1), book: String(book), chapter: String(parseInt(chapter, 10) || 1) });
+  };
+
+  window.rdmBibleDbCount = idbCountChapters;
+
+  window.rdmBibleDbIsExpectedReady = async function(){
+    var count = await idbCountChapters();
+    return count >= EXPECTED_CHAPTERS;
+  };
+
+  window.rdmBibleDbBuildAllFromList = async function(files, onProgress){
+    var seen = Object.create(null);
+    var bibleFiles = [];
+    (Array.isArray(files) ? files : []).forEach(function(path){
+      var info = parseBiblePath(path);
+      if (info && !seen[info.key]) {
+        seen[info.key] = true;
+        bibleFiles.push(info.path);
+      }
+    });
+    if (!bibleFiles.length) return { saved: 0, total: 0 };
+    var saved = 0;
+    var checked = 0;
+    var maxParallel = 8;
+    async function handle(path){
+      try {
+        var response = await window.fetch(path, { cache: "force-cache" });
+        if (response && response.ok) {
+          try { await response.clone().json(); } catch (_) {}
+          saved++;
+        }
+      } catch (_) {}
+      checked++;
+      try { if (typeof onProgress === "function") onProgress(checked, bibleFiles.length, saved); } catch (_) {}
+    }
+    for (var i = 0; i < bibleFiles.length; i += maxParallel) {
+      await Promise.all(bibleFiles.slice(i, i + maxParallel).map(handle));
+      if (i % 160 === 0) await new Promise(function(resolve){ setTimeout(resolve, 5); });
+    }
+    try {
+      await idbPut(META_STORE, {
+        key: "bible-build",
+        saved: saved,
+        total: bibleFiles.length,
+        ready: saved >= EXPECTED_CHAPTERS,
+        updatedAt: new Date().toISOString(),
+        version: "v137"
+      });
+    } catch (_) {}
+    return { saved: saved, total: bibleFiles.length };
+  };
+
+
+  async function rdmBibleDbEnsureOfflineSetupNeeded(){
+    try {
+      if (!navigator.onLine || !window.localStorage) return;
+      var ready = await window.rdmBibleDbIsExpectedReady();
+      if (ready) return;
+      var key = "ironSharpenerUnified.offlineCacheStatus.v97";
+      var raw = localStorage.getItem(key);
+      if (!raw) return;
+      var status = JSON.parse(raw);
+      if (status && status.complete) {
+        status.complete = false;
+        status.version = "v137-indexeddb-bible-needed";
+        status.indexedBibleReady = false;
+        status.note = "Bible IndexedDB setup needed";
+        localStorage.setItem(key, JSON.stringify(status));
+      }
+    } catch (_) {}
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", rdmBibleDbEnsureOfflineSetupNeeded, { once: true });
+  } else {
+    setTimeout(rdmBibleDbEnsureOfflineSetupNeeded, 0);
+  }
+})();
+</script>
+
+<link rel="manifest" href="./manifest.json?v=137" />
 <title>Iron Sharpener</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
@@ -26757,6 +27015,17 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
         await Promise.all(files.slice(i, i + maxParallel).map(handle));
         if (i % 200 === 0) await sleep(20);
       }
+      if (window.rdmBibleDbBuildAllFromList) {
+        try {
+          setOfflineUi(false, "running", "Preparing Scripture for instant offline use. Keep this page open.", 98, "Saving the Bible database on this device.");
+          await window.rdmBibleDbBuildAllFromList(files, function(done, total, saved){
+            if (done % 40 === 0 || done === total) {
+              var pctDb = total ? Math.min(99, 94 + Math.round((done / total) * 5)) : 99;
+              setOfflineUi(false, "running", "Preparing Scripture for instant offline use. Keep this page open.", pctDb, "Saving Bible chapters to this device.");
+            }
+          });
+        } catch (_) {}
+      }
       var criticalReady = await criticalFilesReady();
       var complete = failed === 0 && criticalReady;
       var status = {
@@ -26769,7 +27038,7 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
         failed: failed,
         failures: failures,
         updatedAt: new Date().toISOString(),
-        version: "v97-complete-offline-tool"
+        version: "v137-indexeddb-bible"
       };
       writeStatus(status);
       if (complete) {
