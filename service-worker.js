@@ -1,25 +1,29 @@
-/* Iron Sharpener service worker — v56 Tiny Shell / Fast Offline-Ready Launch
-   Purpose: stop iPad Home Screen launches from slowing down after Offline Ready preparation.
+/* Iron Sharpener service worker — v58 iPad Direct App Launch
+   Purpose: keep the Home Screen app opening directly into the app surface instead of waiting behind the native black splash.
 
-   v56 changes:
-   - Keeps the current service-worker cache tiny: app shell + launch assets only.
-   - Offline Ready preparation still writes the complete tool into its existing complete-tool cache.
-   - Online navigation uses the live page first if the tiny shell cache is empty.
-   - Offline navigation uses the tiny shell cache first, then exact old-shell fallback only.
-   - Bible JSON remains online-direct + IndexedDB friendly.
-   - Resource JSON no longer gets mirrored into the launch cache during Offline Ready.
+   v58 changes:
+   - Restores a tiny launch-shell warm during install, but never scans the full offline cache on launch.
+   - Keeps the v57 separation between launch shell and complete Offline Ready cache.
+   - Accepts both v57 and v58 launch-warm messages.
 
-   Notes:
-   - Does not change app data or Journal entries.
-   - Keeps current HTML shells fast.
-   - Does not scan every old cache for every verse file.
+   v57 foundation:
+   - Uses one tiny launch-shell cache for index.html, personal-study.html, manifest, and icons.
+   - Navigation never scans the full Offline Ready cache before showing the app.
+   - If the tiny shell is present, it is returned immediately and refreshed in the background.
+   - Supports a page message to warm the launch shell after first paint.
+   - Keeps Bible JSON and study-resource offline behavior intact.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703";
+const IRON_SHARPENER_CACHE = "iron-sharpener-launch-v58-direct-app-shell-20260703";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
+const IRON_SHARPENER_LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 
 // Caches created by the working offline-preparation engines.
 const KNOWN_RESOURCE_CACHES = [
+  "iron-sharpener-launch-v58-direct-app-shell-20260703",
+  "iron-sharpener-launch-v57-shell-20260703",
+  "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703",
+  "iron-sharpener-offline-v54-instant-shell-online-direct-bible-json-20260702",
   "iron-sharpener-offline-v36-complete-tool-20260630",
   "iron-sharpener-offline-v105-public-ready-cache",
   "iron-sharpener-offline-v34-final-offline-sync-20260627",
@@ -44,21 +48,29 @@ let priorityCacheNamesPromise = null;
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  // v56: Do not hold iPad/Home Screen launch behind network pre-cache work.
-  // Open the cache quickly, activate, then refresh the shell in the background.
-  event.waitUntil(caches.open(IRON_SHARPENER_CACHE).catch(() => {}));
+  // v58: warm only the tiny app shell. This restores direct Home Screen opening
+  // without letting the complete Offline Ready cache delay iPad launch.
+  event.waitUntil(withTimeout(cacheFreshCoreShell(), 900, null));
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
+    try {
+      if (self.registration && self.registration.navigationPreload) {
+        await self.registration.navigationPreload.enable();
+      }
+    } catch (_) {}
     await self.clients.claim();
-    // Background refresh only. Do not block activation or splash-screen release.
+    // Warm the launch shell after activation, but never block activation.
     cacheFreshCoreShell().catch(() => {});
   })());
 });
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+  if (event.data && (event.data.type === "WARM_LAUNCH_CACHE_V58" || event.data.type === "WARM_LAUNCH_CACHE_V57")) {
+    cacheFreshCoreShell().catch(() => {});
+  }
 });
 
 function sameOriginGet(request) {
@@ -342,16 +354,17 @@ async function cachedHtmlForNavigation(request) {
   return null;
 }
 
-async function refreshNavigationInBackground(request) {
+async function refreshNavigationInBackground(request, preloadResponsePromise) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
   try {
-    const response = await fetch(new Request(request, { cache: "reload" }));
+    let response = preloadResponsePromise ? await preloadResponsePromise.catch(() => null) : null;
+    if (!response || !response.ok) response = await fetch(new Request(request, { cache: "reload" }));
     if (response && response.ok) await cacheHtmlResponse(cache, response, request);
   } catch (_) {}
 }
 
 async function currentCacheHtmlForNavigationOnly(request) {
-  // v56: first app paint must not wait on broad old-cache scans. Check current shell cache only.
+  // v58: first app paint must not wait on broad old-cache scans. Check launch shell cache only.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
   for (const key of htmlCacheKeysForRequest(request)) {
     const cached = await cache.match(key, { ignoreSearch: true });
@@ -360,9 +373,21 @@ async function currentCacheHtmlForNavigationOnly(request) {
   return null;
 }
 
+function withTimeout(promise, ms, fallback) {
+  return new Promise((resolve) => {
+    let done = false;
+    const timer = setTimeout(() => { if (!done) { done = true; resolve(fallback); } }, ms);
+    Promise.resolve(promise).then((value) => {
+      if (!done) { done = true; clearTimeout(timer); resolve(value); }
+    }).catch(() => {
+      if (!done) { done = true; clearTimeout(timer); resolve(fallback); }
+    });
+  });
+}
+
 async function exactKnownShellFallback(request) {
-  // v56: small exact fallback only. This preserves fast launch after a SW update
-  // when the new current cache has not refreshed yet. No broad cache scans.
+  // v58: exact fallback only, bounded. Large Offline Ready caches must never
+  // hold the native splash screen hostage.
   const wantsJournal = (() => {
     try { return new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) { return false; }
   })();
@@ -370,9 +395,10 @@ async function exactKnownShellFallback(request) {
     ? ["./personal-study.html", "personal-study.html"]
     : ["./index.html", "index.html", "./", "/"];
   const existing = await caches.keys();
-  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
+  const launchCaches = existing.filter((name) => name === IRON_SHARPENER_CACHE || name.startsWith(IRON_SHARPENER_LAUNCH_CACHE_PREFIX));
+  const shellCaches = [IRON_SHARPENER_CACHE, ...launchCaches, ...KNOWN_RESOURCE_CACHES]
     .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
-  for (const name of ordered) {
+  for (const name of shellCaches) {
     try {
       const cache = await caches.open(name);
       for (const key of exactKeys) {
@@ -386,50 +412,56 @@ async function exactKnownShellFallback(request) {
 
 async function navigationFastCached(request, event) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
+  const preloadPromise = event && event.preloadResponse ? event.preloadResponse : null;
 
-  // v56: the current cache is intentionally tiny. Check it first because this is
-  // the fastest path after the app has been opened once with this service worker.
+  // v58: fastest possible path. If the tiny launch shell has the page, show it
+  // immediately and refresh only in the background.
   const cached = await currentCacheHtmlForNavigationOnly(request);
   if (cached) {
     try {
-      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
+      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request, preloadPromise));
     } catch (_) {}
     return cached;
   }
 
-  // v56: when online, do NOT scan large Offline Ready caches before showing the app.
-  // Fetch the live shell first, cache it into the tiny shell cache, and return.
+  // Navigation preload, when supported, gives the browser a head start while the
+  // service worker wakes up. Use it before any large fallback cache is touched.
+  if (looksOnline() && preloadPromise) {
+    try {
+      const preload = await preloadPromise;
+      if (preload && preload.ok) {
+        try { event.waitUntil(cacheHtmlResponse(cache, preload.clone(), request)); } catch (_) {}
+        return preload;
+      }
+    } catch (_) {}
+  }
+
   if (looksOnline()) {
     try {
       const response = await fetch(new Request(request, { cache: "reload" }));
       if (response && response.ok) {
-        await cacheHtmlResponse(cache, response, request);
+        try { event && event.waitUntil && event.waitUntil(cacheHtmlResponse(cache, response.clone(), request)); } catch (_) {}
         return response;
       }
     } catch (_) {}
   }
 
-  // Offline fallback only: exact shell keys from known caches. This path should
-  // only be needed before the tiny v56 shell has been warmed once online.
-  const exactShell = await exactKnownShellFallback(request);
-  if (exactShell) {
-    try {
-      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
-    } catch (_) {}
-    return exactShell;
-  }
+  // Offline fallback is bounded so a large complete cache cannot recreate the
+  // 10-second iPad black splash. A warmed launch shell should normally avoid this.
+  const exactShell = await withTimeout(exactKnownShellFallback(request), 350, null);
+  if (exactShell) return exactShell;
 
   let wantsJournal = false;
   try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
   if (wantsJournal) {
     return (await cache.match("./personal-study.html")) ||
       (await cache.match("personal-study.html")) ||
-      new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
+      new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online after this update.", { status: 503, headers: { "content-type": "text/plain" } });
   }
   return (await cache.match("./index.html")) ||
     (await cache.match("index.html")) ||
     (await cache.match("./")) ||
-    new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
+    new Response("Iron Sharpener is unavailable offline until the app is opened once online after this update.", { status: 503, headers: { "content-type": "text/plain" } });
 }
 
 
@@ -510,7 +542,7 @@ async function launchAssetFastPath(request) {
 }
 
 async function resourceCacheFirst(request) {
-  // v56: keep the launch shell cache tiny. During Offline Ready preparation,
+  // v58: keep the launch shell cache tiny. During Offline Ready preparation,
   // this function may see thousands of resource fetches. Do not mirror those
   // files into the service worker's current launch cache.
 
