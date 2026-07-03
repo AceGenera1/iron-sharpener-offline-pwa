@@ -31851,6 +31851,359 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v148 — Teaching fresh back button: exact Journal wrapper/style match. Keeps existing back controller; replaces only the visible button surface. -->
+<style id="rdm-v148-teaching-back-exact-journal-wrapper-style">
+  /* Disable the older visible back-button surfaces so only the Journal-matched wrapper is shown. */
+  #scriptureBackBtn,
+  #rdmTeachingFreshBackBtnV147 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  #rdmTeachingBackWrapV148.rdm-teaching-back-wrap-v148 {
+    display: none;
+    width: 100%;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+    position: relative;
+    z-index: 6;
+    text-align: right;
+  }
+
+  #rdmTeachingBackWrapV148.rdm-show {
+    display: flex !important;
+    visibility: visible !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+  }
+
+  #rdmTeachingBackBtnV148 {
+    width: auto !important;
+    max-width: min(100%, 420px) !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    padding: 7px 14px !important;
+    border-radius: 999px !important;
+    border: 1.5px solid rgba(217,160,123,.92) !important;
+    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
+    color: #10223C !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background .12s ease, box-shadow .12s ease, opacity .12s ease !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #rdmTeachingBackBtnV148:hover,
+  #rdmTeachingBackBtnV148:focus-visible {
+    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
+    border-color: rgba(217,160,123,1) !important;
+    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
+    transform: none !important;
+  }
+
+  #rdmTeachingBackBtnV148:active {
+    transform: translateZ(0) scale(.99) !important;
+  }
+
+  #rdmTeachingBackBtnV148.rdm-busy {
+    opacity: .82 !important;
+    pointer-events: none !important;
+  }
+
+  body.dark #rdmTeachingBackBtnV148,
+  html.obs body.dark #rdmTeachingBackBtnV148 {
+    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
+    color: #F8F4EC !important;
+    border-color: rgba(217,160,123,.94) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
+  }
+
+  body.dark #rdmTeachingBackBtnV148:hover,
+  body.dark #rdmTeachingBackBtnV148:focus-visible,
+  html.obs body.dark #rdmTeachingBackBtnV148:hover,
+  html.obs body.dark #rdmTeachingBackBtnV148:focus-visible {
+    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
+    color: #FFF9F1 !important;
+    border-color: rgba(248,217,135,.92) !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
+  }
+
+  @media (max-width: 650px), (hover: none), (pointer: coarse) {
+    #rdmTeachingBackWrapV148.rdm-show {
+      justify-content: stretch !important;
+    }
+
+    #rdmTeachingBackBtnV148 {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: 38px !important;
+      padding: 9px 14px !important;
+      font-size: 12.5px !important;
+    }
+  }
+</style>
+<script id="rdm-v148-teaching-back-exact-journal-wrapper-script">
+(function rdmV148TeachingBackExactJournalWrapper(){
+  if (window.__rdmV148TeachingBackExactJournalWrapper) return;
+  window.__rdmV148TeachingBackExactJournalWrapper = true;
+
+  var stack = [];
+  var lastLoaded = null;
+  var restoring = false;
+  var loading = false;
+  var originalLoad = null;
+
+  function get(id){ return document.getElementById(id); }
+  function clean(value){ return String(value == null ? "" : value).trim(); }
+
+  function maxVerseFor(book, chapter){
+    try {
+      var ch = Math.max(1, parseInt(chapter, 10) || 1);
+      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : (window.verseCounts && window.verseCounts[book]);
+      if (Array.isArray(counts)) return Math.max(1, parseInt(counts[ch - 1], 10) || 1);
+      if (counts && typeof counts === "object") return Math.max(1, parseInt(counts[ch] || counts[String(ch)], 10) || 1);
+    } catch (_) {}
+    try {
+      var end = get("end");
+      if (end && end.value) return Math.max(1, parseInt(end.value, 10) || 1);
+    } catch (_) {}
+    return 1;
+  }
+
+  function normalize(state){
+    if (!state || typeof state !== "object") return null;
+    var book = clean(state.book || state.bookName || state.b);
+    var chapter = clean(state.chapter || state.chap || state.c || "1");
+    if (!book) return null;
+    chapter = String(parseInt(chapter, 10) || 1);
+    var end = String(maxVerseFor(book, chapter));
+    return { book: book, chapter: chapter, start: "1", end: end, range: "full" };
+  }
+
+  function controlState(){
+    var book = get("book"), chapter = get("chapter");
+    if (!book || !chapter || !book.value) return null;
+    return normalize({ book: book.value, chapter: chapter.value || "1" });
+  }
+
+  function key(state){
+    state = normalize(state);
+    return state ? state.book + "|" + state.chapter : "";
+  }
+
+  function label(state){
+    state = normalize(state);
+    if (!state) return "Scripture";
+    return state.book + " " + state.chapter + ":1-" + state.end;
+  }
+
+  function ensureOption(select, value){
+    if (!select) return;
+    value = String(value || "1");
+    try {
+      var exists = false;
+      for (var i = 0; i < select.options.length; i += 1) {
+        if (select.options[i].value === value) { exists = true; break; }
+      }
+      if (!exists) select.add(new Option(value, value));
+      select.value = value;
+    } catch (_) {}
+  }
+
+  function forceFullChapter(state){
+    state = normalize(state || controlState());
+    if (!state) return null;
+    ensureOption(get("rangeSize"), "full");
+    ensureOption(get("start"), "1");
+    ensureOption(get("end"), state.end);
+    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
+    return state;
+  }
+
+  function mount(){
+    var scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+    var wrap = get("rdmTeachingBackWrapV148");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "rdmTeachingBackWrapV148";
+      wrap.className = "rdm-teaching-back-wrap-v148";
+      wrap.setAttribute("aria-hidden", "true");
+      wrap.innerHTML = '<button id="rdmTeachingBackBtnV148" type="button">← Back to Scripture</button>';
+      var ref = get("refTitle") || scriptureBox.querySelector(".ref");
+      if (ref) scriptureBox.insertBefore(wrap, ref);
+      else scriptureBox.insertBefore(wrap, scriptureBox.firstChild);
+    }
+    var btn = get("rdmTeachingBackBtnV148");
+    if (btn && !btn.__rdmV148BackClick) {
+      btn.__rdmV148BackClick = true;
+      btn.addEventListener("click", goBack, true);
+    }
+    return wrap;
+  }
+
+  function updateButton(){
+    var wrap = mount();
+    var btn = get("rdmTeachingBackBtnV148");
+    if (!wrap || !btn) return;
+    var target = stack.length ? normalize(stack[stack.length - 1]) : null;
+    if (!target) {
+      wrap.classList.remove("rdm-show");
+      wrap.setAttribute("aria-hidden", "true");
+      btn.textContent = "← Back to Scripture";
+      btn.title = "Back to Scripture";
+      return;
+    }
+    wrap.classList.add("rdm-show");
+    wrap.setAttribute("aria-hidden", "false");
+    btn.textContent = "← Back to " + label(target);
+    btn.title = "Back to " + label(target);
+    btn.setAttribute("aria-label", "Back to " + label(target));
+  }
+
+  function updateSoon(){
+    updateButton();
+    [0, 80, 220, 600].forEach(function(ms){ setTimeout(updateButton, ms); });
+  }
+
+  function pushPreviousIfNeeded(){
+    if (restoring) return;
+    var prev = normalize(lastLoaded);
+    var next = controlState();
+    if (!prev || !next || !key(prev) || key(prev) === key(next)) return;
+    var top = stack.length ? normalize(stack[stack.length - 1]) : null;
+    if (!top || key(top) !== key(prev)) stack.push(prev);
+    while (stack.length > 30) stack.shift();
+    updateSoon();
+  }
+
+  async function callLoad(){
+    forceFullChapter(controlState());
+    if (typeof originalLoad === "function") return Promise.resolve(originalLoad.call(window));
+    if (typeof window.loadPassage === "function") return Promise.resolve(window.loadPassage());
+    if (typeof loadPassage === "function") return Promise.resolve(loadPassage());
+    return Promise.resolve();
+  }
+
+  async function goBack(event){
+    if (event) {
+      try { event.preventDefault(); } catch (_) {}
+      try { event.stopPropagation(); } catch (_) {}
+      try { event.stopImmediatePropagation(); } catch (_) {}
+    }
+    var target = normalize(stack.pop());
+    updateSoon();
+    if (!target) {
+      try {
+        if (typeof window.rdmGoBackOneScriptureStep === "function") window.rdmGoBackOneScriptureStep();
+        else {
+          var oldBtn = get("scriptureBackBtn");
+          if (oldBtn && typeof oldBtn.click === "function") oldBtn.click();
+        }
+      } catch (_) {}
+      return;
+    }
+    var btn = get("rdmTeachingBackBtnV148");
+    if (btn) btn.classList.add("rdm-busy");
+    restoring = true;
+    try {
+      var book = get("book"), chapter = get("chapter");
+      if (!book || !chapter) return;
+      try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+      book.value = target.book;
+      try { if (typeof populateChapters === "function") populateChapters(); } catch (_) {}
+      chapter.value = String(target.chapter || "1");
+      try { if (typeof populateVerses === "function") populateVerses(); } catch (_) {}
+      forceFullChapter(target);
+      await callLoad();
+      lastLoaded = normalize(target);
+      try { document.getElementById("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+    } finally {
+      restoring = false;
+      if (btn) btn.classList.remove("rdm-busy");
+      updateSoon();
+    }
+  }
+
+  function wrapLoad(){
+    var current = null;
+    try { current = typeof loadPassage === "function" ? loadPassage : null; } catch (_) {}
+    if (!current && typeof window.loadPassage === "function") current = window.loadPassage;
+    if (typeof current !== "function" || current.__rdmV148TeachingBackWrapped) return;
+    originalLoad = current;
+
+    async function wrapped(){
+      if (loading) return originalLoad.apply(this, arguments);
+      var before = normalize(lastLoaded);
+      var next = controlState();
+      var changed = !restoring && before && next && key(before) && key(before) !== key(next);
+      loading = true;
+      forceFullChapter(next);
+      try {
+        var result = originalLoad.apply(this, arguments);
+        await Promise.resolve(result);
+        if (changed) pushPreviousIfNeeded();
+        lastLoaded = normalize(controlState());
+        forceFullChapter(lastLoaded);
+        updateSoon();
+        return result;
+      } finally {
+        loading = false;
+      }
+    }
+    wrapped.__rdmV148TeachingBackWrapped = true;
+    try { loadPassage = wrapped; } catch (_) {}
+    window.loadPassage = wrapped;
+  }
+
+  function onBookChapterChange(event){
+    var target = event && event.target;
+    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
+    pushPreviousIfNeeded();
+    setTimeout(function(){ forceFullChapter(controlState()); updateButton(); }, 0);
+    setTimeout(function(){ lastLoaded = normalize(controlState()); updateButton(); }, 900);
+  }
+
+  function install(){
+    mount();
+    forceFullChapter(controlState());
+    wrapLoad();
+    if (!lastLoaded) lastLoaded = normalize(controlState());
+    updateSoon();
+  }
+
+  document.addEventListener("change", onBookChapterChange, true);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
+  else install();
+  window.addEventListener("pageshow", function(){ setTimeout(install, 80); });
+
+  window.rdmTeachingBackV148 = {
+    install: install,
+    update: updateButton,
+    stack: function(){ return stack.slice(); },
+    back: goBack,
+    pushPreviousIfNeeded: pushPreviousIfNeeded
+  };
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
