@@ -6134,6 +6134,12 @@ const verseCounts = {
     return start === end ? `${book} ${chapter}:${start}` : `${book} ${chapter}:${start}-${end}`;
   }
 
+  function visibleScriptureHeading() {
+    const book = $("book").value;
+    const chapter = $("chapter").value;
+    return `${book} ${chapter}`;
+  }
+
   function bibleFileCandidates(book, chapter) {
     const padded = String(chapter).padStart(2, "0");
     const plain = String(parseInt(chapter, 10));
@@ -6173,14 +6179,14 @@ const verseCounts = {
     const chapter = $("chapter").value;
     const start = parseInt($("start").value, 10);
     const end = parseInt($("end").value, 10);
-    $("referenceTitle").textContent = currentReference();
+    $("referenceTitle").textContent = visibleScriptureHeading();
     $("passage").innerHTML = `<p class="empty">Loading ${escapeHtml(currentReference())}…</p>`;
     try {
       const result = await fetchBibleChapter(book, chapter);
       const data = result.data;
       currentPassageVerses = (data.verses || []).filter((verse) => Number(verse.verse) >= start && Number(verse.verse) <= end);
       if (!currentPassageVerses.length) throw new Error("No verses found.");
-      $("referenceTitle").textContent = currentReference();
+      $("referenceTitle").textContent = visibleScriptureHeading();
       $("passage").innerHTML = currentPassageVerses.map((verse) => `<p class="verse" data-verse="${verse.verse}" data-v="${verse.verse}"><span class="vnum">${verse.verse}</span>${renderVerseText(verse)}</p>`).join("");
       applySavedMarks();
       clearCopySelection();
@@ -11587,6 +11593,7 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     return { book:b, chapter:c, start:s, end:e, max:max, mode:mode };
   }
   function reference(s){ return s.start === s.end ? (s.book + ' ' + s.chapter + ':' + s.start) : (s.book + ' ' + s.chapter + ':' + s.start + '-' + s.end); }
+  function heading(s){ return s.book + ' ' + s.chapter; }
   async function fetchChapter(book, chapter){
     var key = book + '|' + String(chapter);
     if (chapterCache.has(key)) return chapterCache.get(key);
@@ -11612,7 +11619,7 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     if (!s || !passage) return;
     var token = ++activeToken;
     var key = s.book + '|' + s.chapter + '|' + s.start + '|' + s.end + '|' + s.mode;
-    if (title) title.textContent = reference(s);
+    if (title) title.textContent = heading(s);
     if (key !== lastRenderedKey) passage.innerHTML = '<p class="empty">Loading ' + escape(reference(s)) + '…</p>';
     try {
       var data = await fetchChapter(s.book, s.chapter);
@@ -11621,7 +11628,7 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
       var selected = verses.filter(function(v){ var n = Number(v.verse); return n >= s.start && n <= s.end; });
       if (!selected.length) throw new Error('No verses found.');
       try { currentPassageVerses = selected; } catch (_) { window.currentPassageVerses = selected; }
-      if (title) title.textContent = reference(s);
+      if (title) title.textContent = heading(s);
       passage.innerHTML = selected.map(function(v){
         var n = Number(v.verse);
         return '<p class="verse" data-verse="' + n + '" data-v="' + n + '"><span class="vnum">' + n + '</span>' + escape(clean(v.text)) + '</p>';
@@ -12160,6 +12167,22 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     }
   }
 </style>
+
+
+<!-- v155 — Disciple Journal visible Scripture heading cleanup.
+     Visible heading is Book + Chapter only. Full verse ranges remain intact for
+     saved journal references, copy/export, history, back labels, and data keys. -->
+<style id="rdm-v155-journal-book-chapter-heading-stability">
+  #referenceTitle {
+    min-height: 1.25em;
+    font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+  }
+</style>
+<script id="rdm-v155-journal-book-chapter-heading-marker">
+(function(){ try { window.__rdmJournalVisibleHeadingVersion = "v155-book-chapter-only"; } catch (_) {} })();
+</script>
+
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
