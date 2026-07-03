@@ -31254,617 +31254,24 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 
 
-<!-- v145 — Teaching side back button visual match to Disciple Journal compact style. -->
-<style id="rdm-v145-teaching-back-style-match-journal">
-  /* Visual-only polish. Keeps the existing, working Teaching Tool back-button controller. */
-  #scriptureBox {
-    position: relative !important;
-  }
 
+<!-- v150 — Teaching back button fixed without interfering with Book/Chapter loading. -->
+<style id="rdm-v150-teaching-back-journal-style-safe-load">
+  /* v150 owns only the visible Teaching back surface. Older surfaces remain hidden. */
   #scriptureBackBtn,
   #scriptureBackBtn.rdm-scripture-back-visible,
-  html.obs #scriptureBackBtn,
-  html.obs #scriptureBackBtn.rdm-scripture-back-visible {
-    width: auto !important;
-    max-width: min(100%, 420px) !important;
-    min-width: 0 !important;
-    min-height: 34px !important;
-    padding: 7px 14px !important;
-    border-radius: 999px !important;
-    border: 1.5px solid rgba(217,160,123,.92) !important;
-    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
-    color: #10223C !important;
-    font-family: Arial, sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 900 !important;
-    line-height: 1.12 !important;
-    letter-spacing: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    position: absolute !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 99990 !important;
-    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
-    cursor: pointer !important;
-    -webkit-tap-highlight-color: transparent !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transition: background .12s ease, box-shadow .12s ease, opacity .12s ease !important;
-  }
-
-  #scriptureBackBtn:hover,
-  #scriptureBackBtn:focus-visible {
-    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
-    border-color: rgba(217,160,123,1) !important;
-    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
-    transform: none !important;
-  }
-
-  #scriptureBackBtn:active {
-    transform: translateZ(0) scale(.99) !important;
-  }
-
-  body.dark #scriptureBackBtn,
-  html.obs body.dark #scriptureBackBtn {
-    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
-    color: #F8F4EC !important;
-    border-color: rgba(217,160,123,.94) !important;
-    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
-  }
-
-  body.dark #scriptureBackBtn:hover,
-  body.dark #scriptureBackBtn:focus-visible,
-  html.obs body.dark #scriptureBackBtn:hover,
-  html.obs body.dark #scriptureBackBtn:focus-visible {
-    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
-    color: #FFF9F1 !important;
-    border-color: rgba(248,217,135,.92) !important;
-    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
-  }
-
-  #scriptureBox .ref,
-  #scriptureBox #refTitle {
-    padding-right: 0 !important;
-  }
-
-  @media (max-width: 650px), (hover: none), (pointer: coarse) {
-    #scriptureBackBtn,
-    #scriptureBackBtn.rdm-scripture-back-visible,
-    html.obs #scriptureBackBtn,
-    html.obs #scriptureBackBtn.rdm-scripture-back-visible {
-      top: 12px !important;
-      right: 12px !important;
-      max-width: min(72vw, 360px) !important;
-      min-height: 38px !important;
-      padding: 9px 13px !important;
-      font-size: 12px !important;
-    }
-  }
-</style>
-
-
-<!-- v146 — Teaching back label/style match to Journal -->
-<style id="rdm-v146-teaching-back-label-match-journal-style">
-  /* Teaching Tool: keep the existing working back logic, but make the visible button match the Journal back style. */
-  #scriptureBox {
-    position: relative !important;
-  }
-
-  #scriptureBackBtn.rdm-v146-teaching-back-match,
-  #scriptureBackBtn.rdm-scripture-back-visible.rdm-v146-teaching-back-match,
-  html.obs #scriptureBackBtn.rdm-v146-teaching-back-match {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: min(48vw, 430px) !important;
-    min-height: 34px !important;
-    padding: 7px 14px !important;
-    border-radius: 999px !important;
-    border: 1.5px solid rgba(217,160,123,.94) !important;
-    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
-    color: #10223C !important;
-    font-family: Arial, sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 900 !important;
-    line-height: 1.12 !important;
-    letter-spacing: 0 !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    position: absolute !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 99995 !important;
-    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
-    cursor: pointer !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
-  #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible {
-    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
-    border-color: rgba(217,160,123,1) !important;
-    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
-    transform: none !important;
-  }
-
-  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match,
-  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match {
-    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
-    color: #F8F4EC !important;
-    border-color: rgba(217,160,123,.94) !important;
-    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
-  }
-
-  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
-  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible,
-  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
-  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible {
-    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
-    color: #FFF9F1 !important;
-    border-color: rgba(248,217,135,.92) !important;
-    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
-  }
-
-  #scriptureBox .ref,
-  #scriptureBox #refTitle {
-    padding-right: 0 !important;
-  }
-
-  @media (max-width: 700px), (hover: none), (pointer: coarse) {
-    #scriptureBackBtn.rdm-v146-teaching-back-match,
-    #scriptureBackBtn.rdm-scripture-back-visible.rdm-v146-teaching-back-match,
-    html.obs #scriptureBackBtn.rdm-v146-teaching-back-match {
-      top: 12px !important;
-      right: 12px !important;
-      max-width: min(64vw, 360px) !important;
-      min-height: 36px !important;
-      padding: 8px 12px !important;
-      font-size: 11.5px !important;
-    }
-  }
-</style>
-<script id="rdm-v146-teaching-back-label-match-journal-script">
-(function rdmV146TeachingBackLabelMatchJournal(){
-  if (window.__rdmV146TeachingBackLabelMatchJournal) return;
-  window.__rdmV146TeachingBackLabelMatchJournal = true;
-
-  function byId(id) { return document.getElementById(id); }
-
-  function clean(value) {
-    return String(value == null ? "" : value).trim();
-  }
-
-  function normalizeState(state) {
-    if (!state || typeof state !== "object") return null;
-    const book = clean(state.book || state.bookName || state.b);
-    const chapter = clean(state.chapter || state.chap || state.c || "1");
-    let start = clean(state.start || state.startVerse || state.s || "1");
-    let end = clean(state.end || state.endVerse || state.e || start || "1");
-    if (!book) return null;
-    if (!start) start = "1";
-    if (!end) end = start;
-    return { book: book, chapter: chapter || "1", start: start, end: end };
-  }
-
-  function currentStateKey() {
-    const book = byId("book");
-    const chapter = byId("chapter");
-    if (!book || !chapter) return "";
-    return clean(book.value) + "|" + clean(chapter.value);
-  }
-
-  function stateKey(state) {
-    const s = normalizeState(state);
-    return s ? s.book + "|" + s.chapter : "";
-  }
-
-  function labelFor(state) {
-    const s = normalizeState(state);
-    if (!s) return "";
-    return s.start === s.end
-      ? s.book + " " + s.chapter + ":" + s.start
-      : s.book + " " + s.chapter + ":" + s.start + "-" + s.end;
-  }
-
-  function possibleTargets() {
-    const out = [];
-    [
-      window.__rdmScriptureBackStackV42,
-      window.__rdmCrossReferenceBackStack,
-      window.__rdmStudyResourceBackStack,
-      window.__rdmTeachingBackStack,
-      window.__rdmScriptureBackStack
-    ].forEach(function(list) {
-      if (Array.isArray(list)) {
-        for (let i = list.length - 1; i >= 0; i -= 1) out.push(list[i]);
-      }
-    });
-    try {
-      if (typeof previousPassageState !== "undefined" && previousPassageState) out.push(previousPassageState);
-    } catch (_) {}
-    if (window.previousPassageState) out.push(window.previousPassageState);
-    if (window.__rdmPreviousPassageState) out.push(window.__rdmPreviousPassageState);
-    return out;
-  }
-
-  function bestTarget() {
-    const now = currentStateKey();
-    for (const raw of possibleTargets()) {
-      const state = normalizeState(raw);
-      if (!state) continue;
-      if (stateKey(state) && stateKey(state) !== now) return state;
-    }
-    for (const raw of possibleTargets()) {
-      const state = normalizeState(raw);
-      if (state) return state;
-    }
-    return null;
-  }
-
-  let writing = false;
-  function refreshBackLabel() {
-    if (writing) return;
-    const btn = byId("scriptureBackBtn");
-    if (!btn) return;
-    const target = bestTarget();
-    const label = target ? "← Back to " + labelFor(target) : "← Back";
-    writing = true;
-    try {
-      btn.classList.add("rdm-v146-teaching-back-match");
-      btn.textContent = label;
-      btn.setAttribute("aria-label", target ? "Back to " + labelFor(target) : "Back to previous Scripture passage");
-      btn.title = target ? "Back to " + labelFor(target) : "Back to previous Scripture passage";
-    } finally {
-      writing = false;
-    }
-  }
-
-  function scheduleRefresh() {
-    refreshBackLabel();
-    setTimeout(refreshBackLabel, 80);
-    setTimeout(refreshBackLabel, 220);
-    setTimeout(refreshBackLabel, 600);
-  }
-
-  function watchBackButton() {
-    const btn = byId("scriptureBackBtn");
-    if (!btn || btn.__rdmV146TeachingBackObserver) return;
-    btn.__rdmV146TeachingBackObserver = true;
-    try {
-      const observer = new MutationObserver(function() {
-        if (!writing) setTimeout(refreshBackLabel, 0);
-      });
-      observer.observe(btn, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
-    } catch (_) {}
-  }
-
-  function start() {
-    scheduleRefresh();
-    watchBackButton();
-    ["book", "chapter", "refreshPassage", "loadPassageBtn"].forEach(function(id) {
-      const el = byId(id);
-      if (!el || el.__rdmV146TeachingBackBound) return;
-      el.__rdmV146TeachingBackBound = true;
-      el.addEventListener("change", scheduleRefresh, true);
-      el.addEventListener("click", scheduleRefresh, true);
-    });
-    document.addEventListener("click", function(event) {
-      if (event.target && event.target.closest && event.target.closest("button, a, [role='button']")) {
-        setTimeout(function(){ watchBackButton(); scheduleRefresh(); }, 80);
-      }
-    }, true);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start, { once: true });
-  } else {
-    start();
-  }
-
-  window.rdmRefreshTeachingBackLabelV146 = scheduleRefresh;
-})();
-</script>
-
-
-
-<!-- v147 — Teaching fresh back button matching Disciple Journal style, independent of old clipped button. -->
-<style id="rdm-v147-teaching-fresh-back-match-journal-style">
-  #scriptureBox {
-    position: relative !important;
-  }
-
-  /* Hide the old Teaching back button only. It still exists so the original working controller can keep its state. */
-  #scriptureBackBtn {
+  #rdmV76ScriptureBackRow,
+  #rdmV76BackToScriptureBtn,
+  #rdmTeachingFreshBackBtnV147,
+  #rdmTeachingBackWrapV148,
+  #rdmTeachingBackWrapV149 {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
   }
 
-  #rdmTeachingFreshBackBtnV147 {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: auto;
-    min-width: 0;
-    max-width: min(48vw, 430px);
-    min-height: 34px;
-    padding: 7px 14px;
-    border-radius: 999px;
-    border: 1.5px solid rgba(217,160,123,.94);
-    background: linear-gradient(180deg, #FFF9F1, #F7EFE2);
-    color: #10223C;
-    font-family: Arial, sans-serif;
-    font-size: 12.5px;
-    font-weight: 900;
-    line-height: 1.12;
-    letter-spacing: 0;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 99999;
-    box-shadow: 0 8px 18px rgba(29,45,68,.09);
-    cursor: pointer;
-    opacity: 1;
-    transform: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  #rdmTeachingFreshBackBtnV147.rdm-teaching-fresh-back-visible {
-    display: inline-flex !important;
-  }
-
-  #rdmTeachingFreshBackBtnV147:hover,
-  #rdmTeachingFreshBackBtnV147:focus-visible {
-    background: linear-gradient(180deg, #FFFDF8, #F4E4D6);
-    border-color: rgba(217,160,123,1);
-    box-shadow: 0 12px 24px rgba(29,45,68,.14);
-    transform: none;
-  }
-
-  #rdmTeachingFreshBackBtnV147:active {
-    transform: translateZ(0) scale(.99);
-  }
-
-  body.dark #rdmTeachingFreshBackBtnV147,
-  html.obs body.dark #rdmTeachingFreshBackBtnV147 {
-    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96));
-    color: #F8F4EC;
-    border-color: rgba(217,160,123,.94);
-    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04);
-  }
-
-  body.dark #rdmTeachingFreshBackBtnV147:hover,
-  body.dark #rdmTeachingFreshBackBtnV147:focus-visible,
-  html.obs body.dark #rdmTeachingFreshBackBtnV147:hover,
-  html.obs body.dark #rdmTeachingFreshBackBtnV147:focus-visible {
-    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98));
-    color: #FFF9F1;
-    border-color: rgba(248,217,135,.92);
-    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12);
-  }
-
-  #scriptureBox .ref,
-  #scriptureBox #refTitle {
-    padding-right: 0 !important;
-  }
-
-  @media (max-width: 700px), (hover: none), (pointer: coarse) {
-    #rdmTeachingFreshBackBtnV147 {
-      top: 12px;
-      right: 12px;
-      max-width: min(64vw, 360px);
-      min-height: 36px;
-      padding: 8px 12px;
-      font-size: 11.5px;
-    }
-  }
-</style>
-<script id="rdm-v147-teaching-fresh-back-match-journal-script">
-(function rdmV147TeachingFreshBackMatchJournal(){
-  if (window.__rdmV147TeachingFreshBackMatchJournal) return;
-  window.__rdmV147TeachingFreshBackMatchJournal = true;
-
-  function byId(id) { return document.getElementById(id); }
-  function clean(value) { return String(value == null ? "" : value).trim(); }
-
-  function normalizeState(state) {
-    if (!state || typeof state !== "object") return null;
-    const book = clean(state.book || state.bookName || state.b);
-    const chapter = clean(state.chapter || state.chap || state.c || "1");
-    let start = clean(state.start || state.startVerse || state.s || "1");
-    let end = clean(state.end || state.endVerse || state.e || start || "1");
-    if (!book) return null;
-    if (!start) start = "1";
-    if (!end) end = start;
-    return { book: book, chapter: chapter || "1", start: start, end: end };
-  }
-
-  function labelForState(state) {
-    const s = normalizeState(state);
-    if (!s) return "";
-    return s.start === s.end
-      ? s.book + " " + s.chapter + ":" + s.start
-      : s.book + " " + s.chapter + ":" + s.start + "-" + s.end;
-  }
-
-  function currentKey() {
-    const book = byId("book");
-    const chapter = byId("chapter");
-    if (!book || !chapter) return "";
-    return clean(book.value) + "|" + clean(chapter.value);
-  }
-
-  function keyFor(state) {
-    const s = normalizeState(state);
-    return s ? s.book + "|" + s.chapter : "";
-  }
-
-  function stackTargets() {
-    const sources = [
-      window.__rdmScriptureBackStackV42,
-      window.__rdmScriptureBackStackV41,
-      window.__rdmCrossReferenceBackStack,
-      window.__rdmStudyResourceBackStack,
-      window.__rdmTeachingBackStack,
-      window.__rdmScriptureBackStack
-    ];
-    const out = [];
-    sources.forEach(function(source) {
-      if (Array.isArray(source)) {
-        for (let i = source.length - 1; i >= 0; i -= 1) out.push(source[i]);
-      }
-    });
-    try { if (typeof previousPassageState !== "undefined" && previousPassageState) out.push(previousPassageState); } catch (_) {}
-    if (window.previousPassageState) out.push(window.previousPassageState);
-    if (window.__rdmPreviousPassageState) out.push(window.__rdmPreviousPassageState);
-    return out;
-  }
-
-  function labelFromOldButton() {
-    const oldBtn = byId("scriptureBackBtn");
-    const title = clean(oldBtn && oldBtn.title);
-    const aria = clean(oldBtn && oldBtn.getAttribute && oldBtn.getAttribute("aria-label"));
-    const source = /^Back to\s+/.test(title) ? title : (/^Back to\s+/.test(aria) ? aria : "");
-    return source ? source.replace(/^Back to\s+/i, "") : "";
-  }
-
-  function bestLabel() {
-    const now = currentKey();
-    const targets = stackTargets();
-    for (const raw of targets) {
-      const state = normalizeState(raw);
-      if (!state) continue;
-      if (keyFor(state) && keyFor(state) !== now) return labelForState(state);
-    }
-    for (const raw of targets) {
-      const label = labelForState(raw);
-      if (label) return label;
-    }
-    return labelFromOldButton();
-  }
-
-  function ensureButton() {
-    const scriptureBox = byId("scriptureBox");
-    if (!scriptureBox) return null;
-    let btn = byId("rdmTeachingFreshBackBtnV147");
-    if (!btn) {
-      btn = document.createElement("button");
-      btn.id = "rdmTeachingFreshBackBtnV147";
-      btn.type = "button";
-      btn.addEventListener("click", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-        if (typeof window.rdmGoBackOneScriptureStep === "function") {
-          window.rdmGoBackOneScriptureStep();
-        } else {
-          const oldBtn = byId("scriptureBackBtn");
-          if (oldBtn && typeof oldBtn.click === "function") oldBtn.click();
-        }
-        setTimeout(refresh, 80);
-        setTimeout(refresh, 350);
-      }, true);
-      scriptureBox.insertAdjacentElement("afterbegin", btn);
-    }
-    return btn;
-  }
-
-  function refresh() {
-    const btn = ensureButton();
-    if (!btn) return;
-    const label = bestLabel();
-    if (label) {
-      btn.textContent = "← Back to " + label;
-      btn.title = "Back to " + label;
-      btn.setAttribute("aria-label", "Back to " + label);
-      btn.classList.add("rdm-teaching-fresh-back-visible");
-    } else {
-      btn.textContent = "← Back";
-      btn.title = "No previous Scripture passage yet";
-      btn.setAttribute("aria-label", "Back to previous Scripture passage");
-      btn.classList.remove("rdm-teaching-fresh-back-visible");
-    }
-  }
-
-  function scheduleRefresh() {
-    refresh();
-    setTimeout(refresh, 60);
-    setTimeout(refresh, 180);
-    setTimeout(refresh, 500);
-  }
-
-  function observeOldButton() {
-    const oldBtn = byId("scriptureBackBtn");
-    if (!oldBtn || oldBtn.__rdmV147TeachingFreshBackObserved) return;
-    oldBtn.__rdmV147TeachingFreshBackObserved = true;
-    try {
-      const observer = new MutationObserver(function(){ setTimeout(refresh, 0); });
-      observer.observe(oldBtn, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["title", "aria-label", "class", "style"] });
-    } catch (_) {}
-  }
-
-  function bind() {
-    ["book", "chapter", "refreshPassage", "loadPassageBtn"].forEach(function(id) {
-      const el = byId(id);
-      if (!el || el.__rdmV147TeachingFreshBackBound) return;
-      el.__rdmV147TeachingFreshBackBound = true;
-      el.addEventListener("change", scheduleRefresh, true);
-      el.addEventListener("click", scheduleRefresh, true);
-    });
-    document.addEventListener("click", function(event) {
-      if (event.target && event.target.closest && event.target.closest("button, a, [role='button']")) {
-        setTimeout(function(){ observeOldButton(); scheduleRefresh(); }, 80);
-      }
-    }, true);
-  }
-
-  function start() {
-    ensureButton();
-    observeOldButton();
-    bind();
-    scheduleRefresh();
-    setTimeout(function(){ observeOldButton(); scheduleRefresh(); }, 700);
-    setTimeout(function(){ observeOldButton(); scheduleRefresh(); }, 1600);
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
-  else start();
-
-  window.rdmRefreshTeachingFreshBackV147 = scheduleRefresh;
-})();
-</script>
-
-
-
-<!-- v148 — Teaching fresh back button: exact Journal wrapper/style match. Keeps existing back controller; replaces only the visible button surface. -->
-<style id="rdm-v148-teaching-back-exact-journal-wrapper-style">
-  /* Disable the older visible back-button surfaces so only the Journal-matched wrapper is shown. */
-  #scriptureBackBtn,
-  #rdmTeachingFreshBackBtnV147 {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
-  #rdmTeachingBackWrapV148.rdm-teaching-back-wrap-v148 {
+  #rdmTeachingBackWrapV150.rdm-teaching-back-wrap-v150 {
     display: none;
     width: 100%;
     margin: 0 0 12px 0 !important;
@@ -31874,14 +31281,14 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     text-align: right;
   }
 
-  #rdmTeachingBackWrapV148.rdm-show {
+  #rdmTeachingBackWrapV150.rdm-show {
     display: flex !important;
     visibility: visible !important;
     justify-content: flex-end !important;
     align-items: center !important;
   }
 
-  #rdmTeachingBackBtnV148 {
+  #rdmTeachingBackBtnV150 {
     width: auto !important;
     max-width: min(100%, 420px) !important;
     min-width: 0 !important;
@@ -31910,35 +31317,35 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     transform: none !important;
   }
 
-  #rdmTeachingBackBtnV148:hover,
-  #rdmTeachingBackBtnV148:focus-visible {
+  #rdmTeachingBackBtnV150:hover,
+  #rdmTeachingBackBtnV150:focus-visible {
     background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
     border-color: rgba(217,160,123,1) !important;
     box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
     transform: none !important;
   }
 
-  #rdmTeachingBackBtnV148:active {
+  #rdmTeachingBackBtnV150:active {
     transform: translateZ(0) scale(.99) !important;
   }
 
-  #rdmTeachingBackBtnV148.rdm-busy {
+  #rdmTeachingBackBtnV150.rdm-busy {
     opacity: .82 !important;
     pointer-events: none !important;
   }
 
-  body.dark #rdmTeachingBackBtnV148,
-  html.obs body.dark #rdmTeachingBackBtnV148 {
+  body.dark #rdmTeachingBackBtnV150,
+  html.obs body.dark #rdmTeachingBackBtnV150 {
     background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
     color: #F8F4EC !important;
     border-color: rgba(217,160,123,.94) !important;
     box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
   }
 
-  body.dark #rdmTeachingBackBtnV148:hover,
-  body.dark #rdmTeachingBackBtnV148:focus-visible,
-  html.obs body.dark #rdmTeachingBackBtnV148:hover,
-  html.obs body.dark #rdmTeachingBackBtnV148:focus-visible {
+  body.dark #rdmTeachingBackBtnV150:hover,
+  body.dark #rdmTeachingBackBtnV150:focus-visible,
+  html.obs body.dark #rdmTeachingBackBtnV150:hover,
+  html.obs body.dark #rdmTeachingBackBtnV150:focus-visible {
     background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
     color: #FFF9F1 !important;
     border-color: rgba(248,217,135,.92) !important;
@@ -31946,11 +31353,11 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   }
 
   @media (max-width: 650px), (hover: none), (pointer: coarse) {
-    #rdmTeachingBackWrapV148.rdm-show {
+    #rdmTeachingBackWrapV150.rdm-show {
       justify-content: stretch !important;
     }
 
-    #rdmTeachingBackBtnV148 {
+    #rdmTeachingBackBtnV150 {
       width: 100% !important;
       max-width: 100% !important;
       min-height: 38px !important;
@@ -31959,16 +31366,16 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     }
   }
 </style>
-<script id="rdm-v148-teaching-back-exact-journal-wrapper-script">
-(function rdmV148TeachingBackExactJournalWrapper(){
-  if (window.__rdmV148TeachingBackExactJournalWrapper) return;
-  window.__rdmV148TeachingBackExactJournalWrapper = true;
+<script id="rdm-v150-teaching-back-safe-book-chapter-load">
+(function rdmV150TeachingBackSafeBookChapterLoad(){
+  "use strict";
+  if (window.__rdmV150TeachingBackSafeBookChapterLoad) return;
+  window.__rdmV150TeachingBackSafeBookChapterLoad = true;
 
   var stack = [];
   var lastLoaded = null;
   var restoring = false;
-  var loading = false;
-  var originalLoad = null;
+  var installed = false;
 
   function get(id){ return document.getElementById(id); }
   function clean(value){ return String(value == null ? "" : value).trim(); }
@@ -31976,7 +31383,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   function maxVerseFor(book, chapter){
     try {
       var ch = Math.max(1, parseInt(chapter, 10) || 1);
-      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : (window.verseCounts && window.verseCounts[book]);
+      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : null;
       if (Array.isArray(counts)) return Math.max(1, parseInt(counts[ch - 1], 10) || 1);
       if (counts && typeof counts === "object") return Math.max(1, parseInt(counts[ch] || counts[String(ch)], 10) || 1);
     } catch (_) {}
@@ -31998,7 +31405,8 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   }
 
   function controlState(){
-    var book = get("book"), chapter = get("chapter");
+    var book = get("book");
+    var chapter = get("chapter");
     if (!book || !chapter || !book.value) return null;
     return normalize({ book: book.value, chapter: chapter.value || "1" });
   }
@@ -32037,369 +31445,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     return state;
   }
 
-  function mount(){
-    var scriptureBox = get("scriptureBox");
-    if (!scriptureBox) return null;
-    var wrap = get("rdmTeachingBackWrapV148");
-    if (!wrap) {
-      wrap = document.createElement("div");
-      wrap.id = "rdmTeachingBackWrapV148";
-      wrap.className = "rdm-teaching-back-wrap-v148";
-      wrap.setAttribute("aria-hidden", "true");
-      wrap.innerHTML = '<button id="rdmTeachingBackBtnV148" type="button">← Back to Scripture</button>';
-      var ref = get("refTitle") || scriptureBox.querySelector(".ref");
-      if (ref) scriptureBox.insertBefore(wrap, ref);
-      else scriptureBox.insertBefore(wrap, scriptureBox.firstChild);
-    }
-    var btn = get("rdmTeachingBackBtnV148");
-    if (btn && !btn.__rdmV148BackClick) {
-      btn.__rdmV148BackClick = true;
-      btn.addEventListener("click", goBack, true);
-    }
-    return wrap;
-  }
-
-  function updateButton(){
-    var wrap = mount();
-    var btn = get("rdmTeachingBackBtnV148");
-    if (!wrap || !btn) return;
-    var target = stack.length ? normalize(stack[stack.length - 1]) : null;
-    if (!target) {
-      wrap.classList.remove("rdm-show");
-      wrap.setAttribute("aria-hidden", "true");
-      btn.textContent = "← Back to Scripture";
-      btn.title = "Back to Scripture";
-      return;
-    }
-    wrap.classList.add("rdm-show");
-    wrap.setAttribute("aria-hidden", "false");
-    btn.textContent = "← Back to " + label(target);
-    btn.title = "Back to " + label(target);
-    btn.setAttribute("aria-label", "Back to " + label(target));
-  }
-
-  function updateSoon(){
-    updateButton();
-    [0, 80, 220, 600].forEach(function(ms){ setTimeout(updateButton, ms); });
-  }
-
-  function pushPreviousIfNeeded(){
-    if (restoring) return;
-    var prev = normalize(lastLoaded);
-    var next = controlState();
-    if (!prev || !next || !key(prev) || key(prev) === key(next)) return;
-    var top = stack.length ? normalize(stack[stack.length - 1]) : null;
-    if (!top || key(top) !== key(prev)) stack.push(prev);
-    while (stack.length > 30) stack.shift();
-    updateSoon();
-  }
-
-  async function callLoad(){
-    forceFullChapter(controlState());
-    if (typeof originalLoad === "function") return Promise.resolve(originalLoad.call(window));
-    if (typeof window.loadPassage === "function") return Promise.resolve(window.loadPassage());
-    if (typeof loadPassage === "function") return Promise.resolve(loadPassage());
-    return Promise.resolve();
-  }
-
-  async function goBack(event){
-    if (event) {
-      try { event.preventDefault(); } catch (_) {}
-      try { event.stopPropagation(); } catch (_) {}
-      try { event.stopImmediatePropagation(); } catch (_) {}
-    }
-    var target = normalize(stack.pop());
-    updateSoon();
-    if (!target) {
-      try {
-        if (typeof window.rdmGoBackOneScriptureStep === "function") window.rdmGoBackOneScriptureStep();
-        else {
-          var oldBtn = get("scriptureBackBtn");
-          if (oldBtn && typeof oldBtn.click === "function") oldBtn.click();
-        }
-      } catch (_) {}
-      return;
-    }
-    var btn = get("rdmTeachingBackBtnV148");
-    if (btn) btn.classList.add("rdm-busy");
-    restoring = true;
-    try {
-      var book = get("book"), chapter = get("chapter");
-      if (!book || !chapter) return;
-      try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
-      book.value = target.book;
-      try { if (typeof populateChapters === "function") populateChapters(); } catch (_) {}
-      chapter.value = String(target.chapter || "1");
-      try { if (typeof populateVerses === "function") populateVerses(); } catch (_) {}
-      forceFullChapter(target);
-      await callLoad();
-      lastLoaded = normalize(target);
-      try { document.getElementById("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
-    } finally {
-      restoring = false;
-      if (btn) btn.classList.remove("rdm-busy");
-      updateSoon();
-    }
-  }
-
-  function wrapLoad(){
-    var current = null;
-    try { current = typeof loadPassage === "function" ? loadPassage : null; } catch (_) {}
-    if (!current && typeof window.loadPassage === "function") current = window.loadPassage;
-    if (typeof current !== "function" || current.__rdmV148TeachingBackWrapped) return;
-    originalLoad = current;
-
-    async function wrapped(){
-      if (loading) return originalLoad.apply(this, arguments);
-      var before = normalize(lastLoaded);
-      var next = controlState();
-      var changed = !restoring && before && next && key(before) && key(before) !== key(next);
-      loading = true;
-      forceFullChapter(next);
-      try {
-        var result = originalLoad.apply(this, arguments);
-        await Promise.resolve(result);
-        if (changed) pushPreviousIfNeeded();
-        lastLoaded = normalize(controlState());
-        forceFullChapter(lastLoaded);
-        updateSoon();
-        return result;
-      } finally {
-        loading = false;
-      }
-    }
-    wrapped.__rdmV148TeachingBackWrapped = true;
-    try { loadPassage = wrapped; } catch (_) {}
-    window.loadPassage = wrapped;
-  }
-
-  function onBookChapterChange(event){
-    var target = event && event.target;
-    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
-    pushPreviousIfNeeded();
-    setTimeout(function(){ forceFullChapter(controlState()); updateButton(); }, 0);
-    setTimeout(function(){ lastLoaded = normalize(controlState()); updateButton(); }, 900);
-  }
-
-  function install(){
-    mount();
-    forceFullChapter(controlState());
-    wrapLoad();
-    if (!lastLoaded) lastLoaded = normalize(controlState());
-    updateSoon();
-  }
-
-  document.addEventListener("change", onBookChapterChange, true);
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
-  else install();
-  window.addEventListener("pageshow", function(){ setTimeout(install, 80); });
-
-  window.rdmTeachingBackV148 = {
-    install: install,
-    update: updateButton,
-    stack: function(){ return stack.slice(); },
-    back: goBack,
-    pushPreviousIfNeeded: pushPreviousIfNeeded
-  };
-})();
-</script>
-
-
-
-<!-- v149 — Teaching back button only after a real Book/Chapter change. Retires all older visible back surfaces. -->
-<style id="rdm-v149-teaching-back-only-after-book-chapter-change-style">
-  /* v149 owns the visible teaching back button. Older stacked patches stay logically available but never show. */
-  #scriptureBackBtn,
-  #scriptureBackBtn.rdm-scripture-back-visible,
-  #rdmV76ScriptureBackRow,
-  #rdmV76BackToScriptureBtn,
-  #rdmTeachingFreshBackBtnV147,
-  #rdmTeachingFreshBackBtnV147.rdm-teaching-fresh-back-visible,
-  #rdmTeachingBackWrapV148,
-  #rdmTeachingBackWrapV148.rdm-show {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
-  #rdmTeachingBackWrapV149.rdm-teaching-back-wrap-v149 {
-    display: none;
-    width: 100%;
-    margin: 0 0 12px 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-    z-index: 8;
-    text-align: right;
-  }
-
-  #rdmTeachingBackWrapV149.rdm-show {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-  }
-
-  #rdmTeachingBackBtnV149 {
-    width: auto !important;
-    max-width: min(100%, 430px) !important;
-    min-width: 0 !important;
-    min-height: 34px !important;
-    padding: 7px 14px !important;
-    border-radius: 999px !important;
-    border: 1.5px solid rgba(217,160,123,.92) !important;
-    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
-    color: #10223C !important;
-    font-family: Arial, sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 900 !important;
-    line-height: 1.12 !important;
-    letter-spacing: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
-    cursor: pointer !important;
-    -webkit-tap-highlight-color: transparent !important;
-    transition: background .12s ease, box-shadow .12s ease, opacity .12s ease !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  #rdmTeachingBackBtnV149:hover,
-  #rdmTeachingBackBtnV149:focus-visible {
-    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
-    border-color: rgba(217,160,123,1) !important;
-    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
-    transform: none !important;
-  }
-
-  #rdmTeachingBackBtnV149:active {
-    transform: translateZ(0) scale(.99) !important;
-  }
-
-  #rdmTeachingBackBtnV149.rdm-busy {
-    opacity: .82 !important;
-    pointer-events: none !important;
-  }
-
-  body.dark #rdmTeachingBackBtnV149,
-  html.obs body.dark #rdmTeachingBackBtnV149 {
-    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
-    color: #F8F4EC !important;
-    border-color: rgba(217,160,123,.94) !important;
-    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
-  }
-
-  body.dark #rdmTeachingBackBtnV149:hover,
-  body.dark #rdmTeachingBackBtnV149:focus-visible,
-  html.obs body.dark #rdmTeachingBackBtnV149:hover,
-  html.obs body.dark #rdmTeachingBackBtnV149:focus-visible {
-    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
-    color: #FFF9F1 !important;
-    border-color: rgba(248,217,135,.92) !important;
-    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
-  }
-
-  @media (max-width: 650px), (hover: none), (pointer: coarse) {
-    #rdmTeachingBackWrapV149.rdm-show {
-      justify-content: stretch !important;
-    }
-
-    #rdmTeachingBackBtnV149 {
-      width: 100% !important;
-      max-width: 100% !important;
-      min-height: 38px !important;
-      padding: 9px 14px !important;
-      font-size: 12.5px !important;
-    }
-  }
-</style>
-<script id="rdm-v149-teaching-back-only-after-book-chapter-change-script">
-(function rdmV149TeachingBackOnlyAfterBookChapterChange(){
-  if (window.__rdmV149TeachingBackOnlyAfterBookChapterChange) return;
-  window.__rdmV149TeachingBackOnlyAfterBookChapterChange = true;
-
-  var stack = [];
-  var lastLoaded = null;
-  var restoring = false;
-  var loading = false;
-  var originalLoad = null;
-  var initialized = false;
-
-  function get(id){ return document.getElementById(id); }
-  function clean(value){ return String(value == null ? "" : value).trim(); }
-
-  function maxVerseFor(book, chapter){
-    try {
-      var ch = Math.max(1, parseInt(chapter, 10) || 1);
-      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : (window.verseCounts && window.verseCounts[book]);
-      if (Array.isArray(counts)) return Math.max(1, parseInt(counts[ch - 1], 10) || 1);
-      if (counts && typeof counts === "object") return Math.max(1, parseInt(counts[ch] || counts[String(ch)], 10) || 1);
-    } catch (_) {}
-    try {
-      var end = get("end");
-      if (end && end.value) return Math.max(1, parseInt(end.value, 10) || 1);
-    } catch (_) {}
-    return 1;
-  }
-
-  function normalize(state){
-    if (!state || typeof state !== "object") return null;
-    var book = clean(state.book || state.bookName || state.b);
-    var chapter = clean(state.chapter || state.chap || state.c || "1");
-    if (!book) return null;
-    chapter = String(parseInt(chapter, 10) || 1);
-    var end = String(maxVerseFor(book, chapter));
-    return { book: book, chapter: chapter, start: "1", end: end, range: "full" };
-  }
-
-  function controlState(){
-    var book = get("book"), chapter = get("chapter");
-    if (!book || !chapter || !book.value) return null;
-    return normalize({ book: book.value, chapter: chapter.value || "1" });
-  }
-
-  function stateKey(state){
-    state = normalize(state);
-    return state ? state.book + "|" + state.chapter : "";
-  }
-
-  function label(state){
-    state = normalize(state);
-    if (!state) return "Scripture";
-    return state.book + " " + state.chapter + ":1-" + state.end;
-  }
-
-  function ensureOption(select, value){
-    if (!select) return;
-    value = String(value || "1");
-    try {
-      var exists = false;
-      for (var i = 0; i < select.options.length; i += 1) {
-        if (select.options[i].value === value) { exists = true; break; }
-      }
-      if (!exists) select.add(new Option(value, value));
-      select.value = value;
-    } catch (_) {}
-  }
-
-  function forceFullChapter(state){
-    state = normalize(state || controlState());
-    if (!state) return null;
-    ensureOption(get("rangeSize"), "full");
-    ensureOption(get("start"), "1");
-    ensureOption(get("end"), state.end);
-    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
-    return state;
-  }
-
-  function hideOldButtons(){
+  function hideOldBackSurfaces(){
     ["scriptureBackBtn", "rdmV76BackToScriptureBtn", "rdmTeachingFreshBackBtnV147"].forEach(function(id){
       var el = get(id);
       if (!el) return;
@@ -32410,7 +31456,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       try { el.style.setProperty("opacity", "0", "important"); } catch (_) {}
       try { el.style.setProperty("pointer-events", "none", "important"); } catch (_) {}
     });
-    ["rdmV76ScriptureBackRow", "rdmTeachingBackWrapV148"].forEach(function(id){
+    ["rdmV76ScriptureBackRow", "rdmTeachingBackWrapV148", "rdmTeachingBackWrapV149"].forEach(function(id){
       var el = get(id);
       if (!el) return;
       try { el.classList.remove("rdm-show"); } catch (_) {}
@@ -32422,29 +31468,29 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   function mount(){
     var scriptureBox = get("scriptureBox");
     if (!scriptureBox) return null;
-    var wrap = get("rdmTeachingBackWrapV149");
+    var wrap = get("rdmTeachingBackWrapV150");
     if (!wrap) {
       wrap = document.createElement("div");
-      wrap.id = "rdmTeachingBackWrapV149";
-      wrap.className = "rdm-teaching-back-wrap-v149";
+      wrap.id = "rdmTeachingBackWrapV150";
+      wrap.className = "rdm-teaching-back-wrap-v150";
       wrap.setAttribute("aria-hidden", "true");
-      wrap.innerHTML = '<button id="rdmTeachingBackBtnV149" type="button">← Back to Scripture</button>';
+      wrap.innerHTML = '<button id="rdmTeachingBackBtnV150" type="button">← Back to Scripture</button>';
       var ref = get("refTitle") || scriptureBox.querySelector(".ref");
       if (ref) scriptureBox.insertBefore(wrap, ref);
       else scriptureBox.insertBefore(wrap, scriptureBox.firstChild);
     }
-    var btn = get("rdmTeachingBackBtnV149");
-    if (btn && !btn.__rdmV149BackClick) {
-      btn.__rdmV149BackClick = true;
+    var btn = get("rdmTeachingBackBtnV150");
+    if (btn && !btn.__rdmV150BackClick) {
+      btn.__rdmV150BackClick = true;
       btn.addEventListener("click", goBack, true);
     }
     return wrap;
   }
 
   function updateButton(){
-    hideOldButtons();
+    hideOldBackSurfaces();
     var wrap = mount();
-    var btn = get("rdmTeachingBackBtnV149");
+    var btn = get("rdmTeachingBackBtnV150");
     if (!wrap || !btn) return;
     var target = stack.length ? normalize(stack[stack.length - 1]) : null;
     if (!target) {
@@ -32464,122 +31510,170 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
   function updateSoon(){
     updateButton();
-    [0, 80, 220, 600, 1200].forEach(function(ms){ setTimeout(updateButton, ms); });
+    [0, 80, 220, 600].forEach(function(ms){ setTimeout(updateButton, ms); });
   }
 
-  function pushPrevious(reason){
-    if (restoring || !initialized) return;
-    var prev = normalize(lastLoaded);
+  function pushPrevious(prev){
+    prev = normalize(prev || lastLoaded);
     var next = controlState();
-    if (!prev || !next || !stateKey(prev) || stateKey(prev) === stateKey(next)) return;
+    if (!prev || !next || !key(prev) || key(prev) === key(next)) return false;
     var top = stack.length ? normalize(stack[stack.length - 1]) : null;
-    if (!top || stateKey(top) !== stateKey(prev)) stack.push(prev);
+    if (!top || key(top) !== key(prev)) stack.push(prev);
     while (stack.length > 30) stack.shift();
     updateSoon();
+    return true;
   }
 
-  async function callLoad(){
+  function callHelper(name){
+    try {
+      if (name === "fillChapters" && typeof fillChapters === "function") { fillChapters(); return true; }
+      if (name === "fillVerses" && typeof fillVerses === "function") { fillVerses(); return true; }
+      if (name === "syncObsNavigator" && typeof syncObsNavigator === "function") { syncObsNavigator(); return true; }
+      if (name === "saveCurrentNotes" && typeof saveCurrentNotes === "function") { saveCurrentNotes(); return true; }
+      if (name === "refreshActiveResourcePanel" && typeof refreshActiveResourcePanel === "function") { refreshActiveResourcePanel(); return true; }
+    } catch (_) {}
+    return false;
+  }
+
+  function callLoad(){
     forceFullChapter(controlState());
-    if (typeof originalLoad === "function") return Promise.resolve(originalLoad.call(window));
-    if (typeof window.loadPassage === "function" && window.loadPassage !== callLoad) return Promise.resolve(window.loadPassage());
-    try { if (typeof loadPassage === "function") return Promise.resolve(loadPassage()); } catch (_) {}
+    try {
+      if (typeof loadPassage === "function") return Promise.resolve(loadPassage());
+    } catch (_) {}
+    try {
+      if (typeof window.loadPassage === "function") return Promise.resolve(window.loadPassage());
+    } catch (_) {}
     return Promise.resolve();
   }
 
-  async function goBack(event){
+  function refLooksLoaded(state){
+    state = normalize(state);
+    if (!state) return false;
+    var ref = clean((get("refTitle") || {}).textContent || "").toLowerCase().replace(/\s+/g, " ");
+    var want = (state.book + " " + state.chapter + " ").toLowerCase().replace(/\s+/g, " ");
+    var wantColon = (state.book + " " + state.chapter + ":").toLowerCase().replace(/\s+/g, " ");
+    return ref.indexOf(want) === 0 || ref.indexOf(wantColon) === 0;
+  }
+
+  function repairAndLoadForChange(changedId){
+    if (restoring) return;
+
+    if (changedId === "book") {
+      callHelper("fillChapters");
+      var chapter = get("chapter");
+      if (chapter) chapter.value = "1";
+    }
+
+    callHelper("fillVerses");
+    forceFullChapter(controlState());
+
+    var next = controlState();
+    callLoad().then(function(){
+      lastLoaded = normalize(controlState()) || next;
+      callHelper("syncObsNavigator");
+      callHelper("refreshActiveResourcePanel");
+      updateSoon();
+    }).catch(function(){ updateSoon(); });
+
+    setTimeout(function(){
+      var current = controlState();
+      if (current && !refLooksLoaded(current)) {
+        callLoad().then(function(){
+          lastLoaded = normalize(controlState()) || current;
+          callHelper("syncObsNavigator");
+          updateSoon();
+        }).catch(function(){ updateSoon(); });
+      }
+    }, 450);
+  }
+
+  function onBookChapterChange(event){
+    var target = event && event.target;
+    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
+    if (!installed || restoring) return;
+
+    var prev = normalize(lastLoaded);
+    var changedId = target.id;
+
+    setTimeout(function(){
+      pushPrevious(prev);
+      repairAndLoadForChange(changedId);
+    }, 0);
+  }
+
+  function goBack(event){
     if (event) {
       try { event.preventDefault(); } catch (_) {}
       try { event.stopPropagation(); } catch (_) {}
       try { event.stopImmediatePropagation(); } catch (_) {}
     }
+
     var target = normalize(stack.pop());
     updateSoon();
     if (!target) return;
-    var btn = get("rdmTeachingBackBtnV149");
+
+    var btn = get("rdmTeachingBackBtnV150");
     if (btn) btn.classList.add("rdm-busy");
     restoring = true;
     try {
-      var book = get("book"), chapter = get("chapter");
+      callHelper("saveCurrentNotes");
+      var book = get("book");
+      var chapter = get("chapter");
       if (!book || !chapter) return;
-      try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
       book.value = target.book;
-      try { if (typeof populateChapters === "function") populateChapters(); } catch (_) {}
+      callHelper("fillChapters");
       chapter.value = String(target.chapter || "1");
-      try { if (typeof populateVerses === "function") populateVerses(); } catch (_) {}
+      callHelper("fillVerses");
       forceFullChapter(target);
-      await callLoad();
-      lastLoaded = normalize(target);
-      try { document.getElementById("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
-    } finally {
+      callLoad().then(function(){
+        lastLoaded = normalize(target);
+        callHelper("syncObsNavigator");
+        try { var box = get("scriptureBox"); if (box) box.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+      }).finally(function(){
+        restoring = false;
+        if (btn) btn.classList.remove("rdm-busy");
+        updateSoon();
+      });
+    } catch (_) {
       restoring = false;
       if (btn) btn.classList.remove("rdm-busy");
       updateSoon();
     }
   }
 
-  function wrapLoad(){
-    var current = null;
-    try { current = typeof loadPassage === "function" ? loadPassage : null; } catch (_) {}
-    if (!current && typeof window.loadPassage === "function") current = window.loadPassage;
-    if (typeof current !== "function" || current.__rdmV149TeachingBackWrapped) return;
-    originalLoad = current;
-
-    async function wrapped(){
-      if (loading) return originalLoad.apply(this, arguments);
-      var before = normalize(lastLoaded);
-      var next = controlState();
-      var changed = !restoring && initialized && before && next && stateKey(before) && stateKey(before) !== stateKey(next);
-      loading = true;
-      forceFullChapter(next);
-      try {
-        if (changed) pushPrevious("load");
-        var result = originalLoad.apply(this, arguments);
-        await Promise.resolve(result);
-        lastLoaded = normalize(controlState());
-        forceFullChapter(lastLoaded);
-        updateSoon();
-        return result;
-      } finally {
-        loading = false;
-      }
-    }
-    wrapped.__rdmV149TeachingBackWrapped = true;
-    try { loadPassage = wrapped; } catch (_) {}
-    window.loadPassage = wrapped;
-  }
-
-  function onBookChapterChange(event){
-    var target = event && event.target;
-    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
-    pushPrevious("control-change");
-    setTimeout(function(){ forceFullChapter(controlState()); updateButton(); }, 0);
-    setTimeout(function(){ hideOldButtons(); updateButton(); }, 350);
+  function bindStatusUpdates(){
+    ["loadBtn", "prevBtn", "nextBtn", "obsLoadPassage"].forEach(function(id){
+      var el = get(id);
+      if (!el || el.__rdmV150StatusBound) return;
+      el.__rdmV150StatusBound = true;
+      el.addEventListener("click", function(){
+        setTimeout(function(){ lastLoaded = normalize(controlState()) || lastLoaded; updateSoon(); }, 750);
+      }, true);
+    });
   }
 
   function install(){
-    hideOldButtons();
+    hideOldBackSurfaces();
     mount();
     forceFullChapter(controlState());
-    wrapLoad();
-    if (!lastLoaded) lastLoaded = normalize(controlState());
-    initialized = true;
-    /* Start hidden every time the page/app opens. The button appears only after a Book or Chapter change. */
+    lastLoaded = normalize(controlState());
     stack = [];
+    installed = true;
+    bindStatusUpdates();
     updateSoon();
   }
 
-  document.addEventListener("change", onBookChapterChange, true);
+  document.addEventListener("change", onBookChapterChange, false);
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
   else install();
-  window.addEventListener("pageshow", function(){ setTimeout(function(){ hideOldButtons(); mount(); updateButton(); }, 80); });
+  window.addEventListener("pageshow", function(){ setTimeout(function(){ bindStatusUpdates(); updateButton(); }, 80); });
 
-  window.rdmTeachingBackV149 = {
+  window.rdmTeachingBackV150 = {
     install: install,
     update: updateButton,
-    stack: function(){ return stack.slice(); },
     clear: function(){ stack = []; updateSoon(); },
-    back: goBack,
-    pushPrevious: pushPrevious
+    stack: function(){ return stack.slice(); },
+    back: goBack
   };
 })();
 </script>
