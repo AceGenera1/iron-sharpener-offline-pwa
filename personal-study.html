@@ -5995,6 +5995,10 @@ const verseCounts = {
     const counts = verseCounts[book] || [];
     return counts[chapterNumber - 1] || 1;
   }
+  try {
+    window.rdmDiscipleJournalVerseCountFor = verseCountFor;
+    window.rdmDiscipleJournalVerseCounts = verseCounts;
+  } catch (_) {}
 
   function populateVerses() {
     const book = $("book").value;
@@ -6163,6 +6167,7 @@ const verseCounts = {
   }
 
   async function loadPassage() {
+    try { setFullChapterRange(); } catch (_) {}
     syncEndMinimum();
     const book = $("book").value;
     const chapter = $("chapter").value;
@@ -11552,9 +11557,10 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     return String(value || '');
   }
   function maxVerse(book, chapter){
+    try { if (typeof window.rdmDiscipleJournalVerseCountFor === 'function') return Number(window.rdmDiscipleJournalVerseCountFor(book, chapter) || 1); } catch (_) {}
     try { if (typeof verseCountFor === 'function') return Number(verseCountFor(book, chapter) || 1); } catch (_) {}
     try {
-      var counts = (window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
+      var counts = (window.rdmDiscipleJournalVerseCounts || window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
       return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
     } catch (_) { return 1; }
   }
@@ -11661,8 +11667,15 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   function get(id){ return document.getElementById(id); }
   function maxVerse(book, chapter){
     try {
+      if (typeof window.rdmDiscipleJournalVerseCountFor === 'function') {
+        var n = parseInt(window.rdmDiscipleJournalVerseCountFor(book, chapter), 10);
+        if (n > 0) return n;
+      }
+    } catch (_) {}
+    try {
       var ch = Math.max(1, parseInt(chapter, 10) || 1);
-      var arr = (typeof verseCounts !== 'undefined' && verseCounts && verseCounts[book]) ? verseCounts[book] : null;
+      var source = window.rdmDiscipleJournalVerseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : null);
+      var arr = (source && source[book]) ? source[book] : null;
       return Math.max(1, parseInt(arr && arr[ch - 1], 10) || 1);
     } catch (_) { return 1; }
   }
@@ -11823,13 +11836,20 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
   function maxVerseFor(book, chapter){
     try {
+      if (typeof window.rdmDiscipleJournalVerseCountFor === "function") {
+        var wc = parseInt(window.rdmDiscipleJournalVerseCountFor(book, chapter), 10);
+        if (wc > 0) return wc;
+      }
+    } catch (_) {}
+    try {
       if (typeof verseCountFor === "function") {
         var c = parseInt(verseCountFor(book, chapter), 10);
         if (c > 0) return c;
       }
     } catch (_) {}
     try {
-      var list = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : null;
+      var source = window.rdmDiscipleJournalVerseCounts || (typeof verseCounts !== "undefined" ? verseCounts : null);
+      var list = (source && source[book]) ? source[book] : null;
       var ch = Math.max(1, parseInt(chapter, 10) || 1);
       var v = parseInt(list && list[ch - 1], 10);
       if (v > 0) return v;
@@ -12045,6 +12065,10 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 })();
 </script>
 
+
+<script id="rdm-v153-journal-fullchapter-back-count-marker">
+(function(){ try { window.__rdmV153JournalFullChapterBackCountFix = true; } catch (_) {} })();
+</script>
 </body>
 </html>
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
