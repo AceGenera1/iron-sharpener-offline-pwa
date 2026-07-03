@@ -1,12 +1,13 @@
-/* Iron Sharpener service worker — v55 iPad Home Screen Fast Launch
-   Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make Home Screen/iPad launches avoid slow splash-screen waits from broad launch-asset cache scans.
+/* Iron Sharpener service worker — v56 Tiny Shell / Fast Offline-Ready Launch
+   Purpose: stop iPad Home Screen launches from slowing down after Offline Ready preparation.
 
-   v55 changes:
-   - Install activates immediately without waiting on network pre-cache downloads.
-   - Navigation uses current shell cache first, then exact old-shell fallback, then network.
-   - Manifest/icons/logos use a fast launch-asset path instead of scanning old complete/offline caches.
-   - Bible JSON remains online-direct + IndexedDB/cache friendly.
-   - Study/resource JSON keeps the cache-first behavior needed for offline use.
+   v56 changes:
+   - Keeps the current service-worker cache tiny: app shell + launch assets only.
+   - Offline Ready preparation still writes the complete tool into its existing complete-tool cache.
+   - Online navigation uses the live page first if the tiny shell cache is empty.
+   - Offline navigation uses the tiny shell cache first, then exact old-shell fallback only.
+   - Bible JSON remains online-direct + IndexedDB friendly.
+   - Resource JSON no longer gets mirrored into the launch cache during Offline Ready.
 
    Notes:
    - Does not change app data or Journal entries.
@@ -14,7 +15,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v55-ipad-home-screen-fast-launch-20260703";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -43,7 +44,7 @@ let priorityCacheNamesPromise = null;
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  // v55: Do not hold iPad/Home Screen launch behind network pre-cache work.
+  // v56: Do not hold iPad/Home Screen launch behind network pre-cache work.
   // Open the cache quickly, activate, then refresh the shell in the background.
   event.waitUntil(caches.open(IRON_SHARPENER_CACHE).catch(() => {}));
 });
@@ -350,7 +351,7 @@ async function refreshNavigationInBackground(request) {
 }
 
 async function currentCacheHtmlForNavigationOnly(request) {
-  // v55: first app paint must not wait on broad old-cache scans. Check current shell cache only.
+  // v56: first app paint must not wait on broad old-cache scans. Check current shell cache only.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
   for (const key of htmlCacheKeysForRequest(request)) {
     const cached = await cache.match(key, { ignoreSearch: true });
@@ -360,7 +361,7 @@ async function currentCacheHtmlForNavigationOnly(request) {
 }
 
 async function exactKnownShellFallback(request) {
-  // v55: small exact fallback only. This preserves fast launch after a SW update
+  // v56: small exact fallback only. This preserves fast launch after a SW update
   // when the new current cache has not refreshed yet. No broad cache scans.
   const wantsJournal = (() => {
     try { return new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) { return false; }
@@ -385,6 +386,9 @@ async function exactKnownShellFallback(request) {
 
 async function navigationFastCached(request, event) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
+
+  // v56: the current cache is intentionally tiny. Check it first because this is
+  // the fastest path after the app has been opened once with this service worker.
   const cached = await currentCacheHtmlForNavigationOnly(request);
   if (cached) {
     try {
@@ -393,14 +397,8 @@ async function navigationFastCached(request, event) {
     return cached;
   }
 
-  const exactShell = await exactKnownShellFallback(request);
-  if (exactShell) {
-    try {
-      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
-    } catch (_) {}
-    return exactShell;
-  }
-
+  // v56: when online, do NOT scan large Offline Ready caches before showing the app.
+  // Fetch the live shell first, cache it into the tiny shell cache, and return.
   if (looksOnline()) {
     try {
       const response = await fetch(new Request(request, { cache: "reload" }));
@@ -411,7 +409,16 @@ async function navigationFastCached(request, event) {
     } catch (_) {}
   }
 
-  // Last resort only: exact known shell names, no broad cache scan during launch.
+  // Offline fallback only: exact shell keys from known caches. This path should
+  // only be needed before the tiny v56 shell has been warmed once online.
+  const exactShell = await exactKnownShellFallback(request);
+  if (exactShell) {
+    try {
+      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
+    } catch (_) {}
+    return exactShell;
+  }
+
   let wantsJournal = false;
   try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
   if (wantsJournal) {
@@ -436,8 +443,6 @@ async function bibleJsonOnlineFastPath(request) {
       const response = await fetch(new Request(request.url, { cache: "force-cache" }));
       const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
       if (response && response.ok && (!type || type.includes("json"))) {
-        // Save in the background only. Do not hold Scripture rendering hostage to cache writes.
-        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
@@ -446,7 +451,6 @@ async function bibleJsonOnlineFastPath(request) {
       const response = await fetch(request);
       const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
       if (response && response.ok && (!type || type.includes("json"))) {
-        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
@@ -454,10 +458,7 @@ async function bibleJsonOnlineFastPath(request) {
 
   // Offline fallback: exact local Bible keys only, no broad cache scan.
   const exactLocal = await fastBibleMatchInCacheName(IRON_SHARPENER_CACHE, request) || await fastKnownBibleBackupMatch(request);
-  if (exactLocal) {
-    try { eventlessCopy(cache, request, exactLocal.clone()); } catch (_) {}
-    return exactLocal;
-  }
+  if (exactLocal) return exactLocal;
 
   return new Response("Offline Bible chapter not found.", {
     status: 504,
@@ -480,14 +481,12 @@ async function launchAssetFastPath(request) {
     try {
       const response = await fetch(new Request(request.url, { cache: "force-cache" }));
       if (response && response.ok) {
-        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
     try {
       const response = await fetch(request);
       if (response && response.ok) {
-        eventlessCopy(cache, request, response.clone());
         return response;
       }
     } catch (_) {}
@@ -511,15 +510,26 @@ async function launchAssetFastPath(request) {
 }
 
 async function resourceCacheFirst(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
+  // v56: keep the launch shell cache tiny. During Offline Ready preparation,
+  // this function may see thousands of resource fetches. Do not mirror those
+  // files into the service worker's current launch cache.
 
-  const cached = await tightResourceMatch(request);
-  if (cached) {
-    try { eventlessCopy(cache, request, cached.clone()); } catch (_) {}
-    return cached;
+  if (looksOnline()) {
+    try {
+      const response = await fetch(request);
+      if (isJsonRequest(request)) {
+        const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
+        if (response && response.ok && (!type || type.includes("json"))) return response;
+      } else if (response && response.ok) {
+        return response;
+      }
+    } catch (_) {}
   }
 
-  // Offline: do not hang trying to fetch missing JSON. Return quickly so the app can show a real error.
+  // Offline, or online network failed: use the complete offline/resource caches.
+  const cached = await tightResourceMatch(request);
+  if (cached) return cached;
+
   if (!looksOnline()) {
     return new Response("Offline resource not cached.", {
       status: 504,
@@ -527,21 +537,10 @@ async function resourceCacheFirst(request) {
     });
   }
 
-  try {
-    const response = await fetch(request);
-    if (isJsonRequest(request)) {
-      const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
-      if (!response || !response.ok || (type && !type.includes("json"))) {
-        return new Response("JSON resource unavailable or invalid.", { status: response ? response.status : 503, headers: { "content-type": "application/json" } });
-      }
-    }
-    if (response && response.ok) await putAllVariants(cache, request, response);
-    return response;
-  } catch (_) {
-    const fallback = await tightResourceMatch(request);
-    if (fallback) return fallback;
-    return new Response("Offline resource not cached.", { status: 504, headers: { "content-type": isJsonRequest(request) ? "application/json" : "text/plain" } });
-  }
+  return new Response("Resource unavailable.", {
+    status: 503,
+    headers: { "content-type": isJsonRequest(request) ? "application/json" : "text/plain" }
+  });
 }
 
 function eventlessCopy(cache, request, response) {
