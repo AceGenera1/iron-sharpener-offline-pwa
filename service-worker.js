@@ -1,5 +1,12 @@
-/* Iron Sharpener service worker — v54 Instant App Shell + Online Direct Bible JSON
-   Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make browser Scripture loads prefer already-saved local Bible JSON before touching the network.
+/* Iron Sharpener service worker — v55 iPad Home Screen Fast Launch
+   Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make Home Screen/iPad launches avoid slow splash-screen waits from broad launch-asset cache scans.
+
+   v55 changes:
+   - Install activates immediately without waiting on network pre-cache downloads.
+   - Navigation uses current shell cache first, then exact old-shell fallback, then network.
+   - Manifest/icons/logos use a fast launch-asset path instead of scanning old complete/offline caches.
+   - Bible JSON remains online-direct + IndexedDB/cache friendly.
+   - Study/resource JSON keeps the cache-first behavior needed for offline use.
 
    Notes:
    - Does not change app data or Journal entries.
@@ -7,7 +14,7 @@
    - Does not scan every old cache for every verse file.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v54-instant-shell-online-direct-bible-json-20260702";
+const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v55-ipad-home-screen-fast-launch-20260703";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 
 // Caches created by the working offline-preparation engines.
@@ -36,13 +43,16 @@ let priorityCacheNamesPromise = null;
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(cacheFreshCoreShell());
+  // v55: Do not hold iPad/Home Screen launch behind network pre-cache work.
+  // Open the cache quickly, activate, then refresh the shell in the background.
+  event.waitUntil(caches.open(IRON_SHARPENER_CACHE).catch(() => {}));
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
-    await removeOldHtmlShellEntriesOnly();
     await self.clients.claim();
+    // Background refresh only. Do not block activation or splash-screen release.
+    cacheFreshCoreShell().catch(() => {});
   })());
 });
 
@@ -72,6 +82,17 @@ function isJsonRequest(request) {
 function isBibleJsonRequest(request) {
   try { return /\/bible\/web\//.test(new URL(request.url).pathname) && new URL(request.url).pathname.endsWith(".json"); }
   catch (_) { return /bible\/web\/.+\.json$/.test(String(request || "")); }
+}
+
+function isLaunchAssetRequest(request) {
+  try {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/^\//, "");
+    return path === "manifest.json" ||
+      path === "manifest-maker.json" ||
+      path === "manifest-journal.json" ||
+      /^assets\/(iron-sharpener-logo|disciple-journal-logo)\.(png|jpg|jpeg|webp|svg)$/i.test(path);
+  } catch (_) { return false; }
 }
 
 function safeDecode(value) {
@@ -329,11 +350,35 @@ async function refreshNavigationInBackground(request) {
 }
 
 async function currentCacheHtmlForNavigationOnly(request) {
-  // v54: first app paint must not wait on old-cache scans. Check current shell cache only.
+  // v55: first app paint must not wait on broad old-cache scans. Check current shell cache only.
   const cache = await caches.open(IRON_SHARPENER_CACHE);
   for (const key of htmlCacheKeysForRequest(request)) {
     const cached = await cache.match(key, { ignoreSearch: true });
     if (cached) return cached;
+  }
+  return null;
+}
+
+async function exactKnownShellFallback(request) {
+  // v55: small exact fallback only. This preserves fast launch after a SW update
+  // when the new current cache has not refreshed yet. No broad cache scans.
+  const wantsJournal = (() => {
+    try { return new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) { return false; }
+  })();
+  const exactKeys = wantsJournal
+    ? ["./personal-study.html", "personal-study.html"]
+    : ["./index.html", "index.html", "./", "/"];
+  const existing = await caches.keys();
+  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
+    .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
+  for (const name of ordered) {
+    try {
+      const cache = await caches.open(name);
+      for (const key of exactKeys) {
+        const cached = await cache.match(key, { ignoreSearch: true });
+        if (cached) return cached;
+      }
+    } catch (_) {}
   }
   return null;
 }
@@ -346,6 +391,14 @@ async function navigationFastCached(request, event) {
       if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
     } catch (_) {}
     return cached;
+  }
+
+  const exactShell = await exactKnownShellFallback(request);
+  if (exactShell) {
+    try {
+      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
+    } catch (_) {}
+    return exactShell;
   }
 
   if (looksOnline()) {
@@ -412,6 +465,51 @@ async function bibleJsonOnlineFastPath(request) {
   });
 }
 
+async function launchAssetFastPath(request) {
+  const cache = await caches.open(IRON_SHARPENER_CACHE);
+
+  // Fast exact current-cache check first. Do not scan big offline caches for startup icons/manifests.
+  for (const key of resourceKeyVariants(request)) {
+    try {
+      const cached = await cache.match(key, { ignoreSearch: true });
+      if (cached) return cached;
+    } catch (_) {}
+  }
+
+  if (looksOnline()) {
+    try {
+      const response = await fetch(new Request(request.url, { cache: "force-cache" }));
+      if (response && response.ok) {
+        eventlessCopy(cache, request, response.clone());
+        return response;
+      }
+    } catch (_) {}
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) {
+        eventlessCopy(cache, request, response.clone());
+        return response;
+      }
+    } catch (_) {}
+  }
+
+  // Offline fallback: exact known launch-asset caches only. Still no broad scan.
+  const existing = await caches.keys();
+  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
+    .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
+  for (const name of ordered) {
+    try {
+      const namedCache = await caches.open(name);
+      for (const key of resourceKeyVariants(request)) {
+        const cached = await namedCache.match(key, { ignoreSearch: true });
+        if (cached) return cached;
+      }
+    } catch (_) {}
+  }
+
+  return new Response("Launch asset unavailable.", { status: 504, headers: { "content-type": "text/plain" } });
+}
+
 async function resourceCacheFirst(request) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
 
@@ -462,6 +560,11 @@ self.addEventListener("fetch", (event) => {
 
   if (isBibleJsonRequest(request)) {
     event.respondWith(bibleJsonOnlineFastPath(request));
+    return;
+  }
+
+  if (isLaunchAssetRequest(request)) {
+    event.respondWith(launchAssetFastPath(request));
     return;
   }
 
