@@ -376,18 +376,56 @@ html.rdm-v131-launch-prepaint.rdm-v131-launch-dark body {
 })();
 </script>
 
-<link rel="manifest" href="./manifest.json?v=v138" />
+<link rel="manifest" href="./manifest.json?v=v157" />
 <title>Iron Sharpener</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Iron Sharpener"/>
 <meta name="application-name" content="Iron Sharpener" />
 <meta property="og:title" content="Iron Sharpener" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#203D39" media="(prefers-color-scheme: dark)"/>
 <meta name="theme-color" content="#F4EFE3" media="(prefers-color-scheme: light)"/>
 <link rel="apple-touch-icon" href="./assets/iron-sharpener-logo.png"/>
 <link rel="icon" href="./assets/iron-sharpener-logo.png" type="image/png"/>
 <link rel="preload" href="./assets/iron-sharpener-logo.png" as="image"/>
+
+
+<script id="rdm-v157-iron-sharpener-name-and-status-lock">
+(function rdmV157IronSharpenerNameAndStatusLock(){
+  try {
+    document.title = "Iron Sharpener";
+    function setMeta(selector, attr, value){
+      var el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement('meta');
+        var nameMatch = selector.match(/meta\[name=\"([^\"]+)\"\]/);
+        var propMatch = selector.match(/meta\[property=\"([^\"]+)\"\]/);
+        if (nameMatch) el.setAttribute('name', nameMatch[1]);
+        if (propMatch) el.setAttribute('property', propMatch[1]);
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, value);
+    }
+    setMeta('meta[name="apple-mobile-web-app-title"]', 'content', 'Iron Sharpener');
+    setMeta('meta[name="application-name"]', 'content', 'Iron Sharpener');
+    setMeta('meta[property="og:title"]', 'content', 'Iron Sharpener');
+    setMeta('meta[name="apple-mobile-web-app-status-bar-style"]', 'content', 'black-translucent');
+  } catch (_) {}
+})();
+</script>
+<style id="rdm-v157-no-extra-ios-status-strip">
+/* v157: restore the original Home Screen app feel. No extra colored strip above the header. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html.rdm-v156-direct-app-open:not(.rdm-v156-direct-dark),
+  html.rdm-v156-direct-app-open:not(.rdm-v156-direct-dark) body {
+    background-color: #F4EFE3 !important;
+  }
+  html.rdm-v156-direct-app-open.rdm-v156-direct-dark,
+  html.rdm-v156-direct-app-open.rdm-v156-direct-dark body {
+    background-color: #203D39 !important;
+  }
+}
+</style>
 
 
 <script id="rdm-v118-maker-name-early-lock">
@@ -30408,7 +30446,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     var files = ["./", "./index.html", "index.html", "./personal-study.html", "personal-study.html", "./manifest.json", "manifest.json", "./assets/iron-sharpener-logo.png", "assets/iron-sharpener-logo.png", "./assets/disciple-journal-logo.png", "assets/disciple-journal-logo.png"];
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V58" }); } catch (_) {}
+        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V59" }); } catch (_) {}
       }
     } catch (_) {}
     if (!("caches" in window)) return;
@@ -30451,3 +30489,4 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
 
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
+<!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
