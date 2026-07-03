@@ -31712,6 +31712,477 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+<!-- v154 — Book/Chapter select stability and no-flicker Scripture render. -->
+<style id="rdm-v154-select-stability-style">
+  #book,
+  #chapter,
+  #start,
+  #end,
+  #rangeSize,
+  #obsBookSelect,
+  #obsChapterSelect,
+  #obsStartVerseSelect,
+  #obsEndVerseSelect,
+  #obsRangeSizeSelect {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    font-variant-numeric: tabular-nums !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+
+  #refTitle,
+  #passage,
+  #passage .verse {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  #rdmTeachingBackWrapV150.rdm-v154-show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  body.rdm-v154-select-loading #scriptureBox {
+    cursor: progress;
+  }
+</style>
+
+<script id="rdm-v154-select-stable-loader-and-back">
+(function rdmV154SelectStableLoaderAndBack(){
+  "use strict";
+  if (window.__rdmV154SelectStableLoaderAndBack) return;
+  window.__rdmV154SelectStableLoaderAndBack = true;
+
+  var backStack = [];
+  var current = null;
+  var pendingPrevious = null;
+  var restoring = false;
+  var suppressBackUntil = 0;
+  var loadToken = 0;
+  var chapterCache = new Map();
+  var lastRenderedKey = "";
+
+  function get(id){ return document.getElementById(id); }
+  function clean(value){ return String(value == null ? "" : value).trim(); }
+  function nextFrame(fn){
+    try { requestAnimationFrame(function(){ requestAnimationFrame(fn); }); }
+    catch (_) { setTimeout(fn, 30); }
+  }
+
+  function maxVerseFor(book, chapter){
+    try {
+      var ch = Math.max(1, parseInt(chapter, 10) || 1);
+      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : null;
+      if (Array.isArray(counts)) return Math.max(1, parseInt(counts[ch - 1], 10) || 1);
+      if (counts && typeof counts === "object") return Math.max(1, parseInt(counts[ch] || counts[String(ch)], 10) || 1);
+    } catch (_) {}
+    try {
+      var end = get("end");
+      if (end && end.value) return Math.max(1, parseInt(end.value, 10) || 1);
+    } catch (_) {}
+    return 1;
+  }
+
+  function chaptersFor(book){
+    try {
+      if (typeof books !== "undefined" && Array.isArray(books)) {
+        for (var i = 0; i < books.length; i += 1) {
+          if (books[i] && books[i][0] === book) return Math.max(1, parseInt(books[i][1], 10) || 1);
+        }
+      }
+    } catch (_) {}
+    return 1;
+  }
+
+  function normalize(state){
+    if (!state || typeof state !== "object") return null;
+    var book = clean(state.book || state.bookName || state.b);
+    var chapter = clean(state.chapter || state.chap || state.c || "1");
+    if (!book) return null;
+    chapter = String(parseInt(chapter, 10) || 1);
+    return { book: book, chapter: chapter, start: "1", end: String(maxVerseFor(book, chapter)), range: "full" };
+  }
+
+  function controlState(){
+    var book = get("book");
+    var chapter = get("chapter");
+    if (!book || !chapter || !book.value) return null;
+    return normalize({ book: book.value, chapter: chapter.value || "1" });
+  }
+
+  function key(state){
+    state = normalize(state);
+    return state ? state.book + "|" + state.chapter : "";
+  }
+
+  function label(state){
+    state = normalize(state);
+    return state ? (state.book + " " + state.chapter + ":1-" + state.end) : "Scripture";
+  }
+
+  function ensureOption(select, value, text){
+    if (!select) return;
+    value = String(value || "1");
+    try {
+      var exists = false;
+      for (var i = 0; i < select.options.length; i += 1) {
+        if (select.options[i].value === value) { exists = true; break; }
+      }
+      if (!exists) select.add(new Option(text || value, value));
+      select.value = value;
+    } catch (_) {}
+  }
+
+  function rebuildChapters(){
+    try { if (typeof fillChapters === "function") { fillChapters(); return; } } catch (_) {}
+    var book = get("book"), chapter = get("chapter");
+    if (!book || !chapter) return;
+    chapter.innerHTML = "";
+    var total = chaptersFor(book.value);
+    for (var i = 1; i <= total; i += 1) chapter.add(new Option(String(i), String(i)));
+  }
+
+  function rebuildVerses(){
+    try { if (typeof fillVerses === "function") { fillVerses(); return; } } catch (_) {}
+    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end");
+    if (!book || !chapter || !start || !end) return;
+    var max = maxVerseFor(book.value, chapter.value);
+    start.innerHTML = "";
+    end.innerHTML = "";
+    for (var i = 1; i <= max; i += 1) {
+      start.add(new Option(String(i), String(i)));
+      end.add(new Option(String(i), String(i)));
+    }
+  }
+
+  function forceFullChapter(state){
+    state = normalize(state || controlState());
+    if (!state) return null;
+    var range = get("rangeSize"), start = get("start"), end = get("end");
+    ensureOption(range, "full", "Full Chapter");
+    ensureOption(start, "1", "1");
+    ensureOption(end, state.end, state.end);
+    if (range) range.value = "full";
+    if (start) start.value = "1";
+    if (end) end.value = String(state.end);
+    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
+    return state;
+  }
+
+  function hideOldBackSurfaces(){
+    ["scriptureBackBtn", "rdmV76BackToScriptureBtn", "rdmTeachingFreshBackBtnV147"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      try { el.classList.remove("rdm-scripture-back-visible", "rdm-v146-teaching-back-match", "rdm-teaching-fresh-back-visible"); } catch (_) {}
+      try { el.setAttribute("aria-hidden", "true"); } catch (_) {}
+      try { el.style.setProperty("display", "none", "important"); } catch (_) {}
+      try { el.style.setProperty("visibility", "hidden", "important"); } catch (_) {}
+      try { el.style.setProperty("opacity", "0", "important"); } catch (_) {}
+      try { el.style.setProperty("pointer-events", "none", "important"); } catch (_) {}
+    });
+    ["rdmV76ScriptureBackRow", "rdmTeachingBackWrapV148", "rdmTeachingBackWrapV149"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      try { el.classList.remove("rdm-show", "rdm-v154-show"); } catch (_) {}
+      try { el.setAttribute("aria-hidden", "true"); } catch (_) {}
+      try { el.style.setProperty("display", "none", "important"); } catch (_) {}
+    });
+  }
+
+  function ensureBackButton(){
+    var scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+    var wrap = get("rdmTeachingBackWrapV150");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "rdmTeachingBackWrapV150";
+      wrap.className = "rdm-teaching-back-wrap-v150";
+      wrap.setAttribute("aria-hidden", "true");
+      wrap.innerHTML = '<button id="rdmTeachingBackBtnV150" type="button">← Back to Scripture</button>';
+      var ref = get("refTitle") || scriptureBox.querySelector(".ref");
+      if (ref) scriptureBox.insertBefore(wrap, ref);
+      else scriptureBox.insertBefore(wrap, scriptureBox.firstChild);
+    }
+    var btn = get("rdmTeachingBackBtnV150");
+    if (btn && !btn.__rdmV154Owned) {
+      var fresh = btn.cloneNode(true);
+      fresh.__rdmV154Owned = true;
+      fresh.__rdmV153OwnsBackClick = true;
+      btn.parentNode.replaceChild(fresh, btn);
+      btn = fresh;
+      btn.addEventListener("click", goBack, true);
+    }
+    return wrap;
+  }
+
+  function setBackVisible(visible, target){
+    hideOldBackSurfaces();
+    var wrap = ensureBackButton();
+    var btn = get("rdmTeachingBackBtnV150");
+    if (!wrap || !btn) return;
+    if (!visible || !target || restoring || Date.now() < suppressBackUntil) {
+      wrap.classList.remove("rdm-v154-show", "rdm-show");
+      wrap.setAttribute("aria-hidden", "true");
+      btn.classList.remove("rdm-busy");
+      btn.textContent = "← Back to Scripture";
+      btn.title = "Back to Scripture";
+      btn.setAttribute("aria-label", "Back to Scripture");
+      return;
+    }
+    wrap.classList.add("rdm-v154-show", "rdm-show");
+    wrap.setAttribute("aria-hidden", "false");
+    btn.textContent = "← Back to " + label(target);
+    btn.title = "Back to " + label(target);
+    btn.setAttribute("aria-label", "Back to " + label(target));
+  }
+
+  function updateBack(){
+    var target = backStack.length ? normalize(backStack[backStack.length - 1]) : null;
+    setBackVisible(!!target, target);
+  }
+
+  function updateBackSoon(){
+    [0, 90, 220, 520, 900].forEach(function(ms){ setTimeout(updateBack, ms); });
+  }
+
+  function pushPrevious(previous){
+    previous = normalize(previous);
+    var next = normalize(controlState());
+    if (!previous || !next || key(previous) === key(next)) return;
+    var top = backStack.length ? normalize(backStack[backStack.length - 1]) : null;
+    if (!top || key(top) !== key(previous)) backStack.push(previous);
+    while (backStack.length > 20) backStack.shift();
+  }
+
+  function rememberBeforeChange(){
+    if (restoring) return;
+    pendingPrevious = normalize(current || controlState());
+  }
+
+  function textClean(value){
+    try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {}
+    return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function currentRangeState(){
+    var state = forceFullChapter(controlState());
+    if (!state) return null;
+    return {
+      book: state.book,
+      chapter: String(state.chapter),
+      start: 1,
+      end: parseInt(state.end, 10) || 1,
+      mode: "full"
+    };
+  }
+
+  function chapterPath(book, chapter){
+    return "./bible/web/" + book + "/" + String(chapter).padStart(2, "0") + ".json";
+  }
+
+  async function fetchChapter(book, chapter){
+    var cacheKey = book + "|" + String(chapter);
+    if (chapterCache.has(cacheKey)) return chapterCache.get(cacheKey);
+    var primary = chapterPath(book, chapter);
+    var fallback = "bible/web/" + book + "/" + String(chapter).padStart(2, "0") + ".json";
+    var response = await fetch(primary);
+    if (!response.ok && fallback !== primary) response = await fetch(fallback);
+    if (!response.ok) throw new Error("Local Bible file not found: " + primary);
+    var data = await response.json();
+    chapterCache.set(cacheKey, data);
+    return data;
+  }
+
+  function refreshOpenResourcesSoon(){
+    setTimeout(function(){
+      try { if (typeof syncObsNavigator === "function") syncObsNavigator(); } catch (_) {}
+      try { if (typeof refreshActiveResourcePanel === "function") refreshActiveResourcePanel(); } catch (_) {}
+    }, 0);
+  }
+
+  async function stableLoadPassage(){
+    var state = currentRangeState();
+    var title = get("refTitle");
+    var passage = get("passage");
+    var box = get("scriptureBox");
+    if (!state || !passage) return;
+
+    var token = ++loadToken;
+    var renderKey = state.book + "|" + state.chapter + "|1|" + state.end + "|full";
+    try { if (box) box.classList.remove("focus-mode"); } catch (_) {}
+    try { document.body.classList.add("rdm-v154-select-loading"); } catch (_) {}
+
+    var hasRealVerses = !!(passage && passage.querySelector && passage.querySelector(".verse[data-v]"));
+    if (!hasRealVerses && renderKey !== lastRenderedKey) {
+      passage.innerHTML = '<p class="verse">Loading passage…</p>';
+    }
+
+    try {
+      var data = await fetchChapter(state.book, state.chapter);
+      if (token !== loadToken) return;
+      var verses = Array.isArray(data.verses) ? data.verses : [];
+      var selected = verses.filter(function(v){ var n = Number(v.verse); return n >= 1 && n <= state.end; });
+      if (!selected.length) throw new Error("No verses found for this passage.");
+      var refBook = data.book || state.book;
+      var refChapter = data.chapter || state.chapter;
+      if (title) title.textContent = refBook + " " + refChapter + " 1-" + state.end;
+      passage.innerHTML = selected.map(function(v){
+        var n = Number(v.verse);
+        return '<p class="verse" data-v="' + n + '"><span class="vnum">' + n + "</span>" + textClean(v.text) + "</p>";
+      }).join("");
+      lastRenderedKey = renderKey;
+      current = normalize({ book: state.book, chapter: state.chapter });
+      try { if (typeof activateVerses === "function") activateVerses(); } catch (_) {}
+      try { if (typeof restoreMarks === "function") restoreMarks(); } catch (_) {}
+      try { if (typeof loadCurrentNotes === "function") loadCurrentNotes(); } catch (_) {}
+      try {
+        localStorage.setItem("ironSharpenerUnified.lastRef", JSON.stringify({
+          book: state.book, chapter: String(state.chapter), start: "1", end: String(state.end), range: "full"
+        }));
+        localStorage.setItem("iron-sharpener.lastRef", JSON.stringify({
+          book: state.book, chapter: String(state.chapter), start: "1", end: String(state.end), range: "full"
+        }));
+      } catch (_) {}
+      refreshOpenResourcesSoon();
+    } catch (error) {
+      if (token !== loadToken) return;
+      if (title) title.textContent = state.book + " " + state.chapter + " 1-" + state.end;
+      passage.innerHTML = '<p class="verse">Could not load this passage from the local Bible files.</p><p class="verse" style="font-size:18px">' + textClean(error && error.message ? error.message : error) + "</p>";
+    } finally {
+      if (token === loadToken) {
+        try { document.body.classList.remove("rdm-v154-select-loading"); } catch (_) {}
+      }
+    }
+  }
+
+  stableLoadPassage.__rdmV154StableLoader = true;
+  window.loadPassage = stableLoadPassage;
+  try { loadPassage = stableLoadPassage; } catch (_) {}
+
+  function stableSelectChange(event){
+    var target = event && event.target;
+    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
+    if (restoring) return;
+
+    try { event.preventDefault(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    try { event.stopImmediatePropagation(); } catch (_) {}
+
+    var previous = normalize(pendingPrevious || current || controlState());
+    pendingPrevious = null;
+
+    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+
+    if (target.id === "book") {
+      rebuildChapters();
+      var chapter = get("chapter");
+      if (chapter) chapter.value = "1";
+      rebuildVerses();
+    } else if (target.id === "chapter") {
+      rebuildVerses();
+    }
+
+    forceFullChapter(controlState());
+    pushPrevious(previous);
+    updateBackSoon();
+
+    nextFrame(function(){
+      stableLoadPassage().then(function(){ updateBackSoon(); }, function(){ updateBackSoon(); });
+    });
+  }
+
+  function finishBack(target){
+    current = normalize(target) || current;
+    restoring = false;
+    suppressBackUntil = Date.now() + 500;
+    var btn = get("rdmTeachingBackBtnV150");
+    if (btn) btn.classList.remove("rdm-busy");
+    updateBackSoon();
+  }
+
+  function goBack(event){
+    if (event) {
+      try { event.preventDefault(); } catch (_) {}
+      try { event.stopPropagation(); } catch (_) {}
+      try { event.stopImmediatePropagation(); } catch (_) {}
+    }
+    var target = normalize(backStack.pop());
+    if (!target) { updateBackSoon(); return; }
+
+    restoring = true;
+    suppressBackUntil = Date.now() + 1600;
+    setBackVisible(false, null);
+    var btn = get("rdmTeachingBackBtnV150");
+    if (btn) btn.classList.add("rdm-busy");
+
+    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+
+    var book = get("book"), chapter = get("chapter");
+    if (!book || !chapter) { finishBack(target); return; }
+
+    book.value = target.book;
+    rebuildChapters();
+    chapter.value = String(target.chapter || "1");
+    rebuildVerses();
+    forceFullChapter(target);
+
+    nextFrame(function(){
+      stableLoadPassage().then(function(){
+        try { var box = get("scriptureBox"); if (box) box.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+      }, function(){}).then(function(){ finishBack(target); });
+    });
+  }
+
+  function bindSelectBefore(select){
+    if (!select || select.__rdmV154RememberBound) return;
+    select.__rdmV154RememberBound = true;
+    ["pointerdown", "mousedown", "touchstart", "focus", "keydown"].forEach(function(type){
+      try { select.addEventListener(type, rememberBeforeChange, { capture: true, passive: true }); }
+      catch (_) { select.addEventListener(type, rememberBeforeChange, true); }
+    });
+  }
+
+  function bindLoadButtons(){
+    ["loadBtn", "prevBtn", "nextBtn", "obsLoadPassage"].forEach(function(id){
+      var el = get(id);
+      if (!el || el.__rdmV154CurrentRefreshBound) return;
+      el.__rdmV154CurrentRefreshBound = true;
+      el.addEventListener("click", function(){
+        setTimeout(function(){ current = normalize(controlState()) || current; updateBackSoon(); }, 800);
+      }, true);
+    });
+  }
+
+  function install(){
+    hideOldBackSurfaces();
+    ensureBackButton();
+    bindSelectBefore(get("book"));
+    bindSelectBefore(get("chapter"));
+    bindLoadButtons();
+    current = normalize(controlState()) || current;
+    document.removeEventListener("change", stableSelectChange, true);
+    document.addEventListener("change", stableSelectChange, true);
+    setTimeout(updateBack, 0);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
+  else install();
+  window.addEventListener("pageshow", function(){ setTimeout(install, 120); });
+
+  window.rdmTeachingBackV154 = {
+    clear: function(){ backStack = []; pendingPrevious = null; updateBackSoon(); },
+    update: updateBack,
+    stack: function(){ return backStack.slice(); },
+    back: goBack,
+    load: stableLoadPassage
+  };
+})();
+
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
