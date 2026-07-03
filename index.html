@@ -31678,6 +31678,31 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v151 — Dark-mode Teaching Back button color only: match Refresh Passage gold/yellow. -->
+<style id="rdm-v151-teaching-back-dark-yellow-match-refresh">
+  body.dark #rdmTeachingBackBtnV150,
+  html.obs body.dark #rdmTeachingBackBtnV150 {
+    background: linear-gradient(#f8d987, #d99f31) !important;
+    color: #203D39 !important;
+    border: 1.5px solid var(--gold) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.16) !important;
+    text-shadow: none !important;
+  }
+
+  body.dark #rdmTeachingBackBtnV150:hover,
+  body.dark #rdmTeachingBackBtnV150:focus-visible,
+  html.obs body.dark #rdmTeachingBackBtnV150:hover,
+  html.obs body.dark #rdmTeachingBackBtnV150:focus-visible {
+    background: linear-gradient(#ffe49a, #d99f31) !important;
+    color: #203D39 !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.20) !important;
+    text-shadow: none !important;
+  }
+</style>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
