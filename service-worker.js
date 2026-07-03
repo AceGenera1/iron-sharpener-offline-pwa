@@ -1,5 +1,5 @@
-/* Iron Sharpener service worker — v58 iPad Direct App Launch
-   Purpose: keep the Home Screen app opening directly into the app surface instead of waiting behind the native black splash.
+/* Iron Sharpener service worker — v59 iPad Offline-Ready Launch Shield
+   Purpose: keep the Home Screen app opening directly into the app surface even after Offline Ready has prepared the full cache.
 
    v58 changes:
    - Restores a tiny launch-shell warm during install, but never scans the full offline cache on launch.
@@ -14,12 +14,13 @@
    - Keeps Bible JSON and study-resource offline behavior intact.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-launch-v58-direct-app-shell-20260703";
+const IRON_SHARPENER_CACHE = "iron-sharpener-launch-v59-offline-ready-direct-shell-20260703";
 const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
 const IRON_SHARPENER_LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 
 // Caches created by the working offline-preparation engines.
 const KNOWN_RESOURCE_CACHES = [
+  "iron-sharpener-launch-v59-offline-ready-direct-shell-20260703",
   "iron-sharpener-launch-v58-direct-app-shell-20260703",
   "iron-sharpener-launch-v57-shell-20260703",
   "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703",
@@ -48,9 +49,12 @@ let priorityCacheNamesPromise = null;
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  // v58: warm only the tiny app shell. This restores direct Home Screen opening
-  // without letting the complete Offline Ready cache delay iPad launch.
-  event.waitUntil(withTimeout(cacheFreshCoreShell(), 900, null));
+  // v59: do not let slow network or large offline caches hold the iPad native
+  // launch screen. Copy an existing tiny shell quickly, then warm fresh shell.
+  event.waitUntil(withTimeout((async () => {
+    await copyExistingCoreShellIntoLaunchCache();
+    await cacheFreshCoreShell();
+  })(), 650, null));
 });
 
 self.addEventListener("activate", (event) => {
@@ -68,7 +72,7 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
-  if (event.data && (event.data.type === "WARM_LAUNCH_CACHE_V58" || event.data.type === "WARM_LAUNCH_CACHE_V57")) {
+  if (event.data && (event.data.type === "WARM_LAUNCH_CACHE_V59" || event.data.type === "WARM_LAUNCH_CACHE_V58" || event.data.type === "WARM_LAUNCH_CACHE_V57")) {
     cacheFreshCoreShell().catch(() => {});
   }
 });
@@ -228,6 +232,42 @@ async function cacheHtmlResponse(cache, response, request) {
     saved = (await putIfGood(cache, key, response)) || saved;
   }
   return saved;
+}
+
+async function copyExistingCoreShellIntoLaunchCache() {
+  const current = await caches.open(IRON_SHARPENER_CACHE);
+  const existing = await caches.keys();
+  const preferred = [
+    "iron-sharpener-launch-v58-direct-app-shell-20260703",
+    "iron-sharpener-launch-v57-shell-20260703",
+    "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703",
+    "iron-sharpener-offline-v54-instant-shell-online-direct-bible-json-20260702",
+    "iron-sharpener-offline-v36-complete-tool-20260630",
+    "iron-sharpener-offline-v105-public-ready-cache",
+    "iron-sharpener-offline-v34-final-offline-sync-20260627",
+    "iron-sharpener-offline-v26-public-lock-20260626"
+  ];
+  const launchCaches = existing.filter((name) => name && name.startsWith(IRON_SHARPENER_LAUNCH_CACHE_PREFIX));
+  const sources = [...preferred, ...launchCaches]
+    .filter((name, index, arr) => name && name !== IRON_SHARPENER_CACHE && arr.indexOf(name) === index && existing.includes(name));
+  const targets = ["./index.html", "index.html", "./", "./personal-study.html", "personal-study.html", "./manifest.json", "manifest.json", "./assets/iron-sharpener-logo.png", "assets/iron-sharpener-logo.png", "./assets/disciple-journal-logo.png", "assets/disciple-journal-logo.png"];
+  for (const target of targets) {
+    let saved = false;
+    for (const sourceName of sources) {
+      if (saved) break;
+      try {
+        const source = await caches.open(sourceName);
+        for (const key of resourceKeyVariants(target)) {
+          const cached = await source.match(key, { ignoreSearch: true });
+          if (cached) {
+            await putAllVariants(current, target, cached.clone());
+            saved = true;
+            break;
+          }
+        }
+      } catch (_) {}
+    }
+  }
 }
 
 async function cacheFreshCoreShell() {
@@ -414,8 +454,7 @@ async function navigationFastCached(request, event) {
   const cache = await caches.open(IRON_SHARPENER_CACHE);
   const preloadPromise = event && event.preloadResponse ? event.preloadResponse : null;
 
-  // v58: fastest possible path. If the tiny launch shell has the page, show it
-  // immediately and refresh only in the background.
+  // v59 fastest path: show the tiny launch shell immediately.
   const cached = await currentCacheHtmlForNavigationOnly(request);
   if (cached) {
     try {
@@ -424,11 +463,20 @@ async function navigationFastCached(request, event) {
     return cached;
   }
 
-  // Navigation preload, when supported, gives the browser a head start while the
-  // service worker wakes up. Use it before any large fallback cache is touched.
+  // v59 key change: after Offline Ready, network/navigation preload can be slow
+  // inside iPad Home Screen apps. Use an exact cached shell before touching network.
+  const exactShell = await withTimeout(exactKnownShellFallback(request), 220, null);
+  if (exactShell) {
+    try {
+      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request, preloadPromise));
+    } catch (_) {}
+    return exactShell;
+  }
+
+  // Navigation preload/network are only used when no usable shell is already saved.
   if (looksOnline() && preloadPromise) {
     try {
-      const preload = await preloadPromise;
+      const preload = await withTimeout(preloadPromise, 650, null);
       if (preload && preload.ok) {
         try { event.waitUntil(cacheHtmlResponse(cache, preload.clone(), request)); } catch (_) {}
         return preload;
@@ -438,18 +486,13 @@ async function navigationFastCached(request, event) {
 
   if (looksOnline()) {
     try {
-      const response = await fetch(new Request(request, { cache: "reload" }));
+      const response = await withTimeout(fetch(new Request(request, { cache: "reload" })), 900, null);
       if (response && response.ok) {
         try { event && event.waitUntil && event.waitUntil(cacheHtmlResponse(cache, response.clone(), request)); } catch (_) {}
         return response;
       }
     } catch (_) {}
   }
-
-  // Offline fallback is bounded so a large complete cache cannot recreate the
-  // 10-second iPad black splash. A warmed launch shell should normally avoid this.
-  const exactShell = await withTimeout(exactKnownShellFallback(request), 350, null);
-  if (exactShell) return exactShell;
 
   let wantsJournal = false;
   try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
@@ -509,22 +552,7 @@ async function launchAssetFastPath(request) {
     } catch (_) {}
   }
 
-  if (looksOnline()) {
-    try {
-      const response = await fetch(new Request(request.url, { cache: "force-cache" }));
-      if (response && response.ok) {
-        return response;
-      }
-    } catch (_) {}
-    try {
-      const response = await fetch(request);
-      if (response && response.ok) {
-        return response;
-      }
-    } catch (_) {}
-  }
-
-  // Offline fallback: exact known launch-asset caches only. Still no broad scan.
+  // v59: after Offline Ready, saved launch assets are safer than waiting on network.
   const existing = await caches.keys();
   const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
     .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
@@ -538,8 +566,20 @@ async function launchAssetFastPath(request) {
     } catch (_) {}
   }
 
+  if (looksOnline()) {
+    try {
+      const response = await withTimeout(fetch(new Request(request.url, { cache: "force-cache" })), 650, null);
+      if (response && response.ok) return response;
+    } catch (_) {}
+    try {
+      const response = await withTimeout(fetch(request), 650, null);
+      if (response && response.ok) return response;
+    } catch (_) {}
+  }
+
   return new Response("Launch asset unavailable.", { status: 504, headers: { "content-type": "text/plain" } });
 }
+
 
 async function resourceCacheFirst(request) {
   // v58: keep the launch shell cache tiny. During Offline Ready preparation,
