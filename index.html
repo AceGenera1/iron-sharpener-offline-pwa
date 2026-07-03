@@ -31346,6 +31346,237 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     }
   }
 </style>
+
+
+<!-- v146 — Teaching back label/style match to Journal -->
+<style id="rdm-v146-teaching-back-label-match-journal-style">
+  /* Teaching Tool: keep the existing working back logic, but make the visible button match the Journal back style. */
+  #scriptureBox {
+    position: relative !important;
+  }
+
+  #scriptureBackBtn.rdm-v146-teaching-back-match,
+  #scriptureBackBtn.rdm-scripture-back-visible.rdm-v146-teaching-back-match,
+  html.obs #scriptureBackBtn.rdm-v146-teaching-back-match {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: min(48vw, 430px) !important;
+    min-height: 34px !important;
+    padding: 7px 14px !important;
+    border-radius: 999px !important;
+    border: 1.5px solid rgba(217,160,123,.94) !important;
+    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
+    color: #10223C !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    position: absolute !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 99995 !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
+  #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible {
+    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
+    border-color: rgba(217,160,123,1) !important;
+    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
+    transform: none !important;
+  }
+
+  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match,
+  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match {
+    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
+    color: #F8F4EC !important;
+    border-color: rgba(217,160,123,.94) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
+  }
+
+  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
+  body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible,
+  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:hover,
+  html.obs body.dark #scriptureBackBtn.rdm-v146-teaching-back-match:focus-visible {
+    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
+    color: #FFF9F1 !important;
+    border-color: rgba(248,217,135,.92) !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
+  }
+
+  #scriptureBox .ref,
+  #scriptureBox #refTitle {
+    padding-right: 0 !important;
+  }
+
+  @media (max-width: 700px), (hover: none), (pointer: coarse) {
+    #scriptureBackBtn.rdm-v146-teaching-back-match,
+    #scriptureBackBtn.rdm-scripture-back-visible.rdm-v146-teaching-back-match,
+    html.obs #scriptureBackBtn.rdm-v146-teaching-back-match {
+      top: 12px !important;
+      right: 12px !important;
+      max-width: min(64vw, 360px) !important;
+      min-height: 36px !important;
+      padding: 8px 12px !important;
+      font-size: 11.5px !important;
+    }
+  }
+</style>
+<script id="rdm-v146-teaching-back-label-match-journal-script">
+(function rdmV146TeachingBackLabelMatchJournal(){
+  if (window.__rdmV146TeachingBackLabelMatchJournal) return;
+  window.__rdmV146TeachingBackLabelMatchJournal = true;
+
+  function byId(id) { return document.getElementById(id); }
+
+  function clean(value) {
+    return String(value == null ? "" : value).trim();
+  }
+
+  function normalizeState(state) {
+    if (!state || typeof state !== "object") return null;
+    const book = clean(state.book || state.bookName || state.b);
+    const chapter = clean(state.chapter || state.chap || state.c || "1");
+    let start = clean(state.start || state.startVerse || state.s || "1");
+    let end = clean(state.end || state.endVerse || state.e || start || "1");
+    if (!book) return null;
+    if (!start) start = "1";
+    if (!end) end = start;
+    return { book: book, chapter: chapter || "1", start: start, end: end };
+  }
+
+  function currentStateKey() {
+    const book = byId("book");
+    const chapter = byId("chapter");
+    if (!book || !chapter) return "";
+    return clean(book.value) + "|" + clean(chapter.value);
+  }
+
+  function stateKey(state) {
+    const s = normalizeState(state);
+    return s ? s.book + "|" + s.chapter : "";
+  }
+
+  function labelFor(state) {
+    const s = normalizeState(state);
+    if (!s) return "";
+    return s.start === s.end
+      ? s.book + " " + s.chapter + ":" + s.start
+      : s.book + " " + s.chapter + ":" + s.start + "-" + s.end;
+  }
+
+  function possibleTargets() {
+    const out = [];
+    [
+      window.__rdmScriptureBackStackV42,
+      window.__rdmCrossReferenceBackStack,
+      window.__rdmStudyResourceBackStack,
+      window.__rdmTeachingBackStack,
+      window.__rdmScriptureBackStack
+    ].forEach(function(list) {
+      if (Array.isArray(list)) {
+        for (let i = list.length - 1; i >= 0; i -= 1) out.push(list[i]);
+      }
+    });
+    try {
+      if (typeof previousPassageState !== "undefined" && previousPassageState) out.push(previousPassageState);
+    } catch (_) {}
+    if (window.previousPassageState) out.push(window.previousPassageState);
+    if (window.__rdmPreviousPassageState) out.push(window.__rdmPreviousPassageState);
+    return out;
+  }
+
+  function bestTarget() {
+    const now = currentStateKey();
+    for (const raw of possibleTargets()) {
+      const state = normalizeState(raw);
+      if (!state) continue;
+      if (stateKey(state) && stateKey(state) !== now) return state;
+    }
+    for (const raw of possibleTargets()) {
+      const state = normalizeState(raw);
+      if (state) return state;
+    }
+    return null;
+  }
+
+  let writing = false;
+  function refreshBackLabel() {
+    if (writing) return;
+    const btn = byId("scriptureBackBtn");
+    if (!btn) return;
+    const target = bestTarget();
+    const label = target ? "← Back to " + labelFor(target) : "← Back";
+    writing = true;
+    try {
+      btn.classList.add("rdm-v146-teaching-back-match");
+      btn.textContent = label;
+      btn.setAttribute("aria-label", target ? "Back to " + labelFor(target) : "Back to previous Scripture passage");
+      btn.title = target ? "Back to " + labelFor(target) : "Back to previous Scripture passage";
+    } finally {
+      writing = false;
+    }
+  }
+
+  function scheduleRefresh() {
+    refreshBackLabel();
+    setTimeout(refreshBackLabel, 80);
+    setTimeout(refreshBackLabel, 220);
+    setTimeout(refreshBackLabel, 600);
+  }
+
+  function watchBackButton() {
+    const btn = byId("scriptureBackBtn");
+    if (!btn || btn.__rdmV146TeachingBackObserver) return;
+    btn.__rdmV146TeachingBackObserver = true;
+    try {
+      const observer = new MutationObserver(function() {
+        if (!writing) setTimeout(refreshBackLabel, 0);
+      });
+      observer.observe(btn, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+    } catch (_) {}
+  }
+
+  function start() {
+    scheduleRefresh();
+    watchBackButton();
+    ["book", "chapter", "refreshPassage", "loadPassageBtn"].forEach(function(id) {
+      const el = byId(id);
+      if (!el || el.__rdmV146TeachingBackBound) return;
+      el.__rdmV146TeachingBackBound = true;
+      el.addEventListener("change", scheduleRefresh, true);
+      el.addEventListener("click", scheduleRefresh, true);
+    });
+    document.addEventListener("click", function(event) {
+      if (event.target && event.target.closest && event.target.closest("button, a, [role='button']")) {
+        setTimeout(function(){ watchBackButton(); scheduleRefresh(); }, 80);
+      }
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+
+  window.rdmRefreshTeachingBackLabelV146 = scheduleRefresh;
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
