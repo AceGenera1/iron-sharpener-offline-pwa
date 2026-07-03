@@ -32204,6 +32204,386 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 })();
 </script>
 
+
+
+<!-- v149 — Teaching back button only after a real Book/Chapter change. Retires all older visible back surfaces. -->
+<style id="rdm-v149-teaching-back-only-after-book-chapter-change-style">
+  /* v149 owns the visible teaching back button. Older stacked patches stay logically available but never show. */
+  #scriptureBackBtn,
+  #scriptureBackBtn.rdm-scripture-back-visible,
+  #rdmV76ScriptureBackRow,
+  #rdmV76BackToScriptureBtn,
+  #rdmTeachingFreshBackBtnV147,
+  #rdmTeachingFreshBackBtnV147.rdm-teaching-fresh-back-visible,
+  #rdmTeachingBackWrapV148,
+  #rdmTeachingBackWrapV148.rdm-show {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  #rdmTeachingBackWrapV149.rdm-teaching-back-wrap-v149 {
+    display: none;
+    width: 100%;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    z-index: 8;
+    text-align: right;
+  }
+
+  #rdmTeachingBackWrapV149.rdm-show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+  }
+
+  #rdmTeachingBackBtnV149 {
+    width: auto !important;
+    max-width: min(100%, 430px) !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    padding: 7px 14px !important;
+    border-radius: 999px !important;
+    border: 1.5px solid rgba(217,160,123,.92) !important;
+    background: linear-gradient(180deg, #FFF9F1, #F7EFE2) !important;
+    color: #10223C !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    box-shadow: 0 8px 18px rgba(29,45,68,.09) !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background .12s ease, box-shadow .12s ease, opacity .12s ease !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #rdmTeachingBackBtnV149:hover,
+  #rdmTeachingBackBtnV149:focus-visible {
+    background: linear-gradient(180deg, #FFFDF8, #F4E4D6) !important;
+    border-color: rgba(217,160,123,1) !important;
+    box-shadow: 0 12px 24px rgba(29,45,68,.14) !important;
+    transform: none !important;
+  }
+
+  #rdmTeachingBackBtnV149:active {
+    transform: translateZ(0) scale(.99) !important;
+  }
+
+  #rdmTeachingBackBtnV149.rdm-busy {
+    opacity: .82 !important;
+    pointer-events: none !important;
+  }
+
+  body.dark #rdmTeachingBackBtnV149,
+  html.obs body.dark #rdmTeachingBackBtnV149 {
+    background: linear-gradient(180deg, rgba(63,88,114,.96), rgba(43,65,91,.96)) !important;
+    color: #F8F4EC !important;
+    border-color: rgba(217,160,123,.94) !important;
+    box-shadow: 0 10px 22px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,249,241,.04) !important;
+  }
+
+  body.dark #rdmTeachingBackBtnV149:hover,
+  body.dark #rdmTeachingBackBtnV149:focus-visible,
+  html.obs body.dark #rdmTeachingBackBtnV149:hover,
+  html.obs body.dark #rdmTeachingBackBtnV149:focus-visible {
+    background: linear-gradient(180deg, rgba(76,102,130,.98), rgba(52,76,104,.98)) !important;
+    color: #FFF9F1 !important;
+    border-color: rgba(248,217,135,.92) !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.30), 0 0 12px rgba(217,160,123,.12) !important;
+  }
+
+  @media (max-width: 650px), (hover: none), (pointer: coarse) {
+    #rdmTeachingBackWrapV149.rdm-show {
+      justify-content: stretch !important;
+    }
+
+    #rdmTeachingBackBtnV149 {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: 38px !important;
+      padding: 9px 14px !important;
+      font-size: 12.5px !important;
+    }
+  }
+</style>
+<script id="rdm-v149-teaching-back-only-after-book-chapter-change-script">
+(function rdmV149TeachingBackOnlyAfterBookChapterChange(){
+  if (window.__rdmV149TeachingBackOnlyAfterBookChapterChange) return;
+  window.__rdmV149TeachingBackOnlyAfterBookChapterChange = true;
+
+  var stack = [];
+  var lastLoaded = null;
+  var restoring = false;
+  var loading = false;
+  var originalLoad = null;
+  var initialized = false;
+
+  function get(id){ return document.getElementById(id); }
+  function clean(value){ return String(value == null ? "" : value).trim(); }
+
+  function maxVerseFor(book, chapter){
+    try {
+      var ch = Math.max(1, parseInt(chapter, 10) || 1);
+      var counts = (typeof verseCounts !== "undefined" && verseCounts && verseCounts[book]) ? verseCounts[book] : (window.verseCounts && window.verseCounts[book]);
+      if (Array.isArray(counts)) return Math.max(1, parseInt(counts[ch - 1], 10) || 1);
+      if (counts && typeof counts === "object") return Math.max(1, parseInt(counts[ch] || counts[String(ch)], 10) || 1);
+    } catch (_) {}
+    try {
+      var end = get("end");
+      if (end && end.value) return Math.max(1, parseInt(end.value, 10) || 1);
+    } catch (_) {}
+    return 1;
+  }
+
+  function normalize(state){
+    if (!state || typeof state !== "object") return null;
+    var book = clean(state.book || state.bookName || state.b);
+    var chapter = clean(state.chapter || state.chap || state.c || "1");
+    if (!book) return null;
+    chapter = String(parseInt(chapter, 10) || 1);
+    var end = String(maxVerseFor(book, chapter));
+    return { book: book, chapter: chapter, start: "1", end: end, range: "full" };
+  }
+
+  function controlState(){
+    var book = get("book"), chapter = get("chapter");
+    if (!book || !chapter || !book.value) return null;
+    return normalize({ book: book.value, chapter: chapter.value || "1" });
+  }
+
+  function stateKey(state){
+    state = normalize(state);
+    return state ? state.book + "|" + state.chapter : "";
+  }
+
+  function label(state){
+    state = normalize(state);
+    if (!state) return "Scripture";
+    return state.book + " " + state.chapter + ":1-" + state.end;
+  }
+
+  function ensureOption(select, value){
+    if (!select) return;
+    value = String(value || "1");
+    try {
+      var exists = false;
+      for (var i = 0; i < select.options.length; i += 1) {
+        if (select.options[i].value === value) { exists = true; break; }
+      }
+      if (!exists) select.add(new Option(value, value));
+      select.value = value;
+    } catch (_) {}
+  }
+
+  function forceFullChapter(state){
+    state = normalize(state || controlState());
+    if (!state) return null;
+    ensureOption(get("rangeSize"), "full");
+    ensureOption(get("start"), "1");
+    ensureOption(get("end"), state.end);
+    try { localStorage.setItem("ironSharpenerUnified.sectionSize", "full"); } catch (_) {}
+    return state;
+  }
+
+  function hideOldButtons(){
+    ["scriptureBackBtn", "rdmV76BackToScriptureBtn", "rdmTeachingFreshBackBtnV147"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      try { el.classList.remove("rdm-scripture-back-visible", "rdm-v146-teaching-back-match", "rdm-teaching-fresh-back-visible"); } catch (_) {}
+      try { el.setAttribute("aria-hidden", "true"); } catch (_) {}
+      try { el.style.setProperty("display", "none", "important"); } catch (_) {}
+      try { el.style.setProperty("visibility", "hidden", "important"); } catch (_) {}
+      try { el.style.setProperty("opacity", "0", "important"); } catch (_) {}
+      try { el.style.setProperty("pointer-events", "none", "important"); } catch (_) {}
+    });
+    ["rdmV76ScriptureBackRow", "rdmTeachingBackWrapV148"].forEach(function(id){
+      var el = get(id);
+      if (!el) return;
+      try { el.classList.remove("rdm-show"); } catch (_) {}
+      try { el.setAttribute("aria-hidden", "true"); } catch (_) {}
+      try { el.style.setProperty("display", "none", "important"); } catch (_) {}
+    });
+  }
+
+  function mount(){
+    var scriptureBox = get("scriptureBox");
+    if (!scriptureBox) return null;
+    var wrap = get("rdmTeachingBackWrapV149");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "rdmTeachingBackWrapV149";
+      wrap.className = "rdm-teaching-back-wrap-v149";
+      wrap.setAttribute("aria-hidden", "true");
+      wrap.innerHTML = '<button id="rdmTeachingBackBtnV149" type="button">← Back to Scripture</button>';
+      var ref = get("refTitle") || scriptureBox.querySelector(".ref");
+      if (ref) scriptureBox.insertBefore(wrap, ref);
+      else scriptureBox.insertBefore(wrap, scriptureBox.firstChild);
+    }
+    var btn = get("rdmTeachingBackBtnV149");
+    if (btn && !btn.__rdmV149BackClick) {
+      btn.__rdmV149BackClick = true;
+      btn.addEventListener("click", goBack, true);
+    }
+    return wrap;
+  }
+
+  function updateButton(){
+    hideOldButtons();
+    var wrap = mount();
+    var btn = get("rdmTeachingBackBtnV149");
+    if (!wrap || !btn) return;
+    var target = stack.length ? normalize(stack[stack.length - 1]) : null;
+    if (!target) {
+      wrap.classList.remove("rdm-show");
+      wrap.setAttribute("aria-hidden", "true");
+      btn.textContent = "← Back to Scripture";
+      btn.title = "Back to Scripture";
+      btn.setAttribute("aria-label", "Back to Scripture");
+      return;
+    }
+    wrap.classList.add("rdm-show");
+    wrap.setAttribute("aria-hidden", "false");
+    btn.textContent = "← Back to " + label(target);
+    btn.title = "Back to " + label(target);
+    btn.setAttribute("aria-label", "Back to " + label(target));
+  }
+
+  function updateSoon(){
+    updateButton();
+    [0, 80, 220, 600, 1200].forEach(function(ms){ setTimeout(updateButton, ms); });
+  }
+
+  function pushPrevious(reason){
+    if (restoring || !initialized) return;
+    var prev = normalize(lastLoaded);
+    var next = controlState();
+    if (!prev || !next || !stateKey(prev) || stateKey(prev) === stateKey(next)) return;
+    var top = stack.length ? normalize(stack[stack.length - 1]) : null;
+    if (!top || stateKey(top) !== stateKey(prev)) stack.push(prev);
+    while (stack.length > 30) stack.shift();
+    updateSoon();
+  }
+
+  async function callLoad(){
+    forceFullChapter(controlState());
+    if (typeof originalLoad === "function") return Promise.resolve(originalLoad.call(window));
+    if (typeof window.loadPassage === "function" && window.loadPassage !== callLoad) return Promise.resolve(window.loadPassage());
+    try { if (typeof loadPassage === "function") return Promise.resolve(loadPassage()); } catch (_) {}
+    return Promise.resolve();
+  }
+
+  async function goBack(event){
+    if (event) {
+      try { event.preventDefault(); } catch (_) {}
+      try { event.stopPropagation(); } catch (_) {}
+      try { event.stopImmediatePropagation(); } catch (_) {}
+    }
+    var target = normalize(stack.pop());
+    updateSoon();
+    if (!target) return;
+    var btn = get("rdmTeachingBackBtnV149");
+    if (btn) btn.classList.add("rdm-busy");
+    restoring = true;
+    try {
+      var book = get("book"), chapter = get("chapter");
+      if (!book || !chapter) return;
+      try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+      book.value = target.book;
+      try { if (typeof populateChapters === "function") populateChapters(); } catch (_) {}
+      chapter.value = String(target.chapter || "1");
+      try { if (typeof populateVerses === "function") populateVerses(); } catch (_) {}
+      forceFullChapter(target);
+      await callLoad();
+      lastLoaded = normalize(target);
+      try { document.getElementById("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+    } finally {
+      restoring = false;
+      if (btn) btn.classList.remove("rdm-busy");
+      updateSoon();
+    }
+  }
+
+  function wrapLoad(){
+    var current = null;
+    try { current = typeof loadPassage === "function" ? loadPassage : null; } catch (_) {}
+    if (!current && typeof window.loadPassage === "function") current = window.loadPassage;
+    if (typeof current !== "function" || current.__rdmV149TeachingBackWrapped) return;
+    originalLoad = current;
+
+    async function wrapped(){
+      if (loading) return originalLoad.apply(this, arguments);
+      var before = normalize(lastLoaded);
+      var next = controlState();
+      var changed = !restoring && initialized && before && next && stateKey(before) && stateKey(before) !== stateKey(next);
+      loading = true;
+      forceFullChapter(next);
+      try {
+        if (changed) pushPrevious("load");
+        var result = originalLoad.apply(this, arguments);
+        await Promise.resolve(result);
+        lastLoaded = normalize(controlState());
+        forceFullChapter(lastLoaded);
+        updateSoon();
+        return result;
+      } finally {
+        loading = false;
+      }
+    }
+    wrapped.__rdmV149TeachingBackWrapped = true;
+    try { loadPassage = wrapped; } catch (_) {}
+    window.loadPassage = wrapped;
+  }
+
+  function onBookChapterChange(event){
+    var target = event && event.target;
+    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
+    pushPrevious("control-change");
+    setTimeout(function(){ forceFullChapter(controlState()); updateButton(); }, 0);
+    setTimeout(function(){ hideOldButtons(); updateButton(); }, 350);
+  }
+
+  function install(){
+    hideOldButtons();
+    mount();
+    forceFullChapter(controlState());
+    wrapLoad();
+    if (!lastLoaded) lastLoaded = normalize(controlState());
+    initialized = true;
+    /* Start hidden every time the page/app opens. The button appears only after a Book or Chapter change. */
+    stack = [];
+    updateSoon();
+  }
+
+  document.addEventListener("change", onBookChapterChange, true);
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
+  else install();
+  window.addEventListener("pageshow", function(){ setTimeout(function(){ hideOldButtons(); mount(); updateButton(); }, 80); });
+
+  window.rdmTeachingBackV149 = {
+    install: install,
+    update: updateButton,
+    stack: function(){ return stack.slice(); },
+    clear: function(){ stack = []; updateSoon(); },
+    back: goBack,
+    pushPrevious: pushPrevious
+  };
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
