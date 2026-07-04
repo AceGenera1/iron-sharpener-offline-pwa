@@ -1,18 +1,20 @@
-/* Iron Sharpener service worker — v60 Compact Offline Storage + Direct Launch
+/* Iron Sharpener service worker — v61 Forced Fresh Shell Cutover + Compact Offline Storage
    Purpose:
    - Return the teaching or Journal shell from one tiny launch cache immediately.
    - Never inspect large Offline Ready caches during navigation startup.
    - Read non-Bible offline resources from one compact canonical cache.
    - Let the page-level IndexedDB Bible loader own all 1,189 WEB chapters.
-   - Preserve exact old-cache fallback only until compact migration succeeds.
+   - Never copy an older HTML shell into a new launch cache.
+   - Preserve old resource-cache fallback only until compact migration succeeds.
 */
 
-const SW_VERSION = "v60-compact-offline-storage";
-const LAUNCH_CACHE = "iron-sharpener-launch-v60-compact-direct-shell-20260703";
-const COMPACT_RESOURCE_CACHE = "iron-sharpener-offline-v60-compact-resources-20260703";
+const SW_VERSION = "v61-fresh-shell-compact-storage";
+const LAUNCH_CACHE = "iron-sharpener-launch-v61-fresh-shell-cutover-20260703";
+const COMPACT_RESOURCE_CACHE = "iron-sharpener-offline-v61-compact-resources-20260703";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 
 const LEGACY_RESOURCE_CACHES = [
+  "iron-sharpener-offline-v60-compact-resources-20260703",
   "iron-sharpener-offline-v56-tiny-shell-fast-offline-ready-launch-20260703",
   "iron-sharpener-offline-v54-instant-shell-online-direct-bible-json-20260702",
   "iron-sharpener-offline-v36-complete-tool-20260630",
@@ -27,6 +29,8 @@ const LEGACY_LAUNCH_CACHES = [
   "iron-sharpener-launch-v57-shell-20260703"
 ];
 
+const SHELL_VERSION_TOKEN = "v61-fresh-shell-cutover";
+
 const CORE_ASSETS = [
   "index.html",
   "personal-study.html",
@@ -36,8 +40,12 @@ const CORE_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
-  event.waitUntil(seedLaunchCache());
+  event.waitUntil((async () => {
+    // Never seed a new launch cache from an older cached HTML shell. The new
+    // worker activates only after fresh network copies of both app pages exist.
+    await seedFreshLaunchCache(true);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
@@ -47,8 +55,37 @@ self.addEventListener("activate", (event) => {
         await self.registration.navigationPreload.enable();
       }
     } catch (_) {}
+
+    const cache = await caches.open(LAUNCH_CACHE);
+    const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
+    const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
+    if (!responseTypeIsValid("index.html", maker) || !responseTypeIsValid("personal-study.html", journal)) {
+      throw new Error("Fresh v61 app shells were not verified.");
+    }
+
+    // Only after the fresh shells verify, remove obsolete tiny launch caches.
+    try {
+      const names = await caches.keys();
+      await Promise.all(names
+        .filter((name) => name.startsWith(LAUNCH_CACHE_PREFIX) && name !== LAUNCH_CACHE)
+        .map((name) => caches.delete(name)));
+    } catch (_) {}
+
     await self.clients.claim();
-    seedLaunchCache().catch(() => {});
+
+    // One-time cutover for any page that was opened under the previous worker.
+    try {
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      await Promise.all(clients.map(async (client) => {
+        try {
+          const url = new URL(client.url);
+          if (url.origin !== self.location.origin) return;
+          if (url.searchParams.get("rdm_shell_cutover") === SHELL_VERSION_TOKEN) return;
+          url.searchParams.set("rdm_shell_cutover", SHELL_VERSION_TOKEN);
+          await client.navigate(url.href);
+        } catch (_) {}
+      }));
+    } catch (_) {}
   })());
 });
 
@@ -58,8 +95,8 @@ self.addEventListener("message", (event) => {
   if (data && data.type === "GET_IRON_SW_VERSION" && event.ports && event.ports[0]) {
     try { event.ports[0].postMessage({ version: SW_VERSION, launchCache: LAUNCH_CACHE, resourceCache: COMPACT_RESOURCE_CACHE }); } catch (_) {}
   }
-  if (data && ["WARM_LAUNCH_CACHE_V60", "WARM_LAUNCH_CACHE_V59", "WARM_LAUNCH_CACHE_V58", "WARM_LAUNCH_CACHE_V57"].includes(data.type)) {
-    seedLaunchCache().catch(() => {});
+  if (data && ["WARM_LAUNCH_CACHE_V61", "WARM_LAUNCH_CACHE_V60", "WARM_LAUNCH_CACHE_V59", "WARM_LAUNCH_CACHE_V58", "WARM_LAUNCH_CACHE_V57"].includes(data.type)) {
+    seedFreshLaunchCache(false).catch(() => {});
   }
 });
 
@@ -161,31 +198,52 @@ async function putCanonical(cache, path, response) {
   } catch (_) { return false; }
 }
 
-async function copyExactLegacyLaunchAsset(targetPath, destination) {
-  for (const cacheName of LEGACY_LAUNCH_CACHES) {
-    try {
-      if (!(await caches.has(cacheName))) continue;
-      const cache = await caches.open(cacheName);
-      for (const key of legacyVariants(targetPath)) {
-        const cached = await cache.match(key, { ignoreSearch: true });
-        if (cached && await putCanonical(destination, targetPath, cached)) return true;
-      }
-    } catch (_) {}
-  }
-  return false;
+function versionedShellUrl(path) {
+  const url = new URL(canonicalUrl(path));
+  url.searchParams.set("rdm_shell", SHELL_VERSION_TOKEN);
+  return url.href;
 }
 
-async function seedLaunchCache() {
-  const cache = await caches.open(LAUNCH_CACHE);
-  for (const path of CORE_ASSETS) {
-    let already = null;
-    try { already = await cache.match(canonicalUrl(path), { ignoreSearch: true }); } catch (_) {}
-    if (!already) await copyExactLegacyLaunchAsset(path, cache);
-    try {
-      const response = await fetch(new Request(canonicalUrl(path), { cache: "reload" }));
-      if (responseTypeIsValid(path, response)) await putCanonical(cache, path, response);
-    } catch (_) {}
+async function fetchFreshShellAsset(path) {
+  const response = await fetch(new Request(versionedShellUrl(path), { cache: "no-store" }));
+  if (!responseTypeIsValid(path, response)) {
+    throw new Error(`Fresh launch asset unavailable: ${path}`);
   }
+  return response;
+}
+
+async function seedFreshLaunchCache(requireBothHtml) {
+  const stagingName = `${LAUNCH_CACHE}-staging`;
+  try { await caches.delete(stagingName); } catch (_) {}
+  const staging = await caches.open(stagingName);
+  const required = new Set(["index.html", "personal-study.html"]);
+
+  for (const path of CORE_ASSETS) {
+    try {
+      const response = await fetchFreshShellAsset(path);
+      if (!(await putCanonical(staging, path, response))) throw new Error(`Could not stage ${path}`);
+    } catch (error) {
+      if (requireBothHtml || required.has(path)) {
+        try { await caches.delete(stagingName); } catch (_) {}
+        throw error;
+      }
+    }
+  }
+
+  const stagedMaker = await staging.match(canonicalUrl("index.html"), { ignoreSearch: true });
+  const stagedJournal = await staging.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
+  if (!responseTypeIsValid("index.html", stagedMaker) || !responseTypeIsValid("personal-study.html", stagedJournal)) {
+    try { await caches.delete(stagingName); } catch (_) {}
+    throw new Error("Both fresh app shells are required before activation.");
+  }
+
+  const active = await caches.open(LAUNCH_CACHE);
+  for (const path of CORE_ASSETS) {
+    const staged = await staging.match(canonicalUrl(path), { ignoreSearch: true });
+    if (staged) await putCanonical(active, path, staged);
+  }
+  try { await caches.delete(stagingName); } catch (_) {}
+  return true;
 }
 
 async function refreshNavigationInBackground(request, preloadPromise) {
@@ -194,7 +252,7 @@ async function refreshNavigationInBackground(request, preloadPromise) {
   try {
     let response = preloadPromise ? await preloadPromise.catch(() => null) : null;
     if (!responseTypeIsValid(target, response)) {
-      response = await fetch(new Request(canonicalUrl(target), { cache: "reload" }));
+      response = await fetch(new Request(versionedShellUrl(target), { cache: "no-store" }));
     }
     if (responseTypeIsValid(target, response)) await putCanonical(cache, target, response);
   } catch (_) {}
@@ -227,7 +285,7 @@ async function navigationImmediate(request, event) {
   } catch (_) {}
 
   try {
-    const response = await fetch(new Request(canonicalUrl(target), { cache: "reload" }));
+    const response = await fetch(new Request(versionedShellUrl(target), { cache: "no-store" }));
     if (responseTypeIsValid(target, response)) {
       try { event && event.waitUntil && event.waitUntil(putCanonical(cache, target, response)); } catch (_) {}
       return response;
