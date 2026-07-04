@@ -3019,9 +3019,9 @@ html.obs #discipleJournalBtn { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="v161-v63-idb-offline-launch" />
+<meta name="rdm-build" content="v162-v64-study-resources-crossrefs" />
 <script id="rdm-v159-build-marker">
-(function(){ try { window.__RDM_ACTIVE_BUILD = "v161-v63-idb-offline-launch"; } catch (_) {} })();
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v162-v64-study-resources-crossrefs"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -3222,7 +3222,7 @@ html.obs #discipleJournalBtn { display: none !important; }
 </div>
 <button class="tool-option helper-option" id="openStudyResourcesFromTools" type="button">
 <strong>Study Resources</strong>
-<span>Open study tools like dictionaries, topical Bible, biblical doctrine, book overviews, and commentaries.</span>
+<span>Open study tools like dictionaries, topical Bible, biblical doctrine, built-in cross references, book overviews, and commentaries.</span>
 </button>
 <div class="teacher-pop-note">
         Choose a tool, then click a verse to apply it. For highlight colors, underline, circle, or box, you can also select a word or phrase first, then click inside that verse to mark only the selected text.
@@ -3253,6 +3253,10 @@ html.obs #discipleJournalBtn { display: none !important; }
 <button class="tool-option" id="openDoctrineResource" type="button">
 <strong>Biblical Doctrine</strong>
 <span>Open Scripture-centered doctrine topics for deeper study, discipleship, and biblical understanding.</span>
+</button>
+<button class="tool-option" id="openInternalCrossRefs" type="button">
+<strong>Built-In Cross References</strong>
+<span>Trace related Scriptures for the selected passage with clean, clickable reference buttons.</span>
 </button>
 <button class="tool-option" id="openCommentariesResource" type="button">
 <strong>Matthew Henry Commentary</strong>
@@ -16279,7 +16283,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v63-idb-offline").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v64-study-resources-crossrefs").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -27539,7 +27543,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v63-idb-offline-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v64-study-resources-crossrefs-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27743,7 +27747,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     var files = ["index.html", "personal-study.html", "manifest.json", "assets/iron-sharpener-logo.png", "assets/disciple-journal-logo.png"];
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V63" }); } catch (_) {}
+        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V64" }); } catch (_) {}
       }
     } catch (_) {}
     if (!("caches" in window)) return;
@@ -27798,9 +27802,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v63-idb-offline-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v64-study-resources-crossrefs-20260704";
   var VERSION = "v161-indexeddb-offline-storage";
-  var SW_VERSION = "v63-idb-offline-launch";
+  var SW_VERSION = "v64-study-resources-crossrefs";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -28059,7 +28063,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v63-idb-offline");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v64-study-resources-crossrefs");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -28135,7 +28139,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       updatePublicProgress(96, "Activating the new offline resource database...");
       await promoteStaging();
       var removedCaches = await pruneAllOfflineCaches();
-      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V63" }); } catch (_) {}
+      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V64" }); } catch (_) {}
       var resourceCount = await idbCount(ACTIVE_STORE);
       var bibleCount = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : Number(bibleBuild && bibleBuild.saved || 0);
       var totalReady = Number(resourceCount || 0) + Number(bibleCount || 0) + LAUNCH_FILES.length;
