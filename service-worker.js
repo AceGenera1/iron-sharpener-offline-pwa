@@ -1,619 +1,277 @@
-/* Iron Sharpener service worker — v71 Fresh Desktop Shell + Offline Safe Launch
-   Purpose: keep IndexedDB as the primary Bible database, keep fast page switching, and make Home Screen/iPad launches avoid slow splash-screen waits from broad launch-asset cache scans.
-
-   v55 changes:
-   - Install activates immediately without waiting on network pre-cache downloads.
-   - Navigation uses current shell cache first, then exact old-shell fallback, then network.
-   - Manifest/icons/logos use a fast launch-asset path instead of scanning old complete/offline caches.
-   - Bible JSON remains online-direct + IndexedDB/cache friendly.
-   - Study/resource JSON keeps the cache-first behavior needed for offline use.
-
-   Notes:
-   - Does not change app data or Journal entries.
-   - Keeps current HTML shells fast.
-   - Does not scan every old cache for every verse file.
+/* Iron Sharpener service worker — v72 PC Controls + Fresh Shell
+   Launch architecture:
+   - Cache Storage contains only the tiny app launch shell and icons.
+   - The large offline study-resource library remains in IndexedDB, not Cache Storage.
+   - Bible chapters remain in the dedicated Bible IndexedDB.
+   - Navigation opens one tiny cache and one exact key; it never opens either IndexedDB.
+   - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const IRON_SHARPENER_CACHE = "iron-sharpener-offline-v71-fresh-desktop-shell-20260704";
-const IRON_SHARPENER_CACHE_PREFIX = "iron-sharpener-offline-";
-
-// Caches created by the working offline-preparation engines.
-const KNOWN_RESOURCE_CACHES = [
-  "iron-sharpener-offline-v36-complete-tool-20260630",
-  "iron-sharpener-offline-v105-public-ready-cache",
-  "iron-sharpener-offline-v34-final-offline-sync-20260627",
-  "iron-sharpener-offline-v26-public-lock-20260626"
-];
-
+const SW_VERSION = "v72-pc-controls-journal-mechanics";
+const SHELL_TOKEN = "v72-pc-controls-journal-mechanics";
+const LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
+const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
+const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
+const RESOURCE_DB_VERSION = 1;
+const RESOURCE_STORE = "resources";
+const BIBLE_DB = "iron-sharpener-bible-indexeddb-v1";
+const BIBLE_DB_VERSION = 1;
+const BIBLE_STORE = "chapters";
 const CORE_ASSETS = [
-  "./",
-  "./index.html",
-  "index.html",
-  "./personal-study.html",
-  "personal-study.html",
-  "./manifest.json",
-  "manifest.json",
-  "./assets/iron-sharpener-logo.png",
-  "assets/iron-sharpener-logo.png",
-  "./assets/disciple-journal-logo.png",
-  "assets/disciple-journal-logo.png"
+  "index.html", "personal-study.html", "manifest.json",
+  "assets/iron-sharpener-logo.png", "assets/disciple-journal-logo.png"
 ];
-
-let priorityCacheNamesPromise = null;
 
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
-  // v55: Do not hold iPad/Home Screen launch behind network pre-cache work.
-  // Open the cache quickly, activate, then refresh the shell in the background.
-  event.waitUntil(caches.open(IRON_SHARPENER_CACHE).catch(() => {}));
+  event.waitUntil((async () => {
+    await seedFreshLaunchCache();
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
+    const cache = await caches.open(LAUNCH_CACHE);
+    const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
+    const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
+    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) {
+      throw new Error("Fresh v70 app shells were not verified.");
+    }
+
+    // Claim the already-loaded page without reloading or navigating it. On a fresh
+    // Home Screen install, the first page remains fully interactive while the
+    // worker finishes activation in the background.
     await self.clients.claim();
-    try { await cacheFreshCoreShell(); } catch (_) {}
+
+    // Remove obsolete launch/offline caches after claim. This cleanup is isolated
+    // from the page and never triggers client.navigate() or location.reload().
     try {
-      const current = await caches.open(IRON_SHARPENER_CACHE);
-      const hasFreshTeaching = await current.match("./index.html") || await current.match("index.html") || await current.match("./");
-      if (hasFreshTeaching) await removeOldHtmlShellEntriesOnly();
+      const names = await caches.keys();
+      for (const name of names) {
+        if ((name.startsWith(LAUNCH_CACHE_PREFIX) && name !== LAUNCH_CACHE) || /^iron-sharpener-offline-/i.test(name)) {
+          try { await caches.delete(name); } catch (_) {}
+        }
+      }
     } catch (_) {}
   })());
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+  const data = event && event.data;
+  if (data && data.type === "SKIP_WAITING") self.skipWaiting();
+  if (data && data.type === "GET_IRON_SW_VERSION" && event.ports && event.ports[0]) {
+    try { event.ports[0].postMessage({ version: SW_VERSION, launchCache: LAUNCH_CACHE, resourceDb: RESOURCE_DB }); } catch (_) {}
+  }
+  if (data && /^WARM_LAUNCH_CACHE_/.test(String(data.type || ""))) seedFreshLaunchCache().catch(() => {});
+  if (data && /^RESOURCE_DB_UPDATED_/i.test(String(data.type || ""))) {
+    const pending = resourceDbPromise;
+    resourceDbPromise = null;
+    if (pending && typeof pending.then === "function") {
+      pending.then((db) => { try { if (db && db.close) db.close(); } catch (_) {} }).catch(() => {});
+    }
+  }
 });
 
-function sameOriginGet(request) {
+function scopePath(){
+  try { return new URL(self.registration.scope).pathname.replace(/^\/+|\/+$/g, ""); } catch (_) { return ""; }
+}
+function canonicalPath(value){
+  let raw = "";
+  try { raw = typeof value === "string" ? new URL(value, self.registration.scope).pathname : new URL(value.url).pathname; }
+  catch (_) { raw = String(value || ""); }
+  try { raw = decodeURIComponent(raw); } catch (_) {}
+  raw = raw.replace(/^\/+/, "").replace(/^\.\//, "").replace(/^(?:\.\.\/)+/, "").replace(/\/+/g, "/");
+  const scope = scopePath();
+  if (scope && raw.startsWith(scope + "/")) raw = raw.slice(scope.length + 1);
+  return raw;
+}
+function canonicalUrl(value){ return new URL(canonicalPath(value) || "index.html", self.registration.scope).href; }
+function sameOriginGet(request){
   if (!request || request.method !== "GET") return false;
-  try { return new URL(request.url).origin === self.location.origin; }
-  catch (_) { return false; }
+  try { return new URL(request.url).origin === self.location.origin; } catch (_) { return false; }
 }
-
-function isNavigationRequest(request) {
+function isNavigation(request){
   if (request.mode === "navigate") return true;
-  try {
-    const url = new URL(request.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith(".html");
-  } catch (_) { return false; }
+  try { const p = new URL(request.url).pathname; return p.endsWith("/") || p.endsWith(".html"); } catch (_) { return false; }
 }
-
-function isJsonRequest(request) {
-  try { return new URL(request.url).pathname.endsWith(".json"); }
-  catch (_) { return String(request || "").endsWith(".json"); }
+function isBible(request){
+  try { return /^bible\/web\/.+\/\d{2,3}\.json$/i.test(canonicalPath(request)); } catch (_) { return false; }
 }
-
-function isBibleJsonRequest(request) {
-  try { return /\/bible\/web\//.test(new URL(request.url).pathname) && new URL(request.url).pathname.endsWith(".json"); }
-  catch (_) { return /bible\/web\/.+\.json$/.test(String(request || "")); }
+function isLaunchAsset(request){
+  const path = canonicalPath(request);
+  return path === "manifest.json" || path === "manifest-maker.json" || path === "manifest-journal.json" ||
+    /^assets\/(iron-sharpener-logo|disciple-journal-logo)(?:-\d+)?\.(png|jpg|jpeg|webp|svg)$/i.test(path);
 }
-
-function isLaunchAssetRequest(request) {
-  try {
-    const url = new URL(request.url);
-    const path = url.pathname.replace(/^\//, "");
-    return path === "manifest.json" ||
-      path === "manifest-maker.json" ||
-      path === "manifest-journal.json" ||
-      /^assets\/(iron-sharpener-logo|disciple-journal-logo)\.(png|jpg|jpeg|webp|svg)$/i.test(path);
-  } catch (_) { return false; }
-}
-
-function safeDecode(value) {
-  try { return decodeURIComponent(value); } catch (_) { return value; }
-}
-
-function cleanPath(value) {
-  return String(value || "")
-    .replace(/^https?:\/\/[^/]+\//i, "")
-    .replace(/^\/+/, "")
-    .replace(/^\.\//, "")
-    .replace(/^\.\.\//, "")
-    .replace(/\/+/g, "/");
-}
-
-function noDot(value) {
-  return cleanPath(String(value || "").replace(/^\.\//, ""));
-}
-
-function withDot(value) {
-  const path = noDot(value);
-  return path ? `./${path}` : "./";
-}
-
-function encodeSpaces(value) {
-  return String(value || "").replace(/ /g, "%20");
-}
-
-function requestPath(request) {
-  try { return new URL(request.url).pathname.replace(/^\//, ""); }
-  catch (_) { return noDot(request); }
-}
-
-function canonicalResourcePath(requestOrPath) {
-  const path = noDot(typeof requestOrPath === "string" ? requestOrPath : requestPath(requestOrPath));
-  const decoded = safeDecode(path);
-  // If something was requested as ../bible/web/..., normalize to bible/web/...
-  const bibleIndex = decoded.indexOf("bible/web/");
-  if (bibleIndex >= 0) return decoded.slice(bibleIndex);
-  return decoded;
-}
-
-function resourceKeyVariants(requestOrPath) {
-  const original = requestOrPath;
-  const path = canonicalResourcePath(requestOrPath);
-  const decoded = safeDecode(path);
-  const encoded = encodeSpaces(path);
-  const keys = [
-    original,
-    path,
-    `/${path}`,
-    withDot(path),
-    decoded,
-    `/${decoded}`,
-    withDot(decoded),
-    encoded,
-    `/${encoded}`,
-    withDot(encoded)
-  ];
-  if (!path || path === "index.html") keys.push("./", "/", "index.html", "./index.html");
-  return [...new Set(keys.filter(Boolean))];
-}
-
-function htmlCacheKeysForRequest(request) {
-  const keys = [];
-  try {
-    const url = typeof request === "string" ? new URL(request, self.location.href) : new URL(request.url);
-    let path = url.pathname.replace(/^\//, "") || "index.html";
-    if (path.endsWith("/")) path += "index.html";
-    keys.push(path, `./${path}`, safeDecode(path), `./${safeDecode(path)}`);
-    if (path === "index.html") keys.push("./", "/");
-  } catch (_) {
-    keys.push(...resourceKeyVariants(request));
-  }
-  return [...new Set(keys.filter(Boolean))];
-}
-
-function isHtmlRequestKey(key) {
-  try {
-    const url = typeof key === "string" ? new URL(key, self.location.href) : new URL(key.url);
-    return url.pathname.endsWith("/") || url.pathname.endsWith(".html");
-  } catch (_) {
-    const text = String(key || "");
-    return text === "./" || text === "/" || text.endsWith(".html");
-  }
-}
-
-function looksOnline() {
-  try { return !!(self.navigator && self.navigator.onLine); }
-  catch (_) { return true; }
-}
-
-async function putIfGood(cache, request, response) {
+function validResponse(path, response){
   if (!response || !response.ok || response.type === "opaque") return false;
-  try {
-    const url = new URL(typeof request === "string" ? request : request.url, self.location.href);
-    const type = response.headers.get("content-type") || "";
-    if (url.pathname.endsWith(".json") && type && !type.includes("json")) return false;
-    if ((url.pathname.endsWith(".html") || url.pathname.endsWith("/")) && type && !type.includes("html")) return false;
-  } catch (_) {}
-  try { await cache.put(request, response.clone()); return true; }
-  catch (_) { return false; }
+  const type = response.headers ? (response.headers.get("content-type") || "") : "";
+  if (/\.json$/i.test(path) && type && !/json/i.test(type)) return false;
+  if (/\.html$/i.test(path) && type && !/html/i.test(type)) return false;
+  return true;
 }
-
-async function putAllVariants(cache, key, response) {
-  let saved = false;
-  for (const variant of resourceKeyVariants(key)) {
-    if (typeof variant !== "string" && !(variant instanceof Request)) continue;
-    saved = (await putIfGood(cache, variant, response)) || saved;
-  }
-  return saved;
+function navigationTarget(request){ return canonicalPath(request).endsWith("personal-study.html") ? "personal-study.html" : "index.html"; }
+function freshUrl(path){ const url = new URL(canonicalUrl(path)); url.searchParams.set("rdm_shell", SHELL_TOKEN); return url.href; }
+async function putLaunch(cache, path, response){
+  if (!validResponse(path, response)) return false;
+  await cache.put(canonicalUrl(path), response.clone());
+  return true;
 }
-
-async function cacheHtmlResponse(cache, response, request) {
-  if (!response || !response.ok) return false;
-  const type = response.headers.get("content-type") || "";
-  if (type && !type.includes("html")) return false;
-  let saved = false;
-  for (const key of htmlCacheKeysForRequest(request)) {
-    saved = (await putIfGood(cache, key, response)) || saved;
-  }
-  return saved;
-}
-
-async function cacheFreshCoreShell() {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  for (const asset of CORE_ASSETS) {
+async function seedFreshLaunchCache(){
+  const stagingName = LAUNCH_CACHE + "-staging";
+  try { await caches.delete(stagingName); } catch (_) {}
+  const staging = await caches.open(stagingName);
+  for (const path of CORE_ASSETS) {
     try {
-      const response = await fetch(new Request(asset, { cache: "reload" }));
-      if (response && response.ok) {
-        if (asset.endsWith(".html") || asset === "./" || asset.endsWith("/")) {
-          await cacheHtmlResponse(cache, response, asset);
-        } else {
-          await putAllVariants(cache, asset, response);
-        }
-      }
-    } catch (_) {}
-  }
-}
-
-async function removeOldHtmlShellEntriesOnly() {
-  const keys = await caches.keys();
-  for (const name of keys) {
-    if (!name.startsWith(IRON_SHARPENER_CACHE_PREFIX)) continue;
-    if (name === IRON_SHARPENER_CACHE) continue;
-    try {
-      const cache = await caches.open(name);
-      const requests = await cache.keys();
-      await Promise.all(requests.filter(isHtmlRequestKey).map((request) => cache.delete(request)));
-      await cache.delete("./");
-      await cache.delete("/");
-      await cache.delete("./index.html");
-      await cache.delete("index.html");
-      await cache.delete("./personal-study.html");
-      await cache.delete("personal-study.html");
-    } catch (_) {}
-  }
-}
-
-async function getPriorityCacheNames() {
-  if (!priorityCacheNamesPromise) {
-    priorityCacheNamesPromise = (async () => {
-      const existing = await caches.keys();
-      const names = [];
-      const add = (name) => {
-        if (name && existing.includes(name) && !names.includes(name)) names.push(name);
-      };
-      add(IRON_SHARPENER_CACHE);
-      KNOWN_RESOURCE_CACHES.forEach(add);
-      // In case the exact complete-cache name changes later, prefer complete-tool caches.
-      existing
-        .filter((name) => name.startsWith(IRON_SHARPENER_CACHE_PREFIX) && /complete|public-ready|final-offline-sync/i.test(name))
-        .forEach(add);
-      return names;
-    })();
-  }
-  return priorityCacheNamesPromise;
-}
-
-async function matchInCacheName(cacheName, requestOrPath) {
-  try {
-    const cache = await caches.open(cacheName);
-    const variants = resourceKeyVariants(requestOrPath);
-    for (const key of variants) {
-      const cached = await cache.match(key, { ignoreSearch: true });
-      if (cached) return cached;
-    }
-  } catch (_) {}
-  return null;
-}
-
-
-function fastBibleKeyVariants(requestOrPath) {
-  const path = canonicalResourcePath(requestOrPath);
-  const decoded = safeDecode(path);
-  const encoded = encodeSpaces(decoded);
-  const keys = [
-    decoded,
-    `/${decoded}`,
-    `./${decoded}`,
-    encoded,
-    `/${encoded}`,
-    `./${encoded}`
-  ];
-  return [...new Set(keys.filter(Boolean))];
-}
-
-async function fastBibleMatchInCacheName(cacheName, requestOrPath) {
-  try {
-    const cache = await caches.open(cacheName);
-    for (const key of fastBibleKeyVariants(requestOrPath)) {
-      const cached = await cache.match(key, { ignoreSearch: true });
-      if (cached) return cached;
-    }
-  } catch (_) {}
-  return null;
-}
-
-async function fastKnownBibleBackupMatch(requestOrPath) {
-  // Keep this intentionally small and exact. The older broad cache scan caused delays.
-  const existing = await caches.keys();
-  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
-    .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
-  for (const name of ordered) {
-    const cached = await fastBibleMatchInCacheName(name, requestOrPath);
-    if (cached) return cached;
-  }
-  return null;
-}
-
-async function tightResourceMatch(requestOrPath) {
-  const cacheNames = await getPriorityCacheNames();
-  for (const name of cacheNames) {
-    const cached = await matchInCacheName(name, requestOrPath);
-    if (cached) return cached;
-  }
-  return null;
-}
-
-async function cachedHtmlForNavigation(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  for (const key of htmlCacheKeysForRequest(request)) {
-    const cached = await cache.match(key, { ignoreSearch: true }) || await tightResourceMatch(key);
-    if (cached) return cached;
-  }
-  return null;
-}
-
-async function refreshNavigationInBackground(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  try {
-    const response = await fetch(new Request(request, { cache: "reload" }));
-    if (response && response.ok) await cacheHtmlResponse(cache, response, request);
-  } catch (_) {}
-}
-
-async function currentCacheHtmlForNavigationOnly(request) {
-  // v55: first app paint must not wait on broad old-cache scans. Check current shell cache only.
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  for (const key of htmlCacheKeysForRequest(request)) {
-    const cached = await cache.match(key, { ignoreSearch: true });
-    if (cached) return cached;
-  }
-  return null;
-}
-
-async function exactKnownShellFallback(request) {
-  // v55: small exact fallback only. This preserves fast launch after a SW update
-  // when the new current cache has not refreshed yet. No broad cache scans.
-  const wantsJournal = (() => {
-    try { return new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) { return false; }
-  })();
-  const exactKeys = wantsJournal
-    ? ["./personal-study.html", "personal-study.html"]
-    : ["./index.html", "index.html", "./", "/"];
-  const existing = await caches.keys();
-  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
-    .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
-  for (const name of ordered) {
-    try {
-      const cache = await caches.open(name);
-      for (const key of exactKeys) {
-        const cached = await cache.match(key, { ignoreSearch: true });
-        if (cached) return cached;
-      }
-    } catch (_) {}
-  }
-  return null;
-}
-
-async function navigationFreshOnline(request, event) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  if (looksOnline()) {
-    const controller = typeof AbortController === "function" ? new AbortController() : null;
-    const timer = controller ? setTimeout(() => controller.abort(), 3500) : null;
-    try {
-      const freshRequest = new Request(request, {
-        cache: "reload",
-        signal: controller ? controller.signal : undefined
-      });
-      const response = await fetch(freshRequest);
-      if (response && response.ok) {
-        if (timer) clearTimeout(timer);
-        await cacheHtmlResponse(cache, response, request);
-        return response;
-      }
-    } catch (_) {
-      // Fall through to the proven offline shell.
-    } finally {
-      if (timer) clearTimeout(timer);
+      const response = await fetch(new Request(freshUrl(path), { cache: "no-store" }));
+      if (!validResponse(path, response)) throw new Error("Invalid launch asset: " + path);
+      await putLaunch(staging, path, response);
+    } catch (error) {
+      if (path === "index.html" || path === "personal-study.html") { try { await caches.delete(stagingName); } catch (_) {} throw error; }
     }
   }
-
-  const cached = await currentCacheHtmlForNavigationOnly(request);
+  const maker = await staging.match(canonicalUrl("index.html"), { ignoreSearch: true });
+  const journal = await staging.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
+  if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Both fresh app shells are required.");
+  const active = await caches.open(LAUNCH_CACHE);
+  for (const path of CORE_ASSETS) {
+    const response = await staging.match(canonicalUrl(path), { ignoreSearch: true });
+    if (response) await putLaunch(active, path, response);
+  }
+  try { await caches.delete(stagingName); } catch (_) {}
+}
+async function navigationImmediate(request, event){
+  const target = navigationTarget(request);
+  const cache = await caches.open(LAUNCH_CACHE);
+  const cached = await cache.match(canonicalUrl(target), { ignoreSearch: true });
   if (cached) return cached;
-
-  const exactShell = await exactKnownShellFallback(request);
-  if (exactShell) return exactShell;
-
-  let wantsJournal = false;
-  try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
-  if (wantsJournal) {
-    return (await cache.match("./personal-study.html")) ||
-      (await cache.match("personal-study.html")) ||
-      new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
-  }
-  return (await cache.match("./index.html")) ||
-    (await cache.match("index.html")) ||
-    (await cache.match("./")) ||
-    new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
+  try {
+    const preload = event && event.preloadResponse ? await event.preloadResponse : null;
+    if (validResponse(target, preload)) { try { event.waitUntil(putLaunch(cache, target, preload)); } catch (_) {} return preload; }
+  } catch (_) {}
+  try {
+    const response = await fetch(new Request(freshUrl(target), { cache: "no-store" }));
+    if (validResponse(target, response)) { try { event && event.waitUntil && event.waitUntil(putLaunch(cache, target, response)); } catch (_) {} return response; }
+  } catch (_) {}
+  return new Response(target === "personal-study.html" ? "Iron Sharpener Journal is unavailable offline until opened once online." : "Iron Sharpener is unavailable offline until opened once online.", { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } });
 }
 
-async function navigationFastCached(request, event) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-  const cached = await currentCacheHtmlForNavigationOnly(request);
-  if (cached) {
+let resourceDbPromise = null;
+function openResourceDb(){
+  if (resourceDbPromise) return resourceDbPromise;
+  resourceDbPromise = new Promise((resolve, reject) => {
     try {
-      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
-    } catch (_) {}
-    return cached;
-  }
-
-  const exactShell = await exactKnownShellFallback(request);
-  if (exactShell) {
-    try {
-      if (event && event.waitUntil && looksOnline()) event.waitUntil(refreshNavigationInBackground(request));
-    } catch (_) {}
-    return exactShell;
-  }
-
-  if (looksOnline()) {
-    try {
-      const response = await fetch(new Request(request, { cache: "reload" }));
-      if (response && response.ok) {
-        await cacheHtmlResponse(cache, response, request);
-        return response;
-      }
-    } catch (_) {}
-  }
-
-  // Last resort only: exact known shell names, no broad cache scan during launch.
-  let wantsJournal = false;
-  try { wantsJournal = new URL(request.url).pathname.endsWith("/personal-study.html"); } catch (_) {}
-  if (wantsJournal) {
-    return (await cache.match("./personal-study.html")) ||
-      (await cache.match("personal-study.html")) ||
-      new Response("Iron Sharpener Journal is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
-  }
-  return (await cache.match("./index.html")) ||
-    (await cache.match("index.html")) ||
-    (await cache.match("./")) ||
-    new Response("Iron Sharpener is unavailable offline until the app is opened once online.", { status: 503, headers: { "content-type": "text/plain" } });
+      const request = indexedDB.open(RESOURCE_DB, RESOURCE_DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(RESOURCE_STORE)) db.createObjectStore(RESOURCE_STORE, { keyPath: "key" });
+        if (!db.objectStoreNames.contains("staging")) db.createObjectStore("staging", { keyPath: "key" });
+        if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "key" });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Resource database failed."));
+    } catch (error) { reject(error); }
+  });
+  return resourceDbPromise;
 }
-
-
-async function bibleJsonOnlineFastPath(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  if (looksOnline()) {
-    // Online should behave like a normal website: ask the live/static file path first.
-    // Do not scan offline caches before this, because that is what created the recent online pause.
+async function getResourceFromStore(db, storeName, path){
+  return await new Promise((resolve) => {
     try {
-      const response = await fetch(new Request(request.url, { cache: "force-cache" }));
-      const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
-      if (response && response.ok && (!type || type.includes("json"))) {
-        // Save in the background only. Do not hold Scripture rendering hostage to cache writes.
-        eventlessCopy(cache, request, response.clone());
-        return response;
-      }
-    } catch (_) {}
-
-    try {
-      const response = await fetch(request);
-      const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
-      if (response && response.ok && (!type || type.includes("json"))) {
-        eventlessCopy(cache, request, response.clone());
-        return response;
-      }
-    } catch (_) {}
-  }
-
-  // Offline fallback: exact local Bible keys only, no broad cache scan.
-  const exactLocal = await fastBibleMatchInCacheName(IRON_SHARPENER_CACHE, request) || await fastKnownBibleBackupMatch(request);
-  if (exactLocal) {
-    try { eventlessCopy(cache, request, exactLocal.clone()); } catch (_) {}
-    return exactLocal;
-  }
-
-  return new Response("Offline Bible chapter not found.", {
-    status: 504,
-    headers: { "content-type": "application/json" }
+      if (!db.objectStoreNames.contains(storeName)) { resolve(null); return; }
+      const request = db.transaction(storeName, "readonly").objectStore(storeName).get(path);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => resolve(null);
+    } catch (_) { resolve(null); }
   });
 }
-
-async function launchAssetFastPath(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  // Fast exact current-cache check first. Do not scan big offline caches for startup icons/manifests.
-  for (const key of resourceKeyVariants(request)) {
-    try {
-      const cached = await cache.match(key, { ignoreSearch: true });
-      if (cached) return cached;
-    } catch (_) {}
-  }
-
-  if (looksOnline()) {
-    try {
-      const response = await fetch(new Request(request.url, { cache: "force-cache" }));
-      if (response && response.ok) {
-        eventlessCopy(cache, request, response.clone());
-        return response;
-      }
-    } catch (_) {}
-    try {
-      const response = await fetch(request);
-      if (response && response.ok) {
-        eventlessCopy(cache, request, response.clone());
-        return response;
-      }
-    } catch (_) {}
-  }
-
-  // Offline fallback: exact known launch-asset caches only. Still no broad scan.
-  const existing = await caches.keys();
-  const ordered = [IRON_SHARPENER_CACHE, ...KNOWN_RESOURCE_CACHES]
-    .filter((name, index, arr) => name && arr.indexOf(name) === index && existing.includes(name));
-  for (const name of ordered) {
-    try {
-      const namedCache = await caches.open(name);
-      for (const key of resourceKeyVariants(request)) {
-        const cached = await namedCache.match(key, { ignoreSearch: true });
-        if (cached) return cached;
-      }
-    } catch (_) {}
-  }
-
-  return new Response("Launch asset unavailable.", { status: 504, headers: { "content-type": "text/plain" } });
+function resourceRecordHasBody(record){
+  return !!(record && (record.body instanceof ArrayBuffer || typeof record.bodyText === "string" || typeof record.text === "string" || (typeof Blob !== "undefined" && record.body instanceof Blob)));
 }
-
-async function resourceCacheFirst(request) {
-  const cache = await caches.open(IRON_SHARPENER_CACHE);
-
-  const cached = await tightResourceMatch(request);
-  if (cached) {
-    try { eventlessCopy(cache, request, cached.clone()); } catch (_) {}
-    return cached;
-  }
-
-  // Offline: do not hang trying to fetch missing JSON. Return quickly so the app can show a real error.
-  if (!looksOnline()) {
-    return new Response("Offline resource not cached.", {
-      status: 504,
-      headers: { "content-type": isJsonRequest(request) ? "application/json" : "text/plain" }
-    });
-  }
-
+async function getResource(path){
   try {
-    const response = await fetch(request);
-    if (isJsonRequest(request)) {
-      const type = response && response.headers ? (response.headers.get("content-type") || "") : "";
-      if (!response || !response.ok || (type && !type.includes("json"))) {
-        return new Response("JSON resource unavailable or invalid.", { status: response ? response.status : 503, headers: { "content-type": "application/json" } });
-      }
-    }
-    if (response && response.ok) await putAllVariants(cache, request, response);
-    return response;
-  } catch (_) {
-    const fallback = await tightResourceMatch(request);
-    if (fallback) return fallback;
-    return new Response("Offline resource not cached.", { status: 504, headers: { "content-type": isJsonRequest(request) ? "application/json" : "text/plain" } });
-  }
+    const db = await openResourceDb();
+    const canonical = canonicalPath(path);
+    const active = await getResourceFromStore(db, RESOURCE_STORE, canonical);
+    if (resourceRecordHasBody(active)) return active;
+  } catch (_) {}
+  return null;
+}
+function responseFromResource(record){
+  const headers = new Headers({ "content-type": record.contentType || "application/octet-stream", "x-iron-sharpener-source": "indexeddb-resource" });
+  const body = typeof record.bodyText === "string" ? record.bodyText : (typeof record.text === "string" ? record.text : record.body);
+  return new Response(body, { status: Number(record.status || 200), statusText: record.statusText || "OK", headers });
 }
 
-function eventlessCopy(cache, request, response) {
-  // Fire-and-forget copy into the current fast cache.
-  putAllVariants(cache, request, response).catch(() => {});
+let bibleDbPromise = null;
+function openBibleDb(){
+  if (bibleDbPromise) return bibleDbPromise;
+  bibleDbPromise = new Promise((resolve, reject) => {
+    try {
+      const request = indexedDB.open(BIBLE_DB, BIBLE_DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(BIBLE_STORE)) db.createObjectStore(BIBLE_STORE, { keyPath: "key" });
+        if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "key" });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Bible database failed."));
+    } catch (error) { reject(error); }
+  });
+  return bibleDbPromise;
+}
+function bibleInfo(request){
+  const match = canonicalPath(request).match(/^bible\/web\/(.+)\/(\d{2,3})\.json$/i);
+  if (!match) return null;
+  return { book: match[1], chapter: String(parseInt(match[2], 10) || 1), key: match[1] + ":" + String(parseInt(match[2], 10) || 1) };
+}
+async function getBible(info){
+  if (!info) return null;
+  try {
+    const db = await openBibleDb();
+    return await new Promise((resolve) => {
+      try {
+        const request = db.transaction(BIBLE_STORE, "readonly").objectStore(BIBLE_STORE).get(info.key);
+        request.onsuccess = () => resolve(request.result && request.result.data ? request.result.data : null);
+        request.onerror = () => resolve(null);
+      } catch (_) { resolve(null); }
+    });
+  } catch (_) { return null; }
+}
+async function bibleRequest(request){
+  const local = await getBible(bibleInfo(request));
+  if (local && local.verses) return new Response(JSON.stringify(local), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "x-iron-sharpener-source": "indexeddb-bible" } });
+  try { const response = await fetch(request); if (validResponse(canonicalPath(request), response)) return response; } catch (_) {}
+  return new Response("Offline Bible chapter not found.", { status: 504, headers: { "content-type": "application/json; charset=utf-8" } });
+}
+async function launchAssetRequest(request){
+  const path = canonicalPath(request);
+  const cache = await caches.open(LAUNCH_CACHE);
+  const cached = await cache.match(canonicalUrl(path), { ignoreSearch: true });
+  if (cached) return cached;
+  try { const response = await fetch(request); if (response && response.ok) { putLaunch(cache, path, response).catch(() => {}); return response; } } catch (_) {}
+  return new Response("Launch asset unavailable.", { status: 504, headers: { "content-type": "text/plain; charset=utf-8" } });
+}
+async function resourceRequest(request){
+  const path = canonicalPath(request);
+  let liveBuild = false;
+  try { liveBuild = new URL(request.url).searchParams.has("rdm_offline_build"); } catch (_) {}
+  if (liveBuild) {
+    try {
+      const response = await fetch(new Request(request, { cache: "reload" }));
+      if (validResponse(path, response)) return response;
+    } catch (_) {}
+    return new Response("Live offline-build resource unavailable.", { status: 504, headers: { "content-type": /\.json$/i.test(path) ? "application/json; charset=utf-8" : "text/plain; charset=utf-8" } });
+  }
+  const local = await getResource(path);
+  if (resourceRecordHasBody(local)) return responseFromResource(local);
+  try { const response = await fetch(request); if (validResponse(path, response)) return response; } catch (_) {}
+  return new Response("Offline resource not stored.", { status: 504, headers: { "content-type": /\.json$/i.test(path) ? "application/json; charset=utf-8" : "text/plain; charset=utf-8" } });
 }
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (!sameOriginGet(request)) return;
-
-  if (isNavigationRequest(request)) {
-    event.respondWith(navigationFreshOnline(request, event));
-    return;
-  }
-
-  if (isBibleJsonRequest(request)) {
-    event.respondWith(bibleJsonOnlineFastPath(request));
-    return;
-  }
-
-  if (isLaunchAssetRequest(request)) {
-    event.respondWith(launchAssetFastPath(request));
-    return;
-  }
-
-  event.respondWith(resourceCacheFirst(request));
+  if (isNavigation(request)) { event.respondWith(navigationImmediate(request, event)); return; }
+  if (isBible(request)) { event.respondWith(bibleRequest(request)); return; }
+  if (isLaunchAsset(request)) { event.respondWith(launchAssetRequest(request)); return; }
+  event.respondWith(resourceRequest(request));
 });
