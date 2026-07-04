@@ -20023,7 +20023,9 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-resource-page-open #scriptur
   if (window.__rdmV52MobileShellNotesNavBackCrossrefs) return;
   window.__rdmV52MobileShellNotesNavBackCrossrefs = true;
 
-  const SNAPSHOT_KEY = "ironSharpener.mobile.crossRefs.originSnapshot.v52";
+  /* v171 cleanup: personal Cross References persistence is now owned by the
+     unified v163 navigation controller. This mobile-shell block only owns
+     panel placement and mobile resource-page state. */
   const PANEL_IDS = [
     "teacherToolsPanel",
     "studyResourcesPanel",
@@ -20037,72 +20039,6 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-resource-page-open #scriptur
 
   function isMobileShell(){
     return !!document.body && document.body.classList.contains("rdm-mobile-app-shell") && !document.documentElement.classList.contains("obs");
-  }
-
-  function safeCurrentNotesKey(){
-    try {
-      if (typeof currentStudyUnitKey === "function") return currentStudyUnitKey();
-    } catch (_) {}
-
-    const book = get("book")?.value || "";
-    const chapter = get("chapter")?.value || "";
-    const start = get("start")?.value || "";
-    const end = get("end")?.value || start;
-    const range = get("rangeSize")?.value || "";
-    return [book, chapter, start, end, range].join("|");
-  }
-
-  function rememberOriginCrossRefs(ref){
-    const field = get("crossRefs");
-    if (!field) return;
-    const value = String(field.value || "").trim();
-    if (!value) return;
-
-    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
-
-    const snapshot = {
-      key: safeCurrentNotesKey(),
-      value: field.value,
-      ref: ref || "",
-      savedAt: Date.now()
-    };
-
-    try { sessionStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot)); } catch (_) {}
-  }
-
-  function hasVisibleBackTarget(){
-    const button = get("scriptureBackBtn");
-    if (button && button.classList.contains("rdm-scripture-back-visible")) return true;
-
-    try {
-      if (Array.isArray(window.__rdmCrossReferenceBackStack) && window.__rdmCrossReferenceBackStack.length) return true;
-      if (Array.isArray(window.__rdmScriptureBackStackV42) && window.__rdmScriptureBackStackV42.length) return true;
-      if (Array.isArray(window.__rdmScriptureBackStackV41) && window.__rdmScriptureBackStackV41.length) return true;
-      if (window.previousPassageState) return true;
-    } catch (_) {}
-
-    return false;
-  }
-
-  function restoreOriginCrossRefsWhileVisiting(){
-    if (!isMobileShell()) return;
-
-    let snapshot = null;
-    try { snapshot = JSON.parse(sessionStorage.getItem(SNAPSHOT_KEY) || "null"); } catch (_) {}
-    if (!snapshot || !snapshot.value) return;
-
-    if (!hasVisibleBackTarget()) {
-      try { sessionStorage.removeItem(SNAPSHOT_KEY); } catch (_) {}
-      return;
-    }
-
-    const field = get("crossRefs");
-    if (!field) return;
-
-    if (!String(field.value || "").trim()) {
-      field.value = snapshot.value;
-      try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
-    }
   }
 
   function relocateBackButtonOnMobile(){
@@ -20136,7 +20072,6 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-resource-page-open #scriptur
   function syncAll(){
     relocateBackButtonOnMobile();
     syncResourcePageClass();
-    restoreOriginCrossRefsWhileVisiting();
     try { if (typeof window.rdmV51SyncMobileNotesBreathe === "function") window.rdmV51SyncMobileNotesBreathe(); } catch (_) {}
   }
 
@@ -20148,26 +20083,7 @@ html:not(.obs) body.rdm-mobile-app-shell.rdm-mobile-resource-page-open #scriptur
     setTimeout(syncAll, 650);
   }
 
-  document.addEventListener("click", function(event){
-    const personalCrossRefLink = event.target.closest("#crossRefLinks .cross-ref-link");
-    if (personalCrossRefLink) {
-      rememberOriginCrossRefs(personalCrossRefLink.dataset.ref || personalCrossRefLink.textContent || "");
-    }
-
-    if (event.target.closest("#scriptureBackBtn")) {
-      setTimeout(function(){
-        try { sessionStorage.removeItem(SNAPSHOT_KEY); } catch (_) {}
-      }, 700);
-    }
-
-    scheduleSync();
-  }, true);
-
-  document.addEventListener("input", function(event){
-    if (event.target && event.target.id === "crossRefs") {
-      try { sessionStorage.removeItem(SNAPSHOT_KEY); } catch (_) {}
-    }
-  }, true);
+  document.addEventListener("click", scheduleSync, true);
 
   ["resize", "orientationchange", "online", "offline"].forEach(function(name){
     window.addEventListener(name, function(){ setTimeout(scheduleSync, name === "orientationchange" ? 260 : 0); });
@@ -27854,8 +27770,66 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   var restoring = false;
   var loadToken = 0;
   var chapterCache = new Map();
+  var personalCrossRefVisit = null;
+  var pendingPersonalCrossRefClick = null;
 
   function get(id){ return document.getElementById(id); }
+  function normalizedReferenceText(value){
+    return String(value || "").replace(/[–—]/g,"-").replace(/\s+/g," ").trim().replace(/[.;,]+$/g,"").toLowerCase();
+  }
+  function isPersonalCrossReferenceButton(target){
+    if (!target || !target.closest) return false;
+    if (target.closest("#crossRefLinks .cross-ref-link")) return true;
+    var panelButton=target.closest("#obsCrossRefsPanel .cross-ref-link");
+    if (!panelButton) return false;
+    var title=get("obsCrossRefsTitle");
+    return !!title && /teaching\s+cross\s+references/i.test(String(title.textContent || ""));
+  }
+  function capturePersonalCrossReferenceClick(event){
+    var target=event && event.target;
+    if (!isPersonalCrossReferenceButton(target)) return;
+    var button=target.closest(".cross-ref-link");
+    pendingPersonalCrossRefClick={
+      ref:normalizedReferenceText(button && (button.dataset.ref || button.textContent)),
+      at:Date.now()
+    };
+  }
+  function consumePersonalCrossReferenceClick(ref){
+    var pending=pendingPersonalCrossRefClick;
+    pendingPersonalCrossRefClick=null;
+    if (!pending || Date.now()-pending.at>1500) return false;
+    return pending.ref===normalizedReferenceText(ref);
+  }
+  function beginPersonalCrossReferenceVisit(ref){
+    if (personalCrossRefVisit) return true;
+    var field=get("crossRefs");
+    if (!field || !String(field.value || "").trim()) return false;
+    var parsed=[];
+    try { if (typeof parseScriptureReferences === "function") parsed=parseScriptureReferences(field.value) || []; } catch (_) {}
+    var wanted=normalizedReferenceText(ref);
+    if (parsed.length && !parsed.some(function(item){ return normalizedReferenceText(item)===wanted; })) return false;
+    personalCrossRefVisit={
+      value:String(field.value || ""),
+      originState:normalize(committedState || currentRequestedState())
+    };
+    return true;
+  }
+  function restorePersonalCrossReferences(){
+    if (!personalCrossRefVisit) return;
+    var field=get("crossRefs");
+    if (!field) return;
+    if (field.value!==personalCrossRefVisit.value) field.value=personalCrossRefVisit.value;
+    try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
+  }
+  function loadActualNotesForCurrentPassage(){
+    if (!personalCrossRefVisit) return;
+    try { if (typeof loadCurrentNotes === "function") loadCurrentNotes(); } catch (_) {}
+  }
+  function clearPersonalCrossReferenceVisit(loadActual){
+    if (loadActual) loadActualNotesForCurrentPassage();
+    personalCrossRefVisit=null;
+    pendingPersonalCrossRefClick=null;
+  }
   function escapeText(value){
     try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {}
     return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -27998,6 +27972,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     try { if (typeof loadCurrentNotes === "function") loadCurrentNotes(); } catch (_) {}
     try { if (typeof refreshActiveResourcePanel === "function") refreshActiveResourcePanel(); } catch (_) {}
     try { if (typeof syncObsNavigator === "function") syncObsNavigator(); } catch (_) {}
+    restorePersonalCrossReferences();
   }
   async function renderState(requested){
     var state=normalize(requested || currentRequestedState());
@@ -28063,12 +28038,20 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   async function goToReference(ref){
     var target=parseReference(ref);
     if (!target) return false;
+    var fromPersonalCrossRefs=consumePersonalCrossReferenceClick(ref);
+    if (fromPersonalCrossRefs) {
+      if (personalCrossRefVisit) loadActualNotesForCurrentPassage();
+      beginPersonalCrossReferenceVisit(ref);
+    } else if (personalCrossRefVisit) {
+      clearPersonalCrossReferenceVisit(true);
+    }
     try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
     if (committedState && !sameLocation(committedState,target)) pushHistory(committedState);
     setSelectors(target);
     updateBack();
     var ok=await renderState(target);
     updateBack();
+    restorePersonalCrossReferences();
     try { document.querySelector("#scriptureBox")?.scrollIntoView({behavior:"auto",block:"start"}); } catch (_) {}
     return ok;
   }
@@ -28077,6 +28060,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     if (!target || (target.id!=="book" && target.id!=="chapter") || restoring) return;
     var previous=normalize(committedState);
     focusState=null;
+    if (personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
     try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
     if (target.id==="book"){
       try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
@@ -28105,6 +28089,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     if(restoring)return false;
     var current=normalize(committedState||currentRequestedState());
     if(!current)return false;
+    if(personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
     var index=BOOKS.indexOf(current.book); if(index<0)return false;
     var chapter=parseInt(current.chapter,10)||1;
     chapter+=direction;
@@ -28119,14 +28104,17 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     if (restoring || !historyStack.length) return;
     var target=normalize(historyStack.pop());
     if (!target){ updateBack(); return; }
+    var returningToPersonalOrigin=!!(personalCrossRefVisit && personalCrossRefVisit.originState && sameLocation(target,personalCrossRefVisit.originState));
     restoring=true;
     var button=get("rdmScriptureHistoryBack"); if (button) button.classList.add("is-busy");
     updateBack();
     try {
+      if (personalCrossRefVisit) loadActualNotesForCurrentPassage();
       try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
       setSelectors(target);
       await renderState(target);
       committedState=target;
+      if (returningToPersonalOrigin) personalCrossRefVisit=null;
     } finally {
       restoring=false;
       updateBack();
@@ -28145,6 +28133,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     window.goToScriptureReference=function(ref){ return goToReference(ref); };
     try { goToScriptureReference=window.goToScriptureReference; } catch (_) {}
     window.rdmGoBackOneStudyResourceStep=function(){ return goBack(); };
+    document.addEventListener("click",capturePersonalCrossReferenceClick,true);
     var book=get("book"), chapter=get("chapter");
     if (book) book.onchange=handleSelectChange;
     if (chapter) chapter.onchange=handleSelectChange;
@@ -28157,7 +28146,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   }
 
   window.rdmReferenceRangeNavigationV163={
-    version:"v163-reference-range-replacement",
+    version:"v171-reference-range-personal-crossrefs-persist",
     load:function(){return renderState(currentRequestedState());},
     open:goToReference,
     parse:parseReference,
@@ -28166,8 +28155,8 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     nextChapter:function(){return moveChapter(1);},
     state:function(){return normalize(committedState);},
     history:function(){return historyStack.map(normalize);},
-    clear:function(){historyStack.length=0;updateBack();},
-    leaveFocus:function(){focusState=null;return renderState(fullStateFromControls());}
+    clear:function(){historyStack.length=0;clearPersonalCrossReferenceVisit(false);updateBack();},
+    leaveFocus:function(){clearPersonalCrossReferenceVisit(true);focusState=null;return renderState(fullStateFromControls());}
   };
 
   if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",install,{once:true});
@@ -28180,5 +28169,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
 <!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
-<!-- v163: one reference-range navigation engine; hidden Start/End controls retain exact resource references. -->
+<!-- v171: unified reference-range navigation keeps personal Teaching Cross References visible during Scripture visits. -->
 <!-- v165: one clean Built-In Cross References controller; Study Resources returns correctly on Close. -->
+
+<!-- v171 teaching-only: personal Teaching Cross References stay visible while visiting their Scripture links. -->
