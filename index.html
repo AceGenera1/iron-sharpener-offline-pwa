@@ -3019,9 +3019,9 @@ html.obs #discipleJournalBtn { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="v162-v64-study-resources-crossrefs" />
+<meta name="rdm-build" content="v163-v65-reference-range-navigation" />
 <script id="rdm-v159-build-marker">
-(function(){ try { window.__RDM_ACTIVE_BUILD = "v162-v64-study-resources-crossrefs"; } catch (_) {} })();
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v163-v65-reference-range-navigation"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -6546,36 +6546,10 @@ let previousPassageState = null;
 let activeResourcePanel = "";
 
 function goToScriptureReference(ref) {
-  const match = ref.match(/^((?:[1-3]\s*)?[A-Za-z ]+)\s+(\d+):(\d+)(?:-(\d+))?$/i);
-  if (!match) return;
-
-  previousPassageState = {
-    book: bookSel.value,
-    chapter: chapSel.value,
-    start: startSel.value,
-    end: endSel.value,
-    range: rangeSel.value
-  };
-
-  let book = match[1].replace(/\s+/g, " ").trim();
-  book = book.replace(/^Psalm$/i, "Psalms");
-
-  const found = books.find(b => b[0].toLowerCase() === book.toLowerCase());
-  if (!found) return;
-
-  saveCurrentNotes();
-
-  bookSel.value = found[0];
-  fillChapters();
-  chapSel.value = match[2];
-  fillVerses();
-  startSel.value = match[3];
-  endSel.value = match[4] || match[3];
- rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "full";
-
-  $("backToPreviousPassage").style.display = "inline-flex";
-
-  loadPassage();
+  if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.open === "function") {
+    return window.rdmReferenceRangeNavigationV163.open(ref);
+  }
+  return false;
 }
 
 function refreshActiveResourcePanel() {
@@ -12464,19 +12438,9 @@ body.dark .backgrounds-back-btn {
     };
   }
 
-  function sameState(a, b) {
-    return !!a && !!b &&
-      String(a.book) === String(b.book) &&
-      String(a.chapter) === String(b.chapter) &&
-      String(a.start) === String(b.start) &&
-      String(a.end) === String(b.end);
-  }
-
   function stateLabel(state) {
     if (!state) return "";
-    return String(state.start) === String(state.end)
-      ? `${state.book} ${state.chapter}:${state.start}`
-      : `${state.book} ${state.chapter}:${state.start}-${state.end}`;
+    return `${state.book} ${state.chapter}`;
   }
 
   function currentVerseKeys() {
@@ -12509,84 +12473,7 @@ body.dark .backgrounds-back-btn {
     return fallback;
   }
 
-  function parseReference(ref) {
-    const match = String(ref || "").trim().match(/^((?:[1-3]\s*)?[A-Za-z ]+)\s+(\d+):(\d+)(?:-(\d+))?$/i);
-    if (!match) return null;
-
-    let book = match[1].replace(/\s+/g, " ").trim();
-    book = book.replace(/^Psalm$/i, "Psalms");
-
-    const found = Array.isArray(window.books || books)
-      ? (window.books || books).find(b => b[0].toLowerCase() === book.toLowerCase())
-      : null;
-
-    if (!found) return null;
-
-    return {
-      book: found[0],
-      chapter: match[2],
-      start: match[3],
-      end: match[4] || match[3],
-      range: get("rangeSize")?.value || "5"
-    };
-  }
-
-  function setPassageState(state) {
-    if (!state) return;
-
-    const bookSel = get("book");
-    const chapSel = get("chapter");
-    const startSel = get("start");
-    const endSel = get("end");
-    const rangeSel = get("rangeSize");
-
-    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
-
-    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
-
-    bookSel.value = state.book;
-
-    if (typeof fillChapters === "function") fillChapters();
-    chapSel.value = state.chapter;
-
-    if (typeof fillVerses === "function") fillVerses();
-
-    rangeSel.value = state.range || rangeSel.value || "5";
-    startSel.value = state.start;
-    endSel.value = state.end;
-
-    if (typeof loadPassage === "function") loadPassage();
-    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 60);
-
-    setTimeout(updateStudyResourcesKey, 100);
-  }
-
-  function goToScriptureReferenceStacked(ref) {
-    const target = parseReference(ref);
-    if (!target) return;
-
-    const current = currentState();
-    if (!sameState(current, target)) {
-      backStack.push(current);
-    }
-
-    setPassageState(target);
-  }
-
-  function goBackOneStep() {
-    const previous = backStack.pop();
-    if (!previous) return;
-    setPassageState(previous);
-  }
-
-  window.goToScriptureReference = goToScriptureReferenceStacked;
-  try { goToScriptureReference = goToScriptureReferenceStacked; } catch (_) {}
-
-  const mainBack = get("backToPreviousPassage");
-  if (mainBack) mainBack.onclick = goBackOneStep;
-
-  const obsBack = get("obsBackToPreviousPassage");
-  if (obsBack) obsBack.onclick = goBackOneStep;
+  // v163 owns all Scripture reference and Back navigation.
 
   async function loadBookOverviewSafe(bookName) {
     const book = String(bookName || "").trim();
@@ -13120,7 +13007,9 @@ body.dark .backgrounds-back-btn {
     const action = keyButton.dataset.studyKeyAction;
 
     if (action === "back") {
-      goBackOneStep();
+      if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.back === "function") {
+        window.rdmReferenceRangeNavigationV163.back();
+      }
       return;
     }
 
@@ -14149,6 +14038,7 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
 }
 </style>
 <script id="rdm-naves-full-index-v11">
+
 (function () {
   if (window.__rdmNavesFullIndexV11) return;
   window.__rdmNavesFullIndexV11 = true;
@@ -14237,54 +14127,7 @@ html body.dark #internalCrossRefsPanel .internal-xref-link {
     };
   }
 
-  window.goToScriptureReference = function goToScriptureReferenceV11(ref) {
-    const parsed = parseFullOrVerseReferenceV11(ref);
-    if (!parsed) return;
-
-    const bookSel = get("book");
-    const chapSel = get("chapter");
-    const startSel = get("start");
-    const endSel = get("end");
-    const rangeSel = get("rangeSize");
-    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
-
-    try {
-      window.previousPassageState = {
-        book: bookSel.value,
-        chapter: chapSel.value,
-        start: startSel.value,
-        end: endSel.value,
-        range: rangeSel.value
-      };
-    } catch (_) {}
-
-    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
-
-    bookSel.value = parsed.book;
-    if (typeof fillChapters === "function") fillChapters();
-    chapSel.value = String(parsed.chapter);
-    if (typeof fillVerses === "function") fillVerses();
-
-    if (parsed.fullChapter) {
-      rangeSel.value = "full";
-      startSel.value = "1";
-      const counts = (typeof verseCounts !== "undefined" && verseCounts[parsed.book]) ? verseCounts[parsed.book] : null;
-      const max = counts ? counts[parsed.chapter - 1] : parseInt(endSel.options[endSel.options.length - 1]?.value || "1", 10);
-      endSel.value = String(max || 1);
-    } else {
-      startSel.value = String(parsed.start);
-      endSel.value = String(parsed.end || parsed.start);
-      rangeSel.value = localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
-    }
-
-    const backBtn = get("backToPreviousPassage");
-    if (backBtn) backBtn.style.display = "inline-flex";
-    const obsBackBtn = get("obsBackToPreviousPassage");
-    if (obsBackBtn) obsBackBtn.style.display = "inline-flex";
-
-    if (typeof loadPassage === "function") loadPassage();
-  };
-
+  // Scripture reference navigation is owned exclusively by v163.
   function referenceButtons(refs) {
     return (refs || []).map(ref => `
       <button type="button" class="cross-ref-link" data-ref="${esc(ref)}" style="width:100%;margin-bottom:7px;">
@@ -14469,18 +14312,10 @@ body.dark #studyResourcesKey .study-resource-back-btn {
   box-shadow: 0 0 12px rgba(248,217,135,.22) !important;
 }
 </style>
-<script id="rdm-v13-study-resource-back-naves-rank">
+<script id="rdm-v13-naves-rank-only">
 (function () {
   if (window.__rdmV13StudyResourceBackNavesRank) return;
   window.__rdmV13StudyResourceBackNavesRank = true;
-
-  const bookNames = [
-    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
-    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
-  ];
-
-  const backStack = window.__rdmCrossReferenceBackStack || [];
-  window.__rdmCrossReferenceBackStack = backStack;
 
   function get(id) {
     return document.getElementById(id);
@@ -14507,238 +14342,6 @@ body.dark #studyResourcesKey .study-resource-back-btn {
   function titleWithoutParentheses(value) {
     return clean(String(value || "").replace(/\([^)]*\)/g, ""));
   }
-
-  function currentState() {
-    const start = get("start")?.value || "1";
-    return {
-      book: get("book")?.value || "Genesis",
-      chapter: get("chapter")?.value || "1",
-      start,
-      end: get("end")?.value || start,
-      range: get("rangeSize")?.value || "5"
-    };
-  }
-
-  function sameState(a, b) {
-    return !!a && !!b &&
-      String(a.book) === String(b.book) &&
-      String(a.chapter) === String(b.chapter) &&
-      String(a.start) === String(b.start) &&
-      String(a.end) === String(b.end);
-  }
-
-  function chooseExactReferenceRange(start, end) {
-    const rangeSel = get("rangeSize");
-    const span = Math.max(1, (parseInt(end, 10) || parseInt(start, 10) || 1) - (parseInt(start, 10) || 1) + 1);
-    const allowed = rangeSel ? Array.from(rangeSel.options || []).map(option => option.value) : [];
-
-    if (allowed.includes(String(span))) {
-      return String(span);
-    }
-
-    const current = rangeSel?.value || "";
-    if (current && current !== "full") {
-      return current;
-    }
-
-    const saved = localStorage.getItem("ironSharpenerUnified.sectionSize") || "";
-    if (saved && saved !== "full") {
-      return saved;
-    }
-
-    return allowed.includes("5") ? "5" : (allowed[0] || "5");
-  }
-
-  function parseReference(ref) {
-    const raw = String(ref || "").replace(/\s+/g, " ").trim();
-    if (!raw) return null;
-
-    const sortedBooks = bookNames.slice().sort((a, b) => b.length - a.length);
-    const book = sortedBooks.find(name => raw.toLowerCase().startsWith(name.toLowerCase() + " "));
-    if (!book) return null;
-
-    const rest = raw.slice(book.length).trim();
-    const match = rest.match(/^(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
-    if (!match) return null;
-
-    const chapter = String(parseInt(match[1], 10));
-    const hasVerse = !!match[2];
-    const start = hasVerse ? String(parseInt(match[2], 10)) : "1";
-    const end = match[3] ? String(parseInt(match[3], 10)) : start;
-
-    return {
-      book,
-      chapter,
-      start,
-      end,
-      range: hasVerse ? chooseExactReferenceRange(start, end) : "full",
-      fullChapter: !hasVerse,
-      explicitVerse: hasVerse
-    };
-  }
-
-  function setPreviousPassageBindings(state) {
-    try { previousPassageState = state; } catch (_) {}
-    try { window.previousPassageState = state; } catch (_) {}
-  }
-
-  function hideTeachingBackButtons() {
-    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
-      const btn = get(id);
-      if (!btn) return;
-      btn.classList.remove("rdm-teaching-back-active");
-      btn.style.display = "none";
-    });
-  }
-
-  function showTeachingBackButton(origin) {
-    hideTeachingBackButtons();
-
-    const id = origin === "obsTeachingCrossRefs"
-      ? "obsBackToPreviousPassage"
-      : origin === "mainTeachingCrossRefs"
-        ? "backToPreviousPassage"
-        : "";
-
-    const btn = id ? get(id) : null;
-    if (!btn) return;
-
-    btn.classList.add("rdm-teaching-back-active");
-    btn.style.display = "inline-flex";
-  }
-
-  function detectScriptureClickOrigin(target) {
-    const button = target?.closest?.(".cross-ref-link");
-    if (!button) return "";
-
-    if (button.closest("#crossRefLinks")) {
-      return "mainTeachingCrossRefs";
-    }
-
-    const obsPanel = button.closest("#obsCrossRefsPanel");
-    if (obsPanel) {
-      const title = String(get("obsCrossRefsTitle")?.textContent || "").toLowerCase();
-      let active = "";
-      try { active = String(activeResourcePanel || "").toLowerCase(); } catch (_) {}
-      if (title.includes("teaching cross references") || active.includes("personalcrossrefs")) {
-        return "obsTeachingCrossRefs";
-      }
-    }
-
-    return "studyResources";
-  }
-
-  document.addEventListener("click", event => {
-    const origin = detectScriptureClickOrigin(event.target);
-    if (origin) {
-      window.__rdmLastScriptureReferenceOrigin = origin;
-    }
-  }, true);
-
-  function maxVerseFor(book, chapter) {
-    try {
-      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
-      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
-      if (value) return String(value);
-    } catch (_) {}
-
-    const endSel = get("end");
-    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
-  }
-
-  function setPassageState(state) {
-    if (!state) return;
-
-    const bookSel = get("book");
-    const chapSel = get("chapter");
-    const startSel = get("start");
-    const endSel = get("end");
-    const rangeSel = get("rangeSize");
-    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
-
-    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
-
-    bookSel.value = state.book;
-    if (typeof fillChapters === "function") fillChapters();
-
-    chapSel.value = String(state.chapter);
-    if (typeof fillVerses === "function") fillVerses();
-
-    if (state.fullChapter === true && state.explicitVerse !== true) {
-      rangeSel.value = "full";
-      startSel.value = "1";
-      endSel.value = maxVerseFor(state.book, state.chapter);
-    } else {
-      const chosenRange = state.range || localStorage.getItem("ironSharpenerUnified.sectionSize") || rangeSel.value || "5";
-      rangeSel.value = chosenRange === "full" ? chooseExactReferenceRange(state.start, state.end || state.start) : chosenRange;
-      startSel.value = String(state.start);
-      endSel.value = String(state.end || state.start);
-    }
-
-    if (typeof loadPassage === "function") loadPassage();
-    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
-  }
-
-  function goBackOneStudyResourceStep() {
-    const previous = backStack.pop();
-    if (!previous) return;
-    hideTeachingBackButtons();
-    setPreviousPassageBindings(backStack[backStack.length - 1] || null);
-    setPassageState(previous);
-  }
-
-  window.rdmGoBackOneStudyResourceStep = goBackOneStudyResourceStep;
-
-  window.goToScriptureReference = function goToScriptureReferenceV13(ref, options = {}) {
-    const parsed = parseReference(ref);
-    if (!parsed) return;
-
-    const origin = options.origin || window.__rdmLastScriptureReferenceOrigin || "studyResources";
-    window.__rdmLastScriptureReferenceOrigin = "";
-
-    const current = currentState();
-
-    if (!sameState(current, parsed)) {
-      backStack.push(current);
-      setPreviousPassageBindings(current);
-    }
-
-    setPassageState(parsed);
-
-    if (origin === "mainTeachingCrossRefs" || origin === "obsTeachingCrossRefs") {
-      showTeachingBackButton(origin);
-    } else {
-      hideTeachingBackButtons();
-    }
-  };
-
-  try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
-
-  function wireBackButton(id, origin) {
-    const oldButton = get(id);
-    if (!oldButton) return;
-
-    const newButton = oldButton.cloneNode(true);
-    newButton.id = oldButton.id;
-    newButton.className = oldButton.className;
-    oldButton.replaceWith(newButton);
-
-    newButton.onclick = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      goBackOneStudyResourceStep();
-
-      if (backStack.length && origin) {
-        showTeachingBackButton(origin);
-      } else {
-        hideTeachingBackButtons();
-      }
-    };
-  }
-
-  wireBackButton("backToPreviousPassage", "mainTeachingCrossRefs");
-  wireBackButton("obsBackToPreviousPassage", "obsTeachingCrossRefs");
-  hideTeachingBackButtons();
 
   function safePanel(title, html, key, options) {
     if (typeof window.openResourceInstancePanel === "function") {
@@ -14988,7 +14591,6 @@ body.dark #studyResourcesKey .study-resource-back-btn {
 
   function install() {
     replaceButtonHandler("openNavesResource", openNavesResourceFullV13);
-    hideTeachingBackButtons();
   }
 
   window.openNavesResourceFullV13 = openNavesResourceFullV13;
@@ -15022,179 +14624,7 @@ body:not(.dark) #studyResourcesKey .study-resource-back-btn:hover {
   color: #FFF8EA !important;
 }
 </style>
-<script id="rdm-v14-exact-reference-final-guard">
-(function () {
-  if (window.__rdmV14ExactReferenceFinalGuard) return;
-  window.__rdmV14ExactReferenceFinalGuard = true;
-
-  const bookNames = [
-    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
-    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
-  ];
-
-  const get = id => document.getElementById(id);
-  const backStack = window.__rdmCrossReferenceBackStack || [];
-  window.__rdmCrossReferenceBackStack = backStack;
-
-  function currentState() {
-    const start = get("start")?.value || "1";
-    return {
-      book: get("book")?.value || "Genesis",
-      chapter: get("chapter")?.value || "1",
-      start,
-      end: get("end")?.value || start,
-      range: get("rangeSize")?.value || "5"
-    };
-  }
-
-  function sameState(a, b) {
-    return !!a && !!b &&
-      String(a.book) === String(b.book) &&
-      String(a.chapter) === String(b.chapter) &&
-      String(a.start) === String(b.start) &&
-      String(a.end) === String(b.end);
-  }
-
-  function chooseExactReferenceRange(start, end) {
-    const rangeSel = get("rangeSize");
-    const span = Math.max(1, (parseInt(end, 10) || parseInt(start, 10) || 1) - (parseInt(start, 10) || 1) + 1);
-    const allowed = rangeSel ? Array.from(rangeSel.options || []).map(option => option.value) : [];
-
-    if (allowed.includes(String(span))) return String(span);
-
-    const current = rangeSel?.value || "";
-    if (current && current !== "full") return current;
-
-    const saved = localStorage.getItem("ironSharpenerUnified.sectionSize") || "";
-    if (saved && saved !== "full") return saved;
-
-    return allowed.includes("5") ? "5" : (allowed[0] || "5");
-  }
-
-  function parseReference(ref) {
-    const raw = String(ref || "").replace(/\s+/g, " ").trim();
-    if (!raw) return null;
-
-    const sortedBooks = bookNames.slice().sort((a, b) => b.length - a.length);
-    const book = sortedBooks.find(name => raw.toLowerCase().startsWith(name.toLowerCase() + " "));
-    if (!book) return null;
-
-    const rest = raw.slice(book.length).trim();
-    const match = rest.match(/^(\d{1,3})(?::(\d{1,3})(?:-(\d{1,3}))?)?$/);
-    if (!match) return null;
-
-    const chapter = String(parseInt(match[1], 10));
-    const explicitVerse = !!match[2];
-    const start = explicitVerse ? String(parseInt(match[2], 10)) : "1";
-    const end = match[3] ? String(parseInt(match[3], 10)) : start;
-
-    return {
-      book,
-      chapter,
-      start,
-      end,
-      explicitVerse,
-      fullChapter: !explicitVerse,
-      range: explicitVerse ? chooseExactReferenceRange(start, end) : "full"
-    };
-  }
-
-  function maxVerseFor(book, chapter) {
-    try {
-      const counts = typeof verseCounts !== "undefined" ? verseCounts[book] : null;
-      const value = counts ? counts[parseInt(chapter, 10) - 1] : null;
-      if (value) return String(value);
-    } catch (_) {}
-
-    const endSel = get("end");
-    return String(endSel?.options?.[endSel.options.length - 1]?.value || "1");
-  }
-
-  function hideTeachingBackButtons() {
-    ["backToPreviousPassage", "obsBackToPreviousPassage", "navesBackToPreviousPassage"].forEach(id => {
-      const btn = get(id);
-      if (!btn) return;
-      btn.classList.remove("rdm-teaching-back-active");
-      btn.style.display = "none";
-    });
-  }
-
-  function showTeachingBackButton(origin) {
-    hideTeachingBackButtons();
-    const id = origin === "obsTeachingCrossRefs" ? "obsBackToPreviousPassage" : origin === "mainTeachingCrossRefs" ? "backToPreviousPassage" : "";
-    const btn = id ? get(id) : null;
-    if (!btn) return;
-    btn.classList.add("rdm-teaching-back-active");
-    btn.style.display = "inline-flex";
-  }
-
-  function setPreviousPassageBindings(state) {
-    try { previousPassageState = state; } catch (_) {}
-    try { window.previousPassageState = state; } catch (_) {}
-  }
-
-  function setPassageStateExact(state) {
-    if (!state) return;
-
-    const bookSel = get("book");
-    const chapSel = get("chapter");
-    const startSel = get("start");
-    const endSel = get("end");
-    const rangeSel = get("rangeSize");
-    if (!bookSel || !chapSel || !startSel || !endSel || !rangeSel) return;
-
-    if (typeof saveCurrentNotes === "function") saveCurrentNotes();
-
-    bookSel.value = state.book;
-    if (typeof fillChapters === "function") fillChapters();
-
-    chapSel.value = String(state.chapter);
-    if (typeof fillVerses === "function") fillVerses();
-
-    if (state.fullChapter === true && state.explicitVerse !== true) {
-      rangeSel.value = "full";
-      startSel.value = "1";
-      endSel.value = maxVerseFor(state.book, state.chapter);
-    } else {
-      const chosenRange = state.range || chooseExactReferenceRange(state.start, state.end || state.start);
-      rangeSel.value = chosenRange === "full" ? chooseExactReferenceRange(state.start, state.end || state.start) : chosenRange;
-      startSel.value = String(state.start);
-      endSel.value = String(state.end || state.start);
-    }
-
-    if (typeof loadPassage === "function") loadPassage();
-    if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
-  }
-
-  function detectOriginFromLastClick() {
-    return window.__rdmLastScriptureReferenceOrigin || "studyResources";
-  }
-
-  window.goToScriptureReference = function goToScriptureReferenceV14(ref, options = {}) {
-    const parsed = parseReference(ref);
-    if (!parsed) return;
-
-    const origin = options.origin || detectOriginFromLastClick();
-    window.__rdmLastScriptureReferenceOrigin = "";
-
-    const current = currentState();
-    if (!sameState(current, parsed)) {
-      backStack.push(current);
-      setPreviousPassageBindings(current);
-    }
-
-    setPassageStateExact(parsed);
-
-    if (origin === "mainTeachingCrossRefs" || origin === "obsTeachingCrossRefs") {
-      showTeachingBackButton(origin);
-    } else {
-      hideTeachingBackButtons();
-    }
-  };
-
-  try { goToScriptureReference = window.goToScriptureReference; } catch (_) {}
-})();
-</script>
+<!-- v163 removed duplicate v14 Scripture reference navigator; one controller now owns all Scripture navigation. -->
 
 <!-- Patch 16 — Final UI polish: OBS colors, internal cross-ref drag, mode-change cleanup -->
 <style id="rdm-v16-final-ui-polish">
@@ -16283,7 +15713,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v64-study-resources-crossrefs").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v65-reference-range-navigation").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -27543,7 +26973,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v64-study-resources-crossrefs-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v65-reference-range-navigation-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27747,7 +27177,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     var files = ["index.html", "personal-study.html", "manifest.json", "assets/iron-sharpener-logo.png", "assets/disciple-journal-logo.png"];
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V64" }); } catch (_) {}
+        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V65" }); } catch (_) {}
       }
     } catch (_) {}
     if (!("caches" in window)) return;
@@ -27802,9 +27232,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v64-study-resources-crossrefs-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v65-reference-range-navigation-20260704";
   var VERSION = "v161-indexeddb-offline-storage";
-  var SW_VERSION = "v64-study-resources-crossrefs";
+  var SW_VERSION = "v65-reference-range-navigation";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -28063,7 +27493,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v64-study-resources-crossrefs");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v65-reference-range-navigation");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -28204,7 +27634,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 <!-- v156 — iPad direct app open: no custom splash layer; first paint restored while keeping v155 offline launch quiet. -->
 
-<style id="rdm-v160-clean-scripture-navigation-style">
+<style id="rdm-v163-reference-range-navigation-style">
 
 /* v160 clean replacement: one visible Scripture history button and one stable heading. */
 #scriptureBackBtn,
@@ -28213,7 +27643,10 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 #rdmTeachingFreshBackBtnV147,
 #rdmTeachingBackWrapV148,
 #rdmTeachingBackWrapV149,
-#rdmTeachingBackWrapV150 {
+#rdmTeachingBackWrapV150,
+#backToPreviousPassage,
+#obsBackToPreviousPassage,
+#navesBackToPreviousPassage {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -28296,21 +27729,29 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 }
 
 </style>
-<script id="rdm-v160-clean-scripture-navigation">
-
-(function rdmV160CleanScriptureNavigation(){
+<script id="rdm-v163-reference-range-navigation">
+(function rdmV163ReferenceRangeNavigation(){
   "use strict";
-  if (window.__rdmV160CleanScriptureNavigation) return;
-  window.__rdmV160CleanScriptureNavigation = true;
+  if (window.__rdmV163ReferenceRangeNavigation) return;
+  window.__rdmV163ReferenceRangeNavigation = true;
 
-  var historyStack = [];
+  var BOOKS = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+  var ALIASES = {
+    "Psalm":"Psalms", "Psalms":"Psalms", "Song of Songs":"Song of Solomon", "Canticles":"Song of Solomon"
+  };
+  var historyStack = window.__rdmCrossReferenceBackStack || [];
+  window.__rdmCrossReferenceBackStack = historyStack;
   var committedState = null;
+  var focusState = null;
   var restoring = false;
   var loadToken = 0;
   var chapterCache = new Map();
 
   function get(id){ return document.getElementById(id); }
-  function cleanTextSafe(value){
+  function escapeText(value){
     try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {}
     return String(value || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
@@ -28322,52 +27763,85 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     } catch (_) {}
     return 1;
   }
+  function clamp(value, min, max){ return Math.max(min, Math.min(max, parseInt(value,10)||min)); }
   function normalize(state){
     if (!state || !state.book) return null;
     var book = String(state.book).trim();
     var chapter = String(parseInt(state.chapter,10)||1);
     if (!book) return null;
-    return { book:book, chapter:chapter, start:"1", end:String(maxVerse(book,chapter)), range:"full" };
+    var max = maxVerse(book, chapter);
+    var mode = state.mode === "focus" || state.range === "custom" || state.explicitVerse === true ? "focus" : "full";
+    var start = mode === "focus" ? clamp(state.start,1,max) : 1;
+    var end = mode === "focus" ? clamp(state.end || start,start,max) : max;
+    return { book:book, chapter:chapter, start:String(start), end:String(end), mode:mode, range:mode === "focus" ? "custom" : "full" };
   }
-  function controlState(){
-    var book=get("book"), chapter=get("chapter");
-    if (!book || !chapter || !book.value) return null;
-    return normalize({book:book.value, chapter:chapter.value||"1"});
+  function sameLocation(a,b){
+    a=normalize(a); b=normalize(b);
+    return !!a && !!b && a.book===b.book && a.chapter===b.chapter && a.start===b.start && a.end===b.end && a.mode===b.mode;
   }
-  function key(state){ state=normalize(state); return state ? state.book+"|"+state.chapter : ""; }
+  function stateKey(state){ state=normalize(state); return state ? [state.book,state.chapter,state.start,state.end,state.mode].join("|") : ""; }
   function heading(state){ state=normalize(state); return state ? state.book+" "+state.chapter : ""; }
-  function historyLabel(state){
-    state=normalize(state);
-    return state ? state.book+" "+state.chapter : "Scripture";
-  }
+  function historyLabel(state){ state=normalize(state); return state ? state.book+" "+state.chapter : "Scripture"; }
   function ensureOption(select,value,label){
     if (!select) return;
     value=String(value);
-    var found=false;
-    try { for (var i=0;i<select.options.length;i++) if (String(select.options[i].value)===value){ found=true; break; } } catch (_) {}
-    if (!found) try { select.add(new Option(label||value,value)); } catch (_) {}
+    var exists=false;
+    try { for (var i=0;i<select.options.length;i++) if (String(select.options[i].value)===value){ exists=true; break; } } catch (_) {}
+    if (!exists) try { select.add(new Option(label||value,value)); } catch (_) {}
     try { select.value=value; } catch (_) {}
   }
-  function forceFullChapter(state){
-    state=normalize(state||controlState());
+  function controlsBookChapter(){
+    var book=get("book"), chapter=get("chapter");
+    if (!book || !chapter || !book.value) return null;
+    return { book:book.value, chapter:chapter.value||"1" };
+  }
+  function fullStateFromControls(){
+    var base=controlsBookChapter();
+    return base ? normalize({book:base.book,chapter:base.chapter,mode:"full"}) : null;
+  }
+  function currentRequestedState(){
+    var base=controlsBookChapter();
+    if (!base) return null;
+    var focused=normalize(focusState);
+    if (focused && focused.book===base.book && focused.chapter===String(parseInt(base.chapter,10)||1)) return focused;
+    focusState=null;
+    return normalize({book:base.book,chapter:base.chapter,mode:"full"});
+  }
+  function applyHiddenRange(state){
+    state=normalize(state);
     if (!state) return null;
     var range=get("rangeSize"), start=get("start"), end=get("end");
     ensureOption(range,"full","Full Chapter");
-    ensureOption(start,"1","1");
+    if (state.mode === "focus") ensureOption(range,"custom","Reference Range");
+    ensureOption(start,state.start,state.start);
     ensureOption(end,state.end,state.end);
-    if (range) range.value="full";
-    if (start) start.value="1";
+    if (range) range.value=state.mode === "focus" ? "custom" : "full";
+    if (start) start.value=state.start;
     if (end) end.value=state.end;
     try { localStorage.setItem("ironSharpenerUnified.sectionSize","full"); } catch (_) {}
     return state;
+  }
+  function setSelectors(state){
+    state=normalize(state);
+    if (!state) return null;
+    var book=get("book"), chapter=get("chapter");
+    if (book) book.value=state.book;
+    try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
+    if (chapter) chapter.value=state.chapter;
+    try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
+    focusState=state.mode === "focus" ? state : null;
+    return applyHiddenRange(state);
   }
   function removeLegacyNavigation(){
     ["scriptureBackBtn","rdmV76ScriptureBackRow","rdmV76BackToScriptureBtn","rdmTeachingFreshBackBtnV147","rdmTeachingBackWrapV148","rdmTeachingBackWrapV149","rdmTeachingBackWrapV150"].forEach(function(id){
       var node=get(id); if (node && node.parentNode) node.parentNode.removeChild(node);
     });
-    try { window.__rdmScriptureBackStackV42=[]; } catch (_) {}
-    try { window.__rdmScriptureBackStackV41=[]; } catch (_) {}
-    try { window.__rdmV76DiscipleMakerScriptureBackStack=[]; } catch (_) {}
+    ["backToPreviousPassage","obsBackToPreviousPassage","navesBackToPreviousPassage"].forEach(function(id){
+      var button=get(id); if (button){ button.style.display="none"; button.setAttribute("aria-hidden","true"); button.tabIndex=-1; }
+    });
+    try { previousPassageState=null; } catch (_) {}
+    try { window.previousPassageState=null; } catch (_) {}
+    try { historyStack.length=0; window.__rdmCrossReferenceBackStack=historyStack; } catch (_) {}
   }
   function mountBack(){
     var scripture=get("scriptureBox");
@@ -28420,28 +27894,31 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     try { if (typeof refreshActiveResourcePanel === "function") refreshActiveResourcePanel(); } catch (_) {}
     try { if (typeof syncObsNavigator === "function") syncObsNavigator(); } catch (_) {}
   }
-  async function loadCleanPassage(){
-    var state=forceFullChapter(controlState());
+  async function renderState(requested){
+    var state=normalize(requested || currentRequestedState());
     var title=get("refTitle"), passage=get("passage"), box=get("scriptureBox");
     if (!state || !passage) return false;
+    focusState=state.mode === "focus" ? state : null;
+    applyHiddenRange(state);
     var token=++loadToken;
     if (title) title.textContent=heading(state);
     try { if (box) box.classList.remove("focus-mode"); } catch (_) {}
-    var hasVerses=!!passage.querySelector(".verse[data-v]");
-    if (!hasVerses) passage.innerHTML='<p class="verse">Loading passage…</p>';
+    if (!passage.querySelector(".verse[data-v]")) passage.innerHTML='<p class="verse">Loading passage…</p>';
     try {
       var data=await fetchChapter(state.book,state.chapter);
       if (token!==loadToken) return false;
       var verses=Array.isArray(data.verses)?data.verses:[];
-      if (!verses.length) throw new Error("No verses found for this chapter.");
-      if (title) title.textContent=heading({book:data.book||state.book,chapter:data.chapter||state.chapter});
-      passage.innerHTML=verses.map(function(v){
+      var selected=verses.filter(function(v){ var n=Number(v.verse); return n>=Number(state.start) && n<=Number(state.end); });
+      if (!selected.length) throw new Error("No verses found for this reference.");
+      if (title) title.textContent=heading({book:data.book||state.book,chapter:data.chapter||state.chapter,mode:state.mode,start:state.start,end:state.end});
+      passage.innerHTML=selected.map(function(v){
         var n=Number(v.verse);
-        return '<p class="verse" data-v="'+n+'"><span class="vnum">'+n+'</span>'+cleanTextSafe(v.text)+'</p>';
+        return '<p class="verse" data-v="'+n+'"><span class="vnum">'+n+'</span>'+escapeText(v.text)+'</p>';
       }).join("");
       committedState=normalize(state);
+      focusState=committedState.mode === "focus" ? committedState : null;
       try {
-        var saved={book:state.book,chapter:state.chapter,start:"1",end:state.end,range:"full"};
+        var saved={book:committedState.book,chapter:committedState.chapter,start:committedState.start,end:committedState.end,range:committedState.range};
         localStorage.setItem("ironSharpenerUnified.lastRef",JSON.stringify(saved));
         localStorage.setItem("iron-sharpener.lastRef",JSON.stringify(saved));
       } catch (_) {}
@@ -28450,22 +27927,51 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     } catch (error){
       if (token!==loadToken) return false;
       if (title) title.textContent=heading(state);
-      passage.innerHTML='<p class="verse">Could not load this passage from the local Bible files.</p><p class="verse" style="font-size:18px">'+cleanTextSafe(error&&error.message?error.message:error)+'</p>';
+      passage.innerHTML='<p class="verse">Could not load this Scripture reference from the local Bible files.</p><p class="verse" style="font-size:18px">'+escapeText(error&&error.message?error.message:error)+'</p>';
       return false;
     }
   }
   function pushHistory(state){
     state=normalize(state);
-    var now=normalize(controlState());
-    if (!state || !now || key(state)===key(now)) return;
+    if (!state) return;
     var top=historyStack.length?normalize(historyStack[historyStack.length-1]):null;
-    if (!top || key(top)!==key(state)) historyStack.push(state);
-    while (historyStack.length>20) historyStack.shift();
+    if (!top || !sameLocation(top,state)) historyStack.push(state);
+    while (historyStack.length>30) historyStack.shift();
+  }
+  function parseReference(ref){
+    var raw=String(ref||"").replace(/[–—]/g,"-").replace(/\s+/g," ").trim().replace(/[.;,]+$/g,"");
+    if (!raw) return null;
+    var names=BOOKS.concat(Object.keys(ALIASES)).sort(function(a,b){return b.length-a.length;});
+    var matched=names.find(function(name){ return raw.toLowerCase().indexOf(name.toLowerCase()+" ")===0; });
+    if (!matched) return null;
+    var book=ALIASES[matched]||matched;
+    var rest=raw.slice(matched.length).trim();
+    var match=rest.match(/^(\d{1,3})(?::(\d{1,3})(?:\s*-\s*(\d{1,3}))?)?$/);
+    if (!match) return null;
+    var chapter=String(parseInt(match[1],10)||1);
+    var explicit=!!match[2];
+    var max=maxVerse(book,chapter);
+    var start=explicit?clamp(match[2],1,max):1;
+    var end=explicit?clamp(match[3]||start,start,max):max;
+    return normalize({book:book,chapter:chapter,start:start,end:end,mode:explicit?"focus":"full"});
+  }
+  async function goToReference(ref){
+    var target=parseReference(ref);
+    if (!target) return false;
+    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+    if (committedState && !sameLocation(committedState,target)) pushHistory(committedState);
+    setSelectors(target);
+    updateBack();
+    var ok=await renderState(target);
+    updateBack();
+    try { document.querySelector("#scriptureBox")?.scrollIntoView({behavior:"auto",block:"start"}); } catch (_) {}
+    return ok;
   }
   function handleSelectChange(event){
     var target=event&&event.target;
     if (!target || (target.id!=="book" && target.id!=="chapter") || restoring) return;
     var previous=normalize(committedState);
+    focusState=null;
     try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
     if (target.id==="book"){
       try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
@@ -28474,28 +27980,47 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     } else {
       try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
     }
-    forceFullChapter(controlState());
-    pushHistory(previous);
+    var next=fullStateFromControls();
+    applyHiddenRange(next);
+    if (previous && !sameLocation(previous,next)) pushHistory(previous);
     updateBack();
-    loadCleanPassage().then(updateBack,updateBack);
+    renderState(next).then(updateBack,updateBack);
+  }
+  function chapterCount(book){
+    try {
+      var source=typeof books!=="undefined"?books:null;
+      var found=Array.isArray(source)?source.find(function(item){return item&&item[0]===book;}):null;
+      if(found&&parseInt(found[1],10)>0)return parseInt(found[1],10);
+    } catch (_) {}
+    try { var list=typeof verseCounts!=="undefined"&&verseCounts?verseCounts[book]:null; if(Array.isArray(list)&&list.length)return list.length; } catch (_) {}
+    return 1;
+  }
+  async function moveChapter(direction,event){
+    if(event){try{event.preventDefault();event.stopPropagation();}catch(_){}}
+    if(restoring)return false;
+    var current=normalize(committedState||currentRequestedState());
+    if(!current)return false;
+    var index=BOOKS.indexOf(current.book); if(index<0)return false;
+    var chapter=parseInt(current.chapter,10)||1;
+    chapter+=direction;
+    if(chapter>chapterCount(current.book)){index+=1;if(index>=BOOKS.length)return false;chapter=1;}
+    if(chapter<1){index-=1;if(index<0)return false;chapter=chapterCount(BOOKS[index]);}
+    var target=normalize({book:BOOKS[index],chapter:String(chapter),mode:"full"});
+    if(!sameLocation(current,target))pushHistory(current);
+    setSelectors(target);updateBack();var ok=await renderState(target);updateBack();return ok;
   }
   async function goBack(event){
     if (event){ try { event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); } catch (_) {} }
     if (restoring || !historyStack.length) return;
     var target=normalize(historyStack.pop());
-    if (!target) { updateBack(); return; }
+    if (!target){ updateBack(); return; }
     restoring=true;
     var button=get("rdmScriptureHistoryBack"); if (button) button.classList.add("is-busy");
     updateBack();
     try {
       try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
-      var book=get("book"), chapter=get("chapter");
-      if (book) book.value=target.book;
-      try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
-      if (chapter) chapter.value=target.chapter;
-      try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
-      forceFullChapter(target);
-      await loadCleanPassage();
+      setSelectors(target);
+      await renderState(target);
       committedState=target;
     } finally {
       restoring=false;
@@ -28505,32 +28030,44 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   function install(){
     removeLegacyNavigation();
     mountBack();
-    historyStack=[];
-    committedState=forceFullChapter(controlState());
+    historyStack.length=0;
+    focusState=null;
+    committedState=fullStateFromControls();
+    applyHiddenRange(committedState);
     var title=get("refTitle"); if (title && committedState) title.textContent=heading(committedState);
-    window.loadPassage=loadCleanPassage;
-    try { loadPassage=loadCleanPassage; } catch (_) {}
+    window.loadPassage=function(){ return renderState(currentRequestedState()); };
+    try { loadPassage=window.loadPassage; } catch (_) {}
+    window.goToScriptureReference=function(ref){ return goToReference(ref); };
+    try { goToScriptureReference=window.goToScriptureReference; } catch (_) {}
+    window.rdmGoBackOneStudyResourceStep=function(){ return goBack(); };
     var book=get("book"), chapter=get("chapter");
     if (book) book.onchange=handleSelectChange;
     if (chapter) chapter.onchange=handleSelectChange;
+    var previousButton=get("prevBtn"), nextButton=get("nextBtn");
+    if(previousButton) previousButton.onclick=function(event){return moveChapter(-1,event);};
+    if(nextButton) nextButton.onclick=function(event){return moveChapter(1,event);};
     updateBack();
     var passage=get("passage");
-    if (!passage || !passage.querySelector(".verse[data-v]")) loadCleanPassage();
+    if (!passage || !passage.querySelector(".verse[data-v]")) renderState(committedState);
   }
 
-  window.rdmCleanScriptureNavigationV160={
-    version:"v160-clean-replacement",
-    load:loadCleanPassage,
+  window.rdmReferenceRangeNavigationV163={
+    version:"v163-reference-range-replacement",
+    load:function(){return renderState(currentRequestedState());},
+    open:goToReference,
+    parse:parseReference,
     back:goBack,
+    previousChapter:function(){return moveChapter(-1);},
+    nextChapter:function(){return moveChapter(1);},
     state:function(){return normalize(committedState);},
     history:function(){return historyStack.map(normalize);},
-    clear:function(){historyStack=[];updateBack();}
+    clear:function(){historyStack.length=0;updateBack();},
+    leaveFocus:function(){focusState=null;return renderState(fullStateFromControls());}
   };
 
   if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
 })();
-
 </script>
 </body>
 </html>
@@ -28538,4 +28075,4 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
 <!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
-<!-- v160: clean Scripture navigation replacement + compact Offline Ready storage; paired with service worker v62. -->
+<!-- v163: one reference-range navigation engine; hidden Start/End controls retain exact resource references. -->
