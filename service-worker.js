@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v61 Forced Fresh Shell Cutover + Compact Offline Storage
+/* Iron Sharpener service worker — v62 Clean Navigation Shell + Compact Offline Storage
    Purpose:
    - Return the teaching or Journal shell from one tiny launch cache immediately.
    - Never inspect large Offline Ready caches during navigation startup.
@@ -8,8 +8,8 @@
    - Preserve old resource-cache fallback only until compact migration succeeds.
 */
 
-const SW_VERSION = "v61-fresh-shell-compact-storage";
-const LAUNCH_CACHE = "iron-sharpener-launch-v61-fresh-shell-cutover-20260703";
+const SW_VERSION = "v62-clean-navigation-compact-storage";
+const LAUNCH_CACHE = "iron-sharpener-launch-v62-clean-navigation-20260704";
 const COMPACT_RESOURCE_CACHE = "iron-sharpener-offline-v61-compact-resources-20260703";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 
@@ -24,12 +24,13 @@ const LEGACY_RESOURCE_CACHES = [
 ];
 
 const LEGACY_LAUNCH_CACHES = [
+  "iron-sharpener-launch-v61-fresh-shell-cutover-20260703",
   "iron-sharpener-launch-v59-offline-ready-direct-shell-20260703",
   "iron-sharpener-launch-v58-direct-app-shell-20260703",
   "iron-sharpener-launch-v57-shell-20260703"
 ];
 
-const SHELL_VERSION_TOKEN = "v61-fresh-shell-cutover";
+const SHELL_VERSION_TOKEN = "v62-clean-navigation";
 
 const CORE_ASSETS = [
   "index.html",
@@ -60,7 +61,7 @@ self.addEventListener("activate", (event) => {
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
     if (!responseTypeIsValid("index.html", maker) || !responseTypeIsValid("personal-study.html", journal)) {
-      throw new Error("Fresh v61 app shells were not verified.");
+      throw new Error("Fresh v62 app shells were not verified.");
     }
 
     // Only after the fresh shells verify, remove obsolete tiny launch caches.
@@ -95,7 +96,7 @@ self.addEventListener("message", (event) => {
   if (data && data.type === "GET_IRON_SW_VERSION" && event.ports && event.ports[0]) {
     try { event.ports[0].postMessage({ version: SW_VERSION, launchCache: LAUNCH_CACHE, resourceCache: COMPACT_RESOURCE_CACHE }); } catch (_) {}
   }
-  if (data && ["WARM_LAUNCH_CACHE_V61", "WARM_LAUNCH_CACHE_V60", "WARM_LAUNCH_CACHE_V59", "WARM_LAUNCH_CACHE_V58", "WARM_LAUNCH_CACHE_V57"].includes(data.type)) {
+  if (data && ["WARM_LAUNCH_CACHE_V62", "WARM_LAUNCH_CACHE_V61", "WARM_LAUNCH_CACHE_V60", "WARM_LAUNCH_CACHE_V59", "WARM_LAUNCH_CACHE_V58", "WARM_LAUNCH_CACHE_V57"].includes(data.type)) {
     seedFreshLaunchCache(false).catch(() => {});
   }
 });
