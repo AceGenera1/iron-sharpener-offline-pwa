@@ -1,15 +1,16 @@
-/* Iron Sharpener service worker — v65 Reference-Range Navigation Shell Refresh
+/* Iron Sharpener service worker — v66 Offline Resources + Cross-References Flow
    Launch architecture:
    - Cache Storage contains only the tiny app launch shell and icons.
    - The large offline study-resource library remains in IndexedDB, not Cache Storage.
+   - Resource reads prefer the active store and safely fall back to the verified staging store on iPad.
    - Bible chapters remain in the dedicated Bible IndexedDB.
    - Navigation opens one tiny cache and one exact key; it never opens either IndexedDB.
    - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const SW_VERSION = "v65-reference-range-navigation";
-const SHELL_TOKEN = "v65-reference-range-navigation";
-const LAUNCH_CACHE = "iron-sharpener-launch-v65-reference-range-navigation-20260704";
+const SW_VERSION = "v66-offline-resources-crossrefs-flow";
+const SHELL_TOKEN = "v66-offline-resources-crossrefs-flow";
+const LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -34,7 +35,7 @@ self.addEventListener("activate", (event) => {
     const cache = await caches.open(LAUNCH_CACHE);
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
-    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v65 app shells were not verified.");
+    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v66 app shells were not verified.");
 
     // Preserve the v63 launch architecture: remove old launch/offline caches so
     // iPad launch never opens beside thousands of Cache Storage entries.
@@ -69,6 +70,13 @@ self.addEventListener("message", (event) => {
     try { event.ports[0].postMessage({ version: SW_VERSION, launchCache: LAUNCH_CACHE, resourceDb: RESOURCE_DB }); } catch (_) {}
   }
   if (data && /^WARM_LAUNCH_CACHE_/.test(String(data.type || ""))) seedFreshLaunchCache().catch(() => {});
+  if (data && /^RESOURCE_DB_UPDATED_/i.test(String(data.type || ""))) {
+    const pending = resourceDbPromise;
+    resourceDbPromise = null;
+    if (pending && typeof pending.then === "function") {
+      pending.then((db) => { try { db && db.close && db.close(); } catch (_) {} }).catch(() => {});
+    }
+  }
 });
 
 function scopePath(){
@@ -166,27 +174,67 @@ function openResourceDb(){
         if (!db.objectStoreNames.contains("staging")) db.createObjectStore("staging", { keyPath: "key" });
         if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "key" });
       };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error || new Error("Resource database failed."));
+      request.onsuccess = () => {
+        const db = request.result;
+        try {
+          db.onversionchange = () => {
+            try { db.close(); } catch (_) {}
+            resourceDbPromise = null;
+          };
+        } catch (_) {}
+        resolve(db);
+      };
+      request.onerror = () => {
+        resourceDbPromise = null;
+        reject(request.error || new Error("Resource database failed."));
+      };
     } catch (error) { reject(error); }
   });
   return resourceDbPromise;
 }
+function resourcePathCandidates(path){
+  const canonical = canonicalPath(path);
+  const candidates = [canonical];
+  try { candidates.push(decodeURIComponent(canonical)); } catch (_) {}
+  // Older resource loaders sometimes duplicated the bible/resources prefix.
+  const repeated = canonical.lastIndexOf("bible/resources/");
+  if (repeated > 0) candidates.push(canonical.slice(repeated));
+  return [...new Set(candidates.filter(Boolean))];
+}
+async function getResourceFromStore(db, storeName, key){
+  return await new Promise((resolve) => {
+    try {
+      if (!db.objectStoreNames.contains(storeName)) { resolve(null); return; }
+      const request = db.transaction(storeName, "readonly").objectStore(storeName).get(key);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => resolve(null);
+    } catch (_) { resolve(null); }
+  });
+}
+function resourceRecordHasBody(record){
+  return !!(record && (typeof record.bodyText === "string" || typeof record.text === "string" || record.body !== undefined));
+}
 async function getResource(path){
   try {
     const db = await openResourceDb();
-    return await new Promise((resolve) => {
-      try {
-        const request = db.transaction(RESOURCE_STORE, "readonly").objectStore(RESOURCE_STORE).get(path);
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => resolve(null);
-      } catch (_) { resolve(null); }
-    });
-  } catch (_) { return null; }
+    const candidates = resourcePathCandidates(path);
+    for (const key of candidates) {
+      const active = await getResourceFromStore(db, RESOURCE_STORE, key);
+      if (resourceRecordHasBody(active)) return active;
+    }
+    // The verified staging store is retained after every successful build. It is
+    // a safe iPad fallback if a large promotion transaction did not fully copy.
+    for (const key of candidates) {
+      const staged = await getResourceFromStore(db, "staging", key);
+      if (resourceRecordHasBody(staged)) return staged;
+    }
+  } catch (_) {}
+  return null;
 }
 function responseFromResource(record){
   const headers = new Headers({ "content-type": record.contentType || "application/octet-stream", "x-iron-sharpener-source": "indexeddb-resource" });
-  return new Response(record.body, { status: Number(record.status || 200), statusText: record.statusText || "OK", headers });
+  const body = typeof record.bodyText === "string" ? record.bodyText : (typeof record.text === "string" ? record.text : record.body);
+  return new Response(body, { status: Number(record.status || 200), statusText: record.statusText || "OK", headers });
 }
 
 let bibleDbPromise = null;
@@ -238,11 +286,37 @@ async function launchAssetRequest(request){
   try { const response = await fetch(request); if (response && response.ok) { putLaunch(cache, path, response).catch(() => {}); return response; } } catch (_) {}
   return new Response("Launch asset unavailable.", { status: 504, headers: { "content-type": "text/plain; charset=utf-8" } });
 }
+async function saveNetworkResource(path, response){
+  try {
+    if (!validResponse(path, response)) return false;
+    const db = await openResourceDb();
+    if (!db.objectStoreNames.contains(RESOURCE_STORE)) return false;
+    const contentType = response.headers ? (response.headers.get("content-type") || (/\.json$/i.test(path) ? "application/json; charset=utf-8" : "application/octet-stream")) : "application/octet-stream";
+    const textLike = /\.json$/i.test(path) || /^text\//i.test(contentType) || /(javascript|xml|svg|css)/i.test(contentType);
+    const record = { key: canonicalPath(path), status: response.status || 200, statusText: response.statusText || "OK", contentType, updatedAt: new Date().toISOString(), version: SW_VERSION };
+    if (textLike) record.bodyText = await response.clone().text();
+    else record.body = await response.clone().arrayBuffer();
+    await new Promise((resolve) => {
+      try {
+        const request = db.transaction(RESOURCE_STORE, "readwrite").objectStore(RESOURCE_STORE).put(record);
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => resolve(false);
+      } catch (_) { resolve(false); }
+    });
+    return true;
+  } catch (_) { return false; }
+}
 async function resourceRequest(request){
   const path = canonicalPath(request);
   const local = await getResource(path);
-  if (local && local.body) return responseFromResource(local);
-  try { const response = await fetch(request); if (validResponse(path, response)) return response; } catch (_) {}
+  if (resourceRecordHasBody(local)) return responseFromResource(local);
+  try {
+    const response = await fetch(request);
+    if (validResponse(path, response)) {
+      saveNetworkResource(path, response.clone()).catch(() => {});
+      return response;
+    }
+  } catch (_) {}
   return new Response("Offline resource not stored.", { status: 504, headers: { "content-type": /\.json$/i.test(path) ? "application/json; charset=utf-8" : "text/plain; charset=utf-8" } });
 }
 
