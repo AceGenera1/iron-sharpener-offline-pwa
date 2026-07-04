@@ -3019,9 +3019,9 @@ html.obs #discipleJournalBtn { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="v165-v67-study-resources-crossrefs-restore" />
+<meta name="rdm-build" content="v166-v68-full-offline-resources-persistent-crossrefs" />
 <script id="rdm-v159-build-marker">
-(function(){ try { window.__RDM_ACTIVE_BUILD = "v165-v67-study-resources-crossrefs-restore"; } catch (_) {} })();
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v166-v68-full-offline-resources-persistent-crossrefs"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -13060,7 +13060,7 @@ body.dark .backgrounds-back-btn {
     if (shouldRefreshOverview) openBookOverviewSafe();
     if (shouldRefreshMatthewHenry) get("openCommentariesResource")?.click();
     if (shouldRefreshJfb) get("openJfbResource")?.click();
-    if (internalOpen && typeof window.renderInternalCrossReferences === "function") window.renderInternalCrossReferences();
+    if (internalOpen && !window.__rdmKeepBuiltInCrossRefsListV166 && typeof window.renderInternalCrossReferences === "function") window.renderInternalCrossReferences();
     if (manualCrossRefsOpen) get("obsShowCrossRefs")?.click();
 
     updateStudyResourcesKey();
@@ -13316,14 +13316,14 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   margin-top: 8px;
 }
 </style>
-<script id="rdm-v165-built-in-crossrefs-clean-controller">
+<script id="rdm-v166-built-in-crossrefs-persistent-browsing-controller">
 /* =========================================================
    Iron Sharpener Built-In Cross References — Internal Rebuild v2
    Source of truth: WEB-generated internal cross-reference JSON only.
    ========================================================= */
 (function () {
-  if (window.__rdmBuiltInCrossRefsInternalRebuildV2) return;
-  window.__rdmBuiltInCrossRefsInternalRebuildV2 = true;
+  if (window.__rdmBuiltInCrossRefsPersistentBrowsingV166) return;
+  window.__rdmBuiltInCrossRefsPersistentBrowsingV166 = true;
 
   const CHUNK_SIZE = 120;
   const $ = (id) => document.getElementById(id);
@@ -13560,11 +13560,23 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
       if (event.stopImmediatePropagation) event.stopImmediatePropagation();
 
       const ref = refBtn.dataset.ref || refBtn.textContent.trim();
-      if (typeof window.goToScriptureReference === "function") {
-        try { await window.goToScriptureReference(ref); } catch (_) {}
+      window.__rdmKeepBuiltInCrossRefsListV166 = true;
+      try {
+        if (typeof window.goToScriptureReference === "function") {
+          try { await window.goToScriptureReference(ref); } catch (_) {}
+        }
+      } finally {
+        setTimeout(() => { window.__rdmKeepBuiltInCrossRefsListV166 = false; }, 0);
       }
 
-      closePanel(true);
+      openOrigin = "resources";
+      keepStudyResourcesVisible();
+      const openPanelElement = ensurePanel();
+      openPanelElement.classList.add("open");
+      openPanelElement.setAttribute("aria-hidden", "false");
+      openPanelElement.style.display = "";
+      openPanelElement.style.pointerEvents = "auto";
+      openPanelElement.style.zIndex = String(++zIndex);
     });
 
     return panel;
@@ -13743,10 +13755,22 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
 
     if (referenceButton) {
       const ref = referenceButton.dataset.ref || referenceButton.textContent.trim();
-      if (typeof window.goToScriptureReference === "function") {
-        try { await window.goToScriptureReference(ref); } catch (_) {}
+      window.__rdmKeepBuiltInCrossRefsListV166 = true;
+      try {
+        if (typeof window.goToScriptureReference === "function") {
+          try { await window.goToScriptureReference(ref); } catch (_) {}
+        }
+      } finally {
+        setTimeout(() => { window.__rdmKeepBuiltInCrossRefsListV166 = false; }, 0);
       }
-      closePanel(true);
+      openOrigin = "resources";
+      keepStudyResourcesVisible();
+      const openPanelElement = ensurePanel();
+      openPanelElement.classList.add("open");
+      openPanelElement.setAttribute("aria-hidden", "false");
+      openPanelElement.style.display = "";
+      openPanelElement.style.pointerEvents = "auto";
+      openPanelElement.style.zIndex = String(++zIndex);
     }
   }
 
@@ -15786,7 +15810,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v67-study-resources-crossrefs-restore").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v68-full-offline-resources-persistent-crossrefs").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -22768,8 +22792,8 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   window.rdmV65CopySelectedOrMarked = copySelectedOrMarked;
   window.rdmV65SanitizeResourceHeaders = sanitizeDuplicateResourceHeaders;
 
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v67-study-resources-crossrefs-restore";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v67-study-resources-crossrefs-restore";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v68-full-offline-resources-persistent-crossrefs";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v68-full-offline-resources-persistent-crossrefs";
   window.__IRON_SHARPENER_MARKING_LOCK_VERSION = "v64-mobile-tools-selection-bridge";
   window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
   window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
@@ -27003,7 +27027,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v67-study-resources-crossrefs-restore-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v68-full-offline-resources-persistent-crossrefs-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27248,11 +27272,12 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 <!-- v161 — IndexedDB Offline Resources + Book/Chapter-only back labels.
      Replaces the previous Cache Storage resource library rather than stacking over it. -->
 
-<script id="rdm-v165-indexeddb-offline-resource-recovery">
-(function rdmV161IndexedDbOfflineStorage(){
+<script id="rdm-v166-verified-full-offline-resource-restore">
+
+(function rdmV166VerifiedOfflineResourceRestore(){
   "use strict";
-  if (window.__rdmV161IndexedDbOfflineStorage) return;
-  window.__rdmV161IndexedDbOfflineStorage = true;
+  if (window.__rdmV166VerifiedOfflineResourceRestore) return;
+  window.__rdmV166VerifiedOfflineResourceRestore = true;
 
   var STORAGE_PREFIX = "ironSharpenerUnified";
   var STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v97";
@@ -27262,9 +27287,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v67-study-resources-crossrefs-restore-20260704";
-  var VERSION = "v165-indexeddb-offline-resource-recovery";
-  var SW_VERSION = "v67-study-resources-crossrefs-restore";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v68-full-offline-resources-persistent-crossrefs-20260704";
+  var VERSION = "v166-compact-offline-storage-full-resource-restore";
+  var SW_VERSION = "v68-full-offline-resources-persistent-crossrefs";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -27305,6 +27330,11 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   function canonicalUrl(value){
     var path = canonicalPath(value);
     return new URL(path || "index.html", document.baseURI).href;
+  }
+  function buildFetchUrl(value){
+    var url = new URL(canonicalUrl(value));
+    url.searchParams.set("rdm_offline_build", "v166");
+    return url.href;
   }
   function isBiblePath(path){ return /^bible\/web\/.+\/\d{2,3}\.json$/i.test(canonicalPath(path)); }
   function isJsonPath(path){ return /\.json$/i.test(canonicalPath(path)); }
@@ -27402,15 +27432,18 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     walk(data);
   }
   async function fetchIndex(path){
-    var url = canonicalUrl(path);
     try {
-      var response = await fetch(url, { cache: "no-store" });
+      var response = await fetch(buildFetchUrl(path), { cache: "reload" });
       var type = response && response.headers ? (response.headers.get("content-type") || "") : "";
       if (response && response.ok && (!type || /json/i.test(type))) return await response.json();
     } catch (_) {}
     try {
       var saved = await idbGet(ACTIVE_STORE, canonicalPath(path));
-      if (saved && saved.body) return JSON.parse(new TextDecoder().decode(saved.body));
+      if (saved) {
+        if (saved.body instanceof ArrayBuffer) return JSON.parse(new TextDecoder().decode(saved.body));
+        if (typeof saved.bodyText === "string") return JSON.parse(saved.bodyText);
+        if (typeof saved.text === "string") return JSON.parse(saved.text);
+      }
     } catch (_) {}
     return null;
   }
@@ -27461,8 +27494,8 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (isJsonPath(path) && type && !/json/i.test(type)) return false;
     return true;
   }
-  function recordHasBody(record){
-    return !!(record && (typeof record.bodyText === "string" || record.body instanceof ArrayBuffer || (typeof Blob !== "undefined" && record.body instanceof Blob)));
+  function hasVerifiedBinaryBody(record){
+    return !!(record && record.version === VERSION && record.body instanceof ArrayBuffer && record.body.byteLength >= 0);
   }
   async function storeResource(path, force){
     var canonical = canonicalPath(path);
@@ -27470,43 +27503,39 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!force) {
       try {
         var existing = await idbGet(ACTIVE_STORE, canonical);
-        if (existing && existing.version === VERSION && recordHasBody(existing)) {
+        if (hasVerifiedBinaryBody(existing)) {
           await idbPut(STAGING_STORE, existing);
           return { status: "stored" };
         }
       } catch (_) {}
     }
     try {
-      var response = await fetch(canonicalUrl(canonical), { cache: force ? "reload" : "no-store" });
+      var response = await fetch(buildFetchUrl(canonical), { cache: "reload" });
       if (!validateResponse(canonical, response)) return { status: "failed" };
-      var contentType = response.headers ? (response.headers.get("content-type") || (isJsonPath(canonical) ? "application/json; charset=utf-8" : "application/octet-stream")) : "application/octet-stream";
-      var textLike = isJsonPath(canonical) || /^text\//i.test(contentType) || /(javascript|xml|svg|css)/i.test(contentType);
-      var record = {
+      var body = await response.arrayBuffer();
+      await idbPut(STAGING_STORE, {
         key: canonical,
+        body: body,
         status: response.status || 200,
         statusText: response.statusText || "OK",
-        contentType: contentType,
+        contentType: response.headers ? (response.headers.get("content-type") || (isJsonPath(canonical) ? "application/json; charset=utf-8" : "application/octet-stream")) : "application/octet-stream",
         updatedAt: new Date().toISOString(),
         version: VERSION
-      };
-      if (textLike) record.bodyText = await response.text();
-      else record.body = await response.arrayBuffer();
-      await idbPut(STAGING_STORE, record);
+      });
       return { status: "stored" };
     } catch (_) { return { status: "failed" }; }
   }
-  async function resourceStoreReady(storeName, resourceFiles){
+  async function stagingReady(resourceFiles){
     try {
-      var count = await idbCount(storeName);
-      if (count < resourceFiles.length) return false;
+      var count = await idbCount(STAGING_STORE);
+      if (count !== resourceFiles.length) return false;
       for (var i = 0; i < CRITICAL_RESOURCE_FILES.length; i++) {
-        var record = await idbGet(storeName, canonicalPath(CRITICAL_RESOURCE_FILES[i]));
-        if (!recordHasBody(record)) return false;
+        var record = await idbGet(STAGING_STORE, canonicalPath(CRITICAL_RESOURCE_FILES[i]));
+        if (!record || !(record.body instanceof ArrayBuffer)) return false;
       }
       return true;
     } catch (_) { return false; }
   }
-  async function stagingReady(resourceFiles){ return resourceStoreReady(STAGING_STORE, resourceFiles); }
   async function bibleReady(){
     try {
       var count = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : 0;
@@ -27536,7 +27565,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v67-study-resources-crossrefs-restore");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v68-full-offline-resources-persistent-crossrefs");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -27571,7 +27600,6 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     running = true;
     var failures = [];
     var startedAt = Date.now();
-    var verifiedStaging = false;
     try {
       updatePublicProgress(2, "Building the offline file list...");
       var lists = await buildLists();
@@ -27606,25 +27634,16 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
       updatePublicProgress(93, "Verifying offline resources...");
       var resourcesVerified = await stagingReady(lists.resources);
-      verifiedStaging = resourcesVerified;
       var bibleVerified = await bibleReady();
       var launchVerified = await launchReady();
       if (!resourcesVerified || !bibleVerified || !launchVerified) throw new Error("Offline verification did not finish successfully. The previous IndexedDB resources were kept.");
 
-      updatePublicProgress(96, "Activating the new offline resource database...");
-      var activeResourcesVerified = false;
-      try {
-        await promoteStaging();
-        activeResourcesVerified = await resourceStoreReady(ACTIVE_STORE, lists.resources);
-      } catch (_) {
-        activeResourcesVerified = false;
-      }
-      if (!activeResourcesVerified && !(await stagingReady(lists.resources))) {
-        throw new Error("The verified offline resource store could not be activated.");
-      }
+      updatePublicProgress(96, "Activating the complete offline study-resource database...");
+      await promoteStaging();
+      var resourceCount = await idbCount(ACTIVE_STORE);
+      if (resourceCount !== lists.resources.length) throw new Error("The complete study-resource database did not activate correctly.");
       var removedCaches = await pruneAllOfflineCaches();
-      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V66" }); } catch (_) {}
-      var resourceCount = activeResourcesVerified ? await idbCount(ACTIVE_STORE) : await idbCount(STAGING_STORE);
+      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V68" }); } catch (_) {}
       var bibleCount = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : Number(bibleBuild && bibleBuild.saved || 0);
       var totalReady = Number(resourceCount || 0) + Number(bibleCount || 0) + LAUNCH_FILES.length;
       var now = new Date();
@@ -27632,7 +27651,6 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
         complete: true, criticalReady: true, failed: 0, failures: [],
         total: totalReady, cached: totalReady, ready: totalReady, skipped: 0,
         indexedResourceCount: Number(resourceCount || 0), indexedResourceReady: true,
-        indexedResourceStore: activeResourcesVerified ? ACTIVE_STORE : STAGING_STORE,
         indexedBibleCount: Number(bibleCount || 0), indexedBibleReady: true,
         launchShellReady: true, resourceDatabaseName: RESOURCE_DB, launchCacheName: LAUNCH_CACHE,
         removedLegacyCacheCount: removedCaches.length,
@@ -27643,9 +27661,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       updatePublicProgress(100, "Offline setup complete. Fast-launch storage is ready.");
       return status;
     } catch (error) {
-      if (!verifiedStaging) {
-        try { await idbClear(STAGING_STORE); } catch (_) {}
-      }
+      try { await idbClear(STAGING_STORE); } catch (_) {}
       var nowFail = new Date();
       var failedStatus = {
         complete: false, criticalReady: false, failed: Math.max(1, failures.length), failures: failures.slice(0, 12),
@@ -27667,7 +27683,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
         status.criticalReady = false;
         status.indexedResourceReady = false;
         status.version = VERSION + "-setup-needed";
-        status.note = "Offline setup needs one refresh for the new fast-launch storage.";
+        status.note = "Offline setup needs one verified refresh to restore the complete study-resource library.";
         writeStatus(status);
       }
     } catch (_) {}
@@ -27676,16 +27692,17 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.rdmPrepareOfflineFilesV97 = prepareIndexedOffline;
   window.rdmPrepareOfflineFilesV34 = prepareIndexedOffline;
   window.rdmUpdateOfflineFilesFastV34 = function(){ return prepareIndexedOffline(true); };
-  window.rdmPrepareIndexedOfflineV161 = prepareIndexedOffline;
-  window.rdmIndexedOfflineV161 = {
+  window.rdmPrepareIndexedOfflineV166 = prepareIndexedOffline;
+  window.rdmIndexedOfflineV166 = {
     version: VERSION, resourceDb: RESOURCE_DB, launchCache: LAUNCH_CACHE,
     canonicalPath: canonicalPath, canonicalUrl: canonicalUrl, buildLists: buildLists,
     prepare: prepareIndexedOffline, pruneLegacyCaches: pruneAllOfflineCaches,
     bibleReady: bibleReady, launchReady: launchReady
   };
   markNewStorageRequired();
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v161-idb-offline-book-chapter-back-labels";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v166-full-offline-resources-persistent-crossrefs";
 })();
+
 </script>
 
 
