@@ -26582,7 +26582,11 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   window.__rdmV132SingleAppMobileBrowserStability = true;
 
   function mm(q){ try { return !!(window.matchMedia && window.matchMedia(q).matches); } catch(_) { return false; } }
-  function mobileLike(){ return mm('(max-width: 1180px), (hover: none), (pointer: coarse), (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)'); }
+  function mobileLike(){
+    /* Mobile/tablet UI only. Desktop-installed PWAs also match standalone display mode,
+       so standalone must never qualify by itself or it creates a second Journal button. */
+    return mm('(max-width: 1180px)') && (mm('(hover: none)') || mm('(pointer: coarse)'));
+  }
   function byId(id){ return document.getElementById(id); }
 
   function openJournal(event){
