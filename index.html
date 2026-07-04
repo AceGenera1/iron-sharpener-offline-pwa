@@ -5462,9 +5462,21 @@ async function loadPassage() {
   }
 }
 
+    function syncThemeCanvas(isDark) {
+      const root = document.documentElement;
+      const canvasColor = isDark ? "#203D39" : "#F4EFE3";
+
+      root.classList.toggle("rdm-v131-launch-dark", isDark);
+      root.classList.toggle("rdm-v85-dark", isDark);
+      root.style.setProperty("background", canvasColor, "important");
+      root.style.setProperty("background-color", canvasColor, "important");
+      root.style.colorScheme = isDark ? "dark" : "light";
+    }
+
     function setThemeMode(mode) {
       const isDark = mode === "dark";
       document.body.classList.toggle("dark", isDark);
+      syncThemeCanvas(isDark);
       localStorage.setItem(`${storagePrefix}.theme`, isDark ? "dark" : "cream");
     }
 
@@ -5473,8 +5485,10 @@ async function loadPassage() {
       const urlTheme = params.get("theme");
       const savedTheme = localStorage.getItem(`${storagePrefix}.theme`) || "cream";
       const finalTheme = urlTheme || savedTheme;
+      const isDark = finalTheme === "dark";
 
-      document.body.classList.toggle("dark", finalTheme === "dark");
+      document.body.classList.toggle("dark", isDark);
+      syncThemeCanvas(isDark);
     }
 
     function noteIds() {
