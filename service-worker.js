@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v73 Teacher Tools Copy Menu + Fresh Shell
+/* Iron Sharpener service worker — v74 Doctrine Related-Topic Single Open + Fresh Shell
    Launch architecture:
    - Cache Storage contains only the tiny app launch shell and icons.
    - The large offline study-resource library remains in IndexedDB, not Cache Storage.
@@ -7,9 +7,9 @@
    - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const SW_VERSION = "v73-teacher-tools-copy-menu";
-const SHELL_TOKEN = "v73-teacher-tools-copy-menu";
-const LAUNCH_CACHE = "iron-sharpener-launch-v73-teacher-tools-copy-menu-20260704";
+const SW_VERSION = "v74-doctrine-related-topic-single-open";
+const SHELL_TOKEN = "v74-doctrine-related-topic-single-open";
+const LAUNCH_CACHE = "iron-sharpener-launch-v74-doctrine-related-topic-single-open-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -35,7 +35,7 @@ self.addEventListener("activate", (event) => {
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
     if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) {
-      throw new Error("Fresh v73 app shells were not verified.");
+      throw new Error("Fresh v74 app shells were not verified.");
     }
 
     // Claim the already-loaded page without reloading or navigating it. On a fresh
