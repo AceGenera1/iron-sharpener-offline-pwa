@@ -5466,10 +5466,12 @@ async function loadPassage() {
   }
 }
 
+    /* v173: keep the installed desktop PWA root canvas synchronized when the user switches Cream / Dark. */
     function syncThemeCanvas(isDark) {
       const root = document.documentElement;
       const canvasColor = isDark ? "#203D39" : "#F4EFE3";
 
+      root.classList.toggle("rdm-v156-direct-dark", isDark);
       root.classList.toggle("rdm-v131-launch-dark", isDark);
       root.classList.toggle("rdm-v85-dark", isDark);
       root.style.setProperty("background", canvasColor, "important");
