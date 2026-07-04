@@ -4138,9 +4138,9 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v156-v61-fresh-shell-cutover" />
+<meta name="rdm-build" content="journal-v157-v62-clean-navigation" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v156-v61-fresh-shell-cutover"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v157-v62-clean-navigation"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -9241,7 +9241,7 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     initJournalReader();
     await renderHistory();
     if ("serviceWorker" in navigator) {
-      try { navigator.serviceWorker.register("./service-worker.js?v=v61-fresh-shell-cutover"); } catch (_) {}
+      try { navigator.serviceWorker.register("./service-worker.js?v=v62-clean-navigation"); } catch (_) {}
     }
   }
 
@@ -12190,5 +12190,5 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 </body>
 </html>
-<!-- v156 Journal: Book/Chapter-only heading retained; forced v61 fresh-shell cutover. -->
+<!-- v156 Journal: Book/Chapter-only heading retained; forced v62 fresh-shell cutover. -->
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
