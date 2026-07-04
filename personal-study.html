@@ -4157,6 +4157,10 @@ body.dark .resource-clean-empty {
 <script id="rdm-journal-v156-build-marker">
 (function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v168-v70-mobile-separation-scripture-readability-final"; } catch (_) {} })();
 </script>
+
+<!-- v170 — Fresh Home Screen first-open responsiveness.
+     Service-worker registration is deferred until after the first interactive paint,
+     and v70 never navigates/reloads the active page during activation. -->
 </head>
 <body>
 <div class="shell">
@@ -9250,7 +9254,13 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     initJournalReader();
     await renderHistory();
     if ("serviceWorker" in navigator) {
-      try { navigator.serviceWorker.register("./service-worker.js?v=v68-full-offline-resources-persistent-crossrefs"); } catch (_) {}
+      const registerJournalWorker = () => {
+        if (window.__rdmV170JournalServiceWorkerPromise) return window.__rdmV170JournalServiceWorkerPromise;
+        window.__rdmV170JournalServiceWorkerPromise = navigator.serviceWorker.register("./service-worker.js?v=v70-first-open-nonblocking", { updateViaCache: "none" }).catch(() => null);
+        return window.__rdmV170JournalServiceWorkerPromise;
+      };
+      if ("requestIdleCallback" in window) window.requestIdleCallback(registerJournalWorker, { timeout: 2200 });
+      else window.setTimeout(registerJournalWorker, 900);
     }
   }
 
