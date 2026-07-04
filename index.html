@@ -3019,9 +3019,9 @@ html.obs #discipleJournalBtn { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="v163-v65-reference-range-navigation" />
+<meta name="rdm-build" content="v164-v66-offline-resources-crossrefs-flow" />
 <script id="rdm-v159-build-marker">
-(function(){ try { window.__RDM_ACTIVE_BUILD = "v163-v65-reference-range-navigation"; } catch (_) {} })();
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v164-v66-offline-resources-crossrefs-flow"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -13546,7 +13546,7 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
     $("internalXrefsChapterMode")?.addEventListener("click", () => { mode = "chapter"; visibleLimit = CHUNK_SIZE; render(); });
     $("internalXrefSearch")?.addEventListener("input", () => { visibleLimit = CHUNK_SIZE; render(); });
 
-    panel.addEventListener("click", event => {
+    panel.addEventListener("click", async event => {
       const more = event.target.closest("#internalXrefsShowMore");
       if (more) {
         event.preventDefault();
@@ -13560,7 +13560,26 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
       event.preventDefault();
       event.stopPropagation();
       const ref = refBtn.dataset.ref || refBtn.textContent.trim();
-      if (typeof window.goToScriptureReference === "function") window.goToScriptureReference(ref);
+      if (typeof window.goToScriptureReference === "function") {
+        try { await window.goToScriptureReference(ref); } catch (_) {}
+      }
+
+      // A selected cross reference belongs on the Scripture screen. Close the
+      // cross-reference menu and its parent Study Resources menu only after the
+      // exact verse/range has loaded.
+      closePanel();
+      const resourcesPanel = $("studyResourcesPanel");
+      if (resourcesPanel) {
+        resourcesPanel.classList.remove("open");
+        resourcesPanel.setAttribute("aria-hidden", "true");
+        resourcesPanel.style.display = "";
+      }
+      const scriptureNav = document.querySelector('#rdmMobileAppNav button[data-rdm-mobile-action="scripture"]');
+      if (scriptureNav) {
+        try { scriptureNav.click(); } catch (_) {}
+      } else {
+        try { $("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+      }
     });
 
     return panel;
@@ -15713,7 +15732,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v65-reference-range-navigation").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v66-offline-resources-crossrefs-flow").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -22642,7 +22661,9 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 
   function closeFloatingParentsForInternalCrossRefs() {
-    ["teacherToolsPanel", "studyResourcesPanel", "obsCrossRefsPanel"].forEach(id => {
+    // Built-In Cross References opens above Study Resources. Keep the resource menu
+    // open behind it so Close returns to the resource choices.
+    ["teacherToolsPanel", "obsCrossRefsPanel"].forEach(id => {
       const panel = get(id);
       if (!panel) return;
       panel.classList.remove("open");
@@ -26973,7 +26994,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v65-reference-range-navigation-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27218,7 +27239,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 <!-- v161 — IndexedDB Offline Resources + Book/Chapter-only back labels.
      Replaces the previous Cache Storage resource library rather than stacking over it. -->
 
-<script id="rdm-v161-indexeddb-offline-storage">
+<script id="rdm-v164-indexeddb-offline-resource-recovery">
 (function rdmV161IndexedDbOfflineStorage(){
   "use strict";
   if (window.__rdmV161IndexedDbOfflineStorage) return;
@@ -27232,9 +27253,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v65-reference-range-navigation-20260704";
-  var VERSION = "v161-indexeddb-offline-storage";
-  var SW_VERSION = "v65-reference-range-navigation";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
+  var VERSION = "v164-indexeddb-offline-resource-recovery";
+  var SW_VERSION = "v66-offline-resources-crossrefs-flow";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -27431,39 +27452,52 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (isJsonPath(path) && type && !/json/i.test(type)) return false;
     return true;
   }
+  function recordHasBody(record){
+    return !!(record && (typeof record.bodyText === "string" || record.body instanceof ArrayBuffer || (typeof Blob !== "undefined" && record.body instanceof Blob)));
+  }
   async function storeResource(path, force){
     var canonical = canonicalPath(path);
     if (!canonical || isBiblePath(canonical) || LAUNCH_FILES.indexOf(canonical) >= 0) return { status: "excluded" };
     if (!force) {
       try {
         var existing = await idbGet(ACTIVE_STORE, canonical);
-        if (existing) { await idbPut(STAGING_STORE, existing); return { status: "stored" }; }
+        if (existing && existing.version === VERSION && recordHasBody(existing)) {
+          await idbPut(STAGING_STORE, existing);
+          return { status: "stored" };
+        }
       } catch (_) {}
     }
     try {
-      var response = await fetch(canonicalUrl(canonical), { cache: force ? "reload" : "default" });
+      var response = await fetch(canonicalUrl(canonical), { cache: force ? "reload" : "no-store" });
       if (!validateResponse(canonical, response)) return { status: "failed" };
-      var body = await response.arrayBuffer();
-      await idbPut(STAGING_STORE, {
+      var contentType = response.headers ? (response.headers.get("content-type") || (isJsonPath(canonical) ? "application/json; charset=utf-8" : "application/octet-stream")) : "application/octet-stream";
+      var textLike = isJsonPath(canonical) || /^text\//i.test(contentType) || /(javascript|xml|svg|css)/i.test(contentType);
+      var record = {
         key: canonical,
-        body: body,
         status: response.status || 200,
         statusText: response.statusText || "OK",
-        contentType: response.headers ? (response.headers.get("content-type") || (isJsonPath(canonical) ? "application/json; charset=utf-8" : "application/octet-stream")) : "application/octet-stream",
+        contentType: contentType,
         updatedAt: new Date().toISOString(),
         version: VERSION
-      });
+      };
+      if (textLike) record.bodyText = await response.text();
+      else record.body = await response.arrayBuffer();
+      await idbPut(STAGING_STORE, record);
       return { status: "stored" };
     } catch (_) { return { status: "failed" }; }
   }
-  async function stagingReady(resourceFiles){
+  async function resourceStoreReady(storeName, resourceFiles){
     try {
-      var count = await idbCount(STAGING_STORE);
+      var count = await idbCount(storeName);
       if (count < resourceFiles.length) return false;
-      for (var i = 0; i < CRITICAL_RESOURCE_FILES.length; i++) if (!(await idbGet(STAGING_STORE, canonicalPath(CRITICAL_RESOURCE_FILES[i])))) return false;
+      for (var i = 0; i < CRITICAL_RESOURCE_FILES.length; i++) {
+        var record = await idbGet(storeName, canonicalPath(CRITICAL_RESOURCE_FILES[i]));
+        if (!recordHasBody(record)) return false;
+      }
       return true;
     } catch (_) { return false; }
   }
+  async function stagingReady(resourceFiles){ return resourceStoreReady(STAGING_STORE, resourceFiles); }
   async function bibleReady(){
     try {
       var count = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : 0;
@@ -27493,7 +27527,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v65-reference-range-navigation");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v66-offline-resources-crossrefs-flow");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -27528,6 +27562,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     running = true;
     var failures = [];
     var startedAt = Date.now();
+    var verifiedStaging = false;
     try {
       updatePublicProgress(2, "Building the offline file list...");
       var lists = await buildLists();
@@ -27562,15 +27597,25 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
       updatePublicProgress(93, "Verifying offline resources...");
       var resourcesVerified = await stagingReady(lists.resources);
+      verifiedStaging = resourcesVerified;
       var bibleVerified = await bibleReady();
       var launchVerified = await launchReady();
       if (!resourcesVerified || !bibleVerified || !launchVerified) throw new Error("Offline verification did not finish successfully. The previous IndexedDB resources were kept.");
 
       updatePublicProgress(96, "Activating the new offline resource database...");
-      await promoteStaging();
+      var activeResourcesVerified = false;
+      try {
+        await promoteStaging();
+        activeResourcesVerified = await resourceStoreReady(ACTIVE_STORE, lists.resources);
+      } catch (_) {
+        activeResourcesVerified = false;
+      }
+      if (!activeResourcesVerified && !(await stagingReady(lists.resources))) {
+        throw new Error("The verified offline resource store could not be activated.");
+      }
       var removedCaches = await pruneAllOfflineCaches();
-      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V64" }); } catch (_) {}
-      var resourceCount = await idbCount(ACTIVE_STORE);
+      try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V66" }); } catch (_) {}
+      var resourceCount = activeResourcesVerified ? await idbCount(ACTIVE_STORE) : await idbCount(STAGING_STORE);
       var bibleCount = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : Number(bibleBuild && bibleBuild.saved || 0);
       var totalReady = Number(resourceCount || 0) + Number(bibleCount || 0) + LAUNCH_FILES.length;
       var now = new Date();
@@ -27578,6 +27623,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
         complete: true, criticalReady: true, failed: 0, failures: [],
         total: totalReady, cached: totalReady, ready: totalReady, skipped: 0,
         indexedResourceCount: Number(resourceCount || 0), indexedResourceReady: true,
+        indexedResourceStore: activeResourcesVerified ? ACTIVE_STORE : STAGING_STORE,
         indexedBibleCount: Number(bibleCount || 0), indexedBibleReady: true,
         launchShellReady: true, resourceDatabaseName: RESOURCE_DB, launchCacheName: LAUNCH_CACHE,
         removedLegacyCacheCount: removedCaches.length,
@@ -27588,7 +27634,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       updatePublicProgress(100, "Offline setup complete. Fast-launch storage is ready.");
       return status;
     } catch (error) {
-      try { await idbClear(STAGING_STORE); } catch (_) {}
+      if (!verifiedStaging) {
+        try { await idbClear(STAGING_STORE); } catch (_) {}
+      }
       var nowFail = new Date();
       var failedStatus = {
         complete: false, criticalReady: false, failed: Math.max(1, failures.length), failures: failures.slice(0, 12),
@@ -28076,3 +28124,4 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
 <!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
 <!-- v163: one reference-range navigation engine; hidden Start/End controls retain exact resource references. -->
+<!-- v164: recover offline study resources from verified IndexedDB stores and restore Built-In Cross References panel flow. -->
