@@ -3018,6 +3018,11 @@ html.obs #discipleJournalBtn { display: none !important; }
   .controls div:has(#start), .controls div:has(#end), .controls div:has(#rangeSize) { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
+
+<meta name="rdm-build" content="v159-v61-fresh-shell-cutover" />
+<script id="rdm-v159-build-marker">
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v159-v61-fresh-shell-cutover"; } catch (_) {} })();
+</script>
 </head>
 <body>
 <div class="shell">
@@ -16274,7 +16279,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v61-fresh-shell-cutover").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -30248,7 +30253,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v60-compact-direct-shell-20260703";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v61-fresh-shell-cutover-20260703";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -30263,7 +30268,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     return Math.max(Number(status.cached || 0), Number(status.ready || 0), Number(status.total || 0) - Number(status.failed || 0) - Number(status.skipped || 0));
   }
   function isCompactStatus(status){
-    return !!(status && /^v158-compact-offline-storage/.test(String(status.version || "")));
+    return !!(status && /^v\d+-compact-offline-storage/.test(String(status.version || "")));
   }
   function bestStatus(){
     var best = null;
@@ -30296,7 +30301,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     base.ready = Math.max(saved, Number(base.ready || 0));
     base.cached = Math.max(saved, Number(base.cached || 0));
     base.updatedAt = new Date().toISOString();
-    base.version = (source && source.version) || "v158-compact-offline-storage";
+    base.version = (source && source.version) || "v159-compact-offline-storage";
     STATUS_KEYS.forEach(function(key){ write(key, Object.assign({}, read(key) || {}, base)); });
   }
   function ensureUi(){
@@ -30515,9 +30520,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var STORAGE_PREFIX = "ironSharpenerUnified";
   var STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v97";
   var SECONDARY_STATUS_KEY = STORAGE_PREFIX + ".offlineCacheStatus.v105";
-  var COMPACT_CACHE = "iron-sharpener-offline-v60-compact-resources-20260703";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v60-compact-direct-shell-20260703";
-  var VERSION = "v158-compact-offline-storage";
+  var COMPACT_CACHE = "iron-sharpener-offline-v61-compact-resources-20260703";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v61-fresh-shell-cutover-20260703";
+  var VERSION = "v159-compact-offline-storage";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -30723,7 +30728,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
         var timer = setTimeout(function(){ resolve(false); }, 1400);
         channel.port1.onmessage = function(event){
           clearTimeout(timer);
-          resolve(!!(event && event.data && event.data.version === "v60-compact-offline-storage"));
+          resolve(!!(event && event.data && event.data.version === "v61-fresh-shell-compact-storage"));
         };
         controller.postMessage({ type: "GET_IRON_SW_VERSION" }, [channel.port2]);
       } catch (_) { resolve(false); }
@@ -30733,7 +30738,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorkerV60()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v61-fresh-shell-cutover");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) {
         try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
@@ -30895,7 +30900,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     launchReady: launchReady
   };
 
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v158-compact-offline-storage-book-chapter-heading";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v159-fresh-shell-cutover-compact-offline-book-chapter-heading";
 })();
 </script>
 
@@ -30907,4 +30912,4 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
 <!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
-<!-- v158: compact Offline Ready storage + Book/Chapter-only Scripture heading; paired with service worker v60. -->
+<!-- v159: forced fresh app-shell cutover + compact Offline Ready storage; paired with service worker v61. -->
