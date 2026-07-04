@@ -4138,9 +4138,9 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v159-v64-study-resources-crossrefs-shell" />
+<meta name="rdm-build" content="journal-v163-v65-reference-range-navigation-shell" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v159-v64-study-resources-crossrefs-shell"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v163-v65-reference-range-navigation-shell"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -8765,16 +8765,10 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
   }
 
   function goToScriptureReference(ref) {
-    const parsed = internalParseRef(ref);
-    if (!parsed) return;
-    saveCurrentDraftNow();
-    $("book").value = parsed.book;
-    populateChapters();
-    $("chapter").value = parsed.chapter;
-    populateVerses();
-    $("start").value = parsed.start;
-    $("end").value = parsed.end;
-    loadPassage();
+    if (window.rdmJournalReferenceRangeNavigationV163 && typeof window.rdmJournalReferenceRangeNavigationV163.open === "function") {
+      return window.rdmJournalReferenceRangeNavigationV163.open(ref);
+    }
+    return false;
   }
 
   window.openInternalCrossReferences = openInternalCrossReferences;
@@ -9241,7 +9235,7 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     initJournalReader();
     await renderHistory();
     if ("serviceWorker" in navigator) {
-      try { navigator.serviceWorker.register("./service-worker.js?v=v64-study-resources-crossrefs"); } catch (_) {}
+      try { navigator.serviceWorker.register("./service-worker.js?v=v65-reference-range-navigation"); } catch (_) {}
     }
   }
 
@@ -11551,115 +11545,133 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 
 <!-- v135 — Disciple Journal clean Scripture loader: one chapter request, one render, guided/export logic untouched. -->
-<script id="rdm-v135-journal-clean-single-scripture-loader">
-(function rdmV135JournalCleanSingleScriptureLoader(){
-  if (window.__rdmV135JournalCleanSingleScriptureLoader) return;
-  window.__rdmV135JournalCleanSingleScriptureLoader = true;
-  var chapterCache = new Map();
-  var activeToken = 0;
-  var lastRenderedKey = '';
-  function get(id){ return document.getElementById(id); }
-  function escape(value){
-    try { if (typeof escapeHtml === 'function') return escapeHtml(value); } catch (_) {}
-    return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+<script id="rdm-v163-journal-reference-range-navigation">
+(function rdmJournalV163ReferenceRangeNavigation(){
+  "use strict";
+  if (window.__rdmJournalV163ReferenceRangeNavigation) return;
+  window.__rdmJournalV163ReferenceRangeNavigation = true;
+
+  var BOOKS = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+  var ALIASES = {"Psalm":"Psalms","Psalms":"Psalms","Song of Songs":"Song of Solomon","Canticles":"Song of Solomon"};
+  var historyStack=[];
+  var committedState=null;
+  var focusState=null;
+  var restoring=false;
+  var loading=false;
+  var activeToken=0;
+  var chapterCache=new Map();
+  var lastRenderedKey="";
+
+  function get(id){return document.getElementById(id);}
+  function escapeValue(value){
+    try { if (typeof escapeHtml === "function") return escapeHtml(value); } catch (_) {}
+    return String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
-  function clean(value){
-    try { if (typeof cleanText === 'function') return cleanText(value); } catch (_) {}
-    return String(value || '');
+  function cleanValue(value){ try { if (typeof cleanText === "function") return cleanText(value); } catch (_) {} return String(value||""); }
+  function maxVerse(book,chapter){
+    try { if (typeof window.rdmDiscipleJournalVerseCountFor === "function") { var n=parseInt(window.rdmDiscipleJournalVerseCountFor(book,chapter),10); if(n>0)return n; } } catch (_) {}
+    try { if (typeof verseCountFor === "function") { var c=parseInt(verseCountFor(book,chapter),10); if(c>0)return c; } } catch (_) {}
+    try { var source=window.rdmDiscipleJournalVerseCounts||(typeof verseCounts!=="undefined"?verseCounts:null); var list=source&&source[book]; var v=parseInt(list&&list[(parseInt(chapter,10)||1)-1],10); if(v>0)return v; } catch (_) {}
+    return 1;
   }
-  function maxVerse(book, chapter){
-    try { if (typeof window.rdmDiscipleJournalVerseCountFor === 'function') return Number(window.rdmDiscipleJournalVerseCountFor(book, chapter) || 1); } catch (_) {}
-    try { if (typeof verseCountFor === 'function') return Number(verseCountFor(book, chapter) || 1); } catch (_) {}
-    try {
-      var counts = (window.rdmDiscipleJournalVerseCounts || window.verseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : {}))[book];
-      return counts ? Number(counts[Number(chapter || 1) - 1] || 1) : 1;
-    } catch (_) { return 1; }
+  function clamp(value,min,max){return Math.max(min,Math.min(max,parseInt(value,10)||min));}
+  function normalize(state){
+    if(!state||!state.book)return null;
+    var book=String(state.book).trim(); var chapter=String(parseInt(state.chapter,10)||1); if(!book)return null;
+    var max=maxVerse(book,chapter); var mode=state.mode==="focus"||state.range==="custom"||state.explicitVerse===true?"focus":"full";
+    var start=mode==="focus"?clamp(state.start,1,max):1; var end=mode==="focus"?clamp(state.end||start,start,max):max;
+    return {book:book,chapter:chapter,start:String(start),end:String(end),mode:mode,range:mode==="focus"?"custom":"full"};
   }
-  function sectionMode(){
-    var size = get('rangeSize');
-    if (size) return String(size.value || 'full');
-    try { if (typeof currentSectionSize === 'function') return String(currentSectionSize() || 'full'); } catch (_) {}
-    return 'full';
+  function sameState(a,b){a=normalize(a);b=normalize(b);return !!a&&!!b&&a.book===b.book&&a.chapter===b.chapter&&a.start===b.start&&a.end===b.end&&a.mode===b.mode;}
+  function key(state){state=normalize(state);return state?[state.book,state.chapter,state.start,state.end,state.mode].join("|"):"";}
+  function label(state){state=normalize(state);return state?state.book+" "+state.chapter:"Scripture";}
+  function ensureOption(select,value,labelText){
+    if(!select)return; value=String(value); var found=false;
+    try{for(var i=0;i<select.options.length;i++)if(String(select.options[i].value)===value){found=true;break;}}catch(_){}
+    if(!found)try{select.add(new Option(labelText||value,value));}catch(_){}
+    try{select.value=value;}catch(_){}
   }
-  function state(){
-    var book = get('book'), chapter = get('chapter'), start = get('start'), end = get('end');
-    if (!book || !chapter || !start || !end) return null;
-    var b = book.value || 'John';
-    var c = String(chapter.value || '1');
-    var max = maxVerse(b, c) || 1;
-    var mode = sectionMode();
-    var s = Number(start.value || 1) || 1;
-    var e = Number(end.value || s) || s;
-    if (mode === 'full') { s = 1; e = max; }
-    s = Math.max(1, Math.min(max, s));
-    e = Math.max(s, Math.min(max, e));
-    if (String(start.value) !== String(s)) start.value = String(s);
-    if (String(end.value) !== String(e)) end.value = String(e);
-    return { book:b, chapter:c, start:s, end:e, max:max, mode:mode };
+  function controlBase(){var book=get("book"),chapter=get("chapter");if(!book||!chapter||!book.value)return null;return {book:book.value,chapter:chapter.value||"1"};}
+  function fullFromControls(){var base=controlBase();return base?normalize({book:base.book,chapter:base.chapter,mode:"full"}):null;}
+  function requestedState(){
+    var base=controlBase(); if(!base)return null;
+    var focused=normalize(focusState);
+    if(focused&&focused.book===base.book&&focused.chapter===String(parseInt(base.chapter,10)||1))return focused;
+    focusState=null; return normalize({book:base.book,chapter:base.chapter,mode:"full"});
   }
-  function reference(s){ return s.start === s.end ? (s.book + ' ' + s.chapter + ':' + s.start) : (s.book + ' ' + s.chapter + ':' + s.start + '-' + s.end); }
-  function heading(s){ return s.book + ' ' + s.chapter; }
-  async function fetchChapter(book, chapter){
-    var key = book + '|' + String(chapter);
-    if (chapterCache.has(key)) return chapterCache.get(key);
-    var path = './bible/web/' + book + '/' + String(chapter).padStart(2, '0') + '.json';
-    var response = await fetch(path);
-    if (!response.ok) response = await fetch('bible/web/' + book + '/' + String(chapter).padStart(2, '0') + '.json');
-    if (!response.ok) throw new Error('Bible chapter not found: ' + path);
-    var data = await response.json();
-    chapterCache.set(key, data);
-    return data;
+  function setHiddenRange(state){
+    state=normalize(state); if(!state)return null;
+    var range=get("rangeSize"),start=get("start"),end=get("end");
+    ensureOption(range,"full","Full Chapter"); if(state.mode==="focus")ensureOption(range,"custom","Reference Range");
+    ensureOption(start,state.start,state.start); ensureOption(end,state.end,state.end);
+    if(range)range.value=state.mode==="focus"?"custom":"full"; if(start)start.value=state.start; if(end)end.value=state.end;
+    try{localStorage.setItem("ironSharpenerDiscipleJournal.sectionSize",state.mode==="focus"?"custom":"full");}catch(_){}
+    return state;
   }
-  function clearRangeBack(){
-    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
-    try { discipleJournalScriptureBackStack = []; } catch (_) {}
-    try { window.discipleJournalLastLoadedScriptureState = null; } catch (_) {}
-    var b = get('backToScriptureBtn');
-    if (b) { b.classList.remove('has-back-target','rdm-back-restoring'); b.setAttribute('aria-hidden','true'); }
-    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
+  function setSelectors(state){
+    state=normalize(state);if(!state)return null;
+    var book=get("book"),chapter=get("chapter"); if(book)book.value=state.book;
+    try{if(typeof populateChapters==="function")populateChapters(state.chapter);}catch(_){}
+    if(chapter)chapter.value=state.chapter;
+    try{if(typeof populateVerses==="function")populateVerses();}catch(_){}
+    focusState=state.mode==="focus"?state:null; return setHiddenRange(state);
   }
-  async function cleanLoadPassage(){
-    var s = state();
-    var passage = get('passage'), title = get('referenceTitle');
-    if (!s || !passage) return;
-    var token = ++activeToken;
-    var key = s.book + '|' + s.chapter + '|' + s.start + '|' + s.end + '|' + s.mode;
-    if (title) title.textContent = heading(s);
-    if (key !== lastRenderedKey) passage.innerHTML = '<p class="empty">Loading ' + escape(reference(s)) + '…</p>';
-    try {
-      var data = await fetchChapter(s.book, s.chapter);
-      if (token !== activeToken) return;
-      var verses = Array.isArray(data.verses) ? data.verses : [];
-      var selected = verses.filter(function(v){ var n = Number(v.verse); return n >= s.start && n <= s.end; });
-      if (!selected.length) throw new Error('No verses found.');
-      try { currentPassageVerses = selected; } catch (_) { window.currentPassageVerses = selected; }
-      if (title) title.textContent = heading(s);
-      passage.innerHTML = selected.map(function(v){
-        var n = Number(v.verse);
-        return '<p class="verse" data-verse="' + n + '" data-v="' + n + '"><span class="vnum">' + n + '</span>' + escape(clean(v.text)) + '</p>';
-      }).join('');
-      lastRenderedKey = key;
-      try { if (typeof applySavedMarks === 'function') applySavedMarks(); } catch (_) {}
-      try { if (typeof clearCopySelection === 'function') clearCopySelection(); } catch (_) {}
-      try { if (typeof saveLastScriptureRef === 'function') saveLastScriptureRef(s.book, s.chapter, String(s.start), String(s.end)); } catch (_) {}
-      try { if (typeof autosaveDraft === 'function') autosaveDraft(); } catch (_) {}
-      try { if (Date.now() < (window.__rdmV135JournalRangeOnlyUntil || 0)) clearRangeBack(); else if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
-    } catch (error) {
-      if (token !== activeToken) return;
-      try { currentPassageVerses = []; } catch (_) { window.currentPassageVerses = []; }
-      passage.innerHTML = '<p class="empty">This passage could not load from the local Bible files. ' + escape(error && error.message ? error.message : error) + '</p>';
-    }
+  function mountBack(){
+    var cardBody=document.querySelector(".scriptureCard .cardBody");if(!cardBody)return null;
+    var wrap=get("rdmJournalBackWrapV152");
+    if(!wrap){wrap=document.createElement("div");wrap.id="rdmJournalBackWrapV152";wrap.className="rdm-journal-back-wrap-v152";wrap.setAttribute("aria-hidden","true");wrap.innerHTML='<button id="rdmJournalBackBtnV152" type="button">← Back to Scripture</button>';var controls=cardBody.querySelector(".gridControls");if(controls)cardBody.insertBefore(wrap,controls);else cardBody.insertBefore(wrap,cardBody.firstChild);}
+    var btn=get("rdmJournalBackBtnV152"); if(btn&&!btn.__rdmV163BackClick){btn.__rdmV163BackClick=true;btn.addEventListener("click",goBack,true);} return wrap;
   }
-  cleanLoadPassage.__rdmV135JournalCleanLoader = true;
-  window.loadPassage = cleanLoadPassage;
-  try { loadPassage = cleanLoadPassage; } catch (_) {}
-  ['rangeSize','start','end'].forEach(function(id){
-    var el = get(id); if (!el || el.dataset.rdmV135JournalCleanRange === '1') return;
-    el.dataset.rdmV135JournalCleanRange = '1';
-    el.addEventListener('change', function(){ window.__rdmV135JournalRangeOnlyUntil = Date.now() + 2200; setTimeout(clearRangeBack, 0); setTimeout(clearRangeBack, 180); }, true);
-    el.addEventListener('input', function(){ window.__rdmV135JournalRangeOnlyUntil = Date.now() + 1200; setTimeout(clearRangeBack, 0); }, true);
-  });
-  window.rdmJournalCleanLoadPassageV135 = cleanLoadPassage;
+  function updateBack(){
+    var wrap=mountBack(),btn=get("rdmJournalBackBtnV152"),target=historyStack.length?normalize(historyStack[historyStack.length-1]):null;if(!wrap||!btn)return;
+    if(!target||restoring){wrap.classList.remove("rdm-show");wrap.setAttribute("aria-hidden","true");btn.classList.remove("rdm-busy");btn.textContent="← Back to Scripture";btn.title="Back to Scripture";return;}
+    wrap.classList.add("rdm-show");wrap.setAttribute("aria-hidden","false");btn.classList.remove("rdm-busy");btn.textContent="← Back to "+label(target);btn.title="Back to "+label(target);btn.setAttribute("aria-label","Back to "+label(target));
+  }
+  function pushHistory(state){state=normalize(state);if(!state)return;var top=historyStack.length?normalize(historyStack[historyStack.length-1]):null;if(!top||!sameState(top,state))historyStack.push(state);while(historyStack.length>30)historyStack.shift();}
+  function parseReference(ref){
+    var raw=String(ref||"").replace(/[–—]/g,"-").replace(/\s+/g," ").trim().replace(/[.;,]+$/g,"");if(!raw)return null;
+    var names=BOOKS.concat(Object.keys(ALIASES)).sort(function(a,b){return b.length-a.length;});var matched=names.find(function(name){return raw.toLowerCase().indexOf(name.toLowerCase()+" ")===0;});if(!matched)return null;
+    var book=ALIASES[matched]||matched;var rest=raw.slice(matched.length).trim();var match=rest.match(/^(\d{1,3})(?::(\d{1,3})(?:\s*-\s*(\d{1,3}))?)?$/);if(!match)return null;
+    var chapter=String(parseInt(match[1],10)||1),explicit=!!match[2],max=maxVerse(book,chapter),start=explicit?clamp(match[2],1,max):1,end=explicit?clamp(match[3]||start,start,max):max;
+    return normalize({book:book,chapter:chapter,start:start,end:end,mode:explicit?"focus":"full"});
+  }
+  async function fetchChapter(book,chapter){
+    var cacheKey=book+"|"+chapter;if(chapterCache.has(cacheKey))return chapterCache.get(cacheKey);
+    var path="./bible/web/"+book+"/"+String(chapter).padStart(2,"0")+".json";var response=await fetch(path);if(!response.ok)response=await fetch("bible/web/"+book+"/"+String(chapter).padStart(2,"0")+".json");if(!response.ok)throw new Error("Bible chapter not found: "+path);var data=await response.json();chapterCache.set(cacheKey,data);return data;
+  }
+  async function renderState(requested,options){
+    options=options||{};var state=normalize(requested||requestedState());var passage=get("passage"),title=get("referenceTitle");if(!state||!passage)return false;
+    if(loading&&!options.allowConcurrent)return false;loading=true;focusState=state.mode==="focus"?state:null;setHiddenRange(state);var token=++activeToken;var renderKey=key(state);if(title)title.textContent=label(state);if(renderKey!==lastRenderedKey)passage.innerHTML='<p class="empty">Loading '+escapeValue(state.start===state.end?state.book+" "+state.chapter+":"+state.start:state.book+" "+state.chapter+":"+state.start+"-"+state.end)+'…</p>';
+    try{
+      var data=await fetchChapter(state.book,state.chapter);if(token!==activeToken)return false;var verses=Array.isArray(data.verses)?data.verses:[];var selected=verses.filter(function(v){var n=Number(v.verse);return n>=Number(state.start)&&n<=Number(state.end);});if(!selected.length)throw new Error("No verses found for this reference.");
+      try{currentPassageVerses=selected;}catch(_){window.currentPassageVerses=selected;}if(title)title.textContent=label(state);passage.innerHTML=selected.map(function(v){var n=Number(v.verse);return '<p class="verse" data-verse="'+n+'" data-v="'+n+'"><span class="vnum">'+n+'</span>'+escapeValue(cleanValue(v.text))+'</p>';}).join("");lastRenderedKey=renderKey;committedState=normalize(state);focusState=committedState.mode==="focus"?committedState:null;
+      try{if(typeof applySavedMarks==="function")applySavedMarks();}catch(_){} try{if(typeof clearCopySelection==="function")clearCopySelection();}catch(_){} try{if(typeof saveLastScriptureRef==="function")saveLastScriptureRef(state.book,state.chapter,state.start,state.end);}catch(_){} try{if(typeof autosaveDraft==="function")autosaveDraft();}catch(_){} updateBack();return true;
+    }catch(error){if(token!==activeToken)return false;try{currentPassageVerses=[];}catch(_){window.currentPassageVerses=[];}passage.innerHTML='<p class="empty">This Scripture reference could not load from the local Bible files. '+escapeValue(error&&error.message?error.message:error)+'</p>';return false;}finally{loading=false;}
+  }
+  async function loadPassageV163(){
+    var next=requestedState();if(!next)return false;
+    if(!restoring&&committedState&&!sameState(committedState,next))pushHistory(committedState);
+    updateBack();return renderState(next);
+  }
+  async function openReference(ref){
+    var target=parseReference(ref);if(!target)return false;try{if(typeof saveCurrentDraftNow==="function")saveCurrentDraftNow();}catch(_){}
+    if(committedState&&!sameState(committedState,target))pushHistory(committedState);setSelectors(target);updateBack();var ok=await renderState(target,{allowConcurrent:true});try{document.querySelector(".scriptureCard")?.scrollIntoView({behavior:"auto",block:"start"});}catch(_){}return ok;
+  }
+  async function goBack(event){
+    if(event){try{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}catch(_){}}if(restoring||!historyStack.length)return;var target=normalize(historyStack.pop());if(!target){updateBack();return;}restoring=true;var btn=get("rdmJournalBackBtnV152");if(btn)btn.classList.add("rdm-busy");updateBack();
+    try{try{if(typeof saveCurrentDraftNow==="function")saveCurrentDraftNow();}catch(_){}setSelectors(target);await renderState(target,{allowConcurrent:true});committedState=target;try{document.querySelector(".scriptureCard")?.scrollIntoView({behavior:"auto",block:"start"});}catch(_){}}finally{restoring=false;if(btn)btn.classList.remove("rdm-busy");updateBack();}
+  }
+  function onManualBookChapter(event){var target=event&&event.target;if(!target||(target.id!=="book"&&target.id!=="chapter")||restoring)return;focusState=null;setTimeout(function(){setHiddenRange(fullFromControls());},0);}
+  function install(){
+    mountBack();historyStack=[];focusState=null;committedState=fullFromControls();setHiddenRange(committedState);var old=get("backToScriptureBtn");if(old){old.setAttribute("aria-hidden","true");old.tabIndex=-1;old.style.display="none";}
+    window.loadPassage=loadPassageV163;try{loadPassage=loadPassageV163;}catch(_){}window.goToScriptureReference=openReference;try{goToScriptureReference=openReference;}catch(_){}updateBack();var passage=get("passage");if(!passage||!passage.querySelector(".verse[data-v]"))renderState(committedState,{allowConcurrent:true});
+  }
+  document.addEventListener("change",onManualBookChapter,true);
+  window.rdmJournalReferenceRangeNavigationV163={version:"v163-reference-range-replacement",open:openReference,parse:parseReference,load:loadPassageV163,back:goBack,state:function(){return normalize(committedState);},history:function(){return historyStack.map(normalize);},leaveFocus:function(){focusState=null;setHiddenRange(fullFromControls());return renderState(fullFromControls(),{allowConcurrent:true});}};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
 </script>
 
@@ -11667,102 +11679,11 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 
 
-<!-- v143 — Remove Start/End Verse controls; Section Size is the only range control. -->
-<style id="rdm-v143-journal-remove-start-end-style">
+<!-- v163 — Start/End controls stay hidden but remain active internally for exact resource references. -->
+<style id="rdm-v163-journal-hidden-reference-range-style">
   #start[hidden], #end[hidden] { display:none !important; }
 </style>
-<script id="rdm-v143-journal-remove-start-end-controls">
-(function rdmV143JournalRemoveStartEndControls(){
-  if (window.__rdmV143JournalRemoveStartEndControls) return;
-  window.__rdmV143JournalRemoveStartEndControls = true;
-  var PREFIX = 'ironSharpenerDiscipleJournal';
-  function get(id){ return document.getElementById(id); }
-  function maxVerse(book, chapter){
-    try {
-      if (typeof window.rdmDiscipleJournalVerseCountFor === 'function') {
-        var n = parseInt(window.rdmDiscipleJournalVerseCountFor(book, chapter), 10);
-        if (n > 0) return n;
-      }
-    } catch (_) {}
-    try {
-      var ch = Math.max(1, parseInt(chapter, 10) || 1);
-      var source = window.rdmDiscipleJournalVerseCounts || (typeof verseCounts !== 'undefined' ? verseCounts : null);
-      var arr = (source && source[book]) ? source[book] : null;
-      return Math.max(1, parseInt(arr && arr[ch - 1], 10) || 1);
-    } catch (_) { return 1; }
-  }
-  function setSelectValue(sel, value){
-    if (!sel) return;
-    value = String(value || '1');
-    try {
-      var exists = false;
-      for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === value) { exists = true; break; } }
-      if (!exists) sel.add(new Option(value, value));
-    } catch (_) {}
-    try { sel.value = value; } catch (_) {}
-  }
-  function clearBack(){
-    try { window.__rdmV143JournalRangeOnlyUntil = Date.now() + 10000; } catch (_) {}
-    try { window.__rdmV135JournalRangeOnlyUntil = Date.now() + 10000; } catch (_) {}
-    try { window.discipleJournalScriptureBackStack = []; } catch (_) {}
-    try { discipleJournalScriptureBackStack = []; } catch (_) {}
-    var btn = get('backToScriptureBtn');
-    if (btn) { btn.classList.remove('has-back-target','rdm-back-restoring'); btn.setAttribute('aria-hidden','true'); btn.style.display = 'none'; btn.textContent = '← Back to Scripture'; }
-    try { if (typeof updateBackToScriptureButton === 'function') updateBackToScriptureButton(); } catch (_) {}
-  }
-  function rangeValue(rangeSel){
-    var v = rangeSel && rangeSel.value ? String(rangeSel.value) : 'full';
-    if (v === 'custom') v = 'full';
-    return v;
-  }
-  function normalizeRange(){
-    var book = get('book'), chapter = get('chapter'), range = get('rangeSize'), start = get('start'), end = get('end');
-    if (!book || !chapter || !range || !start || !end) return;
-    var v = rangeValue(range);
-    if (range.value !== v) range.value = v;
-    var max = maxVerse(book.value, chapter.value);
-    var endVerse = v === 'full' ? max : Math.min(max, Math.max(1, parseInt(v, 10) || max));
-    setSelectValue(start, 1);
-    setSelectValue(end, endVerse);
-    try { localStorage.setItem(PREFIX + '.sectionSize', v); } catch (_) {}
-  }
-  function loadSoon(){
-    clearBack();
-    clearTimeout(window.__rdmV143JournalRangeLoadTimer);
-    window.__rdmV143JournalRangeLoadTimer = setTimeout(function(){
-      normalizeRange();
-      clearBack();
-      try { if (typeof autosaveDraft === 'function') autosaveDraft(); } catch (_) {}
-      try { if (typeof loadPassage === 'function') loadPassage(); } catch (_) {}
-      setTimeout(clearBack, 80); setTimeout(clearBack, 450); setTimeout(clearBack, 1400);
-    }, 35);
-  }
-  function onRangeEvent(e){
-    var t = e && e.target;
-    if (!t) return;
-    if (t.id === 'rangeSize') {
-      try { e.stopImmediatePropagation(); } catch (_) {}
-      try { e.stopPropagation(); } catch (_) {}
-      normalizeRange();
-      loadSoon();
-      return;
-    }
-    if (t.id === 'book' || t.id === 'chapter') {
-      // v150: Book/chapter changes are real Scripture navigation and must keep the back target.
-      setTimeout(function(){ normalizeRange(); }, 40);
-    }
-  }
-  document.addEventListener('change', onRangeEvent, true);
-  document.addEventListener('input', onRangeEvent, true);
-  function install(){
-    try { get('start')?.setAttribute('hidden',''); get('end')?.setAttribute('hidden',''); } catch (_) {}
-    normalizeRange();
-    // v150: Do not clear the Scripture back target during normal install/page-show.
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once:true }); else install();
-  window.addEventListener('pageshow', function(){ setTimeout(install, 120); });
-})();
-</script>
+<!-- v163 removed the obsolete full-chapter normalizer; hidden Start/End controls now support exact reference focus. -->
 
 
 
@@ -11832,250 +11753,7 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     #rdmJournalBackBtnV152 { min-height: 50px; font-size: 14px; padding: 12px 14px; white-space: normal; }
   }
 </style>
-<script id="rdm-v152-journal-back-controller">
-(function rdmV152JournalBackController(){
-  "use strict";
-  if (window.__rdmV152JournalBackController) return;
-  window.__rdmV152JournalBackController = true;
-
-  var stack = [];
-  var lastLoaded = null;
-  var restoring = false;
-  var loading = false;
-  var originalLoad = null;
-
-  function get(id){ return document.getElementById(id); }
-
-  function maxVerseFor(book, chapter){
-    try {
-      if (typeof window.rdmDiscipleJournalVerseCountFor === "function") {
-        var wc = parseInt(window.rdmDiscipleJournalVerseCountFor(book, chapter), 10);
-        if (wc > 0) return wc;
-      }
-    } catch (_) {}
-    try {
-      if (typeof verseCountFor === "function") {
-        var c = parseInt(verseCountFor(book, chapter), 10);
-        if (c > 0) return c;
-      }
-    } catch (_) {}
-    try {
-      var source = window.rdmDiscipleJournalVerseCounts || (typeof verseCounts !== "undefined" ? verseCounts : null);
-      var list = (source && source[book]) ? source[book] : null;
-      var ch = Math.max(1, parseInt(chapter, 10) || 1);
-      var v = parseInt(list && list[ch - 1], 10);
-      if (v > 0) return v;
-    } catch (_) {}
-    return 1;
-  }
-
-  function ensureOption(select, value){
-    if (!select) return;
-    value = String(value || "1");
-    try {
-      var found = false;
-      for (var i = 0; i < select.options.length; i++) {
-        if (select.options[i].value === value) { found = true; break; }
-      }
-      if (!found) select.add(new Option(value, value));
-      select.value = value;
-    } catch (_) {}
-  }
-
-  function normalize(state){
-    if (!state || !state.book) return null;
-    var book = String(state.book || "").trim();
-    var chapter = String(parseInt(state.chapter, 10) || 1);
-    if (!book) return null;
-    var end = String(maxVerseFor(book, chapter));
-    return { book: book, chapter: chapter, start: "1", end: end, range: "full" };
-  }
-
-  function controlState(){
-    var book = get("book"), chapter = get("chapter");
-    if (!book || !chapter || !book.value) return null;
-    return normalize({ book: book.value, chapter: chapter.value || "1" });
-  }
-
-  function key(state){
-    state = normalize(state);
-    return state ? state.book + "|" + state.chapter : "";
-  }
-
-  function label(state){
-    state = normalize(state);
-    if (!state) return "Scripture";
-    return state.book + " " + state.chapter;
-  }
-
-  function forceFullChapter(state){
-    state = normalize(state || controlState());
-    if (!state) return null;
-    ensureOption(get("rangeSize"), "full");
-    ensureOption(get("start"), "1");
-    ensureOption(get("end"), state.end);
-    try { localStorage.setItem("ironSharpenerDiscipleJournal.sectionSize", "full"); } catch (_) {}
-    return state;
-  }
-
-  function mount(){
-    var cardBody = document.querySelector(".scriptureCard .cardBody");
-    if (!cardBody) return null;
-    var wrap = get("rdmJournalBackWrapV152");
-    if (!wrap) {
-      wrap = document.createElement("div");
-      wrap.id = "rdmJournalBackWrapV152";
-      wrap.className = "rdm-journal-back-wrap-v152";
-      wrap.setAttribute("aria-hidden", "true");
-      wrap.innerHTML = '<button id="rdmJournalBackBtnV152" type="button">← Back to Scripture</button>';
-      var controls = cardBody.querySelector(".gridControls");
-      if (controls) cardBody.insertBefore(wrap, controls);
-      else cardBody.insertBefore(wrap, cardBody.firstChild);
-    }
-    var btn = get("rdmJournalBackBtnV152");
-    if (btn && !btn.__rdmV152BackClick) {
-      btn.__rdmV152BackClick = true;
-      btn.addEventListener("click", goBack, true);
-    }
-    return wrap;
-  }
-
-  function updateButton(){
-    var wrap = mount();
-    var btn = get("rdmJournalBackBtnV152");
-    if (!wrap || !btn) return;
-    var target = stack.length ? normalize(stack[stack.length - 1]) : null;
-    if (!target) {
-      wrap.classList.remove("rdm-show");
-      wrap.setAttribute("aria-hidden", "true");
-      btn.textContent = "← Back to Scripture";
-      btn.title = "Back to Scripture";
-      return;
-    }
-    wrap.classList.add("rdm-show");
-    wrap.setAttribute("aria-hidden", "false");
-    btn.textContent = "← Back to " + label(target);
-    btn.title = "Back to " + label(target);
-  }
-
-  function updateSoon(){
-    updateButton();
-    [0, 80, 220, 600].forEach(function(ms){ setTimeout(updateButton, ms); });
-  }
-
-  function pushPreviousIfNeeded(){
-    if (restoring) return;
-    var prev = normalize(lastLoaded);
-    var next = controlState();
-    if (!prev || !next || !key(prev) || key(prev) === key(next)) return;
-    var top = stack.length ? normalize(stack[stack.length - 1]) : null;
-    if (!top || key(top) !== key(prev)) stack.push(prev);
-    while (stack.length > 30) stack.shift();
-    updateSoon();
-  }
-
-  async function callLoad(){
-    forceFullChapter(controlState());
-    if (typeof originalLoad === "function") return Promise.resolve(originalLoad.call(window));
-    if (typeof window.loadPassage === "function") return Promise.resolve(window.loadPassage());
-    if (typeof loadPassage === "function") return Promise.resolve(loadPassage());
-    return Promise.resolve();
-  }
-
-  async function goBack(event){
-    if (event) {
-      try { event.preventDefault(); } catch (_) {}
-      try { event.stopPropagation(); } catch (_) {}
-      try { event.stopImmediatePropagation(); } catch (_) {}
-    }
-    var target = normalize(stack.pop());
-    updateSoon();
-    if (!target) return;
-    var btn = get("rdmJournalBackBtnV152");
-    if (btn) btn.classList.add("rdm-busy");
-    restoring = true;
-    try {
-      var book = get("book"), chapter = get("chapter");
-      if (!book || !chapter) return;
-      try { if (typeof saveCurrentDraftNow === "function") saveCurrentDraftNow(); } catch (_) {}
-      book.value = target.book;
-      try { if (typeof populateChapters === "function") populateChapters(); } catch (_) {}
-      chapter.value = String(target.chapter || "1");
-      try { if (typeof populateVerses === "function") populateVerses(); } catch (_) {}
-      forceFullChapter(target);
-      await callLoad();
-      lastLoaded = normalize(target);
-      try { document.querySelector(".scriptureCard")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
-    } finally {
-      restoring = false;
-      if (btn) btn.classList.remove("rdm-busy");
-      updateSoon();
-    }
-  }
-
-  function wrapLoad(){
-    var current = null;
-    try { current = typeof loadPassage === "function" ? loadPassage : null; } catch (_) {}
-    if (!current && typeof window.loadPassage === "function") current = window.loadPassage;
-    if (typeof current !== "function" || current.__rdmV152JournalBackWrapped) return;
-    originalLoad = current;
-
-    async function wrapped(){
-      if (loading) return originalLoad.apply(this, arguments);
-      var before = normalize(lastLoaded);
-      var next = controlState();
-      var changed = !restoring && before && next && key(before) && key(before) !== key(next);
-      loading = true;
-      forceFullChapter(next);
-      try {
-        var result = originalLoad.apply(this, arguments);
-        await Promise.resolve(result);
-        if (changed) pushPreviousIfNeeded();
-        lastLoaded = normalize(controlState());
-        forceFullChapter(lastLoaded);
-        updateSoon();
-        return result;
-      } finally {
-        loading = false;
-      }
-    }
-    wrapped.__rdmV152JournalBackWrapped = true;
-    try { loadPassage = wrapped; } catch (_) {}
-    window.loadPassage = wrapped;
-  }
-
-  function onBookChapterChange(event){
-    var target = event && event.target;
-    if (!target || (target.id !== "book" && target.id !== "chapter")) return;
-    pushPreviousIfNeeded();
-    setTimeout(function(){ forceFullChapter(controlState()); updateButton(); }, 0);
-    setTimeout(function(){ lastLoaded = normalize(controlState()); updateButton(); }, 900);
-  }
-
-  function install(){
-    mount();
-    forceFullChapter(controlState());
-    wrapLoad();
-    if (!lastLoaded) lastLoaded = normalize(controlState());
-    var old = get("backToScriptureBtn");
-    if (old) { old.setAttribute("aria-hidden", "true"); old.tabIndex = -1; old.style.display = "none"; }
-    updateSoon();
-  }
-
-  document.addEventListener("change", onBookChapterChange, true);
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
-  else install();
-  window.addEventListener("pageshow", function(){ setTimeout(install, 80); });
-
-  window.rdmJournalBackV152 = {
-    install: install,
-    update: updateButton,
-    stack: function(){ return stack.slice(); },
-    back: goBack,
-    pushPreviousIfNeeded: pushPreviousIfNeeded
-  };
-})();
-</script>
+<!-- v163 removed the duplicate Journal back controller; the unified reference-range engine owns loading and Back behavior. -->
 
 
 <script id="rdm-v153-journal-fullchapter-back-count-marker">
@@ -12175,8 +11853,8 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 
 <!-- v155 — Disciple Journal visible Scripture heading cleanup.
-     Visible heading is Book + Chapter only. Full verse ranges remain intact for
-     saved journal references, copy/export, history, back labels, and data keys. -->
+     Visible heading is Book + Chapter only. Exact verse ranges remain intact internally for
+     saved journal references, copy/export, history, and data keys; visible Back labels remain Book + Chapter only. -->
 <style id="rdm-v155-journal-book-chapter-heading-stability">
   #referenceTitle {
     min-height: 1.25em;
@@ -12190,5 +11868,5 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
 
 </body>
 </html>
-<!-- v156 Journal: Book/Chapter-only heading retained; forced v62 fresh-shell cutover. -->
+<!-- v163 Journal: Book/Chapter heading retained; hidden exact-reference focus and unified Back navigation. -->
 <!-- v134 Journal stable restore from v132; no page-level fetch override. -->
