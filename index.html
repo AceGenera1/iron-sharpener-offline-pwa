@@ -3019,9 +3019,9 @@ html.obs #discipleJournalBtn { display: none !important; }
   body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="v164-v66-offline-resources-crossrefs-flow" />
+<meta name="rdm-build" content="v165-v67-study-resources-crossrefs-restore" />
 <script id="rdm-v159-build-marker">
-(function(){ try { window.__RDM_ACTIVE_BUILD = "v164-v66-offline-resources-crossrefs-flow"; } catch (_) {} })();
+(function(){ try { window.__RDM_ACTIVE_BUILD = "v165-v67-study-resources-crossrefs-restore"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -13025,16 +13025,7 @@ body.dark .backgrounds-back-btn {
       return;
     }
 
-    if (action === "crossrefs") {
-      if (typeof window.openInternalCrossReferences === "function") {
-        window.openInternalCrossReferences("passage");
-      } else if (typeof openInternalCrossReferences === "function") {
-        openInternalCrossReferences("passage");
-      } else {
-        get("obsShowCrossRefs")?.click();
-      }
-      return;
-    }
+    // Built-In Cross References is owned only by the dedicated v165 controller.
 
     if (action === "overview") {
       openBookOverviewSafe(event);
@@ -13325,7 +13316,7 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   margin-top: 8px;
 }
 </style>
-<script id="rdm-built-in-crossrefs-internal-rebuild-v2">
+<script id="rdm-v165-built-in-crossrefs-clean-controller">
 /* =========================================================
    Iron Sharpener Built-In Cross References — Internal Rebuild v2
    Source of truth: WEB-generated internal cross-reference JSON only.
@@ -13343,6 +13334,7 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
   let visibleLimit = CHUNK_SIZE;
   let renderToken = 0;
   let zIndex = 88000;
+  let openOrigin = "scripture";
 
   function esc(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -13541,7 +13533,12 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
     `;
     document.body.appendChild(panel);
 
-    $("closeInternalCrossRefs")?.addEventListener("click", closePanel);
+    $("closeInternalCrossRefs")?.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      closePanel(false);
+    });
     $("internalXrefsPassageMode")?.addEventListener("click", () => { mode = "passage"; visibleLimit = CHUNK_SIZE; render(); });
     $("internalXrefsChapterMode")?.addEventListener("click", () => { mode = "chapter"; visibleLimit = CHUNK_SIZE; render(); });
     $("internalXrefSearch")?.addEventListener("input", () => { visibleLimit = CHUNK_SIZE; render(); });
@@ -13550,6 +13547,7 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
       const more = event.target.closest("#internalXrefsShowMore");
       if (more) {
         event.preventDefault();
+        event.stopPropagation();
         visibleLimit += CHUNK_SIZE;
         render();
         return;
@@ -13559,27 +13557,14 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
       if (!refBtn) return;
       event.preventDefault();
       event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
       const ref = refBtn.dataset.ref || refBtn.textContent.trim();
       if (typeof window.goToScriptureReference === "function") {
         try { await window.goToScriptureReference(ref); } catch (_) {}
       }
 
-      // A selected cross reference belongs on the Scripture screen. Close the
-      // cross-reference menu and its parent Study Resources menu only after the
-      // exact verse/range has loaded.
-      closePanel();
-      const resourcesPanel = $("studyResourcesPanel");
-      if (resourcesPanel) {
-        resourcesPanel.classList.remove("open");
-        resourcesPanel.setAttribute("aria-hidden", "true");
-        resourcesPanel.style.display = "";
-      }
-      const scriptureNav = document.querySelector('#rdmMobileAppNav button[data-rdm-mobile-action="scripture"]');
-      if (scriptureNav) {
-        try { scriptureNav.click(); } catch (_) {}
-      } else {
-        try { $("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
-      }
+      closePanel(true);
     });
 
     return panel;
@@ -13632,23 +13617,63 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
     }
   }
 
-  async function openPanel(scope = "passage") {
+  function keepStudyResourcesVisible() {
+    const resources = $("studyResourcesPanel");
+    if (!resources) return;
+    resources.classList.add("open");
+    resources.setAttribute("aria-hidden", "false");
+    resources.style.display = "";
+    resources.style.zIndex = "70000";
+  }
+
+  function closeStudyResourcesForScripture() {
+    const resources = $("studyResourcesPanel");
+    if (!resources) return;
+    resources.classList.remove("open");
+    resources.setAttribute("aria-hidden", "true");
+    resources.style.display = "";
+  }
+
+  function showScriptureSurface() {
+    const scriptureNav = document.querySelector('#rdmMobileAppNav button[data-rdm-mobile-action="scripture"]');
+    if (scriptureNav) {
+      try { scriptureNav.click(); return; } catch (_) {}
+    }
+    try { $("scriptureBox")?.scrollIntoView({ behavior: "auto", block: "start" }); } catch (_) {}
+  }
+
+  async function openPanel(scope = "passage", origin = "scripture") {
     mode = scope || "passage";
+    openOrigin = origin === "resources" ? "resources" : "scripture";
     visibleLimit = CHUNK_SIZE;
+
+    if (openOrigin === "resources") keepStudyResourcesVisible();
+
     const panel = ensurePanel();
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
     panel.style.display = "";
+    panel.style.pointerEvents = "auto";
     panel.style.zIndex = String(++zIndex);
     await render();
   }
 
-  function closePanel() {
+  function closePanel(afterNavigation = false) {
     const panel = $("internalCrossRefsPanel");
-    if (!panel) return;
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.style.display = "";
+    if (panel) {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      panel.style.display = "";
+    }
+
+    if (afterNavigation) {
+      closeStudyResourcesForScripture();
+      showScriptureSurface();
+      openOrigin = "scripture";
+      return;
+    }
+
+    if (openOrigin === "resources") keepStudyResourcesVisible();
   }
 
   function installButtons() {
@@ -13673,7 +13698,7 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
     setTimeout(updateAvailability, 700);
   }
 
-  window.openInternalCrossReferences = openPanel;
+  window.openInternalCrossReferences = function(scope){ return openPanel(scope || "passage", "scripture"); };
   window.renderInternalCrossReferences = render;
   window.closeInternalCrossReferences = closePanel;
   window.auditBuiltInCrossReferencesInternal = async function () {
@@ -13691,14 +13716,43 @@ body.dark .internal-xref-verse h4 { color: #ffe08c !important; }
     return report;
   };
 
-  document.addEventListener("click", event => {
-    const keyBtn = event.target.closest('#studyResourcesKey [data-study-key-action="crossrefs"]');
-    if (keyBtn) {
-      event.preventDefault();
-      event.stopPropagation();
-      openPanel("passage");
+  async function handleCrossReferenceUiCapture(event) {
+    const target = event.target;
+    if (!target || !target.closest) return;
+
+    const closeButton = target.closest("#closeInternalCrossRefs");
+    const resourceButton = target.closest("#openInternalCrossRefs");
+    const keyButton = target.closest('#studyResourcesKey [data-study-key-action="crossrefs"]');
+    const referenceButton = target.closest("#internalCrossRefsPanel .internal-xref-link");
+
+    if (!closeButton && !resourceButton && !keyButton && !referenceButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    if (closeButton) {
+      closePanel(false);
+      return;
     }
-  }, true);
+
+    if (resourceButton || keyButton) {
+      openPanel("passage", resourceButton ? "resources" : "scripture");
+      return;
+    }
+
+    if (referenceButton) {
+      const ref = referenceButton.dataset.ref || referenceButton.textContent.trim();
+      if (typeof window.goToScriptureReference === "function") {
+        try { await window.goToScriptureReference(ref); } catch (_) {}
+      }
+      closePanel(true);
+    }
+  }
+
+  // Register on window capture before the later mobile-shell guards. This is the
+  // single owner for open, close, and reference selection on every device.
+  window.addEventListener("click", handleCrossReferenceUiCapture, true);
 
   ["book", "chapter", "start", "end", "rangeSize"].forEach(id => {
     document.addEventListener("change", event => {
@@ -15732,7 +15786,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v66-offline-resources-crossrefs-flow").then(function (registration) {
+    navigator.serviceWorker.register("./service-worker.js?v=v67-study-resources-crossrefs-restore").then(function (registration) {
       if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
       if (registration.installing) {
         registration.installing.addEventListener("statechange", function () {
@@ -22329,7 +22383,7 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     border-radius: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
-    z-index: 91500 !important;
+    z-index: 2147482000 !important;
     display: flex !important;
     flex-direction: column !important;
     box-shadow: none !important;
@@ -22418,10 +22472,10 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   }
 }
 </style>
-<script id="rdm-v65-resource-crossrefs-copy-script">
-(function rdmV65ResourceCrossrefsCopyFix(){
-  if (window.__rdmV65ResourceCrossrefsCopyFix) return;
-  window.__rdmV65ResourceCrossrefsCopyFix = true;
+<script id="rdm-v67-resource-copy-clean">
+(function rdmV67ResourceCopyClean(){
+  if (window.__rdmV67ResourceCopyClean) return;
+  window.__rdmV67ResourceCopyClean = true;
 
   const MARKED_SELECTOR = [
     ".verse.focused",
@@ -22660,38 +22714,6 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
     });
   }
 
-  function closeFloatingParentsForInternalCrossRefs() {
-    // Built-In Cross References opens above Study Resources. Keep the resource menu
-    // open behind it so Close returns to the resource choices.
-    ["teacherToolsPanel", "obsCrossRefsPanel"].forEach(id => {
-      const panel = get(id);
-      if (!panel) return;
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-      panel.style.display = "";
-    });
-  }
-
-  function patchInternalCrossRefsOpen() {
-    const previous = window.openInternalCrossReferences;
-    if (typeof previous !== "function" || previous.__rdmV65FullMenuWrapped) return;
-
-    const wrapped = async function rdmV65OpenInternalCrossReferencesFullMenu(scope) {
-      const result = await previous.apply(this, arguments);
-      const panel = get("internalCrossRefsPanel");
-      if (panel) {
-        panel.classList.add("open");
-        panel.setAttribute("aria-hidden", "false");
-        panel.style.display = "";
-      }
-      closeFloatingParentsForInternalCrossRefs();
-      return result;
-    };
-
-    wrapped.__rdmV65FullMenuWrapped = true;
-    window.openInternalCrossReferences = wrapped;
-  }
-
   document.addEventListener("click", function(event){
     const copyBtn = event.target.closest("#copyPassage, #copyVerse, #copySelectedVerses, #rdmV65CopyPassageBtn, #rdmV65CopyMarkedBtn");
     if (copyBtn) {
@@ -22702,15 +22724,6 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
       if (copyBtn.id === "copyPassage" || copyBtn.id === "rdmV65CopyPassageBtn") copyPassage();
       else if (copyBtn.id === "copySelectedVerses" || copyBtn.id === "rdmV65CopyMarkedBtn") copySelectedOrMarked();
       else copyVerse();
-      return;
-    }
-
-    const internalBtn = event.target.closest("#openInternalCrossRefs, #studyResourcesKey [data-study-key-action='crossrefs']");
-    if (internalBtn && typeof window.openInternalCrossReferences === "function") {
-      event.preventDefault();
-      event.stopPropagation();
-      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-      window.openInternalCrossReferences("passage");
       return;
     }
 
@@ -22738,20 +22751,16 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
 
   document.addEventListener("DOMContentLoaded", function(){
     installCopyShortcuts();
-    patchInternalCrossRefsOpen();
     sanitizeDuplicateResourceHeaders();
   });
 
   window.addEventListener("load", function(){
     installCopyShortcuts();
-    patchInternalCrossRefsOpen();
     sanitizeDuplicateResourceHeaders();
     setTimeout(installCopyShortcuts, 250);
-    setTimeout(patchInternalCrossRefsOpen, 250);
   });
 
   installCopyShortcuts();
-  patchInternalCrossRefsOpen();
   sanitizeDuplicateResourceHeaders();
 
   window.rdmV65CopyPassage = copyPassage;
@@ -22759,8 +22768,8 @@ body.dark #teacherToolsPanel .tool-option[data-tool^="highlight-"] strong::after
   window.rdmV65CopySelectedOrMarked = copySelectedOrMarked;
   window.rdmV65SanitizeResourceHeaders = sanitizeDuplicateResourceHeaders;
 
-  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v65-mobile-resources-crossrefs-copy-fix";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v65-mobile-resources-crossrefs-copy-fix";
+  window.__IRON_SHARPENER_MOBILE_APP_SHELL_VERSION = "v67-study-resources-crossrefs-restore";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v67-study-resources-crossrefs-restore";
   window.__IRON_SHARPENER_MARKING_LOCK_VERSION = "v64-mobile-tools-selection-bridge";
   window.__IRON_SHARPENER_NOTES_LOCK_VERSION = "v57-mobile-notes-tight-autogrow-only";
   window.__IRON_SHARPENER_MOBILE_FOOTER_LOCK_VERSION = "v62-mobile-thin-footer-cleanup";
@@ -26994,7 +27003,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v67-study-resources-crossrefs-restore-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27239,7 +27248,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 <!-- v161 — IndexedDB Offline Resources + Book/Chapter-only back labels.
      Replaces the previous Cache Storage resource library rather than stacking over it. -->
 
-<script id="rdm-v164-indexeddb-offline-resource-recovery">
+<script id="rdm-v165-indexeddb-offline-resource-recovery">
 (function rdmV161IndexedDbOfflineStorage(){
   "use strict";
   if (window.__rdmV161IndexedDbOfflineStorage) return;
@@ -27253,9 +27262,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
-  var VERSION = "v164-indexeddb-offline-resource-recovery";
-  var SW_VERSION = "v66-offline-resources-crossrefs-flow";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v67-study-resources-crossrefs-restore-20260704";
+  var VERSION = "v165-indexeddb-offline-resource-recovery";
+  var SW_VERSION = "v67-study-resources-crossrefs-restore";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -27527,7 +27536,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v66-offline-resources-crossrefs-flow");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v67-study-resources-crossrefs-restore");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -28124,4 +28133,4 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 <!-- v135 — restore stable Teaching Tool shell from v133; removes v134 page-level fetch override slowdown. -->
 <!-- v157: app name/status-bar correction + v59 launch service-worker pairing. -->
 <!-- v163: one reference-range navigation engine; hidden Start/End controls retain exact resource references. -->
-<!-- v164: recover offline study resources from verified IndexedDB stores and restore Built-In Cross References panel flow. -->
+<!-- v165: one clean Built-In Cross References controller; Study Resources returns correctly on Close. -->
