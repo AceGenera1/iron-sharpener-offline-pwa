@@ -3023,6 +3023,10 @@ html.obs #discipleJournalBtn { display: none !important; }
 <script id="rdm-v159-build-marker">
 (function(){ try { window.__RDM_ACTIVE_BUILD = "v166-v68-full-offline-resources-persistent-crossrefs"; } catch (_) {} })();
 </script>
+
+<!-- v170 — Fresh Home Screen first-open responsiveness.
+     Service-worker registration is deferred until after the first interactive paint,
+     and v70 never navigates/reloads the active page during activation. -->
 </head>
 <body>
 <div class="shell">
@@ -15815,26 +15819,39 @@ html.obs body.dark .obs-tool-bar button:hover {
   opacity: 1 !important;
   filter: none !important;
 }
-</style><script id="rdm-v30-silent-service-worker-register">
-(function rdmV30SilentServiceWorkerRegister() {
-  if (window.__rdmV30SilentServiceWorkerRegister) return;
-  window.__rdmV30SilentServiceWorkerRegister = true;
-  try {
-    localStorage.setItem("ironSharpenerUnified.offlineCachePanelHidden.v26", "1");
-  } catch (_) {}
+</style><script id="rdm-v170-first-open-nonblocking-service-worker-register">
+(function rdmV170FirstOpenNonblockingServiceWorkerRegister(){
+  "use strict";
+  if (window.__rdmV170FirstOpenNonblockingServiceWorkerRegister) return;
+  window.__rdmV170FirstOpenNonblockingServiceWorkerRegister = true;
+  try { localStorage.setItem("ironSharpenerUnified.offlineCachePanelHidden.v26", "1"); } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=v68-full-offline-resources-persistent-crossrefs").then(function (registration) {
-      if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
-      if (registration.installing) {
-        registration.installing.addEventListener("statechange", function () {
-          if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
-        });
-      }
-    }).catch(function (error) {
+
+  var SW_URL = "./service-worker.js?v=v70-first-open-nonblocking";
+  function registerWorker(){
+    if (window.__rdmV170ServiceWorkerPromise) return window.__rdmV170ServiceWorkerPromise;
+    window.__rdmV170ServiceWorkerPromise = navigator.serviceWorker.register(SW_URL, { updateViaCache: "none" }).catch(function(error){
       console.warn("Iron Sharpener service worker registration skipped:", error);
+      return null;
     });
-  });
+    return window.__rdmV170ServiceWorkerPromise;
+  }
+  function scheduleRegistration(){
+    var run = function(){
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(registerWorker, { timeout: 2200 });
+      } else {
+        window.setTimeout(registerWorker, 900);
+      }
+    };
+    if ("requestAnimationFrame" in window) {
+      window.requestAnimationFrame(function(){ window.requestAnimationFrame(run); });
+    } else {
+      window.setTimeout(run, 0);
+    }
+  }
+  if (document.readyState === "complete") scheduleRegistration();
+  else window.addEventListener("load", scheduleRegistration, { once: true });
 })();
 </script>
 <!-- Patch 32 — Stability lock: no offline tracker widget, no offline menu click layer -->
@@ -27041,7 +27058,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v68-full-offline-resources-persistent-crossrefs-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v70-first-open-nonblocking-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27245,7 +27262,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     var files = ["index.html", "personal-study.html", "manifest.json", "assets/iron-sharpener-logo.png", "assets/disciple-journal-logo.png"];
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V65" }); } catch (_) {}
+        try { navigator.serviceWorker.controller.postMessage({ type: "WARM_LAUNCH_CACHE_V70" }); } catch (_) {}
       }
     } catch (_) {}
     if (!("caches" in window)) return;
@@ -27301,9 +27318,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v68-full-offline-resources-persistent-crossrefs-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v70-first-open-nonblocking-20260704";
   var VERSION = "v166-compact-offline-storage-full-resource-restore";
-  var SW_VERSION = "v68-full-offline-resources-persistent-crossrefs";
+  var SW_VERSION = "v70-first-open-nonblocking";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -27579,7 +27596,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v68-full-offline-resources-persistent-crossrefs");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v70-first-open-nonblocking");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
