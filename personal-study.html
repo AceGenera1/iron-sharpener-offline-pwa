@@ -3069,7 +3069,12 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell[data-dj-mobile-view="journal"] .scriptureCard,
   body.rdm-dj-mobile-shell[data-dj-mobile-view="journal"] .historyCard,
   body.rdm-dj-mobile-shell[data-dj-mobile-view="history"] .scriptureCard,
-  body.rdm-dj-mobile-shell[data-dj-mobile-view="history"] .journalCard { display: none !important; }
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="history"] .journalCard,
+  /* Tools and Mark are overlays, never content sections. If an older handler requests either state, keep Scripture isolated underneath. */
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="tools"] .journalCard,
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="tools"] .historyCard,
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="mark"] .journalCard,
+  body.rdm-dj-mobile-shell[data-dj-mobile-view="mark"] .historyCard { display: none !important; }
   body.rdm-dj-mobile-shell .cardHead { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; padding: 15px !important; }
   body.rdm-dj-mobile-shell .cardHead h2,
   body.rdm-dj-mobile-shell .cardHead h3 { font-size: 21px !important; line-height: 1.12 !important; }
@@ -3093,8 +3098,18 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .passage,
   body.rdm-dj-mobile-shell .scriptureCard .passage,
   body.rdm-dj-mobile-shell .entryList { max-height: none !important; overflow: visible !important; padding-right: 0 !important; }
-  body.rdm-dj-mobile-shell .verse { padding: 9px 0 !important; line-height: 1.62 !important; }
-  body.rdm-dj-mobile-shell .vnum { min-width: 24px !important; height: 24px !important; font-size: 11px !important; }
+  /* Mobile/tablet Scripture readability matches the locked teaching-side scale. Desktop is untouched. */
+  body.rdm-dj-mobile-shell .scriptureCard .verse {
+    padding: 9px 0 !important;
+    font-size: clamp(21px, 5.7vw, 28px) !important;
+    line-height: 1.56 !important;
+    overflow-wrap: break-word !important;
+  }
+  body.rdm-dj-mobile-shell .scriptureCard .vnum {
+    min-width: 26px !important;
+    height: 26px !important;
+    font-size: 13px !important;
+  }
   body.rdm-dj-mobile-shell .guideSteps,
   body.rdm-dj-mobile-shell .modeTabs,
   body.rdm-dj-mobile-shell .historyFilters,
@@ -4138,9 +4153,9 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v167-v69-book-change-back-restored" />
+<meta name="rdm-build" content="journal-v168-v70-mobile-separation-scripture-readability-final" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v167-v69-book-change-back-restored"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v168-v70-mobile-separation-scripture-readability-final"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -10597,9 +10612,17 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
       (window.matchMedia && window.matchMedia('(max-width: 1180px), (hover: none), (pointer: coarse)').matches);
   }
 
+  function preserveMobileContentView(){
+    if (!document.body) return 'scripture';
+    var view = document.body.getAttribute('data-dj-mobile-view') || 'scripture';
+    if (!/^(scripture|journal|history)$/.test(view)) view = 'scripture';
+    document.body.setAttribute('data-dj-mobile-view', view);
+    return view;
+  }
+
   function setMobileToolsView(){
     if (!document.body) return;
-    document.body.setAttribute('data-dj-mobile-view', 'tools');
+    preserveMobileContentView();
 
     var nav = get('rdmDjMobileNav');
     if (nav) {
@@ -10700,7 +10723,7 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     panel.style.zIndex = '2147482200';
 
     if (document.body) {
-      document.body.setAttribute('data-dj-mobile-view', 'tools');
+      preserveMobileContentView();
       document.body.classList.add('rdm-dj-v88-panel-open');
     }
     document.documentElement.classList.add('rdm-dj-v88-panel-open');
