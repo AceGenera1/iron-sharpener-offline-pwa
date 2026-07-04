@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v66 Offline Resources + Cross-References Flow
+/* Iron Sharpener service worker — v67 Study Resources + Cross-References Restore
    Launch architecture:
    - Cache Storage contains only the tiny app launch shell and icons.
    - The large offline study-resource library remains in IndexedDB, not Cache Storage.
@@ -8,9 +8,9 @@
    - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const SW_VERSION = "v66-offline-resources-crossrefs-flow";
-const SHELL_TOKEN = "v66-offline-resources-crossrefs-flow";
-const LAUNCH_CACHE = "iron-sharpener-launch-v66-offline-resources-crossrefs-flow-20260704";
+const SW_VERSION = "v67-study-resources-crossrefs-restore";
+const SHELL_TOKEN = "v67-study-resources-crossrefs-restore";
+const LAUNCH_CACHE = "iron-sharpener-launch-v67-study-resources-crossrefs-restore-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -35,7 +35,7 @@ self.addEventListener("activate", (event) => {
     const cache = await caches.open(LAUNCH_CACHE);
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
-    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v66 app shells were not verified.");
+    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v67 app shells were not verified.");
 
     // Preserve the v63 launch architecture: remove old launch/offline caches so
     // iPad launch never opens beside thousands of Cache Storage entries.
