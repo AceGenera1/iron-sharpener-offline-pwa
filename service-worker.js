@@ -1,4 +1,4 @@
-/* Iron Sharpener service worker — v68 Full Offline Resources + Persistent Cross References
+/* Iron Sharpener service worker — v70 First-Open Nonblocking
    Launch architecture:
    - Cache Storage contains only the tiny app launch shell and icons.
    - The large offline study-resource library remains in IndexedDB, not Cache Storage.
@@ -7,9 +7,9 @@
    - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const SW_VERSION = "v68-full-offline-resources-persistent-crossrefs";
-const SHELL_TOKEN = "v68-full-offline-resources-persistent-crossrefs";
-const LAUNCH_CACHE = "iron-sharpener-launch-v68-full-offline-resources-persistent-crossrefs-20260704";
+const SW_VERSION = "v70-first-open-nonblocking";
+const SHELL_TOKEN = "v70-first-open-nonblocking";
+const LAUNCH_CACHE = "iron-sharpener-launch-v70-first-open-nonblocking-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -34,10 +34,17 @@ self.addEventListener("activate", (event) => {
     const cache = await caches.open(LAUNCH_CACHE);
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
-    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v68 app shells were not verified.");
+    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) {
+      throw new Error("Fresh v70 app shells were not verified.");
+    }
 
-    // Preserve the v63 launch architecture: remove old launch/offline caches so
-    // iPad launch never opens beside thousands of Cache Storage entries.
+    // Claim the already-loaded page without reloading or navigating it. On a fresh
+    // Home Screen install, the first page remains fully interactive while the
+    // worker finishes activation in the background.
+    await self.clients.claim();
+
+    // Remove obsolete launch/offline caches after claim. This cleanup is isolated
+    // from the page and never triggers client.navigate() or location.reload().
     try {
       const names = await caches.keys();
       for (const name of names) {
@@ -45,19 +52,6 @@ self.addEventListener("activate", (event) => {
           try { await caches.delete(name); } catch (_) {}
         }
       }
-    } catch (_) {}
-
-    await self.clients.claim();
-    try {
-      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      await Promise.all(clients.map(async (client) => {
-        try {
-          const url = new URL(client.url);
-          if (url.origin !== self.location.origin || url.searchParams.get("rdm_shell_cutover") === SHELL_TOKEN) return;
-          url.searchParams.set("rdm_shell_cutover", SHELL_TOKEN);
-          await client.navigate(url.href);
-        } catch (_) {}
-      }));
     } catch (_) {}
   })());
 });
