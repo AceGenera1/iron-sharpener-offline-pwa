@@ -4138,9 +4138,9 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v166-v68-full-offline-resources-persistent-crossrefs" />
+<meta name="rdm-build" content="journal-v167-v69-book-change-back-restored" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v166-v68-full-offline-resources-persistent-crossrefs"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v167-v69-book-change-back-restored"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -11559,6 +11559,9 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   var historyStack=[];
   var committedState=null;
   var focusState=null;
+  // Snapshot the committed passage at the start of a manual Book/Chapter change.
+  // This prevents populateChapters()/range normalization from losing the true Back target.
+  var manualOriginState=null;
   var restoring=false;
   var loading=false;
   var activeToken=0;
@@ -11653,7 +11656,11 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   }
   async function loadPassageV163(){
     var next=requestedState();if(!next)return false;
-    if(!restoring&&committedState&&!sameState(committedState,next))pushHistory(committedState);
+    // A manual selector change may rebuild Chapter/hidden-range controls before this
+    // loader runs. Prefer the passage snapshot captured at change-start, then clear it.
+    var origin=normalize(manualOriginState)||normalize(committedState);
+    manualOriginState=null;
+    if(!restoring&&origin&&!sameState(origin,next))pushHistory(origin);
     updateBack();return renderState(next);
   }
   async function openReference(ref){
@@ -11664,13 +11671,31 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
     if(event){try{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}catch(_){}}if(restoring||!historyStack.length)return;var target=normalize(historyStack.pop());if(!target){updateBack();return;}restoring=true;var btn=get("rdmJournalBackBtnV152");if(btn)btn.classList.add("rdm-busy");updateBack();
     try{try{if(typeof saveCurrentDraftNow==="function")saveCurrentDraftNow();}catch(_){}setSelectors(target);await renderState(target,{allowConcurrent:true});committedState=target;try{document.querySelector(".scriptureCard")?.scrollIntoView({behavior:"auto",block:"start"});}catch(_){}}finally{restoring=false;if(btn)btn.classList.remove("rdm-busy");updateBack();}
   }
-  function onManualBookChapter(event){var target=event&&event.target;if(!target||(target.id!=="book"&&target.id!=="chapter")||restoring)return;focusState=null;setTimeout(function(){setHiddenRange(fullFromControls());},0);}
+  function onManualBookChapter(event){
+    var target=event&&event.target;
+    if(!target||(target.id!=="book"&&target.id!=="chapter")||restoring)return;
+    focusState=null;
+    // Capture the passage being left before the normal Journal selector handler
+    // rebuilds Chapter and hidden Start/End options.
+    if(!manualOriginState&&committedState)manualOriginState=normalize(committedState);
+    setTimeout(function(){
+      var next=fullFromControls();
+      setHiddenRange(next);
+      // Safety path: if another browser/device path did not call loadPassage, still
+      // preserve the captured passage and expose the Back button exactly once.
+      if(manualOriginState&&next){
+        if(!sameState(manualOriginState,next))pushHistory(manualOriginState);
+        manualOriginState=null;
+        updateBack();
+      }
+    },0);
+  }
   function install(){
     mountBack();historyStack=[];focusState=null;committedState=fullFromControls();setHiddenRange(committedState);var old=get("backToScriptureBtn");if(old){old.setAttribute("aria-hidden","true");old.tabIndex=-1;old.style.display="none";}
     window.loadPassage=loadPassageV163;try{loadPassage=loadPassageV163;}catch(_){}window.goToScriptureReference=openReference;try{goToScriptureReference=openReference;}catch(_){}updateBack();var passage=get("passage");if(!passage||!passage.querySelector(".verse[data-v]"))renderState(committedState,{allowConcurrent:true});
   }
   document.addEventListener("change",onManualBookChapter,true);
-  window.rdmJournalReferenceRangeNavigationV163={version:"v163-reference-range-replacement",open:openReference,parse:parseReference,load:loadPassageV163,back:goBack,state:function(){return normalize(committedState);},history:function(){return historyStack.map(normalize);},leaveFocus:function(){focusState=null;setHiddenRange(fullFromControls());return renderState(fullFromControls(),{allowConcurrent:true});}};
+  window.rdmJournalReferenceRangeNavigationV163={version:"v167-reference-range-book-back-restored",open:openReference,parse:parseReference,load:loadPassageV163,back:goBack,state:function(){return normalize(committedState);},history:function(){return historyStack.map(normalize);},leaveFocus:function(){focusState=null;setHiddenRange(fullFromControls());return renderState(fullFromControls(),{allowConcurrent:true});}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
 </script>
