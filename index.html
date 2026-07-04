@@ -28189,13 +28189,15 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   function clean(value){ return String(value || "").replace(/\s+/g, " ").trim(); }
   function isDesktopTeaching(){
     if (document.documentElement.classList.contains("obs")) return true;
+    var actions = document.querySelector(".hero .actions");
+    if (actions) {
+      try {
+        var style = window.getComputedStyle(actions);
+        if (style.display !== "none" && style.visibility !== "hidden") return true;
+      } catch (_) {}
+    }
     var body = document.body;
-    if (!body) return true;
-    var compact = false;
-    var coarse = false;
-    try { compact = window.matchMedia("(max-width: 1050px)").matches; } catch (_) {}
-    try { coarse = window.matchMedia("(pointer: coarse)").matches; } catch (_) {}
-    return !(body.classList.contains("rdm-mobile-app-shell") && compact && coarse);
+    return !body || !body.classList.contains("rdm-mobile-app-shell");
   }
 
   function visibleVerses(){
@@ -28505,6 +28507,98 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 })();
 </script>
 
+
+<!-- v175 teaching-only: final desktop Refresh Passage and copy-control owner. -->
+<script id="rdm-v175-desktop-refresh-copy-final">
+(function rdmV175DesktopRefreshCopyFinal(){
+  "use strict";
+  if (window.__rdmV175DesktopRefreshCopyFinal) return;
+  window.__rdmV175DesktopRefreshCopyFinal = true;
+
+  function get(id){ return document.getElementById(id); }
+  function desktopSurfaceVisible(){
+    if (document.documentElement.classList.contains("obs")) return true;
+    var actions = document.querySelector(".hero .actions");
+    if (actions) {
+      try {
+        var style = window.getComputedStyle(actions);
+        if (style.display !== "none" && style.visibility !== "hidden") return true;
+      } catch (_) {}
+    }
+    return !document.body || !document.body.classList.contains("rdm-mobile-app-shell");
+  }
+
+  function refreshPassage(event){
+    if (!desktopSurfaceVisible()) return;
+    if (event) event.preventDefault();
+    try { if (typeof window.saveCurrentNotes === "function") window.saveCurrentNotes(); } catch (_) {}
+    try {
+      if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.load === "function") {
+        return window.rdmReferenceRangeNavigationV163.load();
+      }
+    } catch (_) {}
+    try {
+      if (typeof window.loadPassage === "function") return window.loadPassage();
+      if (typeof loadPassage === "function") return loadPassage();
+    } catch (_) {}
+  }
+
+  function openCopyPanel(event){
+    if (!desktopSurfaceVisible()) return;
+    if (event) event.preventDefault();
+    try {
+      if (window.rdmV174DesktopCopyTools && typeof window.rdmV174DesktopCopyTools.open === "function") {
+        window.rdmV174DesktopCopyTools.open();
+        return;
+      }
+    } catch (_) {}
+    var panel = get("copyScripturePanel");
+    if (!panel) return;
+    panel.style.display = "";
+    panel.style.visibility = "visible";
+    panel.style.pointerEvents = "auto";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.setProperty("z-index", "61050", "important");
+  }
+
+  function bind(){
+    var refresh = get("loadBtn");
+    if (refresh) {
+      refresh.type = "button";
+      refresh.onclick = refreshPassage;
+      refresh.dataset.rdmV175RefreshBound = "1";
+    }
+
+    ["copyScriptureMain", "openCopyScriptureFromTools"].forEach(function(id){
+      var button = get(id);
+      if (!button) return;
+      button.type = "button";
+      button.onclick = openCopyPanel;
+      button.dataset.rdmV175CopyOpenBound = "1";
+    });
+  }
+
+  function start(){
+    bind();
+    setTimeout(bind, 100);
+    setTimeout(bind, 500);
+    setTimeout(bind, 1400);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
+  window.addEventListener("load", start, { once: true });
+
+  window.rdmV175DesktopControls = {
+    version: "v175-desktop-refresh-copy-final",
+    refresh: refreshPassage,
+    openCopy: openCopyPanel,
+    rebind: bind
+  };
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
@@ -28515,4 +28609,5 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 <!-- v165: one clean Built-In Cross References controller; Study Resources returns correctly on Close. -->
 
 <!-- v171 teaching-only: personal Teaching Cross References stay visible while visiting their Scripture links. -->
-<!-- v174 teaching-only: desktop browser/PWA copy tools repaired and verified. -->
+<!-- v174 teaching-only: desktop browser/PWA copy tools controller. -->
+<!-- v175 teaching-only: desktop Refresh Passage and copy controls final owner. -->
