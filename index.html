@@ -4,6 +4,389 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<style id="rdm-v176-pc-controls-style">
+#rdmV176DesktopControlsToast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(18px);
+  z-index: 130000;
+  width: min(620px, calc(100vw - 36px));
+  padding: 13px 18px;
+  border: 2px solid #D7A84F;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffaf0, #fff0cf);
+  color: #203D39;
+  box-shadow: 0 14px 34px rgba(0,0,0,.25);
+  font: 900 15px/1.3 Arial, sans-serif;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+#rdmV176DesktopControlsToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+body.dark #rdmV176DesktopControlsToast {
+  background: linear-gradient(180deg, #f8d987, #d7a84f);
+  color: #203D39;
+  border-color: #fff1c0;
+}
+html:not(.obs) body:not(.rdm-mobile-app-shell) #passage .verse.copy-selected,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #passage .verse.rdm-v176-copy-selected {
+  background: linear-gradient(90deg, rgba(215,168,79,.28), rgba(215,168,79,.08));
+  outline: 2px solid rgba(215,168,79,.76);
+  border-radius: 8px;
+}
+</style>
+<script id="rdm-v176-pc-controls-journal-mechanics">
+(function rdmV176PcControlsJournalMechanics(){
+  "use strict";
+  if (window.__rdmV176PcControlsJournalMechanics) return;
+  window.__rdmV176PcControlsJournalMechanics = true;
+
+  var mode = "";
+  var toastTimer = 0;
+  var CONTROL_SELECTOR = [
+    "#loadBtn",
+    "#copyScriptureMain", "#openCopyScriptureFromTools", "#closeCopyScripturePanel",
+    "#copySingleVerseMode", "#copyMultipleVersesMode", "#copyWholePassageMode", "#clearCopySelectionMode",
+    "#copyPassage", "#copyVerse", "#copySelectedVerses"
+  ].join(",");
+  var MARKED_SELECTOR = [
+    ".verse.focused", ".verse.pointed", ".verse.highlighted",
+    ".verse.highlight-gold", ".verse.highlight-blue", ".verse.highlight-green",
+    ".verse.highlight-red", ".verse.highlight-purple", ".verse.highlight-amber",
+    ".verse.underlined", ".verse.circled", ".verse.boxed", ".verse.rdm-stack-marked"
+  ].join(",");
+
+  function get(id){ return document.getElementById(id); }
+  function clean(value){ return String(value || "").replace(/\s+/g, " ").trim(); }
+
+  function desktopSurfaceVisible(){
+    if (document.documentElement.classList.contains("obs")) return false;
+    var actions = document.querySelector(".hero .actions");
+    if (actions) {
+      try {
+        var style = window.getComputedStyle(actions);
+        var rect = actions.getBoundingClientRect();
+        if (style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0) return true;
+      } catch (_) {}
+    }
+    return window.innerWidth >= 1180 && !(document.body && document.body.classList.contains("rdm-mobile-app-shell"));
+  }
+
+  function resolveControl(event){
+    var target = event.target && event.target.closest ? event.target.closest(CONTROL_SELECTOR) : null;
+    if (target) return target;
+    if (typeof event.clientX !== "number" || typeof event.clientY !== "number") return null;
+    try {
+      var stack = document.elementsFromPoint(event.clientX, event.clientY) || [];
+      for (var i = 0; i < stack.length; i += 1) {
+        var candidate = stack[i] && stack[i].closest ? stack[i].closest(CONTROL_SELECTOR) : null;
+        if (candidate) return candidate;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function consume(event){
+    try { event.preventDefault(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    try { event.stopImmediatePropagation(); } catch (_) {}
+  }
+
+  function ensureToast(){
+    var el = get("rdmV176DesktopControlsToast");
+    if (el) return el;
+    el = document.createElement("div");
+    el.id = "rdmV176DesktopControlsToast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function setStatus(message){
+    var text = String(message || "");
+    [get("copyStatus"), get("activeToolLabel"), get("teacherToolsStatusText")].forEach(function(el){
+      if (el) el.textContent = text;
+    });
+    var toast = ensureToast();
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 2400);
+  }
+
+  function visibleVerses(){
+    return Array.from(document.querySelectorAll("#passage .verse[data-v]"));
+  }
+  function verseNumber(verse){
+    return parseInt(verse && verse.dataset ? verse.dataset.v : "0", 10) || 0;
+  }
+  function uniqueSorted(verses){
+    return Array.from(new Set((verses || []).filter(Boolean)))
+      .filter(function(verse){ return verse.closest && verse.closest("#passage"); })
+      .sort(function(a,b){ return verseNumber(a) - verseNumber(b); });
+  }
+  function verseText(verse){
+    if (!verse) return "";
+    var clone = verse.cloneNode(true);
+    clone.querySelectorAll(".vnum").forEach(function(node){ node.remove(); });
+    return clean(clone.textContent || "");
+  }
+  function contiguous(numbers){
+    if (numbers.length <= 1) return true;
+    for (var i = 1; i < numbers.length; i += 1) {
+      if (numbers[i] !== numbers[i - 1] + 1) return false;
+    }
+    return true;
+  }
+  function referenceFor(verses){
+    var sorted = uniqueSorted(verses);
+    var book = get("book") ? get("book").value : "";
+    var chapter = get("chapter") ? get("chapter").value : "";
+    var numbers = sorted.map(verseNumber).filter(Boolean);
+    if (!book || !chapter) return "Selected Scripture";
+    if (!numbers.length) return book + " " + chapter;
+    if (numbers.length === 1) return book + " " + chapter + ":" + numbers[0];
+    if (contiguous(numbers)) return book + " " + chapter + ":" + numbers[0] + "-" + numbers[numbers.length - 1];
+    return book + " " + chapter + ":" + numbers.join(", ");
+  }
+  function formatForCopy(verses){
+    var sorted = uniqueSorted(verses);
+    var body = sorted.map(function(verse){ return verse.dataset.v + " " + verseText(verse); }).join("\n");
+    return (referenceFor(sorted) + " (WEB)\n" + body).trim();
+  }
+
+  function browserSelectedVerses(){
+    var selection = window.getSelection ? window.getSelection() : null;
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !clean(selection.toString())) return [];
+    return uniqueSorted(visibleVerses().filter(function(verse){
+      for (var i = 0; i < selection.rangeCount; i += 1) {
+        try { if (selection.getRangeAt(i).intersectsNode(verse)) return true; } catch (_) {}
+      }
+      return false;
+    }));
+  }
+  function markedVerses(){
+    try { return uniqueSorted(Array.from(document.querySelectorAll("#passage " + MARKED_SELECTOR))); }
+    catch (_) { return []; }
+  }
+  function selectedVerses(){
+    return uniqueSorted(Array.from(document.querySelectorAll("#passage .verse.copy-selected[data-v], #passage .verse.rdm-v176-copy-selected[data-v]")));
+  }
+  function clearSelection(){
+    document.querySelectorAll("#passage .verse.copy-selected, #passage .verse.rdm-v176-copy-selected").forEach(function(verse){
+      verse.classList.remove("copy-selected", "rdm-v176-copy-selected");
+    });
+  }
+
+  function legacyCopy(value){
+    var helper = document.createElement("textarea");
+    helper.value = value;
+    helper.setAttribute("readonly", "readonly");
+    helper.setAttribute("aria-hidden", "true");
+    helper.style.position = "fixed";
+    helper.style.left = "2px";
+    helper.style.top = "2px";
+    helper.style.width = "2px";
+    helper.style.height = "2px";
+    helper.style.opacity = "0.01";
+    helper.style.pointerEvents = "none";
+    helper.style.zIndex = "-1";
+    document.body.appendChild(helper);
+    var ok = false;
+    try {
+      helper.focus({ preventScroll: true });
+      helper.select();
+      helper.setSelectionRange(0, helper.value.length);
+      ok = document.execCommand("copy") === true;
+    } catch (_) { ok = false; }
+    helper.remove();
+    return ok;
+  }
+
+  async function writeClipboard(value){
+    value = String(value || "");
+    if (!value.trim()) return false;
+    if (legacyCopy(value)) return true;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  async function copyVerses(verses, emptyMessage, successLabel){
+    var sorted = uniqueSorted(verses);
+    if (!sorted.length) {
+      setStatus(emptyMessage || "No verses available to copy.");
+      return false;
+    }
+    var ref = referenceFor(sorted);
+    var ok = await writeClipboard(formatForCopy(sorted));
+    setStatus(ok ? (successLabel + ": " + ref + ".") : ("Copy unavailable. Select the Scripture and press Ctrl+C: " + ref + "."));
+    return ok;
+  }
+
+  function ensurePanel(){
+    var panel = get("copyScripturePanel");
+    if (panel) return panel;
+    panel = document.createElement("div");
+    panel.id = "copyScripturePanel";
+    panel.className = "teacher-pop";
+    panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = [
+      '<div class="teacher-pop-head drag-handle" data-drag-handle="copyScripturePanel">',
+      '<h3>Copy Scripture</h3>',
+      '<button id="closeCopyScripturePanel" class="teacher-pop-close secondary" type="button">Close</button>',
+      '</div>',
+      '<div class="copy-scripture-help">Choose what to copy. For a single verse or multiple verses, choose the option and then click the Scripture text.</div>',
+      '<div class="copy-scripture-actions">',
+      '<button id="copySingleVerseMode" type="button">Copy Single Verse</button>',
+      '<button id="copyMultipleVersesMode" type="button">Copy Multiple Verses</button>',
+      '<button id="copyWholePassageMode" type="button">Copy Passage</button>',
+      '<button id="clearCopySelectionMode" class="secondary" type="button">Clear Copy Selection</button>',
+      '</div>'
+    ].join("");
+    document.body.appendChild(panel);
+    return panel;
+  }
+  function openPanel(){
+    var panel = ensurePanel();
+    panel.style.display = "";
+    panel.style.visibility = "visible";
+    panel.style.pointerEvents = "auto";
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    panel.style.setProperty("z-index", "61050", "important");
+  }
+  function closePanel(){
+    var panel = get("copyScripturePanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  }
+  function setMode(nextMode){
+    clearSelection();
+    mode = nextMode;
+    window.rdmCopyScriptureMode = nextMode === "multiple" ? "multiple" : "single";
+    closePanel();
+    setStatus(nextMode === "single" ? "Click one verse to copy it." : "Click verses to select and copy them.");
+  }
+
+  async function refreshPassage(button){
+    var original = button ? button.textContent : "↻ Refresh Passage";
+    if (button) button.textContent = "↻ Refreshing...";
+    setStatus("Refreshing the current passage...");
+    try {
+      try {
+        if (typeof window.saveCurrentNotes === "function") window.saveCurrentNotes();
+        else if (typeof saveCurrentNotes === "function") saveCurrentNotes();
+      } catch (_) {}
+      var result;
+      if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.load === "function") {
+        result = window.rdmReferenceRangeNavigationV163.load();
+      } else if (typeof window.loadPassage === "function") {
+        result = window.loadPassage();
+      } else if (typeof loadPassage === "function") {
+        result = loadPassage();
+      } else {
+        throw new Error("Passage loader unavailable");
+      }
+      await Promise.resolve(result);
+      setStatus("Passage refreshed.");
+    } catch (_) {
+      setStatus("The passage could not be refreshed. Please try once more.");
+    } finally {
+      setTimeout(function(){ if (button) button.textContent = original || "↻ Refresh Passage"; }, 650);
+    }
+  }
+
+  function handleControl(button){
+    var id = button.id;
+    if (id === "loadBtn") { refreshPassage(button); return; }
+    if (id === "copyScriptureMain" || id === "openCopyScriptureFromTools") { openPanel(); return; }
+    if (id === "closeCopyScripturePanel") { closePanel(); return; }
+    if (id === "copySingleVerseMode") { setMode("single"); return; }
+    if (id === "copyMultipleVersesMode") { setMode("multiple"); return; }
+    if (id === "clearCopySelectionMode") {
+      mode = "";
+      window.rdmCopyScriptureMode = "";
+      clearSelection();
+      setStatus("Copy selection cleared.");
+      return;
+    }
+    if (id === "copyWholePassageMode" || id === "copyPassage") {
+      if (id === "copyWholePassageMode") closePanel();
+      mode = "";
+      window.rdmCopyScriptureMode = "";
+      clearSelection();
+      copyVerses(visibleVerses(), "No passage loaded.", "Passage copied");
+      return;
+    }
+    if (id === "copyVerse") {
+      var one = browserSelectedVerses()[0] || markedVerses()[0] || visibleVerses()[0];
+      copyVerses(one ? [one] : [], "No verse loaded.", "Verse copied");
+      return;
+    }
+    if (id === "copySelectedVerses") {
+      var selected = browserSelectedVerses();
+      copyVerses(selected.length ? selected : markedVerses(), "Select or mark verses first.", "Scripture copied");
+    }
+  }
+
+  function handleVerse(verse){
+    if (!mode || !verse) return false;
+    if (mode === "single") {
+      clearSelection();
+      verse.classList.add("copy-selected", "rdm-v176-copy-selected");
+      copyVerses([verse], "No verse loaded.", "Verse copied");
+      mode = "";
+      window.rdmCopyScriptureMode = "";
+      setTimeout(function(){ verse.classList.remove("copy-selected", "rdm-v176-copy-selected"); }, 1400);
+      return true;
+    }
+    verse.classList.toggle("copy-selected");
+    verse.classList.toggle("rdm-v176-copy-selected");
+    var chosen = selectedVerses();
+    if (chosen.length) copyVerses(chosen, "No verses selected.", chosen.length === 1 ? "Verse copied" : "Verses copied");
+    else setStatus("Copy selection cleared.");
+    return true;
+  }
+
+  // Registered before the later teaching-side scripts. Window capture receives the
+  // click before any older document-level handler can swallow it.
+  window.addEventListener("click", function(event){
+    if (!desktopSurfaceVisible()) return;
+    var control = resolveControl(event);
+    if (control) {
+      consume(event);
+      handleControl(control);
+      return;
+    }
+    var verse = event.target && event.target.closest ? event.target.closest("#passage .verse[data-v]") : null;
+    if (verse && mode) {
+      consume(event);
+      handleVerse(verse);
+    }
+  }, true);
+
+  window.rdmV176PcControls = {
+    version: "v176-pc-controls-journal-mechanics",
+    openCopy: openPanel,
+    copyPassage: function(){ return copyVerses(visibleVerses(), "No passage loaded.", "Passage copied"); },
+    refresh: function(){ return refreshPassage(get("loadBtn")); },
+    clear: function(){ mode = ""; window.rdmCopyScriptureMode = ""; clearSelection(); }
+  };
+})();
+</script>
+
 
 <script id="rdm-v156-ipad-direct-app-prepaint">
 (function rdmV156IpadDirectAppPrepaint(){
@@ -15829,7 +16212,7 @@ html.obs body.dark .obs-tool-bar button:hover {
   try { localStorage.setItem("ironSharpenerUnified.offlineCachePanelHidden.v26", "1"); } catch (_) {}
   if (!("serviceWorker" in navigator)) return;
 
-  var SW_URL = "./service-worker.js?v=v70-first-open-nonblocking";
+  var SW_URL = "./service-worker.js?v=v72-pc-controls-journal-mechanics";
   function registerWorker(){
     if (window.__rdmV170ServiceWorkerPromise) return window.__rdmV170ServiceWorkerPromise;
     window.__rdmV170ServiceWorkerPromise = navigator.serviceWorker.register(SW_URL, { updateViaCache: "none" }).catch(function(error){
@@ -26980,7 +27363,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     STORAGE_PREFIX + ".offlineCacheStatus.v26"
   ];
   var HIDDEN_KEY = STORAGE_PREFIX + ".offlinePublicPanelHidden.v107";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v70-first-open-nonblocking-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
   var running = false;
   var progressTimer = null;
   var progressValue = 0;
@@ -27240,9 +27623,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   var ACTIVE_STORE = "resources";
   var STAGING_STORE = "staging";
   var META_STORE = "meta";
-  var LAUNCH_CACHE = "iron-sharpener-launch-v70-first-open-nonblocking-20260704";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
   var VERSION = "v166-compact-offline-storage-full-resource-restore";
-  var SW_VERSION = "v70-first-open-nonblocking";
+  var SW_VERSION = "v72-pc-controls-journal-mechanics";
   var EXPECTED_BIBLE_CHAPTERS = 1189;
   var running = false;
   var dbPromise = null;
@@ -27518,7 +27901,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (!("serviceWorker" in navigator)) return false;
     if (await pingServiceWorker()) return true;
     try {
-      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v70-first-open-nonblocking");
+      var registration = await navigator.serviceWorker.register("./service-worker.js?v=v72-pc-controls-journal-mechanics");
       try { await registration.update(); } catch (_) {}
       if (registration.waiting) try { registration.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (_) {}
       if (!(await pingServiceWorker())) await new Promise(function(resolve){
@@ -28169,436 +28552,6 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   else install();
 })();
 </script>
-
-<!-- v174 teaching-only: reliable desktop browser/PWA copy tools. -->
-<script id="rdm-v174-desktop-copy-tools-fix">
-(function rdmV174DesktopCopyToolsFix(){
-  "use strict";
-  if (window.__rdmV174DesktopCopyToolsFix) return;
-  window.__rdmV174DesktopCopyToolsFix = true;
-
-  var COPY_MODE_KEY = "__rdmV174CopyMode";
-  var MARKED_SELECTOR = [
-    ".verse.focused", ".verse.pointed", ".verse.highlighted",
-    ".verse.highlight-gold", ".verse.highlight-blue", ".verse.highlight-green",
-    ".verse.highlight-red", ".verse.highlight-purple", ".verse.highlight-amber",
-    ".verse.underlined", ".verse.circled", ".verse.boxed", ".verse.rdm-stack-marked"
-  ].join(",");
-
-  function get(id){ return document.getElementById(id); }
-  function clean(value){ return String(value || "").replace(/\s+/g, " ").trim(); }
-  function isDesktopTeaching(){
-    if (document.documentElement.classList.contains("obs")) return true;
-    var actions = document.querySelector(".hero .actions");
-    if (actions) {
-      try {
-        var style = window.getComputedStyle(actions);
-        if (style.display !== "none" && style.visibility !== "hidden") return true;
-      } catch (_) {}
-    }
-    var body = document.body;
-    return !body || !body.classList.contains("rdm-mobile-app-shell");
-  }
-
-  function visibleVerses(){
-    return Array.from(document.querySelectorAll("#passage .verse[data-v]"));
-  }
-  function verseNumber(verse){
-    return parseInt(verse && verse.dataset ? verse.dataset.v : "0", 10) || 0;
-  }
-  function uniqueSorted(verses){
-    return Array.from(new Set((verses || []).filter(Boolean)))
-      .filter(function(verse){ return verse.closest && verse.closest("#passage"); })
-      .sort(function(a,b){ return verseNumber(a) - verseNumber(b); });
-  }
-  function verseText(verse){
-    if (!verse) return "";
-    var clone = verse.cloneNode(true);
-    clone.querySelectorAll(".vnum").forEach(function(node){ node.remove(); });
-    return clean(clone.textContent || "");
-  }
-  function contiguous(numbers){
-    if (numbers.length <= 1) return true;
-    for (var i = 1; i < numbers.length; i += 1) {
-      if (numbers[i] !== numbers[i - 1] + 1) return false;
-    }
-    return true;
-  }
-  function referenceFor(verses){
-    var sorted = uniqueSorted(verses);
-    var book = get("book") ? get("book").value : "";
-    var chapter = get("chapter") ? get("chapter").value : "";
-    var numbers = sorted.map(verseNumber).filter(Boolean);
-    if (!book || !chapter) return "Selected Scripture";
-    if (!numbers.length) return book + " " + chapter;
-    if (numbers.length === 1) return book + " " + chapter + ":" + numbers[0];
-    if (contiguous(numbers)) return book + " " + chapter + ":" + numbers[0] + "-" + numbers[numbers.length - 1];
-    return book + " " + chapter + ":" + numbers.join(", ");
-  }
-  function formatForCopy(verses){
-    var sorted = uniqueSorted(verses);
-    var reference = referenceFor(sorted);
-    var body = sorted.map(function(verse){
-      return verse.dataset.v + " " + verseText(verse);
-    }).join("\n");
-    return (reference + " (WEB)\n" + body).trim();
-  }
-
-  function selectionTouchesVerse(selection, verse){
-    if (!selection || !verse || selection.rangeCount === 0 || selection.isCollapsed) return false;
-    for (var i = 0; i < selection.rangeCount; i += 1) {
-      try { if (selection.getRangeAt(i).intersectsNode(verse)) return true; } catch (_) {}
-    }
-    return false;
-  }
-  function browserSelectedVerses(){
-    var selection = window.getSelection ? window.getSelection() : null;
-    if (!selection || !clean(selection.toString())) return [];
-    return uniqueSorted(visibleVerses().filter(function(verse){ return selectionTouchesVerse(selection, verse); }));
-  }
-  function markedVerses(){
-    try { return uniqueSorted(Array.from(document.querySelectorAll("#passage " + MARKED_SELECTOR))); }
-    catch (_) { return []; }
-  }
-  function copySelectedVerses(){
-    return uniqueSorted(Array.from(document.querySelectorAll("#passage .verse.copy-selected[data-v]")));
-  }
-  function clearSelection(){
-    document.querySelectorAll("#passage .verse.copy-selected").forEach(function(verse){
-      verse.classList.remove("copy-selected");
-    });
-  }
-
-  function setStatus(message){
-    var status = get("copyStatus");
-    var active = get("activeToolLabel");
-    var teacher = get("teacherToolsStatusText");
-    if (status) status.textContent = message;
-    if (active) active.textContent = message;
-    if (teacher) teacher.textContent = message;
-    clearTimeout(window.__rdmV174CopyStatusTimer);
-    window.__rdmV174CopyStatusTimer = setTimeout(function(){
-      if (status) status.textContent = "Copy tools ready.";
-    }, 2200);
-  }
-
-  function legacyCopyNow(value){
-    var helper = document.createElement("textarea");
-    helper.value = value;
-    helper.setAttribute("readonly", "readonly");
-    helper.setAttribute("aria-hidden", "true");
-    helper.style.position = "fixed";
-    helper.style.left = "2px";
-    helper.style.top = "2px";
-    helper.style.width = "2px";
-    helper.style.height = "2px";
-    helper.style.opacity = "0.01";
-    helper.style.pointerEvents = "none";
-    helper.style.zIndex = "-1";
-    document.body.appendChild(helper);
-    var ok = false;
-    try {
-      helper.focus({ preventScroll: true });
-      helper.select();
-      helper.setSelectionRange(0, helper.value.length);
-      ok = document.execCommand("copy") === true;
-    } catch (_) {
-      ok = false;
-    }
-    helper.remove();
-    return ok;
-  }
-
-  function copyText(value){
-    value = String(value || "");
-    if (!value.trim()) return Promise.resolve(false);
-
-    var modern = null;
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        modern = Promise.resolve(navigator.clipboard.writeText(value)).then(function(){ return true; }, function(){ return false; });
-      }
-    } catch (_) {
-      modern = null;
-    }
-
-    var legacyOk = legacyCopyNow(value);
-    if (legacyOk) return Promise.resolve(true);
-    if (!modern) return Promise.resolve(false);
-
-    return Promise.race([
-      modern,
-      new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 1400); })
-    ]);
-  }
-
-  async function copyVerses(verses, emptyMessage, successPrefix){
-    var sorted = uniqueSorted(verses);
-    if (!sorted.length) {
-      setStatus(emptyMessage || "No verses available to copy.");
-      return false;
-    }
-    var reference = referenceFor(sorted);
-    setStatus("Copying " + reference + "...");
-    var ok = await copyText(formatForCopy(sorted));
-    if (ok) setStatus((successPrefix || (sorted.length === 1 ? "Verse copied" : "Verses copied")) + ": " + reference + ".");
-    else setStatus("Copy could not be completed. Select the Scripture text and press Ctrl+C.");
-    return ok;
-  }
-
-  function ensurePanel(){
-    var panel = get("copyScripturePanel");
-    if (panel) return panel;
-    panel = document.createElement("div");
-    panel.id = "copyScripturePanel";
-    panel.className = "teacher-pop";
-    panel.setAttribute("aria-hidden", "true");
-    panel.innerHTML = [
-      '<div class="teacher-pop-head drag-handle" data-drag-handle="copyScripturePanel">',
-      '<h3>Copy Scripture</h3>',
-      '<button id="closeCopyScripturePanel" class="teacher-pop-close secondary" type="button">Close</button>',
-      '</div>',
-      '<div class="copy-scripture-help">Choose a copy option. For a single verse or multiple verses, choose the option and then click the Scripture text.</div>',
-      '<div class="copy-scripture-actions">',
-      '<button id="copySingleVerseMode" type="button">Copy Single Verse</button>',
-      '<button id="copyMultipleVersesMode" type="button">Copy Multiple Verses</button>',
-      '<button id="copyWholePassageMode" type="button">Copy Passage</button>',
-      '<button id="clearCopySelectionMode" class="secondary" type="button">Clear Copy Selection</button>',
-      '</div>'
-    ].join("");
-    document.body.appendChild(panel);
-    return panel;
-  }
-  function openPanel(){
-    var panel = ensurePanel();
-    panel.style.display = "";
-    panel.style.visibility = "visible";
-    panel.style.pointerEvents = "auto";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-    panel.style.setProperty("z-index", "61050", "important");
-  }
-  function closePanel(){
-    var panel = get("copyScripturePanel");
-    if (!panel) return;
-    panel.classList.remove("open");
-    panel.setAttribute("aria-hidden", "true");
-  }
-  function setMode(mode){
-    clearSelection();
-    window[COPY_MODE_KEY] = mode;
-    window.rdmCopyScriptureMode = mode;
-    if (mode === "single") setStatus("Click one verse to copy it.");
-    else setStatus("Click verses to select and copy them.");
-    closePanel();
-  }
-
-  function stop(event){
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-  }
-
-  function handleControlClick(event){
-    if (!isDesktopTeaching()) return;
-    var target = event.target && event.target.closest ? event.target.closest([
-      "#copyScriptureMain", "#openCopyScriptureFromTools", "#closeCopyScripturePanel",
-      "#copySingleVerseMode", "#copyMultipleVersesMode", "#copyWholePassageMode", "#clearCopySelectionMode",
-      "#copyPassage", "#copyVerse", "#copySelectedVerses", "#rdmV65CopyPassageBtn", "#rdmV65CopyMarkedBtn"
-    ].join(",")) : null;
-    if (!target) return;
-    stop(event);
-
-    if (target.id === "copyScriptureMain" || target.id === "openCopyScriptureFromTools") {
-      openPanel();
-      return;
-    }
-    if (target.id === "closeCopyScripturePanel") {
-      closePanel();
-      return;
-    }
-    if (target.id === "copySingleVerseMode") {
-      setMode("single");
-      return;
-    }
-    if (target.id === "copyMultipleVersesMode") {
-      setMode("multiple");
-      return;
-    }
-    if (target.id === "clearCopySelectionMode") {
-      clearSelection();
-      window[COPY_MODE_KEY] = "";
-      window.rdmCopyScriptureMode = "";
-      setStatus("Copy selection cleared.");
-      return;
-    }
-    if (target.id === "copyWholePassageMode" || target.id === "copyPassage" || target.id === "rdmV65CopyPassageBtn") {
-      clearSelection();
-      window[COPY_MODE_KEY] = "";
-      window.rdmCopyScriptureMode = "";
-      copyVerses(visibleVerses(), "No passage loaded.", "Passage copied");
-      return;
-    }
-    if (target.id === "copySelectedVerses" || target.id === "rdmV65CopyMarkedBtn") {
-      var selected = browserSelectedVerses();
-      copyVerses(selected.length ? selected : markedVerses(), "Select or mark verses first.", "Scripture copied");
-      return;
-    }
-    if (target.id === "copyVerse") {
-      var picked = browserSelectedVerses()[0] || markedVerses()[0] || visibleVerses()[0];
-      copyVerses(picked ? [picked] : [], "No verse loaded.", "Verse copied");
-    }
-  }
-
-  function handleVerseClick(event){
-    if (!isDesktopTeaching()) return;
-    var mode = window[COPY_MODE_KEY] || "";
-    if (!mode) return;
-    var verse = event.target && event.target.closest ? event.target.closest("#passage .verse[data-v]") : null;
-    if (!verse) return;
-    stop(event);
-
-    if (mode === "single") {
-      clearSelection();
-      verse.classList.add("copy-selected");
-      copyVerses([verse], "No verse loaded.", "Verse copied");
-      window[COPY_MODE_KEY] = "";
-      window.rdmCopyScriptureMode = "";
-      setTimeout(function(){ verse.classList.remove("copy-selected"); }, 1300);
-      return;
-    }
-
-    verse.classList.toggle("copy-selected");
-    var selected = copySelectedVerses();
-    if (selected.length) copyVerses(selected, "No verses selected.", selected.length === 1 ? "Verse copied" : "Verses copied");
-    else setStatus("No verses selected. Click a verse to select it.");
-  }
-
-  function bindDirectButtons(){
-    ["copyScriptureMain", "openCopyScriptureFromTools", "closeCopyScripturePanel", "copySingleVerseMode", "copyMultipleVersesMode", "copyWholePassageMode", "clearCopySelectionMode", "copyPassage", "copyVerse", "copySelectedVerses", "rdmV65CopyPassageBtn", "rdmV65CopyMarkedBtn"].forEach(function(id){
-      var button = get(id);
-      if (!button || button.dataset.rdmV174CopyBound === "1") return;
-      button.dataset.rdmV174CopyBound = "1";
-      button.addEventListener("click", handleControlClick, true);
-    });
-  }
-
-  document.addEventListener("click", handleControlClick, true);
-  document.addEventListener("click", handleVerseClick, true);
-
-  function start(){
-    ensurePanel();
-    bindDirectButtons();
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
-  else start();
-  window.addEventListener("load", function(){
-    start();
-    setTimeout(bindDirectButtons, 250);
-    setTimeout(bindDirectButtons, 1200);
-  });
-
-  window.rdmV174DesktopCopyTools = {
-    version: "v174-desktop-copy-tools-reliable",
-    open: openPanel,
-    copyPassage: function(){ return copyVerses(visibleVerses(), "No passage loaded.", "Passage copied"); },
-    clear: function(){ clearSelection(); window[COPY_MODE_KEY] = ""; window.rdmCopyScriptureMode = ""; }
-  };
-})();
-</script>
-
-
-<!-- v175 teaching-only: final desktop Refresh Passage and copy-control owner. -->
-<script id="rdm-v175-desktop-refresh-copy-final">
-(function rdmV175DesktopRefreshCopyFinal(){
-  "use strict";
-  if (window.__rdmV175DesktopRefreshCopyFinal) return;
-  window.__rdmV175DesktopRefreshCopyFinal = true;
-
-  function get(id){ return document.getElementById(id); }
-  function desktopSurfaceVisible(){
-    if (document.documentElement.classList.contains("obs")) return true;
-    var actions = document.querySelector(".hero .actions");
-    if (actions) {
-      try {
-        var style = window.getComputedStyle(actions);
-        if (style.display !== "none" && style.visibility !== "hidden") return true;
-      } catch (_) {}
-    }
-    return !document.body || !document.body.classList.contains("rdm-mobile-app-shell");
-  }
-
-  function refreshPassage(event){
-    if (!desktopSurfaceVisible()) return;
-    if (event) event.preventDefault();
-    try { if (typeof window.saveCurrentNotes === "function") window.saveCurrentNotes(); } catch (_) {}
-    try {
-      if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.load === "function") {
-        return window.rdmReferenceRangeNavigationV163.load();
-      }
-    } catch (_) {}
-    try {
-      if (typeof window.loadPassage === "function") return window.loadPassage();
-      if (typeof loadPassage === "function") return loadPassage();
-    } catch (_) {}
-  }
-
-  function openCopyPanel(event){
-    if (!desktopSurfaceVisible()) return;
-    if (event) event.preventDefault();
-    try {
-      if (window.rdmV174DesktopCopyTools && typeof window.rdmV174DesktopCopyTools.open === "function") {
-        window.rdmV174DesktopCopyTools.open();
-        return;
-      }
-    } catch (_) {}
-    var panel = get("copyScripturePanel");
-    if (!panel) return;
-    panel.style.display = "";
-    panel.style.visibility = "visible";
-    panel.style.pointerEvents = "auto";
-    panel.classList.add("open");
-    panel.setAttribute("aria-hidden", "false");
-    panel.style.setProperty("z-index", "61050", "important");
-  }
-
-  function bind(){
-    var refresh = get("loadBtn");
-    if (refresh) {
-      refresh.type = "button";
-      refresh.onclick = refreshPassage;
-      refresh.dataset.rdmV175RefreshBound = "1";
-    }
-
-    ["copyScriptureMain", "openCopyScriptureFromTools"].forEach(function(id){
-      var button = get(id);
-      if (!button) return;
-      button.type = "button";
-      button.onclick = openCopyPanel;
-      button.dataset.rdmV175CopyOpenBound = "1";
-    });
-  }
-
-  function start(){
-    bind();
-    setTimeout(bind, 100);
-    setTimeout(bind, 500);
-    setTimeout(bind, 1400);
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
-  else start();
-  window.addEventListener("load", start, { once: true });
-
-  window.rdmV175DesktopControls = {
-    version: "v175-desktop-refresh-copy-final",
-    refresh: refreshPassage,
-    openCopy: openCopyPanel,
-    rebind: bind
-  };
-})();
-</script>
-
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
@@ -28610,4 +28563,6 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 
 <!-- v171 teaching-only: personal Teaching Cross References stay visible while visiting their Scripture links. -->
 <!-- v174 teaching-only: desktop browser/PWA copy tools controller. -->
-<!-- v175 teaching-only: desktop Refresh Passage and copy controls final owner. -->
+<!-- v176 teaching-only: PC copy and Refresh Passage use the Journal-style direct mechanics controller. -->
+
+<!-- v176 teaching-only: final PC controls bridge registered at window capture before legacy handlers. -->
