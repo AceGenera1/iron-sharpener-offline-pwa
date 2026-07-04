@@ -6558,14 +6558,9 @@ function openDoctrineTopicInNewPanel(doctrine) {
     "Biblical Doctrine"
   );
 
-  setTimeout(() => {
-    document.querySelectorAll(".doctrine-related-topic-btn")
-      .forEach(btn => {
-        btn.onclick = async () => {
-          await openRelatedDoctrineTopic(btn.dataset.topic);
-        };
-      });
-  }, 50);
+  // Related-topic buttons are handled once by the owning resource panel's
+  // delegated click controller. Do not attach a second per-button onclick
+  // handler here; doing both opened two copies of the same doctrine on PC.
 }
 
 async function openRelatedDoctrineTopic(topicName) {
@@ -28673,6 +28668,12 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 })();
 </script>
 
+<script id="rdm-v178-doctrine-related-topic-single-open-marker">
+(function rdmV178DoctrineRelatedTopicSingleOpenMarker(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v178-doctrine-related-topic-single-open";
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
@@ -28687,3 +28688,4 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 <!-- v176 teaching-only: PC copy and Refresh Passage use the Journal-style direct mechanics controller. -->
 
 <!-- v177 teaching-only: the working Copy Scripture menu is now available inside Teacher Tools on desktop and OBS Focus. -->
+<!-- v178 teaching-only: related doctrine topics open exactly once on PC browser and installed desktop app. -->
