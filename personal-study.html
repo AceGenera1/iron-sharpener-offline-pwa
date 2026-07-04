@@ -4138,9 +4138,9 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v157-v62-clean-navigation" />
+<meta name="rdm-build" content="journal-v158-v63-idb-offline-launch" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v157-v62-clean-navigation"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v158-v63-idb-offline-launch"; } catch (_) {} })();
 </script>
 </head>
 <body>
@@ -9241,7 +9241,7 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     initJournalReader();
     await renderHistory();
     if ("serviceWorker" in navigator) {
-      try { navigator.serviceWorker.register("./service-worker.js?v=v62-clean-navigation"); } catch (_) {}
+      try { navigator.serviceWorker.register("./service-worker.js?v=v63-idb-offline"); } catch (_) {}
     }
   }
 
@@ -11905,7 +11905,7 @@ body.dark .readerAnswer { color: #F8F4EC !important; }
   function label(state){
     state = normalize(state);
     if (!state) return "Scripture";
-    return state.book + " " + state.chapter + ":1-" + state.end;
+    return state.book + " " + state.chapter;
   }
 
   function forceFullChapter(state){
