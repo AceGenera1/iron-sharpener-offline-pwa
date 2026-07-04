@@ -1,15 +1,15 @@
-/* Iron Sharpener service worker — v63 IndexedDB Offline Resources + Immediate Launch Shell
+/* Iron Sharpener service worker — v64 Study Resources Cross-References Shell Refresh
    Launch architecture:
    - Cache Storage contains only the tiny app launch shell and icons.
-   - The large offline study-resource library lives in IndexedDB, not Cache Storage.
+   - The large offline study-resource library remains in IndexedDB, not Cache Storage.
    - Bible chapters remain in the dedicated Bible IndexedDB.
    - Navigation opens one tiny cache and one exact key; it never opens either IndexedDB.
-   - Legacy iron-sharpener-offline-* caches are removed during the one-time v63 cutover.
+   - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
 */
 
-const SW_VERSION = "v63-idb-offline-launch";
-const SHELL_TOKEN = "v63-idb-offline";
-const LAUNCH_CACHE = "iron-sharpener-launch-v63-idb-offline-20260704";
+const SW_VERSION = "v64-study-resources-crossrefs";
+const SHELL_TOKEN = "v64-study-resources-crossrefs";
+const LAUNCH_CACHE = "iron-sharpener-launch-v64-study-resources-crossrefs-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -34,10 +34,10 @@ self.addEventListener("activate", (event) => {
     const cache = await caches.open(LAUNCH_CACHE);
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
-    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v63 app shells were not verified.");
+    if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) throw new Error("Fresh v64 app shells were not verified.");
 
-    // This is the one-time architectural cutover: remove every old large
-    // Cache Storage library so iPad launch no longer opens beside thousands of entries.
+    // Preserve the v63 launch architecture: remove old launch/offline caches so
+    // iPad launch never opens beside thousands of Cache Storage entries.
     try {
       const names = await caches.keys();
       for (const name of names) {
