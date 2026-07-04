@@ -65,7 +65,7 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #passage .verse.rdm-v176-copy-sel
   function clean(value){ return String(value || "").replace(/\s+/g, " ").trim(); }
 
   function desktopSurfaceVisible(){
-    if (document.documentElement.classList.contains("obs")) return false;
+    if (document.documentElement.classList.contains("obs")) return true;
     var actions = document.querySelector(".hero .actions");
     if (actions) {
       try {
@@ -378,11 +378,13 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #passage .verse.rdm-v176-copy-sel
   }, true);
 
   window.rdmV176PcControls = {
-    version: "v176-pc-controls-journal-mechanics",
+    version: "v177-teacher-tools-copy-menu",
     openCopy: openPanel,
+    single: function(){ setMode("single"); },
+    multiple: function(){ setMode("multiple"); },
     copyPassage: function(){ return copyVerses(visibleVerses(), "No passage loaded.", "Passage copied"); },
     refresh: function(){ return refreshPassage(get("loadBtn")); },
-    clear: function(){ mode = ""; window.rdmCopyScriptureMode = ""; clearSelection(); }
+    clear: function(){ mode = ""; window.rdmCopyScriptureMode = ""; clearSelection(); setStatus("Copy selection cleared."); }
   };
 })();
 </script>
@@ -28552,6 +28554,125 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   else install();
 })();
 </script>
+
+<style id="rdm-v177-teacher-tools-copy-menu-style">
+/* v177 — Desktop/OBS Teacher Tools uses the proven Copy Scripture controller. */
+#rdmV177TeacherCopyTools { display: none; }
+
+html.obs #rdmV177TeacherCopyTools,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmV177TeacherCopyTools {
+  display: block;
+  margin: 12px 0 16px;
+}
+
+html.obs #rdmV65CopyTools,
+html.obs #rdmV66CopyTools,
+html.obs #openCopyScriptureFromTools,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmV65CopyTools,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmV66CopyTools,
+html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
+  display: none !important;
+}
+
+#rdmV177TeacherCopyTools .rdm-v177-copy-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+#rdmV177TeacherCopyTools .tool-option {
+  width: 100%;
+  min-height: 76px;
+}
+
+#rdmV177TeacherCopyTools .tool-option strong {
+  display: block;
+  margin-bottom: 4px;
+}
+</style>
+<script id="rdm-v177-teacher-tools-copy-menu-script">
+(function rdmV177TeacherToolsCopyMenu(){
+  "use strict";
+  if (window.__rdmV177TeacherToolsCopyMenu) return;
+  window.__rdmV177TeacherToolsCopyMenu = true;
+
+  function get(id){ return document.getElementById(id); }
+  function isDesktopOrObs(){
+    if (document.documentElement.classList.contains("obs")) return true;
+    return !!(document.body && !document.body.classList.contains("rdm-mobile-app-shell"));
+  }
+
+  function install(){
+    var panel = get("teacherToolsPanel");
+    if (!panel || get("rdmV177TeacherCopyTools")) return;
+    var statusCard = panel.querySelector(".teacher-tools-status-card");
+    if (!statusCard) return;
+
+    var block = document.createElement("div");
+    block.id = "rdmV177TeacherCopyTools";
+    block.innerHTML = [
+      '<div class="tool-section-title">Copy Scripture</div>',
+      '<div class="rdm-v177-copy-grid">',
+      '<button id="rdmV177CopySingleBtn" class="tool-option" type="button"><strong>Copy Single Verse</strong><span>Choose this, then click one verse on the Scripture screen.</span></button>',
+      '<button id="rdmV177CopyMultipleBtn" class="tool-option" type="button"><strong>Copy Multiple Verses</strong><span>Choose this, then click verses to build and copy a selection.</span></button>',
+      '<button id="rdmV177CopyPassageBtn" class="tool-option" type="button"><strong>Copy Passage</strong><span>Copy the complete passage currently displayed.</span></button>',
+      '<button id="rdmV177ClearCopyBtn" class="tool-option secondary" type="button"><strong>Clear Copy Selection</strong><span>Clear selected copy verses and exit copy mode.</span></button>',
+      '</div>'
+    ].join("");
+    statusCard.insertAdjacentElement("afterend", block);
+  }
+
+  function closeTeacherToolsForVerseChoice(){
+    var panel = get("teacherToolsPanel");
+    if (!panel) return;
+    panel.classList.remove("open", "drag-positioned", "rd-drag-positioned");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.display = "";
+  }
+
+  function consume(event){
+    try { event.preventDefault(); } catch (_) {}
+    try { event.stopPropagation(); } catch (_) {}
+    try { event.stopImmediatePropagation(); } catch (_) {}
+  }
+
+  window.addEventListener("click", function(event){
+    if (!isDesktopOrObs()) return;
+    var button = event.target && event.target.closest ? event.target.closest(
+      "#rdmV177CopySingleBtn, #rdmV177CopyMultipleBtn, #rdmV177CopyPassageBtn, #rdmV177ClearCopyBtn"
+    ) : null;
+    if (!button) return;
+
+    consume(event);
+    var api = window.rdmV176PcControls;
+    if (!api) return;
+
+    if (button.id === "rdmV177CopySingleBtn") {
+      api.single();
+      closeTeacherToolsForVerseChoice();
+    } else if (button.id === "rdmV177CopyMultipleBtn") {
+      api.multiple();
+      closeTeacherToolsForVerseChoice();
+    } else if (button.id === "rdmV177CopyPassageBtn") {
+      api.copyPassage();
+    } else {
+      api.clear();
+    }
+  }, true);
+
+  function start(){ install(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
+  window.addEventListener("load", function(){
+    start();
+    setTimeout(start, 250);
+    setTimeout(start, 900);
+  });
+
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v177-teacher-tools-copy-menu";
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
@@ -28565,4 +28686,4 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
 <!-- v174 teaching-only: desktop browser/PWA copy tools controller. -->
 <!-- v176 teaching-only: PC copy and Refresh Passage use the Journal-style direct mechanics controller. -->
 
-<!-- v176 teaching-only: final PC controls bridge registered at window capture before legacy handlers. -->
+<!-- v177 teaching-only: the working Copy Scripture menu is now available inside Teacher Tools on desktop and OBS Focus. -->
