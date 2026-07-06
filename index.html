@@ -1100,7 +1100,7 @@ body.dark { background-color: #203D39; }
 
     .controls {
       display: grid;
-      grid-template-columns: 1.1fr .65fr .65fr .65fr .75fr auto;
+      grid-template-columns: 1.1fr .65fr .75fr auto;
       gap: 20px;
       padding: 18px 32px;
       background: #fff6e7;
@@ -3396,12 +3396,28 @@ html.obs #discipleJournalBtn { display: none !important; }
 
 
 
-<style id="rdm-v144-full-chapter-only-controls">
-  /* v144: full-chapter-only Scripture controls. Start/End/Section Size are intentionally removed from the visible UI. */
-  #start, #end, #rangeSize, #obsStartVerseSelect, #obsEndVerseSelect, #obsRangeSizeSelect,
-  label[for="start"], label[for="end"], label[for="rangeSize"] { display: none !important; }
-  .controls div:has(#start), .controls div:has(#end), .controls div:has(#rangeSize) { display: none !important; }
-  body.rdm-mobile-shell .controls div:has(#rangeSize) { display: none !important; }
+<style id="rdm-v179-section-size-controls">
+  /* v179: teaching-side Section Size is intentionally limited to 5, 10, or Full Chapter.
+     Start and End remain internal so exact Scripture-reference navigation keeps working. */
+  #start, #end, #obsStartVerseSelect, #obsEndVerseSelect,
+  label[for="start"], label[for="end"],
+  label[for="obsStartVerseSelect"], label[for="obsEndVerseSelect"] {
+    display: none !important;
+  }
+
+  .controls div:has(#start),
+  .controls div:has(#end) {
+    display: none !important;
+  }
+
+  #rangeSize,
+  #obsRangeSizeSelect {
+    display: block !important;
+  }
+
+  .controls div:has(#rangeSize) {
+    display: block !important;
+  }
 </style>
 
 <meta name="rdm-build" content="v166-v68-full-offline-resources-persistent-crossrefs" />
@@ -3453,9 +3469,14 @@ html.obs #discipleJournalBtn { display: none !important; }
 <div><label for="chapter">Chapter</label><select id="chapter"></select></div>
 <select id="start" hidden aria-hidden="true"></select>
 <select id="end" hidden aria-hidden="true"></select>
-<select id="rangeSize" hidden aria-hidden="true">
-<option selected="" value="full">Full Chapter</option>
+<div>
+<label for="rangeSize">Section Size</label>
+<select id="rangeSize" aria-label="Section Size">
+<option selected="" value="5">5 Verses</option>
+<option value="10">10 Verses</option>
+<option value="full">Full Chapter</option>
 </select>
+</div>
 <button id="loadBtn" title="Refresh the current passage if it does not load correctly.">↻ Refresh Passage</button>
 </section>
 <main class="layout">
@@ -3565,7 +3586,12 @@ html.obs #discipleJournalBtn { display: none !important; }
 <select id="obsChapterSelect"></select>
 <select id="obsStartVerseSelect" hidden aria-hidden="true"></select>
 <select id="obsEndVerseSelect" hidden aria-hidden="true"></select>
-<select id="obsRangeSizeSelect" hidden aria-hidden="true"></select>
+<label for="obsRangeSizeSelect">Section Size</label>
+<select id="obsRangeSizeSelect" aria-label="Section Size">
+<option selected="" value="5">5 Verses</option>
+<option value="10">10 Verses</option>
+<option value="full">Full Chapter</option>
+</select>
 <button id="obsLoadPassage" style="width:100%;margin-top:12px;" type="button">
     Load Passage
   </button>
@@ -5212,7 +5238,7 @@ function showSmallTeachingNoteBox() {
       const max = verseMax();
       const oldStart = parseInt(startSel.value, 10) || 1;
       const oldEnd = parseInt(endSel.value, 10) || oldStart;
-      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "full";
+      rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || rangeSel.value || "5";
 
       startSel.innerHTML = "";
       endSel.innerHTML = "";
@@ -7074,20 +7100,27 @@ if (crossRefs) {
 
 
 
-/* v130 — default Section Size is Full Chapter unless the user changes it from this version forward. */
+/* v179 — restore the teaching rhythm: 5 verses is the one-time default,
+   then remember the teacher's choice of 5, 10, or Full Chapter. */
 try {
-  const __rdmSectionTouchedKeyV130 = `${storagePrefix}.sectionSizeUserTouched.v130`;
-  const __rdmSectionKeyV130 = `${storagePrefix}.sectionSize`;
-  if (localStorage.getItem(__rdmSectionTouchedKeyV130) !== "1") {
-    localStorage.setItem(__rdmSectionKeyV130, "full");
+  const __rdmSectionMigrationKeyV179 = `${storagePrefix}.sectionSizeMigration.v179`;
+  const __rdmSectionKeyV179 = `${storagePrefix}.sectionSize`;
+  if (localStorage.getItem(__rdmSectionMigrationKeyV179) !== "1") {
+    const __currentSectionV179 = localStorage.getItem(__rdmSectionKeyV179);
+    const __initialSectionV179 = (__currentSectionV179 === "5" || __currentSectionV179 === "10")
+      ? __currentSectionV179
+      : "5";
+    localStorage.setItem(__rdmSectionKeyV179, __initialSectionV179);
     try {
-      const __savedRefV130 = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
-      if (__savedRefV130 && __savedRefV130.range !== "full") {
-        __savedRefV130.range = "full";
-        __savedRefV130.start = "1";
-        localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify(__savedRefV130));
+      const __savedRefV179 = JSON.parse(localStorage.getItem(`${storagePrefix}.lastRef`) || "null");
+      if (__savedRefV179 && !["5", "10"].includes(String(__savedRefV179.range || ""))) {
+        __savedRefV179.range = __initialSectionV179;
+        __savedRefV179.start = "1";
+        __savedRefV179.end = __initialSectionV179;
+        localStorage.setItem(`${storagePrefix}.lastRef`, JSON.stringify(__savedRefV179));
       }
     } catch (_) {}
+    localStorage.setItem(__rdmSectionMigrationKeyV179, "1");
   }
 } catch (_) {}
 
@@ -7124,7 +7157,7 @@ try {
   chapSel.value = saved?.chapter || "1";
   fillVerses();
 
-  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "full";
+  rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || saved?.range || "5";
   startSel.value = saved?.start || "1";
 
   if (saved?.end) {
@@ -7144,7 +7177,7 @@ try {
     fillChapters();
     chapSel.value = "1";
     fillVerses();
-    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "full";
+    rangeSel.value = localStorage.getItem(`${storagePrefix}.sectionSize`) || "5";
     startSel.value = "1";
     updateEndFromRange();
   });
@@ -28229,16 +28262,43 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     return 1;
   }
   function clamp(value, min, max){ return Math.max(min, Math.min(max, parseInt(value,10)||min)); }
+  function validSectionRange(value){
+    value=String(value || "").toLowerCase();
+    return value==="5" || value==="10" || value==="full" ? value : "";
+  }
+  function preferredRange(){
+    var range=get("rangeSize");
+    var value=validSectionRange(range && range.value);
+    if (!value) {
+      try { value=validSectionRange(localStorage.getItem("ironSharpenerUnified.sectionSize")); } catch (_) {}
+    }
+    return value || "5";
+  }
   function normalize(state){
     if (!state || !state.book) return null;
     var book = String(state.book).trim();
     var chapter = String(parseInt(state.chapter,10)||1);
     if (!book) return null;
     var max = maxVerse(book, chapter);
-    var mode = state.mode === "focus" || state.range === "custom" || state.explicitVerse === true ? "focus" : "full";
-    var start = mode === "focus" ? clamp(state.start,1,max) : 1;
-    var end = mode === "focus" ? clamp(state.end || start,start,max) : max;
-    return { book:book, chapter:chapter, start:String(start), end:String(end), mode:mode, range:mode === "focus" ? "custom" : "full" };
+    var explicit = state.mode === "focus" || state.range === "custom" || state.explicitVerse === true;
+    var requestedRange = validSectionRange(state.range);
+    if (!requestedRange && state.mode === "full") requestedRange = "full";
+    if (!requestedRange) requestedRange = preferredRange();
+    var mode = explicit ? "focus" : (requestedRange === "full" ? "full" : "section");
+    var start = mode === "focus"
+      ? clamp(state.start,1,max)
+      : (requestedRange === "full" ? 1 : clamp(state.start || 1,1,max));
+    var end = mode === "focus"
+      ? clamp(state.end || start,start,max)
+      : (requestedRange === "full" ? max : Math.min(max,start+(parseInt(requestedRange,10)||5)-1));
+    return {
+      book:book,
+      chapter:chapter,
+      start:String(start),
+      end:String(end),
+      mode:mode,
+      range:mode === "focus" ? "custom" : requestedRange
+    };
   }
   function sameLocation(a,b){
     a=normalize(a); b=normalize(b);
@@ -28260,9 +28320,17 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     if (!book || !chapter || !book.value) return null;
     return { book:book.value, chapter:chapter.value||"1" };
   }
-  function fullStateFromControls(){
+  function fullStateFromControls(startValue){
     var base=controlsBookChapter();
-    return base ? normalize({book:base.book,chapter:base.chapter,mode:"full"}) : null;
+    if (!base) return null;
+    var range=preferredRange();
+    return normalize({
+      book:base.book,
+      chapter:base.chapter,
+      start:startValue || "1",
+      range:range,
+      mode:range === "full" ? "full" : "section"
+    });
   }
   function currentRequestedState(){
     var base=controlsBookChapter();
@@ -28270,20 +28338,24 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     var focused=normalize(focusState);
     if (focused && focused.book===base.book && focused.chapter===String(parseInt(base.chapter,10)||1)) return focused;
     focusState=null;
-    return normalize({book:base.book,chapter:base.chapter,mode:"full"});
+    return fullStateFromControls();
   }
   function applyHiddenRange(state){
     state=normalize(state);
     if (!state) return null;
     var range=get("rangeSize"), start=get("start"), end=get("end");
+    var selectedPreference=preferredRange();
+    ensureOption(range,"5","5 Verses");
+    ensureOption(range,"10","10 Verses");
     ensureOption(range,"full","Full Chapter");
-    if (state.mode === "focus") ensureOption(range,"custom","Reference Range");
     ensureOption(start,state.start,state.start);
     ensureOption(end,state.end,state.end);
-    if (range) range.value=state.mode === "focus" ? "custom" : "full";
+    if (range) range.value=state.mode === "focus" ? selectedPreference : state.range;
     if (start) start.value=state.start;
     if (end) end.value=state.end;
-    try { localStorage.setItem("ironSharpenerUnified.sectionSize","full"); } catch (_) {}
+    if (state.mode !== "focus") {
+      try { localStorage.setItem("ironSharpenerUnified.sectionSize",state.range); } catch (_) {}
+    }
     return state;
   }
   function setSelectors(state){
@@ -28461,6 +28533,35 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     updateBack();
     renderState(next).then(updateBack,updateBack);
   }
+  function handleRangeChange(event){
+    var target=event&&event.target;
+    if (!target || target.id!=="rangeSize" || restoring) return;
+    var chosen=validSectionRange(target.value) || "5";
+    target.value=chosen;
+    focusState=null;
+    if (personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
+    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+    try {
+      localStorage.setItem("ironSharpenerUnified.sectionSize",chosen);
+      localStorage.setItem("ironSharpenerUnified.sectionSizeUserTouched.v179","1");
+    } catch (_) {}
+    var base=controlsBookChapter();
+    if (!base) return;
+    var next=normalize({
+      book:base.book,
+      chapter:base.chapter,
+      start:"1",
+      range:chosen,
+      mode:chosen === "full" ? "full" : "section"
+    });
+    applyHiddenRange(next);
+    updateBack();
+    renderState(next).then(function(){
+      try { if (typeof syncObsNavigator === "function") syncObsNavigator(); } catch (_) {}
+      updateBack();
+    },updateBack);
+  }
+
   function chapterCount(book){
     try {
       var source=typeof books!=="undefined"?books:null;
@@ -28470,20 +28571,91 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     try { var list=typeof verseCounts!=="undefined"&&verseCounts?verseCounts[book]:null; if(Array.isArray(list)&&list.length)return list.length; } catch (_) {}
     return 1;
   }
-  async function moveChapter(direction,event){
+  function lastSectionStart(max,range){
+    if (range === "full") return 1;
+    var size=parseInt(range,10)||5;
+    return Math.max(1,Math.floor((Math.max(1,max)-1)/size)*size+1);
+  }
+  async function moveChapter(direction,event,forcedRange){
     if(event){try{event.preventDefault();event.stopPropagation();}catch(_){}}
     if(restoring)return false;
     var current=normalize(committedState||currentRequestedState());
     if(!current)return false;
     if(personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
+    var range=validSectionRange(forcedRange) || (current.mode==="focus" ? preferredRange() : validSectionRange(current.range)) || preferredRange();
     var index=BOOKS.indexOf(current.book); if(index<0)return false;
     var chapter=parseInt(current.chapter,10)||1;
     chapter+=direction;
     if(chapter>chapterCount(current.book)){index+=1;if(index>=BOOKS.length)return false;chapter=1;}
     if(chapter<1){index-=1;if(index<0)return false;chapter=chapterCount(BOOKS[index]);}
-    var target=normalize({book:BOOKS[index],chapter:String(chapter),mode:"full"});
+    var targetBook=BOOKS[index];
+    var targetStart=direction<0 ? lastSectionStart(maxVerse(targetBook,chapter),range) : 1;
+    var target=normalize({
+      book:targetBook,
+      chapter:String(chapter),
+      start:String(targetStart),
+      range:range,
+      mode:range==="full" ? "full" : "section"
+    });
     if(!sameLocation(current,target))pushHistory(current);
     setSelectors(target);updateBack();var ok=await renderState(target);updateBack();return ok;
+  }
+  async function moveSection(direction,event){
+    if(event){try{event.preventDefault();event.stopPropagation();}catch(_){}}
+    if(restoring)return false;
+    var current=normalize(committedState||currentRequestedState());
+    if(!current)return false;
+    var range=current.mode==="focus" ? preferredRange() : (validSectionRange(current.range) || preferredRange());
+    if(range==="full") return moveChapter(direction,null,"full");
+    if(personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
+    var size=parseInt(range,10)||5;
+    var max=maxVerse(current.book,current.chapter);
+    var start=current.mode==="focus"
+      ? Math.floor((Math.max(1,parseInt(current.start,10)||1)-1)/size)*size+1
+      : Math.max(1,parseInt(current.start,10)||1);
+    var end=Math.min(max,start+size-1);
+    var target=null;
+    if(direction>0 && end<max){
+      target=normalize({book:current.book,chapter:current.chapter,start:String(end+1),range:range,mode:"section"});
+    } else if(direction<0 && start>1){
+      target=normalize({book:current.book,chapter:current.chapter,start:String(Math.max(1,start-size)),range:range,mode:"section"});
+    } else {
+      return moveChapter(direction,null,range);
+    }
+    if(!sameLocation(current,target))pushHistory(current);
+    setSelectors(target);updateBack();var ok=await renderState(target);updateBack();return ok;
+  }
+  async function loadFromObsNavigator(event){
+    if(event){try{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}catch(_){}}
+    if(restoring)return false;
+    var obsBook=get("obsBookSelect"), obsChapter=get("obsChapterSelect"), obsRange=get("obsRangeSizeSelect");
+    if(!obsBook || !obsChapter)return false;
+    var chosen=validSectionRange(obsRange&&obsRange.value) || preferredRange();
+    try { if (typeof saveCurrentNotes === "function") saveCurrentNotes(); } catch (_) {}
+    if(personalCrossRefVisit) clearPersonalCrossReferenceVisit(true);
+    var book=get("book"), chapter=get("chapter"), range=get("rangeSize");
+    if(book) book.value=obsBook.value;
+    try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
+    if(chapter) chapter.value=obsChapter.value || "1";
+    try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
+    if(range) range.value=chosen;
+    try {
+      localStorage.setItem("ironSharpenerUnified.sectionSize",chosen);
+      localStorage.setItem("ironSharpenerUnified.sectionSizeUserTouched.v179","1");
+    } catch (_) {}
+    focusState=null;
+    var next=normalize({
+      book:obsBook.value,
+      chapter:obsChapter.value || "1",
+      start:"1",
+      range:chosen,
+      mode:chosen==="full" ? "full" : "section"
+    });
+    applyHiddenRange(next);
+    var ok=await renderState(next);
+    try { if (typeof syncObsNavigator === "function") syncObsNavigator(); } catch (_) {}
+    updateBack();
+    return ok;
   }
   async function goBack(event){
     if (event){ try { event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); } catch (_) {} }
@@ -28520,25 +28692,30 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     try { goToScriptureReference=window.goToScriptureReference; } catch (_) {}
     window.rdmGoBackOneStudyResourceStep=function(){ return goBack(); };
     document.addEventListener("click",capturePersonalCrossReferenceClick,true);
-    var book=get("book"), chapter=get("chapter");
+    var book=get("book"), chapter=get("chapter"), range=get("rangeSize");
     if (book) book.onchange=handleSelectChange;
     if (chapter) chapter.onchange=handleSelectChange;
+    if (range) range.onchange=handleRangeChange;
+    var obsLoad=get("obsLoadPassage");
+    if (obsLoad) obsLoad.onclick=loadFromObsNavigator;
     var previousButton=get("prevBtn"), nextButton=get("nextBtn");
-    if(previousButton) previousButton.onclick=function(event){return moveChapter(-1,event);};
-    if(nextButton) nextButton.onclick=function(event){return moveChapter(1,event);};
+    if(previousButton) previousButton.onclick=function(event){return moveSection(-1,event);};
+    if(nextButton) nextButton.onclick=function(event){return moveSection(1,event);};
     updateBack();
     var passage=get("passage");
     if (!passage || !passage.querySelector(".verse[data-v]")) renderState(committedState);
   }
 
   window.rdmReferenceRangeNavigationV163={
-    version:"v171-reference-range-personal-crossrefs-persist",
+    version:"v179-section-size-5-10-full",
     load:function(){return renderState(currentRequestedState());},
     open:goToReference,
     parse:parseReference,
     back:goBack,
     previousChapter:function(){return moveChapter(-1);},
     nextChapter:function(){return moveChapter(1);},
+    previousSection:function(){return moveSection(-1);},
+    nextSection:function(){return moveSection(1);},
     state:function(){return normalize(committedState);},
     history:function(){return historyStack.map(normalize);},
     clear:function(){historyStack.length=0;clearPersonalCrossReferenceVisit(false);updateBack();},
@@ -28674,6 +28851,13 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 })();
 </script>
 
+<script id="rdm-v179-section-size-marker">
+(function rdmV179SectionSizeMarker(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v179-section-size-5-10-full";
+  window.__RDM_ACTIVE_BUILD = "v179-section-size-5-10-full";
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
@@ -28689,3 +28873,4 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 
 <!-- v177 teaching-only: the working Copy Scripture menu is now available inside Teacher Tools on desktop and OBS Focus. -->
 <!-- v178 teaching-only: related doctrine topics open exactly once on PC browser and installed desktop app. -->
+<!-- v179 teaching-only: Section Size offers 5 Verses, 10 Verses, and Full Chapter; Start/End remain internal. -->
