@@ -28858,6 +28858,241 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 })();
 </script>
 
+
+
+<!-- v180 teaching-only: Teaching Notes, Teaching Cross References, Application & Prayer,
+     and Clip / Timestamp Notes now form one persistent teaching workspace. The visible
+     content remains unchanged through book, chapter, section, reference-link, Back,
+     online/offline, browser, and installed-app navigation until the teacher deletes it. -->
+<script id="rdm-v180-persistent-teaching-workspace">
+(function rdmV180PersistentTeachingWorkspace(){
+  "use strict";
+  if (window.__rdmV180PersistentTeachingWorkspace) return;
+  window.__rdmV180PersistentTeachingWorkspace = true;
+
+  var NOTE_IDS = ["teachingNotes", "crossRefs", "applicationNotes", "clipNotes"];
+  var MASTER_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v180.";
+  var restoreTimer = 0;
+  var originalLoadCurrentNotes = null;
+  var originalSaveCurrentNotes = null;
+
+  function get(id){ return document.getElementById(id); }
+  function masterKey(id){ return MASTER_PREFIX + id; }
+
+  function safeGet(key){
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+
+  function safeSet(key, value){
+    try {
+      localStorage.setItem(key, String(value == null ? "" : value));
+      return true;
+    } catch (_) { return false; }
+  }
+
+  function passageBaseKey(){
+    try {
+      if (typeof currentStudyUnitKey === "function") return currentStudyUnitKey();
+    } catch (_) {}
+    return "";
+  }
+
+  function seedValue(id){
+    var saved = safeGet(masterKey(id));
+    if (saved !== null) return saved;
+
+    var field = get(id);
+    var visible = field ? String(field.value || "") : "";
+    if (visible) return visible;
+
+    var base = passageBaseKey();
+    if (base) {
+      var legacy = safeGet(base + "." + id);
+      if (legacy !== null) return legacy;
+    }
+
+    return visible;
+  }
+
+  function saveField(id, value){
+    value = String(value == null ? "" : value);
+    safeSet(masterKey(id), value);
+
+    // Keep the existing passage-keyed copy as a compatibility backup. The master
+    // workspace remains the visible source of truth so navigation can never erase it.
+    var base = passageBaseKey();
+    if (base) safeSet(base + "." + id, value);
+  }
+
+  function saveAll(){
+    NOTE_IDS.forEach(function(id){
+      var field = get(id);
+      if (field) saveField(id, field.value);
+    });
+    try {
+      if (typeof updateNotesSaveStatus === "function") {
+        updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
+      }
+    } catch (_) {}
+  }
+
+  function installFieldHandler(field){
+    if (!field) return;
+    field.oninput = function(){
+      saveField(field.id, field.value);
+      try {
+        if (typeof updateNotesSaveStatus === "function") {
+          updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
+        }
+      } catch (_) {}
+      if (field.id === "crossRefs") {
+        try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
+      }
+    };
+  }
+
+  function restoreAll(){
+    NOTE_IDS.forEach(function(id){
+      var field = get(id);
+      if (!field) return;
+
+      var value = safeGet(masterKey(id));
+      if (value === null) {
+        value = seedValue(id);
+        safeSet(masterKey(id), value);
+      }
+
+      if (field.value !== value) field.value = value;
+      installFieldHandler(field);
+    });
+
+    try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
+    try {
+      if (typeof updateNotesSaveStatus === "function") {
+        updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
+      }
+    } catch (_) {}
+    try {
+      if (typeof window.rdmV57ResizeMobileNoteBoxes === "function") {
+        window.rdmV57ResizeMobileNoteBoxes();
+      }
+    } catch (_) {}
+  }
+
+  function persistentLoadCurrentNotes(){
+    try {
+      if (typeof currentStudyUnitKey === "function") activeNotesKey = currentStudyUnitKey();
+    } catch (_) {}
+    restoreAll();
+  }
+
+  function persistentSaveCurrentNotes(){
+    saveAll();
+    try {
+      if (originalSaveCurrentNotes && originalSaveCurrentNotes !== persistentSaveCurrentNotes) {
+        originalSaveCurrentNotes();
+      }
+    } catch (_) {}
+  }
+
+  function restoreSoon(){
+    clearTimeout(restoreTimer);
+    restoreTimer = setTimeout(restoreAll, 0);
+    setTimeout(restoreAll, 90);
+  }
+
+  function watchNavigationClick(event){
+    var target = event && event.target && event.target.closest ? event.target.closest(
+      "#crossRefLinks .cross-ref-link, #obsCrossRefsPanel .cross-ref-link, " +
+      "#rdmScriptureHistoryBack, #prevBtn, #nextBtn, #loadBtn, #obsLoadPassage"
+    ) : null;
+    if (target) restoreSoon();
+  }
+
+  function watchNavigationChange(event){
+    var target = event && event.target;
+    if (!target) return;
+    if (target.id === "book" || target.id === "chapter" || target.id === "rangeSize" ||
+        target.id === "obsBookSelect" || target.id === "obsChapterSelect" || target.id === "obsRangeSizeSelect") {
+      restoreSoon();
+    }
+  }
+
+  function wrapPromiseNavigation(object, name){
+    if (!object || typeof object[name] !== "function" || object[name].__rdmV180Wrapped) return;
+    var original = object[name];
+    var wrapped = function(){
+      var result = original.apply(this, arguments);
+      try {
+        Promise.resolve(result).then(restoreSoon, restoreSoon);
+      } catch (_) { restoreSoon(); }
+      return result;
+    };
+    wrapped.__rdmV180Wrapped = true;
+    object[name] = wrapped;
+  }
+
+  function install(){
+    try { originalLoadCurrentNotes = typeof loadCurrentNotes === "function" ? loadCurrentNotes : window.loadCurrentNotes; } catch (_) { originalLoadCurrentNotes = window.loadCurrentNotes; }
+    try { originalSaveCurrentNotes = typeof saveCurrentNotes === "function" ? saveCurrentNotes : window.saveCurrentNotes; } catch (_) { originalSaveCurrentNotes = window.saveCurrentNotes; }
+
+    // On the first v180 opening, adopt the currently loaded passage notes before
+    // switching to the permanent workspace model.
+    var hasAnyMaster = NOTE_IDS.some(function(id){ return safeGet(masterKey(id)) !== null; });
+    if (!hasAnyMaster && typeof originalLoadCurrentNotes === "function") {
+      try { originalLoadCurrentNotes(); } catch (_) {}
+    }
+    NOTE_IDS.forEach(function(id){
+      if (safeGet(masterKey(id)) === null) safeSet(masterKey(id), seedValue(id));
+    });
+
+    window.loadCurrentNotes = persistentLoadCurrentNotes;
+    window.saveCurrentNotes = persistentSaveCurrentNotes;
+    try { loadCurrentNotes = persistentLoadCurrentNotes; } catch (_) {}
+    try { saveCurrentNotes = persistentSaveCurrentNotes; } catch (_) {}
+
+    NOTE_IDS.forEach(function(id){
+      var field = get(id);
+      if (!field) return;
+      field.addEventListener("input", function(){ saveField(id, field.value); }, true);
+      installFieldHandler(field);
+    });
+
+    window.addEventListener("click", watchNavigationClick, true);
+    window.addEventListener("change", watchNavigationChange, true);
+    window.addEventListener("pagehide", saveAll);
+    window.addEventListener("pageshow", restoreSoon);
+    document.addEventListener("visibilitychange", function(){
+      if (document.visibilityState === "hidden") saveAll();
+      else restoreSoon();
+    });
+
+    var api = window.rdmReferenceRangeNavigationV163;
+    if (api) {
+      ["open", "back", "previousChapter", "nextChapter", "previousSection", "nextSection", "leaveFocus"].forEach(function(name){
+        wrapPromiseNavigation(api, name);
+      });
+    }
+
+    restoreAll();
+    setTimeout(restoreAll, 250);
+    setTimeout(restoreAll, 900);
+
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v180-persistent-teaching-workspace";
+    window.__RDM_ACTIVE_BUILD = "v180-persistent-teaching-workspace";
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
+  else install();
+})();
+</script>
+<script id="rdm-v180-persistent-teaching-workspace-marker">
+(function(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v180-persistent-teaching-workspace";
+  window.__RDM_ACTIVE_BUILD = "v180-persistent-teaching-workspace";
+})();
+</script>
+
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
