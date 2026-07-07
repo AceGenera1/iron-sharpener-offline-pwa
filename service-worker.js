@@ -1,15 +1,22 @@
-/* Iron Sharpener service worker — v74 Doctrine Related-Topic Single Open + Fresh Shell
-   Launch architecture:
+/* Iron Sharpener service worker — v75 Offline Preparation Compatibility Fix
+   Launch architecture is unchanged from v74:
    - Cache Storage contains only the tiny app launch shell and icons.
    - The large offline study-resource library remains in IndexedDB, not Cache Storage.
    - Bible chapters remain in the dedicated Bible IndexedDB.
    - Navigation opens one tiny cache and one exact key; it never opens either IndexedDB.
    - Legacy iron-sharpener-offline-* caches remain excluded from the launch path.
+
+   Compatibility repair:
+   - Locked teaching pages verify the service worker with the v72 handshake token.
+   - Locked teaching pages verify the v72 launch-cache name.
+   - This worker keeps the newer v74 launch/resource architecture while reporting and
+     preserving those exact locked-page compatibility values.
 */
 
-const SW_VERSION = "v74-doctrine-related-topic-single-open";
-const SHELL_TOKEN = "v74-doctrine-related-topic-single-open";
-const LAUNCH_CACHE = "iron-sharpener-launch-v74-doctrine-related-topic-single-open-20260704";
+const SW_BUILD = "v75-offline-preparation-compatibility-fix";
+const SW_VERSION = "v72-pc-controls-journal-mechanics";
+const SHELL_TOKEN = "v75-offline-preparation-compatibility-fix";
+const LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
 const LAUNCH_CACHE_PREFIX = "iron-sharpener-launch-";
 const RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
 const RESOURCE_DB_VERSION = 1;
@@ -35,7 +42,7 @@ self.addEventListener("activate", (event) => {
     const maker = await cache.match(canonicalUrl("index.html"), { ignoreSearch: true });
     const journal = await cache.match(canonicalUrl("personal-study.html"), { ignoreSearch: true });
     if (!validResponse("index.html", maker) || !validResponse("personal-study.html", journal)) {
-      throw new Error("Fresh v74 app shells were not verified.");
+      throw new Error("Fresh app shells were not verified.");
     }
 
     // Claim the already-loaded page without reloading or navigating it. On a fresh
@@ -60,7 +67,7 @@ self.addEventListener("message", (event) => {
   const data = event && event.data;
   if (data && data.type === "SKIP_WAITING") self.skipWaiting();
   if (data && data.type === "GET_IRON_SW_VERSION" && event.ports && event.ports[0]) {
-    try { event.ports[0].postMessage({ version: SW_VERSION, launchCache: LAUNCH_CACHE, resourceDb: RESOURCE_DB }); } catch (_) {}
+    try { event.ports[0].postMessage({ version: SW_VERSION, build: SW_BUILD, launchCache: LAUNCH_CACHE, resourceDb: RESOURCE_DB }); } catch (_) {}
   }
   if (data && /^WARM_LAUNCH_CACHE_/.test(String(data.type || ""))) seedFreshLaunchCache().catch(() => {});
   if (data && /^RESOURCE_DB_UPDATED_/i.test(String(data.type || ""))) {
