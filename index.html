@@ -25898,8 +25898,13 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
     if (!state || typeof state !== "object") return state;
     var book = state.book || "Genesis";
     var chapter = String(state.chapter || "1");
-    var range = state.range || localStorage.getItem(STORAGE_PREFIX + ".sectionSize") || "5";
-    return { book: book, chapter: chapter, start: "1", end: rangeEndFor(book, chapter, range), range: range };
+    var range = String(state.range || localStorage.getItem(STORAGE_PREFIX + ".sectionSize") || "5").toLowerCase();
+    if (range !== "5" && range !== "10" && range !== "full") range = "5";
+    var max = maxVerseFor(book, chapter);
+    var start = Math.max(1, Math.min(max, parseInt(state.start, 10) || 1));
+    var end = Math.max(start, Math.min(max, parseInt(state.end, 10) || start));
+    if (range === "full") { start = 1; end = max; }
+    return { book: book, chapter: chapter, start: String(start), end: String(end), range: range };
   }
   function normalizeStoredLastRef(){
     [STORAGE_PREFIX + ".lastRef", "iron-sharpener.lastRef"].forEach(function(key){
@@ -25913,18 +25918,13 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
     });
   }
   function applyVerseOneToControls(){
-    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end"), range = get("rangeSize");
-    if (!book || !chapter || !start || !end || !range) return false;
-    var wantedEnd = rangeEndFor(book.value, chapter.value, range.value || "5");
-    var changed = start.value !== "1" || end.value !== wantedEnd;
-    start.value = "1";
-    end.value = wantedEnd;
-    return changed;
+    /* v182: startup must preserve the exact saved section instead of forcing verse 1. */
+    return false;
   }
   function persistNormalizedCurrent(){
-    var book = get("book"), chapter = get("chapter"), range = get("rangeSize");
-    if (!book || !chapter || !range) return;
-    var normalized = normalizedStartupState({ book: book.value, chapter: chapter.value, range: range.value || "5" });
+    var book = get("book"), chapter = get("chapter"), start = get("start"), end = get("end"), range = get("rangeSize");
+    if (!book || !chapter || !start || !end || !range) return;
+    var normalized = normalizedStartupState({ book: book.value, chapter: chapter.value, start: start.value, end: end.value, range: range.value || "5" });
     try { localStorage.setItem(STORAGE_PREFIX + ".lastRef", JSON.stringify(normalized)); } catch (_) {}
     try { localStorage.setItem("iron-sharpener.lastRef", JSON.stringify(normalized)); } catch (_) {}
   }
@@ -25951,11 +25951,7 @@ body.dark #rdmPublicOfflinePanelV33 .rdm-v97-offline-note { background: rgba(248
     if (already) return;
     try { sessionStorage.setItem(START_NORMALIZED_SESSION_KEY, "1"); } catch (_) {}
     setTimeout(function(){
-      var changed = applyVerseOneToControls();
       persistNormalizedCurrent();
-      if (changed && typeof loadPassage === "function") {
-        try { loadPassage(); } catch (_) {}
-      }
       if (typeof syncObsNavigator === "function") setTimeout(syncObsNavigator, 80);
     }, 350);
   }
@@ -28324,10 +28320,11 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     var base=controlsBookChapter();
     if (!base) return null;
     var range=preferredRange();
+    var currentStart=get("start");
     return normalize({
       book:base.book,
       chapter:base.chapter,
-      start:startValue || "1",
+      start:startValue || (currentStart && currentStart.value) || "1",
       range:range,
       mode:range === "full" ? "full" : "section"
     });
@@ -28527,7 +28524,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     } else {
       try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
     }
-    var next=fullStateFromControls();
+    var next=fullStateFromControls("1");
     applyHiddenRange(next);
     if (previous && !sameLocation(previous,next)) pushHistory(previous);
     updateBack();
@@ -28859,424 +28856,725 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 </script>
 
 
+<!-- v182 teaching-only: section-specific durable notes, overlapping-range access, and exact resume position. -->
+<style id="rdm-v182-section-notes-style">
+/* v182 — Section-specific teaching notes with overlapping-passage access. */
+.rdm-v182-current-note-label {
+  margin: 0 0 7px;
+  color: #8c5b09;
+  font: 900 12px/1.35 Arial, sans-serif;
+  letter-spacing: .35px;
+}
+body.dark .rdm-v182-current-note-label { color: #ffe08c; }
 
-<!-- v181 teaching-only: durable offline teaching workspace.
-     Uses localStorage + IndexedDB mirrors, protects saved notes from delayed
-     navigation/startup overwrites, and refreshes the cached launch page online. -->
-<script id="rdm-v181-durable-offline-teaching-workspace">
-(function rdmV181DurableOfflineTeachingWorkspace(){
+.rdm-v182-related-notes {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(215,168,79,.55);
+}
+.rdm-v182-related-heading {
+  margin-bottom: 9px;
+  color: #7a4c06;
+  font: 900 12px/1.35 Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+body.dark .rdm-v182-related-heading { color: #ffe08c; }
+
+.rdm-v182-related-card {
+  margin-top: 9px;
+  padding: 10px;
+  border: 1px solid rgba(215,168,79,.48);
+  border-radius: 11px;
+  background: rgba(248,217,135,.11);
+}
+body.dark .rdm-v182-related-card {
+  background: rgba(248,217,135,.075);
+  border-color: rgba(248,217,135,.52);
+}
+.rdm-v182-related-label {
+  margin-bottom: 7px;
+  color: #7a4c06;
+  font: 900 12px/1.3 Arial, sans-serif;
+}
+body.dark .rdm-v182-related-label { color: #fff0bf; }
+.rdm-v182-related-editor {
+  width: 100%;
+  min-height: 82px;
+  resize: vertical;
+}
+
+@media (max-width: 650px) {
+  .rdm-v182-related-card { padding: 9px; }
+  .rdm-v182-related-editor { min-height: 96px; }
+}
+
+</style>
+<script id="rdm-v182-section-notes-resume-position">
+(function rdmV182SectionNotesAndResume(){
   "use strict";
-  if (window.__rdmV181DurableOfflineTeachingWorkspace) return;
-  window.__rdmV181DurableOfflineTeachingWorkspace = true;
+  if (window.__rdmV182SectionNotesAndResume) return;
+  window.__rdmV182SectionNotesAndResume = true;
 
   var NOTE_IDS = ["teachingNotes", "crossRefs", "applicationNotes", "clipNotes"];
-  var V181_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v181.";
-  var V180_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v180.";
-  var STABLE_PREFIX = "ironSharpenerUnified.teachingWorkspace.";
-  var DB_NAME = "iron-sharpener-teaching-workspace-v1";
+  var NOTE_LABELS = {
+    teachingNotes: "Teaching Notes",
+    crossRefs: "Teaching Cross References",
+    applicationNotes: "Application & Prayer",
+    clipNotes: "Clip / Timestamp Notes"
+  };
+  var PREFIX = "ironSharpenerUnified.sectionNotes.v182.";
+  var INDEX_KEY = PREFIX + "index";
+  var MIGRATION_KEY = PREFIX + "migrationComplete";
+  var RECORD_PREFIX = PREFIX + "record.";
+  var DB_NAME = "iron-sharpener-teaching-section-notes-v2";
   var DB_VERSION = 1;
-  var STORE_NAME = "notes";
+  var STORE_NAME = "sections";
+  var BUILD = "v182-section-notes-resume-position";
   var LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
-  var BUILD = "v181-durable-offline-teaching-workspace";
-  var state = Object.create(null);
+  var records = Object.create(null);
+  var activeState = null;
+  var loadingFields = false;
   var dbPromise = null;
-  var restoreTimers = [];
-  var guardTimer = 0;
-  var originalLoad = null;
-  var originalSave = null;
-
-  NOTE_IDS.forEach(function(id){
-    state[id] = { dirty: false, focused: false, composing: false, canonical: null, lastApplied: null };
-  });
+  var mainDirty = Object.create(null);
+  var lastMainValue = Object.create(null);
+  var rerenderTimer = 0;
+  var crossRefVisit = null;
 
   function get(id){ return document.getElementById(id); }
   function now(){ return Date.now ? Date.now() : new Date().getTime(); }
-  function asText(value){ return String(value == null ? "" : value); }
-  function hasText(value){ return asText(value).trim().length > 0; }
+  function text(value){ return String(value == null ? "" : value); }
+  function hasText(value){ return text(value).trim().length > 0; }
+  function safeGet(key){ try { return localStorage.getItem(key); } catch (_) { return null; } }
+  function safeSet(key, value){ try { localStorage.setItem(key, text(value)); return true; } catch (_) { return false; } }
+  function safeJsonGet(key){ var raw=safeGet(key); if(!raw)return null; try{return JSON.parse(raw);}catch(_){return null;} }
+  function safeJsonSet(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
+  function clamp(value, min, max){ var n=parseInt(value,10); if(!isFinite(n))n=min; return Math.max(min,Math.min(max,n)); }
 
-  function safeGet(key){
-    try { return localStorage.getItem(key); } catch (_) { return null; }
+  function maxVerse(book, chapter){
+    try {
+      var source = (typeof verseCounts !== "undefined" && verseCounts) ? verseCounts : window.verseCounts;
+      var list = source && source[book];
+      var value = list && list[(parseInt(chapter,10)||1)-1];
+      return Math.max(1, parseInt(value,10) || 1);
+    } catch (_) { return 1; }
   }
-  function safeSet(key, value){
-    try { localStorage.setItem(key, asText(value)); return true; } catch (_) { return false; }
+
+  function normalizeState(state){
+    if (!state || typeof state !== "object") return null;
+    var book = text(state.book || "Genesis");
+    var chapter = String(Math.max(1, parseInt(state.chapter,10) || 1));
+    var maximum = maxVerse(book, chapter);
+    var range = text(state.range || "5").toLowerCase();
+    if (range !== "5" && range !== "10" && range !== "full") range = "5";
+    var start = clamp(state.start || 1, 1, maximum);
+    var end = clamp(state.end || start, start, maximum);
+    if (range === "full") { start = 1; end = maximum; }
+    return { book:book, chapter:chapter, start:start, end:end, range:range };
   }
-  function safeJsonGet(key){
-    var raw = safeGet(key);
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (_) { return null; }
+
+  function controlsState(){
+    var book=get("book"), chapter=get("chapter"), start=get("start"), end=get("end"), range=get("rangeSize");
+    if (!book || !chapter || !start || !end || !range) return null;
+    return normalizeState({ book:book.value, chapter:chapter.value, start:start.value, end:end.value, range:range.value });
   }
-  function safeJsonSet(key, value){
-    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; }
+
+  function stateKey(state){
+    state=normalizeState(state);
+    return state ? [state.book,state.chapter,state.start,state.end].join("|") : "";
+  }
+
+  function referenceLabel(state){
+    state=normalizeState(state);
+    if(!state)return "Selected passage";
+    var maximum=maxVerse(state.book,state.chapter);
+    if(state.start===1 && state.end===maximum) return state.book+" "+state.chapter+" (Full Chapter)";
+    if(state.start===state.end) return state.book+" "+state.chapter+":"+state.start;
+    return state.book+" "+state.chapter+":"+state.start+"–"+state.end;
+  }
+
+  function emptyFields(){
+    var fields={};
+    NOTE_IDS.forEach(function(id){ fields[id]={ value:"", updatedAt:0, deleted:false }; });
+    return fields;
+  }
+
+  function normalizeField(raw){
+    if(raw && typeof raw === "object" && Object.prototype.hasOwnProperty.call(raw,"value")){
+      return { value:text(raw.value), updatedAt:Number(raw.updatedAt||0), deleted:raw.deleted===true };
+    }
+    return { value:text(raw||""), updatedAt:0, deleted:false };
+  }
+
+  function normalizeRecord(raw){
+    if(!raw || typeof raw!=="object")return null;
+    var state=normalizeState(raw);
+    if(!state)return null;
+    var key=stateKey(state);
+    var fields=emptyFields();
+    NOTE_IDS.forEach(function(id){
+      if(raw.fields && Object.prototype.hasOwnProperty.call(raw.fields,id)) fields[id]=normalizeField(raw.fields[id]);
+      else if(Object.prototype.hasOwnProperty.call(raw,id)) fields[id]=normalizeField(raw[id]);
+    });
+    return {
+      key:key, book:state.book, chapter:state.chapter, start:state.start, end:state.end,
+      range:state.range, fields:fields, updatedAt:Number(raw.updatedAt||0), build:raw.build||BUILD
+    };
+  }
+
+  function recordStorageKey(key){ return RECORD_PREFIX + encodeURIComponent(key); }
+  function readIndex(){ var value=safeJsonGet(INDEX_KEY); return Array.isArray(value)?value:[]; }
+  function writeIndex(){ safeJsonSet(INDEX_KEY,Object.keys(records)); }
+
+  function readLocalRecords(){
+    readIndex().forEach(function(key){
+      var record=normalizeRecord(safeJsonGet(recordStorageKey(key)));
+      if(record)records[record.key]=record;
+    });
+  }
+
+  function mergeRecord(incoming){
+    incoming=normalizeRecord(incoming);
+    if(!incoming)return null;
+    var current=records[incoming.key];
+    if(!current){ records[incoming.key]=incoming; return incoming; }
+    NOTE_IDS.forEach(function(id){
+      var a=current.fields[id]||normalizeField("");
+      var b=incoming.fields[id]||normalizeField("");
+      if(Number(b.updatedAt||0)>Number(a.updatedAt||0)) current.fields[id]=b;
+      else if(Number(b.updatedAt||0)===Number(a.updatedAt||0) && !hasText(a.value) && hasText(b.value)) current.fields[id]=b;
+    });
+    current.updatedAt=Math.max(Number(current.updatedAt||0),Number(incoming.updatedAt||0));
+    records[current.key]=current;
+    return current;
   }
 
   function openDb(){
-    if (dbPromise) return dbPromise;
-    dbPromise = new Promise(function(resolve, reject){
-      try {
-        var request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = function(){
-          var db = request.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: "id" });
-        };
-        request.onsuccess = function(){ resolve(request.result); };
-        request.onerror = function(){ reject(request.error || new Error("Teaching workspace database could not open.")); };
-      } catch (error) { reject(error); }
+    if(dbPromise)return dbPromise;
+    dbPromise=new Promise(function(resolve,reject){
+      try{
+        var request=indexedDB.open(DB_NAME,DB_VERSION);
+        request.onupgradeneeded=function(){ var db=request.result; if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME,{keyPath:"key"}); };
+        request.onsuccess=function(){resolve(request.result);};
+        request.onerror=function(){reject(request.error||new Error("Section notes database could not open."));};
+      }catch(error){reject(error);}
     });
     return dbPromise;
   }
 
-  function idbGet(id){
-    return openDb().then(function(db){
-      return new Promise(function(resolve){
-        try {
-          var request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
-          request.onsuccess = function(){ resolve(request.result || null); };
-          request.onerror = function(){ resolve(null); };
-        } catch (_) { resolve(null); }
-      });
-    }).catch(function(){ return null; });
-  }
-
   function idbPut(record){
-    return openDb().then(function(db){
-      return new Promise(function(resolve){
-        try {
-          var request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
-          request.onsuccess = function(){ resolve(true); };
-          request.onerror = function(){ resolve(false); };
-        } catch (_) { resolve(false); }
+    return openDb().then(function(db){return new Promise(function(resolve){
+      try{
+        var request=db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).put(record);
+        request.onsuccess=function(){resolve(true);}; request.onerror=function(){resolve(false);};
+      }catch(_){resolve(false);}
+    });}).catch(function(){return false;});
+  }
+
+  function idbGetAll(){
+    return openDb().then(function(db){return new Promise(function(resolve){
+      try{
+        var store=db.transaction(STORE_NAME,"readonly").objectStore(STORE_NAME);
+        if(store.getAll){ var request=store.getAll(); request.onsuccess=function(){resolve(request.result||[]);}; request.onerror=function(){resolve([]);}; }
+        else {
+          var all=[]; var cursor=store.openCursor();
+          cursor.onsuccess=function(){var item=cursor.result;if(item){all.push(item.value);item.continue();}else resolve(all);};
+          cursor.onerror=function(){resolve(all);};
+        }
+      }catch(_){resolve([]);}
+    });}).catch(function(){return[];});
+  }
+
+  function oldWorkspaceGetAll(){
+    return new Promise(function(resolve){
+      try{
+        var request=indexedDB.open("iron-sharpener-teaching-workspace-v1",1);
+        request.onsuccess=function(){
+          try{
+            var db=request.result;
+            if(!db.objectStoreNames.contains("notes")){resolve([]);return;}
+            var store=db.transaction("notes","readonly").objectStore("notes");
+            if(store.getAll){var allRequest=store.getAll();allRequest.onsuccess=function(){resolve(allRequest.result||[]);};allRequest.onerror=function(){resolve([]);};}
+            else{
+              var all=[];var cursor=store.openCursor();
+              cursor.onsuccess=function(){var item=cursor.result;if(item){all.push(item.value);item.continue();}else resolve(all);};
+              cursor.onerror=function(){resolve(all);};
+            }
+          }catch(_){resolve([]);}
+        };
+        request.onerror=function(){resolve([]);};
+      }catch(_){resolve([]);}
+    });
+  }
+
+  function persistRecord(record){
+    record=normalizeRecord(record);
+    if(!record)return null;
+    records[record.key]=record;
+    safeJsonSet(recordStorageKey(record.key),record);
+    writeIndex();
+    idbPut(record);
+    return record;
+  }
+
+  function ensureRecord(state){
+    state=normalizeState(state);
+    var key=stateKey(state);
+    var existing=records[key];
+    if(existing)return existing;
+    existing=normalizeRecord({ key:key, book:state.book, chapter:state.chapter, start:state.start, end:state.end, range:state.range, fields:emptyFields(), updatedAt:0, build:BUILD });
+    records[key]=existing;
+    return existing;
+  }
+
+  function setRecordField(recordOrKey,id,value,sourceTime){
+    var record=typeof recordOrKey==="string"?records[recordOrKey]:recordOrKey;
+    if(!record || NOTE_IDS.indexOf(id)<0)return null;
+    var stamp=Number(sourceTime||now());
+    record.fields[id]={value:text(value),updatedAt:stamp,deleted:!hasText(value)};
+    record.updatedAt=Math.max(Number(record.updatedAt||0),stamp);
+    record.build=BUILD;
+    return persistRecord(record);
+  }
+
+  function cleanLegacyValue(raw){
+    var value=text(raw).trim();
+    if(!value)return "";
+    var rounds=0;
+    while(rounds<4){
+      rounds+=1;
+      var parsed=null, parsedOk=false;
+      if((value.charAt(0)==="["&&value.charAt(value.length-1)==="]")||(value.charAt(0)==="{"&&value.charAt(value.length-1)==="}")){
+        try{parsed=JSON.parse(value);parsedOk=true;}catch(_){}
+      }
+      if(parsedOk){
+        if(typeof parsed==="string"){value=parsed.trim();continue;}
+        if(Array.isArray(parsed)){
+          var parts=[];
+          (function flatten(list){list.forEach(function(item){if(Array.isArray(item))flatten(item);else if(typeof item==="string"&&item.trim())parts.push(item.trim());else if(item&&typeof item==="object"&&typeof item.value==="string"&&item.value.trim())parts.push(item.value.trim());});})(parsed);
+          value=parts.join("\n").trim();
+          continue;
+        }
+        if(parsed&&typeof parsed==="object"&&Object.prototype.hasOwnProperty.call(parsed,"value")){value=text(parsed.value).trim();continue;}
+      }
+      if(/^\[\[\s*\]\]$/.test(value)||/^\[\s*\]$/.test(value))return "";
+      if(value.slice(0,2)==="[["&&value.slice(-2)==="]]") { value=value.slice(2,-2).trim(); continue; }
+      break;
+    }
+    return value;
+  }
+
+  function savedAnchorState(){
+    var candidates=[safeJsonGet("ironSharpenerUnified.lastRef"),safeJsonGet("iron-sharpener.lastRef"),controlsState()];
+    for(var i=0;i<candidates.length;i+=1){var state=normalizeState(candidates[i]);if(state)return state;}
+    return normalizeState({book:"Genesis",chapter:"1",start:1,end:5,range:"5"});
+  }
+
+  function migrateLegacy(){
+    if(safeGet(MIGRATION_KEY)==="1")return;
+    var stamp=now()-10000;
+    var anchor=savedAnchorState();
+    var anchorRecord=ensureRecord(anchor);
+    var globalValues=Object.create(null);
+
+    NOTE_IDS.forEach(function(id){
+      var candidates=[];
+      var v181=safeJsonGet("ironSharpenerUnified.persistentTeachingWorkspace.v181."+id);
+      if(v181&&typeof v181==="object")candidates.push(v181.value);
+      candidates.push(safeGet("ironSharpenerUnified.persistentTeachingWorkspace.v180."+id));
+      candidates.push(safeGet("ironSharpenerUnified.teachingWorkspace."+id));
+      for(var i=0;i<candidates.length;i+=1){
+        var cleaned=cleanLegacyValue(candidates[i]);
+        if(hasText(cleaned)){globalValues[id]=cleaned;break;}
+      }
+    });
+
+    try{
+      for(var i=0;i<localStorage.length;i+=1){
+        var key=localStorage.key(i);
+        if(!key||key.indexOf("ironSharpenerUnified.notes.")!==0)continue;
+        NOTE_IDS.forEach(function(id){
+          var suffix="."+id;
+          if(key.slice(-suffix.length)!==suffix)return;
+          var middle=key.slice("ironSharpenerUnified.notes.".length,-suffix.length);
+          var match=middle.match(/^(.+)\.(\d+)\.(full-chapter|(\d+)-(\d+))$/);
+          if(!match)return;
+          var book=match[1], chapter=match[2], maximum=maxVerse(book,chapter);
+          var start=match[3]==="full-chapter"?1:clamp(match[4],1,maximum);
+          var end=match[3]==="full-chapter"?maximum:clamp(match[5],start,maximum);
+          var range=match[3]==="full-chapter"?"full":String(Math.max(1,end-start+1));
+          if(range!=="5"&&range!=="10"&&range!=="full")range="5";
+          var value=cleanLegacyValue(localStorage.getItem(key));
+          if(!hasText(value))return;
+          var record=ensureRecord({book:book,chapter:chapter,start:start,end:end,range:range});
+          if(!hasText(record.fields[id].value)){
+            record.fields[id]={value:value,updatedAt:stamp,deleted:false};
+            record.updatedAt=stamp;
+          }
+        });
+      }
+    }catch(_){}
+
+    NOTE_IDS.forEach(function(id){
+      var value=globalValues[id];
+      if(!hasText(value))return;
+      var existingAnchorValue=cleanLegacyValue(anchorRecord.fields[id]&&anchorRecord.fields[id].value);
+      var anchorValue=hasText(existingAnchorValue)&&existingAnchorValue!==value ? existingAnchorValue+"\n\n"+value : value;
+      anchorRecord.fields[id]={value:anchorValue,updatedAt:now()-1000,deleted:false};
+      anchorRecord.updatedAt=Math.max(anchorRecord.updatedAt,now()-1000);
+      Object.keys(records).forEach(function(key){
+        var record=records[key];
+        if(key===anchorRecord.key)return;
+        if(cleanLegacyValue(record.fields[id].value)===value){
+          record.fields[id]={value:"",updatedAt:now()-900,deleted:true};
+          record.updatedAt=Math.max(record.updatedAt,now()-900);
+        }
       });
-    }).catch(function(){ return false; });
+    });
+
+    Object.keys(records).forEach(function(key){persistRecord(records[key]);});
+    safeSet(MIGRATION_KEY,"1");
   }
 
-  function passageBaseKey(){
-    try { if (typeof currentStudyUnitKey === "function") return currentStudyUnitKey(); } catch (_) {}
-    return "";
+  function overlaps(record,state){
+    return record.book===state.book&&String(record.chapter)===String(state.chapter)&&Number(record.start)<=Number(state.end)&&Number(record.end)>=Number(state.start);
   }
 
-  function makeRecord(id, value, explicitDelete, source, timestamp){
-    return {
-      id: id,
-      value: asText(value),
-      updatedAt: Number(timestamp || now()),
-      explicitDelete: explicitDelete === true,
-      source: source || "v181",
-      build: BUILD
+  function relatedRecordsFor(id,state,exactKey){
+    var seen=Object.create(null), list=[];
+    Object.keys(records).forEach(function(key){
+      var record=records[key];
+      if(key===exactKey||!overlaps(record,state))return;
+      var value=record.fields[id]&&record.fields[id].value;
+      if(!hasText(value))return;
+      var signature=value.trim();
+      if(seen[signature])return;
+      seen[signature]=true;
+      list.push(record);
+    });
+    list.sort(function(a,b){if(a.start!==b.start)return a.start-b.start;if(a.end!==b.end)return a.end-b.end;return a.updatedAt-b.updatedAt;});
+    return list;
+  }
+
+  function ensureCurrentLabel(field,id){
+    var labelId="rdmV182CurrentLabel-"+id;
+    var label=get(labelId);
+    if(!label){
+      label=document.createElement("div"); label.id=labelId; label.className="rdm-v182-current-note-label";
+      field.parentNode.insertBefore(label,field);
+    }
+    return label;
+  }
+
+  function ensureRelatedWrap(field,id){
+    var wrapId="rdmV182Related-"+id;
+    var wrap=get(wrapId);
+    if(!wrap){wrap=document.createElement("div");wrap.id=wrapId;wrap.className="rdm-v182-related-notes";}
+    var anchor=field;
+    if(id==="crossRefs"&&get("crossRefLinks"))anchor=get("crossRefLinks");
+    if(anchor.nextSibling!==wrap)anchor.parentNode.insertBefore(wrap,anchor.nextSibling);
+    return wrap;
+  }
+
+  function updateStatus(state){
+    try{
+      if(typeof updateNotesSaveStatus==="function")updateNotesSaveStatus("Notes for "+referenceLabel(state)+". Overlapping section notes appear below and remain editable offline.");
+      else if(get("notesSaveStatus"))get("notesSaveStatus").textContent="Notes for "+referenceLabel(state)+".";
+    }catch(_){}
+  }
+
+  function renderRelated(id,state,exactKey){
+    var field=get(id); if(!field)return;
+    var wrap=ensureRelatedWrap(field,id);
+    var list=relatedRecordsFor(id,state,exactKey);
+    wrap.innerHTML="";
+    if(!list.length){wrap.style.display="none";return;}
+    wrap.style.display="block";
+    var heading=document.createElement("div");heading.className="rdm-v182-related-heading";heading.textContent="Other saved notes that cover this passage";wrap.appendChild(heading);
+    list.forEach(function(record){
+      var card=document.createElement("div");card.className="rdm-v182-related-card";
+      var label=document.createElement("div");label.className="rdm-v182-related-label";label.textContent=referenceLabel(record);
+      var editor=document.createElement("textarea");
+      editor.className="rdm-v182-related-editor";
+      editor.setAttribute("data-rdm-v182-record",record.key);
+      editor.setAttribute("data-rdm-v182-field",id);
+      editor.setAttribute("aria-label",NOTE_LABELS[id]+" for "+referenceLabel(record));
+      editor.value=record.fields[id].value;
+      editor.addEventListener("input",function(){setRecordField(record.key,id,editor.value);if(id==="crossRefs")renderCrossReferenceLinksV182();},true);
+      card.appendChild(label);card.appendChild(editor);wrap.appendChild(card);
+    });
+  }
+
+  function crossRefVisitAway(){
+    return !!(crossRefVisit&&activeState&&stateKey(activeState)!==crossRefVisit.originKey);
+  }
+
+  function beginCrossRefVisit(){
+    if(!activeState)return;
+    var values=allVisibleValues("crossRefs");
+    if(!values.length)return;
+    crossRefVisit={
+      originKey:stateKey(activeState),
+      originState:normalizeState(activeState),
+      mainValue:get("crossRefs")?get("crossRefs").value:"",
+      values:values.map(function(item){return {label:item.label,value:item.value};})
     };
   }
 
-  function normalizeRecord(id, record){
-    if (!record || typeof record !== "object") return null;
-    return makeRecord(
-      id,
-      record.value,
-      record.explicitDelete === true,
-      record.source || "stored",
-      Number(record.updatedAt || 0)
-    );
-  }
-
-  function readLocalRecord(id){
-    return normalizeRecord(id, safeJsonGet(V181_PREFIX + id));
-  }
-
-  function collectLegacyCandidates(id){
-    var candidates = [];
-    var seen = Object.create(null);
-    function add(key, value, priority){
-      value = asText(value);
-      if (!hasText(value)) return;
-      var signature = value;
-      if (seen[signature]) return;
-      seen[signature] = true;
-      candidates.push({ key: key, value: value, priority: priority || 0, length: value.length });
+  function applyCrossRefVisitDisplay(){
+    if(!crossRefVisit||!activeState)return;
+    if(stateKey(activeState)===crossRefVisit.originKey){crossRefVisit=null;return;}
+    var field=get("crossRefs");
+    if(field){
+      var fallback=crossRefVisit.values.map(function(item){return item.value;}).filter(hasText).join("\n");
+      field.value=hasText(crossRefVisit.mainValue)?crossRefVisit.mainValue:fallback;
+      lastMainValue.crossRefs=field.value;
+      mainDirty.crossRefs=false;
     }
+    var label=get("rdmV182CurrentLabel-crossRefs");
+    if(label)label.textContent="Teaching cross references from "+referenceLabel(crossRefVisit.originState);
+    var wrap=get("rdmV182Related-crossRefs");
+    if(wrap)wrap.style.display="none";
+  }
 
-    add(V180_PREFIX + id, safeGet(V180_PREFIX + id), 1000);
-    add(STABLE_PREFIX + id, safeGet(STABLE_PREFIX + id), 950);
-
-    var field = get(id);
-    if (field) add("visible:" + id, field.value, 900);
-
-    var base = passageBaseKey();
-    if (base) add(base + "." + id, safeGet(base + "." + id), 1100);
-
-    try {
-      for (var i = 0; i < localStorage.length; i += 1) {
-        var key = localStorage.key(i);
-        if (!key || key === V180_PREFIX + id || key === V181_PREFIX + id || key === STABLE_PREFIX + id) continue;
-        if (key.slice(-(id.length + 1)) !== "." + id) continue;
-        add(key, localStorage.getItem(key), 100);
-      }
-    } catch (_) {}
-
-    candidates.sort(function(a, b){
-      if (b.priority !== a.priority) return b.priority - a.priority;
-      return b.length - a.length;
+  function renderStateNotes(state){
+    state=normalizeState(state);if(!state)return;
+    loadingFields=true;
+    activeState=state;
+    var exact=ensureRecord(state), exactKey=exact.key;
+    NOTE_IDS.forEach(function(id){
+      var field=get(id);if(!field)return;
+      var label=ensureCurrentLabel(field,id);
+      label.textContent="Current passage: "+referenceLabel(state);
+      var value=exact.fields[id]?exact.fields[id].value:"";
+      field.value=value;
+      lastMainValue[id]=value;
+      mainDirty[id]=false;
+      renderRelated(id,state,exactKey);
     });
-
-    try {
-      safeJsonSet(V181_PREFIX + "recovery." + id, candidates.slice(0, 12));
-    } catch (_) {}
-    return candidates;
+    loadingFields=false;
+    applyCrossRefVisitDisplay();
+    renderCrossReferenceLinksV182();
+    updateStatus(state);
   }
 
-  function chooseCanonical(id, localRecord, databaseRecord){
-    var local = normalizeRecord(id, localRecord);
-    var db = normalizeRecord(id, databaseRecord);
-    var newest = null;
-
-    if (local && db) newest = local.updatedAt >= db.updatedAt ? local : db;
-    else newest = local || db;
-
-    if (newest && newest.explicitDelete === true) return newest;
-    if (newest && hasText(newest.value)) return newest;
-
-    var legacy = collectLegacyCandidates(id);
-    if (legacy.length) return makeRecord(id, legacy[0].value, false, "legacy-recovery", now());
-
-    return newest || makeRecord(id, "", false, "empty-start", now());
-  }
-
-  function mirrorRecord(record){
-    safeJsonSet(V181_PREFIX + record.id, record);
-    safeSet(V180_PREFIX + record.id, record.value);
-    safeSet(STABLE_PREFIX + record.id, record.value);
-
-    var base = passageBaseKey();
-    if (base) safeSet(base + "." + record.id, record.value);
-
-    state[record.id].canonical = record;
-    idbPut(record);
-  }
-
-  function applyRecord(id, record, force){
-    var field = get(id);
-    if (!field || !record) return;
-    var itemState = state[id];
-    if (!force && (itemState.focused || itemState.composing || itemState.dirty)) return;
-    if (field.value !== record.value) field.value = record.value;
-    itemState.lastApplied = record.value;
-    itemState.canonical = record;
-    if (id === "crossRefs") {
-      try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
+  function saveMainField(id){
+    if(loadingFields||!activeState)return;
+    var field=get(id);if(!field)return;
+    var targetState=(id==="crossRefs"&&crossRefVisitAway())?crossRefVisit.originState:activeState;
+    var exact=ensureRecord(targetState);
+    setRecordField(exact,id,field.value);
+    if(id==="crossRefs"&&crossRefVisitAway()){
+      crossRefVisit.mainValue=field.value;
+      if(crossRefVisit.values.length)crossRefVisit.values[0]={label:referenceLabel(crossRefVisit.originState),value:field.value};
+      else crossRefVisit.values=[{label:referenceLabel(crossRefVisit.originState),value:field.value}];
     }
+    lastMainValue[id]=field.value;
+    mainDirty[id]=false;
+    if(id==="crossRefs")renderCrossReferenceLinksV182();
+    updateStatus(activeState);
   }
 
-  function saveFromUser(id){
-    var field = get(id);
-    if (!field) return;
-    var value = field.value;
-    var record = makeRecord(id, value, !hasText(value), "user-input", now());
-    state[id].dirty = true;
-    state[id].lastApplied = value;
-    mirrorRecord(record);
-    state[id].dirty = false;
-    try {
-      if (typeof updateNotesSaveStatus === "function") {
-        updateNotesSaveStatus("Teaching workspace saved on this device for online and offline use.");
-      }
-    } catch (_) {}
+  function flushMainFields(){
+    NOTE_IDS.forEach(function(id){if(mainDirty[id])saveMainField(id);});
+    savePosition();
   }
 
-  function safeLifecycleSave(){
+  function allVisibleValues(id){
+    var values=[];
+    var field=get(id);if(field&&hasText(field.value))values.push({label:referenceLabel(activeState),value:field.value});
+    var wrap=get("rdmV182Related-"+id);
+    if(wrap){
+      Array.prototype.forEach.call(wrap.querySelectorAll(".rdm-v182-related-editor"),function(editor){
+        if(!hasText(editor.value))return;
+        var record=records[editor.getAttribute("data-rdm-v182-record")];
+        values.push({label:record?referenceLabel(record):"Related passage",value:editor.value});
+      });
+    }
+    return values;
+  }
+
+  function renderCrossReferenceLinksV182(){
+    var crossRefs=get("crossRefs");if(!crossRefs)return;
+    var holder=get("crossRefLinks");
+    if(!holder){holder=document.createElement("div");holder.id="crossRefLinks";holder.className="cross-ref-links";crossRefs.insertAdjacentElement("afterend",holder);}
+    var refs=[],seen=Object.create(null);
+    var sourceValues=crossRefVisitAway()?crossRefVisit.values:allVisibleValues("crossRefs");
+    sourceValues.forEach(function(item){
+      var parsed=[];
+      try{if(typeof parseScriptureReferences==="function")parsed=parseScriptureReferences(item.value)||[];}catch(_){}
+      parsed.forEach(function(ref){var key=text(ref).toLowerCase();if(!seen[key]){seen[key]=true;refs.push(ref);}});
+    });
+    holder.innerHTML=refs.map(function(ref){var safe=text(ref).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");return '<button type="button" class="cross-ref-link" data-ref="'+safe+'">'+safe+'</button>';}).join("");
+    Array.prototype.forEach.call(holder.querySelectorAll(".cross-ref-link"),function(button){button.onclick=function(){var fn=window.goToScriptureReference||(typeof goToScriptureReference==="function"?goToScriptureReference:null);if(fn)fn(button.dataset.ref);};});
+    var wrap=get("rdmV182Related-crossRefs");if(wrap&&holder.nextSibling!==wrap)holder.parentNode.insertBefore(wrap,holder.nextSibling);
+  }
+
+  function presentationText(id){
+    var items=allVisibleValues(id);
+    if(!items.length)return "";
+    if(items.length===1)return items[0].value;
+    return items.map(function(item){return item.label+"\n"+item.value;}).join("\n\n");
+  }
+
+  function showTeachingPresentationV182(){
+    var value=presentationText("teachingNotes");if(!hasText(value))return;
+    var target=get("presentationCardText"),card=get("teachingPresentationCard");
+    if(target)target.textContent=value;if(card){card.classList.add("open");card.setAttribute("aria-hidden","false");}
+  }
+
+  function showApplicationPresentationV182(){
+    var value=presentationText("applicationNotes");if(!hasText(value))return;
+    var target=get("applicationPresentationText"),card=get("applicationPresentationCard");
+    if(target)target.textContent=value;if(card){card.classList.add("open");card.setAttribute("aria-hidden","false");}
+  }
+
+  function loadCurrentNotesV182(){
+    var state=controlsState();
+    if(state)renderStateNotes(state);
+  }
+
+  function saveCurrentNotesV182(){ flushMainFields(); }
+
+  function installMainFieldEvents(){
     NOTE_IDS.forEach(function(id){
-      var field = get(id);
-      if (!field) return;
-      var itemState = state[id];
-      var canonical = itemState.canonical || readLocalRecord(id);
-      var current = asText(field.value);
-
-      if (itemState.dirty) {
-        mirrorRecord(makeRecord(id, current, !hasText(current), "user-lifecycle", now()));
-        itemState.dirty = false;
-        return;
-      }
-
-      // Never let a delayed startup/navigation script erase durable content.
-      if (canonical && hasText(canonical.value) && !hasText(current)) {
-        applyRecord(id, canonical, true);
-        return;
-      }
-
-      // A non-empty visible value is safe to preserve as an additional backup.
-      if (hasText(current) && (!canonical || current !== canonical.value)) {
-        mirrorRecord(makeRecord(id, current, false, "visible-safety-save", now()));
-      }
+      var field=get(id);if(!field||field.dataset.rdmV182Wired==="1")return;
+      field.dataset.rdmV182Wired="1";
+      field.addEventListener("input",function(){if(loadingFields)return;mainDirty[id]=true;saveMainField(id);},true);
+      field.addEventListener("change",function(){if(loadingFields)return;mainDirty[id]=true;saveMainField(id);},true);
+      field.addEventListener("blur",function(){if(mainDirty[id])saveMainField(id);},true);
     });
   }
 
-  function guardFields(force){
-    NOTE_IDS.forEach(function(id){
-      var itemState = state[id];
-      var record = itemState.canonical || readLocalRecord(id);
-      var field = get(id);
-      if (!field || !record) return;
-      if (!force && (itemState.focused || itemState.composing || itemState.dirty)) return;
-
-      var current = asText(field.value);
-      if (current !== record.value) {
-        // Programmatic passage/startup loads are not allowed to replace the workspace.
-        applyRecord(id, record, true);
-      }
-    });
+  function savePosition(){
+    var state=null;
+    try{var api=window.rdmReferenceRangeNavigationV163;if(api&&typeof api.state==="function")state=api.state();}catch(_){}
+    state=normalizeState(state)||controlsState();if(!state)return;
+    var saved={book:state.book,chapter:String(state.chapter),start:String(state.start),end:String(state.end),range:state.range};
+    safeJsonSet("ironSharpenerUnified.lastRef",saved);
+    safeJsonSet("iron-sharpener.lastRef",saved);
+    safeSet("ironSharpenerUnified.sectionSize",state.range);
   }
 
-  function scheduleGuard(){
-    [0, 60, 180, 450, 900, 1600, 2800, 4500, 7000, 11000].forEach(function(delay){
-      restoreTimers.push(setTimeout(function(){ guardFields(false); }, delay));
-    });
-  }
-
-  function installFieldEvents(id){
-    var field = get(id);
-    if (!field || field.dataset.rdmV181Wired === "1") return;
-    field.dataset.rdmV181Wired = "1";
-
-    field.addEventListener("focus", function(){ state[id].focused = true; }, true);
-    field.addEventListener("blur", function(){
-      state[id].focused = false;
-      if (state[id].dirty) saveFromUser(id);
-      setTimeout(function(){ guardFields(false); }, 20);
-    }, true);
-    field.addEventListener("compositionstart", function(){ state[id].composing = true; }, true);
-    field.addEventListener("compositionend", function(){ state[id].composing = false; saveFromUser(id); }, true);
-    field.addEventListener("input", function(){ saveFromUser(id); }, true);
-    field.addEventListener("change", function(){ saveFromUser(id); }, true);
-  }
-
-  function durableLoadCurrentNotes(){
-    try { if (typeof currentStudyUnitKey === "function") activeNotesKey = currentStudyUnitKey(); } catch (_) {}
-    setTimeout(function(){ guardFields(true); }, 0);
-    setTimeout(function(){ guardFields(false); }, 100);
-  }
-
-  function durableSaveCurrentNotes(){
-    safeLifecycleSave();
-    try {
-      if (originalSave && originalSave !== durableSaveCurrentNotes) originalSave();
-    } catch (_) {}
+  function scheduleRender(){
+    clearTimeout(rerenderTimer);
+    rerenderTimer=setTimeout(function(){
+      var active=document.activeElement;
+      if(active&&(NOTE_IDS.indexOf(active.id)>=0||(active.classList&&active.classList.contains("rdm-v182-related-editor"))))return;
+      loadCurrentNotesV182();
+      savePosition();
+    },80);
   }
 
   function wrapNavigationApi(){
-    var api = window.rdmReferenceRangeNavigationV163;
-    if (!api) return;
-    ["open", "back", "previousChapter", "nextChapter", "previousSection", "nextSection", "leaveFocus", "load"].forEach(function(name){
-      if (typeof api[name] !== "function" || api[name].__rdmV181Wrapped) return;
-      var original = api[name];
-      var wrapped = function(){
-        safeLifecycleSave();
-        var result = original.apply(this, arguments);
-        try { Promise.resolve(result).then(scheduleGuard, scheduleGuard); } catch (_) { scheduleGuard(); }
-        return result;
-      };
-      wrapped.__rdmV181Wrapped = true;
-      api[name] = wrapped;
+    var api=window.rdmReferenceRangeNavigationV163;if(!api)return;
+    ["load","open","back","previousChapter","nextChapter","previousSection","nextSection","leaveFocus"].forEach(function(name){
+      if(typeof api[name]!=="function"||api[name].__rdmV182Wrapped)return;
+      var original=api[name];
+      var wrapped=function(){flushMainFields();var result=original.apply(this,arguments);try{Promise.resolve(result).then(function(){scheduleRender();savePosition();},scheduleRender);}catch(_){scheduleRender();}return result;};
+      wrapped.__rdmV182Wrapped=true;api[name]=wrapped;
     });
   }
 
   function refreshCachedLaunchPage(){
-    if (!("caches" in window) || !navigator.onLine) return;
-    try {
-      var sourceUrl = new URL("index.html?rdm-build=" + encodeURIComponent(BUILD) + "&t=" + now(), document.baseURI).href;
-      fetch(sourceUrl, { cache: "reload" }).then(function(response){
-        if (!response || !response.ok) return;
-        return caches.open(LAUNCH_CACHE).then(function(cache){
-          var targets = [
-            new URL("index.html", document.baseURI).href,
-            new URL("./", document.baseURI).href,
-            new URL("index.html?app=maker", document.baseURI).href,
-            window.location.href.split("#")[0]
-          ];
-          return Promise.all(targets.map(function(target){
-            try { return cache.put(target, response.clone()); } catch (_) { return Promise.resolve(); }
-          }));
-        });
-      }).catch(function(){});
-    } catch (_) {}
+    if(!("caches" in window)||!navigator.onLine)return;
+    try{
+      var sourceUrl=new URL("index.html?rdm-build="+encodeURIComponent(BUILD)+"&t="+now(),document.baseURI).href;
+      fetch(sourceUrl,{cache:"reload"}).then(function(response){if(!response||!response.ok)return;return caches.open(LAUNCH_CACHE).then(function(cache){var targets=[new URL("index.html",document.baseURI).href,new URL("./",document.baseURI).href,new URL("index.html?app=maker",document.baseURI).href,window.location.href.split("#")[0]];return Promise.all(targets.map(function(target){try{return cache.put(target,response.clone());}catch(_){return Promise.resolve();}}));});}).catch(function(){});
+    }catch(_){}
+    try{if(typeof window.rdmWarmLaunchShellCacheV155==="function")window.rdmWarmLaunchShellCacheV155();}catch(_){}
+  }
 
-    try {
-      if (typeof window.rdmWarmLaunchShellCacheV155 === "function") window.rdmWarmLaunchShellCacheV155();
-    } catch (_) {}
+  function installOverrides(){
+    window.loadCurrentNotes=loadCurrentNotesV182;
+    window.saveCurrentNotes=saveCurrentNotesV182;
+    window.renderCrossReferenceLinks=renderCrossReferenceLinksV182;
+    window.showTeachingPresentation=showTeachingPresentationV182;
+    window.showApplicationPresentation=showApplicationPresentationV182;
+    try{loadCurrentNotes=loadCurrentNotesV182;}catch(_){}
+    try{saveCurrentNotes=saveCurrentNotesV182;}catch(_){}
+    try{renderCrossReferenceLinks=renderCrossReferenceLinksV182;}catch(_){}
+    try{showTeachingPresentation=showTeachingPresentationV182;}catch(_){}
+    try{showApplicationPresentation=showApplicationPresentationV182;}catch(_){}
+    if(get("showTeachingNote"))get("showTeachingNote").onclick=showTeachingPresentationV182;
+    if(get("obsShowTeachingNote"))get("obsShowTeachingNote").onclick=showTeachingPresentationV182;
+    if(get("showApplicationNote"))get("showApplicationNote").onclick=showApplicationPresentationV182;
+    if(get("obsShowApplicationNote"))get("obsShowApplicationNote").onclick=showApplicationPresentationV182;
   }
 
   function initialize(){
-    try { originalLoad = typeof loadCurrentNotes === "function" ? loadCurrentNotes : window.loadCurrentNotes; } catch (_) { originalLoad = window.loadCurrentNotes; }
-    try { originalSave = typeof saveCurrentNotes === "function" ? saveCurrentNotes : window.saveCurrentNotes; } catch (_) { originalSave = window.saveCurrentNotes; }
+    readLocalRecords();
+    migrateLegacy();
+    installOverrides();
+    installMainFieldEvents();
+    wrapNavigationApi();
+    loadCurrentNotesV182();
+    savePosition();
 
-    Promise.all(NOTE_IDS.map(function(id){
-      installFieldEvents(id);
-      return idbGet(id).then(function(dbRecord){
-        var chosen = chooseCanonical(id, readLocalRecord(id), dbRecord);
-        mirrorRecord(chosen);
-        applyRecord(id, chosen, true);
+    Promise.all([idbGetAll(),oldWorkspaceGetAll()]).then(function(results){
+      (results[0]||[]).forEach(mergeRecord);
+      var anchor=ensureRecord(savedAnchorState());
+      (results[1]||[]).forEach(function(oldRecord){
+        var id=oldRecord&&oldRecord.id;
+        if(NOTE_IDS.indexOf(id)<0)return;
+        var recovered=cleanLegacyValue(oldRecord.value);
+        if(!hasText(recovered)||hasText(anchor.fields[id].value))return;
+        anchor.fields[id]={value:recovered,updatedAt:Number(oldRecord.updatedAt||now()-500),deleted:false};
+        anchor.updatedAt=Math.max(anchor.updatedAt,anchor.fields[id].updatedAt);
+        Object.keys(records).forEach(function(key){
+          if(key===anchor.key)return;
+          var record=records[key];
+          if(cleanLegacyValue(record.fields[id].value)===recovered){record.fields[id]={value:"",updatedAt:now()-400,deleted:true};record.updatedAt=Math.max(record.updatedAt,now()-400);}
+        });
       });
-    })).then(function(){
-      scheduleGuard();
-      guardFields(true);
-      try {
-        if (typeof updateNotesSaveStatus === "function") {
-          updateNotesSaveStatus("Teaching workspace saved on this device for online and offline use.");
-        }
-      } catch (_) {}
-    }).catch(function(){
-      scheduleGuard();
+      Object.keys(records).forEach(function(key){persistRecord(records[key]);});
+      scheduleRender();
     });
 
-    window.loadCurrentNotes = durableLoadCurrentNotes;
-    window.saveCurrentNotes = durableSaveCurrentNotes;
-    try { loadCurrentNotes = durableLoadCurrentNotes; } catch (_) {}
-    try { saveCurrentNotes = durableSaveCurrentNotes; } catch (_) {}
+    window.addEventListener("pagehide",flushMainFields,true);
+    window.addEventListener("beforeunload",flushMainFields,true);
+    document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flushMainFields();else scheduleRender();},true);
+    window.addEventListener("online",function(){scheduleRender();setTimeout(refreshCachedLaunchPage,500);},true);
+    window.addEventListener("offline",function(){flushMainFields();},true);
+    window.addEventListener("pageshow",function(){scheduleRender();},true);
 
-    wrapNavigationApi();
-
-    window.addEventListener("pagehide", safeLifecycleSave, true);
-    window.addEventListener("beforeunload", safeLifecycleSave, true);
-    window.addEventListener("pageshow", function(){ scheduleGuard(); }, true);
-    window.addEventListener("online", function(){ scheduleGuard(); setTimeout(refreshCachedLaunchPage, 500); }, true);
-    window.addEventListener("offline", function(){ safeLifecycleSave(); scheduleGuard(); }, true);
-    document.addEventListener("visibilitychange", function(){
-      if (document.visibilityState === "hidden") safeLifecycleSave();
-      else scheduleGuard();
-    }, true);
-    document.addEventListener("freeze", safeLifecycleSave, true);
-    document.addEventListener("resume", scheduleGuard, true);
-
-    window.addEventListener("click", function(event){
-      var target = event.target && event.target.closest ? event.target.closest(
-        "#crossRefLinks .cross-ref-link, #obsCrossRefsPanel .cross-ref-link, #rdmScriptureHistoryBack, #prevBtn, #nextBtn, #loadBtn, #obsLoadPassage"
-      ) : null;
-      if (target) { safeLifecycleSave(); scheduleGuard(); }
-    }, true);
-
-    window.addEventListener("change", function(event){
-      var target = event.target;
-      if (!target) return;
-      if (/^(book|chapter|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(target.id || "")) {
-        safeLifecycleSave();
-        scheduleGuard();
+    window.addEventListener("click",function(event){
+      var target=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#obsLoadPassage,#crossRefLinks .cross-ref-link"):null;
+      if(target){
+        if(target.matches&&target.matches("#crossRefLinks .cross-ref-link"))beginCrossRefVisit();
+        flushMainFields();
+        setTimeout(function(){scheduleRender();savePosition();},120);
       }
-    }, true);
+    },true);
+    window.addEventListener("change",function(event){
+      var target=event.target;if(!target)return;
+      if(/^(book|chapter|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(target.id||"")){
+        crossRefVisit=null;
+        flushMainFields();
+        setTimeout(function(){scheduleRender();savePosition();},120);
+      }
+    },true);
 
-    guardTimer = setInterval(function(){ guardFields(false); }, 1800);
-    setTimeout(refreshCachedLaunchPage, 1200);
-    setTimeout(refreshCachedLaunchPage, 4200);
+    [0,120,350,700,1300,2500].forEach(function(delay){setTimeout(function(){installOverrides();installMainFieldEvents();wrapNavigationApi();scheduleRender();},delay);});
+    setTimeout(refreshCachedLaunchPage,1200);
+    setTimeout(refreshCachedLaunchPage,4200);
 
-    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = BUILD;
-    window.__RDM_ACTIVE_BUILD = BUILD;
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION=BUILD;
+    window.__RDM_ACTIVE_BUILD=BUILD;
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initialize,{once:true});
   else initialize();
 })();
+
 </script>
-<script id="rdm-v181-durable-offline-teaching-workspace-marker">
+<script id="rdm-v182-section-notes-marker">
 (function(){
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v181-durable-offline-teaching-workspace";
-  window.__RDM_ACTIVE_BUILD = "v181-durable-offline-teaching-workspace";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v182-section-notes-resume-position";
+  window.__RDM_ACTIVE_BUILD = "v182-section-notes-resume-position";
 })();
 </script>
-
 
 </body>
 </html>
@@ -29294,3 +29592,4 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 <!-- v177 teaching-only: the working Copy Scripture menu is now available inside Teacher Tools on desktop and OBS Focus. -->
 <!-- v178 teaching-only: related doctrine topics open exactly once on PC browser and installed desktop app. -->
 <!-- v179 teaching-only: Section Size offers 5 Verses, 10 Verses, and Full Chapter; Start/End remain internal. -->
+<!-- v182: notes remain passage-specific, overlapping notes stay editable, and reopening resumes the exact section. -->
