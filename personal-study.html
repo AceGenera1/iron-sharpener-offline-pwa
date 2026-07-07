@@ -4153,9 +4153,10 @@ body.dark .resource-clean-empty {
   body.rdm-dj-mobile-shell .gridControls div:has(#rangeSize) { display: none !important; }
 </style>
 
-<meta name="rdm-build" content="journal-v168-v70-mobile-separation-scripture-readability-final" />
+<!-- v169 — Journal Biblical Doctrine renders the full Doctrine in Summary section once; the redundant short summary card is removed. -->
+<meta name="rdm-build" content="journal-v169-v70-single-doctrine-summary-final" />
 <script id="rdm-journal-v156-build-marker">
-(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v168-v70-mobile-separation-scripture-readability-final"; } catch (_) {} })();
+(function(){ try { window.__RDM_JOURNAL_ACTIVE_BUILD = "journal-v169-v70-single-doctrine-summary-final"; } catch (_) {} })();
 </script>
 
 <!-- v170 — Fresh Home Screen first-open responsiveness.
@@ -8152,7 +8153,6 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
     if (!doctrine || typeof doctrine !== "object") return `<p class="empty">Doctrine topic could not be loaded.</p>`;
 
     const sections = Array.isArray(doctrine.studySections) ? doctrine.studySections : (Array.isArray(doctrine.sections) ? doctrine.sections : []);
-    const summary = doctrine.doctrineSummary || doctrine.summary || doctrine.inSummary || doctrine.doctrineInSummary;
     const matters = doctrine.whyThisMatters || doctrine.whyItMatters || doctrine.pastoralHelp;
     const application = doctrine.application || doctrine.discipleshipApplication || doctrine.discipleshipAndApplication;
 
@@ -8161,7 +8161,6 @@ ${entryList.map(entryToHtmlBlock).join("\n")}
         ${doctrine.definition ? `<section class="doctrine-section"><h3>Definition</h3>${normalizeDoctrineParagraph(doctrine.definition)}</section>` : ""}
         ${doctrine.christFocus ? `<section class="doctrine-section"><h3>Christ Focus</h3>${normalizeDoctrineParagraph(doctrine.christFocus)}</section>` : ""}
         ${renderDoctrineKeyScriptures(doctrine.keyScriptures)}
-        ${summary ? `<section class="doctrine-section"><h3>Doctrine in Summary</h3>${normalizeDoctrineParagraph(summary)}</section>` : ""}
         ${matters ? `<section class="doctrine-section"><h3>Why This Matters</h3>${normalizeDoctrineParagraph(matters)}</section>` : ""}
         ${application ? `<section class="doctrine-section"><h3>Discipleship & Application</h3>${normalizeDoctrineParagraph(application)}</section>` : ""}
 
