@@ -28860,238 +28860,423 @@ html:not(.obs) body:not(.rdm-mobile-app-shell) #openCopyScriptureFromTools {
 
 
 
-<!-- v180 teaching-only: Teaching Notes, Teaching Cross References, Application & Prayer,
-     and Clip / Timestamp Notes now form one persistent teaching workspace. The visible
-     content remains unchanged through book, chapter, section, reference-link, Back,
-     online/offline, browser, and installed-app navigation until the teacher deletes it. -->
-<script id="rdm-v180-persistent-teaching-workspace">
-(function rdmV180PersistentTeachingWorkspace(){
+<!-- v181 teaching-only: durable offline teaching workspace.
+     Uses localStorage + IndexedDB mirrors, protects saved notes from delayed
+     navigation/startup overwrites, and refreshes the cached launch page online. -->
+<script id="rdm-v181-durable-offline-teaching-workspace">
+(function rdmV181DurableOfflineTeachingWorkspace(){
   "use strict";
-  if (window.__rdmV180PersistentTeachingWorkspace) return;
-  window.__rdmV180PersistentTeachingWorkspace = true;
+  if (window.__rdmV181DurableOfflineTeachingWorkspace) return;
+  window.__rdmV181DurableOfflineTeachingWorkspace = true;
 
   var NOTE_IDS = ["teachingNotes", "crossRefs", "applicationNotes", "clipNotes"];
-  var MASTER_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v180.";
-  var restoreTimer = 0;
-  var originalLoadCurrentNotes = null;
-  var originalSaveCurrentNotes = null;
+  var V181_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v181.";
+  var V180_PREFIX = "ironSharpenerUnified.persistentTeachingWorkspace.v180.";
+  var STABLE_PREFIX = "ironSharpenerUnified.teachingWorkspace.";
+  var DB_NAME = "iron-sharpener-teaching-workspace-v1";
+  var DB_VERSION = 1;
+  var STORE_NAME = "notes";
+  var LAUNCH_CACHE = "iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704";
+  var BUILD = "v181-durable-offline-teaching-workspace";
+  var state = Object.create(null);
+  var dbPromise = null;
+  var restoreTimers = [];
+  var guardTimer = 0;
+  var originalLoad = null;
+  var originalSave = null;
+
+  NOTE_IDS.forEach(function(id){
+    state[id] = { dirty: false, focused: false, composing: false, canonical: null, lastApplied: null };
+  });
 
   function get(id){ return document.getElementById(id); }
-  function masterKey(id){ return MASTER_PREFIX + id; }
+  function now(){ return Date.now ? Date.now() : new Date().getTime(); }
+  function asText(value){ return String(value == null ? "" : value); }
+  function hasText(value){ return asText(value).trim().length > 0; }
 
   function safeGet(key){
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
-
   function safeSet(key, value){
-    try {
-      localStorage.setItem(key, String(value == null ? "" : value));
-      return true;
-    } catch (_) { return false; }
+    try { localStorage.setItem(key, asText(value)); return true; } catch (_) { return false; }
+  }
+  function safeJsonGet(key){
+    var raw = safeGet(key);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (_) { return null; }
+  }
+  function safeJsonSet(key, value){
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; }
+  }
+
+  function openDb(){
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise(function(resolve, reject){
+      try {
+        var request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = function(){
+          var db = request.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        };
+        request.onsuccess = function(){ resolve(request.result); };
+        request.onerror = function(){ reject(request.error || new Error("Teaching workspace database could not open.")); };
+      } catch (error) { reject(error); }
+    });
+    return dbPromise;
+  }
+
+  function idbGet(id){
+    return openDb().then(function(db){
+      return new Promise(function(resolve){
+        try {
+          var request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
+          request.onsuccess = function(){ resolve(request.result || null); };
+          request.onerror = function(){ resolve(null); };
+        } catch (_) { resolve(null); }
+      });
+    }).catch(function(){ return null; });
+  }
+
+  function idbPut(record){
+    return openDb().then(function(db){
+      return new Promise(function(resolve){
+        try {
+          var request = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).put(record);
+          request.onsuccess = function(){ resolve(true); };
+          request.onerror = function(){ resolve(false); };
+        } catch (_) { resolve(false); }
+      });
+    }).catch(function(){ return false; });
   }
 
   function passageBaseKey(){
-    try {
-      if (typeof currentStudyUnitKey === "function") return currentStudyUnitKey();
-    } catch (_) {}
+    try { if (typeof currentStudyUnitKey === "function") return currentStudyUnitKey(); } catch (_) {}
     return "";
   }
 
-  function seedValue(id){
-    var saved = safeGet(masterKey(id));
-    if (saved !== null) return saved;
+  function makeRecord(id, value, explicitDelete, source, timestamp){
+    return {
+      id: id,
+      value: asText(value),
+      updatedAt: Number(timestamp || now()),
+      explicitDelete: explicitDelete === true,
+      source: source || "v181",
+      build: BUILD
+    };
+  }
+
+  function normalizeRecord(id, record){
+    if (!record || typeof record !== "object") return null;
+    return makeRecord(
+      id,
+      record.value,
+      record.explicitDelete === true,
+      record.source || "stored",
+      Number(record.updatedAt || 0)
+    );
+  }
+
+  function readLocalRecord(id){
+    return normalizeRecord(id, safeJsonGet(V181_PREFIX + id));
+  }
+
+  function collectLegacyCandidates(id){
+    var candidates = [];
+    var seen = Object.create(null);
+    function add(key, value, priority){
+      value = asText(value);
+      if (!hasText(value)) return;
+      var signature = value;
+      if (seen[signature]) return;
+      seen[signature] = true;
+      candidates.push({ key: key, value: value, priority: priority || 0, length: value.length });
+    }
+
+    add(V180_PREFIX + id, safeGet(V180_PREFIX + id), 1000);
+    add(STABLE_PREFIX + id, safeGet(STABLE_PREFIX + id), 950);
 
     var field = get(id);
-    var visible = field ? String(field.value || "") : "";
-    if (visible) return visible;
+    if (field) add("visible:" + id, field.value, 900);
 
     var base = passageBaseKey();
-    if (base) {
-      var legacy = safeGet(base + "." + id);
-      if (legacy !== null) return legacy;
-    }
+    if (base) add(base + "." + id, safeGet(base + "." + id), 1100);
 
-    return visible;
-  }
+    try {
+      for (var i = 0; i < localStorage.length; i += 1) {
+        var key = localStorage.key(i);
+        if (!key || key === V180_PREFIX + id || key === V181_PREFIX + id || key === STABLE_PREFIX + id) continue;
+        if (key.slice(-(id.length + 1)) !== "." + id) continue;
+        add(key, localStorage.getItem(key), 100);
+      }
+    } catch (_) {}
 
-  function saveField(id, value){
-    value = String(value == null ? "" : value);
-    safeSet(masterKey(id), value);
-
-    // Keep the existing passage-keyed copy as a compatibility backup. The master
-    // workspace remains the visible source of truth so navigation can never erase it.
-    var base = passageBaseKey();
-    if (base) safeSet(base + "." + id, value);
-  }
-
-  function saveAll(){
-    NOTE_IDS.forEach(function(id){
-      var field = get(id);
-      if (field) saveField(id, field.value);
+    candidates.sort(function(a, b){
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      return b.length - a.length;
     });
+
+    try {
+      safeJsonSet(V181_PREFIX + "recovery." + id, candidates.slice(0, 12));
+    } catch (_) {}
+    return candidates;
+  }
+
+  function chooseCanonical(id, localRecord, databaseRecord){
+    var local = normalizeRecord(id, localRecord);
+    var db = normalizeRecord(id, databaseRecord);
+    var newest = null;
+
+    if (local && db) newest = local.updatedAt >= db.updatedAt ? local : db;
+    else newest = local || db;
+
+    if (newest && newest.explicitDelete === true) return newest;
+    if (newest && hasText(newest.value)) return newest;
+
+    var legacy = collectLegacyCandidates(id);
+    if (legacy.length) return makeRecord(id, legacy[0].value, false, "legacy-recovery", now());
+
+    return newest || makeRecord(id, "", false, "empty-start", now());
+  }
+
+  function mirrorRecord(record){
+    safeJsonSet(V181_PREFIX + record.id, record);
+    safeSet(V180_PREFIX + record.id, record.value);
+    safeSet(STABLE_PREFIX + record.id, record.value);
+
+    var base = passageBaseKey();
+    if (base) safeSet(base + "." + record.id, record.value);
+
+    state[record.id].canonical = record;
+    idbPut(record);
+  }
+
+  function applyRecord(id, record, force){
+    var field = get(id);
+    if (!field || !record) return;
+    var itemState = state[id];
+    if (!force && (itemState.focused || itemState.composing || itemState.dirty)) return;
+    if (field.value !== record.value) field.value = record.value;
+    itemState.lastApplied = record.value;
+    itemState.canonical = record;
+    if (id === "crossRefs") {
+      try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
+    }
+  }
+
+  function saveFromUser(id){
+    var field = get(id);
+    if (!field) return;
+    var value = field.value;
+    var record = makeRecord(id, value, !hasText(value), "user-input", now());
+    state[id].dirty = true;
+    state[id].lastApplied = value;
+    mirrorRecord(record);
+    state[id].dirty = false;
     try {
       if (typeof updateNotesSaveStatus === "function") {
-        updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
+        updateNotesSaveStatus("Teaching workspace saved on this device for online and offline use.");
       }
     } catch (_) {}
   }
 
-  function installFieldHandler(field){
-    if (!field) return;
-    field.oninput = function(){
-      saveField(field.id, field.value);
+  function safeLifecycleSave(){
+    NOTE_IDS.forEach(function(id){
+      var field = get(id);
+      if (!field) return;
+      var itemState = state[id];
+      var canonical = itemState.canonical || readLocalRecord(id);
+      var current = asText(field.value);
+
+      if (itemState.dirty) {
+        mirrorRecord(makeRecord(id, current, !hasText(current), "user-lifecycle", now()));
+        itemState.dirty = false;
+        return;
+      }
+
+      // Never let a delayed startup/navigation script erase durable content.
+      if (canonical && hasText(canonical.value) && !hasText(current)) {
+        applyRecord(id, canonical, true);
+        return;
+      }
+
+      // A non-empty visible value is safe to preserve as an additional backup.
+      if (hasText(current) && (!canonical || current !== canonical.value)) {
+        mirrorRecord(makeRecord(id, current, false, "visible-safety-save", now()));
+      }
+    });
+  }
+
+  function guardFields(force){
+    NOTE_IDS.forEach(function(id){
+      var itemState = state[id];
+      var record = itemState.canonical || readLocalRecord(id);
+      var field = get(id);
+      if (!field || !record) return;
+      if (!force && (itemState.focused || itemState.composing || itemState.dirty)) return;
+
+      var current = asText(field.value);
+      if (current !== record.value) {
+        // Programmatic passage/startup loads are not allowed to replace the workspace.
+        applyRecord(id, record, true);
+      }
+    });
+  }
+
+  function scheduleGuard(){
+    [0, 60, 180, 450, 900, 1600, 2800, 4500, 7000, 11000].forEach(function(delay){
+      restoreTimers.push(setTimeout(function(){ guardFields(false); }, delay));
+    });
+  }
+
+  function installFieldEvents(id){
+    var field = get(id);
+    if (!field || field.dataset.rdmV181Wired === "1") return;
+    field.dataset.rdmV181Wired = "1";
+
+    field.addEventListener("focus", function(){ state[id].focused = true; }, true);
+    field.addEventListener("blur", function(){
+      state[id].focused = false;
+      if (state[id].dirty) saveFromUser(id);
+      setTimeout(function(){ guardFields(false); }, 20);
+    }, true);
+    field.addEventListener("compositionstart", function(){ state[id].composing = true; }, true);
+    field.addEventListener("compositionend", function(){ state[id].composing = false; saveFromUser(id); }, true);
+    field.addEventListener("input", function(){ saveFromUser(id); }, true);
+    field.addEventListener("change", function(){ saveFromUser(id); }, true);
+  }
+
+  function durableLoadCurrentNotes(){
+    try { if (typeof currentStudyUnitKey === "function") activeNotesKey = currentStudyUnitKey(); } catch (_) {}
+    setTimeout(function(){ guardFields(true); }, 0);
+    setTimeout(function(){ guardFields(false); }, 100);
+  }
+
+  function durableSaveCurrentNotes(){
+    safeLifecycleSave();
+    try {
+      if (originalSave && originalSave !== durableSaveCurrentNotes) originalSave();
+    } catch (_) {}
+  }
+
+  function wrapNavigationApi(){
+    var api = window.rdmReferenceRangeNavigationV163;
+    if (!api) return;
+    ["open", "back", "previousChapter", "nextChapter", "previousSection", "nextSection", "leaveFocus", "load"].forEach(function(name){
+      if (typeof api[name] !== "function" || api[name].__rdmV181Wrapped) return;
+      var original = api[name];
+      var wrapped = function(){
+        safeLifecycleSave();
+        var result = original.apply(this, arguments);
+        try { Promise.resolve(result).then(scheduleGuard, scheduleGuard); } catch (_) { scheduleGuard(); }
+        return result;
+      };
+      wrapped.__rdmV181Wrapped = true;
+      api[name] = wrapped;
+    });
+  }
+
+  function refreshCachedLaunchPage(){
+    if (!("caches" in window) || !navigator.onLine) return;
+    try {
+      var sourceUrl = new URL("index.html?rdm-build=" + encodeURIComponent(BUILD) + "&t=" + now(), document.baseURI).href;
+      fetch(sourceUrl, { cache: "reload" }).then(function(response){
+        if (!response || !response.ok) return;
+        return caches.open(LAUNCH_CACHE).then(function(cache){
+          var targets = [
+            new URL("index.html", document.baseURI).href,
+            new URL("./", document.baseURI).href,
+            new URL("index.html?app=maker", document.baseURI).href,
+            window.location.href.split("#")[0]
+          ];
+          return Promise.all(targets.map(function(target){
+            try { return cache.put(target, response.clone()); } catch (_) { return Promise.resolve(); }
+          }));
+        });
+      }).catch(function(){});
+    } catch (_) {}
+
+    try {
+      if (typeof window.rdmWarmLaunchShellCacheV155 === "function") window.rdmWarmLaunchShellCacheV155();
+    } catch (_) {}
+  }
+
+  function initialize(){
+    try { originalLoad = typeof loadCurrentNotes === "function" ? loadCurrentNotes : window.loadCurrentNotes; } catch (_) { originalLoad = window.loadCurrentNotes; }
+    try { originalSave = typeof saveCurrentNotes === "function" ? saveCurrentNotes : window.saveCurrentNotes; } catch (_) { originalSave = window.saveCurrentNotes; }
+
+    Promise.all(NOTE_IDS.map(function(id){
+      installFieldEvents(id);
+      return idbGet(id).then(function(dbRecord){
+        var chosen = chooseCanonical(id, readLocalRecord(id), dbRecord);
+        mirrorRecord(chosen);
+        applyRecord(id, chosen, true);
+      });
+    })).then(function(){
+      scheduleGuard();
+      guardFields(true);
       try {
         if (typeof updateNotesSaveStatus === "function") {
-          updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
+          updateNotesSaveStatus("Teaching workspace saved on this device for online and offline use.");
         }
       } catch (_) {}
-      if (field.id === "crossRefs") {
-        try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
-      }
-    };
-  }
-
-  function restoreAll(){
-    NOTE_IDS.forEach(function(id){
-      var field = get(id);
-      if (!field) return;
-
-      var value = safeGet(masterKey(id));
-      if (value === null) {
-        value = seedValue(id);
-        safeSet(masterKey(id), value);
-      }
-
-      if (field.value !== value) field.value = value;
-      installFieldHandler(field);
+    }).catch(function(){
+      scheduleGuard();
     });
 
-    try { if (typeof renderCrossReferenceLinks === "function") renderCrossReferenceLinks(); } catch (_) {}
-    try {
-      if (typeof updateNotesSaveStatus === "function") {
-        updateNotesSaveStatus("Teaching workspace saved automatically. Content remains until you delete it.");
-      }
-    } catch (_) {}
-    try {
-      if (typeof window.rdmV57ResizeMobileNoteBoxes === "function") {
-        window.rdmV57ResizeMobileNoteBoxes();
-      }
-    } catch (_) {}
-  }
+    window.loadCurrentNotes = durableLoadCurrentNotes;
+    window.saveCurrentNotes = durableSaveCurrentNotes;
+    try { loadCurrentNotes = durableLoadCurrentNotes; } catch (_) {}
+    try { saveCurrentNotes = durableSaveCurrentNotes; } catch (_) {}
 
-  function persistentLoadCurrentNotes(){
-    try {
-      if (typeof currentStudyUnitKey === "function") activeNotesKey = currentStudyUnitKey();
-    } catch (_) {}
-    restoreAll();
-  }
+    wrapNavigationApi();
 
-  function persistentSaveCurrentNotes(){
-    saveAll();
-    try {
-      if (originalSaveCurrentNotes && originalSaveCurrentNotes !== persistentSaveCurrentNotes) {
-        originalSaveCurrentNotes();
-      }
-    } catch (_) {}
-  }
-
-  function restoreSoon(){
-    clearTimeout(restoreTimer);
-    restoreTimer = setTimeout(restoreAll, 0);
-    setTimeout(restoreAll, 90);
-  }
-
-  function watchNavigationClick(event){
-    var target = event && event.target && event.target.closest ? event.target.closest(
-      "#crossRefLinks .cross-ref-link, #obsCrossRefsPanel .cross-ref-link, " +
-      "#rdmScriptureHistoryBack, #prevBtn, #nextBtn, #loadBtn, #obsLoadPassage"
-    ) : null;
-    if (target) restoreSoon();
-  }
-
-  function watchNavigationChange(event){
-    var target = event && event.target;
-    if (!target) return;
-    if (target.id === "book" || target.id === "chapter" || target.id === "rangeSize" ||
-        target.id === "obsBookSelect" || target.id === "obsChapterSelect" || target.id === "obsRangeSizeSelect") {
-      restoreSoon();
-    }
-  }
-
-  function wrapPromiseNavigation(object, name){
-    if (!object || typeof object[name] !== "function" || object[name].__rdmV180Wrapped) return;
-    var original = object[name];
-    var wrapped = function(){
-      var result = original.apply(this, arguments);
-      try {
-        Promise.resolve(result).then(restoreSoon, restoreSoon);
-      } catch (_) { restoreSoon(); }
-      return result;
-    };
-    wrapped.__rdmV180Wrapped = true;
-    object[name] = wrapped;
-  }
-
-  function install(){
-    try { originalLoadCurrentNotes = typeof loadCurrentNotes === "function" ? loadCurrentNotes : window.loadCurrentNotes; } catch (_) { originalLoadCurrentNotes = window.loadCurrentNotes; }
-    try { originalSaveCurrentNotes = typeof saveCurrentNotes === "function" ? saveCurrentNotes : window.saveCurrentNotes; } catch (_) { originalSaveCurrentNotes = window.saveCurrentNotes; }
-
-    // On the first v180 opening, adopt the currently loaded passage notes before
-    // switching to the permanent workspace model.
-    var hasAnyMaster = NOTE_IDS.some(function(id){ return safeGet(masterKey(id)) !== null; });
-    if (!hasAnyMaster && typeof originalLoadCurrentNotes === "function") {
-      try { originalLoadCurrentNotes(); } catch (_) {}
-    }
-    NOTE_IDS.forEach(function(id){
-      if (safeGet(masterKey(id)) === null) safeSet(masterKey(id), seedValue(id));
-    });
-
-    window.loadCurrentNotes = persistentLoadCurrentNotes;
-    window.saveCurrentNotes = persistentSaveCurrentNotes;
-    try { loadCurrentNotes = persistentLoadCurrentNotes; } catch (_) {}
-    try { saveCurrentNotes = persistentSaveCurrentNotes; } catch (_) {}
-
-    NOTE_IDS.forEach(function(id){
-      var field = get(id);
-      if (!field) return;
-      field.addEventListener("input", function(){ saveField(id, field.value); }, true);
-      installFieldHandler(field);
-    });
-
-    window.addEventListener("click", watchNavigationClick, true);
-    window.addEventListener("change", watchNavigationChange, true);
-    window.addEventListener("pagehide", saveAll);
-    window.addEventListener("pageshow", restoreSoon);
+    window.addEventListener("pagehide", safeLifecycleSave, true);
+    window.addEventListener("beforeunload", safeLifecycleSave, true);
+    window.addEventListener("pageshow", function(){ scheduleGuard(); }, true);
+    window.addEventListener("online", function(){ scheduleGuard(); setTimeout(refreshCachedLaunchPage, 500); }, true);
+    window.addEventListener("offline", function(){ safeLifecycleSave(); scheduleGuard(); }, true);
     document.addEventListener("visibilitychange", function(){
-      if (document.visibilityState === "hidden") saveAll();
-      else restoreSoon();
-    });
+      if (document.visibilityState === "hidden") safeLifecycleSave();
+      else scheduleGuard();
+    }, true);
+    document.addEventListener("freeze", safeLifecycleSave, true);
+    document.addEventListener("resume", scheduleGuard, true);
 
-    var api = window.rdmReferenceRangeNavigationV163;
-    if (api) {
-      ["open", "back", "previousChapter", "nextChapter", "previousSection", "nextSection", "leaveFocus"].forEach(function(name){
-        wrapPromiseNavigation(api, name);
-      });
-    }
+    window.addEventListener("click", function(event){
+      var target = event.target && event.target.closest ? event.target.closest(
+        "#crossRefLinks .cross-ref-link, #obsCrossRefsPanel .cross-ref-link, #rdmScriptureHistoryBack, #prevBtn, #nextBtn, #loadBtn, #obsLoadPassage"
+      ) : null;
+      if (target) { safeLifecycleSave(); scheduleGuard(); }
+    }, true);
 
-    restoreAll();
-    setTimeout(restoreAll, 250);
-    setTimeout(restoreAll, 900);
+    window.addEventListener("change", function(event){
+      var target = event.target;
+      if (!target) return;
+      if (/^(book|chapter|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(target.id || "")) {
+        safeLifecycleSave();
+        scheduleGuard();
+      }
+    }, true);
 
-    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v180-persistent-teaching-workspace";
-    window.__RDM_ACTIVE_BUILD = "v180-persistent-teaching-workspace";
+    guardTimer = setInterval(function(){ guardFields(false); }, 1800);
+    setTimeout(refreshCachedLaunchPage, 1200);
+    setTimeout(refreshCachedLaunchPage, 4200);
+
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = BUILD;
+    window.__RDM_ACTIVE_BUILD = BUILD;
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
-  else install();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  else initialize();
 })();
 </script>
-<script id="rdm-v180-persistent-teaching-workspace-marker">
+<script id="rdm-v181-durable-offline-teaching-workspace-marker">
 (function(){
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v180-persistent-teaching-workspace";
-  window.__RDM_ACTIVE_BUILD = "v180-persistent-teaching-workspace";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v181-durable-offline-teaching-workspace";
+  window.__RDM_ACTIVE_BUILD = "v181-durable-offline-teaching-workspace";
 })();
 </script>
+
 
 </body>
 </html>
