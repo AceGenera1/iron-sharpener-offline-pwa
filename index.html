@@ -28466,6 +28466,30 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
       return false;
     }
   }
+  function scrollPassageToTopAfterSectionNavigation(){
+    try {
+      var target=get("scriptureBox") || get("refTitle");
+      if(!target)return;
+      window.requestAnimationFrame(function(){
+        window.requestAnimationFrame(function(){
+          try {
+            var offset=12;
+            var header=document.querySelector(".hero");
+            if(header){
+              var headerStyle=window.getComputedStyle ? window.getComputedStyle(header) : null;
+              if(headerStyle && (headerStyle.position==="sticky" || headerStyle.position==="fixed")){
+                offset=Math.max(offset,Math.ceil(header.getBoundingClientRect().height)+10);
+              }
+            }
+            var top=target.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop||0)-offset;
+            top=Math.max(0,Math.round(top));
+            try { window.scrollTo({top:top,left:0,behavior:"auto"}); }
+            catch (_) { window.scrollTo(0,top); }
+          } catch (_) {}
+        });
+      });
+    } catch (_) {}
+  }
   function pushHistory(state){
     state=normalize(state);
     if (!state) return;
@@ -28595,7 +28619,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
       mode:range==="full" ? "full" : "section"
     });
     if(!sameLocation(current,target))pushHistory(current);
-    setSelectors(target);updateBack();var ok=await renderState(target);updateBack();return ok;
+    setSelectors(target);updateBack();var ok=await renderState(target);scrollPassageToTopAfterSectionNavigation();updateBack();return ok;
   }
   async function moveSection(direction,event){
     if(event){try{event.preventDefault();event.stopPropagation();}catch(_){}}
@@ -28620,7 +28644,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
       return moveChapter(direction,null,range);
     }
     if(!sameLocation(current,target))pushHistory(current);
-    setSelectors(target);updateBack();var ok=await renderState(target);updateBack();return ok;
+    setSelectors(target);updateBack();var ok=await renderState(target);scrollPassageToTopAfterSectionNavigation();updateBack();return ok;
   }
   async function loadFromObsNavigator(event){
     if(event){try{event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}catch(_){}}
@@ -29569,10 +29593,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
-<script id="rdm-v182-section-notes-marker">
+<script id="rdm-v183-navigation-scroll-top-marker">
 (function(){
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v182-section-notes-resume-position";
-  window.__RDM_ACTIVE_BUILD = "v182-section-notes-resume-position";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v183-teaching-navigation-scroll-top";
+  window.__RDM_ACTIVE_BUILD = "v183-teaching-navigation-scroll-top";
 })();
 </script>
 
@@ -29593,3 +29617,4 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 <!-- v178 teaching-only: related doctrine topics open exactly once on PC browser and installed desktop app. -->
 <!-- v179 teaching-only: Section Size offers 5 Verses, 10 Verses, and Full Chapter; Start/End remain internal. -->
 <!-- v182: notes remain passage-specific, overlapping notes stay editable, and reopening resumes the exact section. -->
+<!-- v183 teaching-only: Previous/Next returns the newly loaded Scripture section to the top of the reading surface. -->
