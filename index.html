@@ -3428,19 +3428,19 @@ html.obs #discipleJournalBtn { display: none !important; }
 <!-- v170 — Fresh Home Screen first-open responsiveness.
      Service-worker registration is deferred until after the first interactive paint,
      and v70 never navigates/reloads the active page during activation. -->
-<!-- v184 Live Teaching Mode prepaint guard: only used when restoring Single-Screen Display after a refresh. -->
-<script id="rdm-v184-live-teaching-prepaint">
+<!-- v185 Live Teaching Mode prepaint guard: only used when restoring Single-Screen Display after a refresh. -->
+<script id="rdm-v185-live-teaching-prepaint">
 (function(){
   try {
-    if (sessionStorage.getItem("ironSharpenerLiveTeaching.v184.active") === "1" &&
-        sessionStorage.getItem("ironSharpenerLiveTeaching.v184.mode") === "single") {
-      document.documentElement.classList.add("rdm-v184-single-prepaint");
+    if (sessionStorage.getItem("ironSharpenerLiveTeaching.v185.active") === "1" &&
+        sessionStorage.getItem("ironSharpenerLiveTeaching.v185.mode") === "single") {
+      document.documentElement.classList.add("rdm-v185-single-prepaint");
     }
   } catch (_) {}
 })();
 </script>
-<style id="rdm-v184-live-teaching-style">
-  html.rdm-v184-single-prepaint body { visibility: hidden !important; }
+<style id="rdm-v185-live-teaching-style">
+  html.rdm-v185-single-prepaint body { visibility: hidden !important; }
 
   #liveTeachingBtn.rdm-live-active {
     background: #8f3428 !important;
@@ -3777,13 +3777,66 @@ html.obs #discipleJournalBtn { display: none !important; }
   #rdmLiveSingleScreenRoot .inline-highlight-purple { background:rgba(168,116,230,.38); }
   #rdmLiveSingleScreenRoot .inline-highlight-amber { background:rgba(232,132,45,.40); }
 
+  /* v185: Single-Screen now mirrors the locked Iron Sharpener scripture theme. */
+  #rdmLiveSingleScreenRoot {
+    --gold:#d7a84f; --bright:#f8d987; --paper:#f4efe3; --ink:#2b394f; --line:rgba(215,168,79,.45);
+    --rdm-mark-gold:#d7a84f; --rdm-mark-blue:#4f8fe8; --rdm-mark-green:#3fb377; --rdm-mark-red:#d44d4d; --rdm-mark-purple:#9a65d8; --rdm-mark-amber:#e8842d;
+    --rdm-mark-gold-soft:rgba(215,168,79,.78); --rdm-mark-blue-soft:rgba(79,143,232,.78); --rdm-mark-green-soft:rgba(63,179,119,.78); --rdm-mark-red-soft:rgba(212,77,77,.76); --rdm-mark-purple-soft:rgba(154,101,216,.78); --rdm-mark-amber-soft:rgba(232,132,45,.78);
+    background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#e8ddc8,#f4efe3 48%,#ded2b9) !important;
+    color:var(--ink) !important;
+  }
+  #rdmLiveSingleScreenRoot.dark { --paper:#294843; --ink:#f7f3ea; background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#172b29,#294843 52%,#203d39) !important; color:var(--ink) !important; }
+  .rdm-live-single-header { padding:14px clamp(20px,4vw,58px) !important; background:linear-gradient(90deg,rgba(44,36,28,.98),rgba(70,60,46,.98),rgba(44,36,28,.98)) !important; border-bottom:2px solid var(--gold) !important; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-single-header { background:linear-gradient(90deg,rgba(23,43,41,.98),rgba(41,72,67,.98),rgba(23,43,41,.98)) !important; }
+  .rdm-live-brand h1 { font-size:clamp(24px,2.5vw,42px) !important; line-height:1 !important; letter-spacing:.05em; text-transform:uppercase; }
+  .rdm-live-single-main { padding:clamp(20px,3vw,46px) clamp(18px,4vw,62px) 132px !important; }
+  .rdm-live-scripture-card,.rdm-live-panel-card { width:min(1540px,100%) !important; background:linear-gradient(180deg,#fbf7ee,#f4efe3) !important; border:1px solid var(--line) !important; border-radius:10px !important; padding:clamp(26px,3.2vw,48px) !important; box-shadow:0 10px 30px rgba(70,40,0,.08) !important; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-scripture-card,#rdmLiveSingleScreenRoot.dark .rdm-live-panel-card { background:linear-gradient(180deg,#355a54,#294843) !important; border-color:rgba(248,217,135,.55) !important; box-shadow:0 14px 34px rgba(0,0,0,.26) !important; }
+  .rdm-live-single-ref { text-align:center;text-transform:uppercase;font-size:clamp(28px,3.1vw,48px);letter-spacing:clamp(3px,.45vw,6px);margin:0;color:var(--ink);font-weight:800; }
+  .rdm-live-scripture-source { text-align:center !important; letter-spacing:4px !important; margin:8px 0 22px !important; color:#8a5a13 !important; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-scripture-source { color:#f8d987 !important; }
+  .rdm-live-divider { height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative; }
+  .rdm-live-divider::after { content:"◆";position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#f4efe3;padding:0 10px;font-size:14px; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-divider::after { background:#294843; }
+  .rdm-live-passage .verse { font-size:clamp(24px,2.15vw,36px) !important; line-height:1.5 !important; margin:0 0 14px !important; color:var(--ink) !important; }
+  .rdm-live-panel-text { font:600 clamp(20px,1.8vw,29px)/1.62 "Segoe UI",Arial,sans-serif !important; }
+  .rdm-live-panel-html { font:600 clamp(18px,1.45vw,25px)/1.65 "Segoe UI",Arial,sans-serif !important; }
+  .rdm-live-panel-html p { margin:0 0 1.05em;line-height:1.65 !important; }
+  .rdm-live-panel-html li { margin:0 0 .55em;line-height:1.6 !important; }
+  .rdm-live-panel-html h2,.rdm-live-panel-html h3,.rdm-live-panel-html h4 { margin:1.15em 0 .55em;font-family:Georgia,serif !important;line-height:1.2 !important; }
+  .rdm-live-prewrap { white-space:pre-wrap; }
+  .rdm-live-reference-list { display:flex;gap:9px;flex-wrap:wrap; }
+  #rdmLiveSingleScreenRoot .rdm-live-scripture-link { display:inline-flex;margin:4px 6px 4px 0;padding:8px 11px;border:1.5px solid var(--gold);border-radius:10px;background:linear-gradient(#f8d987,#d99f31);color:#203d39;font:800 .82em/1.2 Arial,sans-serif;box-shadow:0 5px 12px rgba(0,0,0,.12); }
+  .rdm-live-single-controls { width:min(1500px,calc(100vw - 20px)) !important; opacity:.72 !important; max-height:38vh; overflow:auto; }
+  .rdm-live-single-controls:hover,.rdm-live-single-controls:focus-within { opacity:1 !important; }
+  .rdm-live-single-primary { display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;width:100%; }
+  .rdm-live-single-more { display:grid;grid-template-columns:minmax(150px,1.4fr) minmax(100px,.7fr) minmax(120px,.8fr) auto minmax(120px,.8fr) minmax(100px,.7fr) auto auto;gap:8px;align-items:end;width:100%;padding-top:8px;border-top:1px solid rgba(215,168,79,.45); }
+  .rdm-live-single-more[hidden] { display:none !important; }
+  .rdm-live-single-more label { color:#fff3d7;font:800 10px/1.1 Arial,sans-serif;text-transform:uppercase;letter-spacing:.05em; }
+  .rdm-live-single-more select { width:100%;margin-top:4px;min-height:36px;padding:7px;border:1px solid rgba(215,168,79,.75);border-radius:8px;background:#fff7e6;color:#203d39;font:800 12px Arial,sans-serif; }
+  #rdmLiveSingleScreenRoot.marking-enabled .rdm-live-passage .verse { cursor:crosshair; }
+  #rdmLiveSingleScreenRoot.marking-enabled #rdmLiveSingleMarking { background:#8f3428 !important;color:#fff8e8 !important; }
+  #rdmLiveSingleScreenRoot .verse.highlighted,#rdmLiveSingleScreenRoot .verse.highlight-gold,#rdmLiveSingleScreenRoot .verse.highlight-blue,#rdmLiveSingleScreenRoot .verse.highlight-green,#rdmLiveSingleScreenRoot .verse.highlight-red,#rdmLiveSingleScreenRoot .verse.highlight-purple,#rdmLiveSingleScreenRoot .verse.highlight-amber { margin-left:-12px !important;margin-right:-10px !important; }
+  #rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-gold,#rdmLiveSingleScreenRoot .verse.underlined.underline-gold{ text-decoration-color:var(--rdm-mark-gold)!important}#rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-blue,#rdmLiveSingleScreenRoot .verse.underlined.underline-blue{ text-decoration-color:var(--rdm-mark-blue)!important}#rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-green,#rdmLiveSingleScreenRoot .verse.underlined.underline-green{ text-decoration-color:var(--rdm-mark-green)!important}#rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-red,#rdmLiveSingleScreenRoot .verse.underlined.underline-red{ text-decoration-color:var(--rdm-mark-red)!important}#rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-purple,#rdmLiveSingleScreenRoot .verse.underlined.underline-purple{ text-decoration-color:var(--rdm-mark-purple)!important}#rdmLiveSingleScreenRoot .verse.underlined.rdm-underline-amber,#rdmLiveSingleScreenRoot .verse.underlined.underline-amber{ text-decoration-color:var(--rdm-mark-amber)!important}
+  #rdmLiveSingleScreenRoot .verse.circled.rdm-circle-gold,#rdmLiveSingleScreenRoot .verse.circled.circle-gold{outline-color:var(--rdm-mark-gold-soft)!important}#rdmLiveSingleScreenRoot .verse.circled.rdm-circle-blue,#rdmLiveSingleScreenRoot .verse.circled.circle-blue{outline-color:var(--rdm-mark-blue-soft)!important}#rdmLiveSingleScreenRoot .verse.circled.rdm-circle-green,#rdmLiveSingleScreenRoot .verse.circled.circle-green{outline-color:var(--rdm-mark-green-soft)!important}#rdmLiveSingleScreenRoot .verse.circled.rdm-circle-red,#rdmLiveSingleScreenRoot .verse.circled.circle-red{outline-color:var(--rdm-mark-red-soft)!important}#rdmLiveSingleScreenRoot .verse.circled.rdm-circle-purple,#rdmLiveSingleScreenRoot .verse.circled.circle-purple{outline-color:var(--rdm-mark-purple-soft)!important}#rdmLiveSingleScreenRoot .verse.circled.rdm-circle-amber,#rdmLiveSingleScreenRoot .verse.circled.circle-amber{outline-color:var(--rdm-mark-amber-soft)!important}
+  #rdmLiveSingleScreenRoot .verse.boxed.rdm-box-gold,#rdmLiveSingleScreenRoot .verse.boxed.box-gold{border-color:var(--rdm-mark-gold)!important}#rdmLiveSingleScreenRoot .verse.boxed.rdm-box-blue,#rdmLiveSingleScreenRoot .verse.boxed.box-blue{border-color:var(--rdm-mark-blue)!important}#rdmLiveSingleScreenRoot .verse.boxed.rdm-box-green,#rdmLiveSingleScreenRoot .verse.boxed.box-green{border-color:var(--rdm-mark-green)!important}#rdmLiveSingleScreenRoot .verse.boxed.rdm-box-red,#rdmLiveSingleScreenRoot .verse.boxed.box-red{border-color:var(--rdm-mark-red)!important}#rdmLiveSingleScreenRoot .verse.boxed.rdm-box-purple,#rdmLiveSingleScreenRoot .verse.boxed.box-purple{border-color:var(--rdm-mark-purple)!important}#rdmLiveSingleScreenRoot .verse.boxed.rdm-box-amber,#rdmLiveSingleScreenRoot .verse.boxed.box-amber{border-color:var(--rdm-mark-amber)!important}
+  #rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-gold,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-gold{ text-decoration-color:var(--rdm-mark-gold)!important}#rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-blue,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-blue{ text-decoration-color:var(--rdm-mark-blue)!important}#rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-green,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-green{ text-decoration-color:var(--rdm-mark-green)!important}#rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-red,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-red{ text-decoration-color:var(--rdm-mark-red)!important}#rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-purple,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-purple{ text-decoration-color:var(--rdm-mark-purple)!important}#rdmLiveSingleScreenRoot .inline-underline.rdm-inline-mark-amber,#rdmLiveSingleScreenRoot .inline-underline.inline-mark-amber{ text-decoration-color:var(--rdm-mark-amber)!important}
+  #rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-gold,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-gold,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-gold,#rdmLiveSingleScreenRoot .inline-box.inline-mark-gold{border-color:var(--rdm-mark-gold)!important}#rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-blue,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-blue,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-blue,#rdmLiveSingleScreenRoot .inline-box.inline-mark-blue{border-color:var(--rdm-mark-blue)!important}#rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-green,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-green,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-green,#rdmLiveSingleScreenRoot .inline-box.inline-mark-green{border-color:var(--rdm-mark-green)!important}#rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-red,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-red,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-red,#rdmLiveSingleScreenRoot .inline-box.inline-mark-red{border-color:var(--rdm-mark-red)!important}#rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-purple,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-purple,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-purple,#rdmLiveSingleScreenRoot .inline-box.inline-mark-purple{border-color:var(--rdm-mark-purple)!important}#rdmLiveSingleScreenRoot .inline-circle.rdm-inline-mark-amber,#rdmLiveSingleScreenRoot .inline-box.rdm-inline-mark-amber,#rdmLiveSingleScreenRoot .inline-circle.inline-mark-amber,#rdmLiveSingleScreenRoot .inline-box.inline-mark-amber{border-color:var(--rdm-mark-amber)!important}
+  #rdmLiveSingleScreenRoot .inline-highlight-gold,#rdmLiveSingleScreenRoot .inline-highlight-blue,#rdmLiveSingleScreenRoot .inline-highlight-green,#rdmLiveSingleScreenRoot .inline-highlight-red,#rdmLiveSingleScreenRoot .inline-highlight-purple,#rdmLiveSingleScreenRoot .inline-highlight-amber { display:inline;border-radius:5px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone; }
+  #rdmLiveSingleScreenRoot .inline-highlight-gold{background:rgba(244,199,108,.58);box-shadow:inset 0 -2px 0 rgba(215,168,79,.75)}#rdmLiveSingleScreenRoot .inline-highlight-blue{background:rgba(97,165,255,.42);box-shadow:inset 0 -2px 0 rgba(79,143,232,.75)}#rdmLiveSingleScreenRoot .inline-highlight-green{background:rgba(80,190,130,.42);box-shadow:inset 0 -2px 0 rgba(63,179,119,.75)}#rdmLiveSingleScreenRoot .inline-highlight-red{background:rgba(225,95,95,.38);box-shadow:inset 0 -2px 0 rgba(212,77,77,.75)}#rdmLiveSingleScreenRoot .inline-highlight-purple{background:rgba(168,116,230,.38);box-shadow:inset 0 -2px 0 rgba(154,101,216,.75)}#rdmLiveSingleScreenRoot .inline-highlight-amber{background:rgba(255,151,72,.40);box-shadow:inset 0 -2px 0 rgba(232,132,45,.75)}
+  #rdmLiveSingleScreenRoot.dark .inline-highlight-gold{background:rgba(248,217,135,.44);color:#fff8df}#rdmLiveSingleScreenRoot.dark .inline-highlight-blue{background:rgba(97,165,255,.36);color:#f2f7ff}#rdmLiveSingleScreenRoot.dark .inline-highlight-green{background:rgba(80,190,130,.36);color:#f2fff8}#rdmLiveSingleScreenRoot.dark .inline-highlight-red{background:rgba(225,95,95,.34);color:#fff4f4}#rdmLiveSingleScreenRoot.dark .inline-highlight-purple{background:rgba(168,116,230,.36);color:#fbf5ff}#rdmLiveSingleScreenRoot.dark .inline-highlight-amber{background:rgba(255,151,72,.36);color:#fff7ef}
+
+  @media (max-width: 900px) {
+    .rdm-live-single-more { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
   @media (max-width: 760px) {
     .rdm-live-mode-grid { grid-template-columns: 1fr; }
     #rdmLiveTeachingDialog { padding: 10px; }
     .rdm-live-dialog-body { padding: 16px; }
     .rdm-live-single-header { align-items: flex-start; }
     .rdm-live-section-meta { max-width: 44%; }
-    .rdm-live-single-main { padding-left: 18px; padding-right: 18px; }
+    .rdm-live-single-main { padding-left: 14px !important; padding-right: 14px !important; }
+    .rdm-live-scripture-card,.rdm-live-panel-card { padding:22px 18px !important; }
   }
 </style>
 
@@ -29959,21 +30012,21 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 
-<!-- v184 — Optional Live Teaching Mode: dual-window Audience Display + private-safe Single-Screen Display. -->
-<script id="rdm-v184-live-teaching-mode-script">
-(function rdmV184LiveTeachingMode(){
+<!-- v185 — Optional Live Teaching Mode: dual-window Audience Display + private-safe Single-Screen Display. -->
+<script id="rdm-v185-live-teaching-mode-script">
+(function rdmV185LiveTeachingMode(){
   "use strict";
-  if (window.__rdmLiveTeachingV184Installed) return;
-  window.__rdmLiveTeachingV184Installed = true;
+  if (window.__rdmLiveTeachingV185Installed) return;
+  window.__rdmLiveTeachingV185Installed = true;
 
-  var BUILD = "v184-live-teaching-mode";
-  var CHANNEL_NAME = "iron-sharpener-live-teaching-v184";
-  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v184.active";
-  var MODE_KEY = "ironSharpenerLiveTeaching.v184.mode";
-  var SESSION_KEY = "ironSharpenerLiveTeaching.v184.session";
-  var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v184.snapshot.";
-  var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v184.command.";
-  var MESSAGE_TAG = "ironSharpenerLiveTeaching.v184";
+  var BUILD = "v185-live-teaching-mode";
+  var CHANNEL_NAME = "iron-sharpener-live-teaching-v185";
+  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v185.active";
+  var MODE_KEY = "ironSharpenerLiveTeaching.v185.mode";
+  var SESSION_KEY = "ironSharpenerLiveTeaching.v185.session";
+  var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v185.snapshot.";
+  var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v185.command.";
+  var MESSAGE_TAG = "ironSharpenerLiveTeaching.v185";
 
   var liveActive = false;
   var liveMode = "";
@@ -29986,6 +30039,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   var publishTimers = [];
   var singlePrivateState = [];
   var restoringSingle = false;
+  var singleMarkingEnabled = false;
+  var singleMarkTool = "highlight";
+  var singleMarkColor = "gold";
+  var handledAudienceCommands = Object.create(null);
 
   function get(id){ return document.getElementById(id); }
   function text(value){ return String(value == null ? "" : value); }
@@ -30014,20 +30071,86 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function snapshotKey(session){ return SNAPSHOT_PREFIX + session; }
   function commandKey(session){ return COMMAND_PREFIX + session; }
 
+  function navigationApi(){ return window.rdmReferenceRangeNavigationV163 || null; }
+  function referenceFromValue(value){
+    var raw = trim(value).replace(/^[←↩➜→•\-\s]+/, "").replace(/\s+(open|view|read)$/i, "");
+    if (!raw) return "";
+    var api = navigationApi();
+    try { if (api && typeof api.parse === "function" && api.parse(raw)) return raw; } catch (_) {}
+    try {
+      if (typeof parseScriptureReferences === "function") {
+        var parsed = parseScriptureReferences(raw) || [];
+        if (parsed.length && api && api.parse(parsed[0])) return parsed[0];
+      }
+    } catch (_) {}
+    return "";
+  }
+  function referenceFromNode(node){
+    if (!node) return "";
+    var candidates = [];
+    try {
+      if (node.dataset) candidates.push(node.dataset.ref,node.dataset.reference,node.dataset.scriptureRef,node.dataset.scripture);
+      candidates.push(node.getAttribute && node.getAttribute("aria-label"), node.textContent);
+    } catch (_) {}
+    for (var i=0;i<candidates.length;i+=1) {
+      var ref = referenceFromValue(candidates[i]);
+      if (ref) return ref;
+    }
+    return "";
+  }
+  function referenceButtonHtml(ref,label){
+    ref = referenceFromValue(ref) || trim(ref);
+    label = trim(label || ref);
+    return '<button type="button" class="rdm-live-scripture-link" data-rdm-ref="' + esc(ref) + '">' + esc(label) + '</button>';
+  }
+  function currentHistoryState(){
+    var api = navigationApi();
+    var list = [];
+    try { if (api && typeof api.history === "function") list = api.history() || []; } catch (_) {}
+    var target = list.length ? list[list.length - 1] : null;
+    return {
+      canBack: !!target,
+      label: target ? (trim(target.book) + " " + trim(target.chapter)) : "Previous Scripture"
+    };
+  }
+  function runNavigationAction(action, reference){
+    var api = navigationApi();
+    if (!api) return Promise.resolve(false);
+    showScripture();
+    var result = false;
+    try {
+      if (action === "back" && typeof api.back === "function") result = api.back();
+      else if (action === "open" && reference && typeof api.open === "function") result = api.open(reference);
+    } catch (_) { result = false; }
+    return Promise.resolve(result).then(function(value){
+      schedulePublishBurst("live-navigation-action",[0,100,320,800]);
+      return value;
+    },function(){
+      schedulePublishBurst("live-navigation-action",[0,180,600]);
+      return false;
+    });
+  }
+
   function cleanHtmlFragment(html, kind){
     var template = document.createElement("template");
     template.innerHTML = text(html);
-    var blocked = template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,button,link,meta,audio,video,canvas");
+    var blocked = template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,link,meta,audio,video,canvas");
     Array.prototype.forEach.call(blocked,function(node){ node.remove(); });
+    Array.prototype.forEach.call(template.content.querySelectorAll("button"),function(button){
+      if (!button.classList.contains("rdm-live-scripture-link")) button.remove();
+    });
     Array.prototype.forEach.call(template.content.querySelectorAll("*"),function(node){
       Array.prototype.slice.call(node.attributes || []).forEach(function(attr){
         var name = String(attr.name || "").toLowerCase();
         if (name.indexOf("on") === 0 || name === "contenteditable" || name === "src" || name === "href" || name === "target") {
           node.removeAttribute(attr.name);
+          return;
         }
         if (kind === "scripture" && name !== "class" && name !== "data-v" && name !== "aria-label") {
           node.removeAttribute(attr.name);
+          return;
         }
+        if (kind !== "scripture" && ["style","width","height","align","bgcolor"].indexOf(name) >= 0) node.removeAttribute(attr.name);
       });
     });
     return template.innerHTML;
@@ -30044,8 +30167,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var chapter = text((apiState && apiState.chapter) || (get("chapter") && get("chapter").value) || "1");
     var start = text((apiState && apiState.start) || (get("start") && get("start").value) || "1");
     var end = text((apiState && apiState.end) || (get("end") && get("end").value) || start);
-    var range = text((apiState && apiState.range) || (get("rangeSize") && get("rangeSize").value) || "5");
     var rangeSelect = get("rangeSize");
+    var apiRange = text(apiState && apiState.range);
+    var range = /^(5|10|full)$/.test(apiRange) ? apiRange : text((rangeSelect && rangeSelect.value) || "5");
     var rangeLabel = range === "full" ? "Full Chapter" : (range === "10" ? "10 Verses" : "5 Verses");
     if (rangeSelect && rangeSelect.selectedOptions && rangeSelect.selectedOptions[0]) rangeLabel = trim(rangeSelect.selectedOptions[0].textContent) || rangeLabel;
     var exact = range === "full" ? (book + " " + chapter) : (start === end ? (book + " " + chapter + ":" + start) : (book + " " + chapter + ":" + start + "-" + end));
@@ -30099,25 +30223,25 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if (holder) {
       Array.prototype.forEach.call(holder.querySelectorAll(".cross-ref-link"),function(button){
         var label = trim(button.textContent);
-        var key = label.toLowerCase();
-        if (label && !seen[key]) { seen[key] = true; refs.push(label); }
+        var ref = referenceFromNode(button) || label;
+        var key = ref.toLowerCase();
+        if (ref && !seen[key]) { seen[key] = true; refs.push({ref:ref,label:label||ref}); }
       });
     }
     var html = "";
     if (values.length) {
       html += values.map(function(item){
-        return '<section class="rdm-live-reference-group"><h3>' + esc(item.label) + '</h3><div style="white-space:pre-wrap">' + esc(item.value) + '</div></section>';
+        return '<section class="rdm-live-reference-group"><h3>' + esc(item.label) + '</h3><div class="rdm-live-prewrap">' + esc(item.value) + '</div></section>';
       }).join("");
     }
     if (refs.length) {
-      html += '<div aria-label="Detected Scripture references">' + refs.map(function(ref){ return '<span class="rdm-live-resource-chip">' + esc(ref) + '</span>'; }).join("") + '</div>';
+      html += '<div class="rdm-live-reference-list" aria-label="Detected Scripture references">' + refs.map(function(item){ return referenceButtonHtml(item.ref,item.label); }).join("") + '</div>';
     }
     if (!html) html = '<p>No Teaching Cross References have been added for this section.</p>';
     return html;
   }
 
   function builtInCrossRefsHtml(){
-    var panel = get("internalCrossRefsPanel");
     var summary = trim(get("internalXrefsSummary") && get("internalXrefsSummary").textContent);
     var results = get("internalXrefsResults");
     var html = summary ? '<p><strong>' + esc(summary) + '</strong></p>' : "";
@@ -30126,8 +30250,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if (sections.length) {
         Array.prototype.forEach.call(sections,function(section){
           var heading = trim(section.querySelector("h4") && section.querySelector("h4").textContent);
-          var refs = Array.prototype.map.call(section.querySelectorAll(".internal-xref-link"),function(btn){ return trim(btn.textContent); }).filter(Boolean);
-          html += '<section class="rdm-live-reference-group"><h3>' + esc(heading) + '</h3>' + refs.map(function(ref){ return '<span class="rdm-live-resource-chip">' + esc(ref) + '</span>'; }).join("") + '</section>';
+          var refs = Array.prototype.map.call(section.querySelectorAll(".internal-xref-link"),function(btn){
+            return {ref:referenceFromNode(btn) || trim(btn.textContent),label:trim(btn.textContent)};
+          }).filter(function(item){return !!item.ref;});
+          html += '<section class="rdm-live-reference-group"><h3>' + esc(heading) + '</h3><div class="rdm-live-reference-list">' + refs.map(function(item){ return referenceButtonHtml(item.ref,item.label); }).join("") + '</div></section>';
         });
       } else if (hasText(results.textContent)) {
         html += '<p>' + esc(trim(results.textContent)) + '</p>';
@@ -30152,14 +30278,24 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var body = panel.querySelector(".resource-panel-body");
     if (!body) return { key: text(panel.dataset.resourceKey), title: title, html: "<p>No content found.</p>" };
     var clone = body.cloneNode(true);
-    Array.prototype.forEach.call(clone.querySelectorAll("input,textarea,select,option,.rdm-live-resource-action,.teacher-pop-close,.back-to-doctrine-categories"),function(node){ node.remove(); });
-    Array.prototype.forEach.call(clone.querySelectorAll("button"),function(button){
-      var label = trim(button.textContent);
-      if (!label || /^(close|back|browse|show more|search)$/i.test(label)) { button.remove(); return; }
+    Array.prototype.forEach.call(clone.querySelectorAll("input,textarea,select,option,.rdm-live-resource-action,.rdm-live-resource-return,.teacher-pop-close,.back-to-doctrine-categories"),function(node){ node.remove(); });
+    Array.prototype.forEach.call(clone.querySelectorAll("button,a"),function(control){
+      var label = trim(control.textContent);
+      if (!label || /^(close|back|browse|show more|search|copy)$/i.test(label)) { control.remove(); return; }
+      var ref = referenceFromNode(control);
+      if (ref) {
+        var link = document.createElement("button");
+        link.type = "button";
+        link.className = "rdm-live-scripture-link";
+        link.setAttribute("data-rdm-ref",ref);
+        link.textContent = label;
+        control.replaceWith(link);
+        return;
+      }
       var span = document.createElement("span");
       span.className = "rdm-live-resource-chip";
       span.textContent = label;
-      button.replaceWith(span);
+      control.replaceWith(span);
     });
     Array.prototype.forEach.call(clone.querySelectorAll("details"),function(details){ details.setAttribute("open", "open"); });
     var html = cleanHtmlFragment(clone.innerHTML, "resource");
@@ -30215,6 +30351,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       range: controls.range,
       scriptureHtml: cleanHtmlFragment(passage ? passage.innerHTML : '<p class="verse">Passage is loading…</p>', "scripture"),
       focusMode: !!(box && box.classList.contains("focus-mode")),
+      history: currentHistoryState(),
       view: view
     };
   }
@@ -30228,9 +30365,21 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return channel;
   }
 
+  function audienceCommandAlreadyHandled(data){
+    if (!data || !/^(show-scripture|navigate-back|open-reference)$/.test(String(data.kind || ""))) return false;
+    var id = trim(data.commandId || (data.kind + "|" + data.timestamp + "|" + (data.reference || "")));
+    if (!id) return false;
+    if (handledAudienceCommands[id]) return true;
+    handledAudienceCommands[id] = Date.now();
+    var cutoff = Date.now() - 30000;
+    Object.keys(handledAudienceCommands).forEach(function(key){ if (handledAudienceCommands[key] < cutoff) delete handledAudienceCommands[key]; });
+    return false;
+  }
+
   function handleIncomingMessage(data, source){
     if (!data || data.tag !== MESSAGE_TAG) return;
     if (!liveSessionId || data.session !== liveSessionId) return;
+    if (audienceCommandAlreadyHandled(data)) return;
     if (data.kind === "request" || data.kind === "audience-ready") {
       if (liveActive) {
         setTeacherStatus(data.kind === "audience-ready" ? "Audience Display connected" : "Audience Display reconnected");
@@ -30240,7 +30389,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     }
     if (data.kind === "audience-closing") {
       setTeacherStatus("Audience Display closed — use Reopen Audience Display when ready");
+      return;
     }
+    if (!liveActive) return;
+    if (data.kind === "show-scripture") { showScripture(); return; }
+    if (data.kind === "navigate-back") { runNavigationAction("back"); return; }
+    if (data.kind === "open-reference" && data.reference) { runNavigationAction("open",data.reference); }
   }
 
   function publishSnapshot(reason){
@@ -30352,10 +30506,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function audienceRuntime(){
     "use strict";
-    var CHANNEL_NAME = "iron-sharpener-live-teaching-v184";
-    var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v184.snapshot.";
-    var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v184.command.";
-    var MESSAGE_TAG = "ironSharpenerLiveTeaching.v184";
+    var CHANNEL_NAME = "iron-sharpener-live-teaching-v185";
+    var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v185.snapshot.";
+    var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v185.command.";
+    var MESSAGE_TAG = "ironSharpenerLiveTeaching.v185";
     var hash = new URLSearchParams(location.hash.slice(1));
     var session = hash.get("session") || "";
     var channel = null;
@@ -30368,11 +30522,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     function sanitize(html){
       var template = document.createElement("template");
       template.innerHTML = text(html);
-      Array.prototype.forEach.call(template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,button,link,meta,audio,video,canvas"),function(node){node.remove();});
+      Array.prototype.forEach.call(template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,link,meta,audio,video,canvas"),function(node){node.remove();});
+      Array.prototype.forEach.call(template.content.querySelectorAll("button"),function(button){ if (!button.classList.contains("rdm-live-scripture-link")) button.remove(); });
       Array.prototype.forEach.call(template.content.querySelectorAll("*"),function(node){
         Array.prototype.slice.call(node.attributes || []).forEach(function(attr){
           var name = String(attr.name || "").toLowerCase();
-          if (name.indexOf("on") === 0 || name === "contenteditable" || name === "src" || name === "href" || name === "target") node.removeAttribute(attr.name);
+          if (name.indexOf("on") === 0 || name === "contenteditable" || name === "src" || name === "href" || name === "target" || name === "style" || name === "width" || name === "height" || name === "align") node.removeAttribute(attr.name);
         });
       });
       return template.innerHTML;
@@ -30383,11 +30538,23 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       node.textContent = message;
       node.classList.toggle("connected",!!connected);
     }
+    function updateActions(snapshot,view){
+      var back = get("audienceBack");
+      var scripture = get("audienceReturnScripture");
+      var history = snapshot.history || {};
+      if (back) {
+        back.hidden = !history.canBack;
+        back.textContent = history.canBack ? ("← Back to " + (history.label || "Previous Scripture")) : "← Back";
+      }
+      if (scripture) scripture.hidden = !view || view.type === "scripture";
+    }
     function apply(snapshot){
       if (!snapshot || snapshot.tag !== MESSAGE_TAG || snapshot.session !== session || snapshot.kind !== "snapshot") return;
       var root = get("audienceRoot");
       if (!root) return;
-      root.classList.toggle("dark",snapshot.theme === "dark");
+      var dark = snapshot.theme === "dark";
+      root.classList.toggle("dark",dark);
+      document.body.classList.toggle("dark",dark);
       get("audienceReference").textContent = snapshot.reference || "Iron Sharpener";
       get("audienceMeta").textContent = snapshot.sectionMeta || snapshot.exactReference || "";
       var scripture = get("audienceScripture");
@@ -30401,6 +30568,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         get("audiencePanelText").textContent = "The teacher has ended this Live Teaching session.";
         get("audiencePanelText").style.display = "block";
         get("audiencePanelHtml").style.display = "none";
+        updateActions(snapshot,{type:"closed"});
         setStatus("SESSION ENDED",false);
         return;
       }
@@ -30425,15 +30593,31 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
           textNode.textContent = view.text || "";
         }
       }
+      updateActions(snapshot,view);
       setStatus("LIVE • CONNECTED",true);
-      try { window.scrollTo(0,0); } catch (_) {}
+      try { get("audienceMain").scrollTop = 0; } catch (_) {}
     }
-    function send(kind){
-      var message = {tag:MESSAGE_TAG,kind:kind,session:session,timestamp:Date.now()};
+    function send(kind,payload){
+      var stamp = Date.now();
+      var message = {tag:MESSAGE_TAG,kind:kind,session:session,timestamp:stamp,commandId:kind + "-" + stamp + "-" + Math.random().toString(36).slice(2,10)};
+      if (payload) Object.keys(payload).forEach(function(key){ message[key] = payload[key]; });
       try { if (channel) channel.postMessage(message); } catch (_) {}
       try { if (window.opener && !window.opener.closed) window.opener.postMessage(message,"*"); } catch (_) {}
       safeLocalSet(COMMAND_PREFIX + session,JSON.stringify(message));
     }
+    document.addEventListener("click",function(event){
+      var refControl = event.target.closest && event.target.closest("[data-rdm-ref]");
+      if (refControl) {
+        event.preventDefault();
+        send("open-reference",{reference:refControl.getAttribute("data-rdm-ref") || refControl.textContent});
+        return;
+      }
+      var action = event.target.closest && event.target.closest("[data-audience-action]");
+      if (!action) return;
+      var name = action.getAttribute("data-audience-action");
+      if (name === "scripture") send("show-scripture");
+      if (name === "back") send("navigate-back");
+    });
     window.addEventListener("message",function(event){ apply(event.data); });
     window.addEventListener("storage",function(event){
       if (event.key === SNAPSHOT_PREFIX + session && event.newValue) apply(safeParse(event.newValue));
@@ -30456,71 +30640,82 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function audienceCss(){
     return [
-      ":root{--gold:#d7a84f;--cream:#f4efe3;--navy:#0a1a30;--forest:#203d39;--darkcard:#294843}",
+      ":root{--gold:#d7a84f;--bright:#f8d987;--paper:#f4efe3;--ink:#2b394f;--line:rgba(215,168,79,.45);--rdm-mark-gold:#d7a84f;--rdm-mark-blue:#4f8fe8;--rdm-mark-green:#3fb377;--rdm-mark-red:#d44d4d;--rdm-mark-purple:#9a65d8;--rdm-mark-amber:#e8842d;--rdm-mark-gold-soft:rgba(215,168,79,.78);--rdm-mark-blue-soft:rgba(79,143,232,.78);--rdm-mark-green-soft:rgba(63,179,119,.78);--rdm-mark-red-soft:rgba(212,77,77,.76);--rdm-mark-purple-soft:rgba(154,101,216,.78);--rdm-mark-amber-soft:rgba(232,132,45,.78)}",
       "*{box-sizing:border-box}",
       "html,body{margin:0;width:100%;height:100%;overflow:hidden}",
-      "body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:#0b1730}",
-      "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;background:var(--cream)}",
-      "#audienceRoot.dark{background:var(--forest);color:#fff2d7}",
-      ".header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(16px,2.4vw,30px) clamp(24px,5vw,78px);border-bottom:3px solid var(--gold);background:var(--navy);color:#fff3d7}",
-      ".dark .header{background:#102b29}",
-      ".kicker{margin:0 0 4px;color:#f8d987;font:800 12px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
-      "h1{margin:0;font:800 clamp(30px,4vw,64px)/1.02 Georgia,serif}",
-      ".right{text-align:right;min-width:220px}",
-      ".meta{color:#f8d987;font:700 clamp(13px,1.45vw,20px)/1.35 'Segoe UI',Arial,sans-serif}",
-      ".status{display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;border:1px solid rgba(215,168,79,.65);font:800 10px/1 Arial,sans-serif;letter-spacing:.08em;color:#f8d987;opacity:.78}",
+      "body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#e8ddc8,#f4efe3 48%,#ded2b9)}",
+      "body.dark{--paper:#294843;--ink:#f7f3ea;background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#172b29,#294843 52%,#203d39)}",
+      "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;color:var(--ink)}",
+      ".header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:22px;padding:14px clamp(20px,4vw,58px);border-bottom:2px solid var(--gold);background:linear-gradient(90deg,rgba(44,36,28,.98),rgba(70,60,46,.98),rgba(44,36,28,.98));color:#fff}",
+      "body.dark .header{background:linear-gradient(90deg,rgba(23,43,41,.98),rgba(41,72,67,.98),rgba(23,43,41,.98))}",
+      ".brandKicker{margin:0 0 3px;color:var(--bright);font:800 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
+      ".brandTitle{margin:0;font:800 clamp(24px,2.5vw,42px)/1 Georgia,serif;letter-spacing:.05em;text-transform:uppercase;text-shadow:0 3px 0 rgba(0,0,0,.28)}",
+      ".headerRight{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;text-align:right}",
+      ".meta{color:var(--bright);font:800 clamp(12px,1.25vw,17px)/1.25 Arial,sans-serif}",
+      ".status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(215,168,79,.7);font:800 10px/1 Arial,sans-serif;letter-spacing:.06em;color:var(--bright)}",
       ".status.connected:before{content:'';width:7px;height:7px;border-radius:50%;background:#42b875;margin-right:6px}",
-      ".main{min-height:0;overflow:auto;padding:clamp(26px,4vw,64px) clamp(26px,7vw,118px)}",
-      ".surface{width:min(1540px,100%);margin:0 auto}",
-      ".source{margin-bottom:20px;color:#6e5631;font:800 13px/1.2 Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}",
+      ".headerAction{border:1.5px solid var(--gold);background:#fff7e6;color:#203d39;border-radius:9px;padding:8px 11px;font:800 12px Arial,sans-serif;cursor:pointer}",
+      ".main{min-height:0;overflow:auto;padding:clamp(20px,3vw,46px) clamp(18px,4vw,62px)}",
+      ".scriptureCard,.panelCard{width:min(1540px,100%);margin:0 auto;background:linear-gradient(180deg,#fbf7ee,#f4efe3);border:1px solid var(--line);border-radius:10px;padding:clamp(26px,3.2vw,48px);box-shadow:0 10px 30px rgba(70,40,0,.08);position:relative}",
+      ".dark .scriptureCard,.dark .panelCard{background:linear-gradient(180deg,#355a54,#294843);border-color:rgba(248,217,135,.55);box-shadow:0 14px 34px rgba(0,0,0,.26)}",
+      ".ref{text-align:center;text-transform:uppercase;font-size:clamp(28px,3.1vw,48px);letter-spacing:clamp(3px,.45vw,6px);margin:0;color:var(--ink);font-weight:800}",
+      ".source{text-align:center;text-transform:uppercase;letter-spacing:4px;font:800 13px Arial,sans-serif;margin:8px 0 22px;color:#8a5a13}",
       ".dark .source{color:#f8d987}",
-      ".passage .verse{position:relative;font-size:clamp(24px,2.55vw,42px);line-height:1.62;margin:0 0 17px;color:inherit}",
-      ".vnum{font-size:.64em;color:#a86b11;font-weight:900;vertical-align:super;margin-right:10px}",
+      ".divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative}",
+      ".divider:after{content:'◆';position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#f4efe3;padding:0 10px;font-size:14px}",
+      ".dark .divider:after{background:#294843}",
+      ".passage .verse{position:relative;font-size:clamp(24px,2.15vw,36px);line-height:1.5;margin:0 0 14px;color:var(--ink);transition:all .18s ease}",
+      ".vnum{font-size:.72em;color:#b37410;font-weight:900;vertical-align:super;margin-right:10px}",
       ".dark .vnum{color:#f8d987}",
       ".hidden{display:none!important}",
-      ".panel{display:none;width:min(1440px,100%);margin:0 auto}",
+      ".panel{display:none;width:100%;margin:0 auto}",
       ".panel.open{display:block}",
-      ".card{border-radius:20px;border:2px solid var(--gold);background:rgba(255,248,234,.97);padding:clamp(28px,4.5vw,68px);box-shadow:0 20px 55px rgba(0,0,0,.16)}",
-      ".dark .card{background:rgba(41,72,67,.98)}",
-      ".card h2{margin:0 0 24px;padding-bottom:15px;border-bottom:2px solid var(--gold);font:800 clamp(31px,3.4vw,56px)/1.08 Georgia,serif}",
-      ".panelText,.panelHtml{white-space:pre-wrap;font:600 clamp(21px,2.25vw,35px)/1.58 'Segoe UI',Arial,sans-serif}",
-      ".panelHtml{white-space:normal}",
-      ".panelHtml p,.panelHtml li,.panelHtml div{font:inherit;line-height:1.55}",
-      ".panelHtml h3,.panelHtml h4{font-family:Georgia,serif;color:inherit}",
-      ".rdm-live-resource-chip{display:inline-flex;margin:5px 7px 5px 0;padding:7px 11px;border:1px solid var(--gold);border-radius:999px;background:rgba(248,217,135,.18);font-size:.82em;font-weight:800}",
-      ".rdm-live-reference-group{margin:0 0 18px;padding:15px 17px;border-left:5px solid var(--gold);border-radius:8px;background:rgba(248,217,135,.10)}",
-      ".rdm-live-reference-group h3{margin:0 0 8px;font-size:1em}",
-      ".verse.highlighted,.verse.highlight-gold{background:linear-gradient(90deg,rgba(244,199,108,.58),rgba(244,199,108,.20));border-left:7px solid var(--gold);outline:1px solid rgba(215,168,79,.78);border-radius:8px;padding:8px 12px}",
-      ".verse.highlight-blue{background:linear-gradient(90deg,rgba(97,165,255,.42),rgba(97,165,255,.16));border-left:7px solid #4f8fe8;outline:1px solid rgba(97,165,255,.65);border-radius:8px;padding:8px 12px}",
-      ".verse.highlight-green{background:linear-gradient(90deg,rgba(80,190,130,.42),rgba(80,190,130,.16));border-left:7px solid #3fb377;outline:1px solid rgba(80,190,130,.65);border-radius:8px;padding:8px 12px}",
-      ".verse.highlight-red{background:linear-gradient(90deg,rgba(225,95,95,.38),rgba(225,95,95,.14));border-left:7px solid #d44d4d;outline:1px solid rgba(225,95,95,.60);border-radius:8px;padding:8px 12px}",
-      ".verse.highlight-purple{background:linear-gradient(90deg,rgba(168,116,230,.38),rgba(168,116,230,.14));border-left:7px solid #9a65d8;outline:1px solid rgba(168,116,230,.60);border-radius:8px;padding:8px 12px}",
-      ".verse.highlight-amber{background:linear-gradient(90deg,rgba(232,132,45,.40),rgba(232,132,45,.14));border-left:7px solid #e8842d;outline:1px solid rgba(232,132,45,.64);border-radius:8px;padding:8px 12px}",
-      ".verse.underlined{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:7px}",
-      ".verse.circled{outline:4px solid rgba(215,168,79,.75);outline-offset:4px;border-radius:999px;padding:9px 16px}",
-      ".verse.boxed{border:3px solid var(--gold);border-radius:8px;padding:10px 14px}",
+      ".panelCard h2{margin:0 0 24px;padding-bottom:15px;border-bottom:2px solid var(--gold);font:800 clamp(30px,3vw,50px)/1.1 Georgia,serif;color:var(--ink)}",
+      ".panelText{white-space:pre-wrap;font:600 clamp(20px,1.8vw,29px)/1.62 'Segoe UI',Arial,sans-serif}",
+      ".panelHtml{font:600 clamp(18px,1.45vw,25px)/1.65 'Segoe UI',Arial,sans-serif;color:inherit}",
+      ".panelHtml p{margin:0 0 1.05em;line-height:1.65}",
+      ".panelHtml ul,.panelHtml ol{margin:.45em 0 1.15em;padding-left:1.55em}",
+      ".panelHtml li{margin:0 0 .55em;line-height:1.6}",
+      ".panelHtml h2,.panelHtml h3,.panelHtml h4{font-family:Georgia,serif;color:inherit;line-height:1.2;margin:1.15em 0 .55em}",
+      ".panelHtml h2:first-child,.panelHtml h3:first-child,.panelHtml h4:first-child{margin-top:0}",
+      ".panelHtml hr{border:0;border-top:1px solid rgba(215,168,79,.65);margin:1.35em 0}",
+      ".rdm-live-prewrap{white-space:pre-wrap}",
+      ".rdm-live-reference-list{display:flex;gap:9px;flex-wrap:wrap;align-items:center}",
+      ".rdm-live-resource-chip,.rdm-live-scripture-link{display:inline-flex;margin:4px 6px 4px 0;padding:8px 11px;border:1.5px solid var(--gold);border-radius:10px;background:rgba(248,217,135,.16);color:inherit;font:800 .82em/1.2 Arial,sans-serif;text-decoration:none}",
+      ".rdm-live-scripture-link{cursor:pointer;background:linear-gradient(#f8d987,#d99f31);color:#203d39;box-shadow:0 5px 12px rgba(0,0,0,.12)}",
+      ".rdm-live-reference-group{margin:0 0 20px;padding:16px 18px;border-left:5px solid var(--gold);border-radius:8px;background:rgba(248,217,135,.10)}",
+      ".rdm-live-reference-group h3{margin:0 0 10px;font-size:1.06em}",
+      ".verse.highlighted,.verse.highlight-gold{background:linear-gradient(90deg,rgba(244,199,108,.58),rgba(244,199,108,.20));border-left:7px solid var(--gold);outline:1px solid rgba(215,168,79,.78);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 4px 14px rgba(215,168,79,.12)}",
+      ".verse.highlight-blue{background:linear-gradient(90deg,rgba(97,165,255,.42),rgba(97,165,255,.16));border-left:7px solid #4f8fe8;outline:1px solid rgba(97,165,255,.65);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
+      ".verse.highlight-green{background:linear-gradient(90deg,rgba(80,190,130,.42),rgba(80,190,130,.16));border-left:7px solid #3fb377;outline:1px solid rgba(80,190,130,.65);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
+      ".verse.highlight-red{background:linear-gradient(90deg,rgba(225,95,95,.38),rgba(225,95,95,.14));border-left:7px solid #d44d4d;outline:1px solid rgba(225,95,95,.60);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
+      ".verse.highlight-purple{background:linear-gradient(90deg,rgba(168,116,230,.38),rgba(168,116,230,.14));border-left:7px solid #9a65d8;outline:1px solid rgba(168,116,230,.60);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
+      ".verse.highlight-amber{background:linear-gradient(90deg,rgba(255,151,72,.40),rgba(255,151,72,.14));border-left:7px solid #e8842d;outline:1px solid rgba(255,151,72,.65);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
+      ".verse.underlined{text-decoration:underline;text-decoration-thickness:4px;text-decoration-color:var(--gold);text-underline-offset:7px}",
+      ".verse.circled{outline:4px solid rgba(215,168,79,.75);outline-offset:4px;border-radius:999px;padding:9px 16px;margin-left:-12px;margin-right:-10px}",
+      ".verse.boxed{border:3px solid var(--gold);border-radius:8px;padding:10px 14px;margin-left:-12px;margin-right:-10px;box-shadow:0 8px 18px rgba(0,0,0,.08)}",
       ".verse.pointed{padding-left:34px}",
       ".verse.pointed:before{content:'➤';position:absolute;left:4px;top:4px;color:var(--gold);font-size:22px}",
-      ".passage.focus-mode .verse{opacity:.26}",
-      ".passage.focus-mode .verse.focused{opacity:1;background:rgba(244,199,108,.30);outline:2px solid rgba(215,168,79,.75);border-radius:8px;padding:7px 11px}",
-      ".inline-underline{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}",
-      ".inline-circle{display:inline;border:2px solid var(--gold);border-radius:999px;padding:0 5px}",
-      ".inline-box{display:inline;border:2px solid var(--gold);border-radius:4px;padding:0 4px}",
-      ".inline-highlight-gold{background:rgba(244,199,108,.58)}",
-      ".inline-highlight-blue{background:rgba(97,165,255,.42)}",
-      ".inline-highlight-green{background:rgba(80,190,130,.42)}",
-      ".inline-highlight-red{background:rgba(225,95,95,.38)}",
-      ".inline-highlight-purple{background:rgba(168,116,230,.38)}",
-      ".inline-highlight-amber{background:rgba(232,132,45,.40)}",
-      "@media(max-width:700px){.header{align-items:flex-start}.right{min-width:0;max-width:45%}.main{padding-left:18px;padding-right:18px}}"
+      ".passage.focus-mode .verse{opacity:.28}",
+      ".passage.focus-mode .verse.focused{opacity:1;background:linear-gradient(90deg,rgba(244,199,108,.38),rgba(244,199,108,.13));outline:2px solid rgba(215,168,79,.78);border-radius:8px;padding:6px 10px;margin-left:-10px;margin-right:-10px}",
+      ".dark .passage.focus-mode .verse.focused{background:linear-gradient(90deg,rgba(248,217,135,.34),rgba(248,217,135,.12));outline-color:rgba(248,217,135,.92);color:#fff8df}",
+      ".verse.underlined.rdm-underline-gold,.verse.underlined.underline-gold{ text-decoration-color:var(--rdm-mark-gold)!important}.verse.underlined.rdm-underline-blue,.verse.underlined.underline-blue{ text-decoration-color:var(--rdm-mark-blue)!important}.verse.underlined.rdm-underline-green,.verse.underlined.underline-green{ text-decoration-color:var(--rdm-mark-green)!important}.verse.underlined.rdm-underline-red,.verse.underlined.underline-red{ text-decoration-color:var(--rdm-mark-red)!important}.verse.underlined.rdm-underline-purple,.verse.underlined.underline-purple{ text-decoration-color:var(--rdm-mark-purple)!important}.verse.underlined.rdm-underline-amber,.verse.underlined.underline-amber{ text-decoration-color:var(--rdm-mark-amber)!important}",
+      ".verse.circled.rdm-circle-gold,.verse.circled.circle-gold{outline-color:var(--rdm-mark-gold-soft)!important}.verse.circled.rdm-circle-blue,.verse.circled.circle-blue{outline-color:var(--rdm-mark-blue-soft)!important}.verse.circled.rdm-circle-green,.verse.circled.circle-green{outline-color:var(--rdm-mark-green-soft)!important}.verse.circled.rdm-circle-red,.verse.circled.circle-red{outline-color:var(--rdm-mark-red-soft)!important}.verse.circled.rdm-circle-purple,.verse.circled.circle-purple{outline-color:var(--rdm-mark-purple-soft)!important}.verse.circled.rdm-circle-amber,.verse.circled.circle-amber{outline-color:var(--rdm-mark-amber-soft)!important}",
+      ".verse.boxed.rdm-box-gold,.verse.boxed.box-gold{border-color:var(--rdm-mark-gold)!important}.verse.boxed.rdm-box-blue,.verse.boxed.box-blue{border-color:var(--rdm-mark-blue)!important}.verse.boxed.rdm-box-green,.verse.boxed.box-green{border-color:var(--rdm-mark-green)!important}.verse.boxed.rdm-box-red,.verse.boxed.box-red{border-color:var(--rdm-mark-red)!important}.verse.boxed.rdm-box-purple,.verse.boxed.box-purple{border-color:var(--rdm-mark-purple)!important}.verse.boxed.rdm-box-amber,.verse.boxed.box-amber{border-color:var(--rdm-mark-amber)!important}",
+      ".inline-underline{ text-decoration:underline;text-decoration-thickness:4px;text-decoration-color:var(--gold);text-underline-offset:6px;border-radius:4px}.inline-circle{display:inline-block;border:3px solid var(--gold);border-radius:999px;padding:0 7px 1px;margin:0 2px;line-height:1.15}.inline-box{display:inline-block;border:3px solid var(--gold);border-radius:6px;padding:0 6px 1px;margin:0 2px;line-height:1.15}",
+      ".inline-underline.rdm-inline-mark-gold,.inline-underline.inline-mark-gold{ text-decoration-color:var(--rdm-mark-gold)!important}.inline-underline.rdm-inline-mark-blue,.inline-underline.inline-mark-blue{ text-decoration-color:var(--rdm-mark-blue)!important}.inline-underline.rdm-inline-mark-green,.inline-underline.inline-mark-green{ text-decoration-color:var(--rdm-mark-green)!important}.inline-underline.rdm-inline-mark-red,.inline-underline.inline-mark-red{ text-decoration-color:var(--rdm-mark-red)!important}.inline-underline.rdm-inline-mark-purple,.inline-underline.inline-mark-purple{ text-decoration-color:var(--rdm-mark-purple)!important}.inline-underline.rdm-inline-mark-amber,.inline-underline.inline-mark-amber{ text-decoration-color:var(--rdm-mark-amber)!important}",
+      ".inline-circle.rdm-inline-mark-gold,.inline-box.rdm-inline-mark-gold,.inline-circle.inline-mark-gold,.inline-box.inline-mark-gold{border-color:var(--rdm-mark-gold)!important}.inline-circle.rdm-inline-mark-blue,.inline-box.rdm-inline-mark-blue,.inline-circle.inline-mark-blue,.inline-box.inline-mark-blue{border-color:var(--rdm-mark-blue)!important}.inline-circle.rdm-inline-mark-green,.inline-box.rdm-inline-mark-green,.inline-circle.inline-mark-green,.inline-box.inline-mark-green{border-color:var(--rdm-mark-green)!important}.inline-circle.rdm-inline-mark-red,.inline-box.rdm-inline-mark-red,.inline-circle.inline-mark-red,.inline-box.inline-mark-red{border-color:var(--rdm-mark-red)!important}.inline-circle.rdm-inline-mark-purple,.inline-box.rdm-inline-mark-purple,.inline-circle.inline-mark-purple,.inline-box.inline-mark-purple{border-color:var(--rdm-mark-purple)!important}.inline-circle.rdm-inline-mark-amber,.inline-box.rdm-inline-mark-amber,.inline-circle.inline-mark-amber,.inline-box.inline-mark-amber{border-color:var(--rdm-mark-amber)!important}",
+      ".inline-highlight-gold,.inline-highlight-blue,.inline-highlight-green,.inline-highlight-red,.inline-highlight-purple,.inline-highlight-amber{display:inline;border-radius:5px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}.inline-highlight-gold{background:rgba(244,199,108,.58);box-shadow:inset 0 -2px 0 rgba(215,168,79,.75)}.inline-highlight-blue{background:rgba(97,165,255,.42);box-shadow:inset 0 -2px 0 rgba(79,143,232,.75)}.inline-highlight-green{background:rgba(80,190,130,.42);box-shadow:inset 0 -2px 0 rgba(63,179,119,.75)}.inline-highlight-red{background:rgba(225,95,95,.38);box-shadow:inset 0 -2px 0 rgba(212,77,77,.75)}.inline-highlight-purple{background:rgba(168,116,230,.38);box-shadow:inset 0 -2px 0 rgba(154,101,216,.75)}.inline-highlight-amber{background:rgba(255,151,72,.40);box-shadow:inset 0 -2px 0 rgba(232,132,45,.75)}",
+      ".dark .inline-highlight-gold{background:rgba(248,217,135,.44);color:#fff8df}.dark .inline-highlight-blue{background:rgba(97,165,255,.36);color:#f2f7ff}.dark .inline-highlight-green{background:rgba(80,190,130,.36);color:#f2fff8}.dark .inline-highlight-red{background:rgba(225,95,95,.34);color:#fff4f4}.dark .inline-highlight-purple{background:rgba(168,116,230,.36);color:#fbf5ff}.dark .inline-highlight-amber{background:rgba(255,151,72,.36);color:#fff7ef}",
+      "@media(max-width:760px){.header{grid-template-columns:1fr;padding:12px 16px}.headerRight{justify-content:flex-start;text-align:left}.main{padding:14px}.scriptureCard,.panelCard{padding:22px 18px}.passage .verse{font-size:clamp(21px,4.8vw,29px)}}"
     ].join("");
   }
 
   function audienceDocument(session){
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Iron Sharpener Audience Display</title><style>' + audienceCss() + '</style></head><body>' +
-      '<div id="audienceRoot"><header class="header"><div><p class="kicker">Restored Daily Ministries • Live Teaching</p><h1 id="audienceReference">Iron Sharpener</h1></div><div class="right"><div class="meta" id="audienceMeta">Waiting for teacher…</div><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
-      '<main class="main"><section class="surface" id="audienceScripture"><div class="source">World English Bible • Public Domain</div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
-      '<section class="panel" id="audiencePanel"><div class="card"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
+      '<div id="audienceRoot"><header class="header"><div><p class="brandKicker">Restored Daily Ministries • Live Teaching</p><h1 class="brandTitle">Iron Sharpener</h1></div><div class="headerRight"><div class="meta" id="audienceMeta">Waiting for teacher…</div><button class="headerAction" id="audienceBack" data-audience-action="back" hidden>← Back</button><button class="headerAction" id="audienceReturnScripture" data-audience-action="scripture" hidden>Return to Scripture</button><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
+      '<main class="main" id="audienceMain"><section class="scriptureCard" id="audienceScripture"><h2 class="ref" id="audienceReference">Iron Sharpener</h2><div class="source">World English Bible • Public Domain</div><div class="divider"></div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
+      '<section class="panel" id="audiencePanel"><div class="panelCard"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
       '<script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
   }
 
@@ -30537,7 +30732,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function openAudienceWindow(){
     var session = ensureSession(false);
     var url = getAudienceBlobUrl(session) + "#session=" + encodeURIComponent(session);
-    var name = "IronSharpenerAudienceV184_" + session.replace(/[^a-z0-9_-]/gi,"");
+    var name = "IronSharpenerAudienceV185_" + session.replace(/[^a-z0-9_-]/gi,"");
     try {
       audienceWindow = window.open(url,name,"popup=yes,width=1365,height=768,resizable=yes,scrollbars=yes");
     } catch (_) { audienceWindow = null; }
@@ -30568,35 +30763,284 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     root.setAttribute("aria-live","polite");
     root.innerHTML = '' +
       '<div class="rdm-live-single-stage">' +
-        '<header class="rdm-live-single-header"><div class="rdm-live-brand"><p class="rdm-live-brand-kicker">Restored Daily Ministries • Live Teaching</p><h1 id="rdmLiveSingleReference">Iron Sharpener</h1></div><div class="rdm-live-section-meta" id="rdmLiveSingleMeta"></div></header>' +
-        '<main class="rdm-live-single-main"><section class="rdm-live-scripture-surface" id="rdmLiveSingleScripture"><div class="rdm-live-scripture-source">World English Bible • Public Domain</div><div class="rdm-live-passage" id="rdmLiveSinglePassage"></div></section><section class="rdm-live-panel-surface" id="rdmLiveSinglePanel"><div class="rdm-live-panel-card"><h2 id="rdmLiveSinglePanelTitle"></h2><div class="rdm-live-panel-text" id="rdmLiveSinglePanelText"></div><div class="rdm-live-panel-html" id="rdmLiveSinglePanelHtml" style="display:none"></div></div></section></main>' +
+        '<header class="rdm-live-single-header"><div class="rdm-live-brand"><p class="rdm-live-brand-kicker">Restored Daily Ministries • Live Teaching</p><h1>Iron Sharpener</h1></div><div class="rdm-live-section-meta" id="rdmLiveSingleMeta"></div></header>' +
+        '<main class="rdm-live-single-main"><section class="rdm-live-scripture-surface rdm-live-scripture-card" id="rdmLiveSingleScripture"><h2 class="rdm-live-single-ref" id="rdmLiveSingleReference">Iron Sharpener</h2><div class="rdm-live-scripture-source">World English Bible • Public Domain</div><div class="rdm-live-divider"></div><div class="rdm-live-passage" id="rdmLiveSinglePassage"></div></section><section class="rdm-live-panel-surface" id="rdmLiveSinglePanel"><div class="rdm-live-panel-card"><h2 id="rdmLiveSinglePanelTitle"></h2><div class="rdm-live-panel-text" id="rdmLiveSinglePanelText"></div><div class="rdm-live-panel-html" id="rdmLiveSinglePanelHtml" style="display:none"></div></div></section></main>' +
         '<div class="rdm-live-single-controls" aria-label="Single-Screen Live Teaching controls">' +
-          '<button type="button" data-rdm-live-single="previous">‹ Previous</button>' +
-          '<button type="button" data-rdm-live-single="next">Next ›</button>' +
-          '<button type="button" data-rdm-live-single="teaching-note">Teaching Note (T)</button>' +
-          '<button type="button" data-rdm-live-single="crossrefs">Cross Refs (C)</button>' +
-          '<button type="button" data-rdm-live-single="application">Application (A)</button>' +
-          '<button type="button" data-rdm-live-single="scripture">Scripture (S)</button>' +
-          '<button type="button" data-rdm-live-single="fullscreen">Fullscreen (F)</button>' +
-          '<button type="button" class="secondary" data-rdm-live-single="exit">Exit Live Teaching (X)</button>' +
-          '<div class="rdm-live-single-private-note">Private notes and teacher controls are hidden in Single-Screen Display. Exit Live Teaching to return to the private workspace.</div>' +
+          '<div class="rdm-live-single-primary">' +
+            '<button type="button" data-rdm-live-single="back" id="rdmLiveSingleBack" hidden>← Back</button>' +
+            '<button type="button" data-rdm-live-single="previous">‹ Previous</button>' +
+            '<button type="button" data-rdm-live-single="next">Next ›</button>' +
+            '<button type="button" data-rdm-live-single="scripture">Return to Scripture (S)</button>' +
+            '<button type="button" data-rdm-live-single="teaching-note">Teaching Note (T)</button>' +
+            '<button type="button" data-rdm-live-single="crossrefs">Cross Refs (C)</button>' +
+            '<button type="button" data-rdm-live-single="application">Application (A)</button>' +
+            '<button type="button" data-rdm-live-single="marking" id="rdmLiveSingleMarking">Marking: Off (M)</button>' +
+            '<button type="button" data-rdm-live-single="more" id="rdmLiveSingleMore">Passage &amp; Marking</button>' +
+            '<button type="button" data-rdm-live-single="fullscreen">Fullscreen (F)</button>' +
+            '<button type="button" class="secondary" data-rdm-live-single="exit">Exit Live Teaching (X)</button>' +
+          '</div>' +
+          '<div class="rdm-live-single-more" id="rdmLiveSingleMorePanel" hidden>' +
+            '<label>Book<select id="rdmLiveSingleBook"></select></label>' +
+            '<label>Chapter<select id="rdmLiveSingleChapter"></select></label>' +
+            '<label>Section<select id="rdmLiveSingleRange"><option value="5">5 Verses</option><option value="10">10 Verses</option><option value="full">Full Chapter</option></select></label>' +
+            '<button type="button" data-rdm-live-single="load-passage">Load Passage</button>' +
+            '<label>Mark<select id="rdmLiveSingleMarkTool"><option value="highlight">Highlight</option><option value="underline">Underline</option><option value="circle">Circle</option><option value="box">Box</option><option value="focus">Focus</option><option value="pointer">Pointer</option></select></label>' +
+            '<label>Color<select id="rdmLiveSingleMarkColor"><option value="gold">Gold</option><option value="blue">Blue</option><option value="green">Green</option><option value="red">Red</option><option value="purple">Purple</option><option value="amber">Amber</option></select></label>' +
+            '<button type="button" data-rdm-live-single="clear-marks">Clear Marks</button>' +
+            '<button type="button" data-rdm-live-single="theme">Change Theme</button>' +
+          '</div>' +
+          '<div class="rdm-live-single-private-note">Private notes and editors remain hidden. Passage navigation, reference links, and Scripture marking are available here.</div>' +
         '</div>' +
       '</div>';
     document.body.appendChild(root);
     root.addEventListener("click",function(event){
+      var referenceControl = event.target.closest("[data-rdm-ref]");
+      if (referenceControl) {
+        event.preventDefault();
+        runNavigationAction("open",referenceControl.getAttribute("data-rdm-ref") || referenceControl.textContent);
+        return;
+      }
       var button = event.target.closest("[data-rdm-live-single]");
       if (!button) return;
       var action = button.getAttribute("data-rdm-live-single");
-      if (action === "previous") navigateSingle(-1);
+      if (action === "back") runNavigationAction("back");
+      else if (action === "previous") navigateSingle(-1);
       else if (action === "next") navigateSingle(1);
       else if (action === "teaching-note") showTeachingNote();
       else if (action === "crossrefs") showTeachingCrossRefs();
       else if (action === "application") showApplication();
       else if (action === "scripture") showScripture();
+      else if (action === "marking") toggleSingleMarking();
+      else if (action === "more") toggleSingleMoreControls();
+      else if (action === "load-passage") loadSingleSelectedPassage();
+      else if (action === "clear-marks") clearSingleMarks();
+      else if (action === "theme") toggleSingleTheme();
       else if (action === "fullscreen") toggleSingleFullscreen();
       else if (action === "exit") stopLiveTeaching();
     });
+    root.addEventListener("change",function(event){
+      if (event.target.id === "rdmLiveSingleBook") populateSingleChapterOptions(event.target.value,1);
+      if (event.target.id === "rdmLiveSingleMarkTool") singleMarkTool = event.target.value || "highlight";
+      if (event.target.id === "rdmLiveSingleMarkColor") singleMarkColor = event.target.value || "gold";
+    });
+    get("rdmLiveSinglePassage").addEventListener("click",handleSinglePassageMark);
     return root;
+  }
+
+  function chapterCountForBook(book){
+    try {
+      var list = typeof verseCounts !== "undefined" && verseCounts ? verseCounts[book] : null;
+      if (Array.isArray(list) && list.length) return list.length;
+    } catch (_) {}
+    var originalBook = get("book"), originalChapter = get("chapter");
+    if (!originalBook || !originalChapter) return 1;
+    var oldBook = originalBook.value, oldChapter = originalChapter.value;
+    try {
+      originalBook.value = book;
+      if (typeof fillChapters === "function") fillChapters();
+      var count = originalChapter.options.length || 1;
+      originalBook.value = oldBook;
+      if (typeof fillChapters === "function") fillChapters();
+      originalChapter.value = oldChapter;
+      return count;
+    } catch (_) {
+      originalBook.value = oldBook;
+      originalChapter.value = oldChapter;
+      return 1;
+    }
+  }
+  var LIVE_BIBLE_BOOKS = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+    "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon",
+    "Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi",
+    "Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"
+  ];
+  function populateSingleBookOptions(selected){
+    var target = get("rdmLiveSingleBook"), original = get("book");
+    if (!target) return;
+    if (!target.options.length) {
+      var source = original && original.options && original.options.length ? Array.prototype.map.call(original.options,function(option){ return {text:option.textContent,value:option.value}; }) : LIVE_BIBLE_BOOKS.map(function(book){ return {text:book,value:book}; });
+      source.forEach(function(item){
+        var option = document.createElement("option");
+        option.textContent = item.text;
+        option.value = item.value;
+        target.appendChild(option);
+      });
+    }
+    target.value = selected || (original ? original.value : "Genesis");
+  }
+  function populateSingleChapterOptions(book,selected){
+    var target = get("rdmLiveSingleChapter");
+    if (!target) return;
+    var count = chapterCountForBook(book);
+    target.innerHTML = "";
+    for (var i=1;i<=count;i+=1) target.add(new Option(String(i),String(i)));
+    target.value = String(selected || 1);
+  }
+  function syncSingleNavigationControls(snapshot){
+    var controls = currentControlState();
+    populateSingleBookOptions(controls.book);
+    populateSingleChapterOptions(controls.book,controls.chapter);
+    var range = get("rdmLiveSingleRange"); if (range) range.value = controls.range;
+    var history = snapshot.history || {};
+    var back = get("rdmLiveSingleBack");
+    if (back) {
+      back.hidden = !history.canBack;
+      back.textContent = history.canBack ? ("← Back to " + (history.label || "Previous Scripture")) : "← Back";
+    }
+    var tool = get("rdmLiveSingleMarkTool"); if (tool) tool.value = singleMarkTool;
+    var color = get("rdmLiveSingleMarkColor"); if (color) color.value = singleMarkColor;
+  }
+  function toggleSingleMoreControls(){
+    var panel = get("rdmLiveSingleMorePanel"), button = get("rdmLiveSingleMore");
+    if (!panel) return;
+    panel.hidden = !panel.hidden;
+    if (button) button.textContent = panel.hidden ? "Passage & Marking" : "Hide Extra Controls";
+  }
+  function toggleSingleMarking(force){
+    singleMarkingEnabled = typeof force === "boolean" ? force : !singleMarkingEnabled;
+    var root = get("rdmLiveSingleScreenRoot"), button = get("rdmLiveSingleMarking");
+    if (root) root.classList.toggle("marking-enabled",singleMarkingEnabled);
+    if (button) button.textContent = singleMarkingEnabled ? "Marking: On (M)" : "Marking: Off (M)";
+  }
+  function loadSingleSelectedPassage(){
+    var book = get("rdmLiveSingleBook"), chapter = get("rdmLiveSingleChapter"), range = get("rdmLiveSingleRange");
+    if (!book || !chapter || !range) return;
+    var rangeValue = /^(5|10|full)$/.test(range.value) ? range.value : "5";
+    var originalRange = get("rangeSize");
+    if (originalRange) originalRange.value = rangeValue;
+    try {
+      localStorage.setItem("ironSharpenerUnified.sectionSize",rangeValue);
+      localStorage.setItem("ironSharpenerUnified.sectionSizeUserTouched.v179","1");
+    } catch (_) {}
+    var ref = book.value + " " + chapter.value;
+    if (rangeValue !== "full") ref += ":1-" + rangeValue;
+    runNavigationAction("open",ref);
+  }
+  function setOriginalMarkTool(){
+    var color = /^(gold|blue|green|red|purple|amber)$/.test(singleMarkColor) ? singleMarkColor : "gold";
+    var tool = singleMarkTool || "highlight";
+    window.__rdmSelectedTeachingMarkColor = color;
+    try { localStorage.setItem("ironSharpenerUnified.selectedTeachingMarkColor",color); } catch (_) {}
+    var originalTool = tool === "highlight" ? ("highlight-" + color) : (tool === "pointer" ? "pointer" : tool);
+    try {
+      if (typeof setTool === "function") setTool(originalTool);
+      else {
+        var option = document.querySelector("#teacherToolsPanel .tool-option[data-tool='" + originalTool + "'],.tool-option[data-tool='" + originalTool + "']");
+        if (option) option.click();
+      }
+    } catch (_) {}
+    return originalTool;
+  }
+  function verseTextNodes(verse){
+    var nodes = [];
+    if (!verse) return nodes;
+    var walker = document.createTreeWalker(verse,NodeFilter.SHOW_TEXT,{acceptNode:function(node){
+      var parent = node.parentElement;
+      return parent && parent.closest(".vnum") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+    }});
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    return nodes;
+  }
+  function selectionOffsetsInVerse(verse,range){
+    var nodes = verseTextNodes(verse), start = 0, end = 0, total = 0, started = false, ended = false;
+    nodes.forEach(function(node){
+      if (node === range.startContainer) { start = total + range.startOffset; started = true; }
+      if (!started && node.contains && node.contains(range.startContainer)) started = true;
+      if (node === range.endContainer) { end = total + range.endOffset; ended = true; }
+      total += node.nodeValue.length;
+    });
+    if (!started || !ended || end <= start) return null;
+    return {start:start,end:end};
+  }
+  function rangeForOffsets(verse,offsets){
+    var nodes = verseTextNodes(verse), total = 0, startNode = null, endNode = null, startOffset = 0, endOffset = 0;
+    nodes.forEach(function(node){
+      var next = total + node.nodeValue.length;
+      if (!startNode && offsets.start >= total && offsets.start <= next) { startNode = node; startOffset = Math.min(node.nodeValue.length,offsets.start-total); }
+      if (!endNode && offsets.end >= total && offsets.end <= next) { endNode = node; endOffset = Math.min(node.nodeValue.length,offsets.end-total); }
+      total = next;
+    });
+    if (!startNode || !endNode) return null;
+    var range = document.createRange();
+    range.setStart(startNode,startOffset); range.setEnd(endNode,endOffset);
+    return range;
+  }
+  function inlineClassForSingleMark(){
+    var color = /^(gold|blue|green|red|purple|amber)$/.test(singleMarkColor) ? singleMarkColor : "gold";
+    if (singleMarkTool === "highlight") return "inline-highlight-" + color;
+    if (singleMarkTool === "underline") return "inline-underline rdm-inline-mark-" + color + " inline-mark-" + color;
+    if (singleMarkTool === "circle") return "inline-circle rdm-inline-mark-" + color + " inline-mark-" + color;
+    if (singleMarkTool === "box") return "inline-box rdm-inline-mark-" + color + " inline-mark-" + color;
+    return "";
+  }
+  function applySingleInlineMark(originalVerse,originalRange){
+    if (!originalVerse || !originalRange) return false;
+    var className = inlineClassForSingleMark();
+    if (!className) return false;
+    var span = document.createElement("span");
+    span.className = className;
+    try {
+      originalRange.surroundContents(span);
+    } catch (_) {
+      try {
+        var contents = originalRange.extractContents();
+        span.appendChild(contents);
+        originalRange.insertNode(span);
+      } catch (_) { return false; }
+    }
+    originalVerse.classList.add("rdm-stack-marked");
+    try { if (typeof saveMarks === "function") saveMarks(); } catch (_) {}
+    return true;
+  }
+  function invokeOriginalMark(originalVerse,originalRange){
+    setOriginalMarkTool();
+    if (originalRange && applySingleInlineMark(originalVerse,originalRange)) {
+      try { var selected = window.getSelection(); if (selected) selected.removeAllRanges(); } catch (_) {}
+      schedulePublishBurst("single-inline-mark",[0,80,240,520]);
+      return;
+    }
+    try {
+      if (typeof useActiveTool === "function") useActiveTool(originalVerse);
+      else originalVerse.click();
+    } catch (_) {
+      try { originalVerse.click(); } catch (_) {}
+    }
+    schedulePublishBurst("single-mark",[0,80,240,520]);
+  }
+  function handleSinglePassageMark(event){
+    if (!singleMarkingEnabled || currentAudienceView.type !== "scripture") return;
+    var cloneVerse = event.target.closest(".verse[data-v]");
+    if (!cloneVerse) return;
+    event.preventDefault();
+    var originalVerse = document.querySelector("#passage .verse[data-v='" + cloneVerse.getAttribute("data-v") + "']");
+    if (!originalVerse) return;
+    var selection = window.getSelection(), originalRange = null;
+    if (selection && !selection.isCollapsed && selection.rangeCount && cloneVerse.contains(selection.getRangeAt(0).commonAncestorContainer) && /^(highlight|underline|circle|box)$/.test(singleMarkTool)) {
+      var offsets = selectionOffsetsInVerse(cloneVerse,selection.getRangeAt(0));
+      if (offsets) originalRange = rangeForOffsets(originalVerse,offsets);
+    }
+    invokeOriginalMark(originalVerse,originalRange);
+  }
+  function clearSingleMarks(){
+    try {
+      if (typeof clearMarks === "function") clearMarks();
+      else {
+        var button = get("clearMarks") || get("obsClearMarks");
+        if (button) button.click();
+      }
+    } catch (_) {}
+    schedulePublishBurst("single-clear-marks",[0,100,300]);
+  }
+  function toggleSingleTheme(){
+    try {
+      if (typeof setThemeMode === "function") setThemeMode(document.body.classList.contains("dark") ? "cream" : "dark");
+      else {
+        var button = get("themeBtn");
+        if (button) button.click();
+      }
+    } catch (_) {}
+    schedulePublishBurst("single-theme",[0,80,220]);
   }
 
   function rememberAndHidePrivateNodes(root){
@@ -30649,6 +31093,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         textNode.textContent = view.text || "";
       }
     }
+    syncSingleNavigationControls(snapshot);
     var main = root.querySelector(".rdm-live-single-main");
     if (main) main.scrollTop = 0;
   }
@@ -30675,8 +31120,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var root = createSingleScreenRoot();
     rememberAndHidePrivateNodes(root);
     document.body.classList.add("rdm-live-single-screen");
-    document.documentElement.classList.remove("rdm-v184-single-prepaint");
+    document.documentElement.classList.remove("rdm-v185-single-prepaint");
     document.body.style.visibility = "visible";
+    toggleSingleMarking(false);
     renderSingleSnapshot(buildSnapshot("live"));
     setTeacherStatus("Single-Screen Display active — private workspace hidden");
     if (requestFullscreenNow) requestSingleFullscreen();
@@ -30765,6 +31211,14 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       else actions.appendChild(button);
       button.addEventListener("click",openLiveDialog);
 
+      var returnButton = document.createElement("button");
+      returnButton.id = "rdmReturnAudienceScripture";
+      returnButton.type = "button";
+      returnButton.className = "secondary rdm-live-only-control";
+      returnButton.textContent = "Audience: Return to Scripture";
+      returnButton.addEventListener("click",showScripture);
+      actions.appendChild(returnButton);
+
       var status = document.createElement("span");
       status.id = "rdmLiveTeacherStatus";
       status.textContent = "Live Teaching active";
@@ -30813,34 +31267,48 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function installResourceAudienceButtons(){
     if (!liveActive) return;
     Array.prototype.forEach.call(document.querySelectorAll(".resource-instance-panel"),function(panel){
-      if (panel.querySelector("[data-rdm-live-resource-show]")) return;
       var head = panel.querySelector(".teacher-pop-head");
       var close = head && head.querySelector(".teacher-pop-close");
       if (!head) return;
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "rdm-live-resource-action rdm-live-only-control";
-      button.setAttribute("data-rdm-live-resource-show","1");
-      button.textContent = "Show on Audience Display";
-      button.addEventListener("click",function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        showResource(panel.dataset.resourceKey || "");
-      });
-      head.insertBefore(button,close || null);
+      if (!panel.querySelector("[data-rdm-live-resource-show]")) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "rdm-live-resource-action rdm-live-only-control";
+        button.setAttribute("data-rdm-live-resource-show","1");
+        button.textContent = "Show on Audience Display";
+        button.addEventListener("click",function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          showResource(panel.dataset.resourceKey || "");
+        });
+        head.insertBefore(button,close || null);
+      }
+      if (!panel.querySelector("[data-rdm-live-resource-return]")) {
+        var returnButton = document.createElement("button");
+        returnButton.type = "button";
+        returnButton.className = "secondary rdm-live-resource-action rdm-live-resource-return rdm-live-only-control";
+        returnButton.setAttribute("data-rdm-live-resource-return","1");
+        returnButton.textContent = "Return Audience to Scripture";
+        returnButton.addEventListener("click",function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          showScripture();
+        });
+        head.insertBefore(returnButton,close || null);
+      }
     });
   }
 
   function wrapResourcePanelOpener(){
     var original = window.openResourceInstancePanel;
-    if (typeof original !== "function" || original.__rdmV184LiveWrapped) return;
+    if (typeof original !== "function" || original.__rdmV185LiveWrapped) return;
     function wrappedResourcePanelOpener(){
       var result = original.apply(this,arguments);
       if (liveActive) setTimeout(installResourceAudienceButtons,0);
       return result;
     }
-    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV184LiveWrapped",{value:true}); } catch (_) { wrappedResourcePanelOpener.__rdmV184LiveWrapped = true; }
-    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV184Original",{value:original}); } catch (_) {}
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV185LiveWrapped",{value:true}); } catch (_) { wrappedResourcePanelOpener.__rdmV185LiveWrapped = true; }
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV185Original",{value:original}); } catch (_) {}
     window.openResourceInstancePanel = wrappedResourcePanelOpener;
   }
 
@@ -30899,6 +31367,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if (target.closest("#closeInternalCrossRefs")) {
       if (currentAudienceView.type === "built-in-crossrefs") setTimeout(showScripture,0);
       return;
+    }
+
+    var clickedReferenceControl = target.closest(".cross-ref-link,.internal-xref-link,.doctrine-related-topic-btn,.resource-instance-panel button,.resource-instance-panel a");
+    if (clickedReferenceControl && !clickedReferenceControl.closest("[data-rdm-live-resource-show],[data-rdm-live-resource-return],.teacher-pop-close")) {
+      var clickedRef = referenceFromNode(clickedReferenceControl);
+      if (clickedRef && currentAudienceView.type !== "scripture") currentAudienceView = { type: "scripture" };
     }
 
     var resourceClose = target.closest(".resource-instance-panel .teacher-pop-close");
@@ -30966,6 +31440,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     else if (key === "c") { event.preventDefault(); showTeachingCrossRefs(); }
     else if (key === "a") { event.preventDefault(); showApplication(); }
     else if (key === "s" || key === "0") { event.preventDefault(); showScripture(); }
+    else if (key === "b") { event.preventDefault(); runNavigationAction("back"); }
+    else if (key === "m") { event.preventDefault(); toggleSingleMarking(); }
     else if (key === "f") { event.preventDefault(); toggleSingleFullscreen(); }
     else if (key === "x") { event.preventDefault(); stopLiveTeaching(); }
   }
@@ -30975,7 +31451,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var mode = safeSessionGet(MODE_KEY) || "";
     var session = safeSessionGet(SESSION_KEY) || "";
     if (!active || (mode !== "dual" && mode !== "single")) {
-      document.documentElement.classList.remove("rdm-v184-single-prepaint");
+      document.documentElement.classList.remove("rdm-v185-single-prepaint");
       if (document.body) document.body.style.visibility = "visible";
       return;
     }
@@ -30988,7 +31464,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     } else {
       setTeacherStatus("Dual-Window Live Teaching restored — reopen the Audience Display if needed");
       schedulePublishBurst("session-restore",[0,300,900]);
-      document.documentElement.classList.remove("rdm-v184-single-prepaint");
+      document.documentElement.classList.remove("rdm-v185-single-prepaint");
       document.body.style.visibility = "visible";
     }
   }
@@ -31011,7 +31487,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     window.__RDM_ACTIVE_BUILD = BUILD;
   }
 
-  window.__rdmLiveTeachingV184 = {
+  window.__rdmLiveTeachingV185 = {
     version: BUILD,
     startDual: startDualWindow,
     startSingle: function(){ return enterSingleScreen(true); },
@@ -31023,6 +31499,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     showApplication: showApplication,
     showBuiltInCrossRefs: showBuiltInCrossRefs,
     showResource: showResource,
+    back: function(){ return runNavigationAction("back"); },
+    openReference: function(ref){ return runNavigationAction("open",ref); },
     openDialog: openLiveDialog,
     state: function(){ return {active:liveActive,mode:liveMode,session:liveSessionId,view:currentAudienceView}; }
   };
@@ -31032,8 +31510,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
-<script id="rdm-v184-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v184-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v184-live-teaching-mode"; })();
+<script id="rdm-v185-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v185-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v185-live-teaching-mode"; })();
 </script>
 
 </body>
