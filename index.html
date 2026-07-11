@@ -30104,14 +30104,14 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 
-<!-- v187 — Live Teaching final presentation polish: cream reference colors, in-scope PWA audience launch, and dark status harmony. -->
+<!-- v188 — Restore the clean injected Audience Display popup while preserving all locked v187 Live Teaching behavior. -->
 <script id="rdm-v186-live-teaching-mode-script">
 (function rdmV186LiveTeachingMode(){
   "use strict";
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v187-live-teaching-mode";
+  var BUILD = "v188-live-teaching-mode";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30520,6 +30520,32 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     try { if (audienceWindow.closed) stopLiveTeaching(); } catch (_) {}
   }
 
+  function rehydrateAudiencePopup(attempt){
+    if (!liveActive || liveMode !== "dual") return;
+    attempt = Number(attempt || 0);
+    try {
+      if (!audienceWindow || audienceWindow.closed) {
+        stopLiveTeaching();
+        return;
+      }
+      var html = audienceDocument(liveSessionId);
+      safeLocalSet(DOCUMENT_PREFIX + liveSessionId,html);
+      audienceWindow.document.open();
+      audienceWindow.document.write(html);
+      audienceWindow.document.close();
+      clearAudienceCloseTimer();
+      setTeacherStatus("Audience Display reconnected");
+      schedulePublishBurst("audience-rehydrate",[0,120,450,900]);
+      try { audienceWindow.focus(); } catch (_) {}
+      return;
+    } catch (_) {}
+    if (attempt < 3) {
+      setTimeout(function(){ rehydrateAudiencePopup(attempt + 1); },180 + (attempt * 170));
+    } else {
+      scheduleAudienceClosedShutdown();
+    }
+  }
+
   function handleIncomingMessage(data, source){
     if (!data || data.tag !== MESSAGE_TAG) return;
     if (!liveSessionId || data.session !== liveSessionId) return;
@@ -30530,6 +30556,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         setTeacherStatus(data.kind === "audience-ready" ? "Audience Display connected" : "Audience Display reconnected");
         publishSnapshot("audience-request");
       }
+      return;
+    }
+    if (data.kind === "audience-reload-or-close") {
+      clearAudienceCloseTimer();
+      setTimeout(function(){ rehydrateAudiencePopup(0); },140);
       return;
     }
     if (data.kind === "audience-closing") {
@@ -30782,7 +30813,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       var status = get("audienceConnection");
       if (status && !status.classList.contains("connected")) setStatus("WAITING FOR TEACHER",false);
     },1800);
-    window.addEventListener("pagehide",function(){ send("audience-closing"); });
+    window.addEventListener("pagehide",function(){ send("audience-reload-or-close"); });
   }
 
   function audienceCss(){
@@ -30890,27 +30921,28 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function openAudienceWindow(){
     var session = ensureSession(false);
     var html = audienceDocument(session);
-    var pageUrl = audiencePageUrl(session);
-    var name = "IronSharpenerAudienceV186_" + session.replace(/[^a-z0-9_-]/gi,"");
+    var name = "IronSharpenerAudienceV188_" + session.replace(/[^a-z0-9_-]/gi,"");
     safeLocalSet(DOCUMENT_PREFIX + session,html);
     try {
-      if (isInstalledDisplayMode()) {
-        /* Direct, in-scope PWA launch avoids Chromium's black popup security/location strip. */
-        audienceWindow = window.open(pageUrl,name);
-      } else {
-        /* Browser fallback remains a separate resizable presentation window. */
-        audienceWindow = window.open(pageUrl,name,"popup=yes,toolbar=no,location=no,menubar=no,status=no,width=1365,height=768,resizable=yes,scrollbars=yes");
-      }
+      /* Keep the presentation in a clean injected popup. Do not navigate or rewrite
+         the popup URL: Chromium can add an origin-disclosure strip when a script-
+         created presentation window is assigned a normal website location. */
+      audienceWindow = window.open("",name,"popup=yes,toolbar=no,location=no,menubar=no,status=no,width=1365,height=768,resizable=yes,scrollbars=yes");
     } catch (_) { audienceWindow = null; }
     if (!audienceWindow) {
       setTeacherStatus("The Audience Display was blocked. Allow pop-ups for Iron Sharpener, then choose Open Audience Display again.");
       return false;
     }
     try {
-      setTimeout(function(){
-        try { if (audienceWindow && !audienceWindow.closed && audienceWindow.resizeTo) audienceWindow.resizeTo(1365,768); } catch (_) {}
-      },180);
-    } catch (_) {}
+      audienceWindow.document.open();
+      audienceWindow.document.write(html);
+      audienceWindow.document.close();
+    } catch (_) {
+      try { audienceWindow.close(); } catch (_) {}
+      audienceWindow = null;
+      setTeacherStatus("The Audience Display could not be prepared. Close any old Audience Display window and try again.");
+      return false;
+    }
     try { audienceWindow.focus(); } catch (_) {}
     setTeacherStatus("Audience Display opened — capture that window in OBS, not the Teacher Window");
     schedulePublishBurst("audience-open",[0,120,450,1000]);
@@ -31773,8 +31805,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
-<script id="rdm-v187-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v187-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v187-live-teaching-mode"; })();
+<script id="rdm-v188-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v188-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v188-live-teaching-mode"; })();
 </script>
 
 </body>
