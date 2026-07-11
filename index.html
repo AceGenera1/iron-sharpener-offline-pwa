@@ -30111,7 +30111,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v188-live-teaching-mode";
+  var BUILD = "v189-live-teaching-mode";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -31805,8 +31805,134 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
-<script id="rdm-v188-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v188-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v188-live-teaching-mode"; })();
+<!-- v189 — In Dual-Window Live Teaching, theme changes preserve every open private teaching panel. -->
+<script id="rdm-v189-live-theme-panel-preservation-script">
+(function rdmV189LiveThemePanelPreservation(){
+  "use strict";
+  if (window.__rdmV189LiveThemePanelPreservationInstalled) return;
+  window.__rdmV189LiveThemePanelPreservationInstalled = true;
+
+  var pendingSnapshot = null;
+  var clearPendingTimer = 0;
+  var PANEL_SELECTOR = [
+    "#teacherToolsPanel",
+    "#studyResourcesPanel",
+    "#teachingMethodPanel",
+    "#ironPromptPanel",
+    "#obsCrossRefsPanel",
+    "#obsNavigatorPanel",
+    ".resource-instance-panel"
+  ].join(",");
+
+  function dualWindowLiveIsActive(){
+    try {
+      var api = window.__rdmLiveTeachingV186;
+      var state = api && typeof api.state === "function" ? api.state() : null;
+      return !!(state && state.active && state.mode === "dual");
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function panelIsOpen(panel){
+    if (!panel) return false;
+    if (panel.classList && panel.classList.contains("resource-instance-panel")) return true;
+    if (panel.classList && panel.classList.contains("open")) return true;
+    return panel.getAttribute("aria-hidden") === "false";
+  }
+
+  function capturePanel(panel){
+    return {
+      node: panel,
+      parent: panel.parentNode,
+      next: panel.nextSibling,
+      classValue: panel.getAttribute("class"),
+      styleValue: panel.getAttribute("style"),
+      ariaHidden: panel.getAttribute("aria-hidden"),
+      hidden: panel.hasAttribute("hidden"),
+      scrollTop: panel.scrollTop,
+      scrollLeft: panel.scrollLeft
+    };
+  }
+
+  function captureOpenPanelState(){
+    var panels = Array.prototype.filter.call(document.querySelectorAll(PANEL_SELECTOR), panelIsOpen);
+    var activeResource = "";
+    try {
+      activeResource = typeof activeResourcePanel !== "undefined" ? activeResourcePanel : (window.activeResourcePanel || "");
+    } catch (_) {
+      activeResource = window.activeResourcePanel || "";
+    }
+    return {
+      panels: panels.map(capturePanel),
+      activeResource: activeResource
+    };
+  }
+
+  function restoreAttribute(node,name,value){
+    if (value == null) node.removeAttribute(name);
+    else node.setAttribute(name,value);
+  }
+
+  function restorePanelState(snapshot){
+    if (!snapshot || !dualWindowLiveIsActive()) return;
+    snapshot.panels.forEach(function(saved){
+      var panel = saved.node;
+      if (!panel) return;
+      if (!panel.isConnected && saved.parent && saved.parent.isConnected) {
+        var before = saved.next && saved.next.parentNode === saved.parent ? saved.next : null;
+        try { saved.parent.insertBefore(panel,before); } catch (_) {}
+      }
+      if (!panel.isConnected) return;
+      restoreAttribute(panel,"class",saved.classValue);
+      restoreAttribute(panel,"style",saved.styleValue);
+      restoreAttribute(panel,"aria-hidden",saved.ariaHidden);
+      if (saved.hidden) panel.setAttribute("hidden","");
+      else panel.removeAttribute("hidden");
+      try { panel.scrollTop = saved.scrollTop; panel.scrollLeft = saved.scrollLeft; } catch (_) {}
+    });
+    try {
+      if (typeof activeResourcePanel !== "undefined") activeResourcePanel = snapshot.activeResource;
+    } catch (_) {}
+    try { window.activeResourcePanel = snapshot.activeResource; } catch (_) {}
+  }
+
+  function scheduleRestore(snapshot){
+    if (!snapshot || !snapshot.panels.length) return;
+    [0,60,180,420].forEach(function(delay){
+      setTimeout(function(){ restorePanelState(snapshot); },delay);
+    });
+  }
+
+  function themeControlFromEvent(event){
+    var target = event && event.target;
+    return target && target.closest ? target.closest("#themeBtn,#rdmMobileThemeToggle") : null;
+  }
+
+  function rememberBeforeTheme(event){
+    if (!themeControlFromEvent(event) || !dualWindowLiveIsActive()) return;
+    pendingSnapshot = captureOpenPanelState();
+    if (clearPendingTimer) clearTimeout(clearPendingTimer);
+    clearPendingTimer = setTimeout(function(){ pendingSnapshot = null; },900);
+  }
+
+  function preserveAfterTheme(event){
+    if (!themeControlFromEvent(event) || !dualWindowLiveIsActive()) return;
+    var snapshot = pendingSnapshot || captureOpenPanelState();
+    pendingSnapshot = null;
+    if (clearPendingTimer) clearTimeout(clearPendingTimer);
+    clearPendingTimer = 0;
+    scheduleRestore(snapshot);
+  }
+
+  /* Pointerdown remembers the state before any older capture handler can react.
+     Click also covers keyboard activation and programmatic button clicks. */
+  window.addEventListener("pointerdown",rememberBeforeTheme,true);
+  window.addEventListener("click",preserveAfterTheme,true);
+})();
+</script>
+<script id="rdm-v189-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v189-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v189-live-teaching-mode"; })();
 </script>
 
 </body>
