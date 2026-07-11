@@ -4,6 +4,27 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<script id="rdm-v186-live-audience-restore">
+(function(){
+  "use strict";
+  try {
+    var params = new URLSearchParams(window.location.search || "");
+    var session = params.get("rdm-live-audience");
+    if (!session) return;
+    var key = "ironSharpenerLiveTeaching.v186.document." + session;
+    var html = localStorage.getItem(key);
+    if (html) {
+      document.open();
+      document.write(html);
+      document.close();
+      return;
+    }
+    params.delete("rdm-live-audience");
+    var cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + (window.location.hash || "");
+    history.replaceState(null,"",cleanUrl);
+  } catch (_) {}
+})();
+</script>
 <style id="rdm-v176-pc-controls-style">
 #rdmV176DesktopControlsToast {
   position: fixed;
@@ -3428,19 +3449,19 @@ html.obs #discipleJournalBtn { display: none !important; }
 <!-- v170 — Fresh Home Screen first-open responsiveness.
      Service-worker registration is deferred until after the first interactive paint,
      and v70 never navigates/reloads the active page during activation. -->
-<!-- v185 Live Teaching Mode prepaint guard: only used when restoring Single-Screen Display after a refresh. -->
-<script id="rdm-v185-live-teaching-prepaint">
+<!-- v186 Live Teaching Mode prepaint guard: only used when restoring Single-Screen Display after a refresh. -->
+<script id="rdm-v186-live-teaching-prepaint">
 (function(){
   try {
-    if (sessionStorage.getItem("ironSharpenerLiveTeaching.v185.active") === "1" &&
-        sessionStorage.getItem("ironSharpenerLiveTeaching.v185.mode") === "single") {
-      document.documentElement.classList.add("rdm-v185-single-prepaint");
+    if (sessionStorage.getItem("ironSharpenerLiveTeaching.v186.active") === "1" &&
+        sessionStorage.getItem("ironSharpenerLiveTeaching.v186.mode") === "single") {
+      document.documentElement.classList.add("rdm-v186-single-prepaint");
     }
   } catch (_) {}
 })();
 </script>
-<style id="rdm-v185-live-teaching-style">
-  html.rdm-v185-single-prepaint body { visibility: hidden !important; }
+<style id="rdm-v186-live-teaching-style">
+  html.rdm-v186-single-prepaint body { visibility: hidden !important; }
 
   #liveTeachingBtn.rdm-live-active {
     background: #8f3428 !important;
@@ -3777,7 +3798,7 @@ html.obs #discipleJournalBtn { display: none !important; }
   #rdmLiveSingleScreenRoot .inline-highlight-purple { background:rgba(168,116,230,.38); }
   #rdmLiveSingleScreenRoot .inline-highlight-amber { background:rgba(232,132,45,.40); }
 
-  /* v185: Single-Screen now mirrors the locked Iron Sharpener scripture theme. */
+  /* v186: Single-Screen now mirrors the locked Iron Sharpener scripture theme. */
   #rdmLiveSingleScreenRoot {
     --gold:#d7a84f; --bright:#f8d987; --paper:#f4efe3; --ink:#2b394f; --line:rgba(215,168,79,.45);
     --rdm-mark-gold:#d7a84f; --rdm-mark-blue:#4f8fe8; --rdm-mark-green:#3fb377; --rdm-mark-red:#d44d4d; --rdm-mark-purple:#9a65d8; --rdm-mark-amber:#e8842d;
@@ -3797,7 +3818,7 @@ html.obs #discipleJournalBtn { display: none !important; }
   #rdmLiveSingleScreenRoot.dark .rdm-live-scripture-source { color:#f8d987 !important; }
   .rdm-live-divider { height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative; }
   .rdm-live-divider::after { content:"◆";position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#f4efe3;padding:0 10px;font-size:14px; }
-  #rdmLiveSingleScreenRoot.dark .rdm-live-divider::after { background:#294843; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-divider::after { background:#355a54; }
   .rdm-live-passage .verse { font-size:clamp(24px,2.15vw,36px) !important; line-height:1.5 !important; margin:0 0 14px !important; color:var(--ink) !important; }
   .rdm-live-panel-text { font:600 clamp(20px,1.8vw,29px)/1.62 "Segoe UI",Arial,sans-serif !important; }
   .rdm-live-panel-html { font:600 clamp(18px,1.45vw,25px)/1.65 "Segoe UI",Arial,sans-serif !important; }
@@ -3838,6 +3859,74 @@ html.obs #discipleJournalBtn { display: none !important; }
     .rdm-live-single-main { padding-left: 14px !important; padding-right: 14px !important; }
     .rdm-live-scripture-card,.rdm-live-panel-card { padding:22px 18px !important; }
   }
+
+
+  /* v186 — Live controls obey the locked cream/brown and dark/gold theme rules. */
+  body:not(.dark) #rdmShowTeachingCrossRefsAudience,
+  body:not(.dark) [data-rdm-live-resource-show],
+  body:not(.dark) [data-rdm-live-built-in-show],
+  body:not(.dark) [data-rdm-live-teaching-method-show],
+  body:not(.dark) [data-rdm-live-iron-show] {
+    background: linear-gradient(180deg,#8A5A13 0%,#6F4307 100%) !important;
+    background-color:#7A4C06 !important;
+    color:#FFF8EA !important;
+    border:1.8px solid #7A4C06 !important;
+    box-shadow:none !important;
+    opacity:1 !important;
+    filter:none !important;
+  }
+  body:not(.dark) #rdmShowTeachingCrossRefsAudience:hover,
+  body:not(.dark) [data-rdm-live-resource-show]:hover,
+  body:not(.dark) [data-rdm-live-built-in-show]:hover,
+  body:not(.dark) [data-rdm-live-teaching-method-show]:hover,
+  body:not(.dark) [data-rdm-live-iron-show]:hover {
+    background:linear-gradient(180deg,#9A6618 0%,#7A4C06 100%) !important;
+    color:#FFF8EA !important;
+  }
+  body.dark #rdmShowTeachingCrossRefsAudience,
+  body.dark [data-rdm-live-resource-show],
+  body.dark [data-rdm-live-built-in-show],
+  body.dark [data-rdm-live-teaching-method-show],
+  body.dark [data-rdm-live-iron-show] {
+    background:linear-gradient(180deg,#f8d987 0%,#d7a84f 100%) !important;
+    color:#203D39 !important;
+    border:2px solid #fff1c0 !important;
+    box-shadow:0 0 14px rgba(248,217,135,.20),0 8px 18px rgba(0,0,0,.28) !important;
+    opacity:1 !important;
+  }
+
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-controls {
+    background:rgba(255,248,234,.97) !important;
+    color:#203D39 !important;
+    border-color:rgba(122,76,6,.68) !important;
+    box-shadow:0 12px 35px rgba(70,40,0,.22) !important;
+  }
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-controls button:not(.secondary) {
+    background:linear-gradient(180deg,#8A5A13 0%,#6F4307 100%) !important;
+    color:#FFF8EA !important;
+    border:1.8px solid #7A4C06 !important;
+    box-shadow:none !important;
+  }
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-controls button.secondary {
+    background:#FFF7E6 !important;
+    color:#203D39 !important;
+    border:1.5px solid #C58A2A !important;
+    box-shadow:none !important;
+  }
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-private-note,
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-more label { color:#203D39 !important; }
+  #rdmLiveSingleScreenRoot:not(.dark) .rdm-live-single-more { border-top-color:rgba(122,76,6,.40) !important; }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-single-controls {
+    background:rgba(16,43,41,.96) !important;
+    color:#FFF3D7 !important;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-single-controls button:not(.secondary) {
+    background:linear-gradient(180deg,#f8d987 0%,#d7a84f 100%) !important;
+    color:#203D39 !important;
+    border:2px solid #fff1c0 !important;
+    opacity:1 !important;
+  }
+
 </style>
 
 </head>
@@ -30012,36 +30101,37 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 
-<!-- v185 — Optional Live Teaching Mode: dual-window Audience Display + private-safe Single-Screen Display. -->
-<script id="rdm-v185-live-teaching-mode-script">
-(function rdmV185LiveTeachingMode(){
+<!-- v186 — Optional Live Teaching Mode: dual-window Audience Display + private-safe Single-Screen Display. -->
+<script id="rdm-v186-live-teaching-mode-script">
+(function rdmV186LiveTeachingMode(){
   "use strict";
-  if (window.__rdmLiveTeachingV185Installed) return;
-  window.__rdmLiveTeachingV185Installed = true;
+  if (window.__rdmLiveTeachingV186Installed) return;
+  window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v185-live-teaching-mode";
-  var CHANNEL_NAME = "iron-sharpener-live-teaching-v185";
-  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v185.active";
-  var MODE_KEY = "ironSharpenerLiveTeaching.v185.mode";
-  var SESSION_KEY = "ironSharpenerLiveTeaching.v185.session";
-  var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v185.snapshot.";
-  var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v185.command.";
-  var MESSAGE_TAG = "ironSharpenerLiveTeaching.v185";
+  var BUILD = "v186-live-teaching-mode";
+  var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
+  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
+  var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
+  var SESSION_KEY = "ironSharpenerLiveTeaching.v186.session";
+  var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v186.snapshot.";
+  var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v186.command.";
+  var DOCUMENT_PREFIX = "ironSharpenerLiveTeaching.v186.document.";
+  var MESSAGE_TAG = "ironSharpenerLiveTeaching.v186";
 
   var liveActive = false;
   var liveMode = "";
   var liveSessionId = "";
   var currentAudienceView = { type: "scripture" };
   var audienceWindow = null;
-  var audienceBlobUrl = "";
-  var audienceBlobSession = "";
   var channel = null;
   var publishTimers = [];
+  var audienceCloseTimer = 0;
   var singlePrivateState = [];
   var restoringSingle = false;
   var singleMarkingEnabled = false;
   var singleMarkTool = "highlight";
   var singleMarkColor = "gold";
+  var singlePreferredRange = "";
   var handledAudienceCommands = Object.create(null);
 
   function get(id){ return document.getElementById(id); }
@@ -30123,9 +30213,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       else if (action === "open" && reference && typeof api.open === "function") result = api.open(reference);
     } catch (_) { result = false; }
     return Promise.resolve(result).then(function(value){
+      reassertSinglePreferredRange();
       schedulePublishBurst("live-navigation-action",[0,100,320,800]);
       return value;
     },function(){
+      reassertSinglePreferredRange();
       schedulePublishBurst("live-navigation-action",[0,180,600]);
       return false;
     });
@@ -30267,8 +30359,19 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var panels = Array.prototype.slice.call(document.querySelectorAll(".resource-instance-panel"));
     if (key) {
       for (var i=0;i<panels.length;i+=1) if (text(panels[i].dataset.resourceKey) === text(key)) return panels[i];
+      return null;
     }
     return panels.length ? panels[panels.length - 1] : null;
+  }
+
+  function helperPanelData(panelId,title){
+    var panel = get(panelId);
+    if (!panel) return null;
+    var clone = panel.cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll(".floating-panel-head,.teacher-pop-head,button,input,textarea,select,option,script,style"),function(node){ node.remove(); });
+    var html = cleanHtmlFragment(clone.innerHTML,"resource");
+    if (!hasText(clone.textContent)) return null;
+    return { title:title, html:html };
   }
 
   function resourcePanelData(key){
@@ -30319,13 +30422,31 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       return { type: type, title: "Teaching Cross References", html: teachingCrossRefsHtml() };
     }
     if (type === "built-in-crossrefs") {
-      return { type: type, title: "Built-In Cross References", html: builtInCrossRefsHtml() };
+      return {
+        type:type,
+        title:currentAudienceView.title || "Built-In Cross References",
+        html:currentAudienceView.html || builtInCrossRefsHtml()
+      };
     }
     if (type === "resource") {
+      if (currentAudienceView.html) {
+        return {
+          type:type,
+          title:currentAudienceView.title || "Study Resource",
+          html:currentAudienceView.html,
+          resourceKey:currentAudienceView.resourceKey || ""
+        };
+      }
       var resource = resourcePanelData(currentAudienceView.resourceKey);
       if (!resource) return { type: "scripture" };
-      currentAudienceView.resourceKey = resource.key;
-      return { type: type, title: resource.title, html: resource.html, resourceKey: resource.key };
+      return { type:type, title:resource.title, html:resource.html, resourceKey:resource.key };
+    }
+    if (type === "teaching-method" || type === "iron-prompts") {
+      return {
+        type:type,
+        title:currentAudienceView.title || (type === "teaching-method" ? "Teaching Method" : "I.R.O.N. Study Prompts"),
+        html:currentAudienceView.html || ""
+      };
     }
     return { type: "scripture" };
   }
@@ -30376,11 +30497,32 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return false;
   }
 
+  function clearAudienceCloseTimer(){
+    if (audienceCloseTimer) clearTimeout(audienceCloseTimer);
+    audienceCloseTimer = 0;
+  }
+  function scheduleAudienceClosedShutdown(){
+    clearAudienceCloseTimer();
+    audienceCloseTimer = setTimeout(function(){
+      audienceCloseTimer = 0;
+      if (!liveActive || liveMode !== "dual") return;
+      try {
+        if (audienceWindow && !audienceWindow.closed) return;
+      } catch (_) {}
+      stopLiveTeaching();
+    },700);
+  }
+  function checkAudienceWindowState(){
+    if (!liveActive || liveMode !== "dual" || !audienceWindow) return;
+    try { if (audienceWindow.closed) stopLiveTeaching(); } catch (_) {}
+  }
+
   function handleIncomingMessage(data, source){
     if (!data || data.tag !== MESSAGE_TAG) return;
     if (!liveSessionId || data.session !== liveSessionId) return;
     if (audienceCommandAlreadyHandled(data)) return;
     if (data.kind === "request" || data.kind === "audience-ready") {
+      clearAudienceCloseTimer();
       if (liveActive) {
         setTeacherStatus(data.kind === "audience-ready" ? "Audience Display connected" : "Audience Display reconnected");
         publishSnapshot("audience-request");
@@ -30388,7 +30530,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       return;
     }
     if (data.kind === "audience-closing") {
-      setTeacherStatus("Audience Display closed — use Reopen Audience Display when ready");
+      setTeacherStatus("Audience Display closed — Live Teaching is turning off");
+      scheduleAudienceClosedShutdown();
       return;
     }
     if (!liveActive) return;
@@ -30453,14 +30596,31 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   function showTeachingCrossRefs(){ return setAudienceView({ type: "teaching-crossrefs" }); }
   function showBuiltInCrossRefs(){
-    currentAudienceView = { type: "built-in-crossrefs" };
-    schedulePublishBurst("built-in-crossrefs",[0,180,520,1100]);
-    return true;
+    return setAudienceView({
+      type:"built-in-crossrefs",
+      title:"Built-In Cross References",
+      html:builtInCrossRefsHtml()
+    });
   }
   function showResource(key){
     var resource = resourcePanelData(key);
     if (!resource) return false;
-    return setAudienceView({ type: "resource", resourceKey: resource.key });
+    return setAudienceView({
+      type:"resource",
+      resourceKey:resource.key,
+      title:resource.title,
+      html:resource.html
+    });
+  }
+  function showTeachingMethod(){
+    var data = helperPanelData("teachingMethodPanel","Teaching Method");
+    if (!data) return false;
+    return setAudienceView({type:"teaching-method",title:data.title,html:data.html});
+  }
+  function showIronPrompts(){
+    var data = helperPanelData("ironPromptPanel","I.R.O.N. Study Prompts");
+    if (!data) return false;
+    return setAudienceView({type:"iron-prompts",title:data.title,html:data.html});
   }
 
   function setTeacherStatus(message){
@@ -30506,12 +30666,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function audienceRuntime(){
     "use strict";
-    var CHANNEL_NAME = "iron-sharpener-live-teaching-v185";
-    var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v185.snapshot.";
-    var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v185.command.";
-    var MESSAGE_TAG = "ironSharpenerLiveTeaching.v185";
+    var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
+    var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v186.snapshot.";
+    var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v186.command.";
+    var MESSAGE_TAG = "ironSharpenerLiveTeaching.v186";
     var hash = new URLSearchParams(location.hash.slice(1));
-    var session = hash.get("session") || "";
+    var session = window.__RDM_LIVE_SESSION_V186 || hash.get("session") || "";
     var channel = null;
 
     function get(id){ return document.getElementById(id); }
@@ -30523,7 +30683,13 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       var template = document.createElement("template");
       template.innerHTML = text(html);
       Array.prototype.forEach.call(template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,link,meta,audio,video,canvas"),function(node){node.remove();});
-      Array.prototype.forEach.call(template.content.querySelectorAll("button"),function(button){ if (!button.classList.contains("rdm-live-scripture-link")) button.remove(); });
+      Array.prototype.forEach.call(template.content.querySelectorAll("button.rdm-live-scripture-link"),function(button){
+        var span = document.createElement("span");
+        span.className = "rdm-live-resource-chip";
+        span.textContent = button.textContent;
+        button.replaceWith(span);
+      });
+      Array.prototype.forEach.call(template.content.querySelectorAll("button"),function(button){ button.remove(); });
       Array.prototype.forEach.call(template.content.querySelectorAll("*"),function(node){
         Array.prototype.slice.call(node.attributes || []).forEach(function(attr){
           var name = String(attr.name || "").toLowerCase();
@@ -30538,16 +30704,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       node.textContent = message;
       node.classList.toggle("connected",!!connected);
     }
-    function updateActions(snapshot,view){
-      var back = get("audienceBack");
-      var scripture = get("audienceReturnScripture");
-      var history = snapshot.history || {};
-      if (back) {
-        back.hidden = !history.canBack;
-        back.textContent = history.canBack ? ("← Back to " + (history.label || "Previous Scripture")) : "← Back";
-      }
-      if (scripture) scripture.hidden = !view || view.type === "scripture";
-    }
+    function updateActions(){ }
     function apply(snapshot){
       if (!snapshot || snapshot.tag !== MESSAGE_TAG || snapshot.session !== session || snapshot.kind !== "snapshot") return;
       var root = get("audienceRoot");
@@ -30605,19 +30762,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       try { if (window.opener && !window.opener.closed) window.opener.postMessage(message,"*"); } catch (_) {}
       safeLocalSet(COMMAND_PREFIX + session,JSON.stringify(message));
     }
-    document.addEventListener("click",function(event){
-      var refControl = event.target.closest && event.target.closest("[data-rdm-ref]");
-      if (refControl) {
-        event.preventDefault();
-        send("open-reference",{reference:refControl.getAttribute("data-rdm-ref") || refControl.textContent});
-        return;
-      }
-      var action = event.target.closest && event.target.closest("[data-audience-action]");
-      if (!action) return;
-      var name = action.getAttribute("data-audience-action");
-      if (name === "scripture") send("show-scripture");
-      if (name === "back") send("navigate-back");
-    });
     window.addEventListener("message",function(event){ apply(event.data); });
     window.addEventListener("storage",function(event){
       if (event.key === SNAPSHOT_PREFIX + session && event.newValue) apply(safeParse(event.newValue));
@@ -30654,7 +30798,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".meta{color:var(--bright);font:800 clamp(12px,1.25vw,17px)/1.25 Arial,sans-serif}",
       ".status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(215,168,79,.7);font:800 10px/1 Arial,sans-serif;letter-spacing:.06em;color:var(--bright)}",
       ".status.connected:before{content:'';width:7px;height:7px;border-radius:50%;background:#42b875;margin-right:6px}",
-      ".headerAction{border:1.5px solid var(--gold);background:#fff7e6;color:#203d39;border-radius:9px;padding:8px 11px;font:800 12px Arial,sans-serif;cursor:pointer}",
       ".main{min-height:0;overflow:auto;padding:clamp(20px,3vw,46px) clamp(18px,4vw,62px)}",
       ".scriptureCard,.panelCard{width:min(1540px,100%);margin:0 auto;background:linear-gradient(180deg,#fbf7ee,#f4efe3);border:1px solid var(--line);border-radius:10px;padding:clamp(26px,3.2vw,48px);box-shadow:0 10px 30px rgba(70,40,0,.08);position:relative}",
       ".dark .scriptureCard,.dark .panelCard{background:linear-gradient(180deg,#355a54,#294843);border-color:rgba(248,217,135,.55);box-shadow:0 14px 34px rgba(0,0,0,.26)}",
@@ -30663,7 +30806,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".dark .source{color:#f8d987}",
       ".divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative}",
       ".divider:after{content:'◆';position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#f4efe3;padding:0 10px;font-size:14px}",
-      ".dark .divider:after{background:#294843}",
+      ".dark .divider:after{background:#355a54}",
       ".passage .verse{position:relative;font-size:clamp(24px,2.15vw,36px);line-height:1.5;margin:0 0 14px;color:var(--ink);transition:all .18s ease}",
       ".vnum{font-size:.72em;color:#b37410;font-weight:900;vertical-align:super;margin-right:10px}",
       ".dark .vnum{color:#f8d987}",
@@ -30712,33 +30855,44 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function audienceDocument(session){
-    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Iron Sharpener Audience Display</title><style>' + audienceCss() + '</style></head><body>' +
-      '<div id="audienceRoot"><header class="header"><div><p class="brandKicker">Restored Daily Ministries • Live Teaching</p><h1 class="brandTitle">Iron Sharpener</h1></div><div class="headerRight"><div class="meta" id="audienceMeta">Waiting for teacher…</div><button class="headerAction" id="audienceBack" data-audience-action="back" hidden>← Back</button><button class="headerAction" id="audienceReturnScripture" data-audience-action="scripture" hidden>Return to Scripture</button><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Iron Sharpener</title><style>' + audienceCss() + '</style></head><body>' +
+      '<div id="audienceRoot"><header class="header"><div><p class="brandKicker">Restored Daily Ministries • Live Teaching</p><h1 class="brandTitle">Iron Sharpener</h1></div><div class="headerRight"><div class="meta" id="audienceMeta">Waiting for teacher…</div><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
       '<main class="main" id="audienceMain"><section class="scriptureCard" id="audienceScripture"><h2 class="ref" id="audienceReference">Iron Sharpener</h2><div class="source">World English Bible • Public Domain</div><div class="divider"></div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
       '<section class="panel" id="audiencePanel"><div class="panelCard"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
-      '<script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
+      '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
   }
 
-  function getAudienceBlobUrl(session){
-    if (audienceBlobUrl && audienceBlobSession === session) return audienceBlobUrl;
-    if (audienceBlobUrl) {
-      try { URL.revokeObjectURL(audienceBlobUrl); } catch (_) {}
+  function audiencePageUrl(session){
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.set("rdm-live-audience",session);
+      url.hash = "";
+      return url.href;
+    } catch (_) {
+      return window.location.pathname + "?rdm-live-audience=" + encodeURIComponent(session);
     }
-    audienceBlobSession = session;
-    audienceBlobUrl = URL.createObjectURL(new Blob([audienceDocument(session)],{type:"text/html"}));
-    return audienceBlobUrl;
   }
 
   function openAudienceWindow(){
     var session = ensureSession(false);
-    var url = getAudienceBlobUrl(session) + "#session=" + encodeURIComponent(session);
-    var name = "IronSharpenerAudienceV185_" + session.replace(/[^a-z0-9_-]/gi,"");
+    var html = audienceDocument(session);
+    var pageUrl = audiencePageUrl(session);
+    var name = "IronSharpenerAudienceV186_" + session.replace(/[^a-z0-9_-]/gi,"");
+    safeLocalSet(DOCUMENT_PREFIX + session,html);
     try {
-      audienceWindow = window.open(url,name,"popup=yes,width=1365,height=768,resizable=yes,scrollbars=yes");
+      audienceWindow = window.open("",name,"popup=yes,toolbar=no,location=no,menubar=no,status=no,width=1365,height=768,resizable=yes,scrollbars=yes");
     } catch (_) { audienceWindow = null; }
     if (!audienceWindow) {
-      setTeacherStatus("The Audience Display was blocked. Allow pop-ups for Iron Sharpener, then choose Reopen Audience Display.");
+      setTeacherStatus("The Audience Display was blocked. Allow pop-ups for Iron Sharpener, then choose Open Audience Display again.");
       return false;
+    }
+    try {
+      audienceWindow.document.open();
+      audienceWindow.document.write(html);
+      audienceWindow.document.close();
+      try { audienceWindow.history.replaceState(null,"",pageUrl); } catch (_) {}
+    } catch (_) {
+      try { audienceWindow.location.href = pageUrl; } catch (_) {}
     }
     try { audienceWindow.focus(); } catch (_) {}
     setTeacherStatus("Audience Display opened — capture that window in OBS, not the Teacher Window");
@@ -30750,9 +30904,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if (!liveActive || liveMode !== "dual") activateLive("dual",true);
     else activateLive("dual",false);
     currentAudienceView = { type: "scripture" };
-    openAudienceWindow();
+    var opened = openAudienceWindow();
     closeLiveDialog();
-    return true;
+    if (!opened) stopLiveTeaching();
+    return opened;
   }
 
   function createSingleScreenRoot(){
@@ -30819,12 +30974,48 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       else if (action === "exit") stopLiveTeaching();
     });
     root.addEventListener("change",function(event){
-      if (event.target.id === "rdmLiveSingleBook") populateSingleChapterOptions(event.target.value,1);
+      if (event.target.id === "rdmLiveSingleBook") {
+        populateSingleChapterOptions(event.target.value,1);
+        var rangeSelect = get("rdmLiveSingleRange");
+        if (rangeSelect) rangeSelect.value = readSinglePreferredRange();
+      }
+      if (event.target.id === "rdmLiveSingleRange") writeSinglePreferredRange(event.target.value);
       if (event.target.id === "rdmLiveSingleMarkTool") singleMarkTool = event.target.value || "highlight";
       if (event.target.id === "rdmLiveSingleMarkColor") singleMarkColor = event.target.value || "gold";
     });
     get("rdmLiveSinglePassage").addEventListener("click",handleSinglePassageMark);
     return root;
+  }
+
+  function validSingleRange(value){
+    value = text(value).toLowerCase();
+    return /^(5|10|full)$/.test(value) ? value : "";
+  }
+  function readSinglePreferredRange(){
+    var value = validSingleRange(singlePreferredRange);
+    if (!value) value = validSingleRange(get("rangeSize") && get("rangeSize").value);
+    if (!value) {
+      try { value = validSingleRange(localStorage.getItem("ironSharpenerUnified.sectionSize")); } catch (_) {}
+    }
+    return value || "5";
+  }
+  function writeSinglePreferredRange(value){
+    value = validSingleRange(value) || readSinglePreferredRange();
+    singlePreferredRange = value;
+    var originalRange = get("rangeSize");
+    if (originalRange) originalRange.value = value;
+    try {
+      localStorage.setItem("ironSharpenerUnified.sectionSize",value);
+      localStorage.setItem("ironSharpenerUnified.sectionSizeUserTouched.v179","1");
+    } catch (_) {}
+    var singleRange = get("rdmLiveSingleRange");
+    if (singleRange) singleRange.value = value;
+    return value;
+  }
+  function reassertSinglePreferredRange(){
+    if (!liveActive || liveMode !== "single") return;
+    var value = readSinglePreferredRange();
+    [0,120,360].forEach(function(delay){ setTimeout(function(){ writeSinglePreferredRange(value); },delay); });
   }
 
   function chapterCountForBook(book){
@@ -30881,7 +31072,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var controls = currentControlState();
     populateSingleBookOptions(controls.book);
     populateSingleChapterOptions(controls.book,controls.chapter);
-    var range = get("rdmLiveSingleRange"); if (range) range.value = controls.range;
+    var range = get("rdmLiveSingleRange"); if (range) range.value = readSinglePreferredRange();
     var history = snapshot.history || {};
     var back = get("rdmLiveSingleBack");
     if (back) {
@@ -30906,16 +31097,27 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function loadSingleSelectedPassage(){
     var book = get("rdmLiveSingleBook"), chapter = get("rdmLiveSingleChapter"), range = get("rdmLiveSingleRange");
     if (!book || !chapter || !range) return;
-    var rangeValue = /^(5|10|full)$/.test(range.value) ? range.value : "5";
-    var originalRange = get("rangeSize");
-    if (originalRange) originalRange.value = rangeValue;
+    var rangeValue = writeSinglePreferredRange(range.value);
+    var originalBook = get("book"), originalChapter = get("chapter"), originalStart = get("start");
+    if (originalBook) originalBook.value = book.value;
+    try { if (typeof fillChapters === "function") fillChapters(); } catch (_) {}
+    if (originalChapter) originalChapter.value = chapter.value;
+    try { if (typeof fillVerses === "function") fillVerses(); } catch (_) {}
+    if (originalStart) originalStart.value = "1";
+    var api = navigationApi();
+    var result = null;
     try {
-      localStorage.setItem("ironSharpenerUnified.sectionSize",rangeValue);
-      localStorage.setItem("ironSharpenerUnified.sectionSizeUserTouched.v179","1");
+      if (api && typeof api.leaveFocus === "function") result = api.leaveFocus();
+      else if (api && typeof api.load === "function") result = api.load();
+      else {
+        var load = get("loadBtn");
+        if (load) load.click();
+      }
     } catch (_) {}
-    var ref = book.value + " " + chapter.value;
-    if (rangeValue !== "full") ref += ":1-" + rangeValue;
-    runNavigationAction("open",ref);
+    Promise.resolve(result).then(function(){
+      reassertSinglePreferredRange();
+      schedulePublishBurst("single-load-passage",[0,100,350,850]);
+    },function(){ schedulePublishBurst("single-load-passage"); });
   }
   function setOriginalMarkTool(){
     var color = /^(gold|blue|green|red|purple|amber)$/.test(singleMarkColor) ? singleMarkColor : "gold";
@@ -31115,12 +31317,14 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function enterSingleScreen(requestFullscreenNow){
     activateLive("single",!liveActive || liveMode !== "single");
+    singlePreferredRange = readSinglePreferredRange();
+    writeSinglePreferredRange(singlePreferredRange);
     currentAudienceView = { type: "scripture" };
     closeLiveDialog();
     var root = createSingleScreenRoot();
     rememberAndHidePrivateNodes(root);
     document.body.classList.add("rdm-live-single-screen");
-    document.documentElement.classList.remove("rdm-v185-single-prepaint");
+    document.documentElement.classList.remove("rdm-v186-single-prepaint");
     document.body.style.visibility = "visible";
     toggleSingleMarking(false);
     renderSingleSnapshot(buildSnapshot("live"));
@@ -31148,14 +31352,15 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       }
     } catch (_) {}
     try {
-      Promise.resolve(result).then(function(){ schedulePublishBurst("single-navigation",[0,100,350,850]); });
-    } catch (_) { schedulePublishBurst("single-navigation"); }
+      Promise.resolve(result).then(function(){ reassertSinglePreferredRange(); schedulePublishBurst("single-navigation",[0,100,350,850]); });
+    } catch (_) { reassertSinglePreferredRange(); schedulePublishBurst("single-navigation"); }
   }
 
   function stopLiveTeaching(){
     if (!liveActive) { closeLiveDialog(); return; }
     publishClosedSnapshot();
     clearPublishTimers();
+    clearAudienceCloseTimer();
     leaveSingleScreenOnly();
     liveActive = false;
     liveMode = "";
@@ -31168,11 +31373,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     closeLiveDialog();
     try { if (audienceWindow && !audienceWindow.closed) audienceWindow.close(); } catch (_) {}
     audienceWindow = null;
-    if (audienceBlobUrl) {
-      try { URL.revokeObjectURL(audienceBlobUrl); } catch (_) {}
-      audienceBlobUrl = "";
-      audienceBlobSession = "";
-    }
+    if (liveSessionId) safeLocalRemove(DOCUMENT_PREFIX + liveSessionId);
     liveSessionId = "";
   }
 
@@ -31264,13 +31465,66 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     get("rdmHideTeachingCrossRefsAudience").addEventListener("click",showScripture);
   }
 
+  function insertPanelAudienceButton(panel,attribute,label,handler){
+    if (!panel) return null;
+    var head = panel.querySelector(".teacher-pop-head,.floating-panel-head");
+    var close = head && head.querySelector(".teacher-pop-close");
+    if (!head) return null;
+    var selector = "[" + attribute + "]";
+    var existing = panel.querySelector(selector);
+    if (existing) return existing;
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "rdm-live-resource-action rdm-live-only-control";
+    button.setAttribute(attribute,"1");
+    button.textContent = label;
+    button.addEventListener("click",function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      handler();
+    });
+    head.insertBefore(button,close || null);
+    return button;
+  }
+  function installBuiltInCrossRefAudienceButtons(){
+    var panel = get("internalCrossRefsPanel");
+    insertPanelAudienceButton(panel,"data-rdm-live-built-in-show","Show on Audience Display",showBuiltInCrossRefs);
+  }
+  function installHelperAudienceButtons(){
+    insertPanelAudienceButton(get("teachingMethodPanel"),"data-rdm-live-teaching-method-show","Show on Audience Display",showTeachingMethod);
+    insertPanelAudienceButton(get("ironPromptPanel"),"data-rdm-live-iron-show","Show on Audience Display",showIronPrompts);
+  }
+
+  function resourcePanelCanPresent(panel){
+    if (!panel) return false;
+    var key = trim(panel.dataset.resourceKey || "").toLowerCase();
+    if (/(^|[-:])(search|menu|home|browse|categories)([-:]|$)/.test(key)) return false;
+    var body = panel.querySelector(".resource-panel-body");
+    if (!body) return false;
+    if (body.querySelector("input,textarea,select") && !body.querySelector(".background-topic-card,.doctrine-card,.commentary-card")) return false;
+    var clone = body.cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll("input,textarea,select,option,button,a,script,style"),function(node){ node.remove(); });
+    var content = trim(clone.textContent);
+    if (!content || content.length < 45) return false;
+    if (/^(type|search|choose|select|open)\b/i.test(content) && content.length < 140) return false;
+    return true;
+  }
+
   function installResourceAudienceButtons(){
     if (!liveActive) return;
     Array.prototype.forEach.call(document.querySelectorAll(".resource-instance-panel"),function(panel){
       var head = panel.querySelector(".teacher-pop-head");
       var close = head && head.querySelector(".teacher-pop-close");
       if (!head) return;
-      if (!panel.querySelector("[data-rdm-live-resource-show]")) {
+      var allowed = resourcePanelCanPresent(panel);
+      var existingShow = panel.querySelector("[data-rdm-live-resource-show]");
+      var existingReturn = panel.querySelector("[data-rdm-live-resource-return]");
+      if (!allowed) {
+        if (existingShow) existingShow.remove();
+        if (existingReturn) existingReturn.remove();
+        return;
+      }
+      if (!existingShow) {
         var button = document.createElement("button");
         button.type = "button";
         button.className = "rdm-live-resource-action rdm-live-only-control";
@@ -31283,7 +31537,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         });
         head.insertBefore(button,close || null);
       }
-      if (!panel.querySelector("[data-rdm-live-resource-return]")) {
+      if (!existingReturn) {
         var returnButton = document.createElement("button");
         returnButton.type = "button";
         returnButton.className = "secondary rdm-live-resource-action rdm-live-resource-return rdm-live-only-control";
@@ -31297,19 +31551,27 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         head.insertBefore(returnButton,close || null);
       }
     });
+    installBuiltInCrossRefAudienceButtons();
+    installHelperAudienceButtons();
   }
 
-  function wrapResourcePanelOpener(){
-    var original = window.openResourceInstancePanel;
-    if (typeof original !== "function" || original.__rdmV185LiveWrapped) return;
+  function wrapOneResourceOpener(name){
+    var original = window[name];
+    if (typeof original !== "function" || original.__rdmV186LiveWrapped) return;
     function wrappedResourcePanelOpener(){
       var result = original.apply(this,arguments);
-      if (liveActive) setTimeout(installResourceAudienceButtons,0);
+      if (liveActive) [0,60,220].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
       return result;
     }
-    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV185LiveWrapped",{value:true}); } catch (_) { wrappedResourcePanelOpener.__rdmV185LiveWrapped = true; }
-    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV185Original",{value:original}); } catch (_) {}
-    window.openResourceInstancePanel = wrappedResourcePanelOpener;
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV186LiveWrapped",{value:true}); } catch (_) { wrappedResourcePanelOpener.__rdmV186LiveWrapped = true; }
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV186Original",{value:original}); } catch (_) {}
+    window[name] = wrappedResourcePanelOpener;
+    try { if (name === "openResourceInstancePanel") openResourceInstancePanel = wrappedResourcePanelOpener; } catch (_) {}
+    try { if (name === "openStudyResourcePanel") openStudyResourcePanel = wrappedResourcePanelOpener; } catch (_) {}
+  }
+  function wrapResourcePanelOpener(){
+    wrapOneResourceOpener("openResourceInstancePanel");
+    wrapOneResourceOpener("openStudyResourcePanel");
   }
 
   function eventNeedsNavigationPublish(target){
@@ -31319,12 +31581,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function handlePointerDown(event){
     var target = event.target && event.target.closest ? event.target : null;
     if (!target || !liveActive) return;
-    if (target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) {
-      showBuiltInCrossRefs();
-      return;
-    }
-    if (target.closest("#closeInternalCrossRefs") && currentAudienceView.type === "built-in-crossrefs") {
-      showScripture();
+    if (target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs'],#obsShowTeachingMethod,#ironPromptPanelBtn")) {
+      [30,160,520].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
       return;
     }
     if (target.closest("#openBackgroundsResource,#openEastonsResource,#openSmithsResource,#openNavesResource,#openDoctrineResource,#openCommentariesResource,#openBookOverviewResource,#openJfbResource,.resource-instance-panel")) {
@@ -31360,14 +31618,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if (currentAudienceView.type === "teaching-crossrefs") setTimeout(showScripture,0);
       return;
     }
-    if (target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) {
-      showBuiltInCrossRefs();
-      return;
-    }
-    if (target.closest("#closeInternalCrossRefs")) {
-      if (currentAudienceView.type === "built-in-crossrefs") setTimeout(showScripture,0);
-      return;
-    }
 
     var clickedReferenceControl = target.closest(".cross-ref-link,.internal-xref-link,.doctrine-related-topic-btn,.resource-instance-panel button,.resource-instance-panel a");
     if (clickedReferenceControl && !clickedReferenceControl.closest("[data-rdm-live-resource-show],[data-rdm-live-resource-return],.teacher-pop-close")) {
@@ -31375,11 +31625,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if (clickedRef && currentAudienceView.type !== "scripture") currentAudienceView = { type: "scripture" };
     }
 
-    var resourceClose = target.closest(".resource-instance-panel .teacher-pop-close");
-    if (resourceClose && currentAudienceView.type === "resource") {
-      var closingPanel = resourceClose.closest(".resource-instance-panel");
-      if (closingPanel && text(closingPanel.dataset.resourceKey) === text(currentAudienceView.resourceKey)) setTimeout(showScripture,0);
-    }
 
     if (target.closest("#themeBtn")) {
       schedulePublishBurst("theme-change",[0,80,220]);
@@ -31394,7 +31639,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
     if (target.closest("#openBackgroundsResource,#openEastonsResource,#openSmithsResource,#openNavesResource,#openDoctrineResource,#openCommentariesResource,#openBookOverviewResource,#openJfbResource,.resource-instance-panel")) {
       [30,180,650].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
-      if (currentAudienceView.type === "resource") schedulePublishBurst("resource-update",[80,320,900]);
     }
   }
 
@@ -31407,14 +31651,15 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       schedulePublishBurst("control-change");
       return;
     }
+    if (target.closest && target.closest(".resource-instance-panel")) {
+      [40,180,600].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
+    }
     var fieldId = id;
     if (target.classList && target.classList.contains("rdm-v182-related-editor")) fieldId = target.getAttribute("data-rdm-v182-field") || "";
     if (fieldId === "teachingNotes" && currentAudienceView.type === "teaching-note") schedulePublishBurst("teaching-note-edit",[80,260]);
     if (fieldId === "applicationNotes" && currentAudienceView.type === "application") schedulePublishBurst("application-edit",[80,260]);
     if (fieldId === "crossRefs" && currentAudienceView.type === "teaching-crossrefs") schedulePublishBurst("crossref-edit",[80,260]);
-    if (id === "internalXrefSearch" || id === "internalXrefsPassageMode" || id === "internalXrefsChapterMode") {
-      if (currentAudienceView.type === "built-in-crossrefs") schedulePublishBurst("built-in-filter",[80,300,800]);
-    }
+
   }
 
   function handleStorage(event){
@@ -31428,11 +31673,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function handleSingleKeyboard(event){
     var key = String(event.key || "").toLowerCase();
-    if (liveActive && (key === "enter" || key === " ")) {
-      var target = event.target && event.target.closest ? event.target : null;
-      if (target && target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) showBuiltInCrossRefs();
-      if (target && target.closest("#closeInternalCrossRefs") && currentAudienceView.type === "built-in-crossrefs") showScripture();
-    }
     if (!liveActive || liveMode !== "single" || !document.body.classList.contains("rdm-live-single-screen")) return;
     if (key === "arrowleft" || key === "pageup") { event.preventDefault(); navigateSingle(-1); }
     else if (key === "arrowright" || key === "pagedown") { event.preventDefault(); navigateSingle(1); }
@@ -31451,7 +31691,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var mode = safeSessionGet(MODE_KEY) || "";
     var session = safeSessionGet(SESSION_KEY) || "";
     if (!active || (mode !== "dual" && mode !== "single")) {
-      document.documentElement.classList.remove("rdm-v185-single-prepaint");
+      document.documentElement.classList.remove("rdm-v186-single-prepaint");
       if (document.body) document.body.style.visibility = "visible";
       return;
     }
@@ -31464,7 +31704,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     } else {
       setTeacherStatus("Dual-Window Live Teaching restored — reopen the Audience Display if needed");
       schedulePublishBurst("session-restore",[0,300,900]);
-      document.documentElement.classList.remove("rdm-v185-single-prepaint");
+      document.documentElement.classList.remove("rdm-v186-single-prepaint");
       document.body.style.visibility = "visible";
     }
   }
@@ -31481,13 +31721,17 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     window.addEventListener("storage",handleStorage);
     window.addEventListener("message",handleWindowMessage);
     window.addEventListener("keydown",handleSingleKeyboard,true);
+    window.addEventListener("focus",checkAudienceWindowState);
+    document.addEventListener("visibilitychange",function(){ if (!document.hidden) checkAudienceWindowState(); });
     window.addEventListener("pageshow",function(){ if (liveActive) schedulePublishBurst("pageshow",[0,300]); });
+    installBuiltInCrossRefAudienceButtons();
+    installHelperAudienceButtons();
     restoreLiveSession();
     window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = BUILD;
     window.__RDM_ACTIVE_BUILD = BUILD;
   }
 
-  window.__rdmLiveTeachingV185 = {
+  window.__rdmLiveTeachingV186 = {
     version: BUILD,
     startDual: startDualWindow,
     startSingle: function(){ return enterSingleScreen(true); },
@@ -31499,6 +31743,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     showApplication: showApplication,
     showBuiltInCrossRefs: showBuiltInCrossRefs,
     showResource: showResource,
+    showTeachingMethod: showTeachingMethod,
+    showIronPrompts: showIronPrompts,
     back: function(){ return runNavigationAction("back"); },
     openReference: function(ref){ return runNavigationAction("open",ref); },
     openDialog: openLiveDialog,
@@ -31510,8 +31756,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
-<script id="rdm-v185-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v185-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v185-live-teaching-mode"; })();
+<script id="rdm-v186-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v186-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v186-live-teaching-mode"; })();
 </script>
 
 </body>
