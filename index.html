@@ -3428,6 +3428,365 @@ html.obs #discipleJournalBtn { display: none !important; }
 <!-- v170 — Fresh Home Screen first-open responsiveness.
      Service-worker registration is deferred until after the first interactive paint,
      and v70 never navigates/reloads the active page during activation. -->
+<!-- v184 Live Teaching Mode prepaint guard: only used when restoring Single-Screen Display after a refresh. -->
+<script id="rdm-v184-live-teaching-prepaint">
+(function(){
+  try {
+    if (sessionStorage.getItem("ironSharpenerLiveTeaching.v184.active") === "1" &&
+        sessionStorage.getItem("ironSharpenerLiveTeaching.v184.mode") === "single") {
+      document.documentElement.classList.add("rdm-v184-single-prepaint");
+    }
+  } catch (_) {}
+})();
+</script>
+<style id="rdm-v184-live-teaching-style">
+  html.rdm-v184-single-prepaint body { visibility: hidden !important; }
+
+  #liveTeachingBtn.rdm-live-active {
+    background: #8f3428 !important;
+    color: #fff8e8 !important;
+    border-color: #f8d987 !important;
+    box-shadow: 0 0 0 2px rgba(248,217,135,.22), 0 8px 20px rgba(0,0,0,.2) !important;
+  }
+
+  #rdmLiveTeacherStatus {
+    display: none;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(215,168,79,.72);
+    background: rgba(255,248,234,.94);
+    color: #203d39;
+    font: 800 12px/1.1 Arial, sans-serif;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  body.dark #rdmLiveTeacherStatus {
+    background: rgba(10,26,48,.94);
+    color: #f8d987;
+  }
+  body.rdm-live-teacher-active #rdmLiveTeacherStatus { display: inline-flex; }
+  #rdmLiveTeacherStatus::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2f9d62;
+    box-shadow: 0 0 0 3px rgba(47,157,98,.18);
+  }
+
+  .rdm-live-only-control { display: none !important; }
+  body.rdm-live-teacher-active .rdm-live-only-control { display: inline-flex !important; }
+  .rdm-live-crossref-actions {
+    display: none;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  body.rdm-live-teacher-active .rdm-live-crossref-actions { display: flex; }
+  .rdm-live-resource-action {
+    margin-right: 8px;
+    padding: 8px 11px !important;
+    font-size: 12px !important;
+  }
+
+  #rdmLiveTeachingDialog {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(8,18,30,.72);
+    backdrop-filter: blur(5px);
+  }
+  #rdmLiveTeachingDialog.open { display: flex; }
+  #rdmLiveTeachingDialog .rdm-live-dialog-card {
+    width: min(720px, 96vw);
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 18px;
+    border: 2px solid #d7a84f;
+    background: #fff8ea;
+    color: #17233d;
+    box-shadow: 0 24px 70px rgba(0,0,0,.42);
+  }
+  body.dark #rdmLiveTeachingDialog .rdm-live-dialog-card {
+    background: #294843;
+    color: #fff3d7;
+  }
+  .rdm-live-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(215,168,79,.66);
+  }
+  .rdm-live-dialog-head h2 { margin: 0; font-size: 25px; }
+  .rdm-live-dialog-close {
+    min-width: 42px;
+    width: 42px;
+    height: 42px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+  }
+  .rdm-live-dialog-body { padding: 20px; }
+  .rdm-live-dialog-intro {
+    margin: 0 0 17px;
+    font: 600 16px/1.55 "Segoe UI", Arial, sans-serif;
+  }
+  .rdm-live-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 14px;
+  }
+  .rdm-live-mode-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-height: 210px;
+    padding: 17px;
+    border-radius: 14px;
+    border: 1px solid rgba(215,168,79,.72);
+    background: rgba(248,217,135,.12);
+  }
+  .rdm-live-mode-card h3 { margin: 0; font-size: 20px; }
+  .rdm-live-mode-card p { margin: 0; font: 600 14px/1.48 "Segoe UI", Arial, sans-serif; }
+  .rdm-live-mode-card .rdm-live-mode-spacer { flex: 1; }
+  .rdm-live-warning {
+    margin-top: 9px !important;
+    padding: 10px 11px;
+    border-radius: 9px;
+    background: rgba(143,52,40,.1);
+    border-left: 4px solid #8f3428;
+  }
+  body.dark .rdm-live-warning { background: rgba(0,0,0,.2); }
+  #rdmLiveDialogStatus {
+    margin-top: 14px;
+    min-height: 22px;
+    font: 700 14px/1.4 "Segoe UI", Arial, sans-serif;
+  }
+  .rdm-live-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 0 20px 20px;
+  }
+
+  #rdmLiveSingleScreenRoot {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    overflow: hidden;
+    background: #f4efe3;
+    color: #0b1730;
+  }
+  body.rdm-live-single-screen #rdmLiveSingleScreenRoot { display: flex; }
+  body.rdm-live-single-screen { overflow: hidden !important; }
+  body.rdm-live-single-screen > :not(#rdmLiveSingleScreenRoot):not(script):not(style) { visibility: hidden !important; pointer-events: none !important; }
+  body.rdm-live-single-screen > #rdmLiveSingleScreenRoot { visibility: visible !important; pointer-events: auto !important; }
+  body.rdm-live-single-screen.dark #rdmLiveSingleScreenRoot,
+  #rdmLiveSingleScreenRoot.dark {
+    background: #203d39;
+    color: #fff2d7;
+  }
+  .rdm-live-single-stage {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  .rdm-live-single-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: clamp(14px,2vw,24px) clamp(20px,4vw,58px);
+    border-bottom: 2px solid #d7a84f;
+    background: #0a1a30;
+    color: #fff3d7;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-single-header { background: #102b29; }
+  .rdm-live-brand { min-width: 0; }
+  .rdm-live-brand-kicker {
+    margin: 0 0 3px;
+    color: #f8d987;
+    font: 800 12px/1.1 Arial, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .rdm-live-brand h1 {
+    margin: 0;
+    font: 800 clamp(24px,3.1vw,48px)/1.05 Georgia, serif;
+    color: inherit;
+  }
+  .rdm-live-section-meta {
+    text-align: right;
+    font: 700 clamp(12px,1.3vw,17px)/1.35 "Segoe UI", Arial, sans-serif;
+    color: #f8d987;
+  }
+  .rdm-live-single-main {
+    min-height: 0;
+    overflow: auto;
+    padding: clamp(22px,4vw,62px) clamp(24px,7vw,110px) 115px;
+  }
+  .rdm-live-scripture-surface,
+  .rdm-live-panel-surface {
+    width: min(1480px,100%);
+    margin: 0 auto;
+  }
+  .rdm-live-scripture-source {
+    margin-bottom: 18px;
+    color: #6e5631;
+    font: 700 13px/1.2 Arial, sans-serif;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-scripture-source { color: #f8d987; }
+  .rdm-live-passage .verse {
+    font-size: clamp(23px,2.3vw,37px) !important;
+    line-height: 1.62 !important;
+    margin: 0 0 16px !important;
+    color: inherit !important;
+  }
+  .rdm-live-passage .vnum {
+    color: #a86b11 !important;
+    font-size: .66em !important;
+    font-weight: 900 !important;
+    vertical-align: super;
+    margin-right: 10px;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-passage .vnum { color: #f8d987 !important; }
+  .rdm-live-panel-surface { display: none; }
+  .rdm-live-panel-surface.open { display: block; }
+  .rdm-live-scripture-surface.hidden { display: none; }
+  .rdm-live-panel-card {
+    border-radius: 18px;
+    border: 2px solid #d7a84f;
+    background: rgba(255,248,234,.96);
+    padding: clamp(24px,4vw,58px);
+    box-shadow: 0 18px 50px rgba(0,0,0,.17);
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-panel-card { background: rgba(41,72,67,.98); }
+  .rdm-live-panel-card h2 {
+    margin: 0 0 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #d7a84f;
+    font: 800 clamp(28px,3vw,48px)/1.1 Georgia, serif;
+    color: inherit;
+  }
+  .rdm-live-panel-text,
+  .rdm-live-panel-html {
+    white-space: pre-wrap;
+    font: 600 clamp(20px,2vw,31px)/1.58 "Segoe UI", Arial, sans-serif;
+  }
+  .rdm-live-panel-html { white-space: normal; }
+  .rdm-live-panel-html p,
+  .rdm-live-panel-html li,
+  .rdm-live-panel-html div { font: inherit; line-height: 1.55; }
+  .rdm-live-panel-html h3,
+  .rdm-live-panel-html h4 { font-family: Georgia, serif; color: inherit; }
+  .rdm-live-resource-chip {
+    display: inline-flex;
+    margin: 5px 7px 5px 0;
+    padding: 7px 10px;
+    border: 1px solid #d7a84f;
+    border-radius: 999px;
+    background: rgba(248,217,135,.18);
+    font-size: .82em;
+    font-weight: 800;
+  }
+  .rdm-live-reference-group {
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    border-left: 5px solid #d7a84f;
+    border-radius: 8px;
+    background: rgba(248,217,135,.1);
+  }
+  .rdm-live-reference-group h3 { margin: 0 0 8px; font-size: 1em; }
+  .rdm-live-single-controls {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    width: min(1180px,calc(100vw - 28px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    padding: 10px;
+    border: 1px solid rgba(215,168,79,.75);
+    border-radius: 14px;
+    background: rgba(10,26,48,.94);
+    box-shadow: 0 12px 35px rgba(0,0,0,.34);
+    opacity: .5;
+    transition: opacity .18s ease;
+  }
+  .rdm-live-single-controls:hover,
+  .rdm-live-single-controls:focus-within { opacity: 1; }
+  @media (pointer: coarse) { .rdm-live-single-controls { opacity: .72; } }
+  .rdm-live-single-controls button {
+    padding: 9px 11px !important;
+    min-height: 38px;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    white-space: nowrap;
+  }
+  .rdm-live-single-private-note {
+    width: 100%;
+    text-align: center;
+    color: #fff3d7;
+    font: 700 11px/1.25 Arial, sans-serif;
+  }
+
+  /* Audience and single-screen rendering of the existing marking classes. */
+  #rdmLiveSingleScreenRoot .verse.highlighted,
+  #rdmLiveSingleScreenRoot .verse.highlight-gold {
+    background: linear-gradient(90deg,rgba(244,199,108,.58),rgba(244,199,108,.20));
+    border-left: 7px solid #d7a84f;
+    outline: 1px solid rgba(215,168,79,.78);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  #rdmLiveSingleScreenRoot .verse.highlight-blue { background: linear-gradient(90deg,rgba(97,165,255,.42),rgba(97,165,255,.16));border-left:7px solid #4f8fe8;outline:1px solid rgba(97,165,255,.65);border-radius:8px;padding:8px 12px; }
+  #rdmLiveSingleScreenRoot .verse.highlight-green { background: linear-gradient(90deg,rgba(80,190,130,.42),rgba(80,190,130,.16));border-left:7px solid #3fb377;outline:1px solid rgba(80,190,130,.65);border-radius:8px;padding:8px 12px; }
+  #rdmLiveSingleScreenRoot .verse.highlight-red { background: linear-gradient(90deg,rgba(225,95,95,.38),rgba(225,95,95,.14));border-left:7px solid #d44d4d;outline:1px solid rgba(225,95,95,.60);border-radius:8px;padding:8px 12px; }
+  #rdmLiveSingleScreenRoot .verse.highlight-purple { background: linear-gradient(90deg,rgba(168,116,230,.38),rgba(168,116,230,.14));border-left:7px solid #9a65d8;outline:1px solid rgba(168,116,230,.60);border-radius:8px;padding:8px 12px; }
+  #rdmLiveSingleScreenRoot .verse.highlight-amber { background: linear-gradient(90deg,rgba(232,132,45,.40),rgba(232,132,45,.14));border-left:7px solid #e8842d;outline:1px solid rgba(232,132,45,.64);border-radius:8px;padding:8px 12px; }
+  #rdmLiveSingleScreenRoot .verse.underlined { text-decoration: underline;text-decoration-thickness:4px;text-underline-offset:7px; }
+  #rdmLiveSingleScreenRoot .verse.circled { outline:4px solid rgba(215,168,79,.75);outline-offset:4px;border-radius:999px;padding:9px 16px; }
+  #rdmLiveSingleScreenRoot .verse.boxed { border:3px solid #d7a84f;border-radius:8px;padding:10px 14px; }
+  #rdmLiveSingleScreenRoot .verse.pointed { padding-left:34px; }
+  #rdmLiveSingleScreenRoot .verse.pointed::before { content:"➤";position:absolute;left:4px;top:4px;color:#d7a84f;font-size:22px; }
+  #rdmLiveSingleScreenRoot .rdm-live-passage.focus-mode .verse { opacity:.26; }
+  #rdmLiveSingleScreenRoot .rdm-live-passage.focus-mode .verse.focused { opacity:1;background:rgba(244,199,108,.30);outline:2px solid rgba(215,168,79,.75);border-radius:8px;padding:7px 11px; }
+  #rdmLiveSingleScreenRoot .inline-underline { text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px; }
+  #rdmLiveSingleScreenRoot .inline-circle { display:inline;border:2px solid #d7a84f;border-radius:999px;padding:0 5px; }
+  #rdmLiveSingleScreenRoot .inline-box { display:inline;border:2px solid #d7a84f;border-radius:4px;padding:0 4px; }
+  #rdmLiveSingleScreenRoot .inline-highlight-gold { background:rgba(244,199,108,.58); }
+  #rdmLiveSingleScreenRoot .inline-highlight-blue { background:rgba(97,165,255,.42); }
+  #rdmLiveSingleScreenRoot .inline-highlight-green { background:rgba(80,190,130,.42); }
+  #rdmLiveSingleScreenRoot .inline-highlight-red { background:rgba(225,95,95,.38); }
+  #rdmLiveSingleScreenRoot .inline-highlight-purple { background:rgba(168,116,230,.38); }
+  #rdmLiveSingleScreenRoot .inline-highlight-amber { background:rgba(232,132,45,.40); }
+
+  @media (max-width: 760px) {
+    .rdm-live-mode-grid { grid-template-columns: 1fr; }
+    #rdmLiveTeachingDialog { padding: 10px; }
+    .rdm-live-dialog-body { padding: 16px; }
+    .rdm-live-single-header { align-items: flex-start; }
+    .rdm-live-section-meta { max-width: 44%; }
+    .rdm-live-single-main { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+
 </head>
 <body>
 <div class="shell">
@@ -29598,6 +29957,1083 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v183-teaching-navigation-scroll-top";
   window.__RDM_ACTIVE_BUILD = "v183-teaching-navigation-scroll-top";
 })();
+</script>
+
+<!-- v184 — Optional Live Teaching Mode: dual-window Audience Display + private-safe Single-Screen Display. -->
+<script id="rdm-v184-live-teaching-mode-script">
+(function rdmV184LiveTeachingMode(){
+  "use strict";
+  if (window.__rdmLiveTeachingV184Installed) return;
+  window.__rdmLiveTeachingV184Installed = true;
+
+  var BUILD = "v184-live-teaching-mode";
+  var CHANNEL_NAME = "iron-sharpener-live-teaching-v184";
+  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v184.active";
+  var MODE_KEY = "ironSharpenerLiveTeaching.v184.mode";
+  var SESSION_KEY = "ironSharpenerLiveTeaching.v184.session";
+  var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v184.snapshot.";
+  var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v184.command.";
+  var MESSAGE_TAG = "ironSharpenerLiveTeaching.v184";
+
+  var liveActive = false;
+  var liveMode = "";
+  var liveSessionId = "";
+  var currentAudienceView = { type: "scripture" };
+  var audienceWindow = null;
+  var audienceBlobUrl = "";
+  var audienceBlobSession = "";
+  var channel = null;
+  var publishTimers = [];
+  var singlePrivateState = [];
+  var restoringSingle = false;
+
+  function get(id){ return document.getElementById(id); }
+  function text(value){ return String(value == null ? "" : value); }
+  function trim(value){ return text(value).replace(/\s+/g, " ").trim(); }
+  function hasText(value){ return text(value).trim().length > 0; }
+  function esc(value){
+    return text(value).replace(/[&<>"']/g, function(ch){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+    });
+  }
+  function safeSessionGet(key){ try { return sessionStorage.getItem(key); } catch (_) { return null; } }
+  function safeSessionSet(key,value){ try { sessionStorage.setItem(key,text(value)); return true; } catch (_) { return false; } }
+  function safeSessionRemove(key){ try { sessionStorage.removeItem(key); } catch (_) {} }
+  function safeLocalSet(key,value){ try { localStorage.setItem(key,text(value)); return true; } catch (_) { return false; } }
+  function safeLocalGet(key){ try { return localStorage.getItem(key); } catch (_) { return null; } }
+  function safeLocalRemove(key){ try { localStorage.removeItem(key); } catch (_) {} }
+  function randomId(){
+    try {
+      var bytes = new Uint32Array(3);
+      crypto.getRandomValues(bytes);
+      return Array.prototype.map.call(bytes,function(n){return n.toString(36);}).join("-");
+    } catch (_) {
+      return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,10);
+    }
+  }
+  function snapshotKey(session){ return SNAPSHOT_PREFIX + session; }
+  function commandKey(session){ return COMMAND_PREFIX + session; }
+
+  function cleanHtmlFragment(html, kind){
+    var template = document.createElement("template");
+    template.innerHTML = text(html);
+    var blocked = template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,button,link,meta,audio,video,canvas");
+    Array.prototype.forEach.call(blocked,function(node){ node.remove(); });
+    Array.prototype.forEach.call(template.content.querySelectorAll("*"),function(node){
+      Array.prototype.slice.call(node.attributes || []).forEach(function(attr){
+        var name = String(attr.name || "").toLowerCase();
+        if (name.indexOf("on") === 0 || name === "contenteditable" || name === "src" || name === "href" || name === "target") {
+          node.removeAttribute(attr.name);
+        }
+        if (kind === "scripture" && name !== "class" && name !== "data-v" && name !== "aria-label") {
+          node.removeAttribute(attr.name);
+        }
+      });
+    });
+    return template.innerHTML;
+  }
+
+  function currentControlState(){
+    var apiState = null;
+    try {
+      if (window.rdmReferenceRangeNavigationV163 && typeof window.rdmReferenceRangeNavigationV163.state === "function") {
+        apiState = window.rdmReferenceRangeNavigationV163.state();
+      }
+    } catch (_) {}
+    var book = text((apiState && apiState.book) || (get("book") && get("book").value) || "Genesis");
+    var chapter = text((apiState && apiState.chapter) || (get("chapter") && get("chapter").value) || "1");
+    var start = text((apiState && apiState.start) || (get("start") && get("start").value) || "1");
+    var end = text((apiState && apiState.end) || (get("end") && get("end").value) || start);
+    var range = text((apiState && apiState.range) || (get("rangeSize") && get("rangeSize").value) || "5");
+    var rangeSelect = get("rangeSize");
+    var rangeLabel = range === "full" ? "Full Chapter" : (range === "10" ? "10 Verses" : "5 Verses");
+    if (rangeSelect && rangeSelect.selectedOptions && rangeSelect.selectedOptions[0]) rangeLabel = trim(rangeSelect.selectedOptions[0].textContent) || rangeLabel;
+    var exact = range === "full" ? (book + " " + chapter) : (start === end ? (book + " " + chapter + ":" + start) : (book + " " + chapter + ":" + start + "-" + end));
+    return {
+      book: book,
+      chapter: chapter,
+      start: start,
+      end: end,
+      range: range,
+      rangeLabel: rangeLabel,
+      exactReference: exact,
+      heading: trim(get("refTitle") && get("refTitle").textContent) || (book + " " + chapter),
+      meta: rangeLabel + " • " + exact
+    };
+  }
+
+  function currentTheme(){ return document.body && document.body.classList.contains("dark") ? "dark" : "cream"; }
+
+  function visibleFieldValues(id){
+    var values = [];
+    var field = get(id);
+    if (field && hasText(field.value)) {
+      var labelNode = get("rdmV182CurrentLabel-" + id);
+      var label = trim(labelNode && labelNode.textContent).replace(/^Current passage:\s*/i, "") || currentControlState().exactReference;
+      values.push({ label: label, value: field.value });
+    }
+    var wrap = get("rdmV182Related-" + id);
+    if (wrap) {
+      Array.prototype.forEach.call(wrap.querySelectorAll(".rdm-v182-related-card"),function(card){
+        var editor = card.querySelector(".rdm-v182-related-editor");
+        if (!editor || !hasText(editor.value)) return;
+        var label = trim(card.querySelector(".rdm-v182-related-label") && card.querySelector(".rdm-v182-related-label").textContent) || "Related passage";
+        values.push({ label: label, value: editor.value });
+      });
+    }
+    return values;
+  }
+
+  function presentationTextFor(id){
+    var values = visibleFieldValues(id);
+    if (!values.length) return "";
+    if (values.length === 1) return values[0].value;
+    return values.map(function(item){ return item.label + "\n" + item.value; }).join("\n\n");
+  }
+
+  function teachingCrossRefsHtml(){
+    var values = visibleFieldValues("crossRefs");
+    var refs = [];
+    var seen = Object.create(null);
+    var holder = get("crossRefLinks");
+    if (holder) {
+      Array.prototype.forEach.call(holder.querySelectorAll(".cross-ref-link"),function(button){
+        var label = trim(button.textContent);
+        var key = label.toLowerCase();
+        if (label && !seen[key]) { seen[key] = true; refs.push(label); }
+      });
+    }
+    var html = "";
+    if (values.length) {
+      html += values.map(function(item){
+        return '<section class="rdm-live-reference-group"><h3>' + esc(item.label) + '</h3><div style="white-space:pre-wrap">' + esc(item.value) + '</div></section>';
+      }).join("");
+    }
+    if (refs.length) {
+      html += '<div aria-label="Detected Scripture references">' + refs.map(function(ref){ return '<span class="rdm-live-resource-chip">' + esc(ref) + '</span>'; }).join("") + '</div>';
+    }
+    if (!html) html = '<p>No Teaching Cross References have been added for this section.</p>';
+    return html;
+  }
+
+  function builtInCrossRefsHtml(){
+    var panel = get("internalCrossRefsPanel");
+    var summary = trim(get("internalXrefsSummary") && get("internalXrefsSummary").textContent);
+    var results = get("internalXrefsResults");
+    var html = summary ? '<p><strong>' + esc(summary) + '</strong></p>' : "";
+    if (results) {
+      var sections = results.querySelectorAll(".internal-xref-verse");
+      if (sections.length) {
+        Array.prototype.forEach.call(sections,function(section){
+          var heading = trim(section.querySelector("h4") && section.querySelector("h4").textContent);
+          var refs = Array.prototype.map.call(section.querySelectorAll(".internal-xref-link"),function(btn){ return trim(btn.textContent); }).filter(Boolean);
+          html += '<section class="rdm-live-reference-group"><h3>' + esc(heading) + '</h3>' + refs.map(function(ref){ return '<span class="rdm-live-resource-chip">' + esc(ref) + '</span>'; }).join("") + '</section>';
+        });
+      } else if (hasText(results.textContent)) {
+        html += '<p>' + esc(trim(results.textContent)) + '</p>';
+      }
+    }
+    if (!html) html = '<p>Built-In Cross References are loading for the current passage.</p>';
+    return html;
+  }
+
+  function findResourcePanel(key){
+    var panels = Array.prototype.slice.call(document.querySelectorAll(".resource-instance-panel"));
+    if (key) {
+      for (var i=0;i<panels.length;i+=1) if (text(panels[i].dataset.resourceKey) === text(key)) return panels[i];
+    }
+    return panels.length ? panels[panels.length - 1] : null;
+  }
+
+  function resourcePanelData(key){
+    var panel = findResourcePanel(key);
+    if (!panel) return null;
+    var title = trim(panel.querySelector(".resource-panel-title") && panel.querySelector(".resource-panel-title").textContent) || "Study Resource";
+    var body = panel.querySelector(".resource-panel-body");
+    if (!body) return { key: text(panel.dataset.resourceKey), title: title, html: "<p>No content found.</p>" };
+    var clone = body.cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll("input,textarea,select,option,.rdm-live-resource-action,.teacher-pop-close,.back-to-doctrine-categories"),function(node){ node.remove(); });
+    Array.prototype.forEach.call(clone.querySelectorAll("button"),function(button){
+      var label = trim(button.textContent);
+      if (!label || /^(close|back|browse|show more|search)$/i.test(label)) { button.remove(); return; }
+      var span = document.createElement("span");
+      span.className = "rdm-live-resource-chip";
+      span.textContent = label;
+      button.replaceWith(span);
+    });
+    Array.prototype.forEach.call(clone.querySelectorAll("details"),function(details){ details.setAttribute("open", "open"); });
+    var html = cleanHtmlFragment(clone.innerHTML, "resource");
+    if (!hasText(clone.textContent)) html = "<p>This resource is ready in the Teacher Window. Open the specific entry or topic before showing it to the audience.</p>";
+    return { key: text(panel.dataset.resourceKey), title: title, html: html };
+  }
+
+  function resolveAudienceView(){
+    var type = currentAudienceView && currentAudienceView.type || "scripture";
+    if (type === "teaching-note") {
+      var noteText = presentationTextFor("teachingNotes");
+      if (!hasText(noteText)) return { type: "scripture" };
+      return { type: type, title: "Teaching Note", text: noteText };
+    }
+    if (type === "application") {
+      var appText = presentationTextFor("applicationNotes");
+      if (!hasText(appText)) return { type: "scripture" };
+      return { type: type, title: "Application & Prayer", text: appText };
+    }
+    if (type === "teaching-crossrefs") {
+      return { type: type, title: "Teaching Cross References", html: teachingCrossRefsHtml() };
+    }
+    if (type === "built-in-crossrefs") {
+      return { type: type, title: "Built-In Cross References", html: builtInCrossRefsHtml() };
+    }
+    if (type === "resource") {
+      var resource = resourcePanelData(currentAudienceView.resourceKey);
+      if (!resource) return { type: "scripture" };
+      currentAudienceView.resourceKey = resource.key;
+      return { type: type, title: resource.title, html: resource.html, resourceKey: resource.key };
+    }
+    return { type: "scripture" };
+  }
+
+  function buildSnapshot(status){
+    var controls = currentControlState();
+    var view = status === "closed" ? { type: "closed", title: "Live Teaching Mode Ended", text: "The teacher has ended this Live Teaching session." } : resolveAudienceView();
+    if (view.type === "scripture" && currentAudienceView.type !== "scripture") currentAudienceView = { type: "scripture" };
+    var passage = get("passage");
+    var box = get("scriptureBox");
+    return {
+      tag: MESSAGE_TAG,
+      kind: "snapshot",
+      build: BUILD,
+      session: liveSessionId,
+      timestamp: Date.now(),
+      status: status || "live",
+      mode: liveMode || "dual",
+      theme: currentTheme(),
+      reference: controls.heading,
+      exactReference: controls.exactReference,
+      sectionMeta: controls.meta,
+      range: controls.range,
+      scriptureHtml: cleanHtmlFragment(passage ? passage.innerHTML : '<p class="verse">Passage is loading…</p>', "scripture"),
+      focusMode: !!(box && box.classList.contains("focus-mode")),
+      view: view
+    };
+  }
+
+  function ensureChannel(){
+    if (channel || typeof BroadcastChannel === "undefined") return channel;
+    try {
+      channel = new BroadcastChannel(CHANNEL_NAME);
+      channel.addEventListener("message",function(event){ handleIncomingMessage(event.data,"broadcast"); });
+    } catch (_) { channel = null; }
+    return channel;
+  }
+
+  function handleIncomingMessage(data, source){
+    if (!data || data.tag !== MESSAGE_TAG) return;
+    if (!liveSessionId || data.session !== liveSessionId) return;
+    if (data.kind === "request" || data.kind === "audience-ready") {
+      if (liveActive) {
+        setTeacherStatus(data.kind === "audience-ready" ? "Audience Display connected" : "Audience Display reconnected");
+        publishSnapshot("audience-request");
+      }
+      return;
+    }
+    if (data.kind === "audience-closing") {
+      setTeacherStatus("Audience Display closed — use Reopen Audience Display when ready");
+    }
+  }
+
+  function publishSnapshot(reason){
+    if (!liveActive || !liveSessionId) return null;
+    var snapshot = buildSnapshot("live");
+    safeLocalSet(snapshotKey(liveSessionId), JSON.stringify(snapshot));
+    var bc = ensureChannel();
+    try { if (bc) bc.postMessage(snapshot); } catch (_) {}
+    try {
+      if (audienceWindow && !audienceWindow.closed) audienceWindow.postMessage(snapshot,"*");
+    } catch (_) {}
+    if (liveMode === "single") renderSingleSnapshot(snapshot);
+    return snapshot;
+  }
+
+  function publishClosedSnapshot(){
+    if (!liveSessionId) return;
+    var snapshot = buildSnapshot("closed");
+    safeLocalSet(snapshotKey(liveSessionId), JSON.stringify(snapshot));
+    var bc = ensureChannel();
+    try { if (bc) bc.postMessage(snapshot); } catch (_) {}
+    try { if (audienceWindow && !audienceWindow.closed) audienceWindow.postMessage(snapshot,"*"); } catch (_) {}
+  }
+
+  function clearPublishTimers(){
+    publishTimers.forEach(function(timer){ clearTimeout(timer); });
+    publishTimers.length = 0;
+  }
+
+  function schedulePublishBurst(reason, delays){
+    if (!liveActive) return;
+    clearPublishTimers();
+    (delays || [0,120,420,1000]).forEach(function(delay){
+      publishTimers.push(setTimeout(function(){
+        installResourceAudienceButtons();
+        publishSnapshot(reason);
+      },delay));
+    });
+  }
+
+  function setAudienceView(view){
+    if (!liveActive) return false;
+    currentAudienceView = view || { type: "scripture" };
+    publishSnapshot("view-change");
+    return true;
+  }
+
+  function showScripture(){ return setAudienceView({ type: "scripture" }); }
+  function showTeachingNote(){
+    if (!hasText(presentationTextFor("teachingNotes"))) return false;
+    return setAudienceView({ type: "teaching-note" });
+  }
+  function showApplication(){
+    if (!hasText(presentationTextFor("applicationNotes"))) return false;
+    return setAudienceView({ type: "application" });
+  }
+  function showTeachingCrossRefs(){ return setAudienceView({ type: "teaching-crossrefs" }); }
+  function showBuiltInCrossRefs(){
+    currentAudienceView = { type: "built-in-crossrefs" };
+    schedulePublishBurst("built-in-crossrefs",[0,180,520,1100]);
+    return true;
+  }
+  function showResource(key){
+    var resource = resourcePanelData(key);
+    if (!resource) return false;
+    return setAudienceView({ type: "resource", resourceKey: resource.key });
+  }
+
+  function setTeacherStatus(message){
+    var status = get("rdmLiveTeacherStatus");
+    if (status) status.textContent = message || "Live Teaching active";
+    var dialogStatus = get("rdmLiveDialogStatus");
+    if (dialogStatus) dialogStatus.textContent = message || "";
+  }
+
+  function ensureSession(reset){
+    if (reset || !liveSessionId) liveSessionId = randomId();
+    safeSessionSet(SESSION_KEY,liveSessionId);
+    return liveSessionId;
+  }
+
+  function activateLive(mode, resetSession){
+    liveActive = true;
+    liveMode = mode;
+    ensureSession(!!resetSession);
+    safeSessionSet(ACTIVE_KEY,"1");
+    safeSessionSet(MODE_KEY,mode);
+    document.body.classList.add("rdm-live-teacher-active");
+    var button = get("liveTeachingBtn");
+    if (button) {
+      button.classList.add("rdm-live-active");
+      button.textContent = "Live Teaching: On";
+      button.setAttribute("aria-pressed","true");
+    }
+    ensureChannel();
+    ensureLiveCrossRefControls();
+    installResourceAudienceButtons();
+  }
+
+  function deactivateLiveUi(){
+    document.body.classList.remove("rdm-live-teacher-active");
+    var button = get("liveTeachingBtn");
+    if (button) {
+      button.classList.remove("rdm-live-active");
+      button.textContent = "Live Teaching Mode";
+      button.setAttribute("aria-pressed","false");
+    }
+  }
+
+  function audienceRuntime(){
+    "use strict";
+    var CHANNEL_NAME = "iron-sharpener-live-teaching-v184";
+    var SNAPSHOT_PREFIX = "ironSharpenerLiveTeaching.v184.snapshot.";
+    var COMMAND_PREFIX = "ironSharpenerLiveTeaching.v184.command.";
+    var MESSAGE_TAG = "ironSharpenerLiveTeaching.v184";
+    var hash = new URLSearchParams(location.hash.slice(1));
+    var session = hash.get("session") || "";
+    var channel = null;
+
+    function get(id){ return document.getElementById(id); }
+    function text(value){ return String(value == null ? "" : value); }
+    function safeParse(value){ try { return JSON.parse(value); } catch (_) { return null; } }
+    function safeLocalGet(key){ try { return localStorage.getItem(key); } catch (_) { return null; } }
+    function safeLocalSet(key,value){ try { localStorage.setItem(key,value); return true; } catch (_) { return false; } }
+    function sanitize(html){
+      var template = document.createElement("template");
+      template.innerHTML = text(html);
+      Array.prototype.forEach.call(template.content.querySelectorAll("script,style,iframe,object,embed,form,input,textarea,select,option,button,link,meta,audio,video,canvas"),function(node){node.remove();});
+      Array.prototype.forEach.call(template.content.querySelectorAll("*"),function(node){
+        Array.prototype.slice.call(node.attributes || []).forEach(function(attr){
+          var name = String(attr.name || "").toLowerCase();
+          if (name.indexOf("on") === 0 || name === "contenteditable" || name === "src" || name === "href" || name === "target") node.removeAttribute(attr.name);
+        });
+      });
+      return template.innerHTML;
+    }
+    function setStatus(message, connected){
+      var node = get("audienceConnection");
+      if (!node) return;
+      node.textContent = message;
+      node.classList.toggle("connected",!!connected);
+    }
+    function apply(snapshot){
+      if (!snapshot || snapshot.tag !== MESSAGE_TAG || snapshot.session !== session || snapshot.kind !== "snapshot") return;
+      var root = get("audienceRoot");
+      if (!root) return;
+      root.classList.toggle("dark",snapshot.theme === "dark");
+      get("audienceReference").textContent = snapshot.reference || "Iron Sharpener";
+      get("audienceMeta").textContent = snapshot.sectionMeta || snapshot.exactReference || "";
+      var scripture = get("audienceScripture");
+      var panel = get("audiencePanel");
+      var passage = get("audiencePassage");
+      passage.classList.toggle("focus-mode",!!snapshot.focusMode);
+      if (snapshot.status === "closed" || (snapshot.view && snapshot.view.type === "closed")) {
+        scripture.classList.add("hidden");
+        panel.classList.add("open");
+        get("audiencePanelTitle").textContent = "Live Teaching Mode Ended";
+        get("audiencePanelText").textContent = "The teacher has ended this Live Teaching session.";
+        get("audiencePanelText").style.display = "block";
+        get("audiencePanelHtml").style.display = "none";
+        setStatus("SESSION ENDED",false);
+        return;
+      }
+      var view = snapshot.view || {type:"scripture"};
+      if (view.type === "scripture") {
+        panel.classList.remove("open");
+        scripture.classList.remove("hidden");
+        passage.innerHTML = sanitize(snapshot.scriptureHtml || '<p class="verse">Passage is loading…</p>');
+      } else {
+        scripture.classList.add("hidden");
+        panel.classList.add("open");
+        get("audiencePanelTitle").textContent = view.title || "Live Teaching";
+        var textNode = get("audiencePanelText");
+        var htmlNode = get("audiencePanelHtml");
+        if (view.html) {
+          textNode.style.display = "none";
+          htmlNode.style.display = "block";
+          htmlNode.innerHTML = sanitize(view.html);
+        } else {
+          htmlNode.style.display = "none";
+          textNode.style.display = "block";
+          textNode.textContent = view.text || "";
+        }
+      }
+      setStatus("LIVE • CONNECTED",true);
+      try { window.scrollTo(0,0); } catch (_) {}
+    }
+    function send(kind){
+      var message = {tag:MESSAGE_TAG,kind:kind,session:session,timestamp:Date.now()};
+      try { if (channel) channel.postMessage(message); } catch (_) {}
+      try { if (window.opener && !window.opener.closed) window.opener.postMessage(message,"*"); } catch (_) {}
+      safeLocalSet(COMMAND_PREFIX + session,JSON.stringify(message));
+    }
+    window.addEventListener("message",function(event){ apply(event.data); });
+    window.addEventListener("storage",function(event){
+      if (event.key === SNAPSHOT_PREFIX + session && event.newValue) apply(safeParse(event.newValue));
+    });
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        channel = new BroadcastChannel(CHANNEL_NAME);
+        channel.addEventListener("message",function(event){ apply(event.data); });
+      }
+    } catch (_) { channel = null; }
+    var saved = safeParse(safeLocalGet(SNAPSHOT_PREFIX + session));
+    if (saved) apply(saved);
+    send("audience-ready");
+    setTimeout(function(){
+      var status = get("audienceConnection");
+      if (status && !status.classList.contains("connected")) setStatus("WAITING FOR TEACHER",false);
+    },1800);
+    window.addEventListener("pagehide",function(){ send("audience-closing"); });
+  }
+
+  function audienceCss(){
+    return [
+      ":root{--gold:#d7a84f;--cream:#f4efe3;--navy:#0a1a30;--forest:#203d39;--darkcard:#294843}",
+      "*{box-sizing:border-box}",
+      "html,body{margin:0;width:100%;height:100%;overflow:hidden}",
+      "body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:#0b1730}",
+      "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;background:var(--cream)}",
+      "#audienceRoot.dark{background:var(--forest);color:#fff2d7}",
+      ".header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(16px,2.4vw,30px) clamp(24px,5vw,78px);border-bottom:3px solid var(--gold);background:var(--navy);color:#fff3d7}",
+      ".dark .header{background:#102b29}",
+      ".kicker{margin:0 0 4px;color:#f8d987;font:800 12px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
+      "h1{margin:0;font:800 clamp(30px,4vw,64px)/1.02 Georgia,serif}",
+      ".right{text-align:right;min-width:220px}",
+      ".meta{color:#f8d987;font:700 clamp(13px,1.45vw,20px)/1.35 'Segoe UI',Arial,sans-serif}",
+      ".status{display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;border:1px solid rgba(215,168,79,.65);font:800 10px/1 Arial,sans-serif;letter-spacing:.08em;color:#f8d987;opacity:.78}",
+      ".status.connected:before{content:'';width:7px;height:7px;border-radius:50%;background:#42b875;margin-right:6px}",
+      ".main{min-height:0;overflow:auto;padding:clamp(26px,4vw,64px) clamp(26px,7vw,118px)}",
+      ".surface{width:min(1540px,100%);margin:0 auto}",
+      ".source{margin-bottom:20px;color:#6e5631;font:800 13px/1.2 Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}",
+      ".dark .source{color:#f8d987}",
+      ".passage .verse{position:relative;font-size:clamp(24px,2.55vw,42px);line-height:1.62;margin:0 0 17px;color:inherit}",
+      ".vnum{font-size:.64em;color:#a86b11;font-weight:900;vertical-align:super;margin-right:10px}",
+      ".dark .vnum{color:#f8d987}",
+      ".hidden{display:none!important}",
+      ".panel{display:none;width:min(1440px,100%);margin:0 auto}",
+      ".panel.open{display:block}",
+      ".card{border-radius:20px;border:2px solid var(--gold);background:rgba(255,248,234,.97);padding:clamp(28px,4.5vw,68px);box-shadow:0 20px 55px rgba(0,0,0,.16)}",
+      ".dark .card{background:rgba(41,72,67,.98)}",
+      ".card h2{margin:0 0 24px;padding-bottom:15px;border-bottom:2px solid var(--gold);font:800 clamp(31px,3.4vw,56px)/1.08 Georgia,serif}",
+      ".panelText,.panelHtml{white-space:pre-wrap;font:600 clamp(21px,2.25vw,35px)/1.58 'Segoe UI',Arial,sans-serif}",
+      ".panelHtml{white-space:normal}",
+      ".panelHtml p,.panelHtml li,.panelHtml div{font:inherit;line-height:1.55}",
+      ".panelHtml h3,.panelHtml h4{font-family:Georgia,serif;color:inherit}",
+      ".rdm-live-resource-chip{display:inline-flex;margin:5px 7px 5px 0;padding:7px 11px;border:1px solid var(--gold);border-radius:999px;background:rgba(248,217,135,.18);font-size:.82em;font-weight:800}",
+      ".rdm-live-reference-group{margin:0 0 18px;padding:15px 17px;border-left:5px solid var(--gold);border-radius:8px;background:rgba(248,217,135,.10)}",
+      ".rdm-live-reference-group h3{margin:0 0 8px;font-size:1em}",
+      ".verse.highlighted,.verse.highlight-gold{background:linear-gradient(90deg,rgba(244,199,108,.58),rgba(244,199,108,.20));border-left:7px solid var(--gold);outline:1px solid rgba(215,168,79,.78);border-radius:8px;padding:8px 12px}",
+      ".verse.highlight-blue{background:linear-gradient(90deg,rgba(97,165,255,.42),rgba(97,165,255,.16));border-left:7px solid #4f8fe8;outline:1px solid rgba(97,165,255,.65);border-radius:8px;padding:8px 12px}",
+      ".verse.highlight-green{background:linear-gradient(90deg,rgba(80,190,130,.42),rgba(80,190,130,.16));border-left:7px solid #3fb377;outline:1px solid rgba(80,190,130,.65);border-radius:8px;padding:8px 12px}",
+      ".verse.highlight-red{background:linear-gradient(90deg,rgba(225,95,95,.38),rgba(225,95,95,.14));border-left:7px solid #d44d4d;outline:1px solid rgba(225,95,95,.60);border-radius:8px;padding:8px 12px}",
+      ".verse.highlight-purple{background:linear-gradient(90deg,rgba(168,116,230,.38),rgba(168,116,230,.14));border-left:7px solid #9a65d8;outline:1px solid rgba(168,116,230,.60);border-radius:8px;padding:8px 12px}",
+      ".verse.highlight-amber{background:linear-gradient(90deg,rgba(232,132,45,.40),rgba(232,132,45,.14));border-left:7px solid #e8842d;outline:1px solid rgba(232,132,45,.64);border-radius:8px;padding:8px 12px}",
+      ".verse.underlined{text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:7px}",
+      ".verse.circled{outline:4px solid rgba(215,168,79,.75);outline-offset:4px;border-radius:999px;padding:9px 16px}",
+      ".verse.boxed{border:3px solid var(--gold);border-radius:8px;padding:10px 14px}",
+      ".verse.pointed{padding-left:34px}",
+      ".verse.pointed:before{content:'➤';position:absolute;left:4px;top:4px;color:var(--gold);font-size:22px}",
+      ".passage.focus-mode .verse{opacity:.26}",
+      ".passage.focus-mode .verse.focused{opacity:1;background:rgba(244,199,108,.30);outline:2px solid rgba(215,168,79,.75);border-radius:8px;padding:7px 11px}",
+      ".inline-underline{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px}",
+      ".inline-circle{display:inline;border:2px solid var(--gold);border-radius:999px;padding:0 5px}",
+      ".inline-box{display:inline;border:2px solid var(--gold);border-radius:4px;padding:0 4px}",
+      ".inline-highlight-gold{background:rgba(244,199,108,.58)}",
+      ".inline-highlight-blue{background:rgba(97,165,255,.42)}",
+      ".inline-highlight-green{background:rgba(80,190,130,.42)}",
+      ".inline-highlight-red{background:rgba(225,95,95,.38)}",
+      ".inline-highlight-purple{background:rgba(168,116,230,.38)}",
+      ".inline-highlight-amber{background:rgba(232,132,45,.40)}",
+      "@media(max-width:700px){.header{align-items:flex-start}.right{min-width:0;max-width:45%}.main{padding-left:18px;padding-right:18px}}"
+    ].join("");
+  }
+
+  function audienceDocument(session){
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Iron Sharpener Audience Display</title><style>' + audienceCss() + '</style></head><body>' +
+      '<div id="audienceRoot"><header class="header"><div><p class="kicker">Restored Daily Ministries • Live Teaching</p><h1 id="audienceReference">Iron Sharpener</h1></div><div class="right"><div class="meta" id="audienceMeta">Waiting for teacher…</div><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
+      '<main class="main"><section class="surface" id="audienceScripture"><div class="source">World English Bible • Public Domain</div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
+      '<section class="panel" id="audiencePanel"><div class="card"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
+      '<script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
+  }
+
+  function getAudienceBlobUrl(session){
+    if (audienceBlobUrl && audienceBlobSession === session) return audienceBlobUrl;
+    if (audienceBlobUrl) {
+      try { URL.revokeObjectURL(audienceBlobUrl); } catch (_) {}
+    }
+    audienceBlobSession = session;
+    audienceBlobUrl = URL.createObjectURL(new Blob([audienceDocument(session)],{type:"text/html"}));
+    return audienceBlobUrl;
+  }
+
+  function openAudienceWindow(){
+    var session = ensureSession(false);
+    var url = getAudienceBlobUrl(session) + "#session=" + encodeURIComponent(session);
+    var name = "IronSharpenerAudienceV184_" + session.replace(/[^a-z0-9_-]/gi,"");
+    try {
+      audienceWindow = window.open(url,name,"popup=yes,width=1365,height=768,resizable=yes,scrollbars=yes");
+    } catch (_) { audienceWindow = null; }
+    if (!audienceWindow) {
+      setTeacherStatus("The Audience Display was blocked. Allow pop-ups for Iron Sharpener, then choose Reopen Audience Display.");
+      return false;
+    }
+    try { audienceWindow.focus(); } catch (_) {}
+    setTeacherStatus("Audience Display opened — capture that window in OBS, not the Teacher Window");
+    schedulePublishBurst("audience-open",[0,120,450,1000]);
+    return true;
+  }
+
+  function startDualWindow(){
+    if (!liveActive || liveMode !== "dual") activateLive("dual",true);
+    else activateLive("dual",false);
+    currentAudienceView = { type: "scripture" };
+    openAudienceWindow();
+    closeLiveDialog();
+    return true;
+  }
+
+  function createSingleScreenRoot(){
+    var root = get("rdmLiveSingleScreenRoot");
+    if (root) return root;
+    root = document.createElement("div");
+    root.id = "rdmLiveSingleScreenRoot";
+    root.setAttribute("aria-live","polite");
+    root.innerHTML = '' +
+      '<div class="rdm-live-single-stage">' +
+        '<header class="rdm-live-single-header"><div class="rdm-live-brand"><p class="rdm-live-brand-kicker">Restored Daily Ministries • Live Teaching</p><h1 id="rdmLiveSingleReference">Iron Sharpener</h1></div><div class="rdm-live-section-meta" id="rdmLiveSingleMeta"></div></header>' +
+        '<main class="rdm-live-single-main"><section class="rdm-live-scripture-surface" id="rdmLiveSingleScripture"><div class="rdm-live-scripture-source">World English Bible • Public Domain</div><div class="rdm-live-passage" id="rdmLiveSinglePassage"></div></section><section class="rdm-live-panel-surface" id="rdmLiveSinglePanel"><div class="rdm-live-panel-card"><h2 id="rdmLiveSinglePanelTitle"></h2><div class="rdm-live-panel-text" id="rdmLiveSinglePanelText"></div><div class="rdm-live-panel-html" id="rdmLiveSinglePanelHtml" style="display:none"></div></div></section></main>' +
+        '<div class="rdm-live-single-controls" aria-label="Single-Screen Live Teaching controls">' +
+          '<button type="button" data-rdm-live-single="previous">‹ Previous</button>' +
+          '<button type="button" data-rdm-live-single="next">Next ›</button>' +
+          '<button type="button" data-rdm-live-single="teaching-note">Teaching Note (T)</button>' +
+          '<button type="button" data-rdm-live-single="crossrefs">Cross Refs (C)</button>' +
+          '<button type="button" data-rdm-live-single="application">Application (A)</button>' +
+          '<button type="button" data-rdm-live-single="scripture">Scripture (S)</button>' +
+          '<button type="button" data-rdm-live-single="fullscreen">Fullscreen (F)</button>' +
+          '<button type="button" class="secondary" data-rdm-live-single="exit">Exit Live Teaching (X)</button>' +
+          '<div class="rdm-live-single-private-note">Private notes and teacher controls are hidden in Single-Screen Display. Exit Live Teaching to return to the private workspace.</div>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(root);
+    root.addEventListener("click",function(event){
+      var button = event.target.closest("[data-rdm-live-single]");
+      if (!button) return;
+      var action = button.getAttribute("data-rdm-live-single");
+      if (action === "previous") navigateSingle(-1);
+      else if (action === "next") navigateSingle(1);
+      else if (action === "teaching-note") showTeachingNote();
+      else if (action === "crossrefs") showTeachingCrossRefs();
+      else if (action === "application") showApplication();
+      else if (action === "scripture") showScripture();
+      else if (action === "fullscreen") toggleSingleFullscreen();
+      else if (action === "exit") stopLiveTeaching();
+    });
+    return root;
+  }
+
+  function rememberAndHidePrivateNodes(root){
+    singlePrivateState.length = 0;
+    Array.prototype.forEach.call(document.body.children,function(node){
+      if (node === root || node.tagName === "SCRIPT" || node.tagName === "STYLE") return;
+      singlePrivateState.push({node:node,inert:!!node.inert,ariaHidden:node.getAttribute("aria-hidden")});
+      try { node.inert = true; } catch (_) {}
+      node.setAttribute("aria-hidden","true");
+    });
+  }
+
+  function restorePrivateNodes(){
+    singlePrivateState.forEach(function(item){
+      try { item.node.inert = item.inert; } catch (_) {}
+      if (item.ariaHidden == null) item.node.removeAttribute("aria-hidden");
+      else item.node.setAttribute("aria-hidden",item.ariaHidden);
+    });
+    singlePrivateState.length = 0;
+  }
+
+  function renderSingleSnapshot(snapshot){
+    var root = get("rdmLiveSingleScreenRoot");
+    if (!root || !snapshot) return;
+    root.classList.toggle("dark",snapshot.theme === "dark");
+    get("rdmLiveSingleReference").textContent = snapshot.reference || "Iron Sharpener";
+    get("rdmLiveSingleMeta").textContent = snapshot.sectionMeta || snapshot.exactReference || "";
+    var scripture = get("rdmLiveSingleScripture");
+    var panel = get("rdmLiveSinglePanel");
+    var passage = get("rdmLiveSinglePassage");
+    passage.classList.toggle("focus-mode",!!snapshot.focusMode);
+    var view = snapshot.view || {type:"scripture"};
+    if (view.type === "scripture") {
+      scripture.classList.remove("hidden");
+      panel.classList.remove("open");
+      passage.innerHTML = cleanHtmlFragment(snapshot.scriptureHtml,"scripture");
+    } else {
+      scripture.classList.add("hidden");
+      panel.classList.add("open");
+      get("rdmLiveSinglePanelTitle").textContent = view.title || "Live Teaching";
+      var textNode = get("rdmLiveSinglePanelText");
+      var htmlNode = get("rdmLiveSinglePanelHtml");
+      if (view.html) {
+        textNode.style.display = "none";
+        htmlNode.style.display = "block";
+        htmlNode.innerHTML = cleanHtmlFragment(view.html,"resource");
+      } else {
+        htmlNode.style.display = "none";
+        textNode.style.display = "block";
+        textNode.textContent = view.text || "";
+      }
+    }
+    var main = root.querySelector(".rdm-live-single-main");
+    if (main) main.scrollTop = 0;
+  }
+
+  function requestSingleFullscreen(){
+    var root = get("rdmLiveSingleScreenRoot");
+    if (!root || document.fullscreenElement) return;
+    try {
+      var result = root.requestFullscreen && root.requestFullscreen();
+      if (result && typeof result.catch === "function") result.catch(function(){});
+    } catch (_) {}
+  }
+
+  function toggleSingleFullscreen(){
+    if (document.fullscreenElement) {
+      try { document.exitFullscreen(); } catch (_) {}
+    } else requestSingleFullscreen();
+  }
+
+  function enterSingleScreen(requestFullscreenNow){
+    activateLive("single",!liveActive || liveMode !== "single");
+    currentAudienceView = { type: "scripture" };
+    closeLiveDialog();
+    var root = createSingleScreenRoot();
+    rememberAndHidePrivateNodes(root);
+    document.body.classList.add("rdm-live-single-screen");
+    document.documentElement.classList.remove("rdm-v184-single-prepaint");
+    document.body.style.visibility = "visible";
+    renderSingleSnapshot(buildSnapshot("live"));
+    setTeacherStatus("Single-Screen Display active — private workspace hidden");
+    if (requestFullscreenNow) requestSingleFullscreen();
+    return true;
+  }
+
+  function leaveSingleScreenOnly(){
+    if (!document.body.classList.contains("rdm-live-single-screen")) return;
+    document.body.classList.remove("rdm-live-single-screen");
+    restorePrivateNodes();
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
+  }
+
+  function navigateSingle(direction){
+    var api = window.rdmReferenceRangeNavigationV163;
+    var result = null;
+    try {
+      if (api && typeof api[direction < 0 ? "previousSection" : "nextSection"] === "function") {
+        result = api[direction < 0 ? "previousSection" : "nextSection"]();
+      } else {
+        var button = get(direction < 0 ? "prevBtn" : "nextBtn");
+        if (button) button.click();
+      }
+    } catch (_) {}
+    try {
+      Promise.resolve(result).then(function(){ schedulePublishBurst("single-navigation",[0,100,350,850]); });
+    } catch (_) { schedulePublishBurst("single-navigation"); }
+  }
+
+  function stopLiveTeaching(){
+    if (!liveActive) { closeLiveDialog(); return; }
+    publishClosedSnapshot();
+    clearPublishTimers();
+    leaveSingleScreenOnly();
+    liveActive = false;
+    liveMode = "";
+    currentAudienceView = { type: "scripture" };
+    safeSessionRemove(ACTIVE_KEY);
+    safeSessionRemove(MODE_KEY);
+    safeSessionRemove(SESSION_KEY);
+    deactivateLiveUi();
+    setTeacherStatus("Live Teaching Mode is off");
+    closeLiveDialog();
+    try { if (audienceWindow && !audienceWindow.closed) audienceWindow.close(); } catch (_) {}
+    audienceWindow = null;
+    if (audienceBlobUrl) {
+      try { URL.revokeObjectURL(audienceBlobUrl); } catch (_) {}
+      audienceBlobUrl = "";
+      audienceBlobSession = "";
+    }
+    liveSessionId = "";
+  }
+
+  function openLiveDialog(){
+    var dialog = get("rdmLiveTeachingDialog");
+    if (!dialog) return;
+    dialog.classList.add("open");
+    dialog.setAttribute("aria-hidden","false");
+    var dualButton = get("rdmStartDualWindow");
+    if (dualButton) dualButton.textContent = liveActive && liveMode === "dual" ? "Reopen Audience Display" : "Open Audience Display";
+    var stopButton = get("rdmStopLiveTeaching");
+    if (stopButton) stopButton.style.display = liveActive ? "inline-flex" : "none";
+    if (!liveActive) setTeacherStatus("Choose the display setup for this teaching session.");
+    else if (liveMode === "dual") setTeacherStatus("Dual-Window Live Teaching is active.");
+    else setTeacherStatus("Single-Screen Display is active.");
+  }
+
+  function closeLiveDialog(){
+    var dialog = get("rdmLiveTeachingDialog");
+    if (!dialog) return;
+    dialog.classList.remove("open");
+    dialog.setAttribute("aria-hidden","true");
+  }
+
+  function createLiveUi(){
+    var actions = document.querySelector(".hero .actions");
+    if (actions && !get("liveTeachingBtn")) {
+      var button = document.createElement("button");
+      button.id = "liveTeachingBtn";
+      button.type = "button";
+      button.className = "secondary";
+      button.textContent = "Live Teaching Mode";
+      button.setAttribute("aria-pressed","false");
+      var obsButton = get("obsBtn");
+      if (obsButton && obsButton.nextSibling) actions.insertBefore(button,obsButton.nextSibling);
+      else actions.appendChild(button);
+      button.addEventListener("click",openLiveDialog);
+
+      var status = document.createElement("span");
+      status.id = "rdmLiveTeacherStatus";
+      status.textContent = "Live Teaching active";
+      actions.appendChild(status);
+    }
+
+    if (!get("rdmLiveTeachingDialog")) {
+      var dialog = document.createElement("div");
+      dialog.id = "rdmLiveTeachingDialog";
+      dialog.setAttribute("aria-hidden","true");
+      dialog.innerHTML = '' +
+        '<div class="rdm-live-dialog-card" role="dialog" aria-modal="true" aria-labelledby="rdmLiveDialogTitle">' +
+          '<div class="rdm-live-dialog-head"><h2 id="rdmLiveDialogTitle">Live Teaching Mode</h2><button type="button" class="secondary rdm-live-dialog-close" id="rdmCloseLiveDialog" aria-label="Close">×</button></div>' +
+          '<div class="rdm-live-dialog-body"><p class="rdm-live-dialog-intro">Choose how the clean Audience Display will be used. Normal Iron Sharpener remains unchanged whenever Live Teaching Mode is off.</p>' +
+            '<div class="rdm-live-mode-grid">' +
+              '<section class="rdm-live-mode-card"><h3>Dual Window</h3><p>Keeps the full Iron Sharpener private in the Teacher Window while opening a separate synchronized Audience Display for OBS, a second monitor, television, or projector.</p><div class="rdm-live-mode-spacer"></div><button type="button" id="rdmStartDualWindow">Open Audience Display</button></section>' +
+              '<section class="rdm-live-mode-card"><h3>Single-Screen Display</h3><p>Turns this screen into the clean Audience Display and provides discreet teaching controls and keyboard shortcuts.</p><p class="rdm-live-warning"><strong>Private-workspace limitation:</strong> notes and preparation controls cannot remain visible on the same physical screen. They are hidden until Live Teaching Mode is exited.</p><div class="rdm-live-mode-spacer"></div><button type="button" id="rdmStartSingleScreen">Start Single-Screen Display</button></section>' +
+            '</div><div id="rdmLiveDialogStatus" role="status"></div></div>' +
+          '<div class="rdm-live-dialog-footer"><button type="button" class="secondary" id="rdmStopLiveTeaching" style="display:none">Stop Live Teaching</button><button type="button" class="secondary" id="rdmCancelLiveDialog">Cancel</button></div>' +
+        '</div>';
+      document.body.appendChild(dialog);
+      get("rdmCloseLiveDialog").addEventListener("click",closeLiveDialog);
+      get("rdmCancelLiveDialog").addEventListener("click",closeLiveDialog);
+      get("rdmStartDualWindow").addEventListener("click",startDualWindow);
+      get("rdmStartSingleScreen").addEventListener("click",function(){ enterSingleScreen(true); });
+      get("rdmStopLiveTeaching").addEventListener("click",stopLiveTeaching);
+      dialog.addEventListener("click",function(event){ if (event.target === dialog) closeLiveDialog(); });
+    }
+  }
+
+  function ensureLiveCrossRefControls(){
+    if (get("rdmLiveCrossRefActions")) return;
+    var field = get("crossRefs");
+    if (!field) return;
+    var panel = field.closest(".panel");
+    if (!panel) return;
+    var wrap = document.createElement("div");
+    wrap.id = "rdmLiveCrossRefActions";
+    wrap.className = "rdm-live-crossref-actions";
+    wrap.innerHTML = '<button type="button" id="rdmShowTeachingCrossRefsAudience">Show Teaching Cross References</button><button type="button" class="secondary" id="rdmHideTeachingCrossRefsAudience">Return Audience to Scripture</button>';
+    panel.appendChild(wrap);
+    get("rdmShowTeachingCrossRefsAudience").addEventListener("click",showTeachingCrossRefs);
+    get("rdmHideTeachingCrossRefsAudience").addEventListener("click",showScripture);
+  }
+
+  function installResourceAudienceButtons(){
+    if (!liveActive) return;
+    Array.prototype.forEach.call(document.querySelectorAll(".resource-instance-panel"),function(panel){
+      if (panel.querySelector("[data-rdm-live-resource-show]")) return;
+      var head = panel.querySelector(".teacher-pop-head");
+      var close = head && head.querySelector(".teacher-pop-close");
+      if (!head) return;
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "rdm-live-resource-action rdm-live-only-control";
+      button.setAttribute("data-rdm-live-resource-show","1");
+      button.textContent = "Show on Audience Display";
+      button.addEventListener("click",function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        showResource(panel.dataset.resourceKey || "");
+      });
+      head.insertBefore(button,close || null);
+    });
+  }
+
+  function wrapResourcePanelOpener(){
+    var original = window.openResourceInstancePanel;
+    if (typeof original !== "function" || original.__rdmV184LiveWrapped) return;
+    function wrappedResourcePanelOpener(){
+      var result = original.apply(this,arguments);
+      if (liveActive) setTimeout(installResourceAudienceButtons,0);
+      return result;
+    }
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV184LiveWrapped",{value:true}); } catch (_) { wrappedResourcePanelOpener.__rdmV184LiveWrapped = true; }
+    try { Object.defineProperty(wrappedResourcePanelOpener,"__rdmV184Original",{value:original}); } catch (_) {}
+    window.openResourceInstancePanel = wrappedResourcePanelOpener;
+  }
+
+  function eventNeedsNavigationPublish(target){
+    return !!target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack,#crossRefLinks .cross-ref-link,.internal-xref-link,.resource-instance-panel .cross-ref-link,.doctrine-related-topic-btn");
+  }
+
+  function handlePointerDown(event){
+    var target = event.target && event.target.closest ? event.target : null;
+    if (!target || !liveActive) return;
+    if (target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) {
+      showBuiltInCrossRefs();
+      return;
+    }
+    if (target.closest("#closeInternalCrossRefs") && currentAudienceView.type === "built-in-crossrefs") {
+      showScripture();
+      return;
+    }
+    if (target.closest("#openBackgroundsResource,#openEastonsResource,#openSmithsResource,#openNavesResource,#openDoctrineResource,#openCommentariesResource,#openBookOverviewResource,#openJfbResource,.resource-instance-panel")) {
+      [40,190,650].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
+    }
+  }
+
+  function handleCapturedClick(event){
+    var target = event.target && event.target.closest ? event.target : null;
+    if (!target || !liveActive) return;
+
+    if (target.closest("#showTeachingNote,#obsShowTeachingNote")) {
+      setTimeout(showTeachingNote,0);
+      return;
+    }
+    if (target.closest("#hideTeachingNote,#closeTeachingPresentation")) {
+      setTimeout(showScripture,0);
+      return;
+    }
+    if (target.closest("#showApplicationNote,#obsShowApplicationNote")) {
+      setTimeout(showApplication,0);
+      return;
+    }
+    if (target.closest("#hideApplicationNote,#closeApplicationPresentation")) {
+      setTimeout(showScripture,0);
+      return;
+    }
+    if (target.closest("#obsShowCrossRefs")) {
+      setTimeout(showTeachingCrossRefs,0);
+      return;
+    }
+    if (target.closest("#closeObsCrossRefs")) {
+      if (currentAudienceView.type === "teaching-crossrefs") setTimeout(showScripture,0);
+      return;
+    }
+    if (target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) {
+      showBuiltInCrossRefs();
+      return;
+    }
+    if (target.closest("#closeInternalCrossRefs")) {
+      if (currentAudienceView.type === "built-in-crossrefs") setTimeout(showScripture,0);
+      return;
+    }
+
+    var resourceClose = target.closest(".resource-instance-panel .teacher-pop-close");
+    if (resourceClose && currentAudienceView.type === "resource") {
+      var closingPanel = resourceClose.closest(".resource-instance-panel");
+      if (closingPanel && text(closingPanel.dataset.resourceKey) === text(currentAudienceView.resourceKey)) setTimeout(showScripture,0);
+    }
+
+    if (target.closest("#themeBtn")) {
+      schedulePublishBurst("theme-change",[0,80,220]);
+      return;
+    }
+
+    if (target.closest("#passage,.tool-option,#clearMarks,#obsClearMarks,#rdmDesktopCopyVerseMenu,#rdmDesktopCopyPassageMenu")) {
+      schedulePublishBurst("marks",[20,120,360]);
+    }
+
+    if (eventNeedsNavigationPublish(target)) schedulePublishBurst("navigation");
+
+    if (target.closest("#openBackgroundsResource,#openEastonsResource,#openSmithsResource,#openNavesResource,#openDoctrineResource,#openCommentariesResource,#openBookOverviewResource,#openJfbResource,.resource-instance-panel")) {
+      [30,180,650].forEach(function(delay){ setTimeout(installResourceAudienceButtons,delay); });
+      if (currentAudienceView.type === "resource") schedulePublishBurst("resource-update",[80,320,900]);
+    }
+  }
+
+  function handleInputOrChange(event){
+    if (!liveActive) return;
+    var target = event.target;
+    if (!target) return;
+    var id = target.id || "";
+    if (/^(book|chapter|start|end|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(id)) {
+      schedulePublishBurst("control-change");
+      return;
+    }
+    var fieldId = id;
+    if (target.classList && target.classList.contains("rdm-v182-related-editor")) fieldId = target.getAttribute("data-rdm-v182-field") || "";
+    if (fieldId === "teachingNotes" && currentAudienceView.type === "teaching-note") schedulePublishBurst("teaching-note-edit",[80,260]);
+    if (fieldId === "applicationNotes" && currentAudienceView.type === "application") schedulePublishBurst("application-edit",[80,260]);
+    if (fieldId === "crossRefs" && currentAudienceView.type === "teaching-crossrefs") schedulePublishBurst("crossref-edit",[80,260]);
+    if (id === "internalXrefSearch" || id === "internalXrefsPassageMode" || id === "internalXrefsChapterMode") {
+      if (currentAudienceView.type === "built-in-crossrefs") schedulePublishBurst("built-in-filter",[80,300,800]);
+    }
+  }
+
+  function handleStorage(event){
+    if (!liveActive || !liveSessionId || event.key !== commandKey(liveSessionId) || !event.newValue) return;
+    var data = null;
+    try { data = JSON.parse(event.newValue); } catch (_) {}
+    handleIncomingMessage(data,"storage");
+  }
+
+  function handleWindowMessage(event){ handleIncomingMessage(event.data,"postMessage"); }
+
+  function handleSingleKeyboard(event){
+    var key = String(event.key || "").toLowerCase();
+    if (liveActive && (key === "enter" || key === " ")) {
+      var target = event.target && event.target.closest ? event.target : null;
+      if (target && target.closest("#openInternalCrossRefs,#studyResourcesKey [data-study-key-action='crossrefs']")) showBuiltInCrossRefs();
+      if (target && target.closest("#closeInternalCrossRefs") && currentAudienceView.type === "built-in-crossrefs") showScripture();
+    }
+    if (!liveActive || liveMode !== "single" || !document.body.classList.contains("rdm-live-single-screen")) return;
+    if (key === "arrowleft" || key === "pageup") { event.preventDefault(); navigateSingle(-1); }
+    else if (key === "arrowright" || key === "pagedown") { event.preventDefault(); navigateSingle(1); }
+    else if (key === "t") { event.preventDefault(); showTeachingNote(); }
+    else if (key === "c") { event.preventDefault(); showTeachingCrossRefs(); }
+    else if (key === "a") { event.preventDefault(); showApplication(); }
+    else if (key === "s" || key === "0") { event.preventDefault(); showScripture(); }
+    else if (key === "f") { event.preventDefault(); toggleSingleFullscreen(); }
+    else if (key === "x") { event.preventDefault(); stopLiveTeaching(); }
+  }
+
+  function restoreLiveSession(){
+    var active = safeSessionGet(ACTIVE_KEY) === "1";
+    var mode = safeSessionGet(MODE_KEY) || "";
+    var session = safeSessionGet(SESSION_KEY) || "";
+    if (!active || (mode !== "dual" && mode !== "single")) {
+      document.documentElement.classList.remove("rdm-v184-single-prepaint");
+      if (document.body) document.body.style.visibility = "visible";
+      return;
+    }
+    liveSessionId = session || randomId();
+    activateLive(mode,false);
+    if (mode === "single") {
+      restoringSingle = true;
+      enterSingleScreen(false);
+      restoringSingle = false;
+    } else {
+      setTeacherStatus("Dual-Window Live Teaching restored — reopen the Audience Display if needed");
+      schedulePublishBurst("session-restore",[0,300,900]);
+      document.documentElement.classList.remove("rdm-v184-single-prepaint");
+      document.body.style.visibility = "visible";
+    }
+  }
+
+  function initialize(){
+    createLiveUi();
+    ensureLiveCrossRefControls();
+    wrapResourcePanelOpener();
+    ensureChannel();
+    window.addEventListener("pointerdown",handlePointerDown,true);
+    window.addEventListener("click",handleCapturedClick,true);
+    window.addEventListener("input",handleInputOrChange,true);
+    window.addEventListener("change",handleInputOrChange,true);
+    window.addEventListener("storage",handleStorage);
+    window.addEventListener("message",handleWindowMessage);
+    window.addEventListener("keydown",handleSingleKeyboard,true);
+    window.addEventListener("pageshow",function(){ if (liveActive) schedulePublishBurst("pageshow",[0,300]); });
+    restoreLiveSession();
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = BUILD;
+    window.__RDM_ACTIVE_BUILD = BUILD;
+  }
+
+  window.__rdmLiveTeachingV184 = {
+    version: BUILD,
+    startDual: startDualWindow,
+    startSingle: function(){ return enterSingleScreen(true); },
+    stop: stopLiveTeaching,
+    publish: publishSnapshot,
+    showScripture: showScripture,
+    showTeachingNote: showTeachingNote,
+    showTeachingCrossRefs: showTeachingCrossRefs,
+    showApplication: showApplication,
+    showBuiltInCrossRefs: showBuiltInCrossRefs,
+    showResource: showResource,
+    openDialog: openLiveDialog,
+    state: function(){ return {active:liveActive,mode:liveMode,session:liveSessionId,view:currentAudienceView}; }
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded",initialize,{once:true});
+  else initialize();
+})();
+
+</script>
+<script id="rdm-v184-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v184-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v184-live-teaching-mode"; })();
 </script>
 
 </body>
