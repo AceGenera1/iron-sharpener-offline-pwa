@@ -11,14 +11,11 @@
     var params = new URLSearchParams(window.location.search || "");
     var session = params.get("rdm-live-audience");
     if (!session) return;
-    var key = "ironSharpenerLiveTeaching.v186.document." + session;
-    var html = localStorage.getItem(key);
-    if (html) {
-      document.open();
-      document.write(html);
-      document.close();
-      return;
-    }
+    /* v190 retires the normal-page audience route. The Audience Display is now
+       always a clean injected popup so browser tabs, bookmarks, and toolbars are
+       never part of the presentation surface. Close any legacy script-opened
+       audience tab when it is refreshed; otherwise strip the retired parameter. */
+    try { window.close(); } catch (_) {}
     params.delete("rdm-live-audience");
     var cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + (window.location.hash || "");
     history.replaceState(null,"",cleanUrl);
@@ -30111,7 +30108,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v189-live-teaching-mode";
+  var BUILD = "v190-live-teaching-mode";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30745,7 +30742,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if (!root) return;
       var dark = snapshot.theme === "dark";
       root.classList.toggle("dark",dark);
+      document.documentElement.classList.toggle("dark",dark);
       document.body.classList.toggle("dark",dark);
+      document.documentElement.setAttribute("data-rdm-audience-theme",dark ? "dark" : "cream");
+      document.body.setAttribute("data-rdm-audience-theme",dark ? "dark" : "cream");
       get("audienceReference").textContent = snapshot.reference || "Iron Sharpener";
       get("audienceMeta").textContent = snapshot.sectionMeta || snapshot.exactReference || "";
       var scripture = get("audienceScripture");
@@ -30820,10 +30820,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return [
       ":root{--gold:#d7a84f;--bright:#f8d987;--paper:#f4efe3;--ink:#2b394f;--line:rgba(215,168,79,.45);--rdm-mark-gold:#d7a84f;--rdm-mark-blue:#4f8fe8;--rdm-mark-green:#3fb377;--rdm-mark-red:#d44d4d;--rdm-mark-purple:#9a65d8;--rdm-mark-amber:#e8842d;--rdm-mark-gold-soft:rgba(215,168,79,.78);--rdm-mark-blue-soft:rgba(79,143,232,.78);--rdm-mark-green-soft:rgba(63,179,119,.78);--rdm-mark-red-soft:rgba(212,77,77,.76);--rdm-mark-purple-soft:rgba(154,101,216,.78);--rdm-mark-amber-soft:rgba(232,132,45,.78)}",
       "*{box-sizing:border-box}",
-      "html,body{margin:0;width:100%;height:100%;overflow:hidden}",
+      "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#e8ddc8,#f4efe3 48%,#ded2b9)}",
       "body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#e8ddc8,#f4efe3 48%,#ded2b9)}",
-      "body.dark{--paper:#294843;--ink:#f7f3ea;background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#172b29,#294843 52%,#203d39)}",
-      "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;color:var(--ink)}",
+      "html.dark,body.dark{background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#172b29,#294843 52%,#203d39)}",
+      "body.dark{--paper:#294843;--ink:#f7f3ea}",
+      "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;color:var(--ink);background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#e8ddc8,#f4efe3 48%,#ded2b9)}",
+      "body.dark #audienceRoot{background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#172b29,#294843 52%,#203d39)}",
       ".header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:22px;padding:14px clamp(20px,4vw,58px);border-bottom:2px solid var(--gold);background:linear-gradient(90deg,rgba(44,36,28,.98),rgba(70,60,46,.98),rgba(44,36,28,.98));color:#fff}",
       "body.dark .header{background:linear-gradient(90deg,rgba(23,43,41,.98),rgba(41,72,67,.98),rgba(23,43,41,.98))}",
       ".brandKicker{margin:0 0 3px;color:var(--bright);font:800 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
@@ -30921,13 +30923,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function openAudienceWindow(){
     var session = ensureSession(false);
     var html = audienceDocument(session);
-    var name = "IronSharpenerAudienceV188_" + session.replace(/[^a-z0-9_-]/gi,"");
     safeLocalSet(DOCUMENT_PREFIX + session,html);
     try {
-      /* Keep the presentation in a clean injected popup. Do not navigate or rewrite
-         the popup URL: Chromium can add an origin-disclosure strip when a script-
-         created presentation window is assigned a normal website location. */
-      audienceWindow = window.open("",name,"popup=yes,toolbar=no,location=no,menubar=no,status=no,width=1365,height=768,resizable=yes,scrollbars=yes");
+      /* Always create a fresh, unnamed about:blank presentation popup. A named
+         window can be reused by a legacy URL-based Audience Display tab, which
+         exposes normal browser tabs/bookmarks and can retain the wrong canvas. */
+      audienceWindow = window.open("about:blank","_blank","popup=yes,toolbar=no,location=no,menubar=no,status=no,width=1365,height=768,resizable=yes,scrollbars=yes");
     } catch (_) { audienceWindow = null; }
     if (!audienceWindow) {
       setTeacherStatus("The Audience Display was blocked. Allow pop-ups for Iron Sharpener, then choose Open Audience Display again.");
@@ -30950,8 +30951,15 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function startDualWindow(){
+    /* End any older session first so a leftover v187 URL-based audience tab can
+       no longer receive the new lesson. Then create a fresh popup-only session. */
+    if (liveActive && liveMode === "dual" && liveSessionId) publishClosedSnapshot();
+    clearPublishTimers();
+    clearAudienceCloseTimer();
+    try { if (audienceWindow && !audienceWindow.closed) audienceWindow.close(); } catch (_) {}
+    audienceWindow = null;
     if (!liveActive || liveMode !== "dual") activateLive("dual",true);
-    else activateLive("dual",false);
+    else ensureSession(true);
     currentAudienceView = { type: "scripture" };
     var opened = openAudienceWindow();
     closeLiveDialog();
@@ -31805,6 +31813,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 
 </script>
+<!-- v190 — Dual Audience Display always opens as a fresh clean popup, retires the legacy browser-tab route, and themes the complete audience canvas. -->
 <!-- v189 — In Dual-Window Live Teaching, theme changes preserve every open private teaching panel. -->
 <script id="rdm-v189-live-theme-panel-preservation-script">
 (function rdmV189LiveThemePanelPreservation(){
@@ -31931,8 +31940,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.addEventListener("click",preserveAfterTheme,true);
 })();
 </script>
-<script id="rdm-v189-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v189-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v189-live-teaching-mode"; })();
+<script id="rdm-v190-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v190-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v190-live-teaching-mode"; })();
 </script>
 
 </body>
