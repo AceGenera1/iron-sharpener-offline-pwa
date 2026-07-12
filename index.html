@@ -30108,7 +30108,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v190-live-teaching-mode";
+  var BUILD = "v191-live-teaching-mode";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30406,12 +30406,36 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return { key: text(panel.dataset.resourceKey), title: title, html: html };
   }
 
+  function teachingMessageHtml(noteText,reference){
+    var normalized = text(noteText).replace(/\r\n?/g,"\n").trim();
+    if (!normalized) return "";
+    var lines = normalized.split("\n");
+    while (lines.length && !trim(lines[0])) lines.shift();
+    while (lines.length && !trim(lines[lines.length - 1])) lines.pop();
+    var messageTitle = trim(lines.shift()) || "Message";
+    var bodyText = lines.join("\n").trim();
+    var bodyHtml = "";
+    if (bodyText) {
+      bodyHtml = '<div class="rdm-live-message-body">' + bodyText.split(/\n{2,}/).map(function(paragraph){
+        return '<p>' + esc(paragraph).replace(/\n/g,"<br>") + '</p>';
+      }).join("") + '</div>';
+    }
+    return '<article class="rdm-live-message-card">' +
+      '<div class="rdm-live-message-kicker">Restored Daily Ministries • Message</div>' +
+      '<h2 class="rdm-live-message-title">' + esc(messageTitle) + '</h2>' +
+      '<div class="rdm-live-message-divider"><span>◆</span></div>' +
+      (hasText(reference) ? '<div class="rdm-live-message-reference">' + esc(reference) + '</div>' : '') +
+      bodyHtml +
+    '</article>';
+  }
+
   function resolveAudienceView(){
     var type = currentAudienceView && currentAudienceView.type || "scripture";
     if (type === "teaching-note") {
       var noteText = presentationTextFor("teachingNotes");
       if (!hasText(noteText)) return { type: "scripture" };
-      return { type: type, title: "Teaching Note", text: noteText };
+      var controls = currentControlState();
+      return { type: type, title: "Message", html: teachingMessageHtml(noteText,controls.exactReference || controls.heading || "") };
     }
     if (type === "application") {
       var appText = presentationTextFor("applicationNotes");
@@ -30764,6 +30788,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         return;
       }
       var view = snapshot.view || {type:"scripture"};
+      panel.classList.toggle("message-mode",view.type === "teaching-note");
       if (view.type === "scripture") {
         panel.classList.remove("open");
         scripture.classList.remove("hidden");
@@ -30858,6 +30883,23 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".panelHtml h2,.panelHtml h3,.panelHtml h4{font-family:Georgia,serif;color:inherit;line-height:1.2;margin:1.15em 0 .55em}",
       ".panelHtml h2:first-child,.panelHtml h3:first-child,.panelHtml h4:first-child{margin-top:0}",
       ".panelHtml hr{border:0;border-top:1px solid rgba(215,168,79,.65);margin:1.35em 0}",
+      ".panel.message-mode .panelCard{width:min(1320px,100%);min-height:clamp(390px,57vh,650px);display:flex;align-items:center;justify-content:center;text-align:center;padding:clamp(34px,5vw,78px);overflow:hidden;background:radial-gradient(circle at 50% 12%,rgba(215,168,79,.14),transparent 34%),linear-gradient(145deg,#fffaf0,#f1e6d2)}",
+      ".dark .panel.message-mode .panelCard{background:radial-gradient(circle at 50% 10%,rgba(248,217,135,.13),transparent 35%),linear-gradient(145deg,#355a54,#24423e)}",
+      ".panel.message-mode .panelCard>h2{display:none}",
+      ".panel.message-mode .panelHtml{display:block!important;width:100%;font:inherit}",
+      ".panel.message-mode .panelText{display:none!important}",
+      ".rdm-live-message-card{position:relative;width:min(1080px,100%);margin:0 auto;padding:clamp(30px,4vw,58px);border:2px solid rgba(215,168,79,.78);border-radius:18px;background:rgba(255,248,234,.62);box-shadow:inset 0 0 0 6px rgba(255,255,255,.24),0 18px 44px rgba(70,40,0,.12)}",
+      ".dark .rdm-live-message-card{background:rgba(18,49,46,.48);box-shadow:inset 0 0 0 6px rgba(248,217,135,.035),0 22px 48px rgba(0,0,0,.25)}",
+      ".rdm-live-message-kicker{color:#8a5a13;font:900 clamp(11px,1vw,14px)/1.25 Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase}",
+      ".dark .rdm-live-message-kicker{color:#f8d987}",
+      ".rdm-live-message-title{margin:clamp(18px,2.5vw,30px) auto 0!important;padding:0!important;border:0!important;max-width:980px;font:800 clamp(38px,5vw,76px)/1.08 Georgia,'Times New Roman',serif!important;letter-spacing:.015em;color:var(--ink)!important;text-wrap:balance}",
+      ".rdm-live-message-divider{position:relative;width:min(430px,68%);height:1px;margin:clamp(24px,3vw,36px) auto;background:linear-gradient(90deg,transparent,var(--gold),transparent)}",
+      ".rdm-live-message-divider span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:0 12px;background:#f7eddc;color:var(--gold);font-size:13px}",
+      ".dark .rdm-live-message-divider span{background:#294843}",
+      ".rdm-live-message-reference{display:inline-flex;align-items:center;justify-content:center;padding:9px 16px;border:1px solid rgba(215,168,79,.7);border-radius:999px;color:#7a4c06;background:rgba(215,168,79,.10);font:900 clamp(12px,1.25vw,17px)/1.2 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}",
+      ".dark .rdm-live-message-reference{color:#f8d987;background:rgba(248,217,135,.07)}",
+      ".rdm-live-message-body{max-width:960px;margin:clamp(28px,3.5vw,44px) auto 0;text-align:left;font:600 clamp(19px,1.55vw,26px)/1.62 'Segoe UI',Arial,sans-serif}",
+      ".rdm-live-message-body p{margin:0 0 1em!important;line-height:1.62!important}",
       ".rdm-live-prewrap{white-space:pre-wrap}",
       ".rdm-live-reference-list{display:flex;gap:9px;flex-wrap:wrap;align-items:center}",
       ".rdm-live-resource-chip,.rdm-live-scripture-link{display:inline-flex;margin:4px 6px 4px 0;padding:8px 11px;border:1.5px solid #7a4c06;border-radius:10px;background:linear-gradient(180deg,#8a5a13,#6f4307);color:#fff8ea;font:800 .82em/1.2 Arial,sans-serif;text-decoration:none;box-shadow:0 5px 12px rgba(122,76,6,.14)}",
@@ -31332,6 +31374,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var passage = get("rdmLiveSinglePassage");
     passage.classList.toggle("focus-mode",!!snapshot.focusMode);
     var view = snapshot.view || {type:"scripture"};
+    panel.classList.toggle("rdm-live-message-mode",view.type === "teaching-note");
     if (view.type === "scripture") {
       scripture.classList.remove("hidden");
       panel.classList.remove("open");
@@ -31940,8 +31983,120 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.addEventListener("click",preserveAfterTheme,true);
 })();
 </script>
-<script id="rdm-v190-live-teaching-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v190-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v190-live-teaching-mode"; })();
+<!-- v191 — two isolated Live Teaching presentation refinements:
+     cream setup choices use the locked brownish-red palette, and Teaching Notes
+     render as a sermon/message title card in both dual and single-screen display. -->
+<style id="rdm-v191-live-presentation-refinements">
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartDualWindow,
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartSingleScreen {
+    background: linear-gradient(180deg,#9B4033 0%,#7C2D23 100%) !important;
+    background-color: #8F3428 !important;
+    color: #FFF8EA !important;
+    border: 1.8px solid #8F3428 !important;
+    box-shadow: 0 6px 14px rgba(83,28,21,.20) !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartDualWindow:hover,
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartSingleScreen:hover,
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartDualWindow:focus-visible,
+  body:not(.dark) #rdmLiveTeachingDialog #rdmStartSingleScreen:focus-visible {
+    background: linear-gradient(180deg,#AA493B 0%,#8F3428 100%) !important;
+    color: #FFF8EA !important;
+  }
+
+  #rdmLiveSinglePanel.rdm-live-message-mode .rdm-live-panel-card {
+    width: min(1320px,100%) !important;
+    min-height: clamp(390px,57vh,650px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(34px,5vw,78px) !important;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 12%,rgba(215,168,79,.14),transparent 34%),linear-gradient(145deg,#fffaf0,#f1e6d2) !important;
+  }
+  #rdmLiveSingleScreenRoot.dark #rdmLiveSinglePanel.rdm-live-message-mode .rdm-live-panel-card {
+    background: radial-gradient(circle at 50% 10%,rgba(248,217,135,.13),transparent 35%),linear-gradient(145deg,#355a54,#24423e) !important;
+  }
+  #rdmLiveSinglePanel.rdm-live-message-mode .rdm-live-panel-card > h2,
+  #rdmLiveSinglePanel.rdm-live-message-mode .rdm-live-panel-text { display: none !important; }
+  #rdmLiveSinglePanel.rdm-live-message-mode .rdm-live-panel-html {
+    display: block !important;
+    width: 100%;
+    font: inherit !important;
+  }
+  #rdmLiveSingleScreenRoot .rdm-live-message-card {
+    position: relative;
+    width: min(1080px,100%);
+    margin: 0 auto;
+    padding: clamp(30px,4vw,58px);
+    border: 2px solid rgba(215,168,79,.78);
+    border-radius: 18px;
+    background: rgba(255,248,234,.62);
+    box-shadow: inset 0 0 0 6px rgba(255,255,255,.24),0 18px 44px rgba(70,40,0,.12);
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-message-card {
+    background: rgba(18,49,46,.48);
+    box-shadow: inset 0 0 0 6px rgba(248,217,135,.035),0 22px 48px rgba(0,0,0,.25);
+  }
+  #rdmLiveSingleScreenRoot .rdm-live-message-kicker {
+    color: #8A5A13;
+    font: 900 clamp(11px,1vw,14px)/1.25 Arial,sans-serif !important;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-message-kicker { color: #F8D987; }
+  #rdmLiveSingleScreenRoot .rdm-live-message-title {
+    margin: clamp(18px,2.5vw,30px) auto 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    max-width: 980px;
+    font: 800 clamp(38px,5vw,76px)/1.08 Georgia,"Times New Roman",serif !important;
+    letter-spacing: .015em;
+    color: var(--ink) !important;
+    text-wrap: balance;
+  }
+  #rdmLiveSingleScreenRoot .rdm-live-message-divider {
+    position: relative;
+    width: min(430px,68%);
+    height: 1px;
+    margin: clamp(24px,3vw,36px) auto;
+    background: linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+  #rdmLiveSingleScreenRoot .rdm-live-message-divider span {
+    position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%,-50%);
+    padding: 0 12px;
+    background: #F7EDDC;
+    color: var(--gold);
+    font-size: 13px;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-message-divider span { background: #294843; }
+  #rdmLiveSingleScreenRoot .rdm-live-message-reference {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 16px;
+    border: 1px solid rgba(215,168,79,.7);
+    border-radius: 999px;
+    color: #7A4C06;
+    background: rgba(215,168,79,.10);
+    font: 900 clamp(12px,1.25vw,17px)/1.2 Arial,sans-serif !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  #rdmLiveSingleScreenRoot.dark .rdm-live-message-reference { color:#F8D987;background:rgba(248,217,135,.07); }
+  #rdmLiveSingleScreenRoot .rdm-live-message-body {
+    max-width: 960px;
+    margin: clamp(28px,3.5vw,44px) auto 0;
+    text-align: left;
+    font: 600 clamp(19px,1.55vw,26px)/1.62 "Segoe UI",Arial,sans-serif !important;
+  }
+  #rdmLiveSingleScreenRoot .rdm-live-message-body p { margin:0 0 1em !important;line-height:1.62 !important; }
+</style>
+<script id="rdm-v191-live-teaching-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v191-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v191-live-teaching-mode"; })();
 </script>
 
 </body>
