@@ -4,22 +4,186 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<script id="rdm-v186-live-audience-restore">
-(function(){
+<script id="rdm-v192-cold-start-audience-popup-lock">
+(function rdmV192ColdStartAudiencePopupLock(){
   "use strict";
-  try {
-    var params = new URLSearchParams(window.location.search || "");
-    var session = params.get("rdm-live-audience");
-    if (!session) return;
-    /* v190 retires the normal-page audience route. The Audience Display is now
-       always a clean injected popup so browser tabs, bookmarks, and toolbars are
-       never part of the presentation surface. Close any legacy script-opened
-       audience tab when it is refreshed; otherwise strip the retired parameter. */
-    try { window.close(); } catch (_) {}
-    params.delete("rdm-live-audience");
-    var cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + (window.location.hash || "");
-    history.replaceState(null,"",cleanUrl);
-  } catch (_) {}
+  var BUILD = "v192-live-teaching-mode";
+  var LEGACY_PARAM = "rdm-live-audience";
+  var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
+  var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
+  var SESSION_KEY = "ironSharpenerLiveTeaching.v186.session";
+  var CACHE_REPAIR_KEY = "ironSharpenerLiveTeaching.v192.launchCacheRepaired";
+
+  function safeSessionGet(key){ try { return sessionStorage.getItem(key); } catch (_) { return null; } }
+  function safeSessionRemove(key){ try { sessionStorage.removeItem(key); } catch (_) {} }
+  function safeLocalSet(key,value){ try { localStorage.setItem(key,String(value)); } catch (_) {} }
+
+  function navigationType(){
+    try {
+      var entries = performance.getEntriesByType && performance.getEntriesByType("navigation");
+      if (entries && entries[0] && entries[0].type) return String(entries[0].type);
+    } catch (_) {}
+    try {
+      if (performance.navigation) {
+        if (performance.navigation.type === 1) return "reload";
+        if (performance.navigation.type === 2) return "back_forward";
+      }
+    } catch (_) {}
+    return "navigate";
+  }
+
+  function retireLegacyAudienceRoute(){
+    var params;
+    try { params = new URLSearchParams(window.location.search || ""); } catch (_) { return false; }
+    var session = params.get(LEGACY_PARAM);
+    if (!session) return false;
+
+    /* A URL-based Audience Display is retired permanently. Never allow a
+       restored/cached legacy audience URL to become the presentation surface. */
+    try {
+      document.documentElement.style.visibility = "hidden";
+      document.documentElement.style.background = "#101A2E";
+      document.documentElement.setAttribute("data-rdm-retired-live-audience", "1");
+    } catch (_) {}
+    safeSessionRemove(ACTIVE_KEY);
+    safeSessionRemove(MODE_KEY);
+    safeSessionRemove(SESSION_KEY);
+
+    try {
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({
+          tag: "ironSharpenerLiveTeaching.v186",
+          kind: "legacy-audience-retired",
+          session: session,
+          build: BUILD,
+          timestamp: Date.now()
+        }, "*");
+      }
+    } catch (_) {}
+
+    function closeRetiredWindow(){
+      try { window.open("", "_self"); } catch (_) {}
+      try { window.close(); } catch (_) {}
+    }
+    closeRetiredWindow();
+    [40,120,260].forEach(function(delay){ setTimeout(closeRetiredWindow,delay); });
+
+    /* Browsers may refuse to close a session-restored tab. In that case make
+       it blank instead of exposing Iron Sharpener as a browser presentation. */
+    setTimeout(function(){
+      try {
+        if (!window.closed) window.location.replace("about:blank#iron-sharpener-audience-retired");
+      } catch (_) {}
+    },420);
+    return true;
+  }
+
+  if (retireLegacyAudienceRoute()) return;
+
+  /* A genuinely reopened tool must begin as the private Teacher Window, not
+     resurrect a prior dual-display session. Ordinary Ctrl+F5/reload recovery
+     remains available because reload navigation is deliberately preserved. */
+  if (navigationType() !== "reload" && safeSessionGet(MODE_KEY) === "dual") {
+    safeSessionRemove(ACTIVE_KEY);
+    safeSessionRemove(MODE_KEY);
+    safeSessionRemove(SESSION_KEY);
+  }
+
+  function freshHtmlResponse(body, sourceResponse){
+    var headers = new Headers();
+    try {
+      sourceResponse.headers.forEach(function(value,name){
+        if (String(name).toLowerCase() !== "content-length") headers.set(name,value);
+      });
+    } catch (_) {}
+    headers.set("Content-Type","text/html; charset=utf-8");
+    headers.set("Cache-Control","no-cache, must-revalidate");
+    return new Response(body,{status:200,statusText:"OK",headers:headers});
+  }
+
+  async function repairLaunchCaches(){
+    if (!("caches" in window) || !navigator.onLine) return false;
+    var sourceUrl;
+    try {
+      sourceUrl = new URL("index.html",document.baseURI);
+      sourceUrl.searchParams.set("rdm-build",BUILD);
+      sourceUrl.searchParams.set("rdm-cache-repair",String(Date.now()));
+    } catch (_) { return false; }
+
+    var response;
+    try {
+      response = await fetch(sourceUrl.href,{
+        cache:"no-store",
+        credentials:"same-origin",
+        headers:{"Cache-Control":"no-cache","Pragma":"no-cache"}
+      });
+    } catch (_) { return false; }
+    if (!response || !response.ok) return false;
+
+    var body;
+    try { body = await response.clone().text(); } catch (_) { return false; }
+    if (body.indexOf("rdm-v192-cold-start-audience-popup-lock") < 0 || body.indexOf(BUILD) < 0) return false;
+
+    var targets = [];
+    function addTarget(url){ if (url && targets.indexOf(url) < 0) targets.push(url); }
+    try {
+      addTarget(new URL("index.html",document.baseURI).href);
+      addTarget(new URL("./",document.baseURI).href);
+      addTarget(new URL("index.html?app=maker",document.baseURI).href);
+      addTarget(window.location.origin + window.location.pathname);
+    } catch (_) {}
+
+    var names = [];
+    try { names = await caches.keys(); } catch (_) { names = []; }
+    var relevant = names.filter(function(name){ return /^iron-sharpener-(?:launch|offline)/i.test(String(name)); });
+    if (!relevant.length) relevant.push("iron-sharpener-launch-v72-pc-controls-journal-mechanics-20260704");
+
+    for (var i=0;i<relevant.length;i+=1) {
+      try {
+        var cache = await caches.open(relevant[i]);
+        for (var j=0;j<targets.length;j+=1) {
+          try { await cache.put(targets[j],freshHtmlResponse(body,response)); } catch (_) {}
+        }
+        /* The launch cache is small; remove any retired audience-route entries
+           so a restored browser page cannot be served from that shell cache. */
+        if (/launch/i.test(relevant[i])) {
+          try {
+            var requests = await cache.keys();
+            for (var k=0;k<requests.length;k+=1) {
+              try {
+                var requestUrl = new URL(requests[k].url);
+                if (requestUrl.searchParams.has(LEGACY_PARAM)) await cache.delete(requests[k]);
+              } catch (_) {}
+            }
+          } catch (_) {}
+        }
+      } catch (_) {}
+    }
+
+    safeLocalSet(CACHE_REPAIR_KEY,BUILD + "|" + Date.now());
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        var registration = await navigator.serviceWorker.getRegistration();
+        if (registration && registration.update) registration.update().catch(function(){});
+      }
+    } catch (_) {}
+    return true;
+  }
+
+  function scheduleRepair(){
+    var run = function(){ repairLaunchCaches().catch(function(){}); };
+    if ("requestIdleCallback" in window) requestIdleCallback(run,{timeout:900});
+    else setTimeout(run,120);
+  }
+  if (document.readyState === "complete") scheduleRepair();
+  else window.addEventListener("load",scheduleRepair,{once:true});
+  window.addEventListener("online",function(){ setTimeout(scheduleRepair,120); },{passive:true});
+
+  window.__RDM_V192_COLD_START_AUDIENCE_LOCK = {
+    build: BUILD,
+    repairLaunchCaches: repairLaunchCaches,
+    navigationType: navigationType
+  };
 })();
 </script>
 <style id="rdm-v176-pc-controls-style">
@@ -30108,7 +30272,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v191-live-teaching-mode";
+  var BUILD = "v192-live-teaching-mode";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30939,17 +31103,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       '<main class="main" id="audienceMain"><section class="scriptureCard" id="audienceScripture"><h2 class="ref" id="audienceReference">Iron Sharpener</h2><div class="source">World English Bible • Public Domain</div><div class="divider"></div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
       '<section class="panel" id="audiencePanel"><div class="panelCard"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
       '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
-  }
-
-  function audiencePageUrl(session){
-    try {
-      var url = new URL(window.location.href);
-      url.searchParams.set("rdm-live-audience",session);
-      url.hash = "";
-      return url.href;
-    } catch (_) {
-      return window.location.pathname + "?rdm-live-audience=" + encodeURIComponent(session);
-    }
   }
 
   function isInstalledDisplayMode(){
@@ -32097,6 +32250,15 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 </style>
 <script id="rdm-v191-live-teaching-build-marker">
 (function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v191-live-teaching-mode"; window.__RDM_ACTIVE_BUILD="v191-live-teaching-mode"; })();
+</script>
+<!-- v192 — Cold-reopen Audience Display lock: retire every URL-based audience route,
+     clear restored dual sessions on a genuine reopen, and refresh the cached launch
+     shell with the current popup-only build so Ctrl+F5 is never required again. -->
+<script id="rdm-v192-final-build-marker">
+(function(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v192-live-teaching-mode";
+  window.__RDM_ACTIVE_BUILD = "v192-live-teaching-mode";
+})();
 </script>
 
 </body>
