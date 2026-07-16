@@ -7,7 +7,7 @@
 <script id="rdm-v192-cold-start-audience-popup-lock">
 (function rdmV192ColdStartAudiencePopupLock(){
   "use strict";
-  var BUILD = "v192-live-teaching-mode";
+  var BUILD = "v193-live-teaching-focused-note-reference";
   var LEGACY_PARAM = "rdm-live-audience";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30272,7 +30272,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmLiveTeachingV186Installed) return;
   window.__rdmLiveTeachingV186Installed = true;
 
-  var BUILD = "v192-live-teaching-mode";
+  var BUILD = "v193-live-teaching-focused-note-reference";
   var CHANNEL_NAME = "iron-sharpener-live-teaching-v186";
   var ACTIVE_KEY = "ironSharpenerLiveTeaching.v186.active";
   var MODE_KEY = "ironSharpenerLiveTeaching.v186.mode";
@@ -30593,13 +30593,67 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     '</article>';
   }
 
+  function verseNumbersFromNodes(nodes){
+    var seen = Object.create(null);
+    var values = [];
+    Array.prototype.forEach.call(nodes || [],function(node){
+      var value = parseInt(node && node.getAttribute && node.getAttribute("data-v"),10);
+      if (!isFinite(value) || seen[value]) return;
+      seen[value] = true;
+      values.push(value);
+    });
+    values.sort(function(a,b){ return a-b; });
+    return values;
+  }
+
+  function formattedVerseReference(controls,verseNumbers){
+    if (!controls || !verseNumbers || !verseNumbers.length) return "";
+    var suffix = "";
+    if (verseNumbers.length === 1) {
+      suffix = String(verseNumbers[0]);
+    } else {
+      var contiguous = true;
+      for (var i=1;i<verseNumbers.length;i+=1) {
+        if (verseNumbers[i] !== verseNumbers[i-1] + 1) { contiguous = false; break; }
+      }
+      suffix = contiguous
+        ? (verseNumbers[0] + "-" + verseNumbers[verseNumbers.length - 1])
+        : verseNumbers.join(", ");
+    }
+    return trim(controls.book) + " " + trim(controls.chapter) + ":" + suffix;
+  }
+
+  function teachingNoteReference(controls){
+    controls = controls || currentControlState();
+    var passage = get("passage");
+    if (!passage) return controls.exactReference || controls.heading || "";
+
+    /* Focus mode is authoritative because it explicitly identifies the verse or verses
+       being taught, even when other saved markings are also visible in the section. */
+    var focused = verseNumbersFromNodes(passage.querySelectorAll(".verse.focused"));
+    if (focused.length) return formattedVerseReference(controls,focused);
+
+    /* Without Focus mode, use a marked verse only when the marking identifies one
+       unambiguous verse. Multiple marked verses keep the normal section reference. */
+    var markedNodes = [];
+    Array.prototype.forEach.call(passage.querySelectorAll(".verse[data-v]"),function(verse){
+      var wholeVerseMarked = verse.matches(".highlighted,.underlined,.circled,.boxed,.pointed,.rdm-stack-marked");
+      var inlineMarked = !!verse.querySelector(".inline-underline,.inline-circle,.inline-box,[class*='inline-highlight-'],[class*='inline-underline'],[class*='inline-circle'],[class*='inline-box']");
+      if (wholeVerseMarked || inlineMarked) markedNodes.push(verse);
+    });
+    var marked = verseNumbersFromNodes(markedNodes);
+    if (marked.length === 1) return formattedVerseReference(controls,marked);
+
+    return controls.exactReference || controls.heading || "";
+  }
+
   function resolveAudienceView(){
     var type = currentAudienceView && currentAudienceView.type || "scripture";
     if (type === "teaching-note") {
       var noteText = presentationTextFor("teachingNotes");
       if (!hasText(noteText)) return { type: "scripture" };
       var controls = currentControlState();
-      return { type: type, title: "Message", html: teachingMessageHtml(noteText,controls.exactReference || controls.heading || "") };
+      return { type: type, title: "Message", html: teachingMessageHtml(noteText,teachingNoteReference(controls)) };
     }
     if (type === "application") {
       var appText = presentationTextFor("applicationNotes");
@@ -32258,6 +32312,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 (function(){
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v192-live-teaching-mode";
   window.__RDM_ACTIVE_BUILD = "v192-live-teaching-mode";
+})();
+</script>
+<script id="rdm-v193-focused-teaching-note-reference-marker">
+(function(){
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION = "v193-live-teaching-focused-note-reference";
+  window.__RDM_ACTIVE_BUILD = "v193-live-teaching-focused-note-reference";
 })();
 </script>
 
