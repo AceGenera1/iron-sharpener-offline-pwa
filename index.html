@@ -32852,3 +32852,77 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 <!-- v179 teaching-only: Section Size offers 5 Verses, 10 Verses, and Full Chapter; Start/End remain internal. -->
 <!-- v182: notes remain passage-specific, overlapping notes stay editable, and reopening resumes the exact section. -->
 <!-- v183 teaching-only: Previous/Next returns the newly loaded Scripture section to the top of the reading surface. -->
+<!-- RDM v200: authoritative section handoff + full-chapter note isolation + private teaching note pop-out -->
+<style id="rdm-v200-section-popout-style">
+#rdmV200PopoutBtn{margin-left:8px}
+#rdmV200NotePopout{position:fixed;z-index:2147483000;left:7vw;top:8vh;width:min(760px,86vw);height:min(720px,82vh);display:none;flex-direction:column;background:var(--panel,#315d54);border:2px solid #e0b55b;border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.42);overflow:hidden}
+#rdmV200NotePopout.open{display:flex}
+#rdmV200PopoutHead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #e0b55b;cursor:move;user-select:none;background:rgba(0,0,0,.10)}
+#rdmV200PopoutTitle{font-weight:900;letter-spacing:.04em;flex:1;color:#fff8ea}
+#rdmV200PopoutRef{font-size:.82rem;font-weight:800;color:#f8d987}
+#rdmV200PopoutControls{display:flex;gap:7px;align-items:center}
+#rdmV200PopoutControls button{min-width:40px;padding:7px 10px;border-radius:9px;border:1px solid #e0b55b;font-weight:900;cursor:pointer}
+#rdmV200PopoutBody{flex:1;min-height:0;padding:14px;display:flex}
+#rdmV200PopoutEditor{width:100%;height:100%;min-height:0;resize:none;overflow:auto;padding:16px;font-size:20px;line-height:1.55;border-radius:10px;box-sizing:border-box;background:rgba(255,255,255,.06);color:#fff8ea;border:1px solid rgba(248,217,135,.75)}
+body.cream #rdmV200NotePopout{background:#fff8ea;color:#173a35}
+body.cream #rdmV200PopoutTitle{color:#173a35}
+body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
+@media(max-width:700px){#rdmV200NotePopout{left:3vw!important;top:5vh!important;width:94vw!important;height:82vh!important}#rdmV200PopoutHead{cursor:default;flex-wrap:wrap}#rdmV200PopoutEditor{font-size:18px}}
+</style>
+<script id="rdm-v200-authoritative-section-handoff-popout">
+(function(){
+  "use strict";
+  if(window.__rdmV200Installed)return; window.__rdmV200Installed=true;
+  var NOTE_IDS=["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+  var lastStableKey="", settleTimer=0, loading=false;
+  function g(id){return document.getElementById(id)}
+  function clean(v){return String(v==null?"":v).trim()}
+  function state(){var b=g("book"),c=g("chapter"),s=g("start"),e=g("end"),r=g("rangeSize");if(!b||!c||!s||!e||!r)return null;return{book:b.value,chapter:c.value,start:s.value,end:e.value,range:String(r.value||"5").toLowerCase()}}
+  function key(x){return x?[x.book,x.chapter,x.start,x.end,x.range].join("|"):""}
+  function label(x){if(!x)return"Selected passage";if(x.range==="full")return x.book+" "+x.chapter+" (Full Chapter)";return x.start===x.end?x.book+" "+x.chapter+":"+x.start:x.book+" "+x.chapter+":"+x.start+"–"+x.end}
+  function workspaceActive(){try{return !!(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.getWorkspace&&window.rdmTeachingWorkspaceV196.getWorkspace())}catch(_){return document.body.classList.contains("rdm-v196-teaching-workspace-active")}}
+  function hideFullChapterRelated(){var st=state(),full=st&&st.range==="full";NOTE_IDS.forEach(function(id){var w=g("rdmV182Related-"+id);if(w&&full)w.style.display="none"});}
+  function redraw(){try{if(window.renderCrossReferenceLinks)window.renderCrossReferenceLinks()}catch(_){};var h=g("crossRefLinks");if(h)h.innerHTML="";try{if(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.render)window.rdmTeachingWorkspaceV196.render()}catch(_){};hideFullChapterRelated();updatePopoutRef()}
+  function authoritativeLoad(expectedKey){
+    if(workspaceActive())return;
+    var st=state(); if(!st||key(st)!==expectedKey)return;
+    try{loading=true;if(typeof window.loadCurrentNotes==="function")window.loadCurrentNotes();}catch(_){}finally{loading=false}
+    redraw();
+    [80,180,360,700].forEach(function(ms){setTimeout(function(){if(!workspaceActive()&&key(state())===expectedKey){try{if(typeof window.loadCurrentNotes==="function")window.loadCurrentNotes()}catch(_){}redraw()}},ms)});
+  }
+  function scheduleSectionSync(){
+    if(workspaceActive())return;
+    clearTimeout(settleTimer); var observed=key(state());
+    settleTimer=setTimeout(function(){var now=key(state());if(!now)return;if(now!==observed){scheduleSectionSync();return}lastStableKey=now;authoritativeLoad(now)},110);
+  }
+  /* This watcher is intentionally independent of Previous/Next click timing. It
+     keys off the actual settled selectors, so 21–25 -> 26–30 cannot inherit the
+     old visible note snapshot. */
+  setInterval(function(){if(workspaceActive())return;var k=key(state());if(k&&k!==lastStableKey){lastStableKey=k;scheduleSectionSync()}else hideFullChapterRelated()},180);
+  window.addEventListener("click",function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#rdmV196ReturnTeachingPassage");if(t)setTimeout(scheduleSectionSync,40)},false);
+  window.addEventListener("change",function(ev){if(ev.target&&/^(book|chapter|rangeSize|start|end)$/.test(ev.target.id||""))setTimeout(scheduleSectionSync,40)},false);
+
+  /* Private, teacher-only large Teaching Notes view. It mirrors the exact same
+     textarea, so there is no second note store and nothing is sent to Audience. */
+  var pop=null,editor=null,refNode=null,fontSize=20,drag=null;
+  function updatePopoutRef(){if(refNode)refNode.textContent=label(state())}
+  function syncFromMain(){var main=g("teachingNotes");if(main&&editor&&document.activeElement!==editor)editor.value=main.value;updatePopoutRef()}
+  function syncToMain(){var main=g("teachingNotes");if(!main||!editor)return;main.value=editor.value;main.dispatchEvent(new Event("input",{bubbles:true}));}
+  function ensurePopout(){if(pop)return pop;
+    pop=document.createElement("div");pop.id="rdmV200NotePopout";pop.setAttribute("aria-hidden","true");
+    pop.innerHTML='<div id="rdmV200PopoutHead"><div><div id="rdmV200PopoutTitle">PRIVATE TEACHING NOTES</div><div id="rdmV200PopoutRef"></div></div><div id="rdmV200PopoutControls"><button type="button" id="rdmV200FontDown" title="Smaller text">A−</button><button type="button" id="rdmV200FontUp" title="Larger text">A+</button><button type="button" id="rdmV200Top" title="Return to top">Top</button><button type="button" id="rdmV200Close" title="Close">✕</button></div></div><div id="rdmV200PopoutBody"><textarea id="rdmV200PopoutEditor" aria-label="Private large Teaching Notes"></textarea></div>';
+    document.body.appendChild(pop);editor=g("rdmV200PopoutEditor");refNode=g("rdmV200PopoutRef");
+    editor.addEventListener("input",syncToMain);g("rdmV200Close").onclick=closePop;g("rdmV200Top").onclick=function(){editor.scrollTop=0};
+    g("rdmV200FontDown").onclick=function(){fontSize=Math.max(14,fontSize-2);editor.style.fontSize=fontSize+"px"};g("rdmV200FontUp").onclick=function(){fontSize=Math.min(34,fontSize+2);editor.style.fontSize=fontSize+"px"};
+    var head=g("rdmV200PopoutHead");head.addEventListener("pointerdown",function(e){if(e.target.closest("button")||innerWidth<701)return;var r=pop.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top};head.setPointerCapture(e.pointerId)});head.addEventListener("pointermove",function(e){if(!drag)return;pop.style.left=Math.max(0,Math.min(innerWidth-pop.offsetWidth,e.clientX-drag.dx))+"px";pop.style.top=Math.max(0,Math.min(innerHeight-pop.offsetHeight,e.clientY-drag.dy))+"px"});head.addEventListener("pointerup",function(){drag=null});
+    return pop;
+  }
+  function openPop(){ensurePopout();syncFromMain();pop.classList.add("open");pop.setAttribute("aria-hidden","false");editor.focus()}
+  function closePop(){if(!pop)return;syncToMain();pop.classList.remove("open");pop.setAttribute("aria-hidden","true")}
+  function installButton(){var show=g("showTeachingNote");if(!show||g("rdmV200PopoutBtn"))return;var b=document.createElement("button");b.type="button";b.id="rdmV200PopoutBtn";b.className=show.className;b.textContent="Open Large Note View";b.onclick=openPop;show.insertAdjacentElement("afterend",b)}
+  var main=g("teachingNotes");if(main){main.addEventListener("input",function(){if(editor&&document.activeElement!==editor)editor.value=main.value});}
+  [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();hideFullChapterRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
+  window.rdmV200TeachingNotesPopout={open:openPop,close:closePop};
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v200-section-note-isolation-popout";window.__RDM_ACTIVE_BUILD="v200-section-note-isolation-popout";
+})();
+</script>
