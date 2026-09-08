@@ -32324,7 +32324,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 
 <!-- =========================================================
-     RDM IRON SHARPENER — v198 Teaching Workspace Preservation
+     RDM IRON SHARPENER — v199 Teaching Section Sync
      Base: protected v193 live-teaching build.
      Scope: teaching workspace continuity + teaching reference bar +
             note-field fluent-reading behavior only.
@@ -32437,7 +32437,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmV196TeachingWorkspaceLock) return;
   window.__rdmV196TeachingWorkspaceLock = true;
 
-  var BUILD = "v198-teaching-workspace-preservation";
+  var BUILD = "v199-teaching-section-sync";
   var NOTE_IDS = ["teachingNotes","crossRefs","applicationNotes","clipNotes"];
   var workspace = null;
   var restoring = false;
@@ -32646,11 +32646,42 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function returnToTeachingPassage(){
     if(!workspace) return;
-    setControlsToState(workspace.teachingState);
+    var returningState=Object.assign({},workspace.teachingState);
+    var returningValues=Object.assign({},workspace.values||snapshotFields());
+    setControlsToState(returningState);
+
+    function finishReturn(){
+      if(!workspace) return;
+      /* v199: Returning to the Teaching Passage ends cross-reference travel.
+         Re-anchor v182 to the Teaching Passage one final time, restore the
+         protected note snapshot, then RELEASE the workspace lock. From this
+         point Previous/Next becomes normal teaching-section navigation again. */
+      try { temporarilyLoadTeachingNotesIntoV182(); } catch (_) {}
+      setFieldValues(returningValues);
+      workspace.values=Object.assign({},returningValues);
+      workspace=null;
+      document.body.classList.remove("rdm-v196-teaching-workspace-active");
+      clearTimeout(restoreTimer);
+      try { if(originalLoadCurrentNotes) originalLoadCurrentNotes(); } catch (_) {}
+      setFieldValues(returningValues);
+      try { if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks(); } catch (_) {}
+      var holder=get("crossRefLinks"); if(holder) holder.innerHTML="";
+      renderReferenceBar();
+      resizeAll();
+      [80,220,480].forEach(function(delay){
+        setTimeout(function(){
+          /* Do not overwrite edits; only refresh labels/bar from the now-current section. */
+          renderReferenceBar();
+          resizeAll();
+          var h=get("crossRefLinks"); if(h) h.innerHTML="";
+        },delay);
+      });
+    }
+
     try {
       var result=(typeof loadPassage === "function") ? loadPassage() : (window.rdmReferenceRangeNavigationV163&&window.rdmReferenceRangeNavigationV163.load?window.rdmReferenceRangeNavigationV163.load():null);
-      Promise.resolve(result).then(restoreWorkspaceSoon,restoreWorkspaceSoon);
-    } catch (_) { restoreWorkspaceSoon(); }
+      Promise.resolve(result).then(function(){ setTimeout(finishReturn,0); },function(){ setTimeout(finishReturn,0); });
+    } catch (_) { setTimeout(finishReturn,0); }
   }
 
   /* Replace the externally-visible notes loader. When the displayed Scripture is
@@ -32667,12 +32698,14 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function renderCrossReferenceLinksV196(){
-    if(!workspace) {
-      if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks();
-    } else {
-      var holder=get("crossRefLinks");
-      if(holder) holder.innerHTML=""; /* buttons live in the permanent bar during the session */
+    /* v199: the Teaching Reference Bar is the one permanent teacher navigation
+       surface. Keep the legacy renderer available for its internal bookkeeping,
+       but do not duplicate the same reference buttons beneath the long note. */
+    if(!workspace && originalRenderCrossReferenceLinks) {
+      try { originalRenderCrossReferenceLinks(); } catch (_) {}
     }
+    var holder=get("crossRefLinks");
+    if(holder) holder.innerHTML="";
     renderReferenceBar();
   }
 
@@ -32719,11 +32752,13 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   function resizeAll(){ NOTE_IDS.forEach(function(id){resizeTeachingField(get(id));}); }
 
-  /* v197/v198 section handoff:
-     Cross-reference travel keeps the Teaching Passage anchored. But once the
-     teacher is back on that Teaching Passage, Previous/Next is an intentional
-     move to a NEW teaching section. Release the old workspace BEFORE the legacy
-     navigation runs so v182 loads the saved notes for the new section normally. */
+  /* v199 section handoff:
+     Cross-reference travel keeps the Teaching Passage anchored. Returning to the
+     Teaching Passage now releases that lock. Previous/Next therefore runs through
+     the original v193/v182 navigation path and loads the saved workspace for the
+     new 5/10/full teaching section. The watcher below waits for the selectors to
+     actually change before refreshing the bar, avoiding the stale-section race
+     that remained in v198. */
   function releaseWorkspaceForNewTeachingSection(){
     if(!workspace) return;
     workspace.values=snapshotFields();
@@ -32733,22 +32768,40 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     renderReferenceBar();
   }
 
+  function syncAfterSectionStep(previousKey){
+    var tries=0;
+    function check(){
+      tries+=1;
+      var now=controlState();
+      if(now && stateKey(now)!==previousKey){
+        /* Navigation has landed on a genuinely new teaching section. Let the
+           protected original loader hydrate its saved notes, then redraw the bar. */
+        try { if(originalLoadCurrentNotes) originalLoadCurrentNotes(); } catch (_) {}
+        try { if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks(); } catch (_) {}
+        var holder=get("crossRefLinks"); if(holder) holder.innerHTML="";
+        renderReferenceBar(); resizeAll();
+        [90,240,520].forEach(function(delay){ setTimeout(function(){ renderReferenceBar(); resizeAll(); var h=get("crossRefLinks"); if(h) h.innerHTML=""; },delay); });
+        return;
+      }
+      if(tries<16) setTimeout(check,75);
+      else { renderReferenceBar(); resizeAll(); }
+    }
+    setTimeout(check,0);
+  }
+
   window.addEventListener("click",function(event){
-    if(!workspace) return;
     var target=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack"):null;
     if(!target) return;
     var id=target.id||"";
     var sectionStep=(id==="prevBtn"||id==="nextBtn");
-    if(sectionStep && !isAway()){
-      releaseWorkspaceForNewTeachingSection();
-      setTimeout(function(){
-        try { if(typeof window.loadCurrentNotes==="function") window.loadCurrentNotes(); } catch (_) {}
-        renderReferenceBar(); resizeAll();
-      },80);
-      setTimeout(function(){ renderReferenceBar(); resizeAll(); },260);
+    if(sectionStep){
+      var before=stateKey(controlState());
+      if(workspace && !isAway()) releaseWorkspaceForNewTeachingSection();
+      if(!workspace) syncAfterSectionStep(before);
+      else setTimeout(restoreWorkspaceSoon,0);
       return;
     }
-    setTimeout(restoreWorkspaceSoon,0);
+    if(workspace) setTimeout(restoreWorkspaceSoon,0);
   },true);
 
   window.addEventListener("change",function(event){
@@ -32778,7 +32831,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 <script id="rdm-v196-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v198-teaching-workspace-preservation"; window.__RDM_ACTIVE_BUILD="v198-teaching-workspace-preservation"; })();
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v199-teaching-section-sync"; window.__RDM_ACTIVE_BUILD="v199-teaching-section-sync"; })();
 </script>
 
 </body>
