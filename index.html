@@ -32322,192 +32322,432 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 </script>
 
 
-<!-- =========================================================
-     RDM IRON SHARPENER — v194 Teaching Cross-Reference Continuity
-     Base: locked v193.
-     Scope: Teaching Cross References only.
-     1) Preserve the ORIGINAL teaching-note context through chained reference clicks.
-     2) Keep long cross-reference notes usable with a scrollable editor and sticky reference dock.
-     ========================================================= -->
-<style id="rdm-v194-teaching-crossref-continuity-style">
-html:not(.obs) #crossRefs {
-  max-height: min(46vh, 430px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-html:not(.obs) #crossRefLinks {
-  position: sticky;
-  bottom: 0;
-  z-index: 8;
-  max-height: min(24vh, 220px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 10px 8px 8px;
-  margin: 0 -8px -2px;
-  border-top: 1px solid rgba(215,168,79,.48);
-  background: linear-gradient(180deg, rgba(255,248,234,.96), #fff8ea 28%);
-  box-shadow: 0 -8px 18px rgba(16,26,46,.08);
-}
-body.dark html:not(.obs) #crossRefLinks,
-html:not(.obs) body.dark #crossRefLinks {
-  background: linear-gradient(180deg, rgba(32,61,57,.96), #203d39 28%);
-  border-top-color: rgba(248,217,135,.50);
-  box-shadow: 0 -8px 18px rgba(0,0,0,.18);
-}
-html:not(.obs) #crossRefLinks .cross-ref-link.rdm-v194-active-crossref,
-html:not(.obs) #crossRefLinks .cross-ref-link[aria-current="true"] {
-  outline: 3px solid rgba(32,61,57,.42);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(248,217,135,.55), 0 5px 12px rgba(0,0,0,.12);
-}
-html:not(.obs) body.dark #crossRefLinks .cross-ref-link.rdm-v194-active-crossref,
-html:not(.obs) body.dark #crossRefLinks .cross-ref-link[aria-current="true"] {
-  outline-color: rgba(255,241,192,.72);
-}
-html:not(.obs) #rdmV182CurrentLabel-crossRefs {
-  position: sticky;
-  top: 0;
-  z-index: 7;
-}
-</style>
-<script id="rdm-v194-teaching-crossref-continuity">
-(function rdmV194TeachingCrossRefContinuity(){
-  "use strict";
-  if (window.__rdmV194TeachingCrossRefContinuity) return;
-  window.__rdmV194TeachingCrossRefContinuity = true;
 
-  var KEY = "ironSharpenerTeachingCrossRef.v194.session";
-  var activeRef = "";
-  var origin = null;
-  var lastScroll = { editor: 0, dock: 0 };
+<!-- =========================================================
+     RDM IRON SHARPENER — v196 Teaching Workspace Lock
+     Base: protected v193 live-teaching build.
+     Scope: teaching workspace continuity + teaching reference bar +
+            note-field fluent-reading behavior only.
+     Teaching Passage stays fixed for the session while Displayed Passage changes.
+     ========================================================= -->
+<style id="rdm-v196-teaching-workspace-style">
+  #rdmV196TeachingReferenceBar {
+    position: relative;
+    z-index: 45;
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fffaf0, #fff0d3);
+    color: #203D39;
+    padding: 12px 14px;
+    box-shadow: 0 8px 22px rgba(70,40,0,.10);
+  }
+  body.dark #rdmV196TeachingReferenceBar {
+    background: linear-gradient(180deg, #355A54, #294843);
+    color: #fff6d9;
+    border-color: rgba(248,217,135,.88);
+    box-shadow: 0 14px 32px rgba(0,0,0,.28);
+  }
+  @media (min-width: 1051px) {
+    #rdmV196TeachingReferenceBar {
+      position: sticky;
+      top: 10px;
+    }
+  }
+  #rdmV196TeachingReferenceBar .rdm-v196-bar-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    margin-bottom:9px;
+  }
+  #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker {
+    font: 900 11px/1.2 Arial,sans-serif;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#8A5A13;
+    margin-bottom:3px;
+  }
+  body.dark #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker { color:#f8d987; }
+  #rdmV196TeachingReferenceBar .rdm-v196-teaching-ref {
+    font: 900 16px/1.25 Georgia,"Times New Roman",serif;
+  }
+  #rdmV196TeachingReferenceBar .rdm-v196-displayed-ref {
+    margin-top:2px;
+    font: 700 12px/1.3 Arial,sans-serif;
+    opacity:.82;
+  }
+  #rdmV196TeachingReferenceBar .rdm-v196-return {
+    display:none;
+    flex:0 0 auto;
+    padding:8px 10px !important;
+    font-size:12px !important;
+  }
+  #rdmV196TeachingReferenceBar.rdm-v196-away .rdm-v196-return { display:inline-flex; }
+  #rdmV196TeachingReferenceBar .rdm-v196-ref-list {
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    max-height:112px;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+    padding:2px 2px 1px 0;
+  }
+  #rdmV196TeachingReferenceBar .rdm-v196-empty {
+    font:700 12px/1.35 Arial,sans-serif;
+    opacity:.76;
+  }
+  #rdmV196TeachingReferenceBar .cross-ref-link.rdm-v196-active-ref {
+    outline:3px solid rgba(215,168,79,.38);
+    box-shadow:0 0 0 2px rgba(32,61,57,.16) inset;
+  }
+  body.dark #rdmV196TeachingReferenceBar .cross-ref-link.rdm-v196-active-ref {
+    outline-color:rgba(248,217,135,.45);
+    box-shadow:0 0 0 2px rgba(255,255,255,.12) inset;
+  }
+
+  /* Fluent-reading note fields: grow naturally to a useful teaching height,
+     then become internally scrollable instead of stretching the whole page. */
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #teachingNotes,
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #crossRefs,
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #applicationNotes,
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #clipNotes {
+    min-height: 118px !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    resize: vertical !important;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
+  }
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #crossRefs,
+  html:not(.obs) body:not(.rdm-mobile-app-shell) #applicationNotes {
+    min-height: 150px !important;
+    max-height: 340px !important;
+  }
+
+  /* During an anchored teaching session, destination-passage related-note cards
+     are intentionally hidden. The source workspace remains the sole note context. */
+  body.rdm-v196-teaching-workspace-active [id^="rdmV182Related-"] {
+    display:none !important;
+  }
+</style>
+<script id="rdm-v196-teaching-workspace-script">
+(function rdmV196TeachingWorkspaceLock(){
+  "use strict";
+  if (window.__rdmV196TeachingWorkspaceLock) return;
+  window.__rdmV196TeachingWorkspaceLock = true;
+
+  var BUILD = "v196-teaching-workspace-lock";
+  var NOTE_IDS = ["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+  var workspace = null;
+  var restoring = false;
+  var originalLoadCurrentNotes = (typeof window.loadCurrentNotes === "function") ? window.loadCurrentNotes : null;
+  var originalRenderCrossReferenceLinks = (typeof window.renderCrossReferenceLinks === "function") ? window.renderCrossReferenceLinks : null;
+  var restoreTimer = 0;
 
   function get(id){ return document.getElementById(id); }
-  function text(v){ return String(v == null ? "" : v); }
-  function clean(v){ return text(v).replace(/\s+/g," ").trim(); }
-  function safeGet(){ try { var raw=sessionStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch(_){ return null; } }
-  function safeSet(value){ try { sessionStorage.setItem(KEY,JSON.stringify(value)); } catch(_){} }
-  function safeRemove(){ try { sessionStorage.removeItem(KEY); } catch(_){} }
-  function state(){
-    var api = window.rdmSectionNotesV182 && typeof window.rdmSectionNotesV182.state === "function" ? window.rdmSectionNotesV182.state() : null;
-    return api || {
-      book:get("book")?get("book").value:"Genesis",
-      chapter:get("chapter")?get("chapter").value:"1",
-      start:get("start")?get("start").value:"1",
-      end:get("end")?get("end").value:(get("start")?get("start").value:"1"),
-      range:get("rangeSize")?get("rangeSize").value:"5"
-    };
+  function clean(v){ return String(v == null ? "" : v).replace(/\s+/g," ").trim(); }
+  function safeParseRefs(value){
+    try { return (typeof parseScriptureReferences === "function") ? (parseScriptureReferences(value) || []) : []; }
+    catch (_) { return []; }
   }
-  function stateKey(s){
-    s=s||state();
-    return [text(s.book),text(s.chapter),text(s.start),text(s.end),text(s.range)].join("|");
+  function maxVerse(book, chapter){
+    try {
+      var list = (typeof verseCounts !== "undefined" ? verseCounts : window.verseCounts)[book];
+      return Math.max(1, parseInt(list[(parseInt(chapter,10)||1)-1],10)||1);
+    } catch (_) { return 1; }
   }
-  function currentLabel(){
-    var label=get("rdmV182CurrentLabel-crossRefs");
-    return clean(label&&label.textContent).replace(/^Current passage:\s*/i,"").replace(/^Teaching cross references from\s*/i,"");
+  function controlState(){
+    var book=get("book"), chapter=get("chapter"), start=get("start"), end=get("end"), range=get("rangeSize");
+    if(!book||!chapter||!start||!end||!range) return null;
+    return {book:book.value,chapter:String(chapter.value),start:String(start.value),end:String(end.value),range:String(range.value||"5")};
   }
-  function collectOrigin(){
-    var field=get("crossRefs");
-    var values=[];
-    if(field && clean(field.value)) values.push({label:currentLabel(),value:field.value});
-    var wrap=get("rdmV182Related-crossRefs");
-    if(wrap) wrap.querySelectorAll(".rdm-v182-related-card").forEach(function(card){
-      var editor=card.querySelector(".rdm-v182-related-editor");
-      if(!editor||!clean(editor.value))return;
-      values.push({label:clean(card.querySelector(".rdm-v182-related-label")&&card.querySelector(".rdm-v182-related-label").textContent)||"Related passage",value:editor.value});
-    });
-    if(!values.length)return null;
-    return {key:stateKey(),state:state(),label:currentLabel(),mainValue:field?field.value:"",values:values,createdAt:Date.now()};
+  function stateKey(s){ return s ? [s.book,s.chapter,s.start,s.end].join("|") : ""; }
+  function refLabel(s){
+    if(!s) return "Selected passage";
+    var a=parseInt(s.start,10)||1,b=parseInt(s.end,10)||a,m=maxVerse(s.book,s.chapter);
+    if(a===1 && b===m) return s.book+" "+s.chapter+" (Full Chapter)";
+    if(a===b) return s.book+" "+s.chapter+":"+a;
+    return s.book+" "+s.chapter+":"+a+"–"+b;
   }
-  function saveScroll(){
-    var field=get("crossRefs"),dock=get("crossRefLinks");
-    if(field)lastScroll.editor=field.scrollTop||0;
-    if(dock)lastScroll.dock=dock.scrollTop||0;
+  function snapshotFields(){
+    var values={};
+    NOTE_IDS.forEach(function(id){ var field=get(id); values[id]=field ? field.value : ""; });
+    return values;
   }
-  function restoreScroll(){
-    var field=get("crossRefs"),dock=get("crossRefLinks");
-    if(field)field.scrollTop=lastScroll.editor||0;
-    if(dock)dock.scrollTop=lastScroll.dock||0;
-  }
-  function markActive(){
-    var holder=get("crossRefLinks"); if(!holder)return;
-    holder.querySelectorAll(".cross-ref-link").forEach(function(btn){
-      var yes=!!activeRef && clean(btn.dataset.ref||btn.textContent).toLowerCase()===activeRef.toLowerCase();
-      btn.classList.toggle("rdm-v194-active-crossref",yes);
-      if(yes)btn.setAttribute("aria-current","true"); else btn.removeAttribute("aria-current");
+  function setFieldValues(values){
+    NOTE_IDS.forEach(function(id){
+      var field=get(id); if(!field) return;
+      var next = values && Object.prototype.hasOwnProperty.call(values,id) ? String(values[id]||"") : "";
+      if(field.value !== next) field.value = next;
     });
   }
-  function restoreOriginDisplay(){
-    if(!origin || stateKey()===origin.key)return;
-    var field=get("crossRefs");
-    if(field && field.value!==origin.mainValue) field.value=origin.mainValue;
-    var label=get("rdmV182CurrentLabel-crossRefs");
-    if(label)label.textContent="Teaching cross references from "+(origin.label||"original passage");
-    var wrap=get("rdmV182Related-crossRefs"); if(wrap)wrap.style.display="none";
-    // v182 normally renders from its private visit object. If a chained click reset that
-    // object, rebuild the visible dock directly from the protected original values.
-    var holder=get("crossRefLinks");
-    if(holder && typeof window.parseScriptureReferences==="function"){
-      var refs=[],seen=Object.create(null);
-      origin.values.forEach(function(item){
-        var parsed=[]; try{parsed=window.parseScriptureReferences(item.value)||[];}catch(_){}
-        parsed.forEach(function(ref){var k=clean(ref).toLowerCase();if(k&&!seen[k]){seen[k]=1;refs.push(ref);}});
-      });
-      holder.innerHTML=refs.map(function(ref){
-        var safe=text(ref).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-        return '<button type="button" class="cross-ref-link" data-ref="'+safe+'">'+safe+'</button>';
-      }).join("");
-    }
-    markActive(); restoreScroll();
+  function isAway(){ return !!(workspace && stateKey(controlState()) !== stateKey(workspace.teachingState)); }
+  function displayedLabel(){ return refLabel(controlState()); }
+
+  function ensureReferenceBar(){
+    var bar=get("rdmV196TeachingReferenceBar");
+    if(bar) return bar;
+    var side=document.querySelector(".side");
+    if(!side) return null;
+    bar=document.createElement("div");
+    bar.id="rdmV196TeachingReferenceBar";
+    bar.innerHTML = ''+
+      '<div class="rdm-v196-bar-head">'+
+        '<div><div class="rdm-v196-bar-kicker">Teaching Reference Bar</div>'+
+        '<div class="rdm-v196-teaching-ref" id="rdmV196TeachingRefLabel"></div>'+
+        '<div class="rdm-v196-displayed-ref" id="rdmV196DisplayedRefLabel"></div></div>'+
+        '<button type="button" class="secondary rdm-v196-return" id="rdmV196ReturnTeachingPassage">Return</button>'+
+      '</div>'+
+      '<div class="rdm-v196-ref-list" id="rdmV196ReferenceList"></div>';
+    var panels=side.querySelectorAll(":scope > .panel");
+    var teachingNotesPanel=null;
+    Array.prototype.some.call(panels,function(panel){
+      if(panel.querySelector && panel.querySelector("#teachingNotes")){ teachingNotesPanel=panel; return true; }
+      return false;
+    });
+    if(teachingNotesPanel) side.insertBefore(bar,teachingNotesPanel);
+    else side.insertBefore(bar,side.firstChild);
+    var ret=get("rdmV196ReturnTeachingPassage");
+    if(ret) ret.addEventListener("click",function(e){ e.preventDefault(); e.stopPropagation(); returnToTeachingPassage(); },true);
+    return bar;
   }
-  function persist(){ if(origin)safeSet({origin:origin,activeRef:activeRef,scroll:lastScroll}); }
-  function clear(){ origin=null;activeRef="";safeRemove();markActive(); }
 
-  var prior=safeGet();
-  if(prior&&prior.origin){origin=prior.origin;activeRef=prior.activeRef||"";lastScroll=prior.scroll||lastScroll;}
+  function sourceForRefs(){
+    if(workspace) return String(workspace.values.crossRefs||"");
+    var field=get("crossRefs"); return field ? field.value : "";
+  }
+  function currentTeachingState(){ return workspace ? workspace.teachingState : controlState(); }
+  function currentDisplayedRefText(){
+    var title=get("refTitle");
+    var state=controlState();
+    if(!state) return "";
+    var a=parseInt(state.start,10)||1,b=parseInt(state.end,10)||a;
+    var base=(title&&clean(title.textContent)) || (state.book+" "+state.chapter);
+    return a===b ? base+":"+a : base+":"+a+"–"+b;
+  }
+  function normalizedRefText(value){ return clean(value).toLowerCase().replace(/[–—]/g,"-"); }
+  function activeButtonMatches(ref){
+    var current=normalizedRefText(currentDisplayedRefText());
+    var target=normalizedRefText(ref);
+    return current===target || current.indexOf(target)===0 || target.indexOf(current)===0;
+  }
 
-  // Capture before v182's own capture handler. Once a teaching-reference journey has
-  // started, never replace the origin when another button in the same dock is clicked.
-  window.addEventListener("pointerdown",function(event){
-    var btn=event.target&&event.target.closest?event.target.closest("#crossRefLinks .cross-ref-link"):null;
-    if(!btn)return;
-    saveScroll();
-    if(!origin) origin=collectOrigin();
-    activeRef=clean(btn.dataset.ref||btn.textContent);
-    persist();
-  },true);
+  function renderReferenceBar(){
+    var bar=ensureReferenceBar(); if(!bar) return;
+    var teaching=currentTeachingState();
+    var teachLabel=get("rdmV196TeachingRefLabel"), displayLabel=get("rdmV196DisplayedRefLabel"), list=get("rdmV196ReferenceList"), ret=get("rdmV196ReturnTeachingPassage");
+    if(teachLabel) teachLabel.textContent=(workspace?"Teaching Passage: ":"Current Teaching Passage: ")+refLabel(teaching);
+    if(displayLabel) displayLabel.textContent=workspace ? "Displayed Passage: "+refLabel(controlState()) : "Reference buttons stay here while you teach.";
+    bar.classList.toggle("rdm-v196-away",isAway());
+    if(ret && teaching) ret.textContent="Return to "+refLabel(teaching).replace(" (Full Chapter)","");
+    if(!list) return;
+    var refs=[],seen=Object.create(null);
+    safeParseRefs(sourceForRefs()).forEach(function(ref){ var k=normalizedRefText(ref); if(!seen[k]){seen[k]=1;refs.push(ref);} });
+    if(!refs.length){ list.innerHTML='<div class="rdm-v196-empty">No Scripture references detected in the Teaching Cross References note yet.</div>'; return; }
+    list.innerHTML=refs.map(function(ref){
+      var safe=String(ref).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      return '<button type="button" class="cross-ref-link'+(activeButtonMatches(ref)?' rdm-v196-active-ref':'')+'" data-rdm-v196-ref="'+safe+'">'+safe+'</button>';
+    }).join("");
+  }
 
-  window.addEventListener("click",function(event){
-    var btn=event.target&&event.target.closest?event.target.closest("#crossRefLinks .cross-ref-link"):null;
-    if(btn){
-      activeRef=clean(btn.dataset.ref||btn.textContent);
-      persist();
-      [40,140,320].forEach(function(delay){setTimeout(function(){restoreOriginDisplay();persist();},delay);});
+  function startWorkspace(){
+    if(workspace) return workspace;
+    var state=controlState(); if(!state) return null;
+    workspace={ teachingState:Object.assign({},state), values:snapshotFields(), startedAt:Date.now() };
+    document.body.classList.add("rdm-v196-teaching-workspace-active");
+    renderReferenceBar();
+    return workspace;
+  }
+
+  function temporarilyLoadTeachingNotesIntoV182(){
+    if(!workspace || !originalLoadCurrentNotes || restoring) return;
+    restoring=true;
+    var displayed=controlState();
+    try {
+      var book=get("book"),chapter=get("chapter"),start=get("start"),end=get("end"),range=get("rangeSize");
+      if(book) book.value=workspace.teachingState.book;
+      try { if(typeof fillChapters === "function") fillChapters(); } catch (_) {}
+      if(chapter) chapter.value=workspace.teachingState.chapter;
+      try { if(typeof fillVerses === "function") fillVerses(); } catch (_) {}
+      if(range) range.value=workspace.teachingState.range;
+      if(start) start.value=workspace.teachingState.start;
+      if(end) end.value=workspace.teachingState.end;
+      originalLoadCurrentNotes();
+      /* The v182 record is the source of truth; refresh the workspace snapshot in
+         case the teacher edited the source passage before leaving it. */
+      workspace.values=snapshotFields();
+    } catch (_) {}
+    try {
+      if(displayed){
+        var book2=get("book"),chapter2=get("chapter"),start2=get("start"),end2=get("end"),range2=get("rangeSize");
+        if(book2) book2.value=displayed.book;
+        try { if(typeof fillChapters === "function") fillChapters(); } catch (_) {}
+        if(chapter2) chapter2.value=displayed.chapter;
+        try { if(typeof fillVerses === "function") fillVerses(); } catch (_) {}
+        if(range2) range2.value=displayed.range;
+        if(start2) start2.value=displayed.start;
+        if(end2) end2.value=displayed.end;
+      }
+    } catch (_) {}
+    setFieldValues(workspace.values);
+    NOTE_IDS.forEach(function(id){
+      var label=get("rdmV182CurrentLabel-"+id);
+      if(label) label.textContent="Teaching passage: "+refLabel(workspace.teachingState);
+      var related=get("rdmV182Related-"+id); if(related) related.style.display="none";
+    });
+    restoring=false;
+    renderReferenceBar();
+  }
+
+  function restoreWorkspaceSoon(){
+    if(!workspace) return;
+    clearTimeout(restoreTimer);
+    [0,70,150,280,520].forEach(function(delay){
+      setTimeout(function(){ if(workspace) temporarilyLoadTeachingNotesIntoV182(); },delay);
+    });
+    restoreTimer=setTimeout(function(){ if(workspace) temporarilyLoadTeachingNotesIntoV182(); },900);
+  }
+
+  function saveWorkspaceSnapshotFromVisible(){
+    if(!workspace) return;
+    workspace.values=snapshotFields();
+    renderReferenceBar();
+  }
+
+  function navigateToRef(ref){
+    if(!startWorkspace()) return;
+    /* Capture any source-note edit immediately before navigation. */
+    workspace.values=snapshotFields();
+    var fn=window.goToScriptureReference || (typeof goToScriptureReference === "function" ? goToScriptureReference : null);
+    if(!fn) return;
+    try {
+      var result=fn(ref);
+      Promise.resolve(result).then(restoreWorkspaceSoon,restoreWorkspaceSoon);
+    } catch (_) { restoreWorkspaceSoon(); }
+  }
+
+  function setControlsToState(state){
+    if(!state) return;
+    var book=get("book"),chapter=get("chapter"),start=get("start"),end=get("end"),range=get("rangeSize");
+    if(book) book.value=state.book;
+    try { if(typeof fillChapters === "function") fillChapters(); } catch (_) {}
+    if(chapter) chapter.value=state.chapter;
+    try { if(typeof fillVerses === "function") fillVerses(); } catch (_) {}
+    if(range) range.value=state.range;
+    if(start) start.value=state.start;
+    if(end) end.value=state.end;
+  }
+
+  function returnToTeachingPassage(){
+    if(!workspace) return;
+    setControlsToState(workspace.teachingState);
+    try {
+      var result=(typeof loadPassage === "function") ? loadPassage() : (window.rdmReferenceRangeNavigationV163&&window.rdmReferenceRangeNavigationV163.load?window.rdmReferenceRangeNavigationV163.load():null);
+      Promise.resolve(result).then(restoreWorkspaceSoon,restoreWorkspaceSoon);
+    } catch (_) { restoreWorkspaceSoon(); }
+  }
+
+  /* Replace the externally-visible notes loader. When the displayed Scripture is
+     away from the Teaching Passage, v182 is deliberately loaded against the
+     teaching selectors (synchronously, without reloading Scripture) so all four
+     note fields remain attached to the original passage for both reading and edits. */
+  function loadCurrentNotesV196(){
+    if(!workspace) {
+      if(originalLoadCurrentNotes) originalLoadCurrentNotes();
+      renderReferenceBar();
       return;
     }
-    var reset=event.target&&event.target.closest?event.target.closest("#book,#chapter,#rangeSize,#loadBtn"):null;
-    if(reset && !event.target.closest("#crossRefLinks")) clear();
-  },true);
-
-  window.addEventListener("change",function(event){
-    if(event.target&&/^(book|chapter|rangeSize)$/.test(event.target.id||""))clear();
-  },true);
-
-  var observer=new MutationObserver(function(){
-    if(!origin)return;
-    setTimeout(function(){restoreOriginDisplay();},0);
-  });
-  function install(){
-    var holder=get("crossRefLinks");
-    if(holder)observer.observe(holder,{childList:true});
-    if(origin && stateKey()!==origin.key)restoreOriginDisplay();
-    markActive();
+    temporarilyLoadTeachingNotesIntoV182();
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
-  setTimeout(install,250);setTimeout(install,900);
 
-  window.__RDM_ACTIVE_BUILD="v194-teaching-crossref-continuity";
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v194-teaching-crossref-continuity";
+  function renderCrossReferenceLinksV196(){
+    if(!workspace) {
+      if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks();
+    } else {
+      var holder=get("crossRefLinks");
+      if(holder) holder.innerHTML=""; /* buttons live in the permanent bar during the session */
+    }
+    renderReferenceBar();
+  }
+
+  function installOverridesV196(){
+    try { window.loadCurrentNotes=loadCurrentNotesV196; loadCurrentNotes=loadCurrentNotesV196; } catch (_) { window.loadCurrentNotes=loadCurrentNotesV196; }
+    try { window.renderCrossReferenceLinks=renderCrossReferenceLinksV196; renderCrossReferenceLinks=renderCrossReferenceLinksV196; } catch (_) { window.renderCrossReferenceLinks=renderCrossReferenceLinksV196; }
+  }
+  installOverridesV196();
+  /* v182 deliberately reasserts its protected overrides during startup. Reapply
+     this isolated v196 layer after each of those startup windows so the final
+     runtime remains Teaching-Passage/Displayed-Passage separated. */
+  [120,380,760,1400,2700,3600].forEach(function(delay){ setTimeout(installOverridesV196,delay); });
+
+  /* Capture reference clicks before legacy handlers can convert the destination
+     into a new note context. */
+  window.addEventListener("click",function(event){
+    var refButton=event.target&&event.target.closest?event.target.closest("#rdmV196ReferenceList [data-rdm-v196-ref], #crossRefLinks .cross-ref-link"):null;
+    if(refButton){
+      event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
+      var ref=refButton.getAttribute("data-rdm-v196-ref") || refButton.getAttribute("data-ref") || clean(refButton.textContent);
+      if(ref) navigateToRef(ref);
+      return;
+    }
+  },true);
+
+  /* Keep the source note snapshot current. Existing v182 saving remains the
+     storage authority because activeState is intentionally reset to Teaching Passage. */
+  NOTE_IDS.forEach(function(id){
+    var field=get(id); if(!field) return;
+    field.addEventListener("input",function(){
+      if(workspace){ workspace.values[id]=field.value; if(id==="crossRefs") renderReferenceBar(); }
+      resizeTeachingField(field);
+    });
+  });
+
+  function resizeTeachingField(field){
+    if(!field || document.body.classList.contains("rdm-mobile-app-shell") || document.documentElement.classList.contains("obs")) return;
+    var max=(field.id==="crossRefs"||field.id==="applicationNotes")?340:300;
+    var min=(field.id==="crossRefs"||field.id==="applicationNotes")?150:118;
+    field.style.height="auto";
+    var wanted=Math.max(min,Math.min(max,field.scrollHeight+2));
+    field.style.height=wanted+"px";
+    field.style.overflowY=(field.scrollHeight>max?"auto":"hidden");
+  }
+  function resizeAll(){ NOTE_IDS.forEach(function(id){resizeTeachingField(get(id));}); }
+
+  /* Any navigation can change only the Scripture viewer once the session is anchored. */
+  window.addEventListener("click",function(event){
+    if(!workspace) return;
+    var nav=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack"):null;
+    if(nav) setTimeout(restoreWorkspaceSoon,0);
+  },true);
+  window.addEventListener("change",function(event){
+    if(!workspace) return;
+    if(event.target && /^(book|chapter|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(event.target.id||"")) setTimeout(restoreWorkspaceSoon,0);
+  },true);
+
+  function init(){
+    ensureReferenceBar();
+    renderReferenceBar();
+    resizeAll();
+    [80,300,900,1800].forEach(function(t){setTimeout(function(){renderReferenceBar();resizeAll();},t);});
+    window.addEventListener("resize",function(){setTimeout(resizeAll,60);});
+    window.__RDM_V196_TEACHING_WORKSPACE={
+      build:BUILD,
+      getWorkspace:function(){return workspace?JSON.parse(JSON.stringify(workspace)):null;},
+      start:startWorkspace,
+      restore:temporarilyLoadTeachingNotesIntoV182,
+      returnToTeachingPassage:returnToTeachingPassage,
+      navigate:navigateToRef
+    };
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION=BUILD;
+    window.__RDM_ACTIVE_BUILD=BUILD;
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
 })();
+</script>
+<script id="rdm-v196-build-marker">
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v196-teaching-workspace-lock"; window.__RDM_ACTIVE_BUILD="v196-teaching-workspace-lock"; })();
 </script>
 
 </body>
