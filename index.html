@@ -29822,21 +29822,25 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
      record. This is stored-data contamination, not an intentional overlap. Repair
      only that exact known duplicate, and only once. */
   function scrubV202KnownGenesisCrossRefDuplicate(){
-    var marker=PREFIX+"v202Genesis12125to12630CrossRefScrub";
-    if(safeGet(marker)==="1")return;
+    /* v203 root fix: do NOT mark this repair complete until the contaminated
+       IndexedDB/local record has actually been found and repaired. v202 marked
+       completion during the early localStorage pass, before IndexedDB finished
+       merging; that allowed the stale 1:26–30 duplicate to arrive afterward and
+       survive forever. */
+    var marker=PREFIX+"v203Genesis12125to12630CrossRefScrubComplete";
+    if(safeGet(marker)==="1")return false;
     var source=records["Genesis|1|21|25"], target=records["Genesis|1|26|30"];
-    if(source&&target&&source.fields&&target.fields){
-      var a=cleanLegacyValue(source.fields.crossRefs&&source.fields.crossRefs.value);
-      var b=cleanLegacyValue(target.fields.crossRefs&&target.fields.crossRefs.value);
-      if(hasText(a)&&a===b){
-        var stamp=now();
-        target.fields.crossRefs={value:"",updatedAt:stamp,deleted:true};
-        target.updatedAt=Math.max(Number(target.updatedAt||0),stamp);
-        target.build="v202-section-isolation-note-viewer-top";
-        persistRecord(target);
-      }
-    }
+    if(!(source&&target&&source.fields&&target.fields))return false;
+    var a=cleanLegacyValue(source.fields.crossRefs&&source.fields.crossRefs.value);
+    var b=cleanLegacyValue(target.fields.crossRefs&&target.fields.crossRefs.value);
+    if(!(hasText(a)&&a===b))return false;
+    var stamp=now();
+    target.fields.crossRefs={value:"",updatedAt:stamp,deleted:true};
+    target.updatedAt=Math.max(Number(target.updatedAt||0),stamp);
+    target.build="v203-genesis-section-isolation";
+    persistRecord(target);
     safeSet(marker,"1");
+    return true;
   }
 
   function setRecordField(recordOrKey,id,value,sourceTime){
@@ -32859,7 +32863,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 </script>
 
 
-<!-- RDM v202: exact adjacent-section cross-reference scrub + Note Viewer opens at top -->
+<!-- RDM v203: Genesis 1:21–25 / 1:26–30 stored cross-reference isolation root fix -->
 <script id="rdm-v201-exact-crossref-section-isolation">
 (function(){
   "use strict";
@@ -32896,8 +32900,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   setInterval(function(){if(workspaceActive())return;var now=key(state());if(now&&lastKey&&now!==lastKey)beginHandoff();else if(now&&!lastKey)lastKey=now},150);
   window.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack");if(t)setTimeout(beginHandoff,25)},false);
   window.addEventListener("change",function(e){if(e.target&&/^(book|chapter|rangeSize|start|end)$/.test(e.target.id||""))setTimeout(beginHandoff,25)},false);
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v202-section-isolation-note-viewer-top";
-  window.__RDM_ACTIVE_BUILD="v202-section-isolation-note-viewer-top";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v203-genesis-section-isolation";
+  window.__RDM_ACTIVE_BUILD="v203-genesis-section-isolation";
 })();
 </script>
 </body>
@@ -33006,6 +33010,6 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
   var main=g("crossRefs");if(main){main.addEventListener("input",function(){if(editor&&document.activeElement!==editor)editor.value=main.value});}
   [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();hideFullChapterRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
   window.rdmV201CrossRefNoteViewer={open:openPop,close:closePop};
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v202-section-isolation-note-viewer-top";window.__RDM_ACTIVE_BUILD="v202-section-isolation-note-viewer-top";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v203-genesis-section-isolation";window.__RDM_ACTIVE_BUILD="v203-genesis-section-isolation";
 })();
 </script>
