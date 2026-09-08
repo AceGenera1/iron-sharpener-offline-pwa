@@ -32324,7 +32324,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 
 <!-- =========================================================
-     RDM IRON SHARPENER — v196 Teaching Workspace Lock
+     RDM IRON SHARPENER — v197 Teaching Section Handoff
      Base: protected v193 live-teaching build.
      Scope: teaching workspace continuity + teaching reference bar +
             note-field fluent-reading behavior only.
@@ -32437,7 +32437,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmV196TeachingWorkspaceLock) return;
   window.__rdmV196TeachingWorkspaceLock = true;
 
-  var BUILD = "v196-teaching-workspace-lock";
+  var BUILD = "v197-teaching-section-handoff";
   var NOTE_IDS = ["teachingNotes","crossRefs","applicationNotes","clipNotes"];
   var workspace = null;
   var restoring = false;
@@ -32714,12 +32714,38 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   function resizeAll(){ NOTE_IDS.forEach(function(id){resizeTeachingField(get(id));}); }
 
-  /* Any navigation can change only the Scripture viewer once the session is anchored. */
+  /* v197 section handoff:
+     Cross-reference travel keeps the Teaching Passage anchored. But once the
+     teacher is back on that Teaching Passage, Previous/Next is an intentional
+     move to a NEW teaching section. Release the old workspace BEFORE the legacy
+     navigation runs so v182 loads the saved notes for the new section normally. */
+  function releaseWorkspaceForNewTeachingSection(){
+    if(!workspace) return;
+    workspace.values=snapshotFields();
+    workspace=null;
+    document.body.classList.remove("rdm-v196-teaching-workspace-active");
+    clearTimeout(restoreTimer);
+    renderReferenceBar();
+  }
+
   window.addEventListener("click",function(event){
     if(!workspace) return;
-    var nav=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack"):null;
-    if(nav) setTimeout(restoreWorkspaceSoon,0);
+    var target=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack"):null;
+    if(!target) return;
+    var id=target.id||"";
+    var sectionStep=(id==="prevBtn"||id==="nextBtn");
+    if(sectionStep && !isAway()){
+      releaseWorkspaceForNewTeachingSection();
+      setTimeout(function(){
+        try { if(typeof window.loadCurrentNotes==="function") window.loadCurrentNotes(); } catch (_) {}
+        renderReferenceBar(); resizeAll();
+      },80);
+      setTimeout(function(){ renderReferenceBar(); resizeAll(); },260);
+      return;
+    }
+    setTimeout(restoreWorkspaceSoon,0);
   },true);
+
   window.addEventListener("change",function(event){
     if(!workspace) return;
     if(event.target && /^(book|chapter|rangeSize|obsBookSelect|obsChapterSelect|obsRangeSizeSelect)$/.test(event.target.id||"")) setTimeout(restoreWorkspaceSoon,0);
@@ -32747,7 +32773,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 <script id="rdm-v196-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v196-teaching-workspace-lock"; window.__RDM_ACTIVE_BUILD="v196-teaching-workspace-lock"; })();
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v197-teaching-section-handoff"; window.__RDM_ACTIVE_BUILD="v197-teaching-section-handoff"; })();
 </script>
 
 </body>
