@@ -29837,7 +29837,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var stamp=now();
     target.fields.crossRefs={value:"",updatedAt:stamp,deleted:true};
     target.updatedAt=Math.max(Number(target.updatedAt||0),stamp);
-    target.build="v203-genesis-section-isolation";
+    target.build="v204-full-chapter-related-notes-viewer";
     persistRecord(target);
     safeSet(marker,"1");
     return true;
@@ -31910,7 +31910,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function eventNeedsNavigationPublish(target){
-    return !!target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack,#crossRefLinks .cross-ref-link,.internal-xref-link,.resource-instance-panel .cross-ref-link,.doctrine-related-topic-btn");
+    return !!target.closest("#prevBtn,#nextBtn,#loadBtn,#obsLoadPassage,#rdmScriptureHistoryBack,#crossRefLinks .cross-ref-link,#rdmV196ReferenceList [data-rdm-v196-ref],.internal-xref-link,.resource-instance-panel .cross-ref-link,.doctrine-related-topic-btn");
   }
 
   function handlePointerDown(event){
@@ -31954,7 +31954,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       return;
     }
 
-    var clickedReferenceControl = target.closest(".cross-ref-link,.internal-xref-link,.doctrine-related-topic-btn,.resource-instance-panel button,.resource-instance-panel a");
+    var clickedReferenceControl = target.closest("#rdmV196ReferenceList [data-rdm-v196-ref],.cross-ref-link,.internal-xref-link,.doctrine-related-topic-btn,.resource-instance-panel button,.resource-instance-panel a");
     if (clickedReferenceControl && !clickedReferenceControl.closest("[data-rdm-live-resource-show],[data-rdm-live-resource-return],.teacher-pop-close")) {
       var clickedRef = referenceFromNode(clickedReferenceControl);
       if (clickedRef && currentAudienceView.type !== "scripture") currentAudienceView = { type: "scripture" };
@@ -32900,8 +32900,19 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   setInterval(function(){if(workspaceActive())return;var now=key(state());if(now&&lastKey&&now!==lastKey)beginHandoff();else if(now&&!lastKey)lastKey=now},150);
   window.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack");if(t)setTimeout(beginHandoff,25)},false);
   window.addEventListener("change",function(e){if(e.target&&/^(book|chapter|rangeSize|start|end)$/.test(e.target.id||""))setTimeout(beginHandoff,25)},false);
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v203-genesis-section-isolation";
-  window.__RDM_ACTIVE_BUILD="v203-genesis-section-isolation";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v204-full-chapter-related-notes-viewer";
+  window.__RDM_ACTIVE_BUILD="v204-full-chapter-related-notes-viewer";
+})();
+</script>
+
+<!-- RDM v204: Full Chapter shows overlapping saved notes; saved Cross Reference notes can open directly in the private Note Viewer. -->
+
+<script id="rdm-v205-live-reference-bar-audience-sync-marker">
+(function(){
+  try {
+    window.__RDM_V205_LIVE_REFERENCE_BAR_AUDIENCE_SYNC = true;
+    window.__RDM_ACTIVE_BUILD = "v205-live-reference-bar-audience-sync";
+  } catch (_) {}
 })();
 </script>
 </body>
@@ -32922,7 +32933,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 <!-- v179 teaching-only: Section Size offers 5 Verses, 10 Verses, and Full Chapter; Start/End remain internal. -->
 <!-- v182: notes remain passage-specific, overlapping notes stay editable, and reopening resumes the exact section. -->
 <!-- v183 teaching-only: Previous/Next returns the newly loaded Scripture section to the top of the reading surface. -->
-<!-- RDM v200: authoritative section handoff + full-chapter note isolation + private teaching note pop-out -->
+<!-- RDM v204: full-chapter related-note archive + selectable Cross Reference Note Viewer -->
 <style id="rdm-v200-section-popout-style">
 #rdmV200PopoutBtn{margin:10px 0 0 0!important;width:auto!important;min-width:0!important;padding:8px 14px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:.92rem!important;line-height:1.1!important}
 #rdmV200NotePopout{position:fixed;z-index:2147483000;left:7vw;top:8vh;width:min(760px,86vw);height:min(720px,82vh);display:none;flex-direction:column;background:var(--panel,#315d54);border:2px solid #e0b55b;border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.42);overflow:hidden}
@@ -32937,6 +32948,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 body.cream #rdmV200NotePopout{background:#fff8ea;color:#173a35}
 body.cream #rdmV200PopoutTitle{color:#173a35}
 body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
+
+#rdmV182Related-crossRefs .rdm-v204-related-viewer-btn{margin-top:9px!important;width:auto!important;min-width:0!important;padding:8px 13px!important;font-size:.86rem!important;line-height:1.1!important;display:inline-flex!important}
 @media(max-width:700px){#rdmV200NotePopout{left:3vw!important;top:5vh!important;width:94vw!important;height:82vh!important}#rdmV200PopoutHead{cursor:default;flex-wrap:wrap}#rdmV200PopoutEditor{font-size:18px}}
 </style>
 <script id="rdm-v200-authoritative-section-handoff-popout">
@@ -32951,8 +32964,8 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
   function key(x){return x?[x.book,x.chapter,x.start,x.end,x.range].join("|"):""}
   function label(x){if(!x)return"Selected passage";if(x.range==="full")return x.book+" "+x.chapter+" (Full Chapter)";return x.start===x.end?x.book+" "+x.chapter+":"+x.start:x.book+" "+x.chapter+":"+x.start+"–"+x.end}
   function workspaceActive(){try{return !!(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.getWorkspace&&window.rdmTeachingWorkspaceV196.getWorkspace())}catch(_){return document.body.classList.contains("rdm-v196-teaching-workspace-active")}}
-  function hideFullChapterRelated(){var st=state(),full=st&&st.range==="full";NOTE_IDS.forEach(function(id){var w=g("rdmV182Related-"+id);if(w&&full)w.style.display="none"});}
-  function redraw(){try{if(window.renderCrossReferenceLinks)window.renderCrossReferenceLinks()}catch(_){};var h=g("crossRefLinks");if(h)h.innerHTML="";try{if(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.render)window.rdmTeachingWorkspaceV196.render()}catch(_){};hideFullChapterRelated();updatePopoutRef()}
+  function preserveRelatedNoteVisibility(){NOTE_IDS.forEach(function(id){var w=g("rdmV182Related-"+id);if(!w)return;var hasCards=!!w.querySelector(".rdm-v182-related-card");w.style.display=hasCards?"block":"none"});}
+  function redraw(){try{if(window.renderCrossReferenceLinks)window.renderCrossReferenceLinks()}catch(_){};var h=g("crossRefLinks");if(h)h.innerHTML="";try{if(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.render)window.rdmTeachingWorkspaceV196.render()}catch(_){};preserveRelatedNoteVisibility();updatePopoutRef()}
   function authoritativeLoad(expectedKey){
     if(workspaceActive())return;
     var st=state(); if(!st||key(st)!==expectedKey)return;
@@ -32968,27 +32981,36 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
   /* This watcher is intentionally independent of Previous/Next click timing. It
      keys off the actual settled selectors, so 21–25 -> 26–30 cannot inherit the
      old visible note snapshot. */
-  setInterval(function(){if(workspaceActive())return;var k=key(state());if(k&&k!==lastStableKey){lastStableKey=k;scheduleSectionSync()}else hideFullChapterRelated()},180);
+  setInterval(function(){if(workspaceActive())return;var k=key(state());if(k&&k!==lastStableKey){lastStableKey=k;scheduleSectionSync()}else preserveRelatedNoteVisibility()},180);
   window.addEventListener("click",function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#rdmV196ReturnTeachingPassage");if(t)setTimeout(scheduleSectionSync,40)},false);
   window.addEventListener("change",function(ev){if(ev.target&&/^(book|chapter|rangeSize|start|end)$/.test(ev.target.id||""))setTimeout(scheduleSectionSync,40)},false);
 
-  /* v201: Private Cross-Reference Note Viewer. It mirrors the exact same Teaching Cross References textarea, so there is no second note store and nothing is sent to Audience. */
-  var pop=null,editor=null,refNode=null,fontSize=20,drag=null;
-  function updatePopoutRef(){if(refNode)refNode.textContent=label(state())}
-  function syncFromMain(){var main=g("crossRefs");if(main&&editor&&document.activeElement!==editor)editor.value=main.value;updatePopoutRef()}
-  function syncToMain(){var main=g("crossRefs");if(!main||!editor)return;main.value=editor.value;main.dispatchEvent(new Event("input",{bubbles:true}));}
+  /* v204: Private Cross-Reference Note Viewer can open the current Cross Reference note or any saved overlapping Cross Reference note. */
+  var pop=null,editor=null,refNode=null,fontSize=20,drag=null,viewerSource=null;
+  function sourceLabel(source){
+    if(source&&source.classList&&source.classList.contains("rdm-v182-related-editor")){
+      var card=source.closest(".rdm-v182-related-card");
+      var labelNode=card&&card.querySelector(".rdm-v182-related-label");
+      return clean(labelNode&&labelNode.textContent)||"Saved Cross Reference Note";
+    }
+    return label(state());
+  }
+  function updatePopoutRef(){if(refNode)refNode.textContent=sourceLabel(viewerSource||g("crossRefs"))}
+  function syncFromSource(){var src=viewerSource||g("crossRefs");if(src&&editor&&document.activeElement!==editor)editor.value=src.value;updatePopoutRef()}
+  function syncToSource(){var src=viewerSource||g("crossRefs");if(!src||!editor)return;src.value=editor.value;src.dispatchEvent(new Event("input",{bubbles:true}));}
   function ensurePopout(){if(pop)return pop;
     pop=document.createElement("div");pop.id="rdmV200NotePopout";pop.setAttribute("aria-hidden","true");
     pop.innerHTML='<div id="rdmV200PopoutHead"><div><div id="rdmV200PopoutTitle">PRIVATE CROSS-REFERENCE NOTES</div><div id="rdmV200PopoutRef"></div></div><div id="rdmV200PopoutControls"><button type="button" id="rdmV200FontDown" title="Smaller text">A−</button><button type="button" id="rdmV200FontUp" title="Larger text">A+</button><button type="button" id="rdmV200Top" title="Return to top">Top</button><button type="button" id="rdmV200Close" title="Close">✕</button></div></div><div id="rdmV200PopoutBody"><textarea id="rdmV200PopoutEditor" aria-label="Private Teaching Cross Reference notes"></textarea></div>';
     document.body.appendChild(pop);editor=g("rdmV200PopoutEditor");refNode=g("rdmV200PopoutRef");
-    editor.addEventListener("input",syncToMain);g("rdmV200Close").onclick=closePop;g("rdmV200Top").onclick=function(){editor.scrollTop=0};
+    editor.addEventListener("input",syncToSource);g("rdmV200Close").onclick=closePop;g("rdmV200Top").onclick=function(){editor.scrollTop=0};
     g("rdmV200FontDown").onclick=function(){fontSize=Math.max(14,fontSize-2);editor.style.fontSize=fontSize+"px"};g("rdmV200FontUp").onclick=function(){fontSize=Math.min(34,fontSize+2);editor.style.fontSize=fontSize+"px"};
     var head=g("rdmV200PopoutHead");head.addEventListener("pointerdown",function(e){if(e.target.closest("button")||innerWidth<701)return;var r=pop.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top};head.setPointerCapture(e.pointerId)});head.addEventListener("pointermove",function(e){if(!drag)return;pop.style.left=Math.max(0,Math.min(innerWidth-pop.offsetWidth,e.clientX-drag.dx))+"px";pop.style.top=Math.max(0,Math.min(innerHeight-pop.offsetHeight,e.clientY-drag.dy))+"px"});head.addEventListener("pointerup",function(){drag=null});
     return pop;
   }
-  function openPop(){
+  function openPop(source){
     ensurePopout();
-    syncFromMain();
+    viewerSource=source&&source.tagName==="TEXTAREA"?source:g("crossRefs");
+    syncFromSource();
     pop.classList.add("open");
     pop.setAttribute("aria-hidden","false");
     try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}
@@ -32999,17 +33021,28 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
     requestAnimationFrame(function(){editor.scrollTop=0;try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}});
     setTimeout(function(){if(pop&&pop.classList.contains("open")){editor.scrollTop=0;try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}}},60);
   }
-  function closePop(){if(!pop)return;syncToMain();pop.classList.remove("open");pop.setAttribute("aria-hidden","true")}
+  function closePop(){if(!pop)return;syncToSource();pop.classList.remove("open");pop.setAttribute("aria-hidden","true");viewerSource=null}
   function installButton(){
     var field=g("crossRefs"); if(!field||g("rdmV200PopoutBtn"))return;
-    var b=document.createElement("button"); b.type="button"; b.id="rdmV200PopoutBtn"; b.className="secondary"; b.textContent="Note Viewer"; b.onclick=openPop;
+    var b=document.createElement("button"); b.type="button"; b.id="rdmV200PopoutBtn"; b.className="secondary"; b.textContent="Note Viewer"; b.onclick=function(){openPop(field)};
     var links=g("crossRefLinks");
     if(links && links.parentNode) links.insertAdjacentElement("afterend",b);
     else field.insertAdjacentElement("afterend",b);
   }
-  var main=g("crossRefs");if(main){main.addEventListener("input",function(){if(editor&&document.activeElement!==editor)editor.value=main.value});}
-  [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();hideFullChapterRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
-  window.rdmV201CrossRefNoteViewer={open:openPop,close:closePop};
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v203-genesis-section-isolation";window.__RDM_ACTIVE_BUILD="v203-genesis-section-isolation";
+  function installRelatedViewerButtons(){
+    var wrap=g("rdmV182Related-crossRefs");if(!wrap)return;
+    Array.prototype.forEach.call(wrap.querySelectorAll(".rdm-v182-related-card"),function(card){
+      if(card.querySelector(".rdm-v204-related-viewer-btn"))return;
+      var related=card.querySelector(".rdm-v182-related-editor");if(!related)return;
+      var b=document.createElement("button");b.type="button";b.className="secondary rdm-v204-related-viewer-btn";b.textContent="View in Note Viewer";b.addEventListener("click",function(){openPop(related)});
+      card.appendChild(b);
+    });
+  }
+  var main=g("crossRefs");if(main){main.addEventListener("input",function(){if(editor&&viewerSource===main&&document.activeElement!==editor)editor.value=main.value});}
+  var relatedObserver=new MutationObserver(function(){installRelatedViewerButtons();preserveRelatedNoteVisibility()});
+  function observeRelated(){var wrap=g("rdmV182Related-crossRefs");if(wrap){try{relatedObserver.observe(wrap,{childList:true,subtree:true})}catch(_){}}}
+  [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();preserveRelatedNoteVisibility();installRelatedViewerButtons();observeRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
+  window.rdmV204CrossRefNoteViewer={openCurrent:function(){openPop(g("crossRefs"))},openSource:openPop,close:closePop};
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v204-full-chapter-related-notes-viewer";window.__RDM_ACTIVE_BUILD="v204-full-chapter-related-notes-viewer";
 })();
 </script>
