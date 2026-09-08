@@ -32324,7 +32324,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 
 <!-- =========================================================
-     RDM IRON SHARPENER — v197 Teaching Section Handoff
+     RDM IRON SHARPENER — v198 Teaching Workspace Preservation
      Base: protected v193 live-teaching build.
      Scope: teaching workspace continuity + teaching reference bar +
             note-field fluent-reading behavior only.
@@ -32437,7 +32437,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   if (window.__rdmV196TeachingWorkspaceLock) return;
   window.__rdmV196TeachingWorkspaceLock = true;
 
-  var BUILD = "v197-teaching-section-handoff";
+  var BUILD = "v198-teaching-workspace-preservation";
   var NOTE_IDS = ["teachingNotes","crossRefs","applicationNotes","clipNotes"];
   var workspace = null;
   var restoring = false;
@@ -32564,6 +32564,13 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if(!workspace || !originalLoadCurrentNotes || restoring) return;
     restoring=true;
     var displayed=controlState();
+    /* v198: the in-session workspace snapshot is authoritative while travelling
+       through cross references. v182 is temporarily pointed back at the Teaching
+       Passage only to keep its private activeState/storage target anchored there.
+       Critically, NEVER replace workspace.values with whatever v182 renders during
+       this re-anchoring step; doing so was the v197 wipe bug. */
+    var protectedValues={};
+    NOTE_IDS.forEach(function(id){ protectedValues[id]=String((workspace.values&&workspace.values[id])||""); });
     try {
       var book=get("book"),chapter=get("chapter"),start=get("start"),end=get("end"),range=get("rangeSize");
       if(book) book.value=workspace.teachingState.book;
@@ -32574,9 +32581,6 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if(start) start.value=workspace.teachingState.start;
       if(end) end.value=workspace.teachingState.end;
       originalLoadCurrentNotes();
-      /* The v182 record is the source of truth; refresh the workspace snapshot in
-         case the teacher edited the source passage before leaving it. */
-      workspace.values=snapshotFields();
     } catch (_) {}
     try {
       if(displayed){
@@ -32590,7 +32594,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         if(end2) end2.value=displayed.end;
       }
     } catch (_) {}
-    setFieldValues(workspace.values);
+    workspace.values=protectedValues;
+    setFieldValues(protectedValues);
     NOTE_IDS.forEach(function(id){
       var label=get("rdmV182CurrentLabel-"+id);
       if(label) label.textContent="Teaching passage: "+refLabel(workspace.teachingState);
@@ -32714,7 +32719,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   function resizeAll(){ NOTE_IDS.forEach(function(id){resizeTeachingField(get(id));}); }
 
-  /* v197 section handoff:
+  /* v197/v198 section handoff:
      Cross-reference travel keeps the Teaching Passage anchored. But once the
      teacher is back on that Teaching Passage, Previous/Next is an intentional
      move to a NEW teaching section. Release the old workspace BEFORE the legacy
@@ -32773,7 +32778,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 })();
 </script>
 <script id="rdm-v196-build-marker">
-(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v197-teaching-section-handoff"; window.__RDM_ACTIVE_BUILD="v197-teaching-section-handoff"; })();
+(function(){ window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v198-teaching-workspace-preservation"; window.__RDM_ACTIVE_BUILD="v198-teaching-workspace-preservation"; })();
 </script>
 
 </body>
