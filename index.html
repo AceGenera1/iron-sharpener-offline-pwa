@@ -29817,6 +29817,28 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return existing;
   }
 
+  /* v202 one-time data repair: earlier section-handoff candidates could persist the
+     Genesis 1:21–25 Cross References text into the immediately following 1:26–30
+     record. This is stored-data contamination, not an intentional overlap. Repair
+     only that exact known duplicate, and only once. */
+  function scrubV202KnownGenesisCrossRefDuplicate(){
+    var marker=PREFIX+"v202Genesis12125to12630CrossRefScrub";
+    if(safeGet(marker)==="1")return;
+    var source=records["Genesis|1|21|25"], target=records["Genesis|1|26|30"];
+    if(source&&target&&source.fields&&target.fields){
+      var a=cleanLegacyValue(source.fields.crossRefs&&source.fields.crossRefs.value);
+      var b=cleanLegacyValue(target.fields.crossRefs&&target.fields.crossRefs.value);
+      if(hasText(a)&&a===b){
+        var stamp=now();
+        target.fields.crossRefs={value:"",updatedAt:stamp,deleted:true};
+        target.updatedAt=Math.max(Number(target.updatedAt||0),stamp);
+        target.build="v202-section-isolation-note-viewer-top";
+        persistRecord(target);
+      }
+    }
+    safeSet(marker,"1");
+  }
+
   function setRecordField(recordOrKey,id,value,sourceTime){
     var record=typeof recordOrKey==="string"?records[recordOrKey]:recordOrKey;
     if(!record || NOTE_IDS.indexOf(id)<0)return null;
@@ -30195,6 +30217,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function initialize(){
     readLocalRecords();
     migrateLegacy();
+    scrubV202KnownGenesisCrossRefDuplicate();
     installOverrides();
     installMainFieldEvents();
     wrapNavigationApi();
@@ -30203,6 +30226,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
     Promise.all([idbGetAll(),oldWorkspaceGetAll()]).then(function(results){
       (results[0]||[]).forEach(mergeRecord);
+      scrubV202KnownGenesisCrossRefDuplicate();
       var anchor=ensureRecord(savedAnchorState());
       (results[1]||[]).forEach(function(oldRecord){
         var id=oldRecord&&oldRecord.id;
@@ -32835,7 +32859,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 </script>
 
 
-<!-- RDM v201: exact section cross-reference isolation + compact private Note Viewer -->
+<!-- RDM v202: exact adjacent-section cross-reference scrub + Note Viewer opens at top -->
 <script id="rdm-v201-exact-crossref-section-isolation">
 (function(){
   "use strict";
@@ -32872,8 +32896,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   setInterval(function(){if(workspaceActive())return;var now=key(state());if(now&&lastKey&&now!==lastKey)beginHandoff();else if(now&&!lastKey)lastKey=now},150);
   window.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack");if(t)setTimeout(beginHandoff,25)},false);
   window.addEventListener("change",function(e){if(e.target&&/^(book|chapter|rangeSize|start|end)$/.test(e.target.id||""))setTimeout(beginHandoff,25)},false);
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v201-crossref-note-viewer-section-isolation";
-  window.__RDM_ACTIVE_BUILD="v201-crossref-note-viewer-section-isolation";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v202-section-isolation-note-viewer-top";
+  window.__RDM_ACTIVE_BUILD="v202-section-isolation-note-viewer-top";
 })();
 </script>
 </body>
@@ -32958,7 +32982,19 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
     var head=g("rdmV200PopoutHead");head.addEventListener("pointerdown",function(e){if(e.target.closest("button")||innerWidth<701)return;var r=pop.getBoundingClientRect();drag={dx:e.clientX-r.left,dy:e.clientY-r.top};head.setPointerCapture(e.pointerId)});head.addEventListener("pointermove",function(e){if(!drag)return;pop.style.left=Math.max(0,Math.min(innerWidth-pop.offsetWidth,e.clientX-drag.dx))+"px";pop.style.top=Math.max(0,Math.min(innerHeight-pop.offsetHeight,e.clientY-drag.dy))+"px"});head.addEventListener("pointerup",function(){drag=null});
     return pop;
   }
-  function openPop(){ensurePopout();syncFromMain();pop.classList.add("open");pop.setAttribute("aria-hidden","false");editor.focus()}
+  function openPop(){
+    ensurePopout();
+    syncFromMain();
+    pop.classList.add("open");
+    pop.setAttribute("aria-hidden","false");
+    try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}
+    editor.scrollTop=0;
+    editor.focus({preventScroll:true});
+    try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}
+    editor.scrollTop=0;
+    requestAnimationFrame(function(){editor.scrollTop=0;try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}});
+    setTimeout(function(){if(pop&&pop.classList.contains("open")){editor.scrollTop=0;try{editor.selectionStart=0;editor.selectionEnd=0}catch(_){}}},60);
+  }
   function closePop(){if(!pop)return;syncToMain();pop.classList.remove("open");pop.setAttribute("aria-hidden","true")}
   function installButton(){
     var field=g("crossRefs"); if(!field||g("rdmV200PopoutBtn"))return;
@@ -32970,6 +33006,6 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
   var main=g("crossRefs");if(main){main.addEventListener("input",function(){if(editor&&document.activeElement!==editor)editor.value=main.value});}
   [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();hideFullChapterRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
   window.rdmV201CrossRefNoteViewer={open:openPop,close:closePop};
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v201-crossref-note-viewer-section-isolation";window.__RDM_ACTIVE_BUILD="v201-crossref-note-viewer-section-isolation";
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v202-section-isolation-note-viewer-top";window.__RDM_ACTIVE_BUILD="v202-section-isolation-note-viewer-top";
 })();
 </script>
