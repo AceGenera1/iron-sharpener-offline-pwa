@@ -29641,6 +29641,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function hasText(value){ return text(value).trim().length > 0; }
   function safeGet(key){ try { return localStorage.getItem(key); } catch (_) { return null; } }
   function safeSet(key, value){ try { localStorage.setItem(key, text(value)); return true; } catch (_) { return false; } }
+  function safeRemove(key){ try { localStorage.removeItem(key); return true; } catch (_) { return false; } }
   function safeJsonGet(key){ var raw=safeGet(key); if(!raw)return null; try{return JSON.parse(raw);}catch(_){return null;} }
   function safeJsonSet(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
   function clamp(value, min, max){ var n=parseInt(value,10); if(!isFinite(n))n=min; return Math.max(min,Math.min(max,n)); }
@@ -29851,6 +29852,31 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
      where a later handoff race contaminated Genesis 1:26–30 again. Re-check the
      exact known pair with a new marker after local and IndexedDB records merge.
      Only an exact duplicate Cross References value is cleared. */
+  /* v210: after v182 migration, old ironSharpenerUnified.notes.* keys are only
+     compatibility shadows. Earlier builds left 1:21–25 data duplicated in the
+     legacy 1:26–30 keys. Remove only exact duplicates when the canonical 26–30
+     field is blank, so a genuine 26–30 note is never touched. */
+  function scrubV210LegacyGenesisShadowCopies(){
+    if(safeGet(MIGRATION_KEY)!=="1") return false;
+    var source=records["Genesis|1|21|25"]||null;
+    var target=records["Genesis|1|26|30"]||null;
+    var changed=false;
+    NOTE_IDS.forEach(function(id){
+      var canonicalTarget=target&&target.fields&&target.fields[id]?cleanLegacyValue(target.fields[id].value):"";
+      if(hasText(canonicalTarget)) return;
+      var srcKey="ironSharpenerUnified.notes.Genesis.1.21-25."+id;
+      var dstKey="ironSharpenerUnified.notes.Genesis.1.26-30."+id;
+      var dst=cleanLegacyValue(safeGet(dstKey));
+      if(!hasText(dst)) return;
+      var canonicalSource=source&&source.fields&&source.fields[id]?cleanLegacyValue(source.fields[id].value):"";
+      var legacySource=cleanLegacyValue(safeGet(srcKey));
+      if((hasText(canonicalSource)&&dst===canonicalSource)||(hasText(legacySource)&&dst===legacySource)){
+        safeRemove(dstKey); changed=true;
+      }
+    });
+    return changed;
+  }
+
   function scrubV209KnownGenesisCrossRefDuplicate(){
     var marker=PREFIX+"v209Genesis12125to12630CrossRefScrubComplete";
     if(safeGet(marker)==="1")return false;
@@ -30240,6 +30266,26 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function installOverrides(){
+    window.__RDM_V182_SECTION_NOTES_API={
+      build:"v210-canonical-section-note-engine",
+      load:loadCurrentNotesV182,
+      save:saveCurrentNotesV182,
+      renderCrossRefs:renderCrossReferenceLinksV182,
+      controlsState:controlsState,
+      stateKey:stateKey,
+      exactValues:function(state){
+        state=normalizeState(state);
+        if(!state)return null;
+        var record=records[stateKey(state)]||null;
+        var values={}, saved={};
+        NOTE_IDS.forEach(function(id){
+          var value=record&&record.fields&&record.fields[id]?text(record.fields[id].value):"";
+          values[id]=value;
+          saved[id]=hasText(value);
+        });
+        return {key:stateKey(state),state:state,values:values,saved:saved};
+      }
+    };
     window.loadCurrentNotes=loadCurrentNotesV182;
     window.saveCurrentNotes=saveCurrentNotesV182;
     window.renderCrossReferenceLinks=renderCrossReferenceLinksV182;
@@ -30258,7 +30304,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   function initialize(){
     readLocalRecords();
+    scrubV210LegacyGenesisShadowCopies();
     migrateLegacy();
+    scrubV210LegacyGenesisShadowCopies();
     scrubV202KnownGenesisCrossRefDuplicate();
     scrubV209KnownGenesisCrossRefDuplicate();
     installOverrides();
@@ -30269,6 +30317,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
     Promise.all([idbGetAll(),oldWorkspaceGetAll()]).then(function(results){
       (results[0]||[]).forEach(mergeRecord);
+      scrubV210LegacyGenesisShadowCopies();
       scrubV202KnownGenesisCrossRefDuplicate();
       scrubV209KnownGenesisCrossRefDuplicate();
       var anchor=ensureRecord(savedAnchorState());
@@ -32514,8 +32563,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   var NOTE_IDS = ["teachingNotes","crossRefs","applicationNotes","clipNotes"];
   var workspace = null;
   var restoring = false;
-  var originalLoadCurrentNotes = (typeof window.loadCurrentNotes === "function") ? window.loadCurrentNotes : null;
-  var originalRenderCrossReferenceLinks = (typeof window.renderCrossReferenceLinks === "function") ? window.renderCrossReferenceLinks : null;
+  /* v210: v196 is parsed before v182 necessarily installs its exact-section
+     engine. Keep parse-time functions only as startup fallbacks. Runtime section
+     work resolves the canonical v182 API dynamically. */
+  var legacyLoadCurrentNotes = (typeof window.loadCurrentNotes === "function") ? window.loadCurrentNotes : null;
+  var legacyRenderCrossReferenceLinks = (typeof window.renderCrossReferenceLinks === "function") ? window.renderCrossReferenceLinks : null;
   var restoreTimer = 0;
 
   function get(id){ return document.getElementById(id); }
@@ -32557,6 +32609,24 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   function isAway(){ return !!(workspace && stateKey(controlState()) !== stateKey(workspace.teachingState)); }
   function displayedLabel(){ return refLabel(controlState()); }
+
+  function canonicalNotesApi(){
+    try { return window.__RDM_V182_SECTION_NOTES_API || null; } catch (_) { return null; }
+  }
+  function callCanonicalLoadCurrentNotes(){
+    var api=canonicalNotesApi();
+    if(api && typeof api.load === "function") return api.load();
+    var fn=null; try { fn=window.loadCurrentNotes; } catch (_) {}
+    if(typeof fn === "function" && fn !== loadCurrentNotesV196) return fn();
+    if(typeof legacyLoadCurrentNotes === "function") return legacyLoadCurrentNotes();
+  }
+  function callCanonicalRenderCrossReferenceLinks(){
+    var api=canonicalNotesApi();
+    if(api && typeof api.renderCrossRefs === "function") return api.renderCrossRefs();
+    var fn=null; try { fn=window.renderCrossReferenceLinks; } catch (_) {}
+    if(typeof fn === "function" && fn !== renderCrossReferenceLinksV196) return fn();
+    if(typeof legacyRenderCrossReferenceLinks === "function") return legacyRenderCrossReferenceLinks();
+  }
 
   function ensureReferenceBar(){
     var bar=get("rdmV196TeachingReferenceBar");
@@ -32634,7 +32704,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function temporarilyLoadTeachingNotesIntoV182(){
-    if(!workspace || !originalLoadCurrentNotes || restoring) return;
+    if(!workspace || restoring) return;
     restoring=true;
     var displayed=controlState();
     /* v198: the in-session workspace snapshot is authoritative while travelling
@@ -32653,7 +32723,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if(range) range.value=workspace.teachingState.range;
       if(start) start.value=workspace.teachingState.start;
       if(end) end.value=workspace.teachingState.end;
-      originalLoadCurrentNotes();
+      callCanonicalLoadCurrentNotes();
     } catch (_) {}
     try {
       if(displayed){
@@ -32754,9 +32824,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       workspace=null;
       document.body.classList.remove("rdm-v196-teaching-workspace-active");
       clearTimeout(restoreTimer);
-      try { if(originalLoadCurrentNotes) originalLoadCurrentNotes(); } catch (_) {}
+      try { if(legacyLoadCurrentNotes) callCanonicalLoadCurrentNotes(); } catch (_) {}
       setFieldValues(returningValues);
-      try { if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks(); } catch (_) {}
+      try { callCanonicalRenderCrossReferenceLinks(); } catch (_) {}
       var holder=get("crossRefLinks"); if(holder) holder.innerHTML="";
       renderReferenceBar();
       resizeAll();
@@ -32782,7 +32852,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
      note fields remain attached to the original passage for both reading and edits. */
   function loadCurrentNotesV196(){
     if(!workspace) {
-      if(originalLoadCurrentNotes) originalLoadCurrentNotes();
+      if(legacyLoadCurrentNotes) callCanonicalLoadCurrentNotes();
       renderReferenceBar();
       return;
     }
@@ -32793,8 +32863,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     /* v199: the Teaching Reference Bar is the one permanent teacher navigation
        surface. Keep the legacy renderer available for its internal bookkeeping,
        but do not duplicate the same reference buttons beneath the long note. */
-    if(!workspace && originalRenderCrossReferenceLinks) {
-      try { originalRenderCrossReferenceLinks(); } catch (_) {}
+    if(!workspace) {
+      try { legacyRenderCrossReferenceLinks(); } catch (_) {}
     }
     var holder=get("crossRefLinks");
     if(holder) holder.innerHTML="";
@@ -32860,7 +32930,37 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     renderReferenceBar();
   }
 
-  function syncAfterSectionStep(previousKey){
+  /* v210 exact-section auto-clear rule. On a genuine teaching-section handoff,
+     the incoming section owns the four note fields. If that exact section has a
+     saved value, load it. If it does not, clear the visible field instead of
+     allowing the previous section's text to linger. Cross-reference travel is
+     excluded because the Teaching Passage workspace must remain anchored. */
+  function applyExactIncomingSection(state, previousValues){
+    if(!state || workspace) return;
+    if(document.body && document.body.classList.contains("rdm-mobile-app-shell")) return;
+    var api=canonicalNotesApi();
+    var exact=null;
+    try { exact=api&&typeof api.exactValues==="function"?api.exactValues(state):null; } catch (_) { exact=null; }
+    if(!exact) return;
+    NOTE_IDS.forEach(function(id){
+      var field=get(id); if(!field) return;
+      var savedValue=String((exact.values&&exact.values[id])||"");
+      if(exact.saved&&exact.saved[id]){
+        if(field.value!==savedValue) field.value=savedValue;
+        return;
+      }
+      var prior=previousValues&&Object.prototype.hasOwnProperty.call(previousValues,id)?String(previousValues[id]||""):"";
+      /* Clear only an unsaved incoming field. If the teacher has already typed a
+         genuinely new value after the handoff, do not erase it on a late settle. */
+      if(!field.value || field.value===prior) field.value="";
+    });
+    try { callCanonicalRenderCrossReferenceLinks(); } catch (_) {}
+    var holder=get("crossRefLinks"); if(holder) holder.innerHTML="";
+    renderReferenceBar();
+    resizeAll();
+  }
+
+  function syncAfterSectionStep(previousKey, previousValues){
     var tries=0;
     function check(){
       tries+=1;
@@ -32868,11 +32968,13 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       if(now && stateKey(now)!==previousKey){
         /* Navigation has landed on a genuinely new teaching section. Let the
            protected original loader hydrate its saved notes, then redraw the bar. */
-        try { if(originalLoadCurrentNotes) originalLoadCurrentNotes(); } catch (_) {}
-        try { if(originalRenderCrossReferenceLinks) originalRenderCrossReferenceLinks(); } catch (_) {}
-        var holder=get("crossRefLinks"); if(holder) holder.innerHTML="";
-        renderReferenceBar(); resizeAll();
-        [90,240,520].forEach(function(delay){ setTimeout(function(){ renderReferenceBar(); resizeAll(); var h=get("crossRefLinks"); if(h) h.innerHTML=""; },delay); });
+        try { if(legacyLoadCurrentNotes) callCanonicalLoadCurrentNotes(); } catch (_) {}
+        applyExactIncomingSection(now,previousValues);
+        [90,240,520,900].forEach(function(delay){
+          setTimeout(function(){
+            if(!workspace && stateKey(controlState())===stateKey(now)) applyExactIncomingSection(now,previousValues);
+          },delay);
+        });
         return;
       }
       if(tries<16) setTimeout(check,75);
@@ -32888,8 +32990,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var sectionStep=(id==="prevBtn"||id==="nextBtn");
     if(sectionStep){
       var before=stateKey(controlState());
+      var previousValues=snapshotFields();
       if(workspace && !isAway()) releaseWorkspaceForNewTeachingSection();
-      if(!workspace) syncAfterSectionStep(before);
+      if(!workspace) syncAfterSectionStep(before,previousValues);
       else setTimeout(restoreWorkspaceSoon,0);
       return;
     }
@@ -33140,12 +33243,12 @@ body:not(.dark) #rdmV200PopoutEditor{
 
 <!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
 <!-- v208: cream-theme Note Viewer visual correction only; no navigation, mobile-shell, or Live Teaching logic changes. -->
-<!-- v209: root section-note ownership guard prevents stale section values from being persisted into the next exact section. -->
+<!-- v210: v196 section handoff now routes only through the canonical v182 exact-section note engine. -->
 <script id="rdm-v207-final-build-marker">
 (function(){
   try {
-    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v209-exact-section-note-ownership";
-    window.__RDM_ACTIVE_BUILD="v209-exact-section-note-ownership";
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v210-auto-clear-exact-section";
+    window.__RDM_ACTIVE_BUILD="v210-auto-clear-exact-section";
   } catch (_) {}
 })();
 </script>
