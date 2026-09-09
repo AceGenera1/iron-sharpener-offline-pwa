@@ -29628,6 +29628,10 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   var dbPromise = null;
   var mainDirty = Object.create(null);
   var lastMainValue = Object.create(null);
+  /* v209 root fix: every main note field carries the exact section-record key
+     that supplied its visible value. A stale field can therefore never be saved
+     into a newly selected section during a navigation handoff. */
+  var fieldOwnerKey = Object.create(null);
   var rerenderTimer = 0;
   var crossRefVisit = null;
 
@@ -29843,6 +29847,27 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return true;
   }
 
+  /* v209 data cleanup: v203's earlier marker may already be set on installations
+     where a later handoff race contaminated Genesis 1:26–30 again. Re-check the
+     exact known pair with a new marker after local and IndexedDB records merge.
+     Only an exact duplicate Cross References value is cleared. */
+  function scrubV209KnownGenesisCrossRefDuplicate(){
+    var marker=PREFIX+"v209Genesis12125to12630CrossRefScrubComplete";
+    if(safeGet(marker)==="1")return false;
+    var source=records["Genesis|1|21|25"], target=records["Genesis|1|26|30"];
+    if(!(source&&target&&source.fields&&target.fields))return false;
+    var a=cleanLegacyValue(source.fields.crossRefs&&source.fields.crossRefs.value);
+    var b=cleanLegacyValue(target.fields.crossRefs&&target.fields.crossRefs.value);
+    if(!(hasText(a)&&a===b))return false;
+    var stamp=now();
+    target.fields.crossRefs={value:"",updatedAt:stamp,deleted:true};
+    target.updatedAt=Math.max(Number(target.updatedAt||0),stamp);
+    target.build="v209-exact-section-note-ownership";
+    persistRecord(target);
+    safeSet(marker,"1");
+    return true;
+  }
+
   function setRecordField(recordOrKey,id,value,sourceTime){
     var record=typeof recordOrKey==="string"?records[recordOrKey]:recordOrKey;
     if(!record || NOTE_IDS.indexOf(id)<0)return null;
@@ -30044,6 +30069,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if(field){
       var fallback=crossRefVisit.values.map(function(item){return item.value;}).filter(hasText).join("\n");
       field.value=hasText(crossRefVisit.mainValue)?crossRefVisit.mainValue:fallback;
+      fieldOwnerKey.crossRefs=crossRefVisit.originKey;
       lastMainValue.crossRefs=field.value;
       mainDirty.crossRefs=false;
     }
@@ -30064,6 +30090,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       label.textContent="Current passage: "+referenceLabel(state);
       var value=exact.fields[id]?exact.fields[id].value:"";
       field.value=value;
+      fieldOwnerKey[id]=exactKey;
       lastMainValue[id]=value;
       mainDirty[id]=false;
       renderRelated(id,state,exactKey);
@@ -30078,6 +30105,17 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if(loadingFields||!activeState)return;
     var field=get(id);if(!field)return;
     var targetState=(id==="crossRefs"&&crossRefVisitAway())?crossRefVisit.originState:activeState;
+    var targetKey=stateKey(targetState);
+    /* v209: If the visible value came from a different section, do not write it
+       into this section. This is the exact race that allowed Genesis 1:21–25 to
+       contaminate Genesis 1:26–30 during delayed section handoff callbacks. */
+    if(fieldOwnerKey[id] && fieldOwnerKey[id]!==targetKey){
+      mainDirty[id]=false;
+      return;
+    }
+    /* Fields created before this guard was installed are claimed by the current
+       active record only after the note engine has established targetState. */
+    if(!fieldOwnerKey[id]) fieldOwnerKey[id]=targetKey;
     var exact=ensureRecord(targetState);
     setRecordField(exact,id,field.value);
     if(id==="crossRefs"&&crossRefVisitAway()){
@@ -30222,6 +30260,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     readLocalRecords();
     migrateLegacy();
     scrubV202KnownGenesisCrossRefDuplicate();
+    scrubV209KnownGenesisCrossRefDuplicate();
     installOverrides();
     installMainFieldEvents();
     wrapNavigationApi();
@@ -30231,6 +30270,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     Promise.all([idbGetAll(),oldWorkspaceGetAll()]).then(function(results){
       (results[0]||[]).forEach(mergeRecord);
       scrubV202KnownGenesisCrossRefDuplicate();
+      scrubV209KnownGenesisCrossRefDuplicate();
       var anchor=ensureRecord(savedAnchorState());
       (results[1]||[]).forEach(function(oldRecord){
         var id=oldRecord&&oldRecord.id;
@@ -30277,6 +30317,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     setTimeout(refreshCachedLaunchPage,1200);
     setTimeout(refreshCachedLaunchPage,4200);
 
+    window.__RDM_V209_NOTE_OWNERSHIP={
+      build:"v209-exact-section-note-ownership",
+      owners:function(){var copy={};NOTE_IDS.forEach(function(id){copy[id]=fieldOwnerKey[id]||"";});return copy;},
+      active:function(){return activeState?stateKey(activeState):"";}
+    };
     window.__IRON_SHARPENER_STABILITY_LOCK_VERSION=BUILD;
     window.__RDM_ACTIVE_BUILD=BUILD;
   }
@@ -33095,11 +33140,12 @@ body:not(.dark) #rdmV200PopoutEditor{
 
 <!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
 <!-- v208: cream-theme Note Viewer visual correction only; no navigation, mobile-shell, or Live Teaching logic changes. -->
+<!-- v209: root section-note ownership guard prevents stale section values from being persisted into the next exact section. -->
 <script id="rdm-v207-final-build-marker">
 (function(){
   try {
-    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v208-cream-note-viewer-theme";
-    window.__RDM_ACTIVE_BUILD="v208-cream-note-viewer-theme";
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v209-exact-section-note-ownership";
+    window.__RDM_ACTIVE_BUILD="v209-exact-section-note-ownership";
   } catch (_) {}
 })();
 </script>
