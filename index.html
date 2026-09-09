@@ -31184,7 +31184,34 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       '<div id="audienceRoot"><header class="header"><div><p class="brandKicker">Restored Daily Ministries • Live Teaching</p><h1 class="brandTitle">Iron Sharpener</h1></div><div class="headerRight"><div class="meta" id="audienceMeta">Waiting for teacher…</div><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
       '<main class="main" id="audienceMain"><section class="scriptureCard" id="audienceScripture"><h2 class="ref" id="audienceReference">Iron Sharpener</h2><div class="source">World English Bible • Public Domain</div><div class="divider"></div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
       '<section class="panel" id="audiencePanel"><div class="panelCard"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
-      '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
+      '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script>
+<script id="rdm-v206-dual-reference-bar-sync">
+(function(){
+  "use strict";
+  if(window.__rdmV206DualRefSyncInstalled)return; window.__rdmV206DualRefSyncInstalled=true;
+  function liveApi(){return window.__rdmLiveTeachingV186||null}
+  function isDual(){try{var a=liveApi(),s=a&&a.state&&a.state();return !!(s&&s.active&&s.mode==="dual")}catch(_){return false}}
+  function publishSettled(){
+    if(!isDual())return;
+    var api=liveApi(); if(!api)return;
+    /* The v196 reference-bar handler intentionally stops the legacy click event.
+       Publish directly from the settled teacher Scripture instead of relying on
+       the old click observer. Repeated snapshots cover async passage rendering. */
+    [40,140,320,650,1050].forEach(function(ms){setTimeout(function(){
+      try{if(!isDual())return; api.showScripture(); api.publish("v206-reference-bar-settled");}catch(_){}
+    },ms)});
+  }
+  window.addEventListener("click",function(e){
+    var t=e.target&&e.target.closest?e.target.closest("#rdmV196ReferenceList [data-rdm-v196-ref]"):null;
+    if(!t||!isDual())return;
+    publishSettled();
+  },true);
+  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v206-dual-reference-bar-sync";
+  window.__RDM_ACTIVE_BUILD="v206-dual-reference-bar-sync";
+})();
+</script>
+<!-- v206: dual-window audience follows Teaching Reference Bar Scripture navigation; teacher workspace remains private. -->
+</body></html>';
   }
 
   function isInstalledDisplayMode(){
