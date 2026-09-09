@@ -32838,6 +32838,13 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
           var h=get("crossRefLinks"); if(h) h.innerHTML="";
         },delay);
       });
+      /* v211: Return to Teaching Passage changes the teacher Scripture through the
+         protected workspace-return path, so the legacy Dual Window observer never
+         sees a normal navigation click. Explicitly republish the now-restored
+         Teaching Passage to Dual Window using the same proven v207 scripture-sync
+         helper used by Teaching Reference Bar navigation. Notes/workspace ownership
+         is already settled above; this changes Audience Scripture only. */
+      publishDualDisplayedScriptureAfterReference();
     }
 
     try {
@@ -33080,6 +33087,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     window.__RDM_V207_SAFE_DUAL_REFERENCE_BAR_SYNC = true;
     window.__RDM_ACTIVE_BUILD = "v207-safe-dual-crossref-sync";
   } catch (_) {}
+})();
+</script>
+
+<script id="rdm-v211-return-teaching-dual-sync-marker">
+(function(){
+  window.__RDM_ACTIVE_BUILD = "v211-return-to-teaching-dual-sync";
 })();
 </script>
 </body>
