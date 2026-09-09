@@ -32964,9 +32964,36 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 #rdmV200PopoutControls button{min-width:40px;padding:7px 10px;border-radius:9px;border:1px solid #e0b55b;font-weight:900;cursor:pointer}
 #rdmV200PopoutBody{flex:1;min-height:0;padding:14px;display:flex}
 #rdmV200PopoutEditor{width:100%;height:100%;min-height:0;resize:none;overflow:auto;padding:16px;font-size:20px;line-height:1.55;border-radius:10px;box-sizing:border-box;background:rgba(255,255,255,.06);color:#fff8ea;border:1px solid rgba(248,217,135,.75)}
-body.cream #rdmV200NotePopout{background:#fff8ea;color:#173a35}
-body.cream #rdmV200PopoutTitle{color:#173a35}
-body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
+/* v208: Cream-theme Note Viewer matches the locked brown/cream teaching palette.
+   Dark theme is intentionally untouched. */
+body:not(.dark) #rdmV200NotePopout{
+  background:linear-gradient(180deg,#fffaf0 0%,#fff1d0 100%)!important;
+  color:#2B394F!important;
+  border-color:#8A5A13!important;
+  box-shadow:0 18px 60px rgba(70,40,0,.28)!important;
+}
+body:not(.dark) #rdmV200PopoutHead{
+  background:linear-gradient(180deg,#8A5A13 0%,#6F4307 100%)!important;
+  border-bottom-color:#D7A84F!important;
+}
+body:not(.dark) #rdmV200PopoutTitle{color:#FFF8EA!important}
+body:not(.dark) #rdmV200PopoutRef{color:#F8D987!important}
+body:not(.dark) #rdmV200PopoutControls button{
+  background:#FFF7E6!important;
+  color:#203D39!important;
+  border-color:#D7A84F!important;
+  box-shadow:none!important;
+}
+body:not(.dark) #rdmV200PopoutControls button:hover{
+  background:linear-gradient(180deg,#F8D987 0%,#D7A84F 100%)!important;
+  color:#203D39!important;
+}
+body:not(.dark) #rdmV200PopoutBody{background:#FFF8EA!important}
+body:not(.dark) #rdmV200PopoutEditor{
+  background:#FFFDF6!important;
+  color:#2B394F!important;
+  border-color:#C58A2A!important;
+}
 
 #rdmV182Related-crossRefs .rdm-v204-related-viewer-btn{margin-top:9px!important;width:auto!important;min-width:0!important;padding:8px 13px!important;font-size:.86rem!important;line-height:1.1!important;display:inline-flex!important}
 @media(max-width:700px){#rdmV200NotePopout{left:3vw!important;top:5vh!important;width:94vw!important;height:82vh!important}#rdmV200PopoutHead{cursor:default;flex-wrap:wrap}#rdmV200PopoutEditor{font-size:18px}}
@@ -33067,11 +33094,12 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
 </script>
 
 <!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
+<!-- v208: cream-theme Note Viewer visual correction only; no navigation, mobile-shell, or Live Teaching logic changes. -->
 <script id="rdm-v207-final-build-marker">
 (function(){
   try {
-    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v207-safe-dual-crossref-sync";
-    window.__RDM_ACTIVE_BUILD="v207-safe-dual-crossref-sync";
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v208-cream-note-viewer-theme";
+    window.__RDM_ACTIVE_BUILD="v208-cream-note-viewer-theme";
   } catch (_) {}
 })();
 </script>
