@@ -31184,34 +31184,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       '<div id="audienceRoot"><header class="header"><div><p class="brandKicker">Restored Daily Ministries • Live Teaching</p><h1 class="brandTitle">Iron Sharpener</h1></div><div class="headerRight"><div class="meta" id="audienceMeta">Waiting for teacher…</div><div class="status" id="audienceConnection">CONNECTING</div></div></header>' +
       '<main class="main" id="audienceMain"><section class="scriptureCard" id="audienceScripture"><h2 class="ref" id="audienceReference">Iron Sharpener</h2><div class="source">World English Bible • Public Domain</div><div class="divider"></div><div class="passage" id="audiencePassage"><p class="verse">Waiting for the Teacher Window…</p></div></section>' +
       '<section class="panel" id="audiencePanel"><div class="panelCard"><h2 id="audiencePanelTitle">Live Teaching</h2><div class="panelText" id="audiencePanelText"></div><div class="panelHtml" id="audiencePanelHtml" style="display:none"></div></div></section></main></div>' +
-      '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script>
-<script id="rdm-v206-dual-reference-bar-sync">
-(function(){
-  "use strict";
-  if(window.__rdmV206DualRefSyncInstalled)return; window.__rdmV206DualRefSyncInstalled=true;
-  function liveApi(){return window.__rdmLiveTeachingV186||null}
-  function isDual(){try{var a=liveApi(),s=a&&a.state&&a.state();return !!(s&&s.active&&s.mode==="dual")}catch(_){return false}}
-  function publishSettled(){
-    if(!isDual())return;
-    var api=liveApi(); if(!api)return;
-    /* The v196 reference-bar handler intentionally stops the legacy click event.
-       Publish directly from the settled teacher Scripture instead of relying on
-       the old click observer. Repeated snapshots cover async passage rendering. */
-    [40,140,320,650,1050].forEach(function(ms){setTimeout(function(){
-      try{if(!isDual())return; api.showScripture(); api.publish("v206-reference-bar-settled");}catch(_){}
-    },ms)});
-  }
-  window.addEventListener("click",function(e){
-    var t=e.target&&e.target.closest?e.target.closest("#rdmV196ReferenceList [data-rdm-v196-ref]"):null;
-    if(!t||!isDual())return;
-    publishSettled();
-  },true);
-  window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v206-dual-reference-bar-sync";
-  window.__RDM_ACTIVE_BUILD="v206-dual-reference-bar-sync";
-})();
-</script>
-<!-- v206: dual-window audience follows Teaching Reference Bar Scripture navigation; teacher workspace remains private. -->
-</body></html>';
+      '<script>window.__RDM_LIVE_SESSION_V186=' + JSON.stringify(session) + ';<\/script><script>(' + audienceRuntime.toString() + ')();<\/script></body></html>';
   }
 
   function isInstalledDisplayMode(){
@@ -32675,16 +32648,35 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     renderReferenceBar();
   }
 
+  function publishDualDisplayedScriptureAfterReference(){
+    /* v207: the Teaching Reference Bar capture handler intentionally prevents the
+       legacy Live Teaching click observer from seeing this click. In Dual Window
+       only, publish from here after the displayed Scripture has settled. This
+       changes the Audience Display only; the Teaching Passage workspace remains
+       anchored to the original passage. */
+    function publishNow(){
+      try {
+        var api=window.__rdmLiveTeachingV186;
+        var st=api&&api.state&&api.state();
+        if(!api||!st||!st.active||st.mode!=="dual") return;
+        api.showScripture();
+        api.publish("v207-reference-bar-dual-sync");
+      } catch (_) {}
+    }
+    [60,180,420,800,1250].forEach(function(delay){ setTimeout(publishNow,delay); });
+  }
+
   function navigateToRef(ref){
     if(!startWorkspace()) return;
     /* Capture any source-note edit immediately before navigation. */
     workspace.values=snapshotFields();
     var fn=window.goToScriptureReference || (typeof goToScriptureReference === "function" ? goToScriptureReference : null);
     if(!fn) return;
+    function settled(){ restoreWorkspaceSoon(); publishDualDisplayedScriptureAfterReference(); }
     try {
       var result=fn(ref);
-      Promise.resolve(result).then(restoreWorkspaceSoon,restoreWorkspaceSoon);
-    } catch (_) { restoreWorkspaceSoon(); }
+      Promise.resolve(result).then(settled,settled);
+    } catch (_) { settled(); }
   }
 
   function setControlsToState(state){
@@ -32934,11 +32926,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 <!-- RDM v204: Full Chapter shows overlapping saved notes; saved Cross Reference notes can open directly in the private Note Viewer. -->
 
-<script id="rdm-v205-live-reference-bar-audience-sync-marker">
+<script id="rdm-v207-safe-dual-reference-bar-sync-marker">
 (function(){
   try {
-    window.__RDM_V205_LIVE_REFERENCE_BAR_AUDIENCE_SYNC = true;
-    window.__RDM_ACTIVE_BUILD = "v205-live-reference-bar-audience-sync";
+    window.__RDM_V207_SAFE_DUAL_REFERENCE_BAR_SYNC = true;
+    window.__RDM_ACTIVE_BUILD = "v207-safe-dual-crossref-sync";
   } catch (_) {}
 })();
 </script>
@@ -33071,5 +33063,15 @@ body.cream #rdmV200PopoutEditor{background:#fffdf6;color:#173a35}
   [0,150,500,1200].forEach(function(ms){setTimeout(function(){installButton();preserveRelatedNoteVisibility();installRelatedViewerButtons();observeRelated();if(!lastStableKey)lastStableKey=key(state())},ms)});
   window.rdmV204CrossRefNoteViewer={openCurrent:function(){openPop(g("crossRefs"))},openSource:openPop,close:closePop};
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v204-full-chapter-related-notes-viewer";window.__RDM_ACTIVE_BUILD="v204-full-chapter-related-notes-viewer";
+})();
+</script>
+
+<!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
+<script id="rdm-v207-final-build-marker">
+(function(){
+  try {
+    window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v207-safe-dual-crossref-sync";
+    window.__RDM_ACTIVE_BUILD="v207-safe-dual-crossref-sync";
+  } catch (_) {}
 })();
 </script>
