@@ -30769,6 +30769,15 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     return controls.exactReference || controls.heading || "";
   }
 
+  function applicationPresentationScrollRatio(){
+    try {
+      var scroller=get("applicationPresentationCard")&&get("applicationPresentationCard").querySelector(".presentation-card-inner");
+      if(!scroller) return 0;
+      var max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+      return max>0 ? Math.max(0,Math.min(1,scroller.scrollTop/max)) : 0;
+    } catch (_) { return 0; }
+  }
+
   function resolveAudienceView(){
     var type = currentAudienceView && currentAudienceView.type || "scripture";
     if (type === "teaching-note") {
@@ -30780,7 +30789,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if (type === "application") {
       var appText = presentationTextFor("applicationNotes");
       if (!hasText(appText)) return { type: "scripture" };
-      return { type: type, title: "Application & Prayer", text: appText };
+      return { type: type, title: "Application & Prayer", text: appText, scrollRatio: applicationPresentationScrollRatio() };
     }
     if (type === "teaching-crossrefs") {
       return { type: type, title: "Teaching Cross References", html: teachingCrossRefsHtml() };
@@ -30989,6 +30998,30 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if (!hasText(presentationTextFor("applicationNotes"))) return false;
     return setAudienceView({ type: "application" });
   }
+
+  /* v212: keep the audience's Application & Prayer card at the same relative
+     scroll position as the teacher's presentation card in Dual Window mode. */
+  var applicationScrollPublishPending = false;
+  function publishApplicationScroll(){
+    if(applicationScrollPublishPending) return;
+    applicationScrollPublishPending = true;
+    requestAnimationFrame(function(){
+      applicationScrollPublishPending = false;
+      try {
+        if(!liveActive || liveMode!=="dual" || !currentAudienceView || currentAudienceView.type!=="application") return;
+        publishSnapshot("v212-application-scroll-sync");
+      } catch (_) {}
+    });
+  }
+  function installApplicationScrollSync(){
+    var card=get("applicationPresentationCard");
+    var scroller=card&&card.querySelector(".presentation-card-inner");
+    if(!scroller || scroller.dataset.rdmV212ScrollSync==="1") return;
+    scroller.dataset.rdmV212ScrollSync="1";
+    scroller.addEventListener("scroll",publishApplicationScroll,{passive:true});
+  }
+  [0,120,500,1200].forEach(function(delay){setTimeout(installApplicationScrollSync,delay);});
+
   function showTeachingCrossRefs(){ return setAudienceView({ type: "teaching-crossrefs" }); }
   function showBuiltInCrossRefs(){
     return setAudienceView({
@@ -31129,6 +31162,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       }
       var view = snapshot.view || {type:"scripture"};
       panel.classList.toggle("message-mode",view.type === "teaching-note");
+      panel.classList.toggle("application-mode",view.type === "application");
       if (view.type === "scripture") {
         panel.classList.remove("open");
         scripture.classList.remove("hidden");
@@ -31151,7 +31185,19 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       }
       updateActions(snapshot,view);
       setStatus("LIVE • CONNECTED",true);
-      try { get("audienceMain").scrollTop = 0; } catch (_) {}
+      try {
+        if(view.type === "application") {
+          var audienceCard=panel.querySelector(".panelCard");
+          if(audienceCard) {
+            var ratio=Math.max(0,Math.min(1,Number(view.scrollRatio)||0));
+            var maxScroll=Math.max(0,audienceCard.scrollHeight-audienceCard.clientHeight);
+            audienceCard.scrollTop=Math.round(maxScroll*ratio);
+          }
+          get("audienceMain").scrollTop = 0;
+        } else {
+          get("audienceMain").scrollTop = 0;
+        }
+      } catch (_) {}
     }
     function send(kind,payload){
       var stamp = Date.now();
@@ -31214,6 +31260,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".hidden{display:none!important}",
       ".panel{display:none;width:100%;margin:0 auto}",
       ".panel.open{display:block}",
+      ".panel.application-mode .panelCard{max-height:calc(100vh - 138px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}",
+      ".panel.application-mode .panelText{min-height:0}",
       ".panelCard h2{margin:0 0 24px;padding-bottom:15px;border-bottom:2px solid var(--gold);font:800 clamp(30px,3vw,50px)/1.1 Georgia,serif;color:var(--ink)}",
       ".panelText{white-space:pre-wrap;font:600 clamp(20px,1.8vw,29px)/1.62 'Segoe UI',Arial,sans-serif}",
       ".panelHtml{font:600 clamp(18px,1.45vw,25px)/1.65 'Segoe UI',Arial,sans-serif;color:inherit}",
@@ -32469,6 +32517,17 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     border-color: rgba(248,217,135,.88);
     box-shadow: 0 14px 32px rgba(0,0,0,.28);
   }
+  /* v212 mobile/tablet revert: the Teaching Reference Bar is a desktop teaching aid only.
+     Restore the pre-v196 mobile/tablet surface by keeping the bar out of the mobile UI. */
+  html:not(.obs) body.rdm-mobile-app-shell #rdmV196TeachingReferenceBar {
+    display: none !important;
+  }
+  @media (max-width: 1180px) and (hover: none),
+         (max-width: 1180px) and (pointer: coarse) {
+    html:not(.obs) #rdmV196TeachingReferenceBar {
+      display: none !important;
+    }
+  }
   @media (min-width: 1051px) {
     #rdmV196TeachingReferenceBar {
       position: sticky;
@@ -32628,8 +32687,18 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if(typeof legacyRenderCrossReferenceLinks === "function") return legacyRenderCrossReferenceLinks();
   }
 
+  function isMobileTabletTeachingSurface(){
+    try {
+      if(document.body && document.body.classList.contains("rdm-mobile-app-shell")) return true;
+      return !!(window.matchMedia && window.matchMedia("(max-width: 1180px) and (hover: none), (max-width: 1180px) and (pointer: coarse)").matches);
+    } catch (_) { return false; }
+  }
   function ensureReferenceBar(){
     var bar=get("rdmV196TeachingReferenceBar");
+    if(isMobileTabletTeachingSurface()){
+      if(bar && bar.parentNode) bar.parentNode.removeChild(bar);
+      return null;
+    }
     if(bar) return bar;
     var side=document.querySelector(".side");
     if(!side) return null;
@@ -33092,7 +33161,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 <script id="rdm-v211-return-teaching-dual-sync-marker">
 (function(){
-  window.__RDM_ACTIVE_BUILD = "v211-return-to-teaching-dual-sync";
+  window.__RDM_ACTIVE_BUILD = "v212-dual-application-scroll-mobile-bar-revert";
 })();
 </script>
 </body>
@@ -33265,3 +33334,5 @@ body:not(.dark) #rdmV200PopoutEditor{
   } catch (_) {}
 })();
 </script>
+
+<!-- v212 isolated fixes: Dual Window Application & Prayer scroll sync + mobile/tablet Teaching Reference Bar removal. Base: locked v211. -->
