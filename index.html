@@ -28732,7 +28732,636 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
 </script>
 
+<!-- v167 — Resumable Offline Ready checkpoint/resume override.
+     Paste this AFTER the complete v166 "rdm-v166-verified-full-offline-resource-restore" script.
+     It leaves v166 intact and replaces only the public Offline Ready preparation entry points. -->
+<script id="rdm-v167-resumable-offline-ready">
+(function rdmV167ResumableOfflineReady(){
+  "use strict";
+  if (window.__rdmV167ResumableOfflineReady) return;
+  window.__rdmV167ResumableOfflineReady = true;
 
+  var BASE = window.rdmIndexedOfflineV166;
+  if (!BASE || typeof BASE.buildLists !== "function") {
+    console.error("v167 resumable offline override requires v166.");
+    return;
+  }
+
+  var VERSION = "v167-resumable-offline-checkpoints";
+  var RESOURCE_DB = "iron-sharpener-offline-resource-indexeddb-v1";
+  var RESOURCE_DB_VERSION = 1;
+  var ACTIVE_STORE = "resources";
+  var STAGING_STORE = "staging";
+  var META_STORE = "meta";
+  var STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v97";
+  var SECONDARY_STATUS_KEY = "ironSharpenerUnified.offlineCacheStatus.v105";
+  var CHECKPOINT_KEY = "v167-resume-checkpoint";
+  var EXPECTED_BIBLE_CHAPTERS = 1189;
+  var LAUNCH_FILES = [
+    "index.html",
+    "personal-study.html",
+    "manifest.json",
+    "assets/iron-sharpener-logo.png",
+    "assets/disciple-journal-logo.png"
+  ];
+  var CRITICAL_RESOURCE_FILES = [
+    "bible/resources/doctrine/doctrine-registry.json",
+    "bible/resources/topics/index.json",
+    "bible/resources/backgrounds/index.json",
+    "bible/resources/internal-cross-references/Genesis.json",
+    "bible/resources/book-overviews/Genesis.json",
+    "bible/resources/commentaries/jfb/Genesis.json",
+    "bible/resources/commentaries/matthew-henry/Genesis.json",
+    "bible/resources/eastons/A.json",
+    "bible/resources/smiths/A.json"
+  ];
+
+  var running = false;
+  var dbPromise = null;
+
+  function sleep(ms){
+    return new Promise(function(resolve){ setTimeout(resolve, ms); });
+  }
+
+  function canonicalPath(value){
+    return typeof BASE.canonicalPath === "function"
+      ? BASE.canonicalPath(value)
+      : String(value || "").replace(/^\.?\//, "");
+  }
+
+  function isBiblePath(path){
+    return /^bible\/web\//i.test(canonicalPath(path));
+  }
+
+  function isJsonPath(path){
+    return /\.json(?:$|\?)/i.test(String(path || ""));
+  }
+
+  function buildFetchUrl(path){
+    return new URL(canonicalPath(path), document.baseURI).href;
+  }
+
+  function writeStatus(status){
+    try { localStorage.setItem(STATUS_KEY, JSON.stringify(status)); } catch (_) {}
+    try { localStorage.setItem(SECONDARY_STATUS_KEY, JSON.stringify(status)); } catch (_) {}
+  }
+
+  function updateUi(percent, note){
+    try {
+      var bar = document.getElementById("rdmOfflineBarV107");
+      var noteEl = document.getElementById("rdmOfflineNoteV107");
+      var msg = document.getElementById("rdmOfflineMessageV107");
+      var btn = document.getElementById("rdmOfflineButtonV107");
+      var text = document.getElementById("rdmOfflineTextV107");
+      if (bar) bar.style.width = Math.max(0, Math.min(100, Number(percent || 0))) + "%";
+      if (noteEl && note) noteEl.textContent = note;
+      if (msg) msg.textContent = "Preparing Iron Sharpener for offline use. Progress is saved if the connection or app is interrupted.";
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Preparing...";
+        btn.setAttribute("aria-busy", "true");
+      }
+      if (text) text.textContent = "Preparing Offline Use";
+    } catch (_) {}
+  }
+
+  function showPaused(note){
+    try {
+      var noteEl = document.getElementById("rdmOfflineNoteV107");
+      if (noteEl) noteEl.textContent = note || "Offline setup paused. Reconnect to continue.";
+    } catch (_) {}
+  }
+
+  function openResourceDb(){
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise(function(resolve, reject){
+      try {
+        var request = indexedDB.open(RESOURCE_DB, RESOURCE_DB_VERSION);
+        request.onupgradeneeded = function(){
+          var db = request.result;
+          if (!db.objectStoreNames.contains(ACTIVE_STORE)) db.createObjectStore(ACTIVE_STORE, { keyPath: "key" });
+          if (!db.objectStoreNames.contains(STAGING_STORE)) db.createObjectStore(STAGING_STORE, { keyPath: "key" });
+          if (!db.objectStoreNames.contains(META_STORE)) db.createObjectStore(META_STORE, { keyPath: "key" });
+        };
+        request.onsuccess = function(){ resolve(request.result); };
+        request.onerror = function(){ reject(request.error || new Error("Offline resource database could not open.")); };
+      } catch (error) { reject(error); }
+    });
+    return dbPromise;
+  }
+
+  function idbRequest(storeName, mode, action){
+    return openResourceDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        try {
+          var tx = db.transaction(storeName, mode);
+          var store = tx.objectStore(storeName);
+          var request = action(store);
+          request.onsuccess = function(){ resolve(request.result); };
+          request.onerror = function(){ reject(request.error || new Error("Offline resource database request failed.")); };
+        } catch (error) { reject(error); }
+      });
+    });
+  }
+
+  function idbGet(storeName, key){
+    return idbRequest(storeName, "readonly", function(store){ return store.get(key); });
+  }
+
+  function idbPut(storeName, value){
+    return idbRequest(storeName, "readwrite", function(store){ return store.put(value); });
+  }
+
+  function idbClear(storeName){
+    return idbRequest(storeName, "readwrite", function(store){ return store.clear(); });
+  }
+
+  function idbCount(storeName){
+    return idbRequest(storeName, "readonly", function(store){ return store.count(); })
+      .then(function(value){ return Number(value || 0); });
+  }
+
+  function validStoredRecord(record){
+    return !!(record && record.body instanceof ArrayBuffer && record.body.byteLength >= 0);
+  }
+
+  async function waitUntilOnline(){
+    if (navigator.onLine !== false) return;
+    showPaused("Offline setup paused — reconnecting will continue from saved progress.");
+    await new Promise(function(resolve){
+      function online(){
+        window.removeEventListener("online", online);
+        resolve();
+      }
+      window.addEventListener("online", online);
+    });
+    updateUi(2, "Connection restored. Resuming saved offline setup...");
+    await sleep(250);
+  }
+
+  async function fetchWithResumeRetry(url, options){
+    var lastError = null;
+    for (var attempt = 0; attempt < 4; attempt++) {
+      await waitUntilOnline();
+      try {
+        return await fetch(url, options);
+      } catch (error) {
+        lastError = error;
+        if (navigator.onLine === false) {
+          await waitUntilOnline();
+        } else {
+          await sleep(500 + attempt * 500);
+        }
+      }
+    }
+    throw lastError || new Error("Network request failed.");
+  }
+
+  function hashString(input){
+    var hash = 2166136261;
+    var str = String(input || "");
+    for (var i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16);
+  }
+
+  function manifestSignature(lists){
+    var resources = (lists.resources || []).map(canonicalPath).slice().sort();
+    var bible = (lists.bible || []).map(canonicalPath).slice().sort();
+    return [
+      VERSION,
+      resources.length,
+      bible.length,
+      hashString(resources.join("\n")),
+      hashString(bible.join("\n"))
+    ].join("|");
+  }
+
+  async function prepareCheckpoint(lists){
+    var signature = manifestSignature(lists);
+    var checkpoint = null;
+    try { checkpoint = await idbGet(META_STORE, CHECKPOINT_KEY); } catch (_) {}
+
+    if (!checkpoint || checkpoint.signature !== signature) {
+      // Only an incompatible/new manifest discards staged progress.
+      await idbClear(STAGING_STORE);
+      checkpoint = {
+        key: CHECKPOINT_KEY,
+        signature: signature,
+        state: "building",
+        resourceTotal: lists.resources.length,
+        bibleTotal: lists.bible.length,
+        startedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: VERSION
+      };
+      await idbPut(META_STORE, checkpoint);
+    } else {
+      checkpoint.state = "building";
+      checkpoint.updatedAt = new Date().toISOString();
+      checkpoint.version = VERSION;
+      await idbPut(META_STORE, checkpoint);
+    }
+    return checkpoint;
+  }
+
+  async function storeResourceResumable(path, force){
+    var canonical = canonicalPath(path);
+    if (!canonical || isBiblePath(canonical) || LAUNCH_FILES.indexOf(canonical) >= 0) {
+      return { status: "excluded" };
+    }
+
+    // First choice: keep verified work already staged by a previous interrupted run.
+    try {
+      var staged = await idbGet(STAGING_STORE, canonical);
+      if (validStoredRecord(staged)) return { status: "resumed" };
+    } catch (_) {}
+
+    // Second choice: reuse the currently-active copy when this is not a forced refresh.
+    if (!force) {
+      try {
+        var active = await idbGet(ACTIVE_STORE, canonical);
+        if (validStoredRecord(active)) {
+          await idbPut(STAGING_STORE, active);
+          return { status: "reused" };
+        }
+      } catch (_) {}
+    }
+
+    await waitUntilOnline();
+
+    try {
+      var response = await fetchWithResumeRetry(buildFetchUrl(canonical), { cache: "reload" });
+      if (!response || !response.ok || response.type === "opaque") return { status: "failed" };
+
+      var type = response.headers ? (response.headers.get("content-type") || "") : "";
+      if (isJsonPath(canonical) && type && !/json/i.test(type)) return { status: "failed" };
+
+      var body = await response.arrayBuffer();
+      await idbPut(STAGING_STORE, {
+        key: canonical,
+        body: body,
+        status: response.status || 200,
+        statusText: response.statusText || "OK",
+        contentType: type || (isJsonPath(canonical) ? "application/json; charset=utf-8" : "application/octet-stream"),
+        updatedAt: new Date().toISOString(),
+        version: VERSION
+      });
+      return { status: "stored" };
+    } catch (_) {
+      return { status: "failed" };
+    }
+  }
+
+  async function stagingReady(resourceFiles){
+    try {
+      if ((await idbCount(STAGING_STORE)) !== resourceFiles.length) return false;
+      for (var i = 0; i < CRITICAL_RESOURCE_FILES.length; i++) {
+        var record = await idbGet(STAGING_STORE, canonicalPath(CRITICAL_RESOURCE_FILES[i]));
+        if (!validStoredRecord(record)) return false;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function promoteStaging(){
+    var db = await openResourceDb();
+    return new Promise(function(resolve, reject){
+      try {
+        var tx = db.transaction([ACTIVE_STORE, STAGING_STORE, META_STORE], "readwrite");
+        var active = tx.objectStore(ACTIVE_STORE);
+        var staging = tx.objectStore(STAGING_STORE);
+        var meta = tx.objectStore(META_STORE);
+
+        active.clear();
+        var cursorRequest = staging.openCursor();
+        cursorRequest.onsuccess = function(){
+          var cursor = cursorRequest.result;
+          if (cursor) {
+            active.put(cursor.value);
+            cursor.continue();
+          }
+        };
+        cursorRequest.onerror = function(){
+          try { tx.abort(); } catch (_) {}
+        };
+
+        meta.put({
+          key: "active-build",
+          version: VERSION,
+          updatedAt: new Date().toISOString()
+        });
+
+        tx.oncomplete = function(){ resolve(true); };
+        tx.onerror = function(){ reject(tx.error || new Error("Offline resource database promotion failed.")); };
+        tx.onabort = function(){ reject(tx.error || new Error("Offline resource database promotion was cancelled.")); };
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async function bibleReady(){
+    if (typeof BASE.bibleReady === "function") return !!(await BASE.bibleReady());
+    var count = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : 0;
+    return Number(count || 0) >= EXPECTED_BIBLE_CHAPTERS;
+  }
+
+  async function launchReady(){
+    return typeof BASE.launchReady === "function" ? !!(await BASE.launchReady()) : true;
+  }
+
+  async function buildBibleResumable(bibleFiles, onProgress){
+    // The existing v138 Bible fetch wrapper already checks its IndexedDB first
+    // for force-cache setup requests, so previously-saved chapters are returned
+    // locally and only missing chapters require network fetches.
+    if (typeof window.rdmBibleDbBuildAllFromList !== "function") {
+      throw new Error("The Bible offline database is unavailable.");
+    }
+    await waitUntilOnline();
+    return window.rdmBibleDbBuildAllFromList(bibleFiles, onProgress);
+  }
+
+  async function prepareResumableOffline(force){
+    if (running) return null;
+    if (!(("indexedDB" in window) && ("caches" in window))) {
+      throw new Error("Offline storage is not supported in this browser.");
+    }
+
+    running = true;
+    var failures = [];
+    var startedAt = Date.now();
+
+    try {
+      await waitUntilOnline();
+      updateUi(2, "Building the offline file list and checking saved progress...");
+
+      var lists = await BASE.buildLists();
+      lists.resources = (lists.resources || []).map(canonicalPath);
+      lists.bible = (lists.bible || []).map(canonicalPath);
+
+      if (lists.bible.length < EXPECTED_BIBLE_CHAPTERS) {
+        throw new Error("The complete Bible chapter list could not be built.");
+      }
+
+      var checkpoint = await prepareCheckpoint(lists);
+      var totalResources = lists.resources.length;
+      var parallel = force ? 3 : 5;
+      var completedResources = 0;
+
+      // Resume-aware resource pass: already-staged records are skipped.
+      async function handle(path){
+        var result = await storeResourceResumable(path, force);
+        if (result.status === "stored" || result.status === "resumed" || result.status === "reused") {
+          completedResources++;
+        } else if (result.status !== "excluded") {
+          failures.push(path);
+        }
+
+        var done = completedResources + failures.length;
+        if (done % 20 === 0 || done === totalResources) {
+          var pct = totalResources ? 4 + Math.round((done / totalResources) * 62) : 66;
+          var stagedCount = 0;
+          try { stagedCount = await idbCount(STAGING_STORE); } catch (_) {}
+          updateUi(
+            Math.min(66, pct),
+            "Saving study resources... " +
+              stagedCount.toLocaleString() + " of " +
+              totalResources.toLocaleString() +
+              " safely checkpointed."
+          );
+        }
+      }
+
+      for (var i = 0; i < lists.resources.length; i += parallel) {
+        await Promise.all(lists.resources.slice(i, i + parallel).map(handle));
+        if (i % 200 === 0) {
+          checkpoint.updatedAt = new Date().toISOString();
+          checkpoint.resourceSaved = await idbCount(STAGING_STORE);
+          await idbPut(META_STORE, checkpoint);
+          await sleep(12);
+        }
+      }
+
+      // One focused retry pass for individual transient failures.
+      if (failures.length) {
+        var retryList = failures.slice();
+        failures.length = 0;
+        updateUi(66, "Retrying " + retryList.length.toLocaleString() + " interrupted study-resource requests...");
+        for (var r = 0; r < retryList.length; r += parallel) {
+          await Promise.all(retryList.slice(r, r + parallel).map(async function(path){
+            var result = await storeResourceResumable(path, force);
+            if (!(result.status === "stored" || result.status === "resumed" || result.status === "reused" || result.status === "excluded")) {
+              failures.push(path);
+            }
+          }));
+        }
+      }
+
+      if (failures.length) {
+        throw new Error(failures.length + " required study resource files still need to be downloaded.");
+      }
+
+      checkpoint.resourceSaved = await idbCount(STAGING_STORE);
+      checkpoint.updatedAt = new Date().toISOString();
+      await idbPut(META_STORE, checkpoint);
+
+      updateUi(68, "Study resources checkpointed. Resuming Scripture chapters...");
+
+      var bibleBuild = await buildBibleResumable(lists.bible, function(done, total){
+        if (done % 30 === 0 || done === total) {
+          var pct = total ? 68 + Math.round((done / total) * 24) : 92;
+          updateUi(
+            Math.min(92, pct),
+            "Saving Scripture chapters... " +
+              Number(done || 0).toLocaleString() + " of " +
+              Number(total || 0).toLocaleString() + " checked."
+          );
+        }
+      });
+
+      checkpoint.bibleSaved = typeof window.rdmBibleDbCount === "function"
+        ? await window.rdmBibleDbCount()
+        : Number(bibleBuild && bibleBuild.saved || 0);
+      checkpoint.updatedAt = new Date().toISOString();
+      await idbPut(META_STORE, checkpoint);
+
+      updateUi(93, "Verifying saved offline data...");
+
+      var resourcesVerified = await stagingReady(lists.resources);
+      var bibleVerified = await bibleReady();
+      var launchVerified = await launchReady();
+
+      if (!resourcesVerified || !bibleVerified || !launchVerified) {
+        throw new Error("Offline verification is incomplete. Saved progress was kept for the next resume.");
+      }
+
+      updateUi(96, "Activating the complete offline study-resource database...");
+      await promoteStaging();
+
+      var resourceCount = await idbCount(ACTIVE_STORE);
+      if (resourceCount !== lists.resources.length) {
+        throw new Error("The complete study-resource database did not activate correctly.");
+      }
+
+      if (typeof BASE.pruneLegacyCaches === "function") {
+        try { await BASE.pruneLegacyCaches(); } catch (_) {}
+      }
+
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: "RESOURCE_DB_UPDATED_V68" });
+        }
+      } catch (_) {}
+
+      var bibleCount = typeof window.rdmBibleDbCount === "function"
+        ? await window.rdmBibleDbCount()
+        : Number(bibleBuild && bibleBuild.saved || 0);
+
+      checkpoint.state = "complete";
+      checkpoint.resourceSaved = resourceCount;
+      checkpoint.bibleSaved = bibleCount;
+      checkpoint.updatedAt = new Date().toISOString();
+      await idbPut(META_STORE, checkpoint);
+
+      var totalReady = Number(resourceCount || 0) + Number(bibleCount || 0) + LAUNCH_FILES.length;
+      var now = new Date();
+      var status = {
+        complete: true,
+        criticalReady: true,
+        failed: 0,
+        failures: [],
+        total: totalReady,
+        cached: totalReady,
+        ready: totalReady,
+        skipped: 0,
+        indexedResourceCount: Number(resourceCount || 0),
+        indexedResourceReady: true,
+        indexedBibleCount: Number(bibleCount || 0),
+        indexedBibleReady: true,
+        launchShellReady: true,
+        resourceDatabaseName: RESOURCE_DB,
+        resumableOffline: true,
+        resumeCheckpointVersion: VERSION,
+        updatedAt: now.toISOString(),
+        updatedAtMs: now.getTime(),
+        durationMs: Date.now() - startedAt,
+        version: VERSION
+      };
+
+      writeStatus(status);
+      updateUi(100, "Offline setup complete. This device is ready.");
+      return status;
+
+    } catch (error) {
+      // IMPORTANT: do NOT clear STAGING_STORE here.
+      // Successfully-downloaded work remains available for the next resume.
+      var stagedCount = 0;
+      var bibleCountFail = 0;
+      try { stagedCount = await idbCount(STAGING_STORE); } catch (_) {}
+      try {
+        bibleCountFail = typeof window.rdmBibleDbCount === "function"
+          ? await window.rdmBibleDbCount()
+          : 0;
+      } catch (_) {}
+
+      var nowFail = new Date();
+      var message = navigator.onLine === false
+        ? "Offline setup paused. Reconnect and tap Prepare Offline Use to continue from saved progress."
+        : String(error && error.message || error || "Offline setup paused.");
+
+      var failedStatus = {
+        complete: false,
+        criticalReady: false,
+        failed: Math.max(1, failures.length),
+        failures: failures.slice(0, 12),
+        indexedResourceCount: 0,
+        stagedResourceCount: stagedCount,
+        indexedBibleCount: Number(bibleCountFail || 0),
+        resumableOffline: true,
+        resumeCheckpointVersion: VERSION,
+        progressPreserved: true,
+        updatedAt: nowFail.toISOString(),
+        updatedAtMs: nowFail.getTime(),
+        version: VERSION + "-incomplete",
+        note: message
+      };
+
+      writeStatus(failedStatus);
+      showPaused(
+        "Progress saved: " +
+          stagedCount.toLocaleString() + " study resources and " +
+          Number(bibleCountFail || 0).toLocaleString() +
+          " Bible chapters are preserved. Tap Prepare Offline Use to resume."
+      );
+
+      throw error;
+    } finally {
+      running = false;
+    }
+  }
+
+  function updateResumeHint(){
+    if (running) return;
+    openResourceDb().then(async function(){
+      try {
+        var checkpoint = await idbGet(META_STORE, CHECKPOINT_KEY);
+        if (!checkpoint || checkpoint.state === "complete") return;
+
+        var staged = await idbCount(STAGING_STORE);
+        var bible = typeof window.rdmBibleDbCount === "function" ? await window.rdmBibleDbCount() : 0;
+        if (!staged && !bible) return;
+
+        var noteEl = document.getElementById("rdmOfflineNoteV107");
+        var btn = document.getElementById("rdmOfflineButtonV107");
+        if (noteEl) {
+          noteEl.textContent =
+            "Saved progress found: " +
+            staged.toLocaleString() + " study resources and " +
+            Number(bible || 0).toLocaleString() +
+            " Bible chapters. Tap to resume.";
+        }
+        if (btn && !btn.disabled) btn.textContent = "Resume Offline Setup";
+      } catch (_) {}
+    }).catch(function(){});
+  }
+
+  // Existing v155 UI resolves these aliases at click time, so overriding them
+  // changes only the preparation engine and does not replace the proven UI.
+  window.rdmPrepareOfflineFilesV97 = prepareResumableOffline;
+  window.rdmPrepareOfflineFilesV34 = prepareResumableOffline;
+  window.rdmUpdateOfflineFilesFastV34 = function(){
+    return prepareResumableOffline(true);
+  };
+  window.rdmPrepareIndexedOfflineV167 = prepareResumableOffline;
+  window.rdmIndexedOfflineV167 = {
+    version: VERSION,
+    prepare: prepareResumableOffline,
+    resourceDb: RESOURCE_DB,
+    checkpointKey: CHECKPOINT_KEY
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function(){
+      setTimeout(updateResumeHint, 350);
+    }, { once: true });
+  } else {
+    setTimeout(updateResumeHint, 350);
+  }
+
+  window.addEventListener("pageshow", function(){
+    setTimeout(updateResumeHint, 350);
+  });
+
+  window.addEventListener("online", function(){
+    setTimeout(updateResumeHint, 350);
+  });
+})();
+</script>
 <!-- v156 — iPad direct app open: no custom splash layer; first paint restored while keeping v155 offline launch quiet. -->
 
 <style id="rdm-v163-reference-range-navigation-style">
