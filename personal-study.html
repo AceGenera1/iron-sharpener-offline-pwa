@@ -4162,6 +4162,345 @@ body.dark .resource-clean-empty {
 <!-- v170 — Fresh Home Screen first-open responsiveness.
      Service-worker registration is deferred until after the first interactive paint,
      and v70 never navigates/reloads the active page during activation. -->
+<style id="rdm-v164-premium-journal-theme">
+/* v164 — Premium Disciple Journal desktop theme rollout
+   Visual-only layer. Preserves all Journal behavior and mobile-shell locks. */
+
+@media (min-width: 1181px) {
+
+  body:not(.rdm-dj-mobile-shell) {
+    --deep: #203654;
+    --water: #5F7F9E;
+    --sky: #DDE8F0;
+    --parchment: #EEE8DD;
+    --paper: #F8F5EF;
+    --copper: #B78245;
+    --soft-copper: #D3A15F;
+    --ink: #243243;
+    --dust: #64768A;
+    --line: rgba(32,54,84,.18);
+    --shadow: 0 18px 42px rgba(32,54,84,.12);
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      Arial,
+      sans-serif;
+
+    background:
+      radial-gradient(circle at 12% 0%, rgba(116,148,177,.16), transparent 30rem),
+      linear-gradient(180deg, #EEE8DD 0%, #E5DED2 100%);
+    color: var(--ink);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark {
+    --deep: #EAF0F5;
+    --water: #8CA9C3;
+    --sky: #C7D5E2;
+    --parchment: #172330;
+    --paper: #223346;
+    --copper: #C99D5F;
+    --soft-copper: #D9B36F;
+    --ink: #F3F2ED;
+    --dust: #C2CFDA;
+    --line: rgba(145,174,198,.24);
+    --shadow: 0 22px 52px rgba(0,0,0,.34);
+
+    background:
+      radial-gradient(circle at 10% 0%, rgba(106,142,173,.18), transparent 32rem),
+      linear-gradient(180deg, #172330 0%, #1D2B3A 100%);
+  }
+
+  /* Premium hero */
+  body:not(.rdm-dj-mobile-shell) .hero {
+    background:
+      radial-gradient(circle at 78% 18%, rgba(211,161,95,.18), transparent 16rem),
+      linear-gradient(135deg, #253D5D 0%, #496B89 55%, #6C8294 100%);
+    border: 1px solid rgba(211,161,95,.32);
+    box-shadow:
+      0 20px 46px rgba(32,54,84,.18),
+      inset 0 1px 0 rgba(255,255,255,.16);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .hero {
+    background:
+      radial-gradient(circle at 78% 14%, rgba(217,179,111,.16), transparent 18rem),
+      linear-gradient(135deg, #142131 0%, #21364B 52%, #36536A 100%);
+    border-color: rgba(217,179,111,.26);
+    box-shadow:
+      0 22px 54px rgba(0,0,0,.38),
+      inset 0 1px 0 rgba(255,255,255,.06);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .eyebrow {
+    color: #DDB36D;
+  }
+
+  body:not(.rdm-dj-mobile-shell) h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(48px, 4.7vw, 70px);
+    letter-spacing: -.025em;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .subtitle {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(20px, 1.75vw, 25px);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .verseCard {
+    border-left-color: #DDB36D;
+    font-size: 17px;
+  }
+
+  /* Clearer panel separation */
+  body:not(.rdm-dj-mobile-shell) .layout {
+    gap: 20px;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .card {
+    background: #F9F6F0;
+    border: 1px solid rgba(32,54,84,.19);
+    border-radius: 20px;
+    box-shadow:
+      0 12px 30px rgba(32,54,84,.10),
+      0 1px 0 rgba(255,255,255,.92) inset;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .card {
+    background: #223346;
+    border-color: rgba(140,169,195,.22);
+    box-shadow:
+      0 16px 36px rgba(0,0,0,.26),
+      0 1px 0 rgba(255,255,255,.035) inset;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .cardHead {
+    padding: 18px 20px;
+    background: linear-gradient(180deg, #E8EEF2 0%, #DFE7EC 100%);
+    border-bottom: 1px solid rgba(32,54,84,.16);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .cardHead {
+    background: linear-gradient(180deg, #2B4054 0%, #273A4D 100%);
+    border-bottom-color: rgba(140,169,195,.20);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .cardHead h2,
+  body:not(.rdm-dj-mobile-shell) .cardHead h3 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 23px;
+    color: #203654;
+    letter-spacing: -.01em;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .cardHead h2,
+  body:not(.rdm-dj-mobile-shell).dark .cardHead h3 {
+    color: #F2F1EC;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .cardBody {
+    padding: 19px 20px 22px;
+  }
+
+  /* Forms and buttons */
+  body:not(.rdm-dj-mobile-shell) label {
+    font-size: 13px;
+    color: #486781;
+    letter-spacing: .07em;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark label {
+    color: #AFC4D5;
+  }
+
+  body:not(.rdm-dj-mobile-shell) select,
+  body:not(.rdm-dj-mobile-shell) input,
+  body:not(.rdm-dj-mobile-shell) textarea {
+    font-size: 17px;
+    border: 1px solid rgba(32,54,84,.20);
+    background: #FCFAF6;
+    color: #243243;
+    border-radius: 13px;
+    padding: 12px 13px;
+    box-shadow: inset 0 1px 2px rgba(32,54,84,.04);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark select,
+  body:not(.rdm-dj-mobile-shell).dark input,
+  body:not(.rdm-dj-mobile-shell).dark textarea {
+    background: #31465A;
+    color: #F3F2ED;
+    border-color: rgba(160,187,209,.24);
+  }
+
+  body:not(.rdm-dj-mobile-shell) button {
+    font-size: 16px;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .primary {
+    background: linear-gradient(180deg, #D9B36F 0%, #B78245 100%);
+    color: #FFFDF8;
+    box-shadow: 0 7px 18px rgba(149,101,46,.20);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .secondary {
+    background: #F8F5EF;
+    color: #203654;
+    border-color: rgba(183,130,69,.55);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .secondary {
+    background: #2D4255;
+    color: #F3F2ED;
+    border-color: rgba(217,179,111,.42);
+  }
+
+  /* Scripture is the focal point */
+  body:not(.rdm-dj-mobile-shell) .scriptureCard {
+    border-color: rgba(183,130,69,.38);
+    box-shadow:
+      0 16px 38px rgba(32,54,84,.13),
+      0 0 0 1px rgba(183,130,69,.08);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard {
+    background: #293E52;
+    border-color: rgba(217,179,111,.30);
+    box-shadow:
+      0 18px 44px rgba(0,0,0,.30),
+      0 0 0 1px rgba(217,179,111,.06);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .scriptureCard .cardHead {
+    background: linear-gradient(180deg, #EDF2F5 0%, #E6ECEF 100%);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard .cardHead {
+    background: linear-gradient(180deg, #344B60 0%, #30465A 100%);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .reference {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 31px;
+    line-height: 1.12;
+    color: #203654;
+    margin-bottom: 7px;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .reference {
+    color: #F4F2EC;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .translation {
+    color: #6C7E90;
+    font-size: 14px;
+    letter-spacing: .05em;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .translation {
+    color: #C4D0DB;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .scriptureCard .passage {
+    background: #FFFDF9 !important;
+    border: 1px solid rgba(32,54,84,.10);
+    border-radius: 16px;
+    padding: 17px 18px;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard .passage {
+    background: #30475A !important;
+    border-color: rgba(158,184,204,.16);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .scriptureCard .verse {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 24px !important;
+    line-height: 1.68 !important;
+    padding: 10px 4px !important;
+    margin-bottom: 8px;
+    color: #26384A;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard .verse {
+    color: #F5F2EA;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .scriptureCard .vnum {
+    min-width: 29px;
+    height: 29px;
+    font-size: 14px;
+    margin-right: 10px;
+    background: #27486D;
+    color: #F6E5B9;
+    box-shadow: 0 3px 8px rgba(32,54,84,.16);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard .vnum {
+    background: #172B3F;
+    color: #E4BC74;
+  }
+
+  /* Study guide polish */
+  body:not(.rdm-dj-mobile-shell) .prompt {
+    padding: 15px;
+    background: #FCFAF6;
+    border-color: rgba(32,54,84,.14);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .prompt {
+    background: #2B4054;
+    border-color: rgba(140,169,195,.18);
+  }
+
+  body:not(.rdm-dj-mobile-shell) .prompt h3 {
+    font-size: 19px;
+    color: #203654;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .prompt h3 {
+    color: #F3F1EB;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .prompt p,
+  body:not(.rdm-dj-mobile-shell) .modeIntro,
+  body:not(.rdm-dj-mobile-shell) .entryItem small {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  body:not(.rdm-dj-mobile-shell) textarea {
+    line-height: 1.6;
+  }
+
+  /* History rail */
+  body:not(.rdm-dj-mobile-shell) .entryItem {
+    border-radius: 13px;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .entryItem {
+    background: #2B4054;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .entryItem strong {
+    font-size: 16px;
+  }
+
+  /* Keep light/dark typography equal */
+  body:not(.rdm-dj-mobile-shell),
+  body:not(.rdm-dj-mobile-shell).dark {
+    font-size: 16px;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .journalCard,
+  body:not(.rdm-dj-mobile-shell).dark .journalCard {
+    font-size: 16px;
+  }
+}
+</style>
 </head>
 <body>
 <div class="shell">
