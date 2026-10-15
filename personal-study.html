@@ -4163,23 +4163,27 @@ body.dark .resource-clean-empty {
      Service-worker registration is deferred until after the first interactive paint,
      and v70 never navigates/reloads the active page during activation. -->
 <style id="rdm-v164-premium-journal-theme">
-/* v164 — Premium Disciple Journal desktop theme rollout
-   Visual-only layer. Preserves all Journal behavior and mobile-shell locks. */
+/* v164 — Premium Disciple Journal desktop theme
+   Visual-only. Preserves Journal logic and mobile-shell behavior. */
 
 @media (min-width: 1181px) {
 
+  /* =========================
+     SHARED FOUNDATION
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) {
-    --deep: #203654;
-    --water: #5F7F9E;
-    --sky: #DDE8F0;
-    --parchment: #EEE8DD;
-    --paper: #F8F5EF;
-    --copper: #B78245;
-    --soft-copper: #D3A15F;
-    --ink: #243243;
-    --dust: #64768A;
-    --line: rgba(32,54,84,.18);
-    --shadow: 0 18px 42px rgba(32,54,84,.12);
+    --deep: #17365A;
+    --water: #527694;
+    --sky: #DCE7EF;
+    --parchment: #EEE9DF;
+    --paper: #FBF8F2;
+    --copper: #A96F18;
+    --soft-copper: #D2A64D;
+    --ink: #183457;
+    --dust: #637B93;
+    --line: rgba(29,60,92,.16);
+    --shadow: 0 12px 30px rgba(34,54,75,.10);
 
     font-family:
       "Segoe UI Variable",
@@ -4190,311 +4194,592 @@ body.dark .resource-clean-empty {
       Arial,
       sans-serif;
 
+    font-size: 16px;
+
     background:
-      radial-gradient(circle at 12% 0%, rgba(116,148,177,.16), transparent 30rem),
-      linear-gradient(180deg, #EEE8DD 0%, #E5DED2 100%);
+      radial-gradient(circle at 18% 0%, rgba(131,163,190,.15), transparent 30rem),
+      linear-gradient(180deg, #F3EFE7 0%, #E9E3D8 100%);
+
     color: var(--ink);
   }
 
   body:not(.rdm-dj-mobile-shell).dark {
-    --deep: #EAF0F5;
-    --water: #8CA9C3;
-    --sky: #C7D5E2;
-    --parchment: #172330;
-    --paper: #223346;
-    --copper: #C99D5F;
-    --soft-copper: #D9B36F;
-    --ink: #F3F2ED;
-    --dust: #C2CFDA;
-    --line: rgba(145,174,198,.24);
-    --shadow: 0 22px 52px rgba(0,0,0,.34);
+    --deep: #F7F1E7;
+    --water: #82A8C6;
+    --sky: #C4D7E6;
+    --parchment: #081A29;
+    --paper: #10283C;
+    --copper: #C98E29;
+    --soft-copper: #F0C260;
+    --ink: #F8F3E9;
+    --dust: #B9CBD9;
+    --line: rgba(142,177,205,.22);
+    --shadow: 0 16px 38px rgba(0,0,0,.34);
 
     background:
-      radial-gradient(circle at 10% 0%, rgba(106,142,173,.18), transparent 32rem),
-      linear-gradient(180deg, #172330 0%, #1D2B3A 100%);
+      radial-gradient(circle at 18% 0%, rgba(65,104,139,.17), transparent 32rem),
+      linear-gradient(180deg, #081A29 0%, #0C2234 100%);
+
+    color: var(--ink);
   }
 
-  /* Premium hero */
+  body:not(.rdm-dj-mobile-shell) .shell {
+    width: min(1600px, calc(100% - 34px));
+    margin: 0 auto;
+    padding: 14px 0 30px;
+  }
+
+
+  /* =========================
+     HERO — SHARED
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) .hero {
-    background:
-      radial-gradient(circle at 78% 18%, rgba(211,161,95,.18), transparent 16rem),
-      linear-gradient(135deg, #253D5D 0%, #496B89 55%, #6C8294 100%);
-    border: 1px solid rgba(211,161,95,.32);
-    box-shadow:
-      0 20px 46px rgba(32,54,84,.18),
-      inset 0 1px 0 rgba(255,255,255,.16);
+    min-height: 190px;
+
+    grid-template-columns:
+      138px
+      minmax(0, 1fr)
+      minmax(320px, 370px);
+
+    gap: 24px;
+    align-items: center;
+
+    padding: 18px 26px;
+
+    border-radius: 18px;
+
+    background-size: cover;
+    background-position: center 48%;
+    background-repeat: no-repeat;
+
+    overflow: hidden;
   }
 
-  body:not(.rdm-dj-mobile-shell).dark .hero {
-    background:
-      radial-gradient(circle at 78% 14%, rgba(217,179,111,.16), transparent 18rem),
-      linear-gradient(135deg, #142131 0%, #21364B 52%, #36536A 100%);
-    border-color: rgba(217,179,111,.26);
+  /* LIGHT HERO */
+  body:not(.rdm-dj-mobile-shell):not(.dark) .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(251,248,240,.93) 0%,
+        rgba(251,248,240,.84) 38%,
+        rgba(242,239,230,.57) 62%,
+        rgba(227,233,234,.62) 100%
+      ),
+      url("./assets/journal-hero-mountains.png");
+
+    border: 1px solid rgba(172,119,35,.30);
+
     box-shadow:
-      0 22px 54px rgba(0,0,0,.38),
-      inset 0 1px 0 rgba(255,255,255,.06);
+      0 12px 28px rgba(28,53,79,.12),
+      inset 0 1px 0 rgba(255,255,255,.88);
+
+    color: #17365A;
+  }
+
+  /* DARK HERO */
+  body:not(.rdm-dj-mobile-shell).dark .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(5,20,32,.90) 0%,
+        rgba(7,27,42,.82) 36%,
+        rgba(10,38,58,.66) 67%,
+        rgba(12,43,63,.63) 100%
+      ),
+      url("./assets/journal-hero-mountains.png");
+
+    border: 1px solid rgba(240,194,96,.25);
+
+    box-shadow:
+      0 15px 34px rgba(0,0,0,.40),
+      inset 0 1px 0 rgba(255,255,255,.04);
+
+    color: #F8F3E9;
+  }
+
+
+  /* =========================
+     HERO LOGO + TYPOGRAPHY
+     ========================= */
+
+  body:not(.rdm-dj-mobile-shell) .logoWrap {
+    width: 128px;
+    height: 128px;
+    border: 1px solid rgba(218,169,77,.68);
+
+    box-shadow:
+      0 10px 24px rgba(0,0,0,.18),
+      inset 0 0 0 1px rgba(255,255,255,.08);
   }
 
   body:not(.rdm-dj-mobile-shell) .eyebrow {
-    color: #DDB36D;
+    margin: 0 0 5px;
+
+    color: #C58D2D;
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .19em;
   }
 
   body:not(.rdm-dj-mobile-shell) h1 {
+    margin: 0;
+
     font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(48px, 4.7vw, 70px);
+    font-size: clamp(40px, 3vw, 56px);
+    line-height: 1.02;
     letter-spacing: -.025em;
+
+    white-space: nowrap;
+  }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) h1 {
+    color: #17365A;
+    text-shadow: none;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark h1 {
+    color: #FFF9EE;
+    text-shadow: 0 5px 16px rgba(0,0,0,.34);
   }
 
   body:not(.rdm-dj-mobile-shell) .subtitle {
+    margin-top: 8px;
+
     font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(20px, 1.75vw, 25px);
+    font-size: clamp(18px, 1.4vw, 22px);
+    line-height: 1.2;
   }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) .subtitle {
+    color: #9C671C;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .subtitle {
+    color: #E0B55F;
+  }
+
+
+  /* =========================
+     HERO QUOTE + CONTROLS
+     ========================= */
 
   body:not(.rdm-dj-mobile-shell) .verseCard {
-    border-left-color: #DDB36D;
-    font-size: 17px;
+    max-width: 370px;
+
+    border-radius: 12px;
+    padding: 12px 14px;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
   }
 
-  /* Clearer panel separation */
+  body:not(.rdm-dj-mobile-shell):not(.dark) .verseCard {
+    background: rgba(255,251,243,.76);
+    color: #17365A;
+
+    border: 1px solid rgba(172,119,35,.25);
+    border-left: 4px solid #BE8628;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .verseCard {
+    background: rgba(7,30,46,.58);
+    color: #F7F2E8;
+
+    border: 1px solid rgba(222,181,95,.22);
+    border-left: 4px solid #E0B55F;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .verseCard strong {
+    color: #C68E2E;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .heroActions {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .heroActions button {
+    min-height: 42px;
+    padding: 9px 14px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+  }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) .heroActions .ghost {
+    background: rgba(255,255,255,.84);
+    color: #17365A;
+
+    border: 1px solid rgba(23,54,90,.18);
+
+    box-shadow: 0 5px 14px rgba(23,54,90,.10);
+  }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) #studyModeBtn {
+    background: linear-gradient(180deg, #315B7E, #234965);
+    color: #FFFDF8;
+
+    border-color: rgba(23,54,90,.28);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .heroActions .ghost {
+    background: rgba(18,48,72,.88);
+    color: #F7F2E8;
+
+    border: 1px solid rgba(137,174,204,.34);
+
+    box-shadow: 0 5px 14px rgba(0,0,0,.20);
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark #studyModeBtn {
+    background: linear-gradient(180deg, #F0C260, #D5A648);
+    color: #142334;
+
+    border-color: rgba(255,224,153,.54);
+  }
+
+
+  /* =========================
+     THREE-COLUMN LAYOUT
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) .layout {
-    gap: 20px;
+    grid-template-columns:
+      minmax(280px, .70fr)
+      minmax(560px, 1.45fr)
+      minmax(390px, 1fr);
+
+    gap: 16px;
+    margin-top: 14px;
   }
 
   body:not(.rdm-dj-mobile-shell) .card {
-    background: #F9F6F0;
-    border: 1px solid rgba(32,54,84,.19);
-    border-radius: 20px;
+    border-radius: 16px;
+
+    background: #FBF8F2;
+
+    border: 1px solid rgba(33,66,99,.14);
+
     box-shadow:
-      0 12px 30px rgba(32,54,84,.10),
-      0 1px 0 rgba(255,255,255,.92) inset;
+      0 7px 20px rgba(32,54,84,.08),
+      inset 0 1px 0 rgba(255,255,255,.90);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .card {
-    background: #223346;
-    border-color: rgba(140,169,195,.22);
+    background: #102A40;
+
+    border-color: rgba(128,166,196,.22);
+
     box-shadow:
-      0 16px 36px rgba(0,0,0,.26),
-      0 1px 0 rgba(255,255,255,.035) inset;
+      0 9px 24px rgba(0,0,0,.28),
+      inset 0 1px 0 rgba(255,255,255,.025);
   }
 
+
+  /* =========================
+     CARD HEADERS
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) .cardHead {
-    padding: 18px 20px;
-    background: linear-gradient(180deg, #E8EEF2 0%, #DFE7EC 100%);
-    border-bottom: 1px solid rgba(32,54,84,.16);
+    min-height: 62px;
+
+    padding: 13px 16px;
+
+    background:
+      linear-gradient(180deg, #F0F4F6 0%, #E6EDF1 100%);
+
+    border-bottom: 1px solid rgba(33,66,99,.13);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .cardHead {
-    background: linear-gradient(180deg, #2B4054 0%, #273A4D 100%);
-    border-bottom-color: rgba(140,169,195,.20);
+    background:
+      linear-gradient(180deg, #163A55 0%, #14344D 100%);
+
+    border-bottom-color: rgba(126,166,198,.20);
   }
 
   body:not(.rdm-dj-mobile-shell) .cardHead h2,
   body:not(.rdm-dj-mobile-shell) .cardHead h3 {
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 23px;
-    color: #203654;
-    letter-spacing: -.01em;
+    font-size: 22px;
+
+    color: #17365A;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .cardHead h2,
   body:not(.rdm-dj-mobile-shell).dark .cardHead h3 {
-    color: #F2F1EC;
+    color: #F8F3E9;
   }
 
   body:not(.rdm-dj-mobile-shell) .cardBody {
-    padding: 19px 20px 22px;
+    padding: 14px 16px 18px;
   }
 
-  /* Forms and buttons */
+
+  /* =========================
+     FORM CONTROLS
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) label {
-    font-size: 13px;
-    color: #486781;
+    font-size: 12px;
+    color: #355D7E;
     letter-spacing: .07em;
   }
 
   body:not(.rdm-dj-mobile-shell).dark label {
-    color: #AFC4D5;
+    color: #A9C0D2;
   }
 
   body:not(.rdm-dj-mobile-shell) select,
   body:not(.rdm-dj-mobile-shell) input,
   body:not(.rdm-dj-mobile-shell) textarea {
-    font-size: 17px;
-    border: 1px solid rgba(32,54,84,.20);
-    background: #FCFAF6;
-    color: #243243;
-    border-radius: 13px;
-    padding: 12px 13px;
-    box-shadow: inset 0 1px 2px rgba(32,54,84,.04);
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+
+    background: #FFFDF8;
+    color: #183457;
+
+    border: 1px solid rgba(33,66,99,.17);
+
+    box-shadow: inset 0 1px 2px rgba(28,53,79,.035);
   }
 
   body:not(.rdm-dj-mobile-shell).dark select,
   body:not(.rdm-dj-mobile-shell).dark input,
   body:not(.rdm-dj-mobile-shell).dark textarea {
-    background: #31465A;
-    color: #F3F2ED;
-    border-color: rgba(160,187,209,.24);
+    background: #173B55;
+    color: #F8F3E9;
+
+    border-color: rgba(132,171,201,.24);
   }
+
+
+  /* =========================
+     GOLD BUTTON SYSTEM
+     ========================= */
 
   body:not(.rdm-dj-mobile-shell) button {
-    font-size: 16px;
+    font-size: 15px;
+    border-radius: 10px;
   }
 
-  body:not(.rdm-dj-mobile-shell) .primary {
-    background: linear-gradient(180deg, #D9B36F 0%, #B78245 100%);
-    color: #FFFDF8;
-    box-shadow: 0 7px 18px rgba(149,101,46,.20);
-  }
+  body:not(.rdm-dj-mobile-shell) .primary,
+  body:not(.rdm-dj-mobile-shell) .filterBtn.active,
+  body:not(.rdm-dj-mobile-shell) .modeTab.active,
+  body:not(.rdm-dj-mobile-shell) .stepTab.active {
+    background:
+      linear-gradient(180deg, #E2B95E 0%, #B9780D 100%) !important;
 
-  body:not(.rdm-dj-mobile-shell) .secondary {
-    background: #F8F5EF;
-    color: #203654;
-    border-color: rgba(183,130,69,.55);
-  }
+    color: #FFFDF8 !important;
 
-  body:not(.rdm-dj-mobile-shell).dark .secondary {
-    background: #2D4255;
-    color: #F3F2ED;
-    border-color: rgba(217,179,111,.42);
-  }
+    border-color: rgba(164,101,0,.48) !important;
 
-  /* Scripture is the focal point */
-  body:not(.rdm-dj-mobile-shell) .scriptureCard {
-    border-color: rgba(183,130,69,.38);
     box-shadow:
-      0 16px 38px rgba(32,54,84,.13),
-      0 0 0 1px rgba(183,130,69,.08);
+      0 5px 12px rgba(163,108,20,.20) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .primary,
+  body:not(.rdm-dj-mobile-shell).dark .filterBtn.active,
+  body:not(.rdm-dj-mobile-shell).dark .modeTab.active,
+  body:not(.rdm-dj-mobile-shell).dark .stepTab.active {
+    background:
+      linear-gradient(180deg, #F4CD73 0%, #D8A63F 100%) !important;
+
+    color: #142334 !important;
+
+    border-color: rgba(255,223,147,.58) !important;
+
+    box-shadow:
+      0 5px 14px rgba(0,0,0,.23) !important;
+  }
+
+
+  /* =========================
+     SCRIPTURE FOCAL PANEL
+     ========================= */
+
+  body:not(.rdm-dj-mobile-shell) .scriptureCard {
+    border: 1px solid rgba(185,125,28,.30);
+
+    box-shadow:
+      0 10px 26px rgba(24,52,87,.10),
+      0 0 0 1px rgba(185,125,28,.055);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .scriptureCard {
-    background: #293E52;
-    border-color: rgba(217,179,111,.30);
+    background: #0D2A42;
+
+    border-color: rgba(237,191,95,.30);
+
     box-shadow:
-      0 18px 44px rgba(0,0,0,.30),
-      0 0 0 1px rgba(217,179,111,.06);
+      0 12px 30px rgba(0,0,0,.34),
+      0 0 0 1px rgba(237,191,95,.06);
   }
 
   body:not(.rdm-dj-mobile-shell) .scriptureCard .cardHead {
-    background: linear-gradient(180deg, #EDF2F5 0%, #E6ECEF 100%);
+    background:
+      linear-gradient(180deg, #EDF3F6 0%, #E4EBEF 100%);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .scriptureCard .cardHead {
-    background: linear-gradient(180deg, #344B60 0%, #30465A 100%);
+    background:
+      linear-gradient(180deg, #153D59 0%, #12344E 100%);
   }
 
   body:not(.rdm-dj-mobile-shell) .reference {
+    margin: 0 0 5px;
+
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 31px;
-    line-height: 1.12;
-    color: #203654;
-    margin-bottom: 7px;
+    font-size: 32px;
+    line-height: 1.08;
+
+    color: #17365A;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .reference {
-    color: #F4F2EC;
+    color: #FFF9EE;
   }
 
   body:not(.rdm-dj-mobile-shell) .translation {
-    color: #6C7E90;
-    font-size: 14px;
-    letter-spacing: .05em;
+    margin-bottom: 11px;
+
+    color: #9A6A25;
+
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .10em;
+    text-transform: uppercase;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .translation {
-    color: #C4D0DB;
+    color: #E4B85C;
   }
 
   body:not(.rdm-dj-mobile-shell) .scriptureCard .passage {
-    background: #FFFDF9 !important;
-    border: 1px solid rgba(32,54,84,.10);
-    border-radius: 16px;
-    padding: 17px 18px;
+    max-height: 64vh;
+
+    padding: 14px 16px;
+
+    background: #FFFDF8 !important;
+
+    border: 1px solid rgba(30,65,99,.10);
+    border-radius: 13px;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .scriptureCard .passage {
-    background: #30475A !important;
-    border-color: rgba(158,184,204,.16);
+    background:
+      linear-gradient(180deg, #123852 0%, #11334C 100%) !important;
+
+    border-color: rgba(145,183,211,.16);
   }
 
   body:not(.rdm-dj-mobile-shell) .scriptureCard .verse {
+    margin-bottom: 7px;
+
+    padding: 7px 2px !important;
+
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px !important;
-    line-height: 1.68 !important;
-    padding: 10px 4px !important;
-    margin-bottom: 8px;
-    color: #26384A;
+    font-size: 23px !important;
+    line-height: 1.62 !important;
+
+    color: #17365A;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .scriptureCard .verse {
-    color: #F5F2EA;
+    color: #F9F4EA;
   }
 
   body:not(.rdm-dj-mobile-shell) .scriptureCard .vnum {
-    min-width: 29px;
-    height: 29px;
-    font-size: 14px;
-    margin-right: 10px;
-    background: #27486D;
-    color: #F6E5B9;
-    box-shadow: 0 3px 8px rgba(32,54,84,.16);
+    min-width: 28px;
+    height: 28px;
+
+    margin-right: 9px;
+
+    font-size: 13px;
+
+    background: #164873;
+    color: #F6D875;
+
+    box-shadow: 0 3px 8px rgba(24,52,87,.16);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .scriptureCard .vnum {
-    background: #172B3F;
-    color: #E4BC74;
+    background: #09243A;
+    color: #F2C75D;
   }
 
-  /* Study guide polish */
+
+  /* =========================
+     STUDY GUIDE
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) .prompt {
-    padding: 15px;
-    background: #FCFAF6;
-    border-color: rgba(32,54,84,.14);
+    padding: 13px;
+
+    border-radius: 13px;
+
+    background: #F6F9FB;
+    border-color: rgba(44,86,122,.15);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .prompt {
-    background: #2B4054;
-    border-color: rgba(140,169,195,.18);
+    background: #12344C;
+
+    border-color: rgba(127,166,196,.17);
   }
 
   body:not(.rdm-dj-mobile-shell) .prompt h3 {
-    font-size: 19px;
-    color: #203654;
+    font-size: 18px;
+
+    color: #17365A;
   }
 
   body:not(.rdm-dj-mobile-shell).dark .prompt h3 {
-    color: #F3F1EB;
+    color: #F8F3E9;
   }
 
   body:not(.rdm-dj-mobile-shell) .prompt p,
   body:not(.rdm-dj-mobile-shell) .modeIntro,
   body:not(.rdm-dj-mobile-shell) .entryItem small {
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
-  body:not(.rdm-dj-mobile-shell) textarea {
-    line-height: 1.6;
+  body:not(.rdm-dj-mobile-shell) .modeIntro {
+    color: #536F8D !important;
   }
 
-  /* History rail */
+  body:not(.rdm-dj-mobile-shell).dark .modeIntro {
+    color: #D2DDE6 !important;
+  }
+
+
+  /* =========================
+     HISTORY
+     ========================= */
+
   body:not(.rdm-dj-mobile-shell) .entryItem {
-    border-radius: 13px;
+    border-radius: 11px;
+
+    background: rgba(255,255,255,.42);
   }
 
   body:not(.rdm-dj-mobile-shell).dark .entryItem {
-    background: #2B4054;
+    background: #12344C;
   }
 
   body:not(.rdm-dj-mobile-shell) .entryItem strong {
     font-size: 16px;
   }
 
-  /* Keep light/dark typography equal */
-  body:not(.rdm-dj-mobile-shell),
-  body:not(.rdm-dj-mobile-shell).dark {
-    font-size: 16px;
-  }
 
+  /* Equal light/dark typography */
   body:not(.rdm-dj-mobile-shell) .journalCard,
   body:not(.rdm-dj-mobile-shell).dark .journalCard {
     font-size: 16px;
