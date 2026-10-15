@@ -4939,6 +4939,554 @@ body.dark .resource-clean-empty {
 
 }
 </style>
+
+<style id="rdm-v166-journal-theme-final-polish">
+/* v166 — Final Journal desktop theme polish
+   Visual-only.
+   Harmonizes submenu/popout surfaces with the premium navy/ivory/gold theme.
+   Preserves all Journal behavior and mobile-shell styling. */
+
+@media (min-width: 1181px) {
+
+  /* =========================================================
+     HERO — FINAL COLOR BALANCE
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) .hero {
+    border-color: rgba(190,139,48,.56) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .subtitle {
+    color: #F0C260 !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,.28) !important;
+  }
+
+
+  /* =========================================================
+     STUDY TOOLS PANEL
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell) .studyToolsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #FBF8F2 0%,
+        #F2F5F7 100%
+      ) !important;
+
+    color: #183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.50) !important;
+
+    box-shadow:
+      0 24px 60px rgba(29,53,79,.18) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .studyToolsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #173C57 0%,
+        #102B42 100%
+      ) !important;
+
+    color: #F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.48) !important;
+
+    box-shadow:
+      0 26px 64px rgba(0,0,0,.48),
+      0 0 24px rgba(240,194,96,.08) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .studyToolsHead,
+  body:not(.rdm-dj-mobile-shell) .markToolsHead,
+  body:not(.rdm-dj-mobile-shell) .resourceFloatHead {
+    border-bottom-color:
+      rgba(183,128,35,.42) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .studyToolsHead,
+  body:not(.rdm-dj-mobile-shell).dark .markToolsHead,
+  body:not(.rdm-dj-mobile-shell).dark .resourceFloatHead {
+    border-bottom-color:
+      rgba(240,194,96,.46) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .studyToolsHead h2,
+  body:not(.rdm-dj-mobile-shell) .markToolsHead h2,
+  body:not(.rdm-dj-mobile-shell) .resourceFloatHead h2 {
+    color: #17365A !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .studyToolsHead h2,
+  body:not(.rdm-dj-mobile-shell).dark .markToolsHead h2,
+  body:not(.rdm-dj-mobile-shell).dark .resourceFloatHead h2 {
+    color: #F0C260 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .studyToolsHead p {
+    color: #607A92 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .studyToolsHead p {
+    color: #C8D6E1 !important;
+  }
+
+
+  /* =========================================================
+     STUDY RESOURCE CARDS
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F3F6F8 100%
+      ) !important;
+
+    border:
+      1px solid rgba(50,84,114,.18) !important;
+
+    color: #17365A !important;
+
+    box-shadow:
+      0 5px 14px rgba(32,54,84,.06) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn strong {
+    color: #17365A !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn span {
+    color: #526D86 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn {
+    background:
+      linear-gradient(
+        180deg,
+        #183D58 0%,
+        #14354F 100%
+      ) !important;
+
+    border:
+      1px solid rgba(131,169,198,.24) !important;
+
+    box-shadow:
+      0 6px 16px rgba(0,0,0,.18) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn strong {
+    color: #F7F2E8 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn span {
+    color: #C8D8E4 !important;
+  }
+
+
+  /* =========================================================
+     NEW GOLD HOVER / ACTIVE LANGUAGE
+     Replaces old peach/copper hover styling
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolBtn.markActive,
+
+  body:not(.rdm-dj-mobile-shell)
+  .copyMenu button:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .copyMenu button:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .markToolsBody .studyToolBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .markToolsBody .studyToolBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .markToolsBody .studyToolBtn.markActive {
+
+    background:
+      linear-gradient(
+        180deg,
+        #F0C96F 0%,
+        #C68A22 100%
+      ) !important;
+
+    color: #17304A !important;
+
+    border-color:
+      rgba(166,104,12,.52) !important;
+
+    box-shadow:
+      0 10px 22px rgba(152,101,22,.20) !important;
+
+    opacity: 1 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover strong,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover span,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible strong,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible span {
+    color: #17304A !important;
+  }
+
+
+  /* Dark hover gets brighter gold against navy */
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolBtn.markActive,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .copyMenu button:hover,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .copyMenu button:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .markToolsBody .studyToolBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .markToolsBody .studyToolBtn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .markToolsBody .studyToolBtn.markActive {
+
+    background:
+      linear-gradient(
+        180deg,
+        #F5D77E 0%,
+        #D8A63F 100%
+      ) !important;
+
+    color: #10283C !important;
+
+    border-color:
+      rgba(255,226,157,.60) !important;
+
+    box-shadow:
+      0 12px 26px rgba(0,0,0,.26),
+      0 0 16px rgba(240,194,96,.12) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover strong,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:hover span,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible strong,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsMenu.descriptiveResourceGrid
+  .resourceCardBtn:focus-visible span {
+    color: #10283C !important;
+  }
+
+
+  /* =========================================================
+     COPY SCRIPTURE MENU
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell) .copyMenu {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color: #183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.48) !important;
+
+    box-shadow:
+      0 22px 52px rgba(29,53,79,.20) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .copyMenu::before {
+    color: #A66D18 !important;
+    border-bottom-color: rgba(183,128,35,.38) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .copyMenu button {
+    background: #FFFDF8 !important;
+    color: #17365A !important;
+
+    border:
+      1px solid rgba(45,80,111,.16) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .copyMenu {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color: #F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.48) !important;
+
+    box-shadow:
+      0 24px 58px rgba(0,0,0,.46) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .copyMenu::before {
+    color: #F0C260 !important;
+    border-bottom-color: rgba(240,194,96,.45) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .copyMenu button {
+    background: #183D58 !important;
+    color: #F7F2E8 !important;
+
+    border:
+      1px solid rgba(132,169,198,.24) !important;
+  }
+
+
+  /* =========================================================
+     MARK SCRIPTURE PANEL
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell) .markToolsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color: #183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.50) !important;
+
+    box-shadow:
+      0 24px 58px rgba(29,53,79,.20) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .markToolsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color: #F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.50) !important;
+
+    box-shadow:
+      0 26px 62px rgba(0,0,0,.48) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .markToolsBody .studyToolBtn {
+    background: #FFFDF8 !important;
+    color: #17365A !important;
+
+    border:
+      1px solid rgba(45,80,111,.16) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .markToolsBody .studyToolBtn {
+    background: #183D58 !important;
+    color: #F7F2E8 !important;
+
+    border:
+      1px solid rgba(132,169,198,.24) !important;
+  }
+
+
+  /* =========================================================
+     RESOURCE FLOAT PANELS / CROSS REFERENCES
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell) .resourceFloatPanel,
+  body:not(.rdm-dj-mobile-shell) .resource-instance-panel,
+  body:not(.rdm-dj-mobile-shell)
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color: #183457 !important;
+
+    border-color:
+      rgba(183,128,35,.48) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .resourceFloatPanel,
+  body:not(.rdm-dj-mobile-shell).dark .resource-instance-panel,
+  body:not(.rdm-dj-mobile-shell).dark
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color: #F8F3E9 !important;
+
+    border-color:
+      rgba(240,194,96,.48) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell) .resourceResult,
+  body:not(.rdm-dj-mobile-shell)
+  #internalCrossRefsPanel .internal-xref-verse,
+  body:not(.rdm-dj-mobile-shell)
+  #internalCrossRefsPanel .internal-xrefs-summary {
+    background:
+      rgba(255,255,255,.62) !important;
+
+    border-color:
+      rgba(45,80,111,.14) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .resourceResult,
+  body:not(.rdm-dj-mobile-shell).dark
+  #internalCrossRefsPanel .internal-xref-verse,
+  body:not(.rdm-dj-mobile-shell).dark
+  #internalCrossRefsPanel .internal-xrefs-summary {
+    background:
+      #173B55 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+  }
+
+
+  /* =========================================================
+     CLOSE BUTTONS
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsPanel #closeStudyToolsBtn,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsPanel .studyToolsHead .ghost,
+
+  body:not(.rdm-dj-mobile-shell)
+  .markToolsPanel #closeMarkToolsBtn {
+    background: #FFFDF8 !important;
+    color: #17365A !important;
+
+    border:
+      1px solid rgba(183,128,35,.40) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsPanel #closeStudyToolsBtn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .studyToolsPanel .studyToolsHead .ghost,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .markToolsPanel #closeMarkToolsBtn {
+    background: #183D58 !important;
+    color: #F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsPanel #closeStudyToolsBtn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .studyToolsPanel .studyToolsHead .ghost:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .markToolsPanel #closeMarkToolsBtn:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C96F 0%,
+        #C68A22 100%
+      ) !important;
+
+    color: #17304A !important;
+  }
+
+}
+</style>
 </head>
 <body>
 <div class="shell">
