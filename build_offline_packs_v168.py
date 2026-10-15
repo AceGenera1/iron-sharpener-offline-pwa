@@ -54,40 +54,152 @@ def content_type(path: str) -> str:
     return guessed or "application/octet-stream"
 
 
-def read_offline_manifest(root: Path) -> list[str]:
-    path = root / "offline-manifest.json"
-    if not path.exists():
-        return []
+def canonical_path(value: str) -> str:
+    raw = str(value or "").strip().replace("\\", "/")
+    while raw.startswith("./"):
+        raw = raw[2:]
+    raw = raw.split("#", 1)[0].split("?", 1)[0].lstrip("/")
+    return raw
+
+
+def read_json(path: Path):
+    if not path.exists() or not path.is_file():
+        return None
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return []
+        return None
+
+
+def normalize_resource_file(prefix: str, value: str) -> str:
+    item = canonical_path(value)
+    if not item:
+        return ""
+    if item.lower().startswith("bible/resources/"):
+        return item if item.lower().endswith(".json") else item + ".json"
+    for head in ("topics/", "doctrine/", "backgrounds/"):
+        if item.lower().startswith(head):
+            item = item[len(head):]
+            break
+    if not item.lower().endswith(".json"):
+        item += ".json"
+    return canonical_path(f"{prefix}/{item}")
+
+
+def indexed_files(prefix: str, data) -> set[str]:
+    found: set[str] = set()
+
+    def add(value):
+        if not isinstance(value, str):
+            return
+        path = normalize_resource_file(prefix, value)
+        if path:
+            found.add(path)
+
+    def walk(value):
+        if not value:
+            return
+        if isinstance(value, str):
+            add(value)
+            return
+        if isinstance(value, list):
+            for item in value:
+                walk(item)
+            return
+        if isinstance(value, dict):
+            for key in ("file", "path", "slug", "id"):
+                if isinstance(value.get(key), str):
+                    add(value[key])
+                    break
+            for key in ("files", "topics", "entries", "items", "resources"):
+                walk(value.get(key))
+
+    walk(data)
+    return found
+
+
+def read_offline_manifest(root: Path) -> list[str]:
+    data = read_json(root / "offline-manifest.json")
     if isinstance(data, list):
         values = data
     elif isinstance(data, dict) and isinstance(data.get("files"), list):
         values = data["files"]
     else:
-        return []
-    return [str(v).replace("\\", "/").lstrip("./") for v in values if isinstance(v, str)]
+        values = []
+    return [canonical_path(v) for v in values if isinstance(v, str)]
+
+
+def discover_book_names(root: Path) -> list[str]:
+    bible_root = root / "bible" / "web"
+    if not bible_root.exists():
+        raise SystemExit(f"Could not find {bible_root}.")
+    books = sorted(p.name for p in bible_root.iterdir() if p.is_dir())
+    if len(books) != 66:
+        raise SystemExit(f"Expected 66 Bible book folders under {bible_root}, found {len(books)}.")
+    return books
 
 
 def discover_candidates(root: Path) -> list[str]:
+    """Mirror v166/v167 buildLists() instead of recursively sweeping bible/resources."""
     found: set[str] = set()
-    resources_root = root / "bible" / "resources"
-    if resources_root.exists():
-        for file_path in resources_root.rglob("*"):
-            if file_path.is_file():
-                found.add(posix(file_path.relative_to(root)))
+    books = discover_book_names(root)
+
+    for book in books:
+        found.add(f"bible/resources/internal-cross-references/{book}.json")
+        found.add(f"bible/resources/book-overviews/{book}.json")
+        found.add(f"bible/resources/commentaries/jfb/{book}.json")
+        found.add(f"bible/resources/commentaries/matthew-henry/{book}.json")
+        found.add(f"bible/resources/backgrounds/by-reference/{book}.json")
+
+    for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        found.add(f"bible/resources/eastons/{letter}.json")
+        found.add(f"bible/resources/smiths/{letter}.json")
+
+    topics_index = "bible/resources/topics/index.json"
+    found.add(topics_index)
+    found.update(indexed_files("bible/resources/topics", read_json(root / topics_index)))
+
+    doctrine_registry = "bible/resources/doctrine/doctrine-registry.json"
+    found.add(doctrine_registry)
+    found.update(indexed_files("bible/resources/doctrine", read_json(root / doctrine_registry)))
+
+    doctrine_indexes = [
+        "index.json", "index-2a-additions.json", "index-2b-2c-3-additions.json",
+        "index-4-5-6-additions.json", "index-7-8-additions.json",
+        "index-9-10-additions.json", "index-11-12-additions.json",
+    ]
+    for name in doctrine_indexes:
+        path = f"bible/resources/doctrine/{name}"
+        data = read_json(root / path)
+        if data is not None:
+            found.add(path)
+            found.update(indexed_files("bible/resources/doctrine", data))
+
+    backgrounds_index = "bible/resources/backgrounds/index.json"
+    found.add(backgrounds_index)
+    found.update(indexed_files("bible/resources/backgrounds/topics", read_json(root / backgrounds_index)))
 
     for item in read_offline_manifest(root):
-        if item in LAUNCH_FILES or is_bible_chapter(item):
+        if not item or item in LAUNCH_FILES:
             continue
-        target = root / item
-        if target.is_file():
-            found.add(item)
+        if is_bible_chapter(item):
+            continue
+        found.add(item)
+
+    # v166 excludes launch shell and Bible chapters from the study-resource store.
+    found.difference_update(LAUNCH_FILES)
+    found = {p for p in found if p and not is_bible_chapter(p)}
+
+    # Fail early if the curated runtime list points at a file that is absent.
+    missing = sorted(p for p in found if not (root / p).is_file())
+    if missing:
+        preview = "\n".join(f"  - {p}" for p in missing[:25])
+        more = "" if len(missing) <= 25 else f"\n  ... and {len(missing) - 25} more"
+        raise SystemExit(
+            f"The curated Offline Ready list references {len(missing)} missing files:\n{preview}{more}"
+        )
 
     return sorted(found)
-
 
 def group_paths(root: Path, paths: Iterable[str], target_bytes: int) -> list[list[str]]:
     packs: list[list[str]] = []
