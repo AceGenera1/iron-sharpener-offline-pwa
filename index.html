@@ -34792,6 +34792,15 @@ body:not(.dark) #rdmV200PopoutEditor{
 })();
 </script>
 
+<style id="rdm-mobile-hide-note-viewer">
+html:not(.obs) body.rdm-mobile-app-shell #rdmV200PopoutBtn,
+html:not(.obs) body.rdm-mobile-app-shell .rdm-v204-related-viewer-btn,
+html:not(.obs) body.rdm-mobile-app-shell #rdmV200NotePopout {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+</style>
 <!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
 <!-- v208: cream-theme Note Viewer visual correction only; no navigation, mobile-shell, or Live Teaching logic changes. -->
 <!-- v210: v196 section handoff now routes only through the canonical v182 exact-section note engine. -->
