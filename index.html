@@ -28088,7 +28088,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   }
   function readyFromStorage(){
     var best = bestStatus();
-    return !!(best && best.status && isCompactStatus(best.status) && best.status.complete === true && best.status.criticalReady === true && Number(best.status.failed || 0) === 0);
+    return !!(best && best.status && best.status.complete === true && best.status.criticalReady === true && Number(best.status.failed || 0) === 0 && (isCompactStatus(best.status) || (best.status.indexedResourceReady === true && Number(best.status.indexedResourceCount || 0) > 0 && best.status.indexedBibleReady === true && Number(best.status.indexedBibleCount || 0) > 0 && best.status.launchShellReady === true)));
   }
   function normalizeReadyStatus(source){
     var best = bestStatus();
@@ -28149,7 +28149,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     if (textEl) textEl.textContent = ready ? (navigator.onLine ? "Online • Offline Ready" : "Offline • Ready") : (working ? "Preparing Offline Use" : (navigator.onLine ? "Offline Setup Needed" : "Offline Setup Needed"));
     if (msg) msg.textContent = ready ? "Iron Sharpener is ready for offline use on this device." : (working ? "Preparing Iron Sharpener for offline use. Keep this page open until it finishes." : "Tap the button below to prepare Iron Sharpener for offline use on this device.");
     if (btn) {
-      btn.disabled = working;
+      btn.disabled = working || ready;
       btn.textContent = ready ? "Offline Ready" : (working ? "Preparing..." : "Prepare Offline Use");
       btn.setAttribute("aria-busy", working ? "true" : "false");
     }
@@ -28189,7 +28189,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
     progressTimer = null;
     var bar = get("rdmOfflineBarV107");
     if (bar) bar.style.width = ok ? "100%" : "0%";
-    setButtonState(ok ? "ready" : "normal", note || (ok ? "Offline setup complete. This device is ready." : "Offline setup did not finish. Try again while online."));
+    setButtonState(ok ? "ready" : "normal", note || (ok ? "Offline setup complete. This device is ready." : "Offline setup did not finish. Try again while online.")); if (ok) { var panel = get("rdmOfflinePanelV107"); if (panel) panel.classList.remove("open"); try { localStorage.setItem(HIDDEN_KEY, "1"); } catch (_) {} }
   }
   async function runSetup(event){
     if (event) {
@@ -28233,6 +28233,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   function togglePanel(event){
     if (event) { event.preventDefault(); event.stopPropagation(); if (event.stopImmediatePropagation) event.stopImmediatePropagation(); }
     ensureUi();
+    if (readyFromStorage()) { normalizeReadyStatus(bestStatus() && bestStatus().status); setButtonState("ready", "This device is ready for offline use."); var readyPanel = get("rdmOfflinePanelV107"); if (readyPanel) readyPanel.classList.remove("open"); try { localStorage.setItem(HIDDEN_KEY, "1"); } catch (_) {} return; }
     var panel = get("rdmOfflinePanelV107");
     if (panel) {
       panel.classList.toggle("open");
