@@ -28705,7 +28705,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
       var raw = localStorage.getItem(STATUS_KEY);
       if (!raw) return;
       var status = JSON.parse(raw);
-      if (status && status.complete && status.version !== VERSION) {
+      if (status && status.complete && status.version !== VERSION && !(status.indexedResourceReady === true && Number(status.indexedResourceCount || 0) > 0 && status.indexedBibleReady === true && status.launchShellReady === true)) {
         status.complete = false;
         status.criticalReady = false;
         status.indexedResourceReady = false;
