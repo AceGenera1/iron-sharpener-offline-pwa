@@ -4786,6 +4786,159 @@ body.dark .resource-clean-empty {
   }
 }
 </style>
+
+<style id="rdm-v165-journal-theme-finish">
+/* v165 — Journal premium finishing pass
+   Visual-only refinement over v164.
+   Adds clean gold hero framing, removes dark edge seams,
+   improves hero depth, and lightly refines theme hierarchy. */
+
+@media (min-width: 1181px) {
+
+  /* =========================================================
+     HERO FRAME — CLEAN GOLD EDGE + PROFESSIONAL SHADOW
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell) .hero {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+
+    outline: none !important;
+    background-clip: padding-box !important;
+
+    border-radius: 18px !important;
+
+    border:
+      1px solid rgba(190, 139, 48, .72) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(251,248,240,.88) 0%,
+        rgba(251,248,240,.76) 36%,
+        rgba(242,239,230,.42) 62%,
+        rgba(227,233,234,.48) 100%
+      ),
+      url("./assets/journal-hero-mountains.png") !important;
+
+    box-shadow:
+      0 12px 30px rgba(28,53,79,.15),
+      0 3px 8px rgba(28,53,79,.07) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .hero {
+    border-color:
+      rgba(224, 181, 92, .68) !important;
+
+    box-shadow:
+      0 15px 36px rgba(0,0,0,.42),
+      0 3px 9px rgba(0,0,0,.25) !important;
+  }
+
+
+  /* =========================================================
+     LIGHT HERO CONTROLS
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) #studyModeBtn {
+    background:
+      linear-gradient(
+        180deg,
+        #E8C66F 0%,
+        #C58A22 100%
+      ) !important;
+
+    color: #17304A !important;
+
+    border:
+      1px solid rgba(169,108,18,.48) !important;
+
+    box-shadow:
+      0 5px 14px rgba(161,105,25,.20) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell):not(.dark) #themeBtn {
+    background:
+      rgba(255,253,248,.94) !important;
+
+    color: #17365A !important;
+
+    border:
+      1px solid rgba(35,71,105,.16) !important;
+
+    box-shadow:
+      0 4px 12px rgba(32,54,84,.10) !important;
+  }
+
+
+  /* =========================================================
+     DARK MODE — SLIGHTLY LIFT SURFACES
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell).dark .card {
+    background:
+      #123049 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .cardHead {
+    background:
+      linear-gradient(
+        180deg,
+        #19405D 0%,
+        #163A55 100%
+      ) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard {
+    background:
+      #10324B !important;
+
+    border-color:
+      rgba(240,194,96,.40) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .scriptureCard .passage {
+    background:
+      linear-gradient(
+        180deg,
+        #17415D 0%,
+        #143A55 100%
+      ) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .prompt {
+    background:
+      #163B55 !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .entryItem {
+    background:
+      #153A54 !important;
+  }
+
+
+  /* =========================================================
+     DARK MODE — STRONGER GOLD DETAIL
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell).dark .secondary,
+  body:not(.rdm-dj-mobile-shell).dark .filterBtn,
+  body:not(.rdm-dj-mobile-shell).dark .modeTab,
+  body:not(.rdm-dj-mobile-shell).dark .stepTab {
+    border-color:
+      rgba(240,194,96,.50) !important;
+  }
+
+  body:not(.rdm-dj-mobile-shell).dark .translation {
+    color:
+      #E9BC5B !important;
+  }
+
+}
+</style>
 </head>
 <body>
 <div class="shell">
