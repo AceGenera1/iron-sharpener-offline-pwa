@@ -34793,12 +34793,15 @@ body:not(.dark) #rdmV200PopoutEditor{
 </script>
 
 <style id="rdm-mobile-hide-note-viewer">
-html:not(.obs) body.rdm-mobile-app-shell #rdmV200PopoutBtn,
-html:not(.obs) body.rdm-mobile-app-shell .rdm-v204-related-viewer-btn,
-html:not(.obs) body.rdm-mobile-app-shell #rdmV200NotePopout {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+@media (max-width: 1180px) and (hover: none),
+       (max-width: 1180px) and (pointer: coarse) {
+  html:not(.obs) #rdmV200PopoutBtn,
+  html:not(.obs) .rdm-v204-related-viewer-btn,
+  html:not(.obs) #rdmV200NotePopout {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 }
 </style>
 <!-- v207: clean v205 base + isolated Dual Window reference-bar publish hook. No v206 injected audience-document script. -->
