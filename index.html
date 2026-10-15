@@ -27693,25 +27693,9 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
 
     var old = byId('rdmMobileTopJournalBtnV123') || byId('rdmMobileTopJournalBtnV129');
     var btn = byId('rdmMobileTopJournalBtnV132') || old;
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'rdmMobileTopJournalBtnV132';
-      btn.type = 'button';
-      btn.className = 'secondary';
-    }
-    btn.id = 'rdmMobileTopJournalBtnV132';
-    setButtonLabel(btn);
-    btn.style.setProperty('display', 'inline-flex', 'important');
-    btn.style.setProperty('visibility', 'visible', 'important');
-    btn.style.setProperty('pointer-events', 'auto', 'important');
-
-    if (btn.dataset.rdmV132Click !== '1') {
-      btn.dataset.rdmV132Click = '1';
-      btn.addEventListener('click', openJournal, true);
-    }
+    if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
 
     var theme = byId('rdmMobileThemeToggle');
-    if (btn.parentNode !== wrap) wrap.appendChild(btn);
     if (theme && theme.parentNode !== wrap) wrap.appendChild(theme);
     if (theme && wrap.lastElementChild !== theme) wrap.appendChild(theme);
   }
