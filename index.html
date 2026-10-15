@@ -27679,7 +27679,7 @@ html:not(.obs) body.rdm-mobile-app-shell #rdmOfflinePanelV107 {
   }
 
   function ensureTopJournal(){
-    if (!document.body || !mobileLike()) return;
+    if (!document.body || !mobileLike() || !document.body.classList.contains('rdm-mobile-app-shell')) return;
     var hero = document.querySelector('.hero');
     if (!hero) return;
 
