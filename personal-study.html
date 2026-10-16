@@ -6310,6 +6310,100 @@ body.dark .resource-clean-empty {
 
 }
 </style>
+
+<script id="rdm-journal-crossrefs-reopen-reset-final">
+/* Journal Built-In Cross References reopen reset.
+   Isolated repair: closing the panel can leave an inline display:none.
+   When the existing opener marks the panel open again, clear that stale
+   desktop display state so the panel behaves like the other Journal tools. */
+(function rdmJournalCrossRefsReopenResetFinal(){
+  if (window.__rdmJournalCrossRefsReopenResetFinal) return;
+  window.__rdmJournalCrossRefsReopenResetFinal = true;
+
+  function isDesktopJournal(){
+    return !!(
+      document.body &&
+      !document.body.classList.contains('rdm-dj-mobile-shell') &&
+      window.matchMedia &&
+      window.matchMedia('(min-width: 1181px)').matches
+    );
+  }
+
+  function restoreOpenPanel(){
+    if (!isDesktopJournal()) return;
+
+    var panel = document.getElementById('internalCrossRefsPanel');
+    if (!panel || !panel.classList.contains('open')) return;
+
+    /* Remove the stale hard-close state only.
+       Existing Cross Reference positioning, rendering, dragging,
+       and open/close behavior stay intact. */
+    panel.style.removeProperty('display');
+    panel.setAttribute('aria-hidden', 'false');
+  }
+
+  /* Existing Journal handlers run first.
+     Immediately afterward, normalize the panel if they reopened it. */
+  document.addEventListener('click', function(event){
+    var trigger =
+      event.target &&
+      event.target.closest
+        ? event.target.closest('#toolCrossRefs')
+        : null;
+
+    if (!trigger) return;
+
+    setTimeout(restoreOpenPanel, 0);
+    setTimeout(restoreOpenPanel, 40);
+  }, true);
+
+  /* Extra protection if another existing Journal handler adds "open"
+     asynchronously after the click. */
+  var observer = new MutationObserver(function(records){
+    if (!isDesktopJournal()) return;
+
+    for (var i = 0; i < records.length; i++) {
+      var target = records[i].target;
+
+      if (
+        target &&
+        target.id === 'internalCrossRefsPanel' &&
+        target.classList.contains('open')
+      ) {
+        restoreOpenPanel();
+        break;
+      }
+    }
+  });
+
+  function attachObserver(){
+    var panel = document.getElementById('internalCrossRefsPanel');
+
+    if (panel) {
+      observer.observe(panel, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+      restoreOpenPanel();
+      return true;
+    }
+
+    return false;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      if (!attachObserver()) {
+        setTimeout(attachObserver, 500);
+        setTimeout(attachObserver, 1500);
+      }
+    });
+  } else if (!attachObserver()) {
+    setTimeout(attachObserver, 500);
+    setTimeout(attachObserver, 1500);
+  }
+})();
+</script>
 </head>
 <body>
 <div class="shell">
