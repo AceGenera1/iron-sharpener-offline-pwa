@@ -34633,6 +34633,1417 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.__RDM_ACTIVE_BUILD = "v212-dual-application-scroll-mobile-bar-revert";
 })();
 </script>
+<style id="rdm-teaching-desktop-theme-v2">
+/* =========================================================
+   RESTORED DAILY MINISTRIES — IRON SHARPENER
+   Teaching Desktop Theme v2
+
+   Visual-only desktop layer.
+   Preserves Teaching v212 mechanics.
+   Excludes:
+   - OBS Focus
+   - mobile/tablet app shell
+   - Live Teaching / Audience Display behavior
+   - drag/resize/open/close mechanics
+   - note persistence/navigation mechanics
+   ========================================================= */
+
+@media (min-width:1181px) {
+
+  /* =======================================================
+     DESIGN TOKENS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell) {
+    --rdm-t-navy:#17365A;
+    --rdm-t-navy-2:#214A6B;
+    --rdm-t-water:#527694;
+    --rdm-t-sky:#DCE7EF;
+    --rdm-t-paper:#FBF8F2;
+    --rdm-t-ivory:#FFFDF8;
+    --rdm-t-parchment:#EEE9DF;
+    --rdm-t-gold:#D2A64D;
+    --rdm-t-gold-dark:#A96F18;
+    --rdm-t-ink:#183457;
+    --rdm-t-muted:#637B93;
+    --rdm-t-line:rgba(169,111,24,.34);
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark {
+    --rdm-t-navy:#F7F1E7;
+    --rdm-t-navy-2:#E8EEF2;
+    --rdm-t-water:#82A8C6;
+    --rdm-t-sky:#C4D7E6;
+    --rdm-t-paper:#10283C;
+    --rdm-t-ivory:#15364E;
+    --rdm-t-parchment:#081A29;
+    --rdm-t-gold:#F0C260;
+    --rdm-t-gold-dark:#C98E29;
+    --rdm-t-ink:#F8F3E9;
+    --rdm-t-muted:#B9CBD9;
+    --rdm-t-line:rgba(240,194,96,.32);
+  }
+
+
+  /* =======================================================
+     PAGE / SHELL / LAYOUT
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark) {
+    background:
+      radial-gradient(
+        circle at 18% 0%,
+        rgba(82,118,148,.14),
+        transparent 30rem
+      ),
+      linear-gradient(
+        145deg,
+        #E9E4DA 0%,
+        #F5F1E9 48%,
+        #E2E8EC 100%
+      ) !important;
+
+    background-color:#F5F1E9 !important;
+    color:#183457 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      Arial,
+      sans-serif !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark {
+    background:
+      radial-gradient(
+        circle at 18% 0%,
+        rgba(130,168,198,.11),
+        transparent 30rem
+      ),
+      linear-gradient(
+        145deg,
+        #071724 0%,
+        #0B2133 48%,
+        #102C42 100%
+      ) !important;
+
+    background-color:#081A29 !important;
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .shell {
+    background:rgba(251,248,242,.96) !important;
+    color:#183457 !important;
+    border-color:rgba(23,54,90,.12) !important;
+    box-shadow:0 26px 70px rgba(24,52,87,.13) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .shell {
+    background:rgba(8,26,41,.96) !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.16) !important;
+    box-shadow:0 28px 78px rgba(0,0,0,.38) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .layout {
+    background:
+      linear-gradient(
+        180deg,
+        #F7F3EB 0%,
+        #EEF1F2 100%
+      ) !important;
+
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .layout {
+    background:
+      linear-gradient(
+        180deg,
+        #0D2639 0%,
+        #081A29 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+  }
+
+
+  /* =======================================================
+     TOP CONTROLS / RIBBON
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1ECE3 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(169,111,24,.30) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .controls,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.26) !important;
+    box-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     MAIN SCRIPTURE SURFACE
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .scripture {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #FAF7F1 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.34) !important;
+    box-shadow:0 16px 38px rgba(24,52,87,.09) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .scripture {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F5F2EB !important;
+    border-color:rgba(240,194,96,.30) !important;
+    box-shadow:0 18px 44px rgba(0,0,0,.28) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #refTitle {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:clamp(30px,2.25vw,42px) !important;
+    line-height:1.12 !important;
+    letter-spacing:.01em !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #refTitle {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #refTitle {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .verse,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .ref,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .passage,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .passage .verse {
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .verse,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ref,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .passage,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .passage .verse {
+    color:#F5F2EB !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .passage,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .passage .verse {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:22px !important;
+    line-height:1.62 !important;
+    text-shadow:none !important;
+    opacity:1 !important;
+  }
+
+
+  /* =======================================================
+     RIGHT-SIDE TEACHING COLUMN
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .side {
+    background:
+      linear-gradient(
+        180deg,
+        #EAF0F4 0%,
+        #E4EBF0 100%
+      ) !important;
+
+    border-left-color:rgba(23,54,90,.14) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .side {
+    background:
+      linear-gradient(
+        180deg,
+        #0A2031 0%,
+        #081A29 100%
+      ) !important;
+
+    border-left-color:rgba(240,194,96,.18) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .side > .panel {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.28) !important;
+    box-shadow:0 10px 24px rgba(24,52,87,.07) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .side > .panel {
+    background:#123049 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.24) !important;
+    box-shadow:0 12px 28px rgba(0,0,0,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .panel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .panel-title h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .panel-title {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .panel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .panel-title h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .panel-title {
+    color:#F0C260 !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     MAIN TEACHING NOTE FIELDS
+     COLOR ONLY — v196 KEEPS SIZE/SCROLL BEHAVIOR
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingNotes,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #crossRefs,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationNotes,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #clipNotes {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.42) !important;
+    border-radius:12px !important;
+    box-shadow:inset 0 1px 2px rgba(24,52,87,.04) !important;
+    text-shadow:none !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      system-ui,
+      Arial,
+      sans-serif !important;
+
+    font-size:17px !important;
+    line-height:1.55 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingNotes,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #crossRefs,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #applicationNotes,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #clipNotes {
+    background:#173B55 !important;
+    color:#F5F2EB !important;
+    border-color:rgba(130,168,198,.46) !important;
+    border-radius:12px !important;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.16) !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingNotes:focus,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #crossRefs:focus,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #applicationNotes:focus,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #clipNotes:focus {
+    border-color:#D2A64D !important;
+    box-shadow:0 0 0 3px rgba(210,166,77,.18) !important;
+    outline:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingNotes::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #crossRefs::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationNotes::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #clipNotes::placeholder {
+    color:#72879A !important;
+    opacity:.88 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingNotes::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #crossRefs::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #applicationNotes::placeholder,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #clipNotes::placeholder {
+    color:#B9CBD9 !important;
+    opacity:.78 !important;
+  }
+
+
+  /* =======================================================
+     SELECTS / INPUTS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  select,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  input {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.36) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  select,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  input {
+    background:#173B55 !important;
+    color:#F5F2EB !important;
+    border-color:rgba(130,168,198,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  select option {
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  select option {
+    background:#10283C !important;
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  label {
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  label {
+    color:#F8F3E9 !important;
+  }
+
+
+  /* =======================================================
+     TEACHING REFERENCE BAR — v196
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV196TeachingReferenceBar {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F4EFE6 100%
+      ) !important;
+
+    color:#17365A !important;
+    border-color:rgba(183,128,35,.48) !important;
+    box-shadow:0 12px 28px rgba(24,52,87,.08) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.44) !important;
+    box-shadow:0 14px 34px rgba(0,0,0,.24) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker {
+    color:#A97818 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV196TeachingReferenceBar .rdm-v196-teaching-ref {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar .rdm-v196-teaching-ref {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV196TeachingReferenceBar .rdm-v196-displayed-ref {
+    color:#637B93 !important;
+    opacity:1 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar .rdm-v196-displayed-ref {
+    color:#B9CBD9 !important;
+    opacity:1 !important;
+  }
+
+
+  /* =======================================================
+     SCRIPTURE HISTORY / PREVIOUS / NEXT
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmScriptureHistoryBack,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #prevBtn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #nextBtn {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border-color:rgba(183,128,35,.46) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmScriptureHistoryBack,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #prevBtn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #nextBtn {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+    border-color:rgba(240,194,96,.40) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     FLOATING TEACHER PANELS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .teacher-pop,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teacherToolsPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #obsNavigatorPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #obsCrossRefsPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingMethodPanel.open,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #ironPromptPanel.open,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .resource-instance-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F5F1E9 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.50) !important;
+    box-shadow:0 18px 42px rgba(24,52,87,.15) !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsNavigatorPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsCrossRefsPanel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel.open,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel.open,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.46) !important;
+    box-shadow:0 20px 46px rgba(0,0,0,.34) !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     FLOATING PANEL HEADERS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop-head,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .floating-panel-head,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel .teacher-pop-head,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsCrossRefsPanel .floating-crossrefs-header {
+    background:transparent !important;
+    box-shadow:none !important;
+    border-bottom-color:rgba(210,166,77,.72) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .teacher-pop-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .floating-panel-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #ironPromptPanel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingMethodPanel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .resource-instance-panel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .resource-instance-panel h4,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #obsCrossRefsTitle,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .resource-source-label,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .tool-section-title {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .floating-panel-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel h4,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsCrossRefsTitle,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-source-label,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-section-title {
+    color:#F0C260 !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     TEACHER TOOLS / STUDY RESOURCE CARDS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .teacher-pop .tool-option,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teacherToolsPanel .tool-option,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesPanel .tool-option {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.34) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop .tool-option,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel .tool-option,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel .tool-option {
+    background:rgba(255,255,255,.045) !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(130,168,198,.34) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .teacher-pop .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .teacher-pop .tool-option span,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teacherToolsPanel .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teacherToolsPanel .tool-option span,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesPanel .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesPanel .tool-option span {
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop .tool-option span,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel .tool-option span,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel .tool-option strong,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel .tool-option span {
+    color:#F8F3E9 !important;
+  }
+
+
+  /* =======================================================
+     STUDY RESOURCES KEY / INFO
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesKey {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.36) !important;
+    box-shadow:0 8px 18px rgba(24,52,87,.07) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesKey {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.34) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .study-resources-key-title {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .study-resources-key-title {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesKey .study-resources-eye,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesKey .study-resources-eye.info-icon {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border-color:rgba(183,128,35,.66) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesKey .study-resources-eye,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesKey .study-resources-eye.info-icon {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.68) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #studyResourcesKey .study-resources-help-tooltip {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.58) !important;
+    box-shadow:0 14px 30px rgba(24,52,87,.15) !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesKey .study-resources-help-tooltip,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesKey .study-resources-help-tooltip * {
+    background:#15364E !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.56) !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     BUILT-IN CROSS REFERENCES
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #internalCrossRefsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F5F1E9 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.52) !important;
+    box-shadow:0 20px 50px rgba(24,52,87,.16) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.48) !important;
+    box-shadow:0 22px 54px rgba(0,0,0,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #internalCrossRefsPanel .teacher-pop-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .internal-xref-verse h4,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .internal-xrefs-summary {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel .teacher-pop-head h3,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xref-verse h4,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xrefs-summary {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .internal-xref-verse,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .internal-xref-empty {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.30) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xref-verse,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xref-empty {
+    background:rgba(255,255,255,.045) !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(130,168,198,.32) !important;
+  }
+
+
+  /* =======================================================
+     RELATED SAVED NOTE CARDS — v182
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .rdm-v182-current-note-label,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .rdm-v182-related-heading,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .rdm-v182-related-label {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-current-note-label,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-heading,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-label {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .rdm-v182-related-card {
+    background:#F7F4EE !important;
+    border-color:rgba(82,118,148,.28) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-card {
+    background:rgba(255,255,255,.045) !important;
+    border-color:rgba(130,168,198,.28) !important;
+  }
+
+
+  /* =======================================================
+     RESOURCE / SCRIPTURE ACTION BUTTONS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .cross-ref-link,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .study-resource-key-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .study-resource-back-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .dictionary-result-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .rdm-background-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .study-background-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .backgrounds-back-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .doctrine-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .doctrine-category-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .doctrine-related-topic-btn {
+    background:#FFFDF8 !important;
+    background-color:#FFFDF8 !important;
+    color:#17365A !important;
+    border-color:rgba(183,128,35,.48) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .cross-ref-link,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .study-resource-key-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .study-resource-back-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .dictionary-result-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-background-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .study-background-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .backgrounds-back-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .doctrine-topic-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .doctrine-category-btn,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .doctrine-related-topic-btn {
+    background:#183D58 !important;
+    background-color:#183D58 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.44) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     SECONDARY BUTTON FAMILY
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  button.secondary,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV196TeachingReferenceBar button {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border-color:rgba(183,128,35,.44) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  button.secondary,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar button {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+    border-color:rgba(240,194,96,.38) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  button.secondary:hover,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  button.secondary:focus-visible,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar button:hover,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar button:focus-visible {
+    background:
+      linear-gradient(
+        180deg,
+        #F3D176 0%,
+        #D39A2E 100%
+      ) !important;
+
+    color:#10283C !important;
+    border-color:rgba(255,225,151,.68) !important;
+  }
+
+
+  /* =======================================================
+     PRIVATE CROSS-REFERENCE NOTE VIEWER — v200/v208
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200NotePopout {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F5F1E9 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.58) !important;
+    box-shadow:0 20px 58px rgba(24,52,87,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200NotePopout {
+    background:
+      linear-gradient(
+        180deg,
+        #15364E 0%,
+        #102B40 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.54) !important;
+    box-shadow:0 22px 62px rgba(0,0,0,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200PopoutHead {
+    background:#17365A !important;
+    border-bottom-color:#D2A64D !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutHead {
+    background:#0C263A !important;
+    border-bottom-color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutTitle {
+    color:#FFF8EA !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutRef {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200PopoutBody {
+    background:#F8F4ED !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutBody {
+    background:#0D273B !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200PopoutEditor {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutEditor {
+    background:#173B55 !important;
+    color:#F5F2EB !important;
+    border-color:rgba(130,168,198,.46) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200PopoutControls button {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border-color:#D2A64D !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutControls button {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+    border-color:#F0C260 !important;
+    box-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     FOOTER
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .footer {
+    background:
+      linear-gradient(
+        180deg,
+        #F3EFE7 0%,
+        #E9EEF1 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-top-color:rgba(183,128,35,.38) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .footer {
+    background:
+      linear-gradient(
+        180deg,
+        #102B40 0%,
+        #081A29 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-top-color:rgba(240,194,96,.38) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .footer strong {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .footer strong {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .footer .sep {
+    background:#D2A64D !important;
+  }
+
+
+  /* =======================================================
+     FINAL TEXT CLEANUP
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .main,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .side,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .panel,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .scripture,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop,
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel {
+    text-shadow:none !important;
+    filter:none !important;
+    opacity:1 !important;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+}
+</style>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
