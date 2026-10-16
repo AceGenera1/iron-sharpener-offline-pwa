@@ -34633,81 +34633,53 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.__RDM_ACTIVE_BUILD = "v212-dual-application-scroll-mobile-bar-revert";
 })();
 </script>
-<style id="rdm-teaching-desktop-theme-v2">
+
+
+<style id="rdm-teaching-desktop-theme-v3">
 /* =========================================================
    RESTORED DAILY MINISTRIES — IRON SHARPENER
-   Teaching Desktop Theme v2
+   Teaching Desktop Theme v3
 
-   Visual-only desktop layer.
-   Preserves Teaching v212 mechanics.
-   Excludes:
+   Source of truth:
+   - Approved Disciple Journal desktop visual system
+   - Approved Teaching desktop mock-up direction
+
+   Scope:
+   - Desktop only
+   - Standard Teaching workspace only
+
+   Preserves:
+   - v211/v212 Teaching mechanics
+   - mobile/tablet shell
    - OBS Focus
-   - mobile/tablet app shell
-   - Live Teaching / Audience Display behavior
-   - drag/resize/open/close mechanics
-   - note persistence/navigation mechanics
+   - Live Teaching / Audience Display
+   - drag / resize / open / close logic
+   - note persistence
+   - section isolation
+   - Teaching workspace navigation
    ========================================================= */
 
 @media (min-width:1181px) {
 
   /* =======================================================
-     DESIGN TOKENS
+     SHARED DESIGN FOUNDATION
      ======================================================= */
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell) {
-    --rdm-t-navy:#17365A;
-    --rdm-t-navy-2:#214A6B;
-    --rdm-t-water:#527694;
-    --rdm-t-sky:#DCE7EF;
-    --rdm-t-paper:#FBF8F2;
-    --rdm-t-ivory:#FFFDF8;
-    --rdm-t-parchment:#EEE9DF;
-    --rdm-t-gold:#D2A64D;
-    --rdm-t-gold-dark:#A96F18;
-    --rdm-t-ink:#183457;
-    --rdm-t-muted:#637B93;
-    --rdm-t-line:rgba(169,111,24,.34);
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark {
-    --rdm-t-navy:#F7F1E7;
-    --rdm-t-navy-2:#E8EEF2;
-    --rdm-t-water:#82A8C6;
-    --rdm-t-sky:#C4D7E6;
-    --rdm-t-paper:#10283C;
-    --rdm-t-ivory:#15364E;
-    --rdm-t-parchment:#081A29;
-    --rdm-t-gold:#F0C260;
-    --rdm-t-gold-dark:#C98E29;
-    --rdm-t-ink:#F8F3E9;
-    --rdm-t-muted:#B9CBD9;
-    --rdm-t-line:rgba(240,194,96,.32);
-  }
-
-
-  /* =======================================================
-     PAGE / SHELL / LAYOUT
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark) {
-    background:
-      radial-gradient(
-        circle at 18% 0%,
-        rgba(82,118,148,.14),
-        transparent 30rem
-      ),
-      linear-gradient(
-        145deg,
-        #E9E4DA 0%,
-        #F5F1E9 48%,
-        #E2E8EC 100%
-      ) !important;
-
-    background-color:#F5F1E9 !important;
-    color:#183457 !important;
+    --deep:#17365A;
+    --water:#527694;
+    --sky:#DCE7EF;
+    --parchment:#EEE9DF;
+    --paper:#FBF8F2;
+    --ivory:#FFFDF8;
+    --copper:#A96F18;
+    --soft-copper:#D2A64D;
+    --ink:#183457;
+    --dust:#637B93;
+    --line:rgba(29,60,92,.16);
+    --gold-line:rgba(183,128,35,.48);
+    --shadow:0 12px 30px rgba(34,54,75,.10);
 
     font-family:
       "Segoe UI Variable",
@@ -34717,258 +34689,909 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       BlinkMacSystemFont,
       Arial,
       sans-serif !important;
+
+    font-size:16px;
+
+    background:
+      radial-gradient(
+        circle at 18% 0%,
+        rgba(131,163,190,.15),
+        transparent 30rem
+      ),
+      linear-gradient(
+        180deg,
+        #F3EFE7 0%,
+        #E9E3D8 100%
+      ) !important;
+
+    background-color:#F3EFE7 !important;
+    color:var(--ink) !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark {
+    --deep:#F7F1E7;
+    --water:#82A8C6;
+    --sky:#C4D7E6;
+    --parchment:#081A29;
+    --paper:#10283C;
+    --ivory:#173B55;
+    --copper:#C98E29;
+    --soft-copper:#F0C260;
+    --ink:#F8F3E9;
+    --dust:#B9CBD9;
+    --line:rgba(142,177,205,.22);
+    --gold-line:rgba(240,194,96,.48);
+    --shadow:0 16px 38px rgba(0,0,0,.34);
+
     background:
       radial-gradient(
         circle at 18% 0%,
-        rgba(130,168,198,.11),
-        transparent 30rem
+        rgba(65,104,139,.17),
+        transparent 32rem
       ),
       linear-gradient(
-        145deg,
-        #071724 0%,
-        #0B2133 48%,
-        #102C42 100%
+        180deg,
+        #081A29 0%,
+        #0C2234 100%
       ) !important;
 
     background-color:#081A29 !important;
-    color:#F8F3E9 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .shell {
-    background:rgba(251,248,242,.96) !important;
-    color:#183457 !important;
-    border-color:rgba(23,54,90,.12) !important;
-    box-shadow:0 26px 70px rgba(24,52,87,.13) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .shell {
-    background:rgba(8,26,41,.96) !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.16) !important;
-    box-shadow:0 28px 78px rgba(0,0,0,.38) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .layout {
-    background:
-      linear-gradient(
-        180deg,
-        #F7F3EB 0%,
-        #EEF1F2 100%
-      ) !important;
-
-    color:#183457 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .layout {
-    background:
-      linear-gradient(
-        180deg,
-        #0D2639 0%,
-        #081A29 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
+    color:var(--ink) !important;
   }
 
 
   /* =======================================================
-     TOP CONTROLS / RIBBON
+     SHELL
      ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .controls,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .ribbon {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #F1ECE3 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-color:rgba(169,111,24,.30) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .controls,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .ribbon {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.26) !important;
-    box-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     MAIN SCRIPTURE SURFACE
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .scripture {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #FAF7F1 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.34) !important;
-    box-shadow:0 16px 38px rgba(24,52,87,.09) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .scripture {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F5F2EB !important;
-    border-color:rgba(240,194,96,.30) !important;
-    box-shadow:0 18px 44px rgba(0,0,0,.28) !important;
-  }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  #refTitle {
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif !important;
+  .shell {
+    width:min(1600px,calc(100% - 34px)) !important;
+    max-width:none !important;
+    margin:0 auto !important;
+    padding:14px 0 30px !important;
 
-    font-size:clamp(30px,2.25vw,42px) !important;
-    line-height:1.12 !important;
-    letter-spacing:.01em !important;
-    text-shadow:none !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+
+
+  /* =======================================================
+     HERO — SAME PLATFORM LANGUAGE AS JOURNAL
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .hero {
+    min-height:190px !important;
+
+    grid-template-columns:
+      138px
+      minmax(0,1fr)
+      minmax(320px,370px) !important;
+
+    gap:24px !important;
+    align-items:center !important;
+
+    padding:18px 26px !important;
+
+    position:relative !important;
+    overflow:hidden !important;
+    isolation:isolate !important;
+
+    border-radius:18px !important;
+    outline:none !important;
+    background-clip:padding-box !important;
+
+    background-size:cover !important;
+    background-position:center 48% !important;
+    background-repeat:no-repeat !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell):not(.dark)
-  #refTitle {
+  .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(251,248,240,.88) 0%,
+        rgba(251,248,240,.76) 36%,
+        rgba(242,239,230,.42) 62%,
+        rgba(227,233,234,.48) 100%
+      ),
+      url("./assets/journal-hero-mountains.png") !important;
+
+    border:
+      1px solid rgba(190,139,48,.56) !important;
+
+    box-shadow:
+      0 12px 30px rgba(28,53,79,.15),
+      0 3px 8px rgba(28,53,79,.07) !important;
+
     color:#17365A !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  #refTitle {
+  .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(5,20,32,.90) 0%,
+        rgba(7,27,42,.82) 36%,
+        rgba(10,38,58,.66) 67%,
+        rgba(12,43,63,.63) 100%
+      ),
+      url("./assets/journal-hero-mountains.png") !important;
+
+    border:
+      1px solid rgba(224,181,92,.68) !important;
+
+    box-shadow:
+      0 15px 36px rgba(0,0,0,.42),
+      0 3px 9px rgba(0,0,0,.25) !important;
+
     color:#F8F3E9 !important;
   }
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .verse,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .ref,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .passage,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .passage .verse {
-    color:#183457 !important;
+  body:not(.rdm-mobile-app-shell)
+  .hero::before {
+    background:none !important;
   }
 
+
+  /* =======================================================
+     HERO LOGO
+     ======================================================= */
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .verse,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .ref,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .passage,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .passage .verse {
-    color:#F5F2EB !important;
+  body:not(.rdm-mobile-app-shell)
+  .logo-wrap {
+    width:128px !important;
+    height:128px !important;
+
+    margin:0 auto !important;
+
+    border:
+      1px solid rgba(218,169,77,.68) !important;
+
+    border-radius:50% !important;
+
+    background:rgba(255,255,255,.035) !important;
+
+    box-shadow:
+      0 10px 24px rgba(0,0,0,.18),
+      inset 0 0 0 1px rgba(255,255,255,.08) !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .passage,
+  .logo {
+    width:122px !important;
+    height:122px !important;
+
+    object-fit:contain !important;
+
+    filter:
+      contrast(1.04)
+      saturate(1.03)
+      drop-shadow(0 8px 15px rgba(0,0,0,.24)) !important;
+  }
+
+
+  /* =======================================================
+     HERO TYPOGRAPHY
+     ======================================================= */
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .passage .verse {
+  .hero-main {
+    text-align:left !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .eyebrow {
+    margin:0 0 5px !important;
+
+    color:#C58D2D !important;
+
+    font-size:12px !important;
+    font-weight:900 !important;
+    letter-spacing:.19em !important;
+    text-transform:uppercase !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .hero h1 {
+    margin:0 !important;
+
     font-family:
       Georgia,
       "Times New Roman",
       serif !important;
 
-    font-size:22px !important;
-    line-height:1.62 !important;
-    text-shadow:none !important;
-    opacity:1 !important;
+    font-size:clamp(40px,3vw,56px) !important;
+    line-height:1.02 !important;
+    letter-spacing:-.025em !important;
+
+    text-transform:none !important;
+    white-space:nowrap !important;
   }
-
-
-  /* =======================================================
-     RIGHT-SIDE TEACHING COLUMN
-     ======================================================= */
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell):not(.dark)
-  .side {
-    background:
-      linear-gradient(
-        180deg,
-        #EAF0F4 0%,
-        #E4EBF0 100%
-      ) !important;
-
-    border-left-color:rgba(23,54,90,.14) !important;
+  .hero h1 {
+    color:#17365A !important;
+    text-shadow:none !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .side {
-    background:
-      linear-gradient(
-        180deg,
-        #0A2031 0%,
-        #081A29 100%
-      ) !important;
+  .hero h1 {
+    color:#FFF9EE !important;
 
-    border-left-color:rgba(240,194,96,.18) !important;
+    text-shadow:
+      0 5px 16px rgba(0,0,0,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .subtitle {
+    margin:8px 0 14px !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:clamp(18px,1.4vw,22px) !important;
+    line-height:1.2 !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell):not(.dark)
-  .side > .panel {
+  .subtitle {
+    color:#9C671C !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .subtitle {
+    color:#F0C260 !important;
+
+    text-shadow:
+      0 2px 8px rgba(0,0,0,.28) !important;
+  }
+
+
+  /* =======================================================
+     HERO QUOTE CARD
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse-card {
+    max-width:370px !important;
+
+    border-radius:12px !important;
+    padding:12px 14px !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:16px !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .verse-card {
+    background:
+      rgba(255,251,243,.76) !important;
+
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(172,119,35,.25) !important;
+
+    border-left:
+      4px solid #BE8628 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .verse-card {
+    background:
+      rgba(7,30,46,.58) !important;
+
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(222,181,95,.22) !important;
+
+    border-left:
+      4px solid #E0B55F !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse-card p {
+    margin:0 0 8px !important;
+
+    color:inherit !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:16px !important;
+    line-height:1.45 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse-card strong {
+    color:#C68E2E !important;
+
+    font-size:12px !important;
+    letter-spacing:.10em !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .verse-card strong {
+    color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     HERO ACTIONS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .actions {
+    justify-content:flex-start !important;
+    gap:8px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .actions button {
+    min-height:40px !important;
+    padding:8px 13px !important;
+
+    border-radius:10px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:14px !important;
+    font-weight:700 !important;
+
+    box-shadow:none !important;
+  }
+
+  /* OBS Focus is the Teaching hero's primary action */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .hero #obsBtn {
+    background:
+      linear-gradient(
+        180deg,
+        #E8C66F 0%,
+        #C58A22 100%
+      ) !important;
+
+    color:#17304A !important;
+
+    border:
+      1px solid rgba(169,108,18,.48) !important;
+
+    box-shadow:
+      0 5px 14px rgba(161,105,25,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .hero #obsBtn {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+
+    border:
+      1px solid rgba(255,224,153,.54) !important;
+
+    box-shadow:
+      0 5px 14px rgba(0,0,0,.23) !important;
+  }
+
+  /* Remaining hero controls stay quieter */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .hero #themeBtn,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .hero #fsBtn,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .hero #discipleJournalBtn {
+    background:
+      rgba(255,253,248,.94) !important;
+
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(35,71,105,.16) !important;
+
+    box-shadow:
+      0 4px 12px rgba(32,54,84,.10) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .hero #themeBtn,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .hero #fsBtn,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .hero #discipleJournalBtn {
+    background:
+      rgba(18,48,72,.88) !important;
+
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(137,174,204,.34) !important;
+
+    box-shadow:
+      0 5px 14px rgba(0,0,0,.20) !important;
+  }
+
+
+  /* =======================================================
+     TEACHING RIBBON
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .ribbon {
+    margin:12px 0 0 !important;
+    padding:9px 14px !important;
+
+    border-radius:12px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:13px !important;
+    font-weight:800 !important;
+    letter-spacing:.06em !important;
+
+    text-align:center !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #F0F4F6 0%,
+        #E6EDF1 100%
+      ) !important;
+
+    color:#355D7E !important;
+
+    border:
+      1px solid rgba(33,66,99,.13) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #19405D 0%,
+        #163A55 100%
+      ) !important;
+
+    color:#D8E4EC !important;
+
+    border:
+      1px solid rgba(126,166,198,.20) !important;
+  }
+
+
+  /* =======================================================
+     MAIN SCRIPTURE CONTROLS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls {
+    margin-top:14px !important;
+    padding:13px 16px !important;
+
+    border-radius:14px !important;
+
+    box-shadow:
+      0 7px 20px rgba(32,54,84,.07) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls {
+    background:
+      linear-gradient(
+        180deg,
+        #F0F4F6 0%,
+        #E6EDF1 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(33,66,99,.13) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .controls {
+    background:
+      linear-gradient(
+        180deg,
+        #19405D 0%,
+        #163A55 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(126,166,198,.20) !important;
+  }
+
+
+  /* =======================================================
+     FORM CONTROLS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  label {
+    color:#355D7E !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:12px !important;
+    font-weight:800 !important;
+    letter-spacing:.07em !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  label {
+    color:#A9C0D2 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  select,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  input,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  textarea {
+    padding:10px 12px;
+
+    border-radius:10px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:16px !important;
+
     background:#FFFDF8 !important;
     color:#183457 !important;
-    border-color:rgba(183,128,35,.28) !important;
-    box-shadow:0 10px 24px rgba(24,52,87,.07) !important;
+
+    border:
+      1px solid rgba(33,66,99,.17) !important;
+
+    box-shadow:
+      inset 0 1px 2px rgba(28,53,79,.035) !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  select,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  input,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  textarea {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,171,201,.24) !important;
+  }
+
+
+  /* =======================================================
+     MAIN TEACHING LAYOUT
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .layout {
+    margin-top:14px !important;
+    gap:16px !important;
+
+    background:transparent !important;
+  }
+
+
+  /* =======================================================
+     SCRIPTURE FOCAL CARD
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .scripture {
+    border-radius:16px !important;
+
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(185,125,28,.30) !important;
+
+    box-shadow:
+      0 10px 26px rgba(24,52,87,.10),
+      0 0 0 1px rgba(185,125,28,.055) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .scripture {
+    background:#10324B !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(240,194,96,.40) !important;
+
+    box-shadow:
+      0 12px 30px rgba(0,0,0,.34),
+      0 0 0 1px rgba(237,191,95,.06) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #refTitle,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .ref {
+    margin:0 0 5px !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:32px !important;
+    line-height:1.08 !important;
+
+    color:#17365A !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #refTitle,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ref {
+    color:#FFF9EE !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .source {
+    margin-bottom:11px !important;
+
+    color:#9A6A25 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:13px !important;
+    font-weight:900 !important;
+    letter-spacing:.10em !important;
+    text-transform:uppercase !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .source {
+    color:#E9BC5B !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .divider {
+    border-color:
+      rgba(33,66,99,.13) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .divider {
+    border-color:
+      rgba(132,171,201,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .divider::after {
+    background:#FBF8F2 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .divider::after {
+    background:#10324B !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #passage {
+    padding:14px 16px !important;
+
+    background:#FFFDF8 !important;
+
+    border:
+      1px solid rgba(30,65,99,.10) !important;
+
+    border-radius:13px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #passage {
+    background:
+      linear-gradient(
+        180deg,
+        #17415D 0%,
+        #143A55 100%
+      ) !important;
+
+    border-color:
+      rgba(145,183,211,.16) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse {
+    margin-bottom:7px !important;
+    padding:7px 2px !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:23px !important;
+    line-height:1.62 !important;
+    font-weight:400 !important;
+
+    color:#17365A !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .verse {
+    color:#F9F4EA !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .vnum {
+    background:#164873 !important;
+    color:#F6D875 !important;
+
+    box-shadow:
+      0 3px 8px rgba(24,52,87,.16) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .vnum {
+    background:#09243A !important;
+    color:#F2C75D !important;
+  }
+
+
+  /* =======================================================
+     RIGHT-SIDE TEACHING CARDS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .side > .panel {
+    border-radius:16px !important;
+
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(33,66,99,.14) !important;
+
+    box-shadow:
+      0 7px 20px rgba(32,54,84,.08),
+      inset 0 1px 0 rgba(255,255,255,.90) !important;
   }
 
   html:not(.obs)
@@ -34976,1191 +35599,133 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   .side > .panel {
     background:#123049 !important;
     color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.24) !important;
-    box-shadow:0 12px 28px rgba(0,0,0,.20) !important;
+
+    border-color:
+      rgba(128,166,196,.22) !important;
+
+    box-shadow:
+      0 9px 24px rgba(0,0,0,.28),
+      inset 0 1px 0 rgba(255,255,255,.025) !important;
   }
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .panel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .panel-title h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
+  body:not(.rdm-mobile-app-shell)
   .panel-title {
+    padding:11px 13px !important;
+    margin-bottom:12px !important;
+
+    border-radius:11px !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        #F0F4F6 0%,
+        #E6EDF1 100%
+      ) !important;
+
+    border:
+      1px solid rgba(33,66,99,.11) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .panel-title {
+    background:
+      linear-gradient(
+        180deg,
+        #19405D 0%,
+        #163A55 100%
+      ) !important;
+
+    border-color:
+      rgba(126,166,198,.18) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .panel-title h3 {
     color:#17365A !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:21px !important;
+    font-weight:700 !important;
+    letter-spacing:0 !important;
+    text-transform:none !important;
+
     text-shadow:none !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .panel h3,
+  .panel-title h3 {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .info-icon {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border-color:
+      rgba(183,128,35,.40) !important;
+  }
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .panel-title h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .panel-title {
+  .info-icon {
+    background:#183D58 !important;
     color:#F0C260 !important;
-    text-shadow:none !important;
+
+    border-color:
+      rgba(240,194,96,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tooltip {
+    background:#102B42 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.48) !important;
+
+    box-shadow:
+      0 18px 42px rgba(0,0,0,.30) !important;
   }
 
 
   /* =======================================================
-     MAIN TEACHING NOTE FIELDS
-     COLOR ONLY — v196 KEEPS SIZE/SCROLL BEHAVIOR
+     BUTTON FOUNDATION
      ======================================================= */
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teachingNotes,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #crossRefs,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #applicationNotes,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #clipNotes {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(82,118,148,.42) !important;
-    border-radius:12px !important;
-    box-shadow:inset 0 1px 2px rgba(24,52,87,.04) !important;
-    text-shadow:none !important;
+  body:not(.rdm-mobile-app-shell)
+  button {
+    border-radius:10px;
 
     font-family:
       "Segoe UI Variable",
       "Segoe UI",
-      system-ui,
       Arial,
       sans-serif !important;
 
-    font-size:17px !important;
-    line-height:1.55 !important;
-  }
+    font-size:15px;
+    font-weight:700;
 
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teachingNotes,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #crossRefs,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #applicationNotes,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #clipNotes {
-    background:#173B55 !important;
-    color:#F5F2EB !important;
-    border-color:rgba(130,168,198,.46) !important;
-    border-radius:12px !important;
-    box-shadow:inset 0 1px 2px rgba(0,0,0,.16) !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teachingNotes:focus,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #crossRefs:focus,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #applicationNotes:focus,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #clipNotes:focus {
-    border-color:#D2A64D !important;
-    box-shadow:0 0 0 3px rgba(210,166,77,.18) !important;
-    outline:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teachingNotes::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #crossRefs::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #applicationNotes::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #clipNotes::placeholder {
-    color:#72879A !important;
-    opacity:.88 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teachingNotes::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #crossRefs::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #applicationNotes::placeholder,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #clipNotes::placeholder {
-    color:#B9CBD9 !important;
-    opacity:.78 !important;
-  }
-
-
-  /* =======================================================
-     SELECTS / INPUTS
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  select,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  input {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(82,118,148,.36) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  select,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  input {
-    background:#173B55 !important;
-    color:#F5F2EB !important;
-    border-color:rgba(130,168,198,.42) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  select option {
-    background:#FBF8F2 !important;
-    color:#183457 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  select option {
-    background:#10283C !important;
-    color:#F8F3E9 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  label {
-    color:#183457 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  label {
-    color:#F8F3E9 !important;
-  }
-
-
-  /* =======================================================
-     TEACHING REFERENCE BAR — v196
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV196TeachingReferenceBar {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #F4EFE6 100%
-      ) !important;
-
-    color:#17365A !important;
-    border-color:rgba(183,128,35,.48) !important;
-    box-shadow:0 12px 28px rgba(24,52,87,.08) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV196TeachingReferenceBar {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.44) !important;
-    box-shadow:0 14px 34px rgba(0,0,0,.24) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker {
-    color:#A97818 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV196TeachingReferenceBar .rdm-v196-bar-kicker {
-    color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV196TeachingReferenceBar .rdm-v196-teaching-ref {
-    color:#17365A !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV196TeachingReferenceBar .rdm-v196-teaching-ref {
-    color:#F8F3E9 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV196TeachingReferenceBar .rdm-v196-displayed-ref {
-    color:#637B93 !important;
-    opacity:1 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV196TeachingReferenceBar .rdm-v196-displayed-ref {
-    color:#B9CBD9 !important;
-    opacity:1 !important;
-  }
-
-
-  /* =======================================================
-     SCRIPTURE HISTORY / PREVIOUS / NEXT
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmScriptureHistoryBack,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #prevBtn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #nextBtn {
-    background:#FFFDF8 !important;
-    color:#17365A !important;
-    border-color:rgba(183,128,35,.46) !important;
-    box-shadow:none !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmScriptureHistoryBack,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #prevBtn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #nextBtn {
-    background:#183D58 !important;
-    color:#F7F2E8 !important;
-    border-color:rgba(240,194,96,.40) !important;
-    box-shadow:none !important;
     text-shadow:none !important;
   }
 
 
   /* =======================================================
-     FLOATING TEACHER PANELS
+     PRIMARY GOLD ACTIONS
      ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .teacher-pop,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teacherToolsPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #obsNavigatorPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #obsCrossRefsPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teachingMethodPanel.open,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #ironPromptPanel.open,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .resource-instance-panel {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #F5F1E9 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.50) !important;
-    box-shadow:0 18px 42px rgba(24,52,87,.15) !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .teacher-pop,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teacherToolsPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #obsNavigatorPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #obsCrossRefsPanel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teachingMethodPanel.open,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #ironPromptPanel.open,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.46) !important;
-    box-shadow:0 20px 46px rgba(0,0,0,.34) !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     FLOATING PANEL HEADERS
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .teacher-pop-head,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .floating-panel-head,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .resource-instance-panel .teacher-pop-head,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #obsCrossRefsPanel .floating-crossrefs-header {
-    background:transparent !important;
-    box-shadow:none !important;
-    border-bottom-color:rgba(210,166,77,.72) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .teacher-pop-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .floating-panel-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #ironPromptPanel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teachingMethodPanel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .resource-instance-panel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .resource-instance-panel h4,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #obsCrossRefsTitle,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .resource-source-label,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .tool-section-title {
-    color:#17365A !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .teacher-pop-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .floating-panel-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #ironPromptPanel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teachingMethodPanel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel h4,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #obsCrossRefsTitle,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-source-label,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .tool-section-title {
-    color:#F0C260 !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     TEACHER TOOLS / STUDY RESOURCE CARDS
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .teacher-pop .tool-option,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teacherToolsPanel .tool-option,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesPanel .tool-option {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(82,118,148,.34) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .teacher-pop .tool-option,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teacherToolsPanel .tool-option,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesPanel .tool-option {
-    background:rgba(255,255,255,.045) !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(130,168,198,.34) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .teacher-pop .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .teacher-pop .tool-option span,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teacherToolsPanel .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #teacherToolsPanel .tool-option span,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesPanel .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesPanel .tool-option span {
-    color:#183457 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .teacher-pop .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .teacher-pop .tool-option span,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teacherToolsPanel .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #teacherToolsPanel .tool-option span,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesPanel .tool-option strong,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesPanel .tool-option span {
-    color:#F8F3E9 !important;
-  }
-
-
-  /* =======================================================
-     STUDY RESOURCES KEY / INFO
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesKey {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.36) !important;
-    box-shadow:0 8px 18px rgba(24,52,87,.07) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesKey {
-    background:#173B55 !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.34) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .study-resources-key-title {
-    color:#17365A !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .study-resources-key-title {
-    color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesKey .study-resources-eye,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesKey .study-resources-eye.info-icon {
-    background:#FFFDF8 !important;
-    color:#17365A !important;
-    border-color:rgba(183,128,35,.66) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesKey .study-resources-eye,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesKey .study-resources-eye.info-icon {
-    background:#183D58 !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.68) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #studyResourcesKey .study-resources-help-tooltip {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.58) !important;
-    box-shadow:0 14px 30px rgba(24,52,87,.15) !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesKey .study-resources-help-tooltip,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #studyResourcesKey .study-resources-help-tooltip * {
-    background:#15364E !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.56) !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     BUILT-IN CROSS REFERENCES
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #internalCrossRefsPanel {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #F5F1E9 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.52) !important;
-    box-shadow:0 20px 50px rgba(24,52,87,.16) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #internalCrossRefsPanel {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.48) !important;
-    box-shadow:0 22px 54px rgba(0,0,0,.34) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #internalCrossRefsPanel .teacher-pop-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .internal-xref-verse h4,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .internal-xrefs-summary {
-    color:#17365A !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #internalCrossRefsPanel .teacher-pop-head h3,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .internal-xref-verse h4,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .internal-xrefs-summary {
-    color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .internal-xref-verse,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .internal-xref-empty {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(82,118,148,.30) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .internal-xref-verse,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .internal-xref-empty {
-    background:rgba(255,255,255,.045) !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(130,168,198,.32) !important;
-  }
-
-
-  /* =======================================================
-     RELATED SAVED NOTE CARDS — v182
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .rdm-v182-current-note-label,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .rdm-v182-related-heading,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .rdm-v182-related-label {
-    color:#17365A !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .rdm-v182-current-note-label,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .rdm-v182-related-heading,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .rdm-v182-related-label {
-    color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .rdm-v182-related-card {
-    background:#F7F4EE !important;
-    border-color:rgba(82,118,148,.28) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .rdm-v182-related-card {
-    background:rgba(255,255,255,.045) !important;
-    border-color:rgba(130,168,198,.28) !important;
-  }
-
-
-  /* =======================================================
-     RESOURCE / SCRIPTURE ACTION BUTTONS
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .cross-ref-link,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .study-resource-key-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .study-resource-back-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .dictionary-result-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .rdm-background-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .study-background-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .backgrounds-back-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .doctrine-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .doctrine-category-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .doctrine-related-topic-btn {
-    background:#FFFDF8 !important;
-    background-color:#FFFDF8 !important;
-    color:#17365A !important;
-    border-color:rgba(183,128,35,.48) !important;
-    box-shadow:none !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .cross-ref-link,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .study-resource-key-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .study-resource-back-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .dictionary-result-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .rdm-background-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .study-background-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .backgrounds-back-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .doctrine-topic-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .doctrine-category-btn,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .doctrine-related-topic-btn {
-    background:#183D58 !important;
-    background-color:#183D58 !important;
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.44) !important;
-    box-shadow:none !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     SECONDARY BUTTON FAMILY
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  button.secondary,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV196TeachingReferenceBar button {
-    background:#FFFDF8 !important;
-    color:#17365A !important;
-    border-color:rgba(183,128,35,.44) !important;
-    box-shadow:none !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  button.secondary,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV196TeachingReferenceBar button {
-    background:#183D58 !important;
-    color:#F7F2E8 !important;
-    border-color:rgba(240,194,96,.38) !important;
-    box-shadow:none !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  button.secondary:hover,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  button.secondary:focus-visible,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #rdmV196TeachingReferenceBar button:hover,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #rdmV196TeachingReferenceBar button:focus-visible {
-    background:
-      linear-gradient(
-        180deg,
-        #F3D176 0%,
-        #D39A2E 100%
-      ) !important;
-
-    color:#10283C !important;
-    border-color:rgba(255,225,151,.68) !important;
-  }
-
-
-  /* =======================================================
-     PRIVATE CROSS-REFERENCE NOTE VIEWER — v200/v208
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV200NotePopout {
-    background:
-      linear-gradient(
-        180deg,
-        #FFFDF8 0%,
-        #F5F1E9 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-color:rgba(183,128,35,.58) !important;
-    box-shadow:0 20px 58px rgba(24,52,87,.20) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV200NotePopout {
-    background:
-      linear-gradient(
-        180deg,
-        #15364E 0%,
-        #102B40 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-color:rgba(240,194,96,.54) !important;
-    box-shadow:0 22px 62px rgba(0,0,0,.42) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV200PopoutHead {
-    background:#17365A !important;
-    border-bottom-color:#D2A64D !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV200PopoutHead {
-    background:#0C263A !important;
-    border-bottom-color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #rdmV200PopoutTitle {
-    color:#FFF8EA !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #rdmV200PopoutRef {
-    color:#F0C260 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV200PopoutBody {
-    background:#F8F4ED !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV200PopoutBody {
-    background:#0D273B !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV200PopoutEditor {
-    background:#FFFDF8 !important;
-    color:#183457 !important;
-    border-color:rgba(82,118,148,.42) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV200PopoutEditor {
-    background:#173B55 !important;
-    color:#F5F2EB !important;
-    border-color:rgba(130,168,198,.46) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  #rdmV200PopoutControls button {
-    background:#FFFDF8 !important;
-    color:#17365A !important;
-    border-color:#D2A64D !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #rdmV200PopoutControls button {
-    background:#183D58 !important;
-    color:#F8F3E9 !important;
-    border-color:#F0C260 !important;
-    box-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     FOOTER
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .footer {
-    background:
-      linear-gradient(
-        180deg,
-        #F3EFE7 0%,
-        #E9EEF1 100%
-      ) !important;
-
-    color:#183457 !important;
-    border-top-color:rgba(183,128,35,.38) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .footer {
-    background:
-      linear-gradient(
-        180deg,
-        #102B40 0%,
-        #081A29 100%
-      ) !important;
-
-    color:#F8F3E9 !important;
-    border-top-color:rgba(240,194,96,.38) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .footer strong {
-    color:#17365A !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .footer strong {
-    color:#F8F3E9 !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .footer .sep {
-    background:#D2A64D !important;
-  }
-
-
-  /* =======================================================
-     FINAL TEXT CLEANUP
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .main,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .side,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .panel,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .scripture,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .teacher-pop,
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .resource-instance-panel {
-    text-shadow:none !important;
-    filter:none !important;
-    opacity:1 !important;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-  }
-
-}
-</style>
-<style id="rdm-teaching-desktop-theme-v2-finish">
-/* =========================================================
-   RDM IRON SHARPENER
-   Teaching Desktop Theme v2 — Finish Pass
-   Desktop visual correction only.
-   ========================================================= */
-
-@media (min-width:1181px) {
-
-  /* =======================================================
-     HERO / TOP BRAND AREA
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell):not(.dark)
-  .hero {
-    background:
-      linear-gradient(
-        110deg,
-        #10283C 0%,
-        #17365A 52%,
-        #214A6B 100%
-      ) !important;
-
-    color:#FFF8EA !important;
-    border-color:rgba(210,166,77,.46) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .hero {
-    background:
-      linear-gradient(
-        110deg,
-        #071724 0%,
-        #0D273B 52%,
-        #15364E 100%
-      ) !important;
-
-    color:#FFF8EA !important;
-    border-color:rgba(240,194,96,.44) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero::before {
-    background:
-      radial-gradient(
-        circle at 13% 48%,
-        rgba(240,194,96,.15),
-        transparent 24%
-      ),
-      radial-gradient(
-        circle at 52% 8%,
-        rgba(255,255,255,.055),
-        transparent 30%
-      ) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero .eyebrow {
-    color:#F0C260 !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero h1 {
-    color:#FFF8EA !important;
-    text-shadow:0 3px 0 rgba(0,0,0,.22) !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero .subtitle {
-    color:#DCE7EF !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero .verse-card {
-    background:rgba(255,255,255,.055) !important;
-    color:#FFF8EA !important;
-    border-color:rgba(240,194,96,.62) !important;
-    box-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero .verse-card p {
-    color:#FFF8EA !important;
-    text-shadow:none !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  .hero .verse-card strong {
-    color:#F0C260 !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     PRIMARY GOLD ACTION BUTTONS
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #obsBtn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #fsBtn,
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
@@ -36184,228 +35749,1327 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  #copyScriptureOpenBtn {
+  #copyScriptureOpenBtn,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsLoadPassage {
     background:
       linear-gradient(
         180deg,
-        #F8D987 0%,
-        #E8B84F 52%,
-        #D39A2E 100%
+        #E2B95E 0%,
+        #B9780D 100%
       ) !important;
 
-    background-color:#D7A84F !important;
-    color:#10283C !important;
-    border:1.8px solid #F0C260 !important;
-    box-shadow:0 7px 16px rgba(0,0,0,.15) !important;
-    text-shadow:none !important;
+    color:#FFFDF8 !important;
+
+    border:
+      1px solid rgba(164,101,0,.48) !important;
+
+    box-shadow:
+      0 5px 12px rgba(163,108,20,.20) !important;
+
     opacity:1 !important;
     filter:none !important;
   }
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #obsBtn:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #loadBtn,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #fsBtn:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #openTeacherTools,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #loadBtn:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #showTeachingNote,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #openTeacherTools:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #showApplicationNote,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #showTeachingNote:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScriptureMainBtn,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #showApplicationNote:hover,
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScriptureOpenBtn,
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #copyScriptureMainBtn:hover,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #copyScriptureOpenBtn:hover {
+  body:not(.rdm-mobile-app-shell).dark
+  #obsLoadPassage {
     background:
       linear-gradient(
         180deg,
-        #FFE49C 0%,
-        #F0C260 52%,
-        #DEA63A 100%
+        #F4CD73 0%,
+        #D8A63F 100%
       ) !important;
 
-    color:#10283C !important;
-    border-color:#FFF0BF !important;
+    color:#142334 !important;
+
+    border-color:
+      rgba(255,223,147,.58) !important;
+
+    box-shadow:
+      0 5px 14px rgba(0,0,0,.23) !important;
   }
 
 
   /* =======================================================
-     HERO SECONDARY BUTTONS
+     SECONDARY BUTTONS
      ======================================================= */
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .hero #themeBtn,
+  button.secondary,
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .hero #discipleJournalBtn {
-    background:rgba(255,255,255,.08) !important;
-    color:#FFF8EA !important;
-    border-color:rgba(240,194,96,.58) !important;
-    box-shadow:none !important;
-  }
+  .dark-btn:not(#obsBtn),
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .hero #themeBtn:hover,
+  #prevBtn,
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
-  .hero #discipleJournalBtn:hover {
-    background:rgba(240,194,96,.16) !important;
-    color:#FFF8EA !important;
-    border-color:#F0C260 !important;
-  }
+  #nextBtn {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
 
+    border:
+      1px solid rgba(45,80,111,.16) !important;
 
-  /* =======================================================
-     ACTIVE TEACHER TOOL / SELECTED STATE
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-choice,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-tool,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  button.active-tool {
-    background:
-      linear-gradient(
-        180deg,
-        #F8D987 0%,
-        #E8B84F 100%
-      ) !important;
-
-    color:#10283C !important;
-    border-color:#F0C260 !important;
-    outline:2px solid rgba(240,194,96,.42) !important;
-    box-shadow:0 0 0 2px rgba(255,255,255,.10) inset !important;
-  }
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-choice strong,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-choice span,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-tool strong,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #teacherToolsPanel .tool-option.active-tool span,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  button.active-tool strong,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  button.active-tool span {
-    color:#10283C !important;
-    text-shadow:none !important;
-  }
-
-
-  /* =======================================================
-     DARK RESOURCE EMPHASIS BUTTONS
-     Restore gold emphasis where these are intended actions.
-     ======================================================= */
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.rdm-background-topic-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.study-background-topic-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.backgrounds-back-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.doctrine-topic-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.doctrine-category-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.doctrine-related-topic-btn,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.cross-ref-link {
-    background:
-      linear-gradient(
-        180deg,
-        #F8D987 0%,
-        #E8B84F 50%,
-        #D39A2E 100%
-      ) !important;
-
-    background-color:#D7A84F !important;
-    color:#10283C !important;
-    border-color:#F0C260 !important;
-    text-shadow:none !important;
     box-shadow:none !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.rdm-background-topic-btn strong,
+  button.secondary,
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.rdm-background-topic-btn span,
+  .dark-btn:not(#obsBtn),
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.study-background-topic-btn strong,
+  #prevBtn,
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
-  .resource-instance-panel .resource-panel-body
-  button.study-background-topic-btn span {
+  #nextBtn {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+
+  /* =======================================================
+     GOLD HOVER / ACTIVE LANGUAGE
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option:hover,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option:focus-visible,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-tool,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-choice,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  button.active-tool,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .internal-xrefs-controls button:hover,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .internal-xrefs-controls button.active,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel button:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C96F 0%,
+        #C68A22 100%
+      ) !important;
+
+    color:#17304A !important;
+
+    border-color:
+      rgba(166,104,12,.52) !important;
+
+    box-shadow:
+      0 10px 22px rgba(152,101,22,.20) !important;
+
+    opacity:1 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option:hover,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option:focus-visible,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-tool,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-choice,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  button.active-tool,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xrefs-controls button:hover,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .internal-xrefs-controls button.active,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel button:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F5D77E 0%,
+        #D8A63F 100%
+      ) !important;
+
     color:#10283C !important;
+
+    border-color:
+      rgba(255,226,157,.60) !important;
+
+    box-shadow:
+      0 12px 26px rgba(0,0,0,.26),
+      0 0 16px rgba(240,194,96,.12) !important;
+  }
+
+
+  /* =======================================================
+     TEACHER TOOLS / STUDY RESOURCES / FLOATING PANELS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teacherToolsPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsNavigatorPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsCrossRefsPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingMethodPanel.open,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #ironPromptPanel.open,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border-color:
+      rgba(183,128,35,.48) !important;
+
+    box-shadow:
+      0 24px 60px rgba(29,53,79,.18) !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsNavigatorPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsCrossRefsPanel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel.open,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel.open,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(240,194,96,.48) !important;
+
+    box-shadow:
+      0 26px 64px rgba(0,0,0,.48),
+      0 0 24px rgba(240,194,96,.08) !important;
+  }
+
+
+  /* =======================================================
+     FLOATING PANEL HEADERS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .floating-panel-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel .teacher-pop-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsCrossRefsPanel .floating-crossrefs-header {
+    background:transparent !important;
+
+    border-bottom:
+      1px solid rgba(183,128,35,.42) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .floating-panel-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel .teacher-pop-head,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsCrossRefsPanel .floating-crossrefs-header {
+    border-bottom-color:
+      rgba(240,194,96,.46) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop-head h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .floating-panel-head h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #ironPromptPanel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingMethodPanel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel h4,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #obsCrossRefsTitle {
+    color:#17365A !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-weight:700 !important;
+    letter-spacing:0 !important;
+    text-transform:none !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop-head h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .floating-panel-head h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel h3,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel h4,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #obsCrossRefsTitle {
+    color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     TOOL / RESOURCE CARDS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teacherToolsPanel .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop .tool-option {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F3F6F8 100%
+      ) !important;
+
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(50,84,114,.18) !important;
+
+    box-shadow:
+      0 5px 14px rgba(32,54,84,.06) !important;
+
+    font-weight:500 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teacherToolsPanel .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-pop .tool-option {
+    background:
+      linear-gradient(
+        180deg,
+        #183D58 0%,
+        #14354F 100%
+      ) !important;
+
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(131,169,198,.24) !important;
+
+    box-shadow:
+      0 6px 16px rgba(0,0,0,.18) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option strong {
+    color:inherit !important;
+
+    font-size:17px !important;
+    font-weight:650 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option span {
+    color:#526D86 !important;
+
+    font-size:15px !important;
+    font-weight:500 !important;
+    line-height:1.48 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option span {
+    color:#C8D8E4 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option:hover strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option:hover span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-tool strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-tool span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-choice strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-option.active-choice span {
+    color:#17304A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option:hover strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option:hover span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-tool strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-tool span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-choice strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-option.active-choice span {
+    color:#10283C !important;
+  }
+
+
+  /* =======================================================
+     TEACHER TOOLS STATUS / SECTION LABELS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-tools-status-card {
+    background:
+      rgba(255,255,255,.62) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(45,80,111,.14) !important;
+
+    border-radius:11px !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-tools-status-card {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .tool-section-title,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-source-label {
+    color:#A66D18 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:800 !important;
+    letter-spacing:.07em !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .tool-section-title,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-source-label {
+    color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     BUILT-IN CROSS REFERENCES
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #internalCrossRefsPanel .internal-xrefs-summary,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #internalCrossRefsPanel .internal-xref-verse {
+    background:
+      rgba(255,255,255,.62) !important;
+
+    color:#183457 !important;
+
+    border-color:
+      rgba(45,80,111,.14) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel .internal-xrefs-summary,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel .internal-xref-verse {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #internalCrossRefsPanel .internal-xrefs-controls button,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #internalCrossRefsPanel .internal-xref-link {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(45,80,111,.16) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel .internal-xrefs-controls button,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #internalCrossRefsPanel .internal-xref-link {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+
+  /* =======================================================
+     RESOURCE RESULT PANELS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resourceResult,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-panel-body > div,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel details {
+    background:
+      rgba(255,255,255,.62) !important;
+
+    color:#183457 !important;
+
+    border-color:
+      rgba(45,80,111,.14) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resourceResult,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-panel-body > div,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel details {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+  }
+
+
+  /* =======================================================
+     RESOURCE / CROSS-REFERENCE BUTTONS
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel button,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .cross-ref-link {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(45,80,111,.16) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .resource-instance-panel button,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .cross-ref-link {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+
+  /* =======================================================
+     TEACHING REFERENCE BAR
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.48) !important;
+
+    box-shadow:
+      0 10px 24px rgba(29,53,79,.12) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(240,194,96,.48) !important;
+
+    box-shadow:
+      0 14px 30px rgba(0,0,0,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-bar-title {
+    color:#17365A !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-bar-title {
+    color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     SCRIPTURE HISTORY / RETURN NAVIGATION
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmScriptureHistoryBack,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196ReturnTeachingPassage {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(183,128,35,.40) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmScriptureHistoryBack,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196ReturnTeachingPassage {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+
+  /* =======================================================
+     RELATED SAVED NOTES
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .rdm-v182-related-heading {
+    color:#607A92 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:800 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-heading {
+    color:#C8D6E1 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .rdm-v182-related-card {
+    background:
+      rgba(255,255,255,.62) !important;
+
+    border:
+      1px solid rgba(45,80,111,.14) !important;
+
+    border-radius:11px !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-card {
+    background:#173B55 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .rdm-v182-related-label {
+    color:#A66D18 !important;
+
+    font-weight:800 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .rdm-v182-related-label {
+    color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     NOTE VIEWER
+     Higher specificity intentionally beats post-HTML v208.
+     Mechanics untouched.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #rdmV200NotePopout {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.50) !important;
+
+    box-shadow:
+      0 24px 60px rgba(29,53,79,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200NotePopout {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.50) !important;
+
+    box-shadow:
+      0 26px 62px rgba(0,0,0,.48) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutHead {
+    background:transparent !important;
+
+    border-bottom:
+      1px solid rgba(183,128,35,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutHead {
+    border-bottom-color:
+      rgba(240,194,96,.46) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutTitle {
+    color:#17365A !important;
+
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutTitle {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutRef {
+    color:#A66D18 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutRef {
+    color:#C8D6E1 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutBody {
+    background:transparent !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutEditor {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(45,80,111,.16) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutEditor {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,169,198,.24) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutControls button {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(183,128,35,.40) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutControls button {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV200PopoutControls button:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C96F 0%,
+        #C68A22 100%
+      ) !important;
+
+    color:#17304A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV200PopoutControls button:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F5D77E 0%,
+        #D8A63F 100%
+      ) !important;
+
+    color:#10283C !important;
+  }
+
+
+  /* =======================================================
+     TEACHING METHOD / I.R.O.N.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingMethodPanel p,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingMethodPanel li,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #ironPromptPanel p,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #ironPromptPanel li {
+    color:#526D86 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:500 !important;
+    line-height:1.62 !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel p,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingMethodPanel li,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel p,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #ironPromptPanel li {
+    color:#C8D8E4 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teaching-method-callout,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .iron-mini-prayer {
+    background:
+      rgba(240,201,111,.13) !important;
+
+    color:#17365A !important;
+
+    border-left:
+      4px solid #C68A22 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teaching-method-callout,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .iron-mini-prayer {
+    background:
+      rgba(240,194,96,.10) !important;
+
+    color:#F7F2E8 !important;
+
+    border-left-color:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     FOOTER
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .footer {
+    margin-top:14px !important;
+
+    border-radius:14px !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        #EDF3F6 0%,
+        #E4EBEF 100%
+      ) !important;
+
+    color:#355D7E !important;
+
+    border:
+      1px solid rgba(33,66,99,.13) !important;
+
+    border-top:
+      1px solid rgba(183,128,35,.38) !important;
+
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .footer {
+    background:
+      linear-gradient(
+        180deg,
+        #153D59 0%,
+        #12344E 100%
+      ) !important;
+
+    color:#C8D6E1 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+
+    border-top-color:
+      rgba(240,194,96,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .footer strong {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .footer strong {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .footer .sep {
+    background:#C68A22 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .footer .sep {
+    background:#F0C260 !important;
+  }
+
+
+  /* =======================================================
+     FINAL LEGACY GREEN / BROWN CLEANUP
+     Presentation only.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-pop,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .side > .panel,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .scripture,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar {
+    text-shadow:none !important;
+    filter:none !important;
+    opacity:1 !important;
+
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
   }
 
 }
