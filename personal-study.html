@@ -6034,6 +6034,282 @@ body.dark .resource-clean-empty {
 
 }
 </style>
+
+<style id="rdm-journal-resource-color-normalization-final">
+/* Final Journal desktop resource color normalization.
+   Visual-only.
+   Removes remaining legacy copper/orange treatment from light resource tools
+   and keeps all resource surfaces aligned with the navy / ivory / gold theme. */
+
+@media (min-width: 1181px) {
+
+  /* =========================================================
+     LIGHT RESOURCE HEADINGS — ONE GOLD
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body h3,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body h4,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body summary,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .commentary-entry h4,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .overview-card h4,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .doctrine-panel-heading,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .doctrine-topic-entry h3,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .naves-topic-entry h3,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .backgrounds-home-v51 h4,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .backgrounds-home-v51 summary,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .background-topic-card h4,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  #internalCrossRefsPanel h3,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  #internalCrossRefsPanel h4 {
+    color: #A97818 !important;
+  }
+
+
+  /* =========================================================
+     DARK RESOURCE HEADINGS — CONSISTENT BRIGHT GOLD
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body h3,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body h4,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body summary,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .commentary-entry h4,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .overview-card h4,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .doctrine-panel-heading,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .doctrine-topic-entry h3,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .naves-topic-entry h3,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .backgrounds-home-v51 h4,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .backgrounds-home-v51 summary,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .background-topic-card h4,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  #internalCrossRefsPanel h3,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  #internalCrossRefsPanel h4 {
+    color: #F0C260 !important;
+  }
+
+
+  /* =========================================================
+     LIGHT GENERIC RESOURCE BUTTONS
+     Remove remaining peach/brown normal states
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body button.cross-ref-link,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .nave-ref-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .rdm-background-topic-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .doctrine-topic-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .doctrine-category-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .dictionary-result-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .resource-panel-body .naves-result-btn,
+
+  body:not(.rdm-dj-mobile-shell):not(.dark)
+  .nave-ref-btn.cross-ref-link {
+    background: #FFFDF8 !important;
+    color: #17365A !important;
+
+    border:
+      1px solid rgba(183,128,35,.42) !important;
+
+    box-shadow: none !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+  }
+
+
+  /* =========================================================
+     DARK GENERIC RESOURCE BUTTONS
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body button.cross-ref-link,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .nave-ref-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .rdm-background-topic-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .doctrine-topic-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .doctrine-category-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .dictionary-result-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .resource-panel-body .naves-result-btn,
+
+  body:not(.rdm-dj-mobile-shell).dark
+  .nave-ref-btn.cross-ref-link {
+    background: #183D58 !important;
+    color: #F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.40) !important;
+
+    box-shadow: none !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+  }
+
+
+  /* =========================================================
+     ALL GENERIC RESOURCE HOVERS = SAME PREMIUM GOLD
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body button.cross-ref-link:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body button.cross-ref-link:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .nave-ref-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .nave-ref-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .rdm-background-topic-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .rdm-background-topic-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .doctrine-topic-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .doctrine-topic-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .doctrine-category-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .doctrine-category-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .dictionary-result-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .dictionary-result-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .naves-result-btn:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body .naves-result-btn:focus-visible,
+
+  body:not(.rdm-dj-mobile-shell)
+  .nave-ref-btn.cross-ref-link:hover,
+
+  body:not(.rdm-dj-mobile-shell)
+  .nave-ref-btn.cross-ref-link:focus-visible {
+    background:
+      linear-gradient(
+        180deg,
+        #F3D176 0%,
+        #D39A2E 100%
+      ) !important;
+
+    color: #10283C !important;
+
+    border-color:
+      rgba(255,225,151,.60) !important;
+
+    box-shadow:
+      0 8px 18px rgba(0,0,0,.14) !important;
+
+    opacity: 1 !important;
+  }
+
+
+  /* =========================================================
+     RESOURCE TEXT — KEEP IT CRISP
+     ========================================================= */
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body,
+
+  body:not(.rdm-dj-mobile-shell)
+  .resource-panel-body *,
+
+  body:not(.rdm-dj-mobile-shell)
+  .commentary-entry,
+
+  body:not(.rdm-dj-mobile-shell)
+  .commentary-entry *,
+
+  body:not(.rdm-dj-mobile-shell)
+  .overview-card,
+
+  body:not(.rdm-dj-mobile-shell)
+  .overview-card * {
+    text-shadow: none !important;
+  }
+
+}
+</style>
 </head>
 <body>
 <div class="shell">
