@@ -38058,6 +38058,1402 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   .tool-option span {
     color:#10283C !important;
   }
+
+  /* =======================================================
+     RDM TEACHING V3 PRESENTATION CARDS ALIGNMENT
+     Teaching Note + Application & Prayer
+     Visual-only cleanup. Drag, resize, scroll sync, and
+     presentation behavior remain untouched.
+     ======================================================= */
+
+  /* Presentation overlays */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingPresentationCard,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #applicationPresentationCard {
+    background:rgba(8,26,41,.48) !important;
+    backdrop-filter:blur(4px);
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingPresentationCard,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationPresentationCard {
+    background:rgba(23,54,90,.20) !important;
+  }
+
+
+  /* Shared presentation surface — cream */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingPresentationCard
+  .presentation-card-inner,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationPresentationCard
+  .presentation-card-inner {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+    border:2px solid rgba(183,128,35,.58) !important;
+    border-radius:18px !important;
+
+    box-shadow:
+      0 28px 72px rgba(27,52,78,.26),
+      0 0 0 1px rgba(255,255,255,.62) inset !important;
+
+    text-shadow:none !important;
+  }
+
+
+  /* Shared presentation surface — dark */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingPresentationCard
+  .presentation-card-inner,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #applicationPresentationCard
+  .presentation-card-inner {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border:2px solid rgba(240,194,96,.54) !important;
+    border-radius:18px !important;
+
+    box-shadow:
+      0 30px 74px rgba(0,0,0,.48),
+      0 0 0 1px rgba(255,255,255,.035) inset !important;
+
+    text-shadow:none !important;
+  }
+
+
+  /* Titles */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:clamp(30px,3vw,48px) !important;
+    line-height:1.08 !important;
+    letter-spacing:.01em !important;
+    margin:0 0 18px !important;
+    padding:0 0 14px !important;
+    border-bottom:1px solid rgba(183,128,35,.34) !important;
+    text-align:left !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    color:#F0C260 !important;
+    border-bottom-color:rgba(240,194,96,.30) !important;
+  }
+
+
+  /* Presentation text */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #presentationCardText,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #applicationPresentationText {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:clamp(20px,2vw,28px) !important;
+    line-height:1.56 !important;
+    font-weight:500 !important;
+    letter-spacing:0 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #presentationCardText,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #applicationPresentationText {
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #presentationCardText,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #applicationPresentationText {
+    color:#F8F3E9 !important;
+  }
+
+
+  /* Main Show Teaching Note / Show Application buttons */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #showTeachingNote,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #showApplicationNote {
+    background:
+      linear-gradient(
+        180deg,
+        #1D537C 0%,
+        #173F61 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+    border:1px solid rgba(210,166,77,.58) !important;
+
+    box-shadow:
+      0 5px 13px rgba(24,52,87,.16) !important;
+
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #showTeachingNote:hover,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #showApplicationNote:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #28658F 0%,
+        #1B4B70 100%
+      ) !important;
+
+    border-color:rgba(240,194,96,.76) !important;
+  }
+
+
+  /* Hide/close buttons — gold accent */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #closeTeachingPresentation,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #closeApplicationPresentation,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #hideTeachingNote,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #hideApplicationNote {
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+    border:1px solid rgba(164,101,0,.48) !important;
+    box-shadow:0 5px 12px rgba(163,108,20,.16) !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #closeTeachingPresentation,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #closeApplicationPresentation,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #hideTeachingNote,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #hideApplicationNote {
+    background:
+      linear-gradient(
+        180deg,
+        #F4CD73 0%,
+        #D8A63F 100%
+      ) !important;
+
+    color:#142334 !important;
+    border-color:rgba(255,223,147,.58) !important;
+  }
+
+
+  /* =======================================================
+     OBS FOCUS — same presentation visual language
+     Preserve existing OBS positioning / drag / resize rules.
+     ======================================================= */
+
+  html.obs
+  #teachingPresentationCard,
+
+  html.obs
+  #applicationPresentationCard {
+    background:rgba(8,26,41,.44) !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #teachingPresentationCard
+  .presentation-card-inner,
+
+  html.obs
+  body:not(.dark)
+  #applicationPresentationCard
+  .presentation-card-inner {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+    border:2px solid rgba(183,128,35,.58) !important;
+    border-radius:18px !important;
+    box-shadow:0 28px 72px rgba(27,52,78,.28) !important;
+  }
+
+  html.obs
+  body.dark
+  #teachingPresentationCard
+  .presentation-card-inner,
+
+  html.obs
+  body.dark
+  #applicationPresentationCard
+  .presentation-card-inner {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border:2px solid rgba(240,194,96,.54) !important;
+    border-radius:18px !important;
+    box-shadow:0 30px 74px rgba(0,0,0,.48) !important;
+  }
+
+  html.obs
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html.obs
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:clamp(28px,2.5vw,42px) !important;
+    line-height:1.08 !important;
+    letter-spacing:.01em !important;
+    margin-bottom:16px !important;
+    padding-bottom:12px !important;
+    text-align:left !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html.obs
+  body:not(.dark)
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    color:#17365A !important;
+    border-bottom:1px solid rgba(183,128,35,.34) !important;
+  }
+
+  html.obs
+  body.dark
+  #teachingPresentationCard
+  .presentation-card-inner h2,
+
+  html.obs
+  body.dark
+  #applicationPresentationCard
+  .presentation-card-inner h2 {
+    color:#F0C260 !important;
+    border-bottom:1px solid rgba(240,194,96,.30) !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #presentationCardText,
+
+  html.obs
+  body:not(.dark)
+  #applicationPresentationText {
+    color:#183457 !important;
+  }
+
+  html.obs
+  body.dark
+  #presentationCardText,
+
+  html.obs
+  body.dark
+  #applicationPresentationText {
+    color:#F8F3E9 !important;
+  }
+
+  html.obs
+  #closeTeachingPresentation,
+
+  html.obs
+  #closeApplicationPresentation {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+    border:1px solid rgba(255,224,153,.56) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  /* =======================================================
+     RDM TEACHING V3 RIBBON ALIGNMENT
+     Prepared in Prayer / Taught with Clarity /
+     Shared for Discipleship
+     Visual-only alignment for normal Teaching + OBS.
+     ======================================================= */
+
+  /* Normal desktop Teaching */
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .ribbon {
+    margin:10px 0 0 !important;
+    padding:11px 18px !important;
+    border-radius:11px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:12px !important;
+    line-height:1.35 !important;
+    font-weight:700 !important;
+    letter-spacing:.12em !important;
+    text-transform:uppercase !important;
+    text-align:center !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(245,248,250,.98) 0%,
+        rgba(229,237,242,.96) 100%
+      ) !important;
+
+    color:#355D7E !important;
+    border:1px solid rgba(82,118,148,.22) !important;
+    border-bottom:1px solid rgba(183,128,35,.38) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #12344D 100%
+      ) !important;
+
+    color:#D5E1EA !important;
+    border:1px solid rgba(130,168,198,.24) !important;
+    border-bottom:1px solid rgba(240,194,96,.42) !important;
+  }
+
+
+  /* OBS Focus — same visual family, slightly tighter */
+  html.obs
+  .ribbon {
+    display:block !important;
+    margin:8px 0 0 !important;
+    padding:9px 14px !important;
+    border-radius:10px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:12px !important;
+    line-height:1.35 !important;
+    font-weight:700 !important;
+    letter-spacing:.11em !important;
+    text-transform:uppercase !important;
+    text-align:center !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(245,248,250,.98) 0%,
+        rgba(229,237,242,.96) 100%
+      ) !important;
+
+    color:#355D7E !important;
+    border:1px solid rgba(82,118,148,.22) !important;
+    border-bottom:1px solid rgba(183,128,35,.38) !important;
+  }
+
+  html.obs
+  body.dark
+  .ribbon {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #12344D 100%
+      ) !important;
+
+    color:#D5E1EA !important;
+    border:1px solid rgba(130,168,198,.24) !important;
+    border-bottom:1px solid rgba(240,194,96,.42) !important;
+  }
+
+  /* =======================================================
+     RDM TEACHING V3 OBS NAV CROSSREF ALIGNMENT
+     OBS Scripture Navigator + Built-In Cross References
+     Visual-only. Existing open/close, drag, resize,
+     reference navigation, and rendering remain untouched.
+     ======================================================= */
+
+
+  /* -------------------------------------------------------
+     OBS SCRIPTURE NAVIGATOR — shared structure
+     ------------------------------------------------------- */
+
+  html.obs
+  #obsNavigatorPanel {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    border-radius:16px !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  #obsNavigatorPanel
+  .teacher-pop-head {
+    background:transparent !important;
+    box-shadow:none !important;
+
+    border-bottom:
+      1px solid rgba(183,128,35,.40) !important;
+
+    padding-bottom:12px !important;
+    margin-bottom:14px !important;
+  }
+
+  html.obs
+  #obsNavigatorPanel
+  .teacher-pop-head h3 {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:20px !important;
+    font-weight:700 !important;
+    letter-spacing:.045em !important;
+    text-transform:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  #obsNavigatorPanel label {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:11px !important;
+    font-weight:700 !important;
+    letter-spacing:.08em !important;
+    text-transform:uppercase !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  #obsNavigatorPanel select {
+    min-height:42px !important;
+    border-radius:9px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:15px !important;
+    font-weight:600 !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+
+  /* Navigator — cream */
+  html.obs
+  body:not(.dark)
+  #obsNavigatorPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.52) !important;
+
+    box-shadow:
+      0 22px 58px rgba(27,52,78,.22) !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #obsNavigatorPanel
+  .teacher-pop-head h3 {
+    color:#17365A !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #obsNavigatorPanel label {
+    color:#637B93 !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #obsNavigatorPanel select {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(82,118,148,.30) !important;
+  }
+
+
+  /* Navigator — dark */
+  html.obs
+  body.dark
+  #obsNavigatorPanel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.46) !important;
+
+    box-shadow:
+      0 24px 62px rgba(0,0,0,.42) !important;
+  }
+
+  html.obs
+  body.dark
+  #obsNavigatorPanel
+  .teacher-pop-head {
+    border-bottom-color:
+      rgba(240,194,96,.34) !important;
+  }
+
+  html.obs
+  body.dark
+  #obsNavigatorPanel
+  .teacher-pop-head h3 {
+    color:#F0C260 !important;
+  }
+
+  html.obs
+  body.dark
+  #obsNavigatorPanel label {
+    color:#B9CBD9 !important;
+  }
+
+  html.obs
+  body.dark
+  #obsNavigatorPanel select {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(132,169,198,.30) !important;
+  }
+
+
+  /* Load Passage — remove old brown/rust treatment */
+  html.obs
+  #obsNavigatorPanel
+  #obsLoadPassage {
+    min-height:44px !important;
+    margin-top:14px !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+
+    border:
+      1px solid rgba(164,101,0,.48) !important;
+
+    border-radius:9px !important;
+
+    box-shadow:
+      0 5px 13px rgba(163,108,20,.16) !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:750 !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body.dark
+  #obsNavigatorPanel
+  #obsLoadPassage {
+    background:
+      linear-gradient(
+        180deg,
+        #F4CD73 0%,
+        #D8A63F 100%
+      ) !important;
+
+    color:#142334 !important;
+
+    border-color:
+      rgba(255,223,147,.58) !important;
+  }
+
+
+  /* Close button */
+  html.obs
+  #obsNavigatorPanel
+  #closeObsNavigator {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.40) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #obsNavigatorPanel
+  #closeObsNavigator {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border-color:
+      rgba(82,118,148,.28) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     OBS BUILT-IN CROSS REFERENCES
+     Normal Teaching version is intentionally untouched.
+     ------------------------------------------------------- */
+
+  html.obs
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    border-radius:18px !important;
+    text-shadow:none !important;
+  }
+
+
+  /* Built-In Cross References — cream OBS */
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(183,128,35,.54) !important;
+
+    box-shadow:
+      0 24px 64px rgba(27,52,78,.24) !important;
+  }
+
+
+  /* Built-In Cross References — dark OBS */
+  html.obs
+  body.dark
+  #internalCrossRefsPanel.internal-crossrefs-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.52) !important;
+
+    box-shadow:
+      0 26px 68px rgba(0,0,0,.46) !important;
+  }
+
+
+  /* Header */
+  html.obs
+  #internalCrossRefsPanel
+  .teacher-pop-head {
+    background:transparent !important;
+    box-shadow:none !important;
+
+    border-bottom:
+      1px solid rgba(183,128,35,.42) !important;
+  }
+
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  .teacher-pop-head {
+    border-bottom-color:
+      rgba(240,194,96,.42) !important;
+  }
+
+  html.obs
+  #internalCrossRefsPanel
+  .teacher-pop-head h3 {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:21px !important;
+    font-weight:700 !important;
+    letter-spacing:.04em !important;
+    text-transform:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .teacher-pop-head h3 {
+    color:#17365A !important;
+  }
+
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  .teacher-pop-head h3 {
+    color:#F0C260 !important;
+  }
+
+
+  /* Search field */
+  html.obs
+  #internalCrossRefsPanel
+  #internalXrefSearch {
+    min-height:42px !important;
+    border-radius:9px !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:15px !important;
+    text-shadow:none !important;
+    box-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefSearch {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(82,118,148,.30) !important;
+  }
+
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  #internalXrefSearch {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(132,169,198,.30) !important;
+  }
+
+
+  /* Summary + verse cards */
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xrefs-summary,
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xref-verse {
+    background:rgba(255,255,255,.64) !important;
+    color:#183457 !important;
+
+    border-color:
+      rgba(82,118,148,.18) !important;
+
+    box-shadow:none !important;
+  }
+
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  .internal-xrefs-summary,
+
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  .internal-xref-verse {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+
+    border-color:
+      rgba(132,169,198,.20) !important;
+
+    box-shadow:none !important;
+  }
+
+
+  /* Passage / Full Chapter mode buttons */
+  html.obs
+  #internalCrossRefsPanel
+  .internal-xrefs-controls button {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.38) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xrefs-controls button {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(82,118,148,.28) !important;
+  }
+
+
+  /* Active mode = intentional gold */
+  html.obs
+  #internalCrossRefsPanel
+  .internal-xrefs-controls
+  button.active-internal-xref-mode {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+
+    border:
+      1px solid rgba(255,224,153,.58) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xrefs-controls
+  button.active-internal-xref-mode {
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+
+    border-color:
+      rgba(164,101,0,.48) !important;
+  }
+
+
+  /* Scripture reference buttons */
+  html.obs
+  #internalCrossRefsPanel
+  .internal-xref-link,
+  html.obs
+  #internalCrossRefsPanel
+  button.internal-xref-link,
+  html.obs
+  body.dark
+  #internalCrossRefsPanel
+  .internal-xref-buttons
+  button.cross-ref-link {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+
+    border:
+      1px solid rgba(240,194,96,.42) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xref-link,
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  button.internal-xref-link {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border:
+      1px solid rgba(82,118,148,.24) !important;
+  }
+
+  html.obs
+  #internalCrossRefsPanel
+  .internal-xref-link:hover,
+  html.obs
+  #internalCrossRefsPanel
+  button.internal-xref-link:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+
+    border-color:
+      rgba(255,224,153,.58) !important;
+  }
+
+
+  /* Show More + Close */
+  html.obs
+  #internalCrossRefsPanel
+  #internalXrefsShowMore {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.38) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsShowMore {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border-color:
+      rgba(82,118,148,.28) !important;
+  }
+
+  html.obs
+  #internalCrossRefsPanel
+  #closeInternalCrossRefs {
+    background:#183D58 !important;
+    color:#F8F3E9 !important;
+
+    border:
+      1px solid rgba(240,194,96,.38) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs
+  body:not(.dark)
+  #internalCrossRefsPanel
+  #closeInternalCrossRefs {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+
+    border-color:
+      rgba(82,118,148,.28) !important;
+  }
+
+  /* =======================================================
+     RDM TEACHING V3 REFERENCE BAR INTERNAL ALIGNMENT
+     Internal typography + active-reference state only.
+     Outer shell and navigation behavior remain untouched.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-bar-kicker {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:11px !important;
+    line-height:1.2 !important;
+    font-weight:800 !important;
+    letter-spacing:.09em !important;
+    text-transform:uppercase !important;
+    color:#637B93 !important;
+    margin-bottom:4px !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-bar-kicker {
+    color:#B9CBD9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-teaching-ref {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+
+    font-size:16px !important;
+    line-height:1.28 !important;
+    font-weight:700 !important;
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-teaching-ref {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-displayed-ref {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:12px !important;
+    line-height:1.35 !important;
+    font-weight:600 !important;
+    color:#607A92 !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-displayed-ref {
+    color:#B9CBD9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-empty {
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-size:12px !important;
+    line-height:1.35 !important;
+    font-weight:600 !important;
+    color:#637B93 !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .rdm-v196-empty {
+    color:#B9CBD9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmV196TeachingReferenceBar
+  .cross-ref-link.rdm-v196-active-ref {
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+
+    border:
+      1px solid rgba(164,101,0,.48) !important;
+
+    outline:
+      2px solid rgba(210,166,77,.34) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmV196TeachingReferenceBar
+  .cross-ref-link.rdm-v196-active-ref {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+
+    border-color:
+      rgba(255,224,153,.58) !important;
+
+    outline-color:
+      rgba(240,194,96,.34) !important;
+
+    box-shadow:none !important;
+  }
+
+  /* =======================================================
+     RDM TEACHING V3 CREAM CONTROLS METADATA ALIGNMENT
+     Cream desktop controls + Scripture source only.
+     Layout, dark mode, navigation, and behavior untouched.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls {
+    background:
+      linear-gradient(
+        180deg,
+        #F8FAFB 0%,
+        #EDF3F6 100%
+      ) !important;
+
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(82,118,148,.20) !important;
+
+    box-shadow:
+      0 8px 22px rgba(32,54,84,.08) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls label {
+    color:#607A92 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:700 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls select {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+
+    border:
+      1px solid rgba(82,118,148,.28) !important;
+
+    box-shadow:none !important;
+    text-shadow:none !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:600 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .controls select option {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  #scriptureBox .source {
+    color:#637B93 !important;
+
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+
+    font-weight:700 !important;
+    letter-spacing:.16em !important;
+
+    text-shadow:none !important;
+  }
 }
 </style>
 </body>
