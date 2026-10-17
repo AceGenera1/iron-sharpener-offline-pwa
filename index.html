@@ -2286,7 +2286,7 @@ body.dark #obsCrossRefsPanel{
       .ribbon { letter-spacing: 3px; font-size: 13px; }
       .logo-wrap { width: 154px; height: 154px; }
       .logo { width: 148px; height: 148px; }
- 
+
     .teaching-flow-list {
       margin: 0 0 0 20px;
       padding: 0;
@@ -2308,7 +2308,7 @@ body.dark #obsCrossRefsPanel{
       .tool-grid, .tool-grid.three { grid-template-columns: 1fr; }
     }
 
- 
+
     /* Final OBS Panel + Readability Cleanup */
     #ironPromptPanel h3 {
       margin-top: 18px !important;
@@ -5745,7 +5745,7 @@ html.obs #discipleJournalBtn { display: none !important; }
     function chaptersForBook() {
       return (books.find((book) => book[0] === bookSel.value) || books[0])[1];
     }
-    
+
     function showApplicationPresentation() {
       const note = cleanText($("applicationNotes")?.value || "");
       if (!note) return;
@@ -7705,7 +7705,7 @@ function refreshActiveResourcePanel() {
     return;
   }
 }
-    
+
 function renderCrossReferenceLinks() {
   const crossRefs = $("crossRefs");
   if (!crossRefs) return;
@@ -7939,7 +7939,7 @@ if ($("obsToolsMenuBtn")) {
     }
   });
 }
- document.addEventListener("keydown", (event) => {   
+ document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       const obsToolBar = document.querySelector(".obs-tool-bar");
       if (obsToolBar) {
@@ -7965,7 +7965,7 @@ if ($("obsToolsMenuBtn")) {
 
   window.addEventListener("beforeunload", saveCurrentNotes);
 }
-      
+
 function closeStudyResourcesPanelSoft() {
   const panel = $("studyResourcesPanel");
   if (!panel) return;
@@ -8169,7 +8169,7 @@ results.querySelectorAll(".dictionary-result-btn").forEach(btn => {
     );
   };
 });
-    
+
     }
     searchBox.oninput = () => renderResults(searchBox.value);
 
@@ -8518,7 +8518,7 @@ openResourceInstancePanel(
 );
   };
 }
-      
+
 if ($("openBookOverviewResource")) {
   $("openBookOverviewResource").onclick = async (event) => {
     if (event) {
@@ -8672,7 +8672,7 @@ if ($("obsBackToPreviousPassage")) {
     if (panel) panel.classList.add("open");
   };
 }
-    
+
 function findExistingResourcePanel(resourceKey) {
   if (!resourceKey) return null;
 
@@ -8879,7 +8879,7 @@ html.obs #obsCrossRefsPanel.open.drag-positioned {
   bottom: auto !important;
   transform: none !important;
 }
-  
+
 #ironPromptPanel p,
 #ironPromptPanel li {
   font: 700 13px Arial, sans-serif;
@@ -9555,7 +9555,7 @@ body:not(.dark) .resource-instance-panel .doctrine-related-topic-btn:hover {
   background-color: #C98E29 !important;
   color: #FBF8F2 !important;
 }
-  
+
 body:not(.dark) #doctrineResults .doctrine-topic-btn:hover,
 body:not(.dark) #obsCrossRefsContent .doctrine-topic-btn:hover {
   background: linear-gradient(180deg, #C98E29, #A96F18) !important;
@@ -9725,7 +9725,7 @@ body.dark .presentation-card-inner h2,
 body.dark .presentation-card-inner p {
   color: #F8F3E9 !important;
   text-shadow: none !important;
-} 
+}
 /* Cream-mode hero color patch only */
 body:not(.dark) .hero {
   background: linear-gradient(
@@ -11288,7 +11288,7 @@ body.dark #studyResourcesPanel .teacher-pop-head h3 {
     if (!panel || panel.dataset.rdObsResizeReady === "1") return;
     ensureResizeHandle(panel);
 
-    const handle = 
+    const handle =
 panel.querySelector(":scope > .rd-touch-resize-handle");
     if (!handle) return;
 
@@ -32708,13 +32708,16 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       "body.dark{--paper:#10283C;--ink:#F8F3E9}",
       "#audienceRoot{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;overflow:hidden;color:var(--ink);background:radial-gradient(circle at 20% 0%,rgba(215,168,79,.16),transparent 28%),linear-gradient(145deg,#DCE7EF,#EEE9DF 48%,#FBF8F2)}",
       "body.dark #audienceRoot{background:radial-gradient(circle at 20% 0%,rgba(248,217,135,.12),transparent 28%),linear-gradient(145deg,#081A29,#10283C 52%,#17365A)}",
-      ".header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:22px;padding:14px clamp(20px,4vw,58px);border-bottom:2px solid var(--gold);background:linear-gradient(90deg,rgba(23,54,90,.98),rgba(16,40,60,.98),rgba(23,54,90,.98));color:#fff}",
-      "body.dark .header{background:linear-gradient(90deg,rgba(8,26,41,.98),rgba(16,40,60,.98),rgba(8,26,41,.98))}",
-      ".brandKicker{margin:0 0 3px;color:var(--bright);font:800 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
+      ".header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:22px;padding:14px clamp(20px,4vw,58px);border-bottom:2px solid var(--gold);background:linear-gradient(90deg,rgba(255,253,248,.98),rgba(243,246,248,.98),rgba(255,253,248,.98));color:#17365A}",
+      "body.dark .header{background:linear-gradient(90deg,rgba(8,26,41,.98),rgba(16,40,60,.98),rgba(8,26,41,.98));color:#fff}",
+      ".brandKicker{margin:0 0 3px;color:#A96F18;font:800 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}",
+      "body.dark .brandKicker{color:var(--bright)}",
       ".brandTitle{margin:0;font:800 clamp(24px,2.5vw,42px)/1 Georgia,serif;letter-spacing:.05em;text-transform:uppercase;text-shadow:0 3px 0 rgba(0,0,0,.28)}",
       ".headerRight{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;text-align:right}",
-      ".meta{color:var(--bright);font:800 clamp(12px,1.25vw,17px)/1.25 Arial,sans-serif}",
-      ".status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(215,168,79,.7);font:800 10px/1 Arial,sans-serif;letter-spacing:.06em;color:var(--bright)}",
+      ".meta{color:#526D86;font:800 clamp(12px,1.25vw,17px)/1.25 Arial,sans-serif}",
+      "body.dark .meta{color:var(--bright)}",
+      ".status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(169,111,24,.55);font:800 10px/1 Arial,sans-serif;letter-spacing:.06em;color:#A96F18}",
+      "body.dark .status{border-color:rgba(215,168,79,.7);color:var(--bright)}",
       ".status.connected:before{content:'';width:7px;height:7px;border-radius:50%;background:#42b875;margin-right:6px}",
       ".main{min-height:0;overflow:auto;padding:clamp(20px,3vw,46px) clamp(18px,4vw,62px)}",
       ".scriptureCard,.panelCard{width:min(1540px,100%);margin:0 auto;background:linear-gradient(180deg,#FBF8F2,#EEE9DF);border:1px solid var(--line);border-radius:10px;padding:clamp(26px,3.2vw,48px);box-shadow:0 10px 30px rgba(24,52,87,.10);position:relative}",
@@ -38236,7 +38239,83 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
      presentation behavior remain untouched.
      ======================================================= */
 
-  /* RDM TEACHING V3 OBS HERO READABILITY
+
+  /* =======================================================
+     RDM TEACHING V3 OBS FINAL VISUAL POLISH
+     Visual only — OBS mechanics, navigation, drag, resize,
+     Live Teaching behavior, and protected controllers untouched.
+     ======================================================= */
+
+  html.obs body:not(.dark) .obs-tool-bar,
+  html.obs body:not(.dark) #obsToolBar {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    border:1px solid rgba(82,118,148,.28) !important;
+    box-shadow:0 10px 28px rgba(24,52,87,.14) !important;
+  }
+
+  html.obs body:not(.dark) #obsBtn,
+  html.obs body:not(.dark) .actions #obsBtn,
+  html.obs body:not(.dark) .obs-tool-bar button,
+  html.obs body:not(.dark) #obsToolBar button {
+    background:
+      linear-gradient(
+        180deg,
+        #D2A64D 0%,
+        #A96F18 100%
+      ) !important;
+
+    background-color:#A96F18 !important;
+    color:#FFFDF8 !important;
+    border:1px solid rgba(169,111,24,.58) !important;
+    box-shadow:0 5px 14px rgba(24,52,87,.14) !important;
+    opacity:1 !important;
+    filter:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs body:not(.dark) #obsBtn:hover,
+  html.obs body:not(.dark) .actions #obsBtn:hover,
+  html.obs body:not(.dark) .obs-tool-bar button:hover,
+  html.obs body:not(.dark) #obsToolBar button:hover {
+    background:
+      linear-gradient(
+        180deg,
+        #E0B75F 0%,
+        #B77A1E 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+  }
+
+  html.obs body:not(.dark) #ironPromptPanel .iron-mini-prayer,
+  html.obs body:not(.dark) #teachingMethodPanel .teaching-method-callout {
+    background:rgba(240,201,111,.13) !important;
+    color:#17365A !important;
+    border-left:4px solid #C68A22 !important;
+    border-top-color:rgba(183,116,16,.28) !important;
+    border-right-color:rgba(183,116,16,.28) !important;
+    border-bottom-color:rgba(183,116,16,.28) !important;
+    text-shadow:none !important;
+  }
+
+  html.obs body.dark #ironPromptPanel .iron-mini-prayer,
+  html.obs body.dark #teachingMethodPanel .teaching-method-callout {
+    background:rgba(240,194,96,.10) !important;
+    color:#F7F2E8 !important;
+    border-left:4px solid #F0C260 !important;
+    border-top-color:rgba(240,194,96,.22) !important;
+    border-right-color:rgba(240,194,96,.22) !important;
+    border-bottom-color:rgba(240,194,96,.22) !important;
+    text-shadow:none !important;
+  }
+
+/* RDM TEACHING V3 OBS HERO READABILITY
      Strengthen hero text contrast in OBS Focus only. */
 
   html.obs
