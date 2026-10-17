@@ -39965,6 +39965,29 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     box-shadow:0 4px 10px rgba(24,52,87,.12) !important;
   }
 
+  /* FINAL DARK NORMAL TEACHING SELECTED-MODE FIX
+     Restores the same selected gold state used in dark OBS Focus. */
+
+  html:not(.obs) body.dark
+  #internalCrossRefsPanel
+  #internalXrefsPassageMode.active-internal-xref-mode,
+
+  html:not(.obs) body.dark
+  #internalCrossRefsPanel
+  #internalXrefsChapterMode.active-internal-xref-mode {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #C98E29 100%
+      ) !important;
+
+    background-color:#C98E29 !important;
+    color:#142334 !important;
+    border:1px solid rgba(255,224,153,.58) !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
   /* FINAL LIGHT XREF SPECIFICITY LOCK
      Beats legacy ID-based cream rules without touching dark mode. */
 
