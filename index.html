@@ -39964,6 +39964,75 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     border-color:rgba(169,111,24,.52) !important;
     box-shadow:0 4px 10px rgba(24,52,87,.12) !important;
   }
+
+  /* FINAL LIGHT XREF SPECIFICITY LOCK
+     Beats legacy ID-based cream rules without touching dark mode. */
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsPassageMode,
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsChapterMode,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsPassageMode,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsChapterMode {
+    background:linear-gradient(180deg,#FFFDF8 0%,#F1F5F7 100%) !important;
+    background-color:#FFFDF8 !important;
+    color:#17365A !important;
+    border:1px solid rgba(82,118,148,.28) !important;
+    box-shadow:0 4px 12px rgba(24,52,87,.10) !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsPassageMode.active-internal-xref-mode,
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsChapterMode.active-internal-xref-mode,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsPassageMode.active-internal-xref-mode,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  #internalXrefsChapterMode.active-internal-xref-mode {
+    background:linear-gradient(180deg,#D2A64D 0%,#A96F18 100%) !important;
+    background-color:#A96F18 !important;
+    color:#FFFDF8 !important;
+    border:1px solid rgba(169,111,24,.58) !important;
+    box-shadow:0 5px 14px rgba(24,52,87,.14) !important;
+  }
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  button.internal-xref-link:hover,
+
+  html:not(.obs) body:not(.dark)
+  #internalCrossRefsPanel
+  button.internal-xref-link:focus-visible,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  button.internal-xref-link:hover,
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  button.internal-xref-link:focus-visible {
+    background:linear-gradient(180deg,#F4D78D 0%,#D7A84F 100%) !important;
+    color:#17365A !important;
+    border-color:rgba(169,111,24,.52) !important;
+    box-shadow:0 4px 10px rgba(24,52,87,.12) !important;
+  }
 </style>
 </body>
 </html>
