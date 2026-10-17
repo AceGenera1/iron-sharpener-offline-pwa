@@ -39899,6 +39899,41 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     box-shadow:0 6px 16px rgba(24,52,87,.16) !important;
   }
 
+  /* Final selected-mode color alignment:
+     Light = same gold/white family as Tools + Leave Focus.
+     Dark = restore the bright gold selected state. */
+
+  html.obs body:not(.dark)
+  #internalCrossRefsPanel
+  .internal-xrefs-controls
+  button.active-internal-xref-mode {
+    background:
+      linear-gradient(
+        180deg,
+        #D2A64D 0%,
+        #A96F18 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+    border-color:rgba(169,111,24,.58) !important;
+    box-shadow:0 5px 14px rgba(24,52,87,.14) !important;
+  }
+
+  html.obs body.dark
+  #internalCrossRefsPanel
+  .internal-xrefs-controls
+  button.active-internal-xref-mode {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #C98E29 100%
+      ) !important;
+
+    color:#142334 !important;
+    border-color:rgba(255,224,153,.58) !important;
+    box-shadow:none !important;
+  }
   html.obs body:not(.dark)
   #internalCrossRefsPanel
   button.internal-xref-link {
