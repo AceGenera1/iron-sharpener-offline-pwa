@@ -1702,7 +1702,7 @@ body.dark { background-color: #081A29; }
     html.obs .ribbon { display: block; padding: 8px; font-size: 15px; }
     html.obs .layout { display: block; padding: 0; background: #FBF8F2; }
     html.obs .scripture { border-radius: 0; border-left: 0; border-right: 0; min-height: calc(100vh - 195px); padding: 42px 90px; }
-    html.obs .verse { font-size: 31px; line-height: 1.65; font-weight: 500; }
+    html.obs .verse { font-size: 31px; line-height: 1.65; font-weight: 600; }
     html.obs .actions { display: flex !important; position: fixed; top: 14px; right: 14px; z-index: 9999; }
     html.obs .actions button:not(#obsBtn) { display: none !important; }
     html.obs #obsBtn { display: inline-flex !important; background: #FBF8F2 !important; color: #17365A !important; border: 2px solid #d7a84f !important; }
@@ -3984,7 +3984,7 @@ html.obs #discipleJournalBtn { display: none !important; }
   .rdm-live-divider { height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative; }
   .rdm-live-divider::after { content:"◆";position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#EEE9DF;padding:0 10px;font-size:14px; }
   #rdmLiveSingleScreenRoot.dark .rdm-live-divider::after { background:#17365A; }
-  .rdm-live-passage .verse { font-size:clamp(24px,2.15vw,36px) !important; line-height:1.5 !important; font-weight:500 !important; margin:0 0 14px !important; color:var(--ink) !important; }
+  .rdm-live-passage .verse { font-size:clamp(24px,2.15vw,36px) !important; line-height:1.5 !important; font-weight:600 !important; margin:0 0 14px !important; color:var(--ink) !important; }
   .rdm-live-panel-text { font:600 clamp(20px,1.8vw,29px)/1.62 "Segoe UI",Arial,sans-serif !important; }
   .rdm-live-panel-html { font:600 clamp(18px,1.45vw,25px)/1.65 "Segoe UI",Arial,sans-serif !important; }
   .rdm-live-panel-html p { margin:0 0 1.05em;line-height:1.65 !important; }
@@ -32725,7 +32725,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;max-width:520px;position:relative}",
       ".divider:after{content:'◆';position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:var(--gold);background:#EEE9DF;padding:0 10px;font-size:14px}",
       ".dark .divider:after{background:#17365A}",
-      ".passage .verse{position:relative;font-size:clamp(24px,2.15vw,36px);line-height:1.5;font-weight:500;margin:0 0 14px;color:var(--ink);transition:all .18s ease}",
+      ".passage .verse{position:relative;font-size:clamp(24px,2.15vw,36px);line-height:1.5;font-weight:600;margin:0 0 14px;color:var(--ink);transition:all .18s ease}",
       ".vnum{font-size:.72em;color:#A96F18;font-weight:900;vertical-align:super;margin-right:10px}",
       ".dark .vnum{color:#f8d987}",
       ".hidden{display:none!important}",
@@ -35545,7 +35545,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
     font-size:23px !important;
     line-height:1.62 !important;
-    font-weight:500 !important;
+    font-weight:600 !important;
 
     color:#17365A !important;
 
@@ -37553,11 +37553,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
   #studyResourcesPanel
-  .tool-option,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #openStudyResourcesFromTools {
+  .tool-option {
     background:
       linear-gradient(
         180deg,
@@ -37578,15 +37574,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
   #studyResourcesPanel
-  .tool-option span,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #openStudyResourcesFromTools strong,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
-  #openStudyResourcesFromTools span {
+  .tool-option span {
     color:#17304A !important;
     text-shadow:none !important;
   }
@@ -37594,11 +37582,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #studyResourcesPanel
-  .tool-option,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #openStudyResourcesFromTools {
+  .tool-option {
     background:
       linear-gradient(
         180deg,
@@ -37620,94 +37604,105 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #studyResourcesPanel
-  .tool-option span,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #openStudyResourcesFromTools strong,
-
-  html:not(.obs)
-  body:not(.rdm-mobile-app-shell).dark
-  #openStudyResourcesFromTools span {
+  .tool-option span {
     color:#10283C !important;
   }
 
 
 
   /* RDM TEACHING V3 STUDY RESOURCES CARD STATE LOCK
-     Keep the Teacher Tools Study Resources launcher readable in every
-     normal-Teaching interaction state. Does not style the inner resources panel. */
+     Keep the Teacher Tools Study Resources launcher visually consistent
+     with the surrounding Teacher Tools cards in normal Teaching. */
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice {
-    background:linear-gradient(180deg,#E7C56B 0%,#C78B24 100%) !important;
-    color:#17304A !important;
-    border:1px solid rgba(169,108,18,.46) !important;
-    box-shadow:0 5px 14px rgba(24,52,87,.13) !important;
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F3F6F8 100%
+      ) !important;
+
+    color:#17365A !important;
+    border:1px solid rgba(50,84,114,.18) !important;
+    box-shadow:0 5px 14px rgba(32,54,84,.06) !important;
     opacity:1 !important;
     filter:none !important;
     text-shadow:none !important;
   }
 
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools strong,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools span,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover strong,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover span,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible strong,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible span,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool strong,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool span,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice strong,
+
   html:not(.obs)
-  body:not(.rdm-mobile-app-shell)
+  body:not(.rdm-mobile-app-shell):not(.dark)
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice span {
-    color:#17304A !important;
+    color:#17365A !important;
     opacity:1 !important;
     filter:none !important;
     text-shadow:none !important;
@@ -37717,26 +37712,36 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice {
-    background:linear-gradient(180deg,#F3CE73 0%,#D4A344 100%) !important;
-    color:#10283C !important;
-    border:1px solid rgba(255,226,157,.56) !important;
-    box-shadow:0 7px 18px rgba(0,0,0,.20) !important;
+    background:
+      linear-gradient(
+        180deg,
+        #183D58 0%,
+        #14354F 100%
+      ) !important;
+
+    color:#F7F2E8 !important;
+    border:1px solid rgba(131,169,198,.24) !important;
+    box-shadow:0 6px 16px rgba(0,0,0,.18) !important;
     opacity:1 !important;
     filter:none !important;
     text-shadow:none !important;
@@ -37746,43 +37751,52 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools strong,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools span,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover strong,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:hover span,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible strong,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools:focus-visible span,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool strong,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-tool span,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice strong,
+
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   #teacherToolsPanel
   #openStudyResourcesFromTools.active-choice span {
-    color:#10283C !important;
+    color:#F7F2E8 !important;
     opacity:1 !important;
     filter:none !important;
     text-shadow:none !important;
@@ -38506,7 +38520,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
         #A96F18 100%
       ) !important;
 
-    color:#17365A !important;
+    color:#FFFDF8 !important;
     border:1px solid rgba(169,111,24,.52) !important;
     box-shadow:0 5px 13px rgba(24,52,87,.14) !important;
     opacity:1 !important;
