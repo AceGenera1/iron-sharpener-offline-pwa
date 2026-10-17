@@ -37072,6 +37072,992 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     text-rendering:optimizeLegibility;
   }
 
+
+  /* =======================================================
+     RDM TEACHING V3 FINAL ALIGNMENT
+     Final desktop composition + legacy visual cleanup.
+     Presentation only. Protected Teaching mechanics remain
+     untouched.
+     ======================================================= */
+
+
+  /* -------------------------------------------------------
+     HERO — give Teaching the same visual weight as Journal
+     without changing Teaching's structural layout
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .hero {
+    min-height:214px !important;
+    grid-template-columns:
+      148px
+      minmax(0,1fr)
+      minmax(340px,390px) !important;
+    gap:26px !important;
+    padding:22px 28px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .logo-wrap {
+    width:138px !important;
+    height:138px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .logo {
+    width:132px !important;
+    height:132px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .hero h1 {
+    font-size:clamp(44px,3.2vw,58px) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse-card {
+    max-width:390px !important;
+  }
+
+
+  /* -------------------------------------------------------
+     HERO BUTTONS — Live Teaching belongs to same secondary
+     family as Fullscreen / Theme / Journal
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):not(.dark)
+  .hero #liveTeachingBtn {
+    background:rgba(255,253,248,.94) !important;
+    color:#17365A !important;
+    border:1px solid rgba(35,71,105,.16) !important;
+    box-shadow:0 4px 12px rgba(32,54,84,.10) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .hero #liveTeachingBtn {
+    background:rgba(18,48,72,.88) !important;
+    color:#F7F2E8 !important;
+    border:1px solid rgba(137,174,204,.34) !important;
+    box-shadow:0 5px 14px rgba(0,0,0,.20) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     PREPARED IN PRAYER RIBBON
+     Stop making it look like a separate boxed card
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .ribbon {
+    margin:9px 0 0 !important;
+    padding:9px 6px 10px !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    border:0 !important;
+    border-bottom:1px solid rgba(33,66,99,.14) !important;
+    color:#607A92 !important;
+    letter-spacing:.09em !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .ribbon {
+    background:transparent !important;
+    color:#B9CBD9 !important;
+    border-bottom-color:rgba(132,171,201,.20) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     BOOK / CHAPTER / SECTION SIZE CONTROL SURFACE
+     One integrated toolbar, not four unrelated boxes
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls {
+    padding:15px 18px !important;
+    gap:16px !important;
+    border-radius:14px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls > div {
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+    padding:0 !important;
+    margin:0 !important;
+    border-radius:0 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls label {
+    margin:0 0 6px !important;
+    font-size:11px !important;
+    letter-spacing:.09em !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .controls select {
+    min-height:43px !important;
+    border-radius:9px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #loadBtn {
+    min-height:43px !important;
+    align-self:end !important;
+  }
+
+
+  /* -------------------------------------------------------
+     MAIN LAYOUT — preserve Teaching's two-column structure,
+     simply improve its balance and visual flow
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .layout {
+    grid-template-columns:minmax(0,1fr) 430px !important;
+    gap:18px !important;
+    padding:18px 0 0 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .scripture {
+    padding:28px 38px !important;
+  }
+
+
+  /* -------------------------------------------------------
+     SCRIPTURE — remove the unnecessary card-inside-a-card
+     effect and restore clean Journal-family reading space
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #passage {
+    padding:8px 2px 4px !important;
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+    border-radius:0 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #passage {
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .verse {
+    font-size:24px !important;
+    line-height:1.64 !important;
+  }
+
+
+  /* -------------------------------------------------------
+     VERSE NUMBERS — no dark circles / boxes
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .vnum {
+    display:inline !important;
+    background:transparent !important;
+    background-image:none !important;
+    color:#A96F18 !important;
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+    border-radius:0 !important;
+    padding:0 !important;
+    font-size:.68em !important;
+    font-weight:800 !important;
+    vertical-align:super !important;
+    margin-right:8px !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .vnum {
+    background:transparent !important;
+    background-image:none !important;
+    color:#F0C260 !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+
+
+  /* -------------------------------------------------------
+     RIGHT-SIDE CARD HEADERS
+     Integrate the title into the card rather than boxing it
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .panel-title {
+    padding:0 0 10px !important;
+    margin:0 0 12px !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    border:0 !important;
+    border-bottom:1px solid rgba(183,128,35,.30) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .panel-title {
+    background:transparent !important;
+    background-image:none !important;
+    border-bottom-color:rgba(240,194,96,.28) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .side > .panel {
+    padding:17px !important;
+  }
+
+
+  /* -------------------------------------------------------
+     TEACHER TOOLS INNER SURFACES
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-tools-box {
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .active-tool-label {
+    background:rgba(82,118,148,.10) !important;
+    color:#355D7E !important;
+    border:1px solid rgba(82,118,148,.20) !important;
+    box-shadow:none !important;
+    border-radius:9px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .active-tool-label {
+    background:rgba(130,168,198,.10) !important;
+    color:#C4D7E6 !important;
+    border-color:rgba(130,168,198,.22) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     ACTUAL COPY SCRIPTURE CONTROLS
+     v3 previously targeted legacy/nonexistent IDs
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScriptureMain,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #openCopyScriptureFromTools,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  .copy-scripture-actions
+  button:not(#clearCopySelectionMode) {
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    background-color:#C98E29 !important;
+    color:#FFFDF8 !important;
+    border:1px solid rgba(164,101,0,.48) !important;
+    box-shadow:0 5px 12px rgba(163,108,20,.18) !important;
+    opacity:1 !important;
+    filter:none !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScriptureMain,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #openCopyScriptureFromTools,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel
+  .copy-scripture-actions
+  button:not(#clearCopySelectionMode) {
+    background:
+      linear-gradient(
+        180deg,
+        #F4CD73 0%,
+        #D8A63F 100%
+      ) !important;
+
+    background-color:#D8A63F !important;
+    color:#142334 !important;
+    border:1px solid rgba(255,223,147,.58) !important;
+    box-shadow:0 5px 14px rgba(0,0,0,.22) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.48) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.48) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  .teacher-pop-head {
+    background:transparent !important;
+    border-bottom-color:rgba(183,128,35,.42) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  .teacher-pop-head h3 {
+    color:#17365A !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel
+  .teacher-pop-head h3 {
+    color:#F0C260 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  .copy-scripture-help {
+    background:rgba(82,118,148,.08) !important;
+    color:#355D7E !important;
+    border-color:rgba(183,128,35,.34) !important;
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      Arial,
+      sans-serif !important;
+    font-weight:600 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel
+  .copy-scripture-help {
+    background:rgba(130,168,198,.08) !important;
+    color:#D5E1EA !important;
+    border-color:rgba(240,194,96,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  #clearCopySelectionMode,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #copyScripturePanel
+  #closeCopyScripturePanel {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border:1px solid rgba(45,80,111,.20) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel
+  #clearCopySelectionMode,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #copyScripturePanel
+  #closeCopyScripturePanel {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+    border:1px solid rgba(240,194,96,.36) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     STUDY RESOURCES
+     These are action/resource choices: use the restrained
+     gold action family consistently, as agreed.
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel
+  .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #openStudyResourcesFromTools {
+    background:
+      linear-gradient(
+        180deg,
+        #E7C56B 0%,
+        #C78B24 100%
+      ) !important;
+
+    color:#17304A !important;
+    border:1px solid rgba(169,108,18,.46) !important;
+    box-shadow:0 5px 14px rgba(161,105,25,.13) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel
+  .tool-option strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel
+  .tool-option span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #openStudyResourcesFromTools strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #openStudyResourcesFromTools span {
+    color:#17304A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel
+  .tool-option,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #openStudyResourcesFromTools {
+    background:
+      linear-gradient(
+        180deg,
+        #F3CE73 0%,
+        #D4A344 100%
+      ) !important;
+
+    color:#10283C !important;
+    border:1px solid rgba(255,226,157,.56) !important;
+    box-shadow:
+      0 7px 18px rgba(0,0,0,.20) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel
+  .tool-option strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #studyResourcesPanel
+  .tool-option span,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #openStudyResourcesFromTools strong,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #openStudyResourcesFromTools span {
+    color:#10283C !important;
+  }
+
+
+  /* -------------------------------------------------------
+     LIVE TEACHING / DUAL WINDOW SETUP DIALOG
+     Visual alignment only — audience mechanics untouched
+     ------------------------------------------------------- */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog {
+    background:rgba(8,26,41,.48) !important;
+    backdrop-filter:blur(5px);
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  .rdm-live-dialog-card {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #EEF3F6 100%
+      ) !important;
+
+    color:#183457 !important;
+    border:1px solid rgba(183,128,35,.50) !important;
+    border-radius:18px !important;
+    box-shadow:0 28px 70px rgba(20,43,66,.28) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  .rdm-live-dialog-card {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.50) !important;
+    box-shadow:0 30px 74px rgba(0,0,0,.52) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  .rdm-live-dialog-head {
+    background:transparent !important;
+    border-bottom:1px solid rgba(183,128,35,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  .rdm-live-dialog-head {
+    border-bottom-color:rgba(240,194,96,.34) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog h2,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog h3 {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog h2,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog h3 {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  .rdm-live-mode-card {
+    background:#FFFDF8 !important;
+    color:#355D7E !important;
+    border:1px solid rgba(45,80,111,.16) !important;
+    border-radius:14px !important;
+    box-shadow:0 7px 20px rgba(32,54,84,.07) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  .rdm-live-mode-card {
+    background:#173B55 !important;
+    color:#D5E1EA !important;
+    border-color:rgba(132,169,198,.22) !important;
+    box-shadow:0 8px 22px rgba(0,0,0,.22) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  #rdmStartDualWindow,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  #rdmStartSingleScreen {
+    background:
+      linear-gradient(
+        180deg,
+        #E2B95E 0%,
+        #B9780D 100%
+      ) !important;
+
+    color:#FFFDF8 !important;
+    border:1px solid rgba(164,101,0,.48) !important;
+    box-shadow:0 5px 12px rgba(163,108,20,.18) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  #rdmStartDualWindow,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  #rdmStartSingleScreen {
+    background:
+      linear-gradient(
+        180deg,
+        #F4CD73 0%,
+        #D8A63F 100%
+      ) !important;
+
+    color:#142334 !important;
+    border-color:rgba(255,223,147,.58) !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  #rdmCancelLiveDialog,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #rdmLiveTeachingDialog
+  #rdmCloseLiveDialog {
+    background:#FFFDF8 !important;
+    color:#17365A !important;
+    border:1px solid rgba(45,80,111,.20) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  #rdmCancelLiveDialog,
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  #rdmLiveTeachingDialog
+  #rdmCloseLiveDialog {
+    background:#183D58 !important;
+    color:#F7F2E8 !important;
+    border-color:rgba(240,194,96,.36) !important;
+  }
+
+
+  /* =======================================================
+     OBS FOCUS VISUAL ALIGNMENT
+     Existing OBS layout / controls / mechanics are preserved.
+     Only the visual skin is brought into the new family.
+     ======================================================= */
+
+  html.obs body:not(.dark) {
+    background:
+      linear-gradient(
+        180deg,
+        #F3EFE7 0%,
+        #E9E3D8 100%
+      ) !important;
+    color:#183457 !important;
+  }
+
+  html.obs body.dark {
+    background:
+      linear-gradient(
+        180deg,
+        #081A29 0%,
+        #0C2234 100%
+      ) !important;
+    color:#F8F3E9 !important;
+  }
+
+  html.obs body:not(.dark)
+  .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(251,248,240,.88) 0%,
+        rgba(251,248,240,.74) 48%,
+        rgba(227,233,234,.45) 100%
+      ),
+      url("./assets/journal-hero-mountains.png") !important;
+
+    background-size:cover !important;
+    background-position:center 48% !important;
+    border-color:rgba(190,139,48,.56) !important;
+    color:#17365A !important;
+  }
+
+  html.obs body.dark
+  .hero {
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(5,20,32,.90) 0%,
+        rgba(7,27,42,.80) 48%,
+        rgba(12,43,63,.62) 100%
+      ),
+      url("./assets/journal-hero-mountains.png") !important;
+
+    background-size:cover !important;
+    background-position:center 48% !important;
+    border-color:rgba(224,181,92,.68) !important;
+    color:#F8F3E9 !important;
+  }
+
+  html.obs body:not(.dark)
+  .scripture {
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+    border-color:rgba(185,125,28,.30) !important;
+  }
+
+  html.obs body.dark
+  .scripture {
+    background:#10324B !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.40) !important;
+  }
+
+  html.obs #passage {
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+
+  html.obs body:not(.dark)
+  .verse {
+    color:#17365A !important;
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+  }
+
+  html.obs body.dark
+  .verse {
+    color:#F9F4EA !important;
+    font-family:
+      Georgia,
+      "Times New Roman",
+      serif !important;
+  }
+
+  html.obs .vnum {
+    display:inline !important;
+    background:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+    border-radius:0 !important;
+    padding:0 !important;
+    color:#A96F18 !important;
+    font-size:.68em !important;
+    vertical-align:super !important;
+    margin-right:8px !important;
+    text-shadow:none !important;
+  }
+
+  html.obs body.dark
+  .vnum {
+    color:#F0C260 !important;
+  }
+
+  html.obs body:not(.dark)
+  #obsToolBar {
+    background:
+      linear-gradient(
+        180deg,
+        #17365A 0%,
+        #10283C 100%
+      ) !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(210,166,77,.52) !important;
+  }
+
+  html.obs body.dark
+  #obsToolBar {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.48) !important;
+  }
+
+  html.obs #obsToolBar button,
+  html.obs .obs-tool-bar button {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #D5A648 100%
+      ) !important;
+
+    color:#142334 !important;
+    border:1px solid rgba(255,224,153,.54) !important;
+    box-shadow:none !important;
+    opacity:1 !important;
+    filter:none !important;
+    text-shadow:none !important;
+  }
+
+  html.obs body:not(.dark)
+  .teacher-pop,
+
+  html.obs body:not(.dark)
+  #teacherToolsPanel,
+
+  html.obs body:not(.dark)
+  #studyResourcesPanel,
+
+  html.obs body:not(.dark)
+  #obsNavigatorPanel,
+
+  html.obs body:not(.dark)
+  #obsCrossRefsPanel,
+
+  html.obs body:not(.dark)
+  #teachingMethodPanel.open,
+
+  html.obs body:not(.dark)
+  #ironPromptPanel.open,
+
+  html.obs body:not(.dark)
+  .resource-instance-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+
+    color:#183457 !important;
+    border-color:rgba(183,128,35,.48) !important;
+    box-shadow:0 24px 60px rgba(29,53,79,.18) !important;
+  }
+
+  html.obs body.dark
+  .teacher-pop,
+
+  html.obs body.dark
+  #teacherToolsPanel,
+
+  html.obs body.dark
+  #studyResourcesPanel,
+
+  html.obs body.dark
+  #obsNavigatorPanel,
+
+  html.obs body.dark
+  #obsCrossRefsPanel,
+
+  html.obs body.dark
+  #teachingMethodPanel.open,
+
+  html.obs body.dark
+  #ironPromptPanel.open,
+
+  html.obs body.dark
+  .resource-instance-panel {
+    background:
+      linear-gradient(
+        180deg,
+        #173D59 0%,
+        #102B42 100%
+      ) !important;
+
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.48) !important;
+    box-shadow:0 26px 64px rgba(0,0,0,.46) !important;
+  }
+
+  html.obs #studyResourcesPanel
+  .tool-option {
+    background:
+      linear-gradient(
+        180deg,
+        #F3CE73 0%,
+        #D4A344 100%
+      ) !important;
+
+    color:#10283C !important;
+    border-color:rgba(255,226,157,.56) !important;
+  }
+
+  html.obs #studyResourcesPanel
+  .tool-option strong,
+
+  html.obs #studyResourcesPanel
+  .tool-option span {
+    color:#10283C !important;
+  }
 }
 </style>
 </body>
