@@ -10134,6 +10134,16 @@ document.addEventListener("DOMContentLoaded", function () {
   function openPanel(id) {
     const panel = get(id);
     if (!panel) return;
+
+    if (id === "studyResourcesPanel") {
+      const teacherTools = get("teacherToolsPanel");
+      if (teacherTools) {
+        teacherTools.classList.remove("open");
+        teacherTools.setAttribute("aria-hidden", "true");
+        teacherTools.style.display = "";
+      }
+    }
+
     panel.style.display = "";
     panel.classList.add("open");
     panel.setAttribute("aria-hidden", "false");
@@ -36372,27 +36382,49 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   html:not(.obs)
   body:not(.rdm-mobile-app-shell)
   .teacher-tools-status-card {
-    background:
-      rgba(255,255,255,.62) !important;
-
+    background:transparent !important;
     color:#183457 !important;
-
-    border:
-      1px solid rgba(45,80,111,.14) !important;
-
-    border-radius:11px !important;
-
+    border:0 !important;
+    border-radius:0 !important;
     box-shadow:none !important;
+    padding:4px 0 10px !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-tools-status-card strong {
+    color:#A96F18 !important;
+    font-weight:800 !important;
+    letter-spacing:.02em !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .teacher-tools-status-card span {
+    color:#183457 !important;
+    font-weight:650 !important;
   }
 
   html:not(.obs)
   body:not(.rdm-mobile-app-shell).dark
   .teacher-tools-status-card {
-    background:#173B55 !important;
+    background:transparent !important;
     color:#F8F3E9 !important;
+    border:0 !important;
+  }
 
-    border-color:
-      rgba(132,169,198,.20) !important;
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-tools-status-card strong {
+    color:#F0C260 !important;
+    font-weight:800 !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell).dark
+  .teacher-tools-status-card span {
+    color:#F8F3E9 !important;
+    font-weight:650 !important;
   }
 
   html:not(.obs)
