@@ -40119,6 +40119,311 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     box-shadow:0 4px 10px rgba(24,52,87,.12) !important;
   }
 </style>
+
+<style id="rdm-mobile-teaching-visual-theme">
+/* =========================================================
+   RDM MOBILE TEACHING VISUAL THEME
+   Visual-only mobile/tablet alignment with approved desktop
+   Teaching + Journal palette.
+   No navigation, panel, touch, notes, offline, or app logic.
+   ========================================================= */
+
+@media (max-width:1180px), (hover:none), (pointer:coarse) {
+
+  html:not(.obs) body.rdm-mobile-app-shell {
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+    font-family:
+      "Segoe UI Variable",
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      Arial,
+      sans-serif !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark {
+    background:#081A29 !important;
+    color:#F8F3E9 !important;
+  }
+
+  /* ---------- HEADER ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell .hero {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(23,54,90,.985) 0%,
+        rgba(16,40,60,.985) 58%,
+        rgba(8,26,41,.99) 100%
+      ) !important;
+    border-bottom-color:#D2A64D !important;
+    box-shadow:0 8px 24px rgba(24,52,87,.14) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .eyebrow {
+    color:#F0C260 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell h1 {
+    color:#FFFDF8 !important;
+    text-shadow:none !important;
+  }
+
+  /* ---------- MAIN SCRIPTURE SURFACE ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell .scripture,
+  html:not(.obs) body.rdm-mobile-app-shell #scriptureBox {
+    background:#F3EFE6 !important;
+    color:#183457 !important;
+    border-color:rgba(169,111,24,.32) !important;
+    box-shadow:
+      0 14px 34px rgba(24,52,87,.10),
+      inset 0 1px 0 rgba(255,255,255,.72) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #scriptureBox {
+    background:#10283C !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.30) !important;
+    box-shadow:
+      0 14px 34px rgba(0,0,0,.24),
+      inset 0 1px 0 rgba(255,255,255,.035) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #refTitle,
+  html:not(.obs) body.rdm-mobile-app-shell .ref {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #refTitle,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .ref {
+    color:#F7F1E7 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #scriptureBox .source,
+  html:not(.obs) body.rdm-mobile-app-shell .scripture .source {
+    color:#637B93 !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #scriptureBox .source,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .scripture .source {
+    color:#B9CBD9 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell .verse {
+    color:#183457 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .verse {
+    color:#F8F3E9 !important;
+  }
+
+  /* ---------- CONTROLS / NOTES SURFACES ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell .controls,
+  html:not(.obs) body.rdm-mobile-app-shell .side,
+  html:not(.obs) body.rdm-mobile-app-shell .panel {
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.22) !important;
+    box-shadow:0 10px 28px rgba(24,52,87,.08) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark .controls,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .side,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .panel {
+    background:#10283C !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(132,169,198,.20) !important;
+    box-shadow:0 12px 30px rgba(0,0,0,.20) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell label,
+  html:not(.obs) body.rdm-mobile-app-shell .panel-title,
+  html:not(.obs) body.rdm-mobile-app-shell .tool-section-title {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark label,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .panel-title,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .tool-section-title {
+    color:#F7F1E7 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell select,
+  html:not(.obs) body.rdm-mobile-app-shell textarea,
+  html:not(.obs) body.rdm-mobile-app-shell input {
+    background:#FFFDF8 !important;
+    color:#183457 !important;
+    border-color:rgba(82,118,148,.30) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark select,
+  html:not(.obs) body.rdm-mobile-app-shell.dark textarea,
+  html:not(.obs) body.rdm-mobile-app-shell.dark input {
+    background:#081A29 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(132,169,198,.28) !important;
+  }
+
+  /* ---------- PRIMARY ACTIONS ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell button.primary,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileThemeToggle,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileTopJournalBtnV132 {
+    background:
+      linear-gradient(
+        180deg,
+        #D2A64D 0%,
+        #A96F18 100%
+      ) !important;
+    color:#FFFDF8 !important;
+    border-color:rgba(169,111,24,.58) !important;
+    text-shadow:none !important;
+    box-shadow:0 5px 14px rgba(24,52,87,.14) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark button.primary,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileThemeToggle,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileTopJournalBtnV132 {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #C98E29 100%
+      ) !important;
+    color:#142334 !important;
+    border-color:rgba(255,224,153,.58) !important;
+    box-shadow:none !important;
+  }
+
+  /* ---------- TEACHER TOOLS / STUDY RESOURCES ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel,
+  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel {
+    background:#FBF8F2 !important;
+    color:#183457 !important;
+    border-color:rgba(169,111,24,.30) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #teacherToolsPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .resource-instance-panel {
+    background:#10283C !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(240,194,96,.28) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel .teacher-pop-head,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .teacher-pop-head,
+  html:not(.obs) body.rdm-mobile-app-shell .resource-instance-panel .teacher-pop-head {
+    background:#FBF8F2 !important;
+    color:#17365A !important;
+    border-bottom-color:rgba(169,111,24,.28) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #teacherToolsPanel .teacher-pop-head,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel .teacher-pop-head,
+  html:not(.obs) body.rdm-mobile-app-shell.dark .resource-instance-panel .teacher-pop-head {
+    background:#10283C !important;
+    color:#F7F1E7 !important;
+    border-bottom-color:rgba(240,194,96,.28) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel .tool-option,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option {
+    background:
+      linear-gradient(
+        180deg,
+        #FFFDF8 0%,
+        #F1F5F7 100%
+      ) !important;
+    color:#17365A !important;
+    border-color:rgba(82,118,148,.24) !important;
+    box-shadow:0 5px 14px rgba(24,52,87,.08) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #teacherToolsPanel .tool-option,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel .tool-option {
+    background:#173B55 !important;
+    color:#F8F3E9 !important;
+    border-color:rgba(132,169,198,.22) !important;
+    box-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel .tool-option strong,
+  html:not(.obs) body.rdm-mobile-app-shell #teacherToolsPanel .tool-option span,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option strong,
+  html:not(.obs) body.rdm-mobile-app-shell #studyResourcesPanel .tool-option span {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #teacherToolsPanel .tool-option strong,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #teacherToolsPanel .tool-option span,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel .tool-option strong,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #studyResourcesPanel .tool-option span {
+    color:#F8F3E9 !important;
+  }
+
+  /* ---------- MOBILE BOTTOM NAV ---------- */
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav {
+    background:rgba(251,248,242,.985) !important;
+    border-top-color:#D2A64D !important;
+    box-shadow:0 -10px 26px rgba(24,52,87,.12) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav {
+    background:rgba(8,26,41,.985) !important;
+    border-top-color:#C98E29 !important;
+    box-shadow:0 -12px 28px rgba(0,0,0,.24) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button {
+    color:#17365A !important;
+    text-shadow:none !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav button {
+    color:#F8F3E9 !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button.active,
+  html:not(.obs) body.rdm-mobile-app-shell #rdmMobileAppNav button[aria-current="page"] {
+    background:
+      linear-gradient(
+        180deg,
+        #D2A64D 0%,
+        #A96F18 100%
+      ) !important;
+    color:#FFFDF8 !important;
+    border-color:rgba(169,111,24,.58) !important;
+  }
+
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav button.active,
+  html:not(.obs) body.rdm-mobile-app-shell.dark #rdmMobileAppNav button[aria-current="page"] {
+    background:
+      linear-gradient(
+        180deg,
+        #F0C260 0%,
+        #C98E29 100%
+      ) !important;
+    color:#142334 !important;
+    border-color:rgba(255,224,153,.58) !important;
+  }
+}
+
+</style>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
