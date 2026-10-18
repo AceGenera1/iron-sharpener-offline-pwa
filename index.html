@@ -38277,6 +38277,44 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 
   /* =======================================================
+     TEACHER TOOLS BACKGROUND INTERACTION LOCK
+     Desktop Teaching only.
+     Blocks Teaching controls behind Teacher Tools while
+     preserving Teacher Tools, Study Resources, and resource panels.
+     ======================================================= */
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell):has(#teacherToolsPanel.open)::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:10049;
+    background:transparent;
+    pointer-events:auto;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #teacherToolsPanel.open {
+    z-index:10050 !important;
+    pointer-events:auto !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  #studyResourcesPanel.open {
+    z-index:50000 !important;
+    pointer-events:auto !important;
+  }
+
+  html:not(.obs)
+  body:not(.rdm-mobile-app-shell)
+  .resource-instance-panel.open {
+    z-index:60000 !important;
+    pointer-events:auto !important;
+  }
+
+  /* =======================================================
      RDM TEACHING V3 OBS FINAL VISUAL POLISH
      Visual only — OBS mechanics, navigation, drag, resize,
      Live Teaching behavior, and protected controllers untouched.
