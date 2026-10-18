@@ -40696,6 +40696,127 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 }
 
 </style>
+
+<style id="rdm-phone-study-resources-stack-fix">
+/* =========================================================
+   RDM PHONE STUDY RESOURCES STACK FIX
+   Phone-only layout correction.
+   iPad / desktop / OBS / resource behavior untouched.
+   ========================================================= */
+
+@media (max-width:650px) {
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  .tool-options,
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  .tool-options.tool-colors {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    gap:12px !important;
+
+    grid-template-columns:none !important;
+    grid-auto-rows:auto !important;
+
+    width:calc(100vw - 32px) !important;
+    max-width:calc(100vw - 32px) !important;
+    min-width:0 !important;
+
+    margin:0 auto !important;
+    padding:
+      18px
+      0
+      calc(22px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    box-sizing:border-box !important;
+  }
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  .tool-option,
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  button.tool-option,
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  #openJfbResource {
+    position:relative !important;
+
+    flex:0 0 auto !important;
+    align-self:stretch !important;
+
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+
+    margin:0 !important;
+    padding:16px 18px 20px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+
+    white-space:normal !important;
+    overflow:hidden !important;
+
+    box-sizing:border-box !important;
+  }
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  .tool-option strong,
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  .tool-option span {
+    position:relative !important;
+
+    display:block !important;
+    flex:0 0 auto !important;
+
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+
+    box-sizing:border-box !important;
+  }
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #studyResourcesPanel.open
+  #openJfbResource {
+    margin-bottom:0 !important;
+  }
+}
+
+</style>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
