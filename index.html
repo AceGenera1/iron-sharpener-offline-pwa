@@ -34424,9 +34424,19 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
 
   function renderCrossReferenceLinksV196(){
-    /* v199: the Teaching Reference Bar is the one permanent teacher navigation
-       surface. Keep the legacy renderer available for its internal bookkeeping,
-       but do not duplicate the same reference buttons beneath the long note. */
+    /* v212-mobile-crossref-canonical-path:
+       Mobile/tablet does not use the desktop Teaching Reference Bar, so preserve
+       the canonical v182 Cross Reference buttons there. Desktop keeps the
+       protected v199 Teaching Reference Bar behavior unchanged. */
+    if(isMobileTabletTeachingSurface()){
+      try { callCanonicalRenderCrossReferenceLinks(); } catch (_) {}
+      return;
+    }
+
+    /* v199 desktop behavior: the Teaching Reference Bar is the one permanent
+       teacher navigation surface. Keep the legacy renderer available for its
+       internal bookkeeping, but do not duplicate the same reference buttons
+       beneath the long note. */
     if(!workspace) {
       try { legacyRenderCrossReferenceLinks(); } catch (_) {}
     }
@@ -34450,6 +34460,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   window.addEventListener("click",function(event){
     var refButton=event.target&&event.target.closest?event.target.closest("#rdmV196ReferenceList [data-rdm-v196-ref], #crossRefLinks .cross-ref-link"):null;
     if(refButton){
+      /* v212-mobile-crossref-canonical-path:
+         On mobile/tablet let protected v182 + v163 own the Cross Reference click.
+         Desktop continues through the v196 Teaching Workspace lock. */
+      if(isMobileTabletTeachingSurface()) return;
+
       event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
       var ref=refButton.getAttribute("data-rdm-v196-ref") || refButton.getAttribute("data-ref") || clean(refButton.textContent);
       if(ref) navigateToRef(ref);
