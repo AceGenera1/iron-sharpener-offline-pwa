@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -34619,18 +34619,24 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function state(){var b=g("book"),c=g("chapter"),s=g("start"),e=g("end"),r=g("rangeSize");if(!b||!c||!s||!e||!r)return null;return{book:b.value,chapter:String(c.value),start:String(s.value),end:String(e.value),range:String(r.value||"5").toLowerCase()}}
   function key(x){return x?[x.book,x.chapter,x.start,x.end,x.range].join("|"):""}
   function workspaceActive(){try{return !!(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.getWorkspace&&window.rdmTeachingWorkspaceV196.getWorkspace())}catch(_){return document.body.classList.contains("rdm-v196-teaching-workspace-active")}}
+  function mobileTabletSurface(){
+    try{
+      if(document.body&&document.body.classList.contains("rdm-mobile-app-shell"))return true;
+      return !!(window.matchMedia&&window.matchMedia("(max-width: 1180px) and (hover: none), (max-width: 1180px) and (pointer: coarse)").matches);
+    }catch(_){return false}
+  }
   function clearVisibleForHandoff(){
     ["teachingNotes","crossRefs","applicationNotes","clipNotes"].forEach(function(id){var f=g(id);if(f)f.value=""});
     var h=g("crossRefLinks");if(h)h.innerHTML="";
   }
   function hydrateExact(expected,token){
-    if(token!==generation||workspaceActive()||key(state())!==expected)return;
+    if(mobileTabletSurface()||token!==generation||workspaceActive()||key(state())!==expected)return;
     try{if(typeof window.loadCurrentNotes==="function")window.loadCurrentNotes()}catch(_){}
     try{if(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.render)window.rdmTeachingWorkspaceV196.render()}catch(_){}
     var h=g("crossRefLinks");if(h)h.innerHTML="";
   }
   function beginHandoff(){
-    if(workspaceActive())return;
+    if(mobileTabletSurface()||workspaceActive())return;
     clearTimeout(timer); var observed=key(state()); if(!observed)return; var token=++generation;
     clearVisibleForHandoff();
     timer=setTimeout(function settle(){
@@ -34643,7 +34649,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   }
   /* A real section-size/book/chapter/Next/Previous change is a teaching-workspace handoff.
      Cross-reference travel is excluded because the v196 workspace lock is active. */
-  setInterval(function(){if(workspaceActive())return;var now=key(state());if(now&&lastKey&&now!==lastKey)beginHandoff();else if(now&&!lastKey)lastKey=now},150);
+  setInterval(function(){if(mobileTabletSurface()){var mobileNow=key(state());if(mobileNow)lastKey=mobileNow;return}if(workspaceActive())return;var now=key(state());if(now&&lastKey&&now!==lastKey)beginHandoff();else if(now&&!lastKey)lastKey=now},150);
   window.addEventListener("click",function(e){var t=e.target&&e.target.closest&&e.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack");if(t)setTimeout(beginHandoff,25)},false);
   window.addEventListener("change",function(e){if(e.target&&/^(book|chapter|rangeSize|start|end)$/.test(e.target.id||""))setTimeout(beginHandoff,25)},false);
   window.__IRON_SHARPENER_STABILITY_LOCK_VERSION="v204-full-chapter-related-notes-viewer";
@@ -40908,24 +40914,30 @@ body:not(.dark) #rdmV200PopoutEditor{
   function key(x){return x?[x.book,x.chapter,x.start,x.end,x.range].join("|"):""}
   function label(x){if(!x)return"Selected passage";if(x.range==="full")return x.book+" "+x.chapter+" (Full Chapter)";return x.start===x.end?x.book+" "+x.chapter+":"+x.start:x.book+" "+x.chapter+":"+x.start+"–"+x.end}
   function workspaceActive(){try{return !!(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.getWorkspace&&window.rdmTeachingWorkspaceV196.getWorkspace())}catch(_){return document.body.classList.contains("rdm-v196-teaching-workspace-active")}}
+  function mobileTabletSurface(){
+    try{
+      if(document.body&&document.body.classList.contains("rdm-mobile-app-shell"))return true;
+      return !!(window.matchMedia&&window.matchMedia("(max-width: 1180px) and (hover: none), (max-width: 1180px) and (pointer: coarse)").matches);
+    }catch(_){return false}
+  }
   function preserveRelatedNoteVisibility(){NOTE_IDS.forEach(function(id){var w=g("rdmV182Related-"+id);if(!w)return;var hasCards=!!w.querySelector(".rdm-v182-related-card");w.style.display=hasCards?"block":"none"});}
   function redraw(){try{if(window.renderCrossReferenceLinks)window.renderCrossReferenceLinks()}catch(_){};var h=g("crossRefLinks");if(h)h.innerHTML="";try{if(window.rdmTeachingWorkspaceV196&&window.rdmTeachingWorkspaceV196.render)window.rdmTeachingWorkspaceV196.render()}catch(_){};preserveRelatedNoteVisibility();updatePopoutRef()}
   function authoritativeLoad(expectedKey){
-    if(workspaceActive())return;
+    if(mobileTabletSurface()||workspaceActive())return;
     var st=state(); if(!st||key(st)!==expectedKey)return;
     try{loading=true;if(typeof window.loadCurrentNotes==="function")window.loadCurrentNotes();}catch(_){}finally{loading=false}
     redraw();
     [80,180,360,700].forEach(function(ms){setTimeout(function(){if(!workspaceActive()&&key(state())===expectedKey){try{if(typeof window.loadCurrentNotes==="function")window.loadCurrentNotes()}catch(_){}redraw()}},ms)});
   }
   function scheduleSectionSync(){
-    if(workspaceActive())return;
+    if(mobileTabletSurface()||workspaceActive())return;
     clearTimeout(settleTimer); var observed=key(state());
     settleTimer=setTimeout(function(){var now=key(state());if(!now)return;if(now!==observed){scheduleSectionSync();return}lastStableKey=now;authoritativeLoad(now)},110);
   }
   /* This watcher is intentionally independent of Previous/Next click timing. It
      keys off the actual settled selectors, so 21–25 -> 26–30 cannot inherit the
      old visible note snapshot. */
-  setInterval(function(){if(workspaceActive())return;var k=key(state());if(k&&k!==lastStableKey){lastStableKey=k;scheduleSectionSync()}else preserveRelatedNoteVisibility()},180);
+  setInterval(function(){if(mobileTabletSurface()){var mobileKey=key(state());if(mobileKey)lastStableKey=mobileKey;return}if(workspaceActive())return;var k=key(state());if(k&&k!==lastStableKey){lastStableKey=k;scheduleSectionSync()}else preserveRelatedNoteVisibility()},180);
   window.addEventListener("click",function(ev){var t=ev.target&&ev.target.closest&&ev.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#rdmV196ReturnTeachingPassage");if(t)setTimeout(scheduleSectionSync,40)},false);
   window.addEventListener("change",function(ev){if(ev.target&&/^(book|chapter|rangeSize|start|end)$/.test(ev.target.id||""))setTimeout(scheduleSectionSync,40)},false);
 
