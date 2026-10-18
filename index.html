@@ -10135,14 +10135,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const panel = get(id);
     if (!panel) return;
 
-    if (id === "studyResourcesPanel") {
-      const teacherTools = get("teacherToolsPanel");
-      if (teacherTools) {
-        teacherTools.classList.remove("open");
-        teacherTools.setAttribute("aria-hidden", "true");
-        teacherTools.style.display = "";
-      }
-    }
 
     panel.style.display = "";
     panel.classList.add("open");
