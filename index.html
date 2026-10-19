@@ -32968,8 +32968,11 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       ".rdm-live-resource-chip,.rdm-live-scripture-link{display:inline-flex;margin:4px 6px 4px 0;padding:8px 11px;border:1.5px solid #A96F18;border-radius:10px;background:linear-gradient(180deg,#D2A64D,#A96F18);color:#F8F3E9;font:800 .82em/1.2 Arial,sans-serif;text-decoration:none;box-shadow:0 5px 12px rgba(24,52,87,.14)}",
       ".rdm-live-scripture-link{cursor:pointer}",
       ".dark .rdm-live-resource-chip,.dark .rdm-live-scripture-link{border-color:var(--gold);background:linear-gradient(#f8d987,#d99f31);color:#183457;box-shadow:0 5px 12px rgba(0,0,0,.18)}",
-      ".rdm-live-reference-group{margin:0 0 20px;padding:16px 18px;border-left:5px solid var(--gold);border-radius:8px;background:rgba(248,217,135,.10)}",
-      ".rdm-live-reference-group h3{margin:0 0 10px;font-size:1.06em}",
+      ".rdm-live-reference-group{margin:0 0 20px;padding:18px 20px;border-left:5px solid #D2A64D;border-top:1px solid rgba(169,111,24,.18);border-right:1px solid rgba(169,111,24,.18);border-bottom:1px solid rgba(169,111,24,.18);border-radius:10px;background:linear-gradient(180deg,rgba(255,253,248,.96),rgba(243,239,230,.96));box-shadow:0 8px 20px rgba(24,52,87,.08)}",
+      ".dark .rdm-live-reference-group{border-left-color:#F0C260;border-top-color:rgba(240,194,96,.18);border-right-color:rgba(240,194,96,.18);border-bottom-color:rgba(240,194,96,.18);background:linear-gradient(180deg,rgba(23,61,89,.96),rgba(16,43,66,.96));box-shadow:0 10px 24px rgba(0,0,0,.20)}",
+      ".rdm-live-reference-group h3{margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:1.12em;font-weight:700;line-height:1.25;color:#17365A}",
+      ".dark .rdm-live-reference-group h3{color:#F0C260}",
+      ".rdm-live-reference-group .rdm-live-prewrap{font-weight:600;line-height:1.58}",
       ".verse.highlighted,.verse.highlight-gold{background:linear-gradient(90deg,rgba(244,199,108,.58),rgba(244,199,108,.20));border-left:7px solid var(--gold);outline:1px solid rgba(215,168,79,.78);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 4px 14px rgba(215,168,79,.12)}",
       ".verse.highlight-blue{background:linear-gradient(90deg,rgba(97,165,255,.42),rgba(97,165,255,.16));border-left:7px solid #4f8fe8;outline:1px solid rgba(97,165,255,.65);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
       ".verse.highlight-green{background:linear-gradient(90deg,rgba(80,190,130,.42),rgba(80,190,130,.16));border-left:7px solid #3fb377;outline:1px solid rgba(80,190,130,.65);border-radius:8px;padding:8px 12px;margin-left:-12px;margin-right:-10px}",
@@ -40718,6 +40721,131 @@ html:not(.obs)
 body.rdm-mobile-app-shell.rdm-mobile-tablet:not(.dark)
 #scriptureBox {
   background:#EEE9DF !important;
+}
+
+</style>
+<style id="rdm-pc-live-crossref-visual-parity">
+/* =========================================================
+   RDM PC LIVE CROSS REFERENCE VISUAL PARITY
+   Visual-only.
+   Matches Teaching Cross References launcher to the approved
+   Teaching Note / Application launcher language and gives
+   audience reference groups more presentation weight.
+   Mobile Teaching / mechanics untouched.
+   ========================================================= */
+
+/* ---------- DESKTOP TEACHER LAUNCHER ---------- */
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell):not(.dark)
+#rdmShowTeachingCrossRefsAudience,
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell):not(.dark)
+#rdmShowTeachingCrossRefsAudience:hover,
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell):not(.dark)
+#rdmShowTeachingCrossRefsAudience:focus-visible {
+  background:
+    linear-gradient(
+      180deg,
+      #D2A64D 0%,
+      #A96F18 100%
+    ) !important;
+
+  color:#FFFDF8 !important;
+  border:1px solid rgba(169,111,24,.52) !important;
+  box-shadow:0 5px 13px rgba(24,52,87,.14) !important;
+  opacity:1 !important;
+  filter:none !important;
+  text-shadow:none !important;
+}
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell).dark
+#rdmShowTeachingCrossRefsAudience,
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell).dark
+#rdmShowTeachingCrossRefsAudience:hover,
+
+html:not(.obs)
+body:not(.rdm-mobile-app-shell).dark
+#rdmShowTeachingCrossRefsAudience:focus-visible {
+  background:
+    linear-gradient(
+      180deg,
+      #F0C260 0%,
+      #C98E29 100%
+    ) !important;
+
+  color:#17365A !important;
+  border:1px solid rgba(240,194,96,.68) !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.20) !important;
+  opacity:1 !important;
+  filter:none !important;
+  text-shadow:none !important;
+}
+
+/* ---------- LIVE / AUDIENCE CROSS REFERENCE GROUPS ---------- */
+
+#rdmLiveSingleScreenRoot:not(.dark) .rdm-live-reference-group {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,253,248,.96) 0%,
+      rgba(243,239,230,.96) 100%
+    ) !important;
+
+  border-left:5px solid #D2A64D !important;
+  border-top:1px solid rgba(169,111,24,.18) !important;
+  border-right:1px solid rgba(169,111,24,.18) !important;
+  border-bottom:1px solid rgba(169,111,24,.18) !important;
+  border-radius:10px !important;
+  box-shadow:0 8px 20px rgba(24,52,87,.08) !important;
+  padding:18px 20px !important;
+}
+
+#rdmLiveSingleScreenRoot.dark .rdm-live-reference-group {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(23,61,89,.96) 0%,
+      rgba(16,43,66,.96) 100%
+    ) !important;
+
+  border-left:5px solid #F0C260 !important;
+  border-top:1px solid rgba(240,194,96,.18) !important;
+  border-right:1px solid rgba(240,194,96,.18) !important;
+  border-bottom:1px solid rgba(240,194,96,.18) !important;
+  border-radius:10px !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.20) !important;
+  padding:18px 20px !important;
+}
+
+#rdmLiveSingleScreenRoot .rdm-live-reference-group h3 {
+  margin:0 0 10px !important;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif !important;
+  font-size:1.12em !important;
+  font-weight:700 !important;
+  line-height:1.25 !important;
+}
+
+#rdmLiveSingleScreenRoot:not(.dark) .rdm-live-reference-group h3 {
+  color:#17365A !important;
+}
+
+#rdmLiveSingleScreenRoot.dark .rdm-live-reference-group h3 {
+  color:#F0C260 !important;
+}
+
+#rdmLiveSingleScreenRoot .rdm-live-reference-group .rdm-live-prewrap {
+  font-weight:600 !important;
+  line-height:1.58 !important;
 }
 
 </style>
