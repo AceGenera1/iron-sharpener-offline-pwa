@@ -30344,7 +30344,7 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   }
   function isPersonalCrossReferenceButton(target){
     if (!target || !target.closest) return false;
-    if (target.closest("#crossRefLinks .cross-ref-link")) return true;
+    if (target.closest("#crossRefLinks .cross-ref-link, .rdm-v182-related-cross-ref-links .cross-ref-link")) return true;
     var panelButton=target.closest("#obsCrossRefsPanel .cross-ref-link");
     if (!panelButton) return false;
     var title=get("obsCrossRefsTitle");
@@ -30354,10 +30354,12 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     var target=event && event.target;
     if (!isPersonalCrossReferenceButton(target)) return;
     var button=target.closest(".cross-ref-link");
+    var capturedRef=button && (button.dataset.ref || button.textContent);
     pendingPersonalCrossRefClick={
-      ref:normalizedReferenceText(button && (button.dataset.ref || button.textContent)),
+      ref:normalizedReferenceText(capturedRef),
       at:Date.now()
     };
+    if(document.body&&document.body.classList.contains("rdm-mobile-app-shell"))beginPersonalCrossReferenceVisit(capturedRef);
   }
   function consumePersonalCrossReferenceClick(ref){
     var pending=pendingPersonalCrossRefClick;
@@ -30367,16 +30369,70 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
   }
   function beginPersonalCrossReferenceVisit(ref){
     if (personalCrossRefVisit) return true;
+
     var field=get("crossRefs");
-    if (!field || !String(field.value || "").trim()) return false;
-    var parsed=[];
-    try { if (typeof parseScriptureReferences === "function") parsed=parseScriptureReferences(field.value) || []; } catch (_) {}
+
+    if(!(document.body&&document.body.classList.contains("rdm-mobile-app-shell"))){
+      if (!field || !String(field.value || "").trim()) return false;
+      var desktopParsed=[];
+      try { if (typeof parseScriptureReferences === "function") desktopParsed=parseScriptureReferences(field.value) || []; } catch (_) {}
+      var desktopWanted=normalizedReferenceText(ref);
+      if (desktopParsed.length && !desktopParsed.some(function(item){ return normalizedReferenceText(item)===desktopWanted; })) return false;
+      personalCrossRefVisit={
+        value:String(field.value || ""),
+        originState:normalize(committedState || currentRequestedState())
+      };
+      return true;
+    }
+
     var wanted=normalizedReferenceText(ref);
-    if (parsed.length && !parsed.some(function(item){ return normalizedReferenceText(item)===wanted; })) return false;
+    if(!wanted)return false;
+
+    var sources=[];
+
+    if(field && String(field.value || "").trim()){
+      sources.push(String(field.value || ""));
+    }
+
+    try{
+      Array.prototype.forEach.call(
+        document.querySelectorAll("#rdmV182Related-crossRefs .rdm-v182-related-editor"),
+        function(editor){
+          if(editor && String(editor.value || "").trim()){
+            sources.push(String(editor.value || ""));
+          }
+        }
+      );
+    }catch(_){}
+
+    var found=false;
+
+    sources.some(function(source){
+      var parsed=[];
+
+      try{
+        if(typeof parseScriptureReferences==="function"){
+          parsed=parseScriptureReferences(source)||[];
+        }
+      }catch(_){}
+
+      if(parsed.some(function(item){
+        return normalizedReferenceText(item)===wanted;
+      })){
+        found=true;
+        return true;
+      }
+
+      return false;
+    });
+
+    if(!found)return false;
+
     personalCrossRefVisit={
-      value:String(field.value || ""),
+      value:String(field&&field.value || ""),
       originState:normalize(committedState || currentRequestedState())
     };
+
     return true;
   }
   function restorePersonalCrossReferences(){
@@ -30669,7 +30725,12 @@ html.obs body.dark #rdmScriptureHistoryBack:focus-visible {
     if (!target) return false;
     var fromPersonalCrossRefs=consumePersonalCrossReferenceClick(ref);
     if (fromPersonalCrossRefs) {
-      if (personalCrossRefVisit) loadActualNotesForCurrentPassage();
+      var mobilePreActivated=!!(
+        document.body &&
+        document.body.classList.contains("rdm-mobile-app-shell") &&
+        personalCrossRefVisit
+      );
+      if (personalCrossRefVisit && !mobilePreActivated) loadActualNotesForCurrentPassage();
       beginPersonalCrossReferenceVisit(ref);
     } else if (personalCrossRefVisit) {
       clearPersonalCrossReferenceVisit(true);
@@ -31616,6 +31677,49 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     }catch(_){}
   }
 
+  function renderRelatedCrossRefButtonsV182(card,editor){
+    if(!card||!editor)return;
+
+    var holder=card.querySelector(".rdm-v182-related-cross-ref-links");
+
+    if(!holder){
+      holder=document.createElement("div");
+      holder.className="cross-ref-links rdm-v182-related-cross-ref-links";
+      card.appendChild(holder);
+    }
+
+    var refs=[];
+
+    try{
+      if(typeof parseScriptureReferences==="function"){
+        refs=parseScriptureReferences(editor.value)||[];
+      }
+    }catch(_){}
+
+    holder.innerHTML="";
+
+    refs.forEach(function(ref){
+      var button=document.createElement("button");
+
+      button.type="button";
+      button.className="cross-ref-link";
+      button.setAttribute("data-ref",text(ref));
+      button.textContent=text(ref);
+
+      button.onclick=function(){
+        var fn=window.goToScriptureReference ||
+          (typeof goToScriptureReference==="function"
+            ? goToScriptureReference
+            : null);
+
+        if(fn)fn(button.dataset.ref);
+      };
+
+      holder.appendChild(button);
+    });
+
+    holder.style.display=refs.length ? "flex" : "none";
+  }
   function renderRelated(id,state,exactKey){
     var field=get(id); if(!field)return;
     var wrap=ensureRelatedWrap(field,id);
@@ -31633,8 +31737,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       editor.setAttribute("data-rdm-v182-field",id);
       editor.setAttribute("aria-label",NOTE_LABELS[id]+" for "+referenceLabel(record));
       editor.value=record.fields[id].value;
-      editor.addEventListener("input",function(){setRecordField(record.key,id,editor.value);if(id==="crossRefs")renderCrossReferenceLinksV182();},true);
-      card.appendChild(label);card.appendChild(editor);wrap.appendChild(card);
+      editor.addEventListener("input",function(){setRecordField(record.key,id,editor.value);if(id==="crossRefs"){if(document.body&&document.body.classList.contains("rdm-mobile-app-shell"))renderRelatedCrossRefButtonsV182(card,editor);else renderCrossReferenceLinksV182();}},true);
+      card.appendChild(label);card.appendChild(editor);if(id==="crossRefs"&&document.body&&document.body.classList.contains("rdm-mobile-app-shell"))renderRelatedCrossRefButtonsV182(card,editor);wrap.appendChild(card);
     });
   }
 
@@ -31745,7 +31849,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     var holder=get("crossRefLinks");
     if(!holder){holder=document.createElement("div");holder.id="crossRefLinks";holder.className="cross-ref-links";crossRefs.insertAdjacentElement("afterend",holder);}
     var refs=[],seen=Object.create(null);
-    var sourceValues=crossRefVisitAway()?crossRefVisit.values:allVisibleValues("crossRefs");
+    var mobileCrossRefOwnership=document.body&&document.body.classList.contains("rdm-mobile-app-shell");
+    var sourceValues=crossRefVisitAway()?crossRefVisit.values:(mobileCrossRefOwnership?(hasText(crossRefs.value)?[{label:referenceLabel(activeState),value:crossRefs.value}]:[]):allVisibleValues("crossRefs"));
     sourceValues.forEach(function(item){
       var parsed=[];
       try{if(typeof parseScriptureReferences==="function")parsed=parseScriptureReferences(item.value)||[];}catch(_){}
@@ -31913,9 +32018,9 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     window.addEventListener("pageshow",function(){scheduleRender();},true);
 
     window.addEventListener("click",function(event){
-      var target=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#obsLoadPassage,#crossRefLinks .cross-ref-link"):null;
+      var target=event.target&&event.target.closest?event.target.closest("#prevBtn,#nextBtn,#loadBtn,#rdmScriptureHistoryBack,#obsLoadPassage,#crossRefLinks .cross-ref-link,.rdm-v182-related-cross-ref-links .cross-ref-link"):null;
       if(target){
-        if(target.matches&&target.matches("#crossRefLinks .cross-ref-link"))beginCrossRefVisit();
+        if(target.matches&&target.matches("#crossRefLinks .cross-ref-link,.rdm-v182-related-cross-ref-links .cross-ref-link"))beginCrossRefVisit();
         flushMainFields();
         setTimeout(function(){scheduleRender();savePosition();},120);
       }
