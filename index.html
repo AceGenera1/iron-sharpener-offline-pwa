@@ -18193,8 +18193,8 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
     const btn = document.createElement("button");
     btn.id = "rdmMobileThemeToggle";
     btn.type = "button";
-    btn.textContent = document.body.classList.contains("dark") ? "Cream" : "Dark";
-    btn.setAttribute("aria-label", "Toggle cream or dark mode");
+    btn.textContent = document.body.classList.contains("dark") ? "Light" : "Dark";
+    btn.setAttribute("aria-label", "Toggle light or dark mode");
     btn.onclick = function () {
       const original = get("themeBtn");
       if (original) original.click();
@@ -18209,7 +18209,7 @@ html:not(.obs) body.rdm-mobile-app-shell .rdm-offline-cache-panel {
   function updateThemeToggle() {
     const btn = get("rdmMobileThemeToggle");
     if (!btn) return;
-    btn.textContent = document.body.classList.contains("dark") ? "Cream" : "Dark";
+    btn.textContent = document.body.classList.contains("dark") ? "Light" : "Dark";
   }
 
   function ensureBottomNav() {
