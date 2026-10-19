@@ -40917,6 +40917,32 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 </style>
 
+<style id="rdm-tablet-presentation-top-spacing">
+/* =========================================================
+   RDM TABLET PRESENTATION CARD TOP SPACING
+   iPad/tablet only.
+   Phone / desktop / OBS / Live Teaching untouched.
+   ========================================================= */
+
+@media (min-width:651px) and (max-width:1180px) {
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #teachingPresentationCard.open,
+
+  html:not(.obs)
+  body.rdm-mobile-app-shell
+  #applicationPresentationCard.open {
+    padding-top:
+      max(
+        42px,
+        calc(env(safe-area-inset-top, 0px) + 22px)
+      ) !important;
+  }
+}
+
+</style>
+
 <style id="rdm-phone-study-resources-stack-fix">
 /* =========================================================
    RDM PHONE STUDY RESOURCES STACK FIX
