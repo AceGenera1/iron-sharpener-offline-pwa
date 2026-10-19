@@ -40667,6 +40667,35 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 </style>
 
+<style id="rdm-mobile-scripture-device-color-balance">
+/* =========================================================
+   RDM MOBILE SCRIPTURE DEVICE COLOR BALANCE
+   Phone dark matches approved iPad dark visual level.
+   Tablet light matches approved phone light visual level.
+   Phone light / tablet dark / desktop / OBS untouched.
+   ========================================================= */
+
+/* Phone dark: lift the Scripture surface one approved navy step. */
+html:not(.obs)
+body.rdm-mobile-app-shell.rdm-mobile-phone.dark
+.scripture,
+html:not(.obs)
+body.rdm-mobile-app-shell.rdm-mobile-phone.dark
+#scriptureBox {
+  background:#17365A !important;
+}
+
+/* iPad/tablet light: warm the Scripture surface and remove excess white. */
+html:not(.obs)
+body.rdm-mobile-app-shell.rdm-mobile-tablet:not(.dark)
+.scripture,
+html:not(.obs)
+body.rdm-mobile-app-shell.rdm-mobile-tablet:not(.dark)
+#scriptureBox {
+  background:#EEE9DF !important;
+}
+
+</style>
 <style id="rdm-mobile-tablet-presentation-card-fit">
 /* =========================================================
    RDM MOBILE TABLET PRESENTATION CARD FIT
