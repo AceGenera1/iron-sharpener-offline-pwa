@@ -40667,6 +40667,31 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
 
 </style>
 
+<style id="rdm-mobile-scripture-reading-typography">
+/* =========================================================
+   RDM MOBILE SCRIPTURE READING TYPOGRAPHY
+   Slightly stronger digital-reading weight for phone/tablet.
+   Existing responsive font sizes and line heights preserved.
+   Desktop / OBS / Live Teaching untouched.
+   ========================================================= */
+
+html:not(.obs)
+body.rdm-mobile-app-shell
+#passage .verse {
+  font-family:
+    ui-serif,
+    Georgia,
+    Cambria,
+    "Times New Roman",
+    serif !important;
+
+  font-weight:500 !important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  font-synthesis:weight;
+}
+
+</style>
 <style id="rdm-mobile-scripture-device-color-balance">
 /* =========================================================
    RDM MOBILE SCRIPTURE DEVICE COLOR BALANCE
