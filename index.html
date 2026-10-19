@@ -31191,7 +31191,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     if(!raw || typeof raw!=="object")return null;
     var state=normalizeState(raw);
     if(!state)return null;
-    var key=stateKey(state);
+    var archived=raw.archived===true;
+    var key=archived&&hasText(raw.key)?text(raw.key):stateKey(state);
     var fields=emptyFields();
     NOTE_IDS.forEach(function(id){
       if(raw.fields && Object.prototype.hasOwnProperty.call(raw.fields,id)) fields[id]=normalizeField(raw.fields[id]);
@@ -31199,7 +31200,8 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     });
     return {
       key:key, book:state.book, chapter:state.chapter, start:state.start, end:state.end,
-      range:state.range, fields:fields, updatedAt:Number(raw.updatedAt||0), build:raw.build||BUILD
+      range:state.range, fields:fields, updatedAt:Number(raw.updatedAt||0), build:raw.build||BUILD,
+      archived:archived, archivedAt:Number(raw.archivedAt||0)
     };
   }
 
@@ -31306,6 +31308,84 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
     existing=normalizeRecord({ key:key, book:state.book, chapter:state.chapter, start:state.start, end:state.end, range:state.range, fields:emptyFields(), updatedAt:0, build:BUILD });
     records[key]=existing;
     return existing;
+  }
+  function recordHasVisibleNotes(record){
+    if(!record||!record.fields)return false;
+    return NOTE_IDS.some(function(id){
+      return hasText(record.fields[id]&&record.fields[id].value);
+    });
+  }
+
+  function archiveActiveTeachingSession(){
+    if(!activeState)return false;
+
+    flushMainFields();
+
+    var liveKey=stateKey(activeState);
+    var live=records[liveKey];
+    if(!recordHasVisibleNotes(live))return false;
+
+    var stamp=now();
+    var archiveKey="archive|"+liveKey+"|"+stamp;
+    while(records[archiveKey]){
+      stamp+=1;
+      archiveKey="archive|"+liveKey+"|"+stamp;
+    }
+
+    var archivedFields=emptyFields();
+    NOTE_IDS.forEach(function(id){
+      var source=live.fields[id]||normalizeField("");
+      archivedFields[id]={
+        value:text(source.value),
+        updatedAt:Number(source.updatedAt||stamp),
+        deleted:source.deleted===true
+      };
+    });
+
+    persistRecord({
+      key:archiveKey,
+      book:live.book,
+      chapter:live.chapter,
+      start:live.start,
+      end:live.end,
+      range:live.range,
+      fields:archivedFields,
+      updatedAt:Math.max(Number(live.updatedAt||0),stamp),
+      build:BUILD,
+      archived:true,
+      archivedAt:stamp
+    });
+
+    var clearedFields=emptyFields();
+    NOTE_IDS.forEach(function(id){
+      clearedFields[id]={
+        value:"",
+        updatedAt:stamp,
+        deleted:true
+      };
+    });
+
+    persistRecord({
+      key:liveKey,
+      book:live.book,
+      chapter:live.chapter,
+      start:live.start,
+      end:live.end,
+      range:live.range,
+      fields:clearedFields,
+      updatedAt:stamp,
+      build:BUILD,
+      archived:false,
+      archivedAt:0
+    });
+
+    NOTE_IDS.forEach(function(id){
+      fieldOwnerKey[id]=liveKey;
+      lastMainValue[id]="";
+      mainDirty[id]=false;
+    });
+
+    return true;
   }
 
   /* v202 one-time data repair: earlier section-handoff candidates could persist the
@@ -31759,6 +31839,7 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
       renderCrossRefs:renderCrossReferenceLinksV182,
       controlsState:controlsState,
       stateKey:stateKey,
+      archiveCurrentSession:archiveActiveTeachingSession,
       exactValues:function(state){
         state=normalizeState(state);
         if(!state)return null;
@@ -34645,6 +34726,12 @@ body.dark .rdm-v182-related-label { color: #fff0bf; }
   function beginHandoff(){
     if(crossRefTravelActive()||workspaceActive())return;
     clearTimeout(timer); var observed=key(state()); if(!observed)return; var token=++generation;
+    if(mobileTabletSurface()){
+      try{
+        var notesApi=window.__RDM_V182_SECTION_NOTES_API;
+        if(notesApi&&typeof notesApi.archiveCurrentSession==="function")notesApi.archiveCurrentSession();
+      }catch(_){}
+    }
     clearVisibleForHandoff();
     timer=setTimeout(function settle(){
       if(token!==generation||workspaceActive())return;
