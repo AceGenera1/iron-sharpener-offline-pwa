@@ -41374,6 +41374,110 @@ body.dark #rdmBackupCardV1 {
 }
 </style>
 
+
+<!-- Backup Core v2 — isolated desktop placement and theme refinement -->
+<style id="rdm-backup-layout-v2">
+/* Preserve the existing navigation grid and stack both actions in its last cell. */
+html:not(.obs) body:not(.rdm-mobile-app-shell) .rdm-backup-control-stack {
+  display:flex;
+  flex-direction:column;
+  align-self:end;
+  gap:8px;
+  min-width:0;
+}
+
+html:not(.obs) body:not(.rdm-mobile-app-shell) .rdm-backup-control-stack #loadBtn {
+  width:100%;
+  min-height:43px !important;
+}
+
+/* Desktop launcher adopts the same warm, understated Teaching aesthetic. */
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmBackupLauncherV1 {
+  position:static !important;
+  inset:auto !important;
+  display:block;
+  width:100%;
+  min-height:43px;
+  padding:10px 13px;
+  margin:0;
+  border:1.5px solid #B88A35;
+  border-radius:9px;
+  background:#EEE3CF;
+  color:#203752;
+  font:800 13px/1.2 Arial,sans-serif;
+  box-shadow:none;
+  white-space:nowrap;
+}
+
+html:not(.obs) body:not(.rdm-mobile-app-shell) #rdmBackupLauncherV1:hover {
+  background:#E5D3B2;
+}
+
+html:not(.obs) body:not(.rdm-mobile-app-shell).dark #rdmBackupLauncherV1 {
+  background:#24475E;
+  color:#F0DFB9;
+  border-color:#D7A84F;
+}
+
+html:not(.obs) body:not(.rdm-mobile-app-shell).dark #rdmBackupLauncherV1:hover {
+  background:#30566D;
+}
+
+/* OBS Focus: keep Backup Data out of the presentation workspace. */
+html.obs #rdmBackupLauncherV1 {
+  display:none !important;
+}
+
+/* Backup dialog light theme. */
+body:not(.dark) #rdmBackupCardV1 {
+  background:#F5EBDD;
+  color:#21354B;
+  border-color:#B88A35;
+}
+
+body:not(.dark) #rdmBackupExportV1 {
+  background:#244C63;
+  color:#FFF8EB;
+  border-color:#B88A35;
+}
+
+body:not(.dark) #rdmBackupCloseV1 {
+  background:#F9F2E6;
+  color:#21354B;
+  border-color:#B88A35;
+}
+
+/* Backup dialog dark theme. */
+body.dark #rdmBackupCardV1 {
+  background:#152C40;
+  color:#EBE0C9;
+  border-color:#D7A84F;
+}
+
+body.dark #rdmBackupExportV1 {
+  background:#31556A;
+  color:#F5E8CE;
+  border-color:#D7A84F;
+}
+
+body.dark #rdmBackupCloseV1 {
+  background:#203C51;
+  color:#F5E8CE;
+  border-color:#D7A84F;
+}
+
+#rdmBackupCardV1 button:focus-visible,
+#rdmBackupLauncherV1:focus-visible {
+  outline:3px solid #D7A84F;
+  outline-offset:3px;
+}
+
+@media (max-width:700px) {
+  body.rdm-mobile-app-shell #rdmBackupLauncherV1 {
+    position:fixed;
+  }
+}
+</style>
 <script id="rdm-backup-core-v1">
 (function rdmBackupCoreV1(){
   "use strict";
@@ -41712,7 +41816,23 @@ body.dark #rdmBackupCardV1 {
         '<div id="rdmBackupStatusV1" role="status" aria-live="polite">Ready to create a backup.</div>' +
       '</div>';
 
-    document.body.appendChild(launcher);
+    var refreshButton = document.getElementById("loadBtn");
+    var controls = refreshButton && refreshButton.closest(".controls");
+    var isDesktopTeaching =
+      controls &&
+      !document.documentElement.classList.contains("obs") &&
+      !document.body.classList.contains("rdm-mobile-app-shell");
+
+    if (isDesktopTeaching) {
+      var stack = document.createElement("div");
+      stack.className = "rdm-backup-control-stack";
+      controls.insertBefore(stack, refreshButton);
+      stack.appendChild(launcher);
+      stack.appendChild(refreshButton);
+    } else {
+      document.body.appendChild(launcher);
+    }
+
     document.body.appendChild(panel);
 
     document
