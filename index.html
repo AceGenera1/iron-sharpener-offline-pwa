@@ -41267,6 +41267,481 @@ body:not(.rdm-mobile-app-shell).dark
 }
 
 </style>
+
+<!-- =========================================================
+     IRON SHARPENER — LOCAL BACKUP CORE v1
+     Export-only first safety layer.
+     Reads user-created data; does not modify or restore it.
+     ========================================================= -->
+<style id="rdm-backup-core-v1-style">
+#rdmBackupLauncherV1 {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147483000;
+  border: 1.5px solid #D7A84F;
+  border-radius: 999px;
+  padding: 10px 15px;
+  background: #203D39;
+  color: #FFF8E8;
+  font: 800 13px/1.2 Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+}
+
+#rdmBackupPanelV1 {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483001;
+  background: rgba(10,18,25,.72);
+  padding: 20px;
+  overflow: auto;
+}
+
+#rdmBackupPanelV1.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#rdmBackupCardV1 {
+  width: min(560px, 100%);
+  border: 1.5px solid #D7A84F;
+  border-radius: 18px;
+  background: #F5EBDD;
+  color: #1D2D44;
+  padding: 22px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.35);
+  font-family: Arial, sans-serif;
+}
+
+body.dark #rdmBackupCardV1 {
+  background: #152A3C;
+  color: #E9DFCA;
+}
+
+#rdmBackupCardV1 h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+#rdmBackupCardV1 p {
+  line-height: 1.5;
+}
+
+.rdm-backup-actions-v1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.rdm-backup-actions-v1 button {
+  border: 1.5px solid #D7A84F;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: 800 13px Arial, sans-serif;
+  cursor: pointer;
+}
+
+#rdmBackupExportV1 {
+  background: #203D39;
+  color: #FFF8E8;
+}
+
+#rdmBackupCloseV1 {
+  background: transparent;
+  color: inherit;
+}
+
+#rdmBackupStatusV1 {
+  margin-top: 14px;
+  min-height: 22px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  #rdmBackupLauncherV1 {
+    right: 12px;
+    bottom: 84px;
+    padding: 9px 12px;
+  }
+
+  #rdmBackupCardV1 {
+    padding: 18px;
+  }
+}
+</style>
+
+<script id="rdm-backup-core-v1">
+(function rdmBackupCoreV1(){
+  "use strict";
+
+  if (window.__rdmBackupCoreV1) return;
+  window.__rdmBackupCoreV1 = true;
+
+  var FORMAT = "iron-sharpener-portable-backup";
+  var SCHEMA_VERSION = 1;
+
+  function status(message) {
+    var el = document.getElementById("rdmBackupStatusV1");
+    if (el) el.textContent = String(message || "");
+  }
+
+  function timestampForFile() {
+    return new Date().toISOString()
+      .replace(/[:.]/g, "-")
+      .replace("T", "_")
+      .replace("Z", "");
+  }
+
+  async function databaseExists(name) {
+    if (!("indexedDB" in window)) return false;
+
+    if (typeof indexedDB.databases === "function") {
+      try {
+        var list = await indexedDB.databases();
+        return list.some(function(item){ return item && item.name === name; });
+      } catch (_) {}
+    }
+
+    return true;
+  }
+
+  async function openExistingDatabase(name) {
+    if (!(await databaseExists(name))) return null;
+
+    return new Promise(function(resolve) {
+      var request;
+      var created = false;
+
+      try {
+        request = indexedDB.open(name);
+      } catch (_) {
+        resolve(null);
+        return;
+      }
+
+      request.onupgradeneeded = function() {
+        created = true;
+        try { request.transaction.abort(); } catch (_) {}
+      };
+
+      request.onsuccess = function() {
+        if (created) {
+          try { request.result.close(); } catch (_) {}
+          resolve(null);
+          return;
+        }
+        resolve(request.result);
+      };
+
+      request.onerror = function() {
+        resolve(null);
+      };
+
+      request.onblocked = function() {
+        resolve(null);
+      };
+    });
+  }
+
+  async function readStore(databaseName, storeName) {
+    var db = await openExistingDatabase(databaseName);
+    if (!db) return [];
+
+    try {
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.close();
+        return [];
+      }
+
+      var result = await new Promise(function(resolve) {
+        try {
+          var store = db
+            .transaction(storeName, "readonly")
+            .objectStore(storeName);
+
+          if (typeof store.getAll === "function") {
+            var request = store.getAll();
+
+            request.onsuccess = function() {
+              resolve(request.result || []);
+            };
+
+            request.onerror = function() {
+              resolve([]);
+            };
+          } else {
+            var rows = [];
+            var cursor = store.openCursor();
+
+            cursor.onsuccess = function() {
+              var item = cursor.result;
+              if (item) {
+                rows.push(item.value);
+                item.continue();
+              } else {
+                resolve(rows);
+              }
+            };
+
+            cursor.onerror = function() {
+              resolve(rows);
+            };
+          }
+        } catch (_) {
+          resolve([]);
+        }
+      });
+
+      db.close();
+      return result;
+    } catch (_) {
+      try { db.close(); } catch (_) {}
+      return [];
+    }
+  }
+
+  function collectLocalStorageByPrefixes(prefixes) {
+    var output = {};
+
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (!key) continue;
+
+        if (prefixes.some(function(prefix){
+          return key.indexOf(prefix) === 0;
+        })) {
+          output[key] = localStorage.getItem(key);
+        }
+      }
+    } catch (_) {}
+
+    return output;
+  }
+
+  async function sha256Hex(text) {
+    if (
+      !window.crypto ||
+      !window.crypto.subtle ||
+      typeof TextEncoder === "undefined"
+    ) return null;
+
+    try {
+      var bytes = new TextEncoder().encode(text);
+      var digest = await crypto.subtle.digest("SHA-256", bytes);
+
+      return Array.from(new Uint8Array(digest))
+        .map(function(byte){
+          return byte.toString(16).padStart(2, "0");
+        })
+        .join("");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function buildBackupPackage() {
+    status("Reading Teaching notes...");
+
+    var teachingSections = await readStore(
+      "iron-sharpener-teaching-section-notes-v2",
+      "sections"
+    );
+
+    status("Reading legacy Teaching recovery data...");
+
+    var legacyTeachingWorkspace = await readStore(
+      "iron-sharpener-teaching-workspace-v1",
+      "notes"
+    );
+
+    status("Reading Disciple Journal...");
+
+    var journalEntries = await readStore(
+      "ironSharpenerDiscipleJournalDB",
+      "entries"
+    );
+
+    var localData = collectLocalStorageByPrefixes([
+      "ironSharpenerUnified.sectionNotes.v182.",
+      "ironSharpenerDiscipleJournal."
+    ]);
+
+    var payload = {
+      teaching: {
+        sections: teachingSections,
+        legacyWorkspace: legacyTeachingWorkspace
+      },
+
+      discipleJournal: {
+        entries: journalEntries
+      },
+
+      localStorage: localData
+    };
+
+    var payloadText = JSON.stringify(payload);
+    var digest = await sha256Hex(payloadText);
+
+    return {
+      format: FORMAT,
+      schemaVersion: SCHEMA_VERSION,
+      app: "Iron Sharpener",
+      createdAt: new Date().toISOString(),
+      sourceOrigin: location.origin,
+      sourcePath: location.pathname,
+      integrity: {
+        algorithm: digest ? "SHA-256" : null,
+        payloadDigest: digest
+      },
+      counts: {
+        teachingSections: teachingSections.length,
+        legacyTeachingRecords: legacyTeachingWorkspace.length,
+        journalEntries: journalEntries.length,
+        localStorageRecords: Object.keys(localData).length
+      },
+      payload: payload
+    };
+  }
+
+  function downloadBackup(packageData) {
+    var json = JSON.stringify(packageData, null, 2);
+
+    var blob = new Blob(
+      [json],
+      { type: "application/json;charset=utf-8" }
+    );
+
+    var url = URL.createObjectURL(blob);
+    var anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download =
+      "iron-sharpener-full-backup-" +
+      timestampForFile() +
+      ".isbackup";
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    setTimeout(function(){
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
+
+  async function exportBackup() {
+    var button = document.getElementById("rdmBackupExportV1");
+
+    try {
+      if (button) button.disabled = true;
+
+      status("Building full local backup...");
+
+      var packageData = await buildBackupPackage();
+
+      if (
+        !packageData.counts.teachingSections &&
+        !packageData.counts.legacyTeachingRecords &&
+        !packageData.counts.journalEntries &&
+        !packageData.counts.localStorageRecords
+      ) {
+        throw new Error(
+          "No saved Iron Sharpener user data was found."
+        );
+      }
+
+      downloadBackup(packageData);
+
+      status(
+        "Backup created — " +
+        packageData.counts.teachingSections +
+        " Teaching sections, " +
+        packageData.counts.journalEntries +
+        " Journal entries."
+      );
+
+      window.__rdmLastBackupPackageV1 = packageData;
+    } catch (error) {
+      console.error("Iron Sharpener backup failed", error);
+      status(
+        "Backup failed: " +
+        (error && error.message ? error.message : "Unknown error")
+      );
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function closePanel() {
+    var panel = document.getElementById("rdmBackupPanelV1");
+    if (panel) panel.classList.remove("open");
+  }
+
+  function openPanel() {
+    var panel = document.getElementById("rdmBackupPanelV1");
+    if (panel) panel.classList.add("open");
+  }
+
+  function installUi() {
+    if (document.getElementById("rdmBackupLauncherV1")) return;
+
+    var launcher = document.createElement("button");
+    launcher.id = "rdmBackupLauncherV1";
+    launcher.type = "button";
+    launcher.textContent = "Backup Data";
+    launcher.addEventListener("click", openPanel);
+
+    var panel = document.createElement("div");
+    panel.id = "rdmBackupPanelV1";
+    panel.setAttribute("aria-hidden", "false");
+
+    panel.innerHTML =
+      '<div id="rdmBackupCardV1">' +
+        '<h2>Iron Sharpener Backup</h2>' +
+        '<p>Create a portable backup of your saved Teaching notes, Teaching history, Disciple Journal entries, drafts, and Scripture marks.</p>' +
+        '<p><strong>This first safety version only reads and exports your data. It does not change or restore anything.</strong></p>' +
+        '<div class="rdm-backup-actions-v1">' +
+          '<button id="rdmBackupExportV1" type="button">Export Full Backup</button>' +
+          '<button id="rdmBackupCloseV1" type="button">Close</button>' +
+        '</div>' +
+        '<div id="rdmBackupStatusV1" role="status" aria-live="polite">Ready to create a backup.</div>' +
+      '</div>';
+
+    document.body.appendChild(launcher);
+    document.body.appendChild(panel);
+
+    document
+      .getElementById("rdmBackupExportV1")
+      .addEventListener("click", exportBackup);
+
+    document
+      .getElementById("rdmBackupCloseV1")
+      .addEventListener("click", closePanel);
+
+    panel.addEventListener("click", function(event){
+      if (event.target === panel) closePanel();
+    });
+  }
+
+  window.rdmBuildFullBackupV1 = buildBackupPackage;
+  window.rdmExportFullBackupV1 = exportBackup;
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      installUi,
+      { once: true }
+    );
+  } else {
+    installUi();
+  }
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
