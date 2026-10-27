@@ -42048,6 +42048,175 @@ body.dark #rdmBackupCloseV1 {
   }
 })();
 </script>
+<!-- IRON SHARPENER RESTORE CONFLICT ANALYSIS V2 -->
+<style id="rdm-restore-analysis-v2-style">
+#rdmRestoreAnalysisV2{
+ margin-top:16px;padding:14px;
+ border:1px solid #B88A35;border-radius:10px;
+ font:13px/1.6 Arial,sans-serif
+}
+#rdmRestoreAnalysisV2 h3{margin:0 0 8px;font-size:17px}
+#rdmRestoreAnalysisResultsV2{white-space:pre-wrap;overflow-wrap:anywhere}
+</style>
+<script id="rdm-restore-analysis-v2">
+(function(){
+"use strict";
+var prefix="ironSharpenerUnified.sectionNotes.v182.record.";
+var fields=["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+
+function signature(r){
+ if(!r||!r.fields)return null;
+ return JSON.stringify({
+  key:r.key,
+  archived:r.archived===true,
+  archivedAt:Number(r.archivedAt||0),
+  fields:fields.map(function(k){
+   var f=r.fields[k]||{};
+   return [String(f.value==null?"":f.value),
+           Number(f.updatedAt||0),f.deleted===true];
+  })
+ });
+}
+
+function localRecords(){
+ var out=new Map();
+ for(var i=0;i<localStorage.length;i++){
+  var k=localStorage.key(i);
+  if(!k||!k.startsWith(prefix))continue;
+  try{
+   var r=JSON.parse(localStorage.getItem(k));
+   if(r&&typeof r.key==="string")out.set(r.key,r);
+  }catch(_){}
+ }
+ return out;
+}
+
+function indexedRecords(){
+ return new Promise(function(resolve,reject){
+  var req=indexedDB.open("iron-sharpener-teaching-section-notes-v2");
+  req.onupgradeneeded=function(){
+   try{req.transaction.abort()}catch(_){}
+  };
+  req.onerror=function(){reject(new Error("Database unavailable"))};
+  req.onblocked=function(){reject(new Error("Database blocked"))};
+  req.onsuccess=function(){
+   var db=req.result;
+   if(!db.objectStoreNames.contains("sections")){
+    db.close();reject(new Error("Sections store missing"));return;
+   }
+   var tx=db.transaction("sections","readonly");
+   var q=tx.objectStore("sections").getAll();
+   q.onsuccess=function(){var rows=q.result||[];db.close();resolve(rows)};
+   q.onerror=function(){db.close();reject(new Error("Read failed"))};
+  };
+ });
+}
+
+async function verifiedSections(file){
+ if(!file||!/\.isbackup$/i.test(file.name))
+  throw new Error("Select a .isbackup file");
+ if(file.size>50*1024*1024)
+  throw new Error("Backup too large");
+
+ var data=JSON.parse(await file.text());
+ if(data.format!=="iron-sharpener-portable-backup"||
+    data.schemaVersion!==1||!data.payload||
+    !data.payload.teaching||
+    !Array.isArray(data.payload.teaching.sections))
+  throw new Error("Invalid backup format");
+
+ if(!data.integrity||
+    data.integrity.algorithm!=="SHA-256"||
+    !/^[a-f0-9]{64}$/i.test(data.integrity.payloadDigest||""))
+  throw new Error("Missing integrity information");
+
+ var bytes=new TextEncoder().encode(JSON.stringify(data.payload));
+ var hash=await crypto.subtle.digest("SHA-256",bytes);
+ var hex=Array.from(new Uint8Array(hash))
+  .map(function(n){return n.toString(16).padStart(2,"0")}).join("");
+
+ if(hex.toLowerCase()!==data.integrity.payloadDigest.toLowerCase())
+  throw new Error("Integrity verification failed");
+
+ return data.payload.teaching.sections;
+}
+
+function install(){
+ var parent=document.getElementById("rdmRestorePreviewV2");
+ var input=document.getElementById("rdmRestoreFileV2");
+ if(!parent||!input||document.getElementById("rdmRestoreAnalysisV2"))
+  return;
+
+ var box=document.createElement("section");
+ box.id="rdmRestoreAnalysisV2";
+ var heading=document.createElement("h3");
+ heading.textContent="Restoration Conflict Analysis";
+ var output=document.createElement("div");
+ output.id="rdmRestoreAnalysisResultsV2";
+ output.textContent="Select a backup to compare Teaching records.";
+ box.append(heading,output);
+ parent.appendChild(box);
+
+ input.addEventListener("change",async function(){
+  output.textContent="Comparing records...";
+  try{
+   var sections=await verifiedSections(input.files[0]);
+   var local=localRecords();
+   var db=new Map();
+   (await indexedRecords()).forEach(function(r){
+    if(r&&typeof r.key==="string")db.set(r.key,r);
+   });
+
+   var missing=0,matching=0,conflicts=0;
+   var disagreement=0,deletions=0,invalid=0,duplicates=0;
+   var seen=new Set();
+
+   sections.forEach(function(r){
+    if(!r||typeof r.key!=="string"||!r.key||!signature(r)){
+     invalid++;return;
+    }
+    if(seen.has(r.key)){duplicates++;return}
+    seen.add(r.key);
+
+    var a=local.get(r.key),b=db.get(r.key);
+    if(a&&b&&signature(a)!==signature(b))disagreement++;
+    if(!a&&!b){missing++;return}
+
+    var sameA=a&&signature(a)===signature(r);
+    var sameB=b&&signature(b)===signature(r);
+    if((sameA||sameB)&&!(a&&b&&signature(a)!==signature(b))){
+     matching++;return;
+    }
+    conflicts++;
+    if([a,b].some(function(x){
+     return x&&x.fields&&fields.some(function(k){
+      return x.fields[k]&&x.fields[k].deleted===true;
+     });
+    }))deletions++;
+   });
+
+   output.textContent=
+    "READ-ONLY ANALYSIS COMPLETE\n"+
+    "Backup Teaching sections: "+sections.length+"\n"+
+    "Missing sections: "+missing+"\n"+
+    "Matching sections: "+matching+"\n"+
+    "Different/conflicting sections: "+conflicts+"\n"+
+    "Storage disagreements: "+disagreement+"\n"+
+    "Conflicts with deletion markers: "+deletions+"\n"+
+    "Invalid records: "+invalid+"\n"+
+    "Duplicate keys: "+duplicates+"\n\n"+
+    "No data changed. Restoration disabled.";
+  }catch(e){
+   output.textContent="ANALYSIS STOPPED: "+e.message+
+    "\nNo data changed.";
+  }
+ });
+}
+if(document.readyState==="loading")
+ document.addEventListener("DOMContentLoaded",install,{once:true});
+else install();
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
