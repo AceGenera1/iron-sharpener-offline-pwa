@@ -41862,6 +41862,192 @@ body.dark #rdmBackupCloseV1 {
   }
 })();
 </script>
+<!-- Iron Sharpener Restore Preview v2: READ ONLY -->
+<style id="rdm-restore-preview-v2-style">
+#rdmRestorePreviewV2 {
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px solid #B88A35;
+}
+#rdmRestorePreviewV2 h3 {
+  margin:0 0 8px;
+  font-size:18px;
+}
+#rdmRestorePreviewV2 label {
+  display:block;
+  margin:10px 0 6px;
+  font-weight:700;
+}
+#rdmRestoreFileV2 {
+  max-width:100%;
+  width:100%;
+  font:inherit;
+}
+#rdmRestoreResultV2 {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  margin-top:10px;
+  line-height:1.5;
+  font-size:13px;
+}
+#rdmRestoreResultV2[data-valid="yes"] {
+  font-weight:700;
+}
+</style>
+
+<script id="rdm-restore-preview-v2">
+(function(){
+  "use strict";
+
+  var FORMAT = "iron-sharpener-portable-backup";
+
+  function install(){
+    var card = document.getElementById("rdmBackupCardV1");
+    if (!card || document.getElementById("rdmRestorePreviewV2")) return;
+
+    var section = document.createElement("section");
+    section.id = "rdmRestorePreviewV2";
+
+    var heading = document.createElement("h3");
+    heading.textContent = "Restore Backup - Preview Only";
+
+    var description = document.createElement("p");
+    description.textContent =
+      "Select an Iron Sharpener .isbackup file to inspect. " +
+      "This preview cannot change your saved data.";
+
+    var label = document.createElement("label");
+    label.htmlFor = "rdmRestoreFileV2";
+    label.textContent = "Select backup file";
+
+    var fileInput = document.createElement("input");
+    fileInput.id = "rdmRestoreFileV2";
+    fileInput.type = "file";
+    fileInput.accept = ".isbackup,application/json";
+
+    var result = document.createElement("div");
+    result.id = "rdmRestoreResultV2";
+    result.setAttribute("role","status");
+    result.setAttribute("aria-live","polite");
+    result.textContent =
+      "No backup selected. Restoration is disabled in this version.";
+
+    section.append(heading,description,label,fileInput,result);
+    card.appendChild(section);
+
+    fileInput.addEventListener("change",async function(){
+      delete result.dataset.valid;
+      result.textContent = "Inspecting backup...";
+
+      var file = fileInput.files && fileInput.files[0];
+
+      if (!file) {
+        result.textContent = "No backup selected.";
+        return;
+      }
+
+      try {
+        if (file.size > 50 * 1024 * 1024) {
+          throw new Error("File exceeds the 50 MiB preview limit.");
+        }
+
+        if (!/\.isbackup$/i.test(file.name)) {
+          throw new Error("Choose a .isbackup file.");
+        }
+
+        var data = JSON.parse(await file.text());
+
+        if (!data || data.format !== FORMAT ||
+            data.schemaVersion !== 1) {
+          throw new Error("Unsupported backup format or schema.");
+        }
+
+        if (!data.payload || !data.payload.teaching ||
+            !data.payload.discipleJournal ||
+            !data.payload.localStorage ||
+            !data.counts || !data.integrity) {
+          throw new Error("Incomplete backup structure.");
+        }
+
+        var p = data.payload;
+
+        var arrays = [
+          p.teaching.sections,
+          p.teaching.legacyWorkspace,
+          p.discipleJournal.entries
+        ];
+
+        if (!arrays.every(Array.isArray) ||
+            typeof p.localStorage !== "object" ||
+            Array.isArray(p.localStorage)) {
+          throw new Error("Invalid backup record collections.");
+        }
+
+        var actual = {
+          teachingSections: arrays[0].length,
+          legacyTeachingRecords: arrays[1].length,
+          journalEntries: arrays[2].length,
+          localStorageRecords: Object.keys(p.localStorage).length
+        };
+
+        for (var key of Object.keys(actual)) {
+          if (!Number.isSafeInteger(data.counts[key]) ||
+              data.counts[key] !== actual[key]) {
+            throw new Error("Record count mismatch: " + key);
+          }
+        }
+
+        if (data.integrity.algorithm !== "SHA-256" ||
+            !/^[a-f0-9]{64}$/i.test(data.integrity.payloadDigest || "")) {
+          throw new Error("SHA-256 integrity information missing.");
+        }
+
+        if (!window.crypto || !crypto.subtle ||
+            typeof TextEncoder === "undefined") {
+          throw new Error("Secure hash verification unavailable.");
+        }
+
+        var bytes = new TextEncoder().encode(JSON.stringify(p));
+        var digest = await crypto.subtle.digest("SHA-256",bytes);
+
+        var calculated = Array.from(new Uint8Array(digest))
+          .map(function(n){
+            return n.toString(16).padStart(2,"0");
+          }).join("");
+
+        if (calculated.toLowerCase() !==
+            data.integrity.payloadDigest.toLowerCase()) {
+          throw new Error("SHA-256 mismatch: backup may be damaged.");
+        }
+
+        result.dataset.valid = "yes";
+
+        result.textContent =
+          "PREVIEW VERIFIED - READ ONLY\n" +
+          "Teaching sections: " + actual.teachingSections + "\n" +
+          "Legacy Teaching records: " + actual.legacyTeachingRecords + "\n" +
+          "Disciple Journal entries: " + actual.journalEntries + "\n" +
+          "Local storage records: " + actual.localStorageRecords + "\n" +
+          "Created: " + String(data.createdAt || "Not specified") + "\n" +
+          "Integrity: SHA-256 MATCH\n" +
+          "No data changed. Restoration remains disabled.";
+
+      } catch (error) {
+        result.textContent =
+          "PREVIEW REJECTED: " +
+          (error && error.message ? error.message : String(error)) +
+          "\nNo data changed.";
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded",install,{once:true});
+  } else {
+    install();
+  }
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
