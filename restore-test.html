@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Iron Sharpener | Protected Restoration Test</title>
+<style>
+:root {
+ color-scheme:dark;
+ font-family:system-ui,Arial,sans-serif;
+ background:#101b30;color:#f9f4e8;
+}
+body{margin:0;padding:24px}
+main{
+ max-width:760px;margin:35px auto;padding:28px;
+ border:1px solid #d7a84f;border-radius:16px;
+ background:#182842
+}
+h1{color:#e6bd6a;margin-top:0}
+h2{font-size:1.12rem;color:#f1cf88}
+p,li{line-height:1.7}
+.status{
+ padding:14px;border:1px solid #d7a84f;
+ border-radius:9px;margin:20px 0
+}
+small{color:#d9d5ce}
+</style>
+</head>
+<body>
+<main>
+<h1>Iron Sharpener</h1>
+<h2>Protected Restoration Mode — Development</h2>
+
+<div class="status" role="status">
+RESTORATION DISABLED — ISOLATED PAGE CREATED
+</div>
+
+<p>
+This page is separate from the normal Teaching interface.
+It does not load Teaching v211, run Teaching migrations,
+or automatically synchronize Teaching records.
+</p>
+
+<p>
+The protected restoration engine will be installed here
+after its storage safeguards and recovery behavior
+have been finalized.
+</p>
+
+<h2>Safety requirements</h2>
+<ul>
+<li>Use isolated Chrome Profile 3.</li>
+<li>Keep the verified backup outside Chrome.</li>
+<li>Verify current data before importing.</li>
+<li>Never overwrite existing Teaching records.</li>
+<li>Verify restored records in both storage systems.</li>
+</ul>
+
+<small>
+Restored Daily Ministries — Iron Sharpener.
+Restoration is currently disabled.
+</small>
+<section id="rdm-restore-validator-v1">
+<h2>Backup Validation</h2>
+<p>Select an Iron Sharpener .isbackup file to inspect it.</p>
+<label for="rdmBackupFile">Backup file</label>
+<input id="rdmBackupFile" type="file" accept=".isbackup">
+<button id="rdmValidateBackup" type="button">Validate Backup</button>
+<pre id="rdmBackupResult" role="status" aria-live="polite">No file validated.</pre>
+</section>
+
+<style id="rdm-restore-validator-v1-style">
+#rdm-restore-validator-v1 {
+ margin-top:24px;
+ padding:20px;
+ border:1px solid #d7a84f;
+ border-radius:12px;
+}
+#rdmBackupFile {display:block;margin:12px 0}
+#rdmValidateBackup {
+ padding:11px 16px;
+ background:#d7a84f;
+ color:#101b30;
+ border:0;
+ border-radius:8px;
+ font-weight:700;
+ cursor:pointer;
+}
+#rdmBackupResult {
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ padding:15px;
+ background:#101b30;
+ border-radius:8px;
+}
+</style>
+
+<script id="rdm-restore-validator-v1-script">
+(function(){
+"use strict";
+
+const fileInput=document.getElementById("rdmBackupFile");
+const button=document.getElementById("rdmValidateBackup");
+const output=document.getElementById("rdmBackupResult");
+
+button.addEventListener("click",async()=>{
+ button.disabled=true;
+ output.textContent="Validating backup...";
+ try{
+  const file=fileInput.files?.[0];
+  if(!file || !/\.isbackup$/i.test(file.name))
+   throw Error("Select an .isbackup file.");
+
+  if(file.size>50*1024*1024)
+   throw Error("Backup exceeds 50 MiB.");
+
+  const data=JSON.parse(await file.text());
+
+  if(data.format!=="iron-sharpener-portable-backup")
+   throw Error("Unsupported backup format.");
+
+  if(data.schemaVersion!==1)
+   throw Error("Unsupported backup schema.");
+
+  const payload=data.payload;
+
+  if(!payload ||
+     !payload.teaching ||
+     !Array.isArray(payload.teaching.sections) ||
+     !Array.isArray(payload.teaching.legacyWorkspace) ||
+     !payload.discipleJournal ||
+     !Array.isArray(payload.discipleJournal.entries) ||
+     !payload.localStorage ||
+     Array.isArray(payload.localStorage))
+   throw Error("Incomplete backup payload.");
+
+  const counts={
+   teachingSections:payload.teaching.sections.length,
+   legacyTeachingRecords:payload.teaching.legacyWorkspace.length,
+   journalEntries:payload.discipleJournal.entries.length,
+   localStorageRecords:Object.keys(payload.localStorage).length
+  };
+
+  for(const key of Object.keys(counts)){
+   if(data.counts?.[key]!==counts[key])
+    throw Error("Count mismatch: "+key);
+  }
+
+  if(data.integrity?.algorithm!=="SHA-256" ||
+     !/^[0-9a-f]{64}$/i.test(data.integrity.payloadDigest||""))
+   throw Error("SHA-256 information missing.");
+
+  const bytes=new TextEncoder().encode(JSON.stringify(payload));
+  const digest=await crypto.subtle.digest("SHA-256",bytes);
+  const hex=Array.from(new Uint8Array(digest))
+    .map(n=>n.toString(16).padStart(2,"0")).join("");
+
+  if(hex.toLowerCase()!==data.integrity.payloadDigest.toLowerCase())
+   throw Error("SHA-256 integrity mismatch.");
+
+  const keys=new Set();
+  for(const record of payload.teaching.sections){
+   if(!record || typeof record.key!=="string" || !record.key)
+    throw Error("Invalid Teaching record key.");
+   if(keys.has(record.key))
+    throw Error("Duplicate Teaching record key.");
+   keys.add(record.key);
+  }
+
+  output.textContent=
+   "BACKUP VERIFIED\n\n"+
+   "SHA-256: MATCH\n"+
+   "Created: "+data.createdAt+"\n"+
+   "Teaching sections: "+counts.teachingSections+"\n"+
+   "Legacy Teaching records: "+counts.legacyTeachingRecords+"\n"+
+   "Disciple Journal entries: "+counts.journalEntries+"\n"+
+   "localStorage records: "+counts.localStorageRecords+"\n"+
+   "Duplicate Teaching keys: 0\n\n"+
+   "READ-ONLY VALIDATION COMPLETE\n"+
+   "No browser data was modified.";
+ }catch(error){
+  output.textContent="VALIDATION FAILED\n"+error.message;
+ }finally{
+  button.disabled=false;
+ }
+});
+})();
+</script>
+<section id="rdm-storage-analysis-v1">
+<h2>Teaching Storage Analysis</h2>
+<p>
+Compare the selected backup with Teaching records in this browser
+profile. This analysis never writes or deletes saved records.
+</p>
+<button id="rdmAnalyzeStorageV1" type="button">
+Analyze Current Teaching Storage
+</button>
+<pre id="rdmStorageResultV1" role="status" aria-live="polite">
+Analysis not started.
+</pre>
+</section>
+
+<style id="rdm-storage-analysis-v1-style">
+#rdm-storage-analysis-v1 {
+ margin-top:24px;
+ padding:20px;
+ border:1px solid #d7a84f;
+ border-radius:12px;
+}
+#rdmAnalyzeStorageV1 {
+ padding:11px 16px;
+ background:#d7a84f;
+ color:#101b30;
+ border:0;
+ border-radius:8px;
+ font-weight:700;
+ cursor:pointer;
+}
+#rdmAnalyzeStorageV1:disabled {
+ opacity:.5;
+ cursor:not-allowed;
+}
+#rdmStorageResultV1 {
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ padding:15px;
+ background:#101b30;
+ border-radius:8px;
+ line-height:1.65;
+}
+</style>
+
+<script id="rdm-storage-analysis-v1-script">
+(function(){
+"use strict";
+
+const DB="iron-sharpener-teaching-section-notes-v2";
+const STORE="sections";
+const PREFIX="ironSharpenerUnified.sectionNotes.v182.";
+const RECORD_PREFIX=PREFIX+"record.";
+const INDEX=PREFIX+"index";
+const FIELDS=["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+
+const button=document.getElementById("rdmAnalyzeStorageV1");
+const result=document.getElementById("rdmStorageResultV1");
+const fileInput=document.getElementById("rdmBackupFile");
+
+function requireOrigin(){
+ if(location.origin!=="https://iron.restoreddailyministries.org"){
+  throw Error(
+   "Storage analysis requires the HTTPS Iron Sharpener website. "+
+   "Local file validation is supported, but file:// storage is separate."
+  );
+ }
+}
+
+async function loadVerifiedBackup(){
+ const file=fileInput.files?.[0];
+ if(!file || !/\.isbackup$/i.test(file.name))
+  throw Error("Select the backup file in Backup Validation first.");
+ if(file.size>50*1024*1024)
+  throw Error("Backup exceeds the size limit.");
+
+ const data=JSON.parse(await file.text());
+ const p=data.payload;
+
+ if(data.format!=="iron-sharpener-portable-backup" ||
+    data.schemaVersion!==1 ||
+    !p || !p.teaching ||
+    !Array.isArray(p.teaching.sections) ||
+    !Array.isArray(p.teaching.legacyWorkspace) ||
+    !p.discipleJournal ||
+    !Array.isArray(p.discipleJournal.entries) ||
+    !p.localStorage || Array.isArray(p.localStorage))
+  throw Error("Unsupported or incomplete backup.");
+
+ const counts={
+  teachingSections:p.teaching.sections.length,
+  legacyTeachingRecords:p.teaching.legacyWorkspace.length,
+  journalEntries:p.discipleJournal.entries.length,
+  localStorageRecords:Object.keys(p.localStorage).length
+ };
+ for(const name of Object.keys(counts)){
+  if(data.counts?.[name]!==counts[name])
+   throw Error("Backup count mismatch: "+name);
+ }
+ if(data.integrity?.algorithm!=="SHA-256" ||
+    !/^[0-9a-f]{64}$/i.test(data.integrity.payloadDigest||""))
+  throw Error("Backup has no valid SHA-256 digest.");
+
+ const bytes=new TextEncoder().encode(JSON.stringify(p));
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+ const hex=Array.from(new Uint8Array(digest))
+  .map(n=>n.toString(16).padStart(2,"0")).join("");
+
+ if(hex.toLowerCase()!==data.integrity.payloadDigest.toLowerCase())
+  throw Error("Backup integrity mismatch.");
+
+ const seen=new Set();
+ for(const record of p.teaching.sections){
+  if(!record || typeof record.key!=="string" || !record.key)
+   throw Error("Backup contains an invalid Teaching key.");
+  if(seen.has(record.key))
+   throw Error("Backup has duplicate Teaching keys.");
+  seen.add(record.key);
+ }
+ return data;
+}
+
+function readLocalKeys(){
+ const keys=new Set();
+ for(let i=0;i<localStorage.length;i++){
+  const storageKey=localStorage.key(i);
+  if(!storageKey || !storageKey.startsWith(RECORD_PREFIX))continue;
+  try{
+   keys.add(decodeURIComponent(
+    storageKey.slice(RECORD_PREFIX.length)
+   ));
+  }catch(_){
+   throw Error("Existing localStorage record key is malformed.");
+  }
+ }
+
+ const raw=localStorage.getItem(INDEX);
+ if(raw!==null){
+  let index;
+  try{index=JSON.parse(raw)}catch(_){
+   throw Error("Current Teaching index is unreadable.");
+  }
+  if(!Array.isArray(index) ||
+     index.some(k=>typeof k!=="string" || !k))
+   throw Error("Current Teaching index is invalid.");
+  index.forEach(key=>keys.add(key));
+ }
+ return keys;
+}
+
+function readIndexedDB(){
+ return new Promise((resolve,reject)=>{
+  let opened=false;
+  const req=indexedDB.open(DB,1);
+  req.onupgradeneeded=()=>{
+   // Never create or upgrade a Teaching database during analysis.
+   try{req.transaction.abort()}catch(_){}
+  };
+  req.onerror=()=>{
+   if(!opened)reject(Error(
+    "Teaching database not available. Open the normal "+
+    "Iron Sharpener website first in this profile, then close its tabs."
+   ));
+  };
+  req.onblocked=()=>reject(Error("Teaching database is blocked."));
+  req.onsuccess=()=>{
+   opened=true;
+   const db=req.result;
+   if(!db.objectStoreNames.contains(STORE)){
+    db.close();
+    reject(Error("Teaching sections store is unavailable."));
+    return;
+   }
+   const tx=db.transaction(STORE,"readonly");
+   const get=tx.objectStore(STORE).getAll();
+   let rows=null;
+   get.onsuccess=()=>{rows=get.result||[]};
+   tx.oncomplete=()=>{db.close();resolve(rows||[])};
+   tx.onerror=()=>{db.close();reject(Error("Teaching read failed."))};
+   tx.onabort=()=>{db.close();reject(Error("Teaching read aborted."))};
+  };
+ });
+}
+
+function comparable(r){
+ if(!r || typeof r!=="object" || !r.fields)return null;
+ const fields={};
+ for(const name of FIELDS){
+  const f=r.fields[name];
+  if(!f || typeof f.value!=="string")return null;
+  fields[name]={
+   value:f.value,
+   updatedAt:Number(f.updatedAt||0),
+   deleted:f.deleted===true
+  };
+ }
+ return {
+  key:r.key,
+  book:String(r.book||""),
+  chapter:Number(r.chapter),
+  start:Number(r.start),
+  end:Number(r.end),
+  range:String(r.range||""),
+  archived:r.archived===true,
+  archivedAt:Number(r.archivedAt||0),
+  updatedAt:Number(r.updatedAt||0),
+  fields
+ };
+}
+
+function classify(a,b){
+ const x=comparable(a),y=comparable(b);
+ if(!x || !y)return "different";
+ if(JSON.stringify(x)===JSON.stringify(y))return "exact";
+
+ const contentSame=FIELDS.every(name=>
+  x.fields[name].value===y.fields[name].value &&
+  x.fields[name].deleted===y.fields[name].deleted
+ );
+
+ if(contentSame &&
+    x.book===y.book && x.chapter===y.chapter &&
+    x.start===y.start && x.end===y.end &&
+    x.range===y.range && x.archived===y.archived)
+  return "metadata";
+ return "different";
+}
+
+button.addEventListener("click",async()=>{
+ button.disabled=true;
+ result.textContent="Checking origin and validating backup...";
+ try{
+  requireOrigin();
+  const backup=await loadVerifiedBackup();
+
+  result.textContent="Reading current Teaching storage...";
+  const rows=await readIndexedDB();
+  const localKeys=readLocalKeys();
+
+  const dbMap=new Map();
+  for(const row of rows){
+   if(!row || typeof row.key!=="string" || !row.key)
+    throw Error("IndexedDB contains an invalid Teaching key.");
+   if(dbMap.has(row.key))
+    throw Error("Duplicate IndexedDB Teaching key.");
+   dbMap.set(row.key,row);
+  }
+
+  const allKeys=new Set([...dbMap.keys(),...localKeys]);
+  const stats={
+   missing:0,
+   exact:0,
+   metadata:0,
+   different:0,
+   localOnly:0,
+   indexedOnly:0
+  };
+  const differences=[];
+
+  for(const r of backup.payload.teaching.sections){
+   const inDB=dbMap.has(r.key);
+   const inLocal=localKeys.has(r.key);
+
+   if(!inDB && !inLocal){
+    stats.missing++;
+    continue;
+   }
+   if(!inDB){stats.localOnly++;continue}
+   if(!inLocal){stats.indexedOnly++;continue}
+
+   const type=classify(r,dbMap.get(r.key));
+   if(type==="exact")stats.exact++;
+   else if(type==="metadata"){
+    stats.metadata++;
+    differences.push(r.key+" - metadata only");
+   }else{
+    stats.different++;
+    differences.push(r.key+" - existing record differs");
+   }
+  }
+
+  const missingInDB=[...localKeys].filter(k=>!dbMap.has(k)).length;
+  const missingInLocal=[...dbMap.keys()].filter(k=>!localKeys.has(k)).length;
+
+  result.textContent=
+   "READ-ONLY STORAGE ANALYSIS COMPLETE\n\n"+
+   "Origin: "+location.origin+"\n"+
+   "Backup SHA-256: MATCH\n"+
+   "Backup Teaching sections: "+backup.payload.teaching.sections.length+"\n"+
+   "Missing from both storage systems: "+stats.missing+"\n"+
+   "Exact matches in IndexedDB: "+stats.exact+"\n"+
+   "Metadata-only differences: "+stats.metadata+"\n"+
+   "Different existing records: "+stats.different+"\n"+
+   "Backup keys only in localStorage: "+stats.localOnly+"\n"+
+   "Backup keys only in IndexedDB: "+stats.indexedOnly+"\n"+
+   "All existing Teaching keys: "+allKeys.size+"\n"+
+   "All keys missing in IndexedDB: "+missingInDB+"\n"+
+   "All keys missing in localStorage: "+missingInLocal+"\n\n"+
+   (differences.length
+     ?"Differences:\n"+differences.join("\n")+"\n\n"
+     :"")+
+   "RESTORATION DISABLED\n"+
+   "No Teaching records were intentionally changed.";
+ }catch(error){
+  result.textContent="ANALYSIS STOPPED\n"+error.message+
+   "\n\nNo restoration was attempted.";
+ }finally{
+  button.disabled=false;
+ }
+});
+})();
+</script>
+</main>
+</body>
+</html>
