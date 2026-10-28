@@ -277,6 +277,24 @@ async function resourceRequest(request){
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (!sameOriginGet(request)) return;
+  // RESTORATION ROUTE EXCEPTION V1
+  // Exact-path network-only bypass; never substitute a Teaching shell.
+  if (canonicalPath(request) === "restore-test.html" && isNavigation(request)) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: "no-store" });
+        if (validResponse("restore-test.html", response)) return response;
+      } catch (_) {}
+      return new Response(
+        "Iron Sharpener Restoration Mode requires an online connection.",
+        {
+          status: 503,
+          headers: { "content-type": "text/plain; charset=utf-8" }
+        }
+      );
+    })());
+    return;
+  }
   if (isNavigation(request)) { event.respondWith(navigationImmediate(request, event)); return; }
   if (isBible(request)) { event.respondWith(bibleRequest(request)); return; }
   if (isLaunchAsset(request)) { event.respondWith(launchAssetRequest(request)); return; }
