@@ -498,6 +498,257 @@ button.addEventListener("click",async()=>{
 });
 })();
 </script>
+<section id="rdm-safety-snapshot-v1">
+<h2>Protected Import — Safety Snapshot</h2>
+
+<p>
+Before restoring missing Teaching records, save a separate
+snapshot of the Teaching data currently in this browser profile.
+This is especially important if an existing record differs
+from the restoration backup.
+</p>
+
+<button id="rdmDownloadSafetyV1" type="button">
+Download Current Teaching Safety Snapshot
+</button>
+
+<pre id="rdmSafetyStatusV1" role="status" aria-live="polite">
+No safety snapshot created.
+
+Restoration remains disabled.
+</pre>
+</section>
+
+<style id="rdm-safety-snapshot-v1-style">
+#rdm-safety-snapshot-v1 {
+ margin-top:24px;
+ padding:20px;
+ border:1px solid #d7a84f;
+ border-radius:12px;
+}
+#rdmDownloadSafetyV1 {
+ padding:11px 16px;
+ background:#d7a84f;
+ color:#101b30;
+ border:0;
+ border-radius:8px;
+ font-weight:700;
+ cursor:pointer;
+}
+#rdmDownloadSafetyV1:disabled {
+ opacity:.5;
+ cursor:not-allowed;
+}
+#rdmSafetyStatusV1 {
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ padding:15px;
+ background:#101b30;
+ border-radius:8px;
+ line-height:1.65;
+}
+</style>
+
+<script id="rdm-safety-snapshot-v1-script">
+(function(){
+"use strict";
+
+const ORIGIN="https://iron.restoreddailyministries.org";
+const DB="iron-sharpener-teaching-section-notes-v2";
+const STORE="sections";
+const PREFIX="ironSharpenerUnified.sectionNotes.v182.";
+
+const button=document.getElementById("rdmDownloadSafetyV1");
+const status=document.getElementById("rdmSafetyStatusV1");
+
+function readTeachingDB(){
+ return new Promise((resolve,reject)=>{
+  let settled=false;
+  const req=indexedDB.open(DB,1);
+
+  req.onupgradeneeded=()=>{
+   try{req.transaction.abort()}catch(_){}
+  };
+
+  req.onblocked=()=>{
+   if(!settled){
+    settled=true;
+    reject(Error("Teaching database is blocked."));
+   }
+  };
+
+  req.onerror=()=>{
+   if(!settled){
+    settled=true;
+    reject(Error("Cannot open existing Teaching database."));
+   }
+  };
+
+  req.onsuccess=()=>{
+   const db=req.result;
+
+   if(!db.objectStoreNames.contains(STORE)){
+    db.close();
+    reject(Error("Teaching sections store missing."));
+    return;
+   }
+
+   let rows;
+   const tx=db.transaction(STORE,"readonly");
+   const request=tx.objectStore(STORE).getAll();
+
+   request.onsuccess=()=>{rows=request.result};
+
+   tx.oncomplete=()=>{
+    db.close();
+    resolve(rows||[]);
+   };
+
+   tx.onabort=()=>{
+    db.close();
+    reject(Error("Teaching snapshot transaction aborted."));
+   };
+
+   tx.onerror=()=>{
+    db.close();
+    reject(Error("Teaching snapshot transaction failed."));
+   };
+  };
+ });
+}
+
+function readTeachingLocalStorage(){
+ const values={};
+
+ for(let i=0;i<localStorage.length;i++){
+  const key=localStorage.key(i);
+
+  if(key && key.startsWith(PREFIX)){
+   values[key]=localStorage.getItem(key);
+  }
+ }
+
+ return values;
+}
+
+async function makeDigest(payload){
+ const bytes=new TextEncoder().encode(JSON.stringify(payload));
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+
+ return Array.from(new Uint8Array(digest))
+  .map(n=>n.toString(16).padStart(2,"0"))
+  .join("");
+}
+
+button.addEventListener("click",async()=>{
+ button.disabled=true;
+ status.textContent="Reading current Teaching records...";
+
+ try{
+  if(location.origin!==ORIGIN){
+   throw Error(
+    "Safety snapshots must be created on the HTTPS "+
+    "Iron Sharpener website, not from a local file."
+   );
+  }
+
+  const beforeLocal=readTeachingLocalStorage();
+  const records=await readTeachingDB();
+  const afterLocal=readTeachingLocalStorage();
+
+  // Do not claim a consistent snapshot if localStorage
+  // changed during the database read.
+  if(JSON.stringify(beforeLocal)!==JSON.stringify(afterLocal)){
+   throw Error(
+    "Teaching localStorage changed during the snapshot. "+
+    "Close other Teaching tabs and retry."
+   );
+  }
+
+  const keys=new Set();
+
+  for(const record of records){
+   if(!record || typeof record.key!=="string" ||
+      !record.key || keys.has(record.key)){
+    throw Error("Teaching database contains an invalid or duplicate key.");
+   }
+   keys.add(record.key);
+  }
+
+  const payload={
+   indexedDB:{
+    database:DB,
+    store:STORE,
+    records
+   },
+   localStorage:afterLocal
+  };
+
+  const digest=await makeDigest(payload);
+
+  const snapshot={
+   format:"iron-sharpener-teaching-safety-snapshot",
+   schemaVersion:1,
+   createdAt:new Date().toISOString(),
+   origin:location.origin,
+   counts:{
+    indexedDBRecords:records.length,
+    teachingLocalStorageKeys:Object.keys(afterLocal).length
+   },
+   payload,
+   integrity:{
+    algorithm:"SHA-256",
+    payloadDigest:digest
+   }
+  };
+
+  const blob=new Blob(
+   [JSON.stringify(snapshot,null,2)],
+   {type:"application/json"}
+  );
+
+  const date=new Date().toISOString()
+    .replace(/[:.]/g,"-");
+
+  const filename="iron-sharpener-teaching-safety-"+date+".json";
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+
+  link.href=url;
+  link.download=filename;
+  link.style.display="none";
+  document.body.appendChild(link);
+
+  try{
+   link.click();
+  }finally{
+   link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
+
+  status.textContent=
+   "SAFETY SNAPSHOT PREPARED\n\n"+
+   "IndexedDB Teaching records: "+records.length+"\n"+
+   "Teaching localStorage keys: "+
+       Object.keys(afterLocal).length+"\n"+
+   "SHA-256 digest: "+digest+"\n"+
+   "Filename: "+filename+"\n\n"+
+   "Confirm that the file appears in Downloads "+
+   "and keep it outside Chrome site storage.\n\n"+
+   "RESTORATION STILL DISABLED\n"+
+   "No Teaching records were written or deleted.";
+
+ }catch(error){
+  status.textContent=
+   "SAFETY SNAPSHOT FAILED\n"+
+   error.message+"\n\n"+
+   "No restoration was attempted.";
+ }finally{
+  button.disabled=false;
+ }
+});
+})();
+</script>
 </main>
 </body>
 </html>
