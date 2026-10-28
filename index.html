@@ -42217,6 +42217,208 @@ if(document.readyState==="loading")
 else install();
 })();
 </script>
+<!-- Iron Sharpener Field-Level Restore Analysis v3: READ ONLY -->
+<style id="rdm-field-analysis-v3-style">
+#rdmFieldAnalysisV3 {
+  margin-top:14px;
+  padding:14px;
+  border:1px solid #B88A35;
+  border-radius:10px;
+  font:13px/1.6 Arial,sans-serif;
+}
+#rdmFieldAnalysisV3 h3 {margin:0 0 8px;font-size:17px}
+#rdmFieldResultsV3 {white-space:pre-wrap;overflow-wrap:anywhere}
+</style>
+<script id="rdm-field-analysis-v3">
+(function(){
+"use strict";
+
+const DB="iron-sharpener-teaching-section-notes-v2";
+const PREFIX="ironSharpenerUnified.sectionNotes.v182.record.";
+const FIELDS=["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+
+async function verifiedBackup(file){
+ if(!file || !/\.isbackup$/i.test(file.name))
+   throw Error("Select a .isbackup file");
+ if(file.size>50*1024*1024)throw Error("File too large");
+ const data=JSON.parse(await file.text());
+ if(data.format!=="iron-sharpener-portable-backup" ||
+    data.schemaVersion!==1 ||
+    !Array.isArray(data.payload?.teaching?.sections) ||
+    !data.counts ||
+    data.counts.teachingSections!==data.payload.teaching.sections.length ||
+    data.integrity?.algorithm!=="SHA-256" ||
+    !/^[a-f0-9]{64}$/i.test(data.integrity.payloadDigest||""))
+   throw Error("Invalid backup structure");
+
+ const bytes=new TextEncoder().encode(JSON.stringify(data.payload));
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+ const hex=Array.from(new Uint8Array(digest))
+   .map(n=>n.toString(16).padStart(2,"0")).join("");
+ if(hex.toLowerCase()!==data.integrity.payloadDigest.toLowerCase())
+   throw Error("Backup integrity mismatch");
+ return data.payload.teaching.sections;
+}
+
+function readLocal(){
+ const map=new Map();
+ for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i);
+   if(!k?.startsWith(PREFIX))continue;
+   try{
+     const r=JSON.parse(localStorage.getItem(k));
+     if(r && typeof r.key==="string")map.set(r.key,r);
+   }catch(_){}
+ }
+ return map;
+}
+
+function readDB(){
+ return new Promise((resolve,reject)=>{
+   if(!indexedDB) return reject(Error("IndexedDB unavailable"));
+   const req=indexedDB.open(DB);
+   req.onupgradeneeded=()=>{
+     try{req.transaction.abort()}catch(_){}
+   };
+   req.onerror=()=>reject(Error("Cannot open Teaching database"));
+   req.onblocked=()=>reject(Error("Teaching database blocked"));
+   req.onsuccess=()=>{
+     const db=req.result;
+     if(!db.objectStoreNames.contains("sections")){
+       db.close();reject(Error("Sections store missing"));return;
+     }
+     const tx=db.transaction("sections","readonly");
+     const q=tx.objectStore("sections").getAll();
+     q.onsuccess=()=>{
+       const rows=q.result||[];
+       db.close();
+       resolve(new Map(rows.filter(r=>r&&typeof r.key==="string")
+         .map(r=>[r.key,r])));
+     };
+     q.onerror=()=>{db.close();reject(Error("Read failed"))};
+   };
+ });
+}
+
+function field(r,k){
+ const f=r?.fields?.[k]||{};
+ return {
+   value:String(f.value??""),
+   time:Number(f.updatedAt||0),
+   deleted:f.deleted===true
+ };
+}
+
+function compare(a,b){
+ let content=false,metadata=false,deletion=false;
+ for(const k of FIELDS){
+   const x=field(a,k),y=field(b,k);
+   if(x.value!==y.value)content=true;
+   if(x.time!==y.time)metadata=true;
+   if(x.deleted!==y.deleted)deletion=true;
+ }
+ if(a.archived!==b.archived ||
+    Number(a.archivedAt||0)!==Number(b.archivedAt||0))
+   metadata=true;
+ if(content || deletion)return "content";
+ if(metadata)return "metadata";
+ return "exact";
+}
+
+function install(){
+ const parent=document.getElementById("rdmRestorePreviewV2");
+ const input=document.getElementById("rdmRestoreFileV2");
+ if(!parent||!input||document.getElementById("rdmFieldAnalysisV3"))return;
+
+ const box=document.createElement("section");
+ box.id="rdmFieldAnalysisV3";
+ const heading=document.createElement("h3");
+ heading.textContent="Field-Level Restore Analysis";
+ const result=document.createElement("div");
+ result.id="rdmFieldResultsV3";
+ result.setAttribute("role","status");
+ result.textContent="Select a backup to analyze note fields.";
+ box.append(heading,result);
+ parent.appendChild(box);
+
+ let sequence=0;
+ input.addEventListener("change",async()=>{
+   const run=++sequence;
+   result.textContent="Analyzing Teaching fields...";
+   try{
+     const rows=await verifiedBackup(input.files?.[0]);
+     const local=readLocal();
+     const indexed=await readDB();
+     if(run!==sequence)return;
+
+     let exact=0,metadata=0,content=0,missing=0;
+     let deletion=0,disagreement=0,invalid=0,duplicates=0;
+     const seen=new Set();
+     const detail=[];
+
+     for(const r of rows){
+       if(!r||typeof r.key!=="string"||!r.key||
+          !r.fields||typeof r.fields!=="object"||
+          !FIELDS.every(k=>r.fields[k]&&
+            typeof r.fields[k]==="object")){
+         invalid++;continue;
+       }
+       if(seen.has(r.key)){duplicates++;continue}
+       seen.add(r.key);
+       const a=local.get(r.key),b=indexed.get(r.key);
+       if(!a&&!b){missing++;continue}
+
+       if(a&&b&&compare(a,b)!=="exact")disagreement++;
+
+       const results=[a,b].filter(Boolean).map(x=>compare(r,x));
+       if(results.every(x=>x==="exact"))exact++;
+       else if(results.every(x=>x!=="content"))metadata++;
+       else content++;
+
+       if([a,b].some(x=>x&&FIELDS.some(k=>
+          field(x,k).deleted!==field(r,k).deleted)))deletion++;
+
+       if(results.some(x=>x!=="exact")){
+         detail.push({
+           section:[r.book,r.chapter+":"+r.start+"-"+r.end].join(" "),
+           category:results.includes("content")?"Content/deletion":
+             "Metadata only"
+         });
+       }
+     }
+
+     const lines=[
+       "READ-ONLY FIELD ANALYSIS COMPLETE",
+       "Backup sections: "+rows.length,
+       "Exact matches: "+exact,
+       "Metadata-only differences: "+metadata,
+       "Content/deletion differences: "+content,
+       "Missing sections: "+missing,
+       "Deletion-marker differences: "+deletion,
+       "Current storage disagreements: "+disagreement,
+       "Invalid records: "+invalid,
+       "Duplicate keys: "+duplicates,
+       "",
+       "Differing sections:"
+     ];
+     detail.slice(0,20).forEach(d=>
+       lines.push(d.section+" - "+d.category));
+     if(detail.length>20)
+       lines.push("...and "+(detail.length-20)+" more");
+     lines.push("","No data changed. Restoration disabled.");
+     result.textContent=lines.join("\n");
+   }catch(e){
+     if(run!==sequence)return;
+     result.textContent="ANALYSIS STOPPED: "+e.message+
+       "\nNo data changed.";
+   }
+ });
+}
+if(document.readyState==="loading")
+ document.addEventListener("DOMContentLoaded",install,{once:true});
+else install();
+})();
+</script>
 </body>
 </html>
 <!-- v131 tablet launch prepaint: single-app no-black-screen first paint guard. -->
