@@ -749,6 +749,453 @@ button.addEventListener("click",async()=>{
 });
 })();
 </script>
+<section id="rdm-guarded-import-v1">
+<h2>Protected Teaching Import v1 — Test Profile Only</h2>
+<p>
+This tool adds missing Teaching records only. Existing records
+are preserved. Use only after verifying Chrome Profile 3.
+</p>
+<label for="rdmImportBackupV1">Original verified .isbackup file</label>
+<input id="rdmImportBackupV1" type="file" accept=".isbackup">
+<label for="rdmImportSafetyV1">Current Profile 3 safety snapshot .json</label>
+<input id="rdmImportSafetyV1" type="file" accept=".json">
+<label for="rdmImportPhraseV1">Type PROFILE 3 ONLY</label>
+<input id="rdmImportPhraseV1" type="text" autocomplete="off">
+<button id="rdmImportPlanV1" type="button">Verify Restore Plan</button>
+<button id="rdmImportExecuteV1" type="button" disabled>
+Restore Missing Teaching Records
+</button>
+<pre id="rdmImportStatusV1" role="status" aria-live="polite">
+No import plan verified. Restoration disabled.
+</pre>
+</section>
+<style id="rdm-guarded-import-v1-style">
+#rdm-guarded-import-v1{
+ margin-top:24px;padding:20px;
+ border:1px solid #d7a84f;border-radius:12px
+}
+#rdm-guarded-import-v1 label{display:block;margin:14px 0 6px}
+#rdm-guarded-import-v1 input{max-width:100%}
+#rdmImportPhraseV1{
+ box-sizing:border-box;width:100%;padding:10px;
+ background:#101b30;color:#fff6e6;
+ border:1px solid #d7a84f;border-radius:7px
+}
+#rdm-guarded-import-v1 button{
+ margin:12px 8px 0 0;padding:11px 15px;
+ background:#d7a84f;color:#101b30;
+ border:0;border-radius:8px;font-weight:700;cursor:pointer
+}
+#rdm-guarded-import-v1 button:disabled{opacity:.45;cursor:not-allowed}
+#rdmImportStatusV1{
+ padding:15px;background:#101b30;border-radius:8px;
+ white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65
+}
+</style>
+<script id="rdm-guarded-import-v1-script">
+(function(){
+"use strict";
+
+const ORIGIN="https://iron.restoreddailyministries.org";
+const DB="iron-sharpener-teaching-section-notes-v2";
+const STORE="sections";
+const PREFIX="ironSharpenerUnified.sectionNotes.v182.";
+const RECORD=PREFIX+"record.";
+const INDEX=PREFIX+"index";
+const NAMES=["teachingNotes","crossRefs","applicationNotes","clipNotes"];
+const $=id=>document.getElementById(id);
+const planButton=$("rdmImportPlanV1");
+const executeButton=$("rdmImportExecuteV1");
+const status=$("rdmImportStatusV1");
+let approved=null,busy=false;
+
+function reject(message){throw Error(message)}
+function sorted(value){
+ if(Array.isArray(value))return value.map(sorted);
+ if(value&&typeof value==="object"){
+  const obj={};
+  Object.keys(value).sort().forEach(k=>obj[k]=sorted(value[k]));
+  return obj;
+ }
+ return value;
+}
+function equal(a,b){
+ return JSON.stringify(sorted(a))===JSON.stringify(sorted(b));
+}
+function localKey(key){return RECORD+encodeURIComponent(key)}
+function invalidate(){
+ approved=null;
+ executeButton.disabled=true;
+}
+["rdmImportBackupV1","rdmImportSafetyV1","rdmImportPhraseV1"]
+.forEach(id=>$(id).addEventListener("change",invalidate));
+$("rdmImportPhraseV1").addEventListener("input",invalidate);
+
+async function readFile(file,format){
+ if(!file || file.size>50*1024*1024)
+  reject("Missing or oversized backup file.");
+ const data=JSON.parse(await file.text());
+ if(data.format!==format || data.schemaVersion!==1 ||
+    !data.payload ||
+    data.integrity?.algorithm!=="SHA-256" ||
+    !/^[0-9a-f]{64}$/i.test(data.integrity.payloadDigest||""))
+  reject("Backup format, schema, or integrity information invalid.");
+ const bytes=new TextEncoder().encode(JSON.stringify(data.payload));
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+ const hex=Array.from(new Uint8Array(digest))
+  .map(n=>n.toString(16).padStart(2,"0")).join("");
+ if(hex.toLowerCase()!==data.integrity.payloadDigest.toLowerCase())
+  reject("Backup SHA-256 does not match.");
+ return data;
+}
+function validateRecord(r){
+ if(!r || typeof r.key!=="string" || !r.key ||
+    typeof r.book!=="string" || !r.book ||
+    !Number.isInteger(Number(r.chapter)) ||
+    !Number.isInteger(Number(r.start)) ||
+    !Number.isInteger(Number(r.end)) ||
+    Number(r.chapter)<1 || Number(r.start)<1 ||
+    Number(r.end)<Number(r.start) ||
+    !["5","10","full"].includes(String(r.range)) ||
+    !r.fields || typeof r.fields!=="object")return false;
+ const normal=[r.book,r.chapter,r.start,r.end].join("|");
+ if(r.archived===true){
+  if(!r.key.startsWith("archive|"+normal+"|"))return false;
+ }else if(r.key!==normal)return false;
+ return NAMES.every(name=>{
+  const f=r.fields[name];
+  return f && typeof f.value==="string" &&
+   typeof f.deleted==="boolean" &&
+   typeof f.updatedAt==="number" && Number.isFinite(f.updatedAt);
+ });
+}
+function makeMap(records,label){
+ if(!Array.isArray(records))reject(label+" records missing.");
+ const map=new Map();
+ for(const record of records){
+  if(!validateRecord(record))reject(label+" invalid record: "+(record?.key||"?"));
+  if(map.has(record.key))reject(label+" duplicate key: "+record.key);
+  map.set(record.key,record);
+ }
+ return map;
+}
+function localSnapshot(){
+ const result={};
+ for(let i=0;i<localStorage.length;i++){
+  const key=localStorage.key(i);
+  if(key?.startsWith(PREFIX))result[key]=localStorage.getItem(key);
+ }
+ return result;
+}
+function openDB(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open(DB,1);
+  req.onupgradeneeded=()=>{try{req.transaction.abort()}catch(_){}};
+  req.onerror=()=>reject(Error("Existing Teaching database unavailable."));
+  req.onblocked=()=>reject(Error("Teaching database is blocked."));
+  req.onsuccess=()=>{
+   const db=req.result;
+   if(!db.objectStoreNames.contains(STORE)){
+    db.close();reject(Error("Teaching store missing."));return;
+   }
+   resolve(db);
+  };
+ });
+}
+function dbRows(db){
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction(STORE,"readonly");
+  const req=tx.objectStore(STORE).getAll();
+  let result;
+  req.onsuccess=()=>{result=req.result};
+  tx.oncomplete=()=>resolve(result||[]);
+  tx.onabort=()=>reject(Error("Database read aborted."));
+  tx.onerror=()=>reject(Error("Database read failed."));
+ });
+}
+function addBatch(db,records){
+ if(!records.length)return Promise.resolve();
+ return new Promise((resolve,reject)=>{
+  let tx;
+  try{
+   tx=db.transaction(STORE,"readwrite");
+   const store=tx.objectStore(STORE);
+   records.forEach(r=>store.add(r));
+   tx.oncomplete=resolve;
+   tx.onabort=()=>reject(Error("IndexedDB insertion aborted."));
+   tx.onerror=()=>{};
+  }catch(e){
+   try{tx?.abort()}catch(_){}
+   reject(e);
+  }
+ });
+}
+function parseIndex(raw){
+ if(raw===undefined || raw===null)return [];
+ let index;
+ try{index=JSON.parse(raw)}catch(_){reject("Teaching index JSON invalid.");}
+ if(!Array.isArray(index) || index.some(k=>typeof k!=="string"||!k))
+  reject("Teaching index structure invalid.");
+ if(new Set(index).size!==index.length)
+  reject("Teaching index has duplicates.");
+ return index;
+}
+function localRecord(raw,key){
+ try{
+  const r=JSON.parse(raw);
+  if(!validateRecord(r)||r.key!==key)reject("Invalid local Teaching record: "+key);
+  return r;
+ }catch(e){
+  reject("Unusable local Teaching record: "+key+" — "+e.message);
+ }
+}
+function verifyState(source,safety,dbRowsNow,localNow){
+ const current=makeMap(dbRowsNow,"Current IndexedDB");
+ const safeRecords=makeMap(safety.payload.indexedDB.records,"Safety snapshot");
+ const safeLocal=safety.payload.localStorage;
+ if(!safeLocal || typeof safeLocal!=="object" || Array.isArray(safeLocal))
+  reject("Safety snapshot localStorage invalid.");
+
+ const safeIndex=parseIndex(safeLocal[INDEX]);
+ const currentIndex=parseIndex(localNow[INDEX]);
+ const safeIndexSet=new Set(safeIndex);
+ const currentIndexSet=new Set(currentIndex);
+
+ for(const [key,r] of safeRecords){
+  if(!current.has(key)||!equal(current.get(key),r))
+   reject("Existing safety record changed: "+key);
+ }
+ for(const key of current){
+  if(!safeRecords.has(key[0])&&!source.has(key[0]))
+   reject("Unrecognized existing IndexedDB record: "+key[0]);
+ }
+ for(const [key,value] of Object.entries(safeLocal)){
+  if(key===INDEX)continue;
+  if(localNow[key]!==value)
+   reject("Existing safety localStorage changed: "+key);
+ }
+ for(const key of Object.keys(localNow)){
+  if(Object.prototype.hasOwnProperty.call(safeLocal,key))continue;
+  if(!key.startsWith(RECORD))
+   reject("Unexpected localStorage setting: "+key);
+  const id=decodeURIComponent(key.slice(RECORD.length));
+  if(!source.has(id)||safeRecords.has(id))
+   reject("Unexpected localStorage record: "+id);
+  if(!equal(localRecord(localNow[key],id),source.get(id)))
+   reject("Previously imported local record differs: "+id);
+ }
+ for(const key of safeIndexSet){
+  if(!currentIndexSet.has(key))reject("Safety index key disappeared: "+key);
+ }
+ for(const key of currentIndexSet){
+  if(!safeIndexSet.has(key)&&!source.has(key))
+   reject("Unrecognized Teaching index key: "+key);
+  if(!current.has(key)&&!Object.prototype.hasOwnProperty.call(localNow,localKey(key)))
+   reject("Orphaned Teaching index key: "+key);
+ }
+ // Verify every pre-existing protected record across both stores.
+ // A missing or changed safety record always blocks restoration.
+ if(safeIndexSet.size!==safeRecords.size)
+  reject("Safety index and database record counts differ.");
+
+ for(const [key,record] of safeRecords){
+  const storageKey=localKey(key);
+
+  if(!safeIndexSet.has(key))
+   reject("Protected record missing from safety index: "+key);
+
+  if(!Object.prototype.hasOwnProperty.call(safeLocal,storageKey))
+   reject("Protected record missing from safety localStorage: "+key);
+
+  if(!currentIndexSet.has(key))
+   reject("Protected record missing from current index: "+key);
+
+  if(!Object.prototype.hasOwnProperty.call(localNow,storageKey))
+   reject("Protected localStorage record disappeared: "+key);
+
+  const savedLocal=localRecord(safeLocal[storageKey],key);
+  const liveLocal=localRecord(localNow[storageKey],key);
+
+  if(!equal(savedLocal,record))
+   reject("Safety snapshot storage copies disagree: "+key);
+
+  if(!equal(liveLocal,savedLocal))
+   reject("Protected localStorage record changed: "+key);
+
+  if(!equal(current.get(key),record))
+   reject("Protected IndexedDB record changed: "+key);
+ }
+
+ // All previously imported database records must match the source.
+ for(const [key,record] of current){
+  if(safeRecords.has(key))continue;
+
+  if(!source.has(key) || !equal(record,source.get(key)))
+   reject("Unrecognized or changed IndexedDB record: "+key);
+ }
+
+ const addToDB=[],addToLocal=[];
+ let preserved=0,alreadyRecovered=0;
+ for(const [key,r] of source){
+  const inDB=current.has(key);
+  const inLocal=Object.prototype.hasOwnProperty.call(localNow,localKey(key));
+  const inIndex=currentIndexSet.has(key);
+  if(safeRecords.has(key)){
+   preserved++;
+   if(!inLocal && Object.prototype.hasOwnProperty.call(safeLocal,localKey(key)))
+    reject("Protected local record missing: "+key);
+   continue;
+  }
+  if(inDB && !equal(current.get(key),r))
+   reject("Unexpected IndexedDB conflict: "+key);
+  if(inLocal && !equal(localRecord(localNow[localKey(key)],key),r))
+   reject("Unexpected localStorage conflict: "+key);
+  if(!inDB)addToDB.push(r);
+  if(!inLocal)addToLocal.push(r);
+  if(inDB||inLocal||inIndex)alreadyRecovered++;
+ }
+ return {addToDB,addToLocal,preserved,alreadyRecovered,sourceCount:source.size};
+}
+async function verifiedInputs(){
+ if(location.origin!==ORIGIN)
+  reject("Use the HTTPS Iron Sharpener website.");
+ if($("rdmImportPhraseV1").value.trim()!=="PROFILE 3 ONLY")
+  reject("Profile confirmation phrase does not match.");
+ const backup=await readFile(
+  $("rdmImportBackupV1").files[0],"iron-sharpener-portable-backup");
+ const safety=await readFile(
+  $("rdmImportSafetyV1").files[0],"iron-sharpener-teaching-safety-snapshot");
+ if(safety.origin!==ORIGIN ||
+    safety.payload.indexedDB?.database!==DB ||
+    safety.payload.indexedDB?.store!==STORE)
+  reject("Safety snapshot origin or database differs.");
+ if(!Array.isArray(backup.payload.teaching?.sections))
+  reject("Original backup has no Teaching section array.");
+ if(backup.counts?.teachingSections!==backup.payload.teaching.sections.length)
+  reject("Original backup count mismatch.");
+ if(safety.counts?.indexedDBRecords!==safety.payload.indexedDB.records.length ||
+    safety.counts?.teachingLocalStorageKeys!==
+      Object.keys(safety.payload.localStorage||{}).length)
+  reject("Safety snapshot counts differ.");
+ const source=makeMap(backup.payload.teaching.sections,"Original backup");
+ makeMap(safety.payload.indexedDB.records,"Safety snapshot");
+ return {source,safety,
+  backupDigest:backup.integrity.payloadDigest,
+  safetyDigest:safety.integrity.payloadDigest};
+}
+async function inspect(inputs){
+ const db=await openDB();
+ try{
+  const before=localSnapshot();
+  const rows=await dbRows(db);
+  const after=localSnapshot();
+  if(!equal(before,after))reject("Teaching localStorage changed during analysis.");
+  return verifyState(inputs.source,inputs.safety,rows,after);
+ }finally{db.close()}
+}
+function report(plan){
+ return "Original backup records: "+plan.sourceCount+"\n"+
+ "Existing protected records: "+plan.preserved+"\n"+
+ "Already imported or partially imported: "+plan.alreadyRecovered+"\n"+
+ "IndexedDB inserts needed: "+plan.addToDB.length+"\n"+
+ "localStorage copies needed: "+plan.addToLocal.length;
+}
+async function guardedPlan(){
+ const inputs=await verifiedInputs();
+ const plan=await inspect(inputs);
+ return {inputs,plan};
+}
+planButton.addEventListener("click",async()=>{
+ if(busy)return;
+ busy=true;invalidate();planButton.disabled=true;
+ try{
+  status.textContent="Verifying both files and current browser storage...";
+  const check=await guardedPlan();
+  approved={backupDigest:check.inputs.backupDigest,
+            safetyDigest:check.inputs.safetyDigest};
+  status.textContent="RESTORE PLAN VERIFIED\n\n"+report(check.plan)+
+   "\n\nNo data changed. Review this plan before importing.";
+  executeButton.disabled=false;
+ }catch(e){
+  status.textContent="RESTORE PLAN REJECTED\n"+e.message+
+   "\n\nNo import attempted.";
+ }finally{
+  planButton.disabled=false;busy=false;
+ }
+});
+executeButton.addEventListener("click",async()=>{
+ if(busy||!approved)return;
+ busy=true;executeButton.disabled=true;planButton.disabled=true;
+ let db=null,dbDone=false,localDone=0;
+ try{
+  const inputs=await verifiedInputs();
+  if(inputs.backupDigest!==approved.backupDigest||
+     inputs.safetyDigest!==approved.safetyDigest)
+   reject("Selected files changed. Re-verify the restore plan.");
+  let plan=await inspect(inputs);
+  const yes=window.confirm(
+   "IRON SHARPENER — PROFILE 3 TEST ONLY\n\n"+
+   report(plan)+"\n\n"+
+   "Close every other Iron Sharpener tab in Profile 3.\n"+
+   "Confirm both backup files are safely saved outside Chrome.\n\n"+
+   "Proceed with missing-record-only import?"
+  );
+  if(!yes){status.textContent="Import cancelled.";return;}
+  // Recheck after user confirmation, before any writing.
+  plan=await inspect(inputs);
+  const indexBeforeWrites=localStorage.getItem(INDEX);
+  db=await openDB();
+  status.textContent="Adding missing IndexedDB records...";
+  await addBatch(db,plan.addToDB);
+  dbDone=true;
+  const afterDB=new Map((await dbRows(db)).map(r=>[r.key,r]));
+  for(const [key,r] of inputs.source){
+   if(!afterDB.has(key))reject("IndexedDB missing: "+key);
+   if(!equal(afterDB.get(key),r) &&
+      !new Set(inputs.safety.payload.indexedDB.records.map(x=>x.key)).has(key))
+    reject("Restored IndexedDB data differs: "+key);
+  }
+  status.textContent="Completing missing localStorage copies...";
+  for(const r of plan.addToLocal){
+   const k=localKey(r.key);
+   const old=localStorage.getItem(k);
+   if(old!==null){
+    if(!equal(localRecord(old,r.key),r))
+     reject("A local record changed during import: "+r.key);
+    continue;
+   }
+   localStorage.setItem(k,JSON.stringify(r));
+   localDone++;
+  }
+  const indexNow=localStorage.getItem(INDEX);
+   if(indexNow!==indexBeforeWrites)
+    reject("Teaching index changed during import. Stop and re-verify.");
+   const index=parseIndex(indexNow);
+   const merged=[...new Set([...index,...inputs.source.keys()])];
+  localStorage.setItem(INDEX,JSON.stringify(merged));
+  const finalPlan=await inspect(inputs);
+  if(finalPlan.addToDB.length||finalPlan.addToLocal.length)
+   reject("Import incomplete after verification.");
+  status.textContent="IMPORT VERIFIED\n\n"+report(finalPlan)+
+   "\n\nIndexedDB and localStorage copies present."+
+   "\nExisting safety records preserved."+
+   "\nReload the page and run Storage Analysis again.";
+  invalidate();
+ }catch(e){
+  status.textContent="IMPORT STOPPED\n"+e.message+
+   "\n\nIndexedDB insertion completed: "+dbDone+
+   "\nNew localStorage copies written: "+localDone+
+   "\n\nPARTIAL IMPORT MAY EXIST."+
+   "\nDo NOT clear site data. Preserve both files and this report."+
+   "\nA verified retry may be possible after inspection.";
+  invalidate();
+ }finally{
+  try{db?.close()}catch(_){}
+  planButton.disabled=false;busy=false;
+ }
+});
+})();
+</script>
 </main>
 </body>
 </html>
